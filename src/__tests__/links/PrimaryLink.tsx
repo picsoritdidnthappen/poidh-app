@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 import UnstyledLink, {
   UnstyledLinkProps,
-} from '@/components/links/UnstyledLink';
+} from '@/__tests__/links/UnstyledLink';
 
 const PrimaryLinkVariant = ['primary', 'basic'] as const;
 type PrimaryLinkProps = {
