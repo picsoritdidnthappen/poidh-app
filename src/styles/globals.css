@@ -130,5 +130,6 @@ body{
   font-family: 'GeistMono-Regular';
   min-height: 100vh;
   background-size: cover;
+  text-transform: lowercase;
   background: linear-gradient(to bottom, #2A81D5, #70AAE2, #6FA9E1, #2A81D5);
 }

@@ -2,19 +2,19 @@
 
 import React, {useState} from 'react';
 import ButtonCTA from '@/components/ui/ButtonCTA';
-import Form from '@/components/global/Form';
+import FormProof from '@/components/global/FormProof';
 
-const CreateBounty = () => {
+const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [showForm, setShowForm] = useState(false);
-  
+
 
 
 
   // bg-[#D8393A]
   return (
-  <div className='w-full py-12 flex justify-center items-center lg:flex-col'>
-{ !showForm ?
-<div className='flex cursor-pointer flex-col items-center justify-center ' onClick={() => setShowForm(!showForm)} >
+    <div className='w-full py-12 flex justify-center items-center lg:flex-col'>
+
+<div className='flex flex-col items-center justify-center ' onClick={() => setShowForm(!showForm)} >
 <svg width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_dd_615_3757)">
 <rect x="16.5" y="17" width="125" height="125" rx="62.5" fill="#E2EFFB" fillOpacity="0.5"/>
@@ -126,24 +126,20 @@ const CreateBounty = () => {
 </linearGradient>
 </defs>
 </svg>
- <ButtonCTA > create bounty </ButtonCTA>
+<ButtonCTA > create proof  </ButtonCTA>
 </div>
-:
-null }
-
       {showForm && (
-        <div className='fixed w-[92%] md:w-auto top-16 left-1/2 -translate-x-1/2 '>
+        <div className='fixed z-40 w-[92%] md:w-auto top-16 left-1/2 -translate-x-1/2 '>
         <button onClick={() => setShowForm(!showForm)} className='right-0 absolute border border-[#D1ECFF] backdrop-blur-sm bg-white/30 rounded-full p-2'>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M13 1L1 13M1 1L13 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <Form   showForm={showForm} /> 
+        <FormProof bountyId={bountyId} showForm={showForm} /> 
         </div>
       )}
-
     </div>
   );
 };
 
-export default CreateBounty;
+export default CreateProof;

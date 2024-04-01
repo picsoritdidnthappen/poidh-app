@@ -15,8 +15,8 @@ const Menu: React.FC<MenuProps> = ({ menuPoints }) => {
   return (
     <div className='flex items-center gap-x-5 lg:absolute lg:left-1/2 -translate-x-1/2'>
       {menuPoints.map((point, index) => (
-        <div>
-          <Link key={index} href={createSlug(point)}>
+        <div key={index}>
+          <Link  href={createSlug(point)}>
            {point}
           </Link>
         </div>

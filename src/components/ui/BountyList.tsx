@@ -4,16 +4,11 @@ import { motion } from 'framer-motion';
 import BountyItem from '@/components/ui/BountyItem'; 
 import FilterButton from '@/components/ui/FilterButton';
 
-const bounties = [
-  { id: '1', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...' },
-  { id: '2', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...'  },
-  { id: '3', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...'  },
-  { id: '4', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...'  },
-  { id: '5', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...'  },
-  { id: '6', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...'  },
-  { id: '7', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...'  },
-  { id: '8', title: 'eat a 🥝 with the skin on', description: 'upload a video to Warpcast of you eating a kiwi with the skin on...'  },
-];
+import { WalletContext } from '@/app/context/WalletProvider';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { fetchBounties, getBountiesByUser } from '@/app/context/web3';
+
+
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -35,8 +30,25 @@ const item = {
   }
 };
 
-const BountyList = () => {
-  const [showFilters, setShowFilters] = useState(false);
+interface BountiesData {
+  id: string;
+  issuer: string;
+  name: string;
+  description: string;
+  value: string;
+  claimer: string;
+  createdAt: string;
+  claimId: string;
+}
+
+interface BountyListProps {
+  bountiesData: BountiesData[];
+}
+
+const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
+const [showFilters, setShowFilters] = useState(false);
+
+
 
   useEffect(() => {
     if (window.location.pathname === '/account') {
@@ -56,13 +68,15 @@ const BountyList = () => {
           <FilterButton>collab bounties (0) </FilterButton>
         </div>
       )}
+
       <motion.div className='container mx-auto px-5 py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '
        variants={container}
        initial="hidden" 
        animate="visible">
-        {bounties.map((bounty) => (
+
+        {bountiesData.map((bounty) => (
           <motion.div className='lg:col-span-4' key={bounty.id} variants={item}>
-            <BountyItem id={bounty.id} title={bounty.title} description={bounty.description} />
+            <BountyItem id={bounty.id} title={bounty.name} description={bounty.description} />
           </motion.div>
         ))}
       </motion.div>

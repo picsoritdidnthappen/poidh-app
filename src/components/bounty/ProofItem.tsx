@@ -1,18 +1,80 @@
 // ProofItem.tsx
-import Button from "@/components/ui/Button"
-import Link from "next/link";
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
+import { getURI, acceptClaimSolo} from '@/app/context/web3';
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+
 
 interface ProofItemProps {
   id: string;
   title: string;
   description: string;
+  issuer: string;
+  bountyId:string;
+  youOwner:boolean;
+  accepted:boolean;
+  isAccepted:boolean
+
 }
 
-const ProofItem: React.FC<ProofItemProps> = ({ id, title, description }) => {
+const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer , bountyId, accepted, isAccepted}) => {
+
+  const { user, primaryWallet } = useDynamicContext(); 
+  const [claimsURI, setClaimsURI] = useState("")
+  const currentUser = user?.verifiedCredentials[0].address;
+
+  const notOwner = currentUser === issuer ;
+
+
+  useEffect(() => {
+    if (id) {
+      getURI(id)
+      .then(data => setClaimsURI(data))
+      .catch(console.error);
+    }
+   
+  }, [id]);
+
+  const handleAcceptClaim = async () => {
+    if (!id || !bountyId || !primaryWallet ) {
+      alert("Please check connection");
+      return;
+    }
+
+    try {
+     await acceptClaimSolo(primaryWallet,  bountyId, id)
+
+    } catch (error) {
+      console.error('Error accepting claim:', error);
+      alert("Failed to accept claim.");
+    }
+  };
+
   return (
-    <div className='p-[2px] border text-white bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl lg:col-span-4' >
+    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl lg:col-span-4' >
+       
+        { accepted  ?
+        <div className="right-5 top-5  text-white bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
+        accepted
+        </div> 
+         :
+        null 
+        } 
+
+        { !accepted && !notOwner && !isAccepted && primaryWallet ? 
+        <div onClick={handleAcceptClaim} className="right-5 top-5 cursor-pointer text-[#F15E5F] hover:text-white hover:bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
+        accept
+        </div> :
+        null
+        }
+
       <div className="bg-[#12AAFF] w-full h-[40vh] rounded-[8px]">
+
+        { claimsURI ? 
+        <img className="w-full h-full rounded-[8px] object-cover" src={claimsURI} alt="claim image" />
+         : null
+        }
+
       </div>
       <div className="p-3">
       <div className="flex flex-col">
@@ -24,7 +86,7 @@ const ProofItem: React.FC<ProofItemProps> = ({ id, title, description }) => {
           issuer
         </span>
         <span>
-          0x0000000000000000000000000
+        ${issuer.slice(0, 5)}...{issuer.slice(-6)}
         </span>
       </div>
       </div>

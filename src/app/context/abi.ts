@@ -358,7 +358,7 @@ export const abi = [
         "type": "uint256"
       }
     ],
-    "name": "acceptClaim",
+    "name": "acceptClaimSolo",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -710,34 +710,9 @@ export const abi = [
             "internalType": "uint256",
             "name": "claimId",
             "type": "uint256"
-          },
-          {
-            "internalType": "address[]",
-            "name": "participants",
-            "type": "address[]"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "participantAmounts",
-            "type": "uint256[]"
-          },
-          {
-            "internalType": "uint256",
-            "name": "yesVotes",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "noVotes",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
           }
         ],
-        "internalType": "struct PoidhV2.ViewBounty[10]",
+        "internalType": "struct PoidhV2.Bounty[10]",
         "name": "result",
         "type": "tuple[10]"
       }
@@ -801,34 +776,9 @@ export const abi = [
             "internalType": "uint256",
             "name": "claimId",
             "type": "uint256"
-          },
-          {
-            "internalType": "address[]",
-            "name": "participants",
-            "type": "address[]"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "participantAmounts",
-            "type": "uint256[]"
-          },
-          {
-            "internalType": "uint256",
-            "name": "yesVotes",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "noVotes",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
           }
         ],
-        "internalType": "struct PoidhV2.ViewBounty[10]",
+        "internalType": "struct PoidhV2.Bounty[10]",
         "name": "result",
         "type": "tuple[10]"
       }
@@ -844,67 +794,6 @@ export const abi = [
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "bountyId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getBounty",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "issuer",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "claimer",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "createdAt",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "claimId",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct PoidhV2.Bounty",
-        "name": "",
-        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -1040,6 +929,30 @@ export const abi = [
         "type": "uint256"
       }
     ],
+    "name": "getParticipants",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "bountyId",
+        "type": "uint256"
+      }
+    ],
     "name": "joinOpenBounty",
     "outputs": [],
     "stateMutability": "payable",
@@ -1117,19 +1030,6 @@ export const abi = [
       }
     ],
     "name": "participants",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "poidhAuthority",
     "outputs": [
       {
         "internalType": "address",
@@ -1303,7 +1203,6 @@ export const abi = [
     "type": "function"
   }
 ]
-
 export default abi;
 
 
