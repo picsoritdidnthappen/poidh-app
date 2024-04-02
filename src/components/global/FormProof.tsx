@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { useState, useRef, useCallback } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import {  createClaim } from '@/app/context/web3';
@@ -6,47 +5,44 @@ import { useDropzone } from 'react-dropzone';
 
 
 
-
-
-
-
-
 interface FormProofProps {
   bountyId: string;
+  showForm?: boolean;
 }
 
 
 const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
 
 
-  const onDrop = useCallback(acceptedFiles => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setFile(file);
     uploadFile(file);
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreview(e.target.result);
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        setPreview(e.target.result.toString());
+      }
     };
     reader.readAsDataURL(file);
   }, []);
+
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
   const [preview, setPreview] = useState('');
-
-
   const { primaryWallet } = useDynamicContext();
   const [name, setName] = useState('');
   const [uri, setUri] = useState('');
   const [description, setDescription] = useState('');
 
-  const [file, setFile] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [cid, setCid] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  const inputFile = useRef(null);
+  const inputFile = useRef<HTMLInputElement>(null);
 
 
 
-  const uploadFile = async (fileToUpload) => {
+  const uploadFile = async (fileToUpload: any) => {
     try {
       setUploading(true);
       const data = new FormData();
@@ -68,11 +64,6 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
     }
   };
 
-  const handleChange = (e) => {
-    setFile(e.target.files[0]);
-    uploadFile(e.target.files[0]);
-  };
-  
 
 
 
@@ -160,7 +151,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
 
       
 
-  <button disabled={uploading} onClick={() => inputFile.current.click()}>
+  <button disabled={uploading} onClick={() => inputFile.current?.click()}>
       {uploading ? "uploading..." : "upload"}
     </button>
     <div className='hidden'>{process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/{cid}</div>

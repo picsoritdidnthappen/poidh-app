@@ -1,4 +1,3 @@
-// ProofList.tsx
 import ProofItem from '@/components/bounty/ProofItem';
 import React, { useEffect, useState } from 'react';
 
@@ -6,15 +5,15 @@ import React, { useEffect, useState } from 'react';
 interface Claim {
   id: string;
   issuer: string;
+  bountyId: string;
+  bountyIssuer: string;
   name: string;
   description: string;
-  value: string;
-  claimer: string;
   createdAt: string;
-  claimId: string;
-  bountyId: string
-  accepted: boolean
+  accepted: boolean;
 }
+
+
 
 interface ProofListProps {
   data: Claim[]; 

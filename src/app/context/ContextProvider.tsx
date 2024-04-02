@@ -8,24 +8,12 @@ import { EthersExtension } from "@dynamic-labs/ethers-v6";
 
 
 
-
-
-
-
-
-
-
-
 interface ContextProviderProps {
   children: ReactNode;
 }
 
 
-
- 
-
 const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
-
 
 
   return (

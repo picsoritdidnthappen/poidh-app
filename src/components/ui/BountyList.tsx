@@ -4,12 +4,6 @@ import { motion } from 'framer-motion';
 import BountyItem from '@/components/ui/BountyItem'; 
 import FilterButton from '@/components/ui/FilterButton';
 
-import { WalletContext } from '@/app/context/WalletProvider';
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { fetchBounties, getBountiesByUser } from '@/app/context/web3';
-
-
-
 const container = {
   hidden: { opacity: 1, scale: 0 },
   visible: {
@@ -35,7 +29,6 @@ interface BountiesData {
   issuer: string;
   name: string;
   description: string;
-  value: string;
   claimer: string;
   createdAt: string;
   claimId: string;
@@ -79,6 +72,8 @@ const [showFilters, setShowFilters] = useState(false);
             <BountyItem id={bounty.id} title={bounty.name} description={bounty.description} />
           </motion.div>
         ))}
+
+        
       </motion.div>
     </>
   );

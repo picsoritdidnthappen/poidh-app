@@ -1,16 +1,16 @@
-//@ts-nocheck
-
 import React, {useState} from 'react';
 import ButtonCTA from '@/components/ui/ButtonCTA';
 import FormProof from '@/components/global/FormProof';
+
+interface FormProofProps {
+  bountyId: string;
+}
 
 const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [showForm, setShowForm] = useState(false);
 
 
 
-
-  // bg-[#D8393A]
   return (
     <div className='w-full py-12 flex justify-center items-center lg:flex-col'>
 

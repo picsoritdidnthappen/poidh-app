@@ -1,4 +1,3 @@
-// ProofItem.tsx
 
 import React, { useEffect, useState } from 'react';
 import { getURI, acceptClaimSolo} from '@/app/context/web3';

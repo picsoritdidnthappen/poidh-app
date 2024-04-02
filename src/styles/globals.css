@@ -125,11 +125,24 @@
   }
 }
 
-
-body{
+body {
   font-family: 'GeistMono-Regular';
   min-height: 100vh;
   background-size: cover;
   text-transform: lowercase;
-  background: linear-gradient(to bottom, #2A81D5, #70AAE2, #6FA9E1, #2A81D5);
+  background: linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5);
+}
+
+.wallet:hover + .wallet-address {
+  opacity: 1;
+}
+
+.wallet-address {
+  opacity: 0;
+  transition: opacity 300ms ease-in-out;
+}
+
+.wallet-address:hover {
+  opacity: 1;
+  transition: opacity 300ms ease-in-out;
 }

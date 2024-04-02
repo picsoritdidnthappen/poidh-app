@@ -1,10 +1,8 @@
 "use client"
 import { useEffect, useState } from 'react';
 import {  ethers } from "ethers";
-
 import {
   useDynamicContext,
-  useUserWallets,
 } from '@dynamic-labs/sdk-react-core'
 import { getSigner, getContract, getBountiesByUser, getProvider, getClaimsByUser } from '@/app/context/web3';
 import Button from '@/components/ui/Button';
@@ -22,6 +20,8 @@ interface BountiesData {
   claimId: string;
 }
 
+
+
 interface ClaimsData {
   accepted: boolean;
   bountyId: string;
@@ -37,7 +37,6 @@ interface ClaimsData {
 
 const AccountInfo = () => {
   const {isAuthenticated, primaryWallet } = useDynamicContext();
-  const userWallets = useUserWallets()
   const [userAddress, setUserAddress] = useState("0x...111")
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
   const [claimsData, setClaimsData] = useState<ClaimsData[]>([]);
@@ -54,7 +53,7 @@ const AccountInfo = () => {
   useEffect(() => {
     const userInformation = async () => {
       const signer = await getSigner(primaryWallet);
-      const provider = await getProvider(primaryWallet)
+      const provider = await getProvider()
       const contract = await getContract(signer)
       
       const address = signer.address;
@@ -66,7 +65,7 @@ const AccountInfo = () => {
       setETHinContract(balanceETH)
 
 
-      getBountiesByUser(address, 0)
+      getBountiesByUser(address, 0, [])
      .then((data: any) => {
       setBountiesData(data)
       const completedBounties = data.filter((bounty:any) => bounty.claimer !== '0x0000000000000000000000000000000000000000' && bounty.claimer.toLowerCase() !== address.toLowerCase()).length;
@@ -82,9 +81,6 @@ const AccountInfo = () => {
       setCompletedClaims(completedClaims);
       console.log(claimsData); 
     });
-
-
-
 
 
     return formattedAddress;
@@ -124,15 +120,7 @@ const AccountInfo = () => {
     <span>poidh score:</span>
     <span className='text-4xl text-[#F15E5F] border-y border-dashed'>123456</span>
    </div>
-
-    
-
-      </div>
-    {/* {userWallets.map((wallet) => (
-          <p key={wallet.id}>
-            {wallet.address}: {wallet.connected ? 'Connected' : 'Not connected'}
-          </p>
-        ))} */}
+  </div>
 
     <div>
       <BountyList  bountiesData={bountiesData} />

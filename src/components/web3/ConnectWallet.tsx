@@ -5,10 +5,6 @@ import {
 
 
 
-const walletConnection =async () => {
-  console.log("wallet connection")
-}
-
 
 
 
@@ -18,9 +14,7 @@ const ConnectWallet = () => {
   
   const {
      isAuthenticated ,
-     walletConnector,
      handleLogOut,
-
     } 
   = useDynamicContext();
 

@@ -1,30 +1,25 @@
 import ProofList from '@/components/bounty/ProofList';
 import React, { useEffect, useState } from 'react';
-
-import {  getClaimsByBountyId, getNFTContractRead, getURI} from '@/app/context/web3';
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import {  getClaimsByBountyId} from '@/app/context/web3';
 import NoProof from '@/components/bounty/NoProof';
 
 
 
 interface Claim {
-  id: any;
-  issuer: any;
-  name: any;
-  description: any;
-  value: any;
-  claimer: any;
-  createdAt: any;
-  claimId: any;
-  bountyId: any;
-  accepted: boolean
-
+  id: string;
+  issuer: string;
+  bountyId: string;
+  bountyIssuer: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  accepted: boolean;
 }
+
 
 const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   const [claimsData, setClaimsData] = useState<Claim[] | null>(null);
   const [youOwner, setYouOwner] = useState<boolean | null>(null); 
-  const { primaryWallet } = useDynamicContext(); 
 
   useEffect(() => {
     setYouOwner(null); 

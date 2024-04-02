@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-
 import { cancelSoloBounty, fetchBountyById,  } from '@/app/context/web3';
 
 interface BountyData {
-  id: number;
+  id: string;
   issuer: string;
   name: string;
   description: string;
-  value: string;
+  amount: string;
   claimer: string;
   createdAt: string;
   claimId: string;
@@ -23,17 +22,20 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
 
   const walletConnected = primaryWallet?.connected;
 
-
   const handleCancelBounty = async () => {
-    try {
-      await cancelSoloBounty(primaryWallet, bountyId);
-      alert('Bounty canceled successfully!');
-    } catch (error) {
-      console.error('Error canceling bounty:', error);
-      alert('Failed to cancel bounty.');
+    if (primaryWallet) {
+      try {
+        await cancelSoloBounty(primaryWallet, bountyId);
+        alert('Bounty canceled successfully!');
+      } catch (error) {
+        console.error('Error canceling bounty:', error);
+        alert('Failed to cancel bounty.');
+      }
+    } else {
+      alert('Please connect your wallet first.');
     }
   };
-
+  
   const handleAddProof = async () => {
     try {
       alert('Proof added successfully!');

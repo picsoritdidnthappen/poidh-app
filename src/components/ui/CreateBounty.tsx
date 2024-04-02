@@ -1,4 +1,3 @@
-//@ts-nocheck
 
 import React, {useState} from 'react';
 import ButtonCTA from '@/components/ui/ButtonCTA';
@@ -6,11 +5,7 @@ import Form from '@/components/global/Form';
 
 const CreateBounty = () => {
   const [showForm, setShowForm] = useState(false);
-  
 
-
-
-  // bg-[#D8393A]
   return (
   <div className='w-full py-12 flex justify-center items-center lg:flex-col'>
 { !showForm ?
@@ -138,7 +133,7 @@ null }
              <path d="M13 1L1 13M1 1L13 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <Form   showForm={showForm} /> 
+        <Form   /> 
         </div>
       )}
 
