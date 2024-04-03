@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import BountyItem from '@/components/ui/BountyItem'; 
 import FilterButton from '@/components/ui/FilterButton';
+import {  BountyListProps } from '../../types/web3';
+
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -24,19 +26,6 @@ const item = {
   }
 };
 
-interface BountiesData {
-  id: string;
-  issuer: string;
-  name: string;
-  description: string;
-  claimer: string;
-  createdAt: string;
-  claimId: string;
-}
-
-interface BountyListProps {
-  bountiesData: BountiesData[];
-}
 
 const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
 const [showFilters, setShowFilters] = useState(false);

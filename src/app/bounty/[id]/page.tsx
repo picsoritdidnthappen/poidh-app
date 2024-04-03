@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import ContextProvider from '@/app/context/ContextProvider';
 import * as React from 'react';

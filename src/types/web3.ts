@@ -22,9 +22,26 @@ export interface Bounty {
   description: string;
   amount: string;
   claimer: string;
-  createdAt: string;
+  createdAt: bigint; 
   claimId: string;
 }
+
+export interface BountiesData {
+  id: string;
+  issuer: string;
+  name: string;
+  description: string;
+  claimer: string;
+  createdAt: bigint; 
+  claimId: string;
+}
+
+
+export interface BountyListProps {
+  bountiesData: BountiesData[];
+}
+
+
 
 export interface Claim {
   id: string;
@@ -33,7 +50,7 @@ export interface Claim {
   bountyIssuer: string;
   name: string;
   description: string;
-  createdAt: string;
+  createdAt: bigint; 
   accepted: boolean;
 }
 
@@ -48,6 +65,8 @@ export type CancelBountyFunction = (primaryWallet: Wallet, id: string) => Promis
 export type FetchBountiesFunction = (offset: number) => Promise<Bounty[]>;
 export type FetchBountyByIdFunction = (id: string) => Promise<Bounty>;
 export type GetBountiesByUserFunction = (user: string, offset: number, allBounties: Bounty[]) => Promise<Bounty[]>;
+export type GetAllBountiesFunction = () => Promise<Bounty[]>;
+
 export type GetClaimsByUserFunction = (user: string) => Promise<Claim[]>;
 export type GetClaimsByBountyIdFunction = (id: string) => Promise<Claim[]>;
 export type GetURIFunction = (claimId: string) => Promise<string>;

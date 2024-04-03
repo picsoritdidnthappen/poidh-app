@@ -1,5 +1,5 @@
 'use client'
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 import {
   DynamicContextProvider,
 } from "@dynamic-labs/sdk-react-core";

@@ -3,7 +3,7 @@ import { Contract, ethers } from "ethers";
 import abi from './abi';
 import abiNFT from './abiNFT'
 import chains from './config'; 
-import {  CreateBountyFunction, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim  } from '../../types/web3';
+import {  CreateBountyFunction, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction  } from '../../types/web3';
 
 
 const currentChain = chains.sepolia;
@@ -138,7 +138,6 @@ export const cancelSoloBounty: CancelBountyFunction = async (
 
 export const fetchBounties: FetchBountiesFunction = async (offset) => {
   const contractRead = await getContractRead();
-  console.log("Proxy(Contract):", contractRead);
 
   const rawBounties = await contractRead.getBounties(offset);
   const bounties: Bounty[] = rawBounties
@@ -154,7 +153,6 @@ export const fetchBounties: FetchBountiesFunction = async (offset) => {
     }))
     .filter((bounty:any) => bounty.issuer !== "0x0000000000000000000000000000000000000000");
 
-  console.log("Formatted and Filtered Bounties:", bounties);
   return bounties;
 };
 
@@ -203,8 +201,71 @@ export const getBountiesByUser: GetBountiesByUserFunction = async (
     return getBountiesByUser(user, offset + 10, allBounties);
   }
 
+  allBounties.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
+
+
   return allBounties;
 };
+
+
+export const fetchAllBounties: GetAllBountiesFunction = async () => {
+  const contractRead = await getContractRead();
+  const bountyCounter = await contractRead.bountyCounter();
+
+  let allBounties: Bounty[] = [];
+  const totalBounties = Number(bountyCounter.toString());
+
+  for (let offset = Math.floor(totalBounties / 10) * 10; offset >= 0; offset -= 10) {
+    const rawBounties = await contractRead.getBounties(offset) as Bounty[];
+    const bounties = rawBounties
+      .map(bounty => ({
+        id: bounty.id,
+        issuer: bounty.issuer,
+        name: bounty.name,
+        description: bounty.description,
+        amount: bounty.amount,
+        claimer: bounty.claimer,
+        createdAt: bounty.createdAt,
+        claimId: bounty.claimId,
+      }))
+      .filter(bounty => bounty.issuer !== "0x0000000000000000000000000000000000000000");
+    allBounties = [...allBounties, ...bounties];
+  }
+
+  allBounties.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
+
+  console.log(allBounties)
+  return allBounties;
+};
+
+
+// export const fetchAllBounties: GetAllBountiesFunction = async (offset: number = 0) => {
+//   const contractRead = await getContractRead();
+//   // Assuming getBounties function can accept offset and returns a fixed number of bounties per call (e.g., 10)
+//   const rawBounties = await contractRead.getBounties(offset) as Bounty[];
+
+//   // Map and filter the raw bounties as before
+//   const bounties = rawBounties
+//     .map(bounty => ({
+//       id: bounty.id,
+//       issuer: bounty.issuer,
+//       name: bounty.name,
+//       description: bounty.description,
+//       amount: bounty.amount,
+//       claimer: bounty.claimer,
+//       createdAt: bounty.createdAt,
+//       claimId: bounty.claimId,
+//     }))
+//     .filter(bounty => bounty.issuer !== "0x0000000000000000000000000000000000000000");
+
+//   // No need to sort here since we're fetching in batches
+//   return bounties;
+// };
+
+
+
+
+
 
 
 
@@ -218,9 +279,13 @@ export const getClaimsByUser: GetClaimsByUserFunction = async (user) => {
     bountyIssuer: claim[3],
     name: claim[4],
     description: claim[5],
-    createdAt: claim[6].toString(),
+    createdAt: claim[6],
     accepted: claim[7]
   }));
+
+  formattedClaims.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
+
+
   return formattedClaims;
 };
 

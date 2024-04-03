@@ -19,13 +19,9 @@ const Home = () => {
       <ContextProvider>
         <WalletProvider>
         <Header />
-        <div className="pb-44">
-
-          <ContentHome/>
-         
-        </div>
+        <ContentHome/>
         <div className='fixed bottom-0 w-full'>
-          <CreateBounty />
+        <CreateBounty />
         </div>
          <Footer />
          </WalletProvider>
