@@ -3,7 +3,8 @@ import { Contract, ethers } from "ethers";
 import abi from './abi';
 import abiNFT from './abiNFT'
 import chains from './config'; 
-import {  CreateBountyFunction, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction  } from '../../types/web3';
+import {  CreateBountyFunction,withdrawFromOpenBountyFunction ,SubmitClaimForVoteFunction, GetParticipants, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction, JoinOpenBountyFunction, BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, VoteClaimFunction  } from '../../types/web3';
+import { MotionValue } from "framer-motion";
 
 
 const currentChain = chains.sepolia;
@@ -93,18 +94,33 @@ export const createClaim: CreateClaimFunction = async (
   }
 };
 
-export const acceptClaimSolo: AcceptClaimFunction = async (
+export const acceptClaim: AcceptClaimFunction = async (
   primaryWallet, bountyId, claimId
 ) => {
   try {
     const signer = await getSigner(primaryWallet);
     const contract = await getContract(signer);
-    const transaction = await contract.acceptClaimSolo(bountyId, claimId);
+    const transaction = await contract.acceptClaim(bountyId, claimId);
     await transaction.wait();
   } catch (error) {
     console.error('Error accepting claim:', error);
   }
 };
+
+export const submitClaimForVote: SubmitClaimForVoteFunction = async (
+  primaryWallet, bountyId, claimId
+) => {
+  try {
+    const signer = await getSigner(primaryWallet);
+    const contract = await getContract(signer);
+    const transaction = await contract.submitClaimForVote(bountyId, claimId);
+    await transaction.wait();
+  } catch (error) {
+    console.error('Error accepting claim:', error);
+  }
+};
+
+
 
 export const cancelOpenBounty: CancelBountyFunction = async (
   primaryWallet, id
@@ -131,6 +147,61 @@ export const cancelSoloBounty: CancelBountyFunction = async (
     console.error('Error canceling solo bounty:', error);
   }
 };
+
+
+export const withdrawFromOpenBounty: withdrawFromOpenBountyFunction = async (
+  primaryWallet, id
+) => {
+  try {
+    const signer = await getSigner(primaryWallet);
+    const contract = await getContract(signer);
+    const transaction = await contract.withdrawFromOpenBounty(id);
+    await transaction.wait();
+  } catch (error) {
+    console.error('Error widthdraw:', error);
+  }
+};
+
+export const voteClaim: VoteClaimFunction = async (
+  primaryWallet, bountyId, vote
+) => {
+  try {
+    const signer = await getSigner(primaryWallet);
+    const contract = await getContract(signer);
+    const transaction = await contract.voteClaim(bountyId, vote);
+    await transaction.wait();
+  } catch (error) {
+    console.error('Error voting:', error);
+  }
+};
+
+
+
+
+
+
+
+
+export const joinOpenBounty: JoinOpenBountyFunction = async (
+  primaryWallet,
+  id,
+  value,
+) => {
+  try {
+    const signer = await getSigner(primaryWallet);
+    const contract = await getContract(signer);
+    const options = {
+      value: ethers.parseEther(value.toString()),
+    };
+    const transaction = await contract.joinOpenBounty(id,  options  );
+    await transaction.wait();
+  } catch (error) {
+    console.error('Error joining open bounty:', error);
+  }
+};
+
+
+
 
 
 // READ Functions
@@ -263,8 +334,37 @@ export const fetchAllBounties: GetAllBountiesFunction = async () => {
 // };
 
 
+export const getParticipants: GetParticipants = async (id) => {
+  const contractRead = await getContractRead();
+  const rawParticipants = await contractRead.getParticipants(id);
+
+  const addresses = rawParticipants[0].map((p: string) => p.toString());
+  const amounts = rawParticipants[1].map((a: bigint) => a.toString());
+  
+  console.log(JSON.stringify({ addresses, amounts }, null, 2));
+
+  return { addresses, amounts };
+};
 
 
+
+export const bountyCurrentVotingClaim: BountyCurrentVotingClaimFunction = async (id) => {
+  const contractRead = await getContractRead();
+  const currentVotingClaim = await contractRead.bountyCurrentVotingClaim(id);
+  const votingClaimNumber = Number(currentVotingClaim.toString());
+  return votingClaimNumber;
+};
+
+export const bountyVotingTracker: BountyVotingTrackerFunction = async (id) => {
+  const contractRead = await getContractRead();
+  const votingTrackerRaw = await contractRead.bountyVotingTracker(id);
+  const votingTracker = {
+    yes: votingTrackerRaw[0].toString(),
+    no: votingTrackerRaw[1].toString(),
+    deadline: votingTrackerRaw[2].toString(),
+  };
+  return votingTracker;
+};
 
 
 

@@ -9,8 +9,8 @@ interface Claim {
   bountyIssuer: string;
   name: string;
   description: string;
-  createdAt: string;
-  accepted: boolean;
+  createdAt: bigint;
+  accepted: boolean ;
 }
 
 
@@ -18,9 +18,11 @@ interface Claim {
 interface ProofListProps {
   data: Claim[]; 
   youOwner: any;
+  openBounty: boolean | null;
+  currentVotingClaim: number | null;
 }
 
-const ProofList: React.FC<ProofListProps> = ({ data, youOwner }) => {
+const ProofList: React.FC<ProofListProps> = ({ data, youOwner, openBounty, currentVotingClaim }) => {
   const [isAccepted, setIsAccepted] = useState(true);
 
   useEffect(() => {
@@ -33,7 +35,19 @@ const ProofList: React.FC<ProofListProps> = ({ data, youOwner }) => {
   return (
     <div className='container mx-auto px-5 py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
       {data.map((claim) => (
-        <ProofItem isAccepted={isAccepted} youOwner={youOwner} bountyId={claim.bountyId} key={claim.id} id={claim.id} title={claim.name} description={claim.description} issuer={claim.issuer} accepted={claim.accepted} />
+        <div key={claim.id} className={`${currentVotingClaim === 0 || currentVotingClaim === Number(claim.id) ? "" : "hidden"} lg:col-span-4`}>
+        <ProofItem 
+        openBounty={openBounty}
+        isAccepted={isAccepted} 
+        youOwner={youOwner} 
+        bountyId={claim.bountyId} 
+        key={claim.id} 
+        id={claim.id} 
+        title={claim.name} 
+        description={claim.description} 
+        issuer={claim.issuer}
+        accepted={claim.accepted} />
+      </div>
       ))}
     </div>
   );

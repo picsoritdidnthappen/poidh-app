@@ -1,37 +1,36 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { useEffect, useState } from 'react';
-import { fetchBountyById } from '@/app/context/web3';
+import { fetchBountyById, getParticipants } from '@/app/context/web3';
 import CreateProof from '@/components/ui/CreateProof';
+import JoinBounty from '@/components/ui/JoinBounty';
+import {OpenBounty, Bounty} from '../../types/web3';
+import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 
-interface BountyData {
-  id: string;
-  issuer: string;
-  name: string;
-  description: string;
-  amount:string;
-  claimer: string;
-  createdAt: string;
-  claimId: string;
-}
+
 
 function weiToEther(weiValue: string | number): string {
   const etherValue = Number(weiValue) / 1e18;
-  return etherValue.toFixed(4); 
+  return etherValue.toFixed(6); 
 }
 
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
-  const [bountyData, setBountyData] = useState<BountyData | null>(null);
+  const [bountyData, setBountyData] = useState<Bounty | null>(null);
   const [youOwner, setYouOwner] = useState<boolean | null>(null); 
   const [bountyClaimed, setBountyClaimed] = useState<boolean | null>(null); 
+  const [ openBounty, setOpenBounty] = useState <boolean | null>(null)
 
   const { user } = useDynamicContext(); 
   const currentUser = user?.verifiedCredentials[0].address;
   
-  console.log(user?.verifiedCredentials)
 
   useEffect(() => {
     setYouOwner(null); 
     if (bountyId) {
+      getParticipants(bountyId)
+      .then((openBounty: OpenBounty) => { 
+        setOpenBounty(openBounty.addresses.length === 0 ? false : true);
+      })
+      .catch(console.error);       
       fetchBountyById(bountyId)
         .then(data => {
           setBountyData(data);
@@ -42,9 +41,10 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
     }
   }, [ bountyId]);
 
-
+  
 
   return (
+    <>
     <div className="flex pt-20 justify-between">
       <div className="flex flex-col lg:max-w-[50%]">
         <p className="text-4xl text-bold">{bountyData?.name}</p>
@@ -57,13 +57,26 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <span>{bountyData ? weiToEther(bountyData.amount) : "Loading..."}</span>
         <span>eth</span>
       </div>
-
+      <div>{openBounty? "this is multiplayer" : "no this is solo"}</div>
       <div> {bountyClaimed && !youOwner ? <CreateProof bountyId={bountyId} /> : ""}</div>
      
 
       </div>
 
+      
+
     </div>
+
+    {openBounty ? 
+    <div>
+
+      <BountyMultiplayer bountyId={bountyId} />
+    
+    </div> : null}
+
+
+   
+    </>
   );
 };
 

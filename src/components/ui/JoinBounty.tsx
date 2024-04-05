@@ -1,122 +1,22 @@
-import { useState } from 'react';
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { createSoloBounty,  createOpenBounty } from '@/app/context/web3';
+import React, {useState} from 'react';
 import ButtonCTA from '@/components/ui/ButtonCTA';
-import { Switch } from '@mui/material';
+import FormProof from '@/components/global/FormProof';
+import FormJoinBounty from '@/components/global/FormJoinBounty';
+
+interface JoinBountyProps {
+  bountyId: string;
+}
+
+const JoinBounty: React.FC<JoinBountyProps> = ({ bountyId }) => {
+  const [showForm, setShowForm] = useState(false);
 
 
-const Form = () => {
-  const { primaryWallet } = useDynamicContext();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [isSoloBounty, setIsSoloBounty] = useState(true); 
-
-
- 
- 
-  //  const handleCreateBounty = async () => {
-  //   if (!name || !description || !amount || !primaryWallet) {
-  //     alert("Please fill in all fields and check wallet connection.");
-  //     return;
-  //   }
-
-  //   try {
-  //     await createSoloBounty(primaryWallet, name, description, amount);
-  //     alert("Bounty created successfully!");
-  //     setName('');
-  //     setDescription('');
-  //     setAmount('');
-  //   } catch (error) {
-  //     console.error('Error creating bounty:', error);
-  //     alert("Failed to create bounty.");
-  //   }
-  // };
-
-
-  // const handleCreateOpenBounty = async () => {
-  //   if (!name || !description || !amount || !primaryWallet) {
-  //     alert("Please fill in all fields and check wallet connection.");
-  //     return;
-  //   }
-
-  //   try {
-  //     await createOpenBounty(primaryWallet, name, description, amount);
-  //     alert("Bounty created successfully!");
-  //     setName('');
-  //     setDescription('');
-  //     setAmount('');
-  //   } catch (error) {
-  //     console.error('Error creating bounty:', error);
-  //     alert("Failed to create bounty.");
-  //   }
-  // };
-
-
-  const handleCreateBounty = async () => {
-    if (!name || !description || !amount || !primaryWallet) {
-      alert("Please fill in all fields and check wallet connection.");
-      return;
-    }
-
-    try {
-      if (isSoloBounty) { 
-        await createSoloBounty(primaryWallet, name, description, amount);
-      } else { 
-        await createOpenBounty(primaryWallet, name, description, amount);
-      }
-      alert("Bounty created successfully!");
-      setName('');
-      setDescription('');
-      setAmount('');
-    } catch (error) {
-      console.error('Error creating bounty:', error);
-      alert("Failed to create bounty.");
-    }
-  };
-
-  
 
   return (
-    <div className=' mt-10 flex text-left flex-col  text-white rounded-[30px] border border-[#D1ECFF]  p-5 flex w-full lg:min-w-[400px]  justify-center backdrop-blur-sm bg-white/30'>
-      <span>title</span>
-      <input
-        type="text"
-        placeholder=""
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
-      />
-      <span>description</span>
-      <textarea
-        rows = {3}
-        placeholder=""
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
-      ></textarea>
+    <div className=' py-12 w-fit '>
 
-      <span>reward</span>
-      <input
-        type="number"
-        placeholder=""
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
-      />
-
-<div className="flex items-center justify-start gap-2">
-  <span>{isSoloBounty ? "Solo Bounty" : "Open Bounty"}</span>
-  <Switch
-    checked={isSoloBounty}
-    onChange={() => setIsSoloBounty(!isSoloBounty)}
-    inputProps={{ 'aria-label': 'controlled' }}
-  />
-</div>
-
-
-    <button className='flex flex-row items-center justify-center ' onClick={handleCreateBounty}>  
-    <svg width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div className=' ' onClick={() => setShowForm(!showForm)} >
+{/* <svg width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_dd_615_3757)">
 <rect x="16.5" y="17" width="125" height="125" rx="62.5" fill="#E2EFFB" fillOpacity="0.5"/>
 <rect x="16.9687" y="17.4687" width="124.062" height="124.062" rx="62.0312" stroke="#D1ECFF" strokeWidth="0.9375"/>
@@ -226,17 +126,24 @@ const Form = () => {
 <stop offset="1" stopColor="#F89798"/>
 </linearGradient>
 </defs>
-    </svg>  
-    <ButtonCTA > create bounty </ButtonCTA>
-    </button>
+</svg> */}
 
-    {/* <button className='hidden' onClick={handleCreateOpenBounty}>Create Open Bounty</button> */}
-
-
-
-
+{!showForm && (
+<ButtonCTA > join bounty  </ButtonCTA>
+)}
+</div>
+      {showForm && (
+        <div className=' mt-5'>
+        <button onClick={() => setShowForm(!showForm)} className=' border border-[#D1ECFF] backdrop-blur-sm bg-white/30 rounded-full p-2'>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+             <path d="M13 1L1 13M1 1L13 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <FormJoinBounty bountyId={bountyId} showForm={showForm} /> 
+        </div>
+      )}
     </div>
   );
 };
 
-export default Form;
+export default JoinBounty;

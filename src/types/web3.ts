@@ -41,6 +41,14 @@ export interface BountyListProps {
   bountiesData: BountiesData[];
 }
 
+type Address = string;
+type Amount = string;
+
+export interface OpenBounty {
+  addresses: Address[];
+  amounts: Amount[];
+}
+
 
 
 export interface Claim {
@@ -54,6 +62,14 @@ export interface Claim {
   accepted: boolean;
 }
 
+export interface VotingTracker {
+  yes: string;
+  no: string;
+  deadline: string; 
+}
+
+
+
 
 // Contract Interaction Functions
 export type CreateBountyFunction = (primaryWallet: Wallet, name: string, description: string, value: string) => Promise<void>;
@@ -61,11 +77,30 @@ export type CreateClaimFunction = (primaryWallet: Wallet, name: string, uri: str
 export type AcceptClaimFunction = (primaryWallet: Wallet, bountyId: string, claimId: string) => Promise<void>;
 export type CancelBountyFunction = (primaryWallet: Wallet, id: string) => Promise<void>;
 
+export type withdrawFromOpenBountyFunction = (primaryWallet: Wallet, id: string) => Promise<void>;
+export type SubmitClaimForVoteFunction = (primaryWallet: Wallet, bountyId: string, claimId: string) => Promise<void>;
+
+
+
+export type JoinOpenBountyFunction = (primaryWallet: Wallet, id: string, value: string  ) => Promise<void>;
+
+
 // Data Fetching Functions
 export type FetchBountiesFunction = (offset: number) => Promise<Bounty[]>;
 export type FetchBountyByIdFunction = (id: string) => Promise<Bounty>;
 export type GetBountiesByUserFunction = (user: string, offset: number, allBounties: Bounty[]) => Promise<Bounty[]>;
 export type GetAllBountiesFunction = () => Promise<Bounty[]>;
+
+
+
+export type GetParticipants = (id: string) => Promise<OpenBounty>;
+export type BountyCurrentVotingClaimFunction= (id: string) => Promise<number | null>;
+export type BountyVotingTrackerFunction = (id: string) => Promise<VotingTracker>;
+
+export type VoteClaimFunction = (primaryWallet: Wallet, id: string, vote: boolean  ) => Promise<void>;
+
+
+
 
 export type GetClaimsByUserFunction = (user: string) => Promise<Claim[]>;
 export type GetClaimsByBountyIdFunction = (id: string) => Promise<Claim[]>;

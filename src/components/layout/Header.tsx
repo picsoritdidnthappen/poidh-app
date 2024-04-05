@@ -31,7 +31,7 @@ const Header = () => {
       <div className='flex flex-row relative items-center gap-x-5'>
         {isClient && isAuthenticated ? <Link href="/account">my bounties</Link> : null}
         {isClient ? <ConnectWallet /> : null}
-        <div className='p-2 w-[40px] h-[40px] wallet  border-[#D1ECFF] border rounded-full backdrop-blur-sm bg-white/30'>
+        <div className={`${!walletAddress ? 'opacity-40' : 'opacity-100'}  p-2 w-[40px] h-[40px] wallet  border-[#D1ECFF] border rounded-full backdrop-blur-sm bg-white/30 `}>
           <svg className='w-full' viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                  <path d="M18 2.91992V10.9199" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                  <path d="M21.2008 7.71997L18.0008 10.92L14.8008 7.71997" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -40,7 +40,7 @@ const Header = () => {
            </svg>
 
         </div>
-        <span className='text-[10px]  wallet-address h-[35px] absolute top-[50px] right-0   border-[#D1ECFF] rounded-full border flex items-center justify-center px-5 backdrop-blur-sm bg-white/30  break-normal'> {walletAddress ? walletAddress : "no wallet connected" }</span>
+        <span className={`${walletAddress ? 'opacity-20' : 'opacity-100'} text-[10px] wallet-address h-[35px] absolute top-[50px] right-0   border-[#D1ECFF] rounded-full border flex items-center justify-center px-5 backdrop-blur-sm bg-white/30  break-normal  `} > {walletAddress ? walletAddress : "connect your wallet" }</span>
 
 
 

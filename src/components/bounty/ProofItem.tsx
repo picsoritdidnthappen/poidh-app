@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { getURI, acceptClaimSolo} from '@/app/context/web3';
+import { getURI, acceptClaim, submitClaimForVote} from '@/app/context/web3';
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 
 
@@ -13,10 +13,10 @@ interface ProofItemProps {
   youOwner:boolean;
   accepted:boolean;
   isAccepted:boolean
-
+  openBounty: boolean | null;
 }
 
-const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer , bountyId, accepted, isAccepted}) => {
+const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, description, issuer , bountyId, accepted, isAccepted}) => {
 
   const { user, primaryWallet } = useDynamicContext(); 
   const [claimsURI, setClaimsURI] = useState("")
@@ -41,7 +41,7 @@ const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer ,
     }
 
     try {
-     await acceptClaimSolo(primaryWallet,  bountyId, id)
+     await acceptClaim(primaryWallet,  bountyId, id)
 
     } catch (error) {
       console.error('Error accepting claim:', error);
@@ -49,9 +49,29 @@ const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer ,
     }
   };
 
+  const handleSubmitClaimForVote = async () => {
+    if (!id || !bountyId || !primaryWallet ) {
+      alert("Please check connection");
+      return;
+    }
+
+    try {
+     await submitClaimForVote(primaryWallet,  bountyId, id)
+
+    } catch (error) {
+      console.error('Error accepting claim:', error);
+      alert("Failed to accept claim.");
+    }
+  };
+
+
+  
+
   return (
-    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl lg:col-span-4' >
-       
+    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl ' >
+       <div className='left-5 top-5 absolute text-white'>{openBounty && !notOwner ? 
+       <button onClick={handleSubmitClaimForVote} > submit for vote</button>
+       : null}</div>
         { accepted  ?
         <div className="right-5 top-5  text-white bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
         accepted
@@ -81,6 +101,7 @@ const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer ,
       <p className="" >{description}</p>
       </div>
       <div className="mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed">
+        <div>claim id: {id}</div>
         <span className="">
           issuer
         </span>
