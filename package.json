@@ -30,7 +30,7 @@
     "ethers": "^6.11.1",
     "framer-motion": "^11.0.12",
     "lucide-react": "^0.316.0",
-    "next": "^14.0.4",
+    "next": "13.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
