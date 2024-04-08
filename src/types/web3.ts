@@ -37,6 +37,19 @@ export interface BountiesData {
 }
 
 
+
+export interface ClaimsData {
+  accepted: boolean;
+  bountyId: string;
+  bountyIssuer: string;
+  createdAt: bigint;
+  description: string;
+  id: string;
+  issuer: string;
+  name: string;
+}
+
+
 export interface BountyListProps {
   bountiesData: BountiesData[];
 }

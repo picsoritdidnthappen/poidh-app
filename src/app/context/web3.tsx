@@ -4,7 +4,6 @@ import abi from './abi';
 import abiNFT from './abiNFT'
 import chains from './config'; 
 import {  CreateBountyFunction,withdrawFromOpenBountyFunction ,SubmitClaimForVoteFunction, GetParticipants, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction, JoinOpenBountyFunction, BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, VoteClaimFunction, ResolveVoteFunction  } from '../../types/web3';
-import { MotionValue } from "framer-motion";
 
 
 const currentChain = chains.sepolia;
@@ -121,7 +120,6 @@ export const submitClaimForVote: SubmitClaimForVoteFunction = async (
 };
 
 
-
 export const cancelOpenBounty: CancelBountyFunction = async (
   primaryWallet, id
 ) => {
@@ -147,7 +145,6 @@ export const cancelSoloBounty: CancelBountyFunction = async (
     console.error('Error canceling solo bounty:', error);
   }
 };
-
 
 export const withdrawFromOpenBounty: withdrawFromOpenBountyFunction = async (
   primaryWallet, id
@@ -189,10 +186,6 @@ export const resolveVote: ResolveVoteFunction = async (
 };
 
 
-
-
-
-
 export const joinOpenBounty: JoinOpenBountyFunction = async (
   primaryWallet,
   id,
@@ -210,7 +203,6 @@ export const joinOpenBounty: JoinOpenBountyFunction = async (
     console.error('Error joining open bounty:', error);
   }
 };
-
 
 
 
@@ -358,7 +350,6 @@ export const getParticipants: GetParticipants = async (id) => {
 };
 
 
-
 export const bountyCurrentVotingClaim: BountyCurrentVotingClaimFunction = async (id) => {
   const contractRead = await getContractRead();
   const currentVotingClaim = await contractRead.bountyCurrentVotingClaim(id);
@@ -376,8 +367,6 @@ export const bountyVotingTracker: BountyVotingTrackerFunction = async (id) => {
   };
   return votingTracker;
 };
-
-
 
 
 export const getClaimsByUser: GetClaimsByUserFunction = async (user) => {

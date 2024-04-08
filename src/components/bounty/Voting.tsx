@@ -83,16 +83,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   }
 
 
-  
-
-
-
-
-
-
-
-  console.log(bountyId)
-
   return (
     <div>
       {votingData ? (

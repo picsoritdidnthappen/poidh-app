@@ -7,31 +7,9 @@ import {
 import { getSigner, getContract, getBountiesByUser, getProvider, getClaimsByUser } from '@/app/context/web3';
 import Button from '@/components/ui/Button';
 import BountyList from '@/components/ui/BountyList';
+import { BountiesData, ClaimsData } from '@/types/web3';
 
 
-interface BountiesData {
-  id: string;
-  issuer: string;
-  name: string;
-  description: string;
-  value: string;
-  claimer: string;
-  createdAt: string;
-  claimId: string;
-}
-
-
-
-interface ClaimsData {
-  accepted: boolean;
-  bountyId: string;
-  bountyIssuer: string;
-  createdAt: string;
-  description: string;
-  id: string;
-  issuer: string;
-  name: string;
-}
 
 
 

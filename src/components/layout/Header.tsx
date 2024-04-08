@@ -24,7 +24,9 @@ const Header = () => {
       <Link href="/">
         <Logo/>
       </Link>
+      <div className='hidden lg:block'>
       <Menu menuPoints={['about us', 'how it works']} />
+      </div>
       <div className='flex flex-col '>
 
 

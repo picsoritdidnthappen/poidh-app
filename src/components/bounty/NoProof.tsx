@@ -1,21 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { cancelSoloBounty, fetchBountyById,  } from '@/app/context/web3';
+import { Bounty } from '@/types/web3';
 
-interface BountyData {
-  id: string;
-  issuer: string;
-  name: string;
-  description: string;
-  amount: string;
-  claimer: string;
-  createdAt: string;
-  claimId: string;
-}
+
 
 const NoProof = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
-  const [bountyData, setBountyData] = useState<BountyData | null>(null);
+  const [bountyData, setBountyData] = useState<Bounty | null>(null);
 
   const [youOwner, setYouOwner] = useState<boolean | null>(null);
   const [bountyCanceled, setBountyCanceled] = useState<boolean | null>(null);
