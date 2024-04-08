@@ -1,4 +1,4 @@
-import { bountyVotingTracker , voteClaim} from '@/app/context/web3';
+import { bountyVotingTracker , voteClaim, resolveVote} from '@/app/context/web3';
 import { VotingTracker } from '@/types/web3';
 import React, { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
@@ -64,6 +64,33 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
 
   }
 
+
+  const resolveVoteHandle = async () => {
+
+    if ( !bountyId || !primaryWallet ) {
+      alert("Please connect wallet");
+      return;
+    }
+    try {
+      await resolveVote(primaryWallet, bountyId );
+      alert("Vote resolve successfully!");
+     
+    } catch (error) {
+      console.error('Error resolve vote:', error);
+      alert("Failed to resolve vote");
+    }
+
+  }
+
+
+  
+
+
+
+
+
+
+
   console.log(bountyId)
 
   return (
@@ -94,7 +121,13 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
                className='border mt-5 border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
                onClick={voteNo}
                 >no</button>
+               <button
+               className='border mt-5 border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
+               onClick={resolveVoteHandle}
+                >resolve vote</button>
 
+
+              
             </div>  
 
           <div>Deadline: {votingData.deadline}</div>

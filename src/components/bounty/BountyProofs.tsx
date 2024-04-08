@@ -4,26 +4,26 @@ import {  bountyCurrentVotingClaim, getClaimsByBountyId, getParticipants} from '
 import NoProof from '@/components/bounty/NoProof';
 import { OpenBounty, Claim } from '@/types/web3';
 import Voting from '@/components/bounty/Voting';
+import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 
 
 
 const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   const [claimsData, setClaimsData] = useState<Claim[] | null>(null);
-  const [youOwner, setYouOwner] = useState<boolean | null>(null); 
   const [currentVotingClaim, setCurrentVotingClaim] = useState<number | null>(null); 
+  const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
 
 
-  const [ openBounty, setOpenBounty] = useState <boolean | null>(null)
 
   useEffect(() => {
-    setYouOwner(null); 
+    // setYouOwner(null); 
     if (bountyId) {
-      getParticipants(bountyId)
-      .then((openBounty) => { 
-        setOpenBounty(openBounty.addresses.length === 0 ? false : true);
-      })
-      .catch(console.error);  
+      // getParticipants(bountyId)
+      // .then((openBounty) => { 
+      //   setOpenBounty(openBounty.addresses.length === 0 ? false : true);
+      // })
+      // .catch(console.error);  
       getClaimsByBountyId(bountyId)
       .then(data => setClaimsData(data))
       .catch(console.error);
@@ -36,6 +36,8 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   }, [bountyId]);
   
 
+  console.log("current voting claim:", currentVotingClaim)
+
   return (
     <div>
       <div className='flex flex-col gap-x-2 py-4 border-b border-dashed'>
@@ -45,7 +47,7 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
       <span>proofs</span></div>
       </div>
       {claimsData && claimsData.length > 0 ? 
-      <ProofList  currentVotingClaim={currentVotingClaim}  openBounty={openBounty} youOwner={youOwner}  data={claimsData} /> 
+      <ProofList  currentVotingClaim={currentVotingClaim}  openBounty={isMultiplayer} youOwner={isOwner}  data={claimsData} /> 
       : <NoProof bountyId={bountyId}/>
       } 
       <div>

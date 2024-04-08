@@ -5,6 +5,7 @@ import CreateProof from '@/components/ui/CreateProof';
 import JoinBounty from '@/components/ui/JoinBounty';
 import {OpenBounty, Bounty} from '../../types/web3';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
+import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 
 
@@ -14,32 +15,15 @@ function weiToEther(weiValue: string | number): string {
 }
 
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
-  const [bountyData, setBountyData] = useState<Bounty | null>(null);
-  const [youOwner, setYouOwner] = useState<boolean | null>(null); 
-  const [bountyClaimed, setBountyClaimed] = useState<boolean | null>(null); 
-  const [ openBounty, setOpenBounty] = useState <boolean | null>(null)
 
-  const { user } = useDynamicContext(); 
-  const currentUser = user?.verifiedCredentials[0].address;
   
+  const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
 
-  useEffect(() => {
-    setYouOwner(null); 
-    if (bountyId) {
-      getParticipants(bountyId)
-      .then((openBounty: OpenBounty) => { 
-        setOpenBounty(openBounty.addresses.length === 0 ? false : true);
-      })
-      .catch(console.error);       
-      fetchBountyById(bountyId)
-        .then(data => {
-          setBountyData(data);
-          setYouOwner(currentUser === data.issuer)
-          setBountyClaimed(data.claimer === "0x0000000000000000000000000000000000000000")
-        })
-        .catch(console.error);
-    }
-  }, [ bountyId]);
+
+  console.log("Is multiplayer:", isMultiplayer)
+  console.log("Is Owner:", isOwner)
+  console.log("Is Claimed:", isBountyClaimed)
+
 
   
 
@@ -57,8 +41,8 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <span>{bountyData ? weiToEther(bountyData.amount) : "Loading..."}</span>
         <span>eth</span>
       </div>
-      <div>{openBounty? "this is multiplayer" : "no this is solo"}</div>
-      <div> {bountyClaimed && !youOwner ? <CreateProof bountyId={bountyId} /> : ""}</div>
+      <div>{isMultiplayer? "this is multiplayer" : "no this is solo"}</div>
+      <div> {!isBountyClaimed && !isOwner ? <CreateProof bountyId={bountyId} /> : ""}</div>
      
 
       </div>
@@ -67,7 +51,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
 
     </div>
 
-    {openBounty ? 
+    {isMultiplayer ? 
     <div>
 
       <BountyMultiplayer bountyId={bountyId} />

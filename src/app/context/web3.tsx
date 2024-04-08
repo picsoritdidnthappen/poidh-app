@@ -3,7 +3,7 @@ import { Contract, ethers } from "ethers";
 import abi from './abi';
 import abiNFT from './abiNFT'
 import chains from './config'; 
-import {  CreateBountyFunction,withdrawFromOpenBountyFunction ,SubmitClaimForVoteFunction, GetParticipants, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction, JoinOpenBountyFunction, BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, VoteClaimFunction  } from '../../types/web3';
+import {  CreateBountyFunction,withdrawFromOpenBountyFunction ,SubmitClaimForVoteFunction, GetParticipants, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction, JoinOpenBountyFunction, BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, VoteClaimFunction, ResolveVoteFunction  } from '../../types/web3';
 import { MotionValue } from "framer-motion";
 
 
@@ -175,7 +175,18 @@ export const voteClaim: VoteClaimFunction = async (
   }
 };
 
-
+export const resolveVote: ResolveVoteFunction = async (
+  primaryWallet, bountyId, 
+) => {
+  try {
+    const signer = await getSigner(primaryWallet);
+    const contract = await getContract(signer);
+    const transaction = await contract.resolveVote(bountyId);
+    await transaction.wait();
+  } catch (error) {
+    console.error('Error voting:', error);
+  }
+};
 
 
 

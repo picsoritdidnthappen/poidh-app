@@ -99,6 +99,7 @@ export type BountyVotingTrackerFunction = (id: string) => Promise<VotingTracker>
 
 export type VoteClaimFunction = (primaryWallet: Wallet, id: string, vote: boolean  ) => Promise<void>;
 
+export type ResolveVoteFunction = (primaryWallet: Wallet, bountyId: string,  ) => Promise<void>;
 
 
 
