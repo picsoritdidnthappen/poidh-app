@@ -41,6 +41,14 @@
       U+2215, U+FEFF, U+FFFD;
   }
 
+  @font-face {
+    font-family: 'GeistMono-Regular';
+    font-weight: 100 700;
+    font-style: normal;
+    font-display: swap;
+    src: url('/fonts/GeistMono-Regular.woff2') format('woff2');
+  }
+
   .cursor-newtab {
     cursor: url('/images/new-tab.png') 10 10, pointer;
   }
@@ -115,4 +123,26 @@
   .animated-underline:focus-visible {
     background-size: 0 2px, 100% 2px;
   }
+}
+
+body {
+  font-family: 'GeistMono-Regular';
+  min-height: 100vh;
+  background-size: cover;
+  text-transform: lowercase;
+  background: linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5);
+}
+
+.wallet:hover + .wallet-address {
+  opacity: 1;
+}
+
+.wallet-address {
+  opacity: 0;
+  transition: opacity 300ms ease-in-out;
+}
+
+.wallet-address:hover {
+  opacity: 1;
+  transition: opacity 300ms ease-in-out;
 }

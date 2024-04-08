@@ -6,39 +6,32 @@ import { cn } from '@/lib/utils';
 
 import UnstyledLink, {
   UnstyledLinkProps,
-} from '@/components/links/UnstyledLink';
+} from '@/__tests__/links/UnstyledLink';
 
-const ButtonLinkVariant = [
+const IconLinkVariant = [
   'primary',
   'outline',
   'ghost',
   'light',
   'dark',
 ] as const;
-const ButtonLinkSize = ['sm', 'base'] as const;
 
-type ButtonLinkProps = {
+type IconLinkProps = {
   isDarkBg?: boolean;
-  variant?: (typeof ButtonLinkVariant)[number];
-  size?: (typeof ButtonLinkSize)[number];
-  leftIcon?: IconType | LucideIcon;
-  rightIcon?: IconType | LucideIcon;
+  variant?: (typeof IconLinkVariant)[number];
+  icon?: IconType | LucideIcon;
   classNames?: {
-    leftIcon?: string;
-    rightIcon?: string;
+    icon?: string;
   };
-} & UnstyledLinkProps;
+} & Omit<UnstyledLinkProps, 'children'>;
 
-const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+const IconLink = React.forwardRef<HTMLAnchorElement, IconLinkProps>(
   (
     {
-      children,
       className,
-      variant = 'primary',
-      size = 'base',
+      icon: Icon,
+      variant = 'outline',
       isDarkBg = false,
-      leftIcon: LeftIcon,
-      rightIcon: RightIcon,
       classNames,
       ...rest
     },
@@ -47,18 +40,13 @@ const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     return (
       <UnstyledLink
         ref={ref}
-        {...rest}
+        type='button'
         className={cn(
-          'inline-flex items-center rounded font-medium',
+          'inline-flex items-center justify-center rounded font-medium',
           'focus-visible:ring-primary-500 focus:outline-none focus-visible:ring',
           'shadow-sm',
           'transition-colors duration-75',
-          //#region  //*=========== Size ===========
-          [
-            size === 'base' && ['px-3 py-1.5', 'text-sm md:text-base'],
-            size === 'sm' && ['px-2 py-1', 'text-xs md:text-sm'],
-          ],
-          //#endregion  //*======== Size ===========
+          'min-h-[28px] min-w-[28px] p-1 md:min-h-[34px] md:min-w-[34px] md:p-2',
           //#region  //*=========== Variants ===========
           [
             variant === 'primary' && [
@@ -98,49 +86,12 @@ const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           'disabled:cursor-not-allowed',
           className
         )}
+        {...rest}
       >
-        {LeftIcon && (
-          <div
-            className={cn([
-              size === 'base' && 'mr-1',
-              size === 'sm' && 'mr-1.5',
-            ])}
-          >
-            <LeftIcon
-              size='1em'
-              className={cn(
-                [
-                  size === 'base' && 'md:text-md text-md',
-                  size === 'sm' && 'md:text-md text-sm',
-                ],
-                classNames?.leftIcon
-              )}
-            />
-          </div>
-        )}
-        {children}
-        {RightIcon && (
-          <div
-            className={cn([
-              size === 'base' && 'ml-1',
-              size === 'sm' && 'ml-1.5',
-            ])}
-          >
-            <RightIcon
-              size='1em'
-              className={cn(
-                [
-                  size === 'base' && 'text-md md:text-md',
-                  size === 'sm' && 'md:text-md text-sm',
-                ],
-                classNames?.rightIcon
-              )}
-            />
-          </div>
-        )}
+        {Icon && <Icon size='1em' className={cn(classNames?.icon)} />}
       </UnstyledLink>
     );
   }
 );
 
-export default ButtonLink;
+export default IconLink;
