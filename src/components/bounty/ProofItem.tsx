@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { getURI, acceptClaim, submitClaimForVote} from '@/app/context/web3';
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 
 interface ProofItemProps {
@@ -20,9 +21,13 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
 
   const { user, primaryWallet } = useDynamicContext(); 
   const [claimsURI, setClaimsURI] = useState("")
-  const currentUser = user?.verifiedCredentials[0].address;
+  const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
 
-  const notOwner = currentUser === issuer ;
+
+
+  // const currentUser = user?.verifiedCredentials[0].address;
+
+  // const notOwner = currentUser === issuer ;
 
 
   useEffect(() => {
@@ -69,7 +74,7 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
 
   return (
     <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl ' >
-       <div className='left-5 top-5 absolute text-white'>{openBounty && !notOwner ? 
+       <div className='left-5 top-5 absolute text-white'>{isMultiplayer && isOwner ? 
        <button onClick={handleSubmitClaimForVote} > submit for vote</button>
        : null}</div>
         { accepted  ?
@@ -80,7 +85,7 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
         null 
         } 
 
-        { !accepted && !notOwner && !isAccepted && primaryWallet ? 
+        {  isOwner && !isBountyClaimed && primaryWallet ? 
         <div onClick={handleAcceptClaim} className="right-5 top-5 cursor-pointer text-[#F15E5F] hover:text-white hover:bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
         accept
         </div> :
@@ -100,8 +105,8 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
       <p className="">{title}</p>
       <p className="" >{description}</p>
       </div>
+
       <div className="mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed">
-        <div>claim id: {id}</div>
         <span className="">
           issuer
         </span>
@@ -109,6 +114,8 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
         ${issuer.slice(0, 5)}...{issuer.slice(-6)}
         </span>
       </div>
+      <div>claim id: {id}</div>
+
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ const [showFilters, setShowFilters] = useState(false);
   return (
     <>
       {showFilters && (
-        <div className='flex flex-row items-center py-12 border-b border-white justify-center gap-x-5 '>
+        <div className='flex flex-row overflow-x-scroll items-center py-12 border-b border-white lg:justify-center gap-x-5 '>
           <FilterButton>nft's (3) </FilterButton>
           <FilterButton>your bounties (0) </FilterButton>
           <FilterButton>submitted claims (0)</FilterButton>

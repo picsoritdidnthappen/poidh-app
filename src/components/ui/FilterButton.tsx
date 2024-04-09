@@ -10,11 +10,11 @@ const FilterButton = ({ children }: { children: React.ReactNode }) => {
   
 
   return (
-      <button 
-      className={`  transition-all shadow shadow-white  bg-gradient-to-r from-red-500 from-10%  via-30% to-50% gap-x-5  ${buttonClasses} `}  
+      <div 
+      className={` transition-all shadow shadow-white text-nowrap  bg-gradient-to-r from-red-500 from-10%  via-30% to-50% gap-x-5  ${buttonClasses} `}  
       >
             {children}
-      </button>
+      </div>
 
   );
 };

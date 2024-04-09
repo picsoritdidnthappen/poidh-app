@@ -84,10 +84,12 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
 
 
   return (
-    <div>
+    <div className='col-span-12 lg:col-span-3 p-5 lg:p-0 '>
       {votingData ? (
         <>
-          <PieChart
+        <div className='flex items-center mb-5'>
+
+        <PieChart
             series={[
               {
                 data: [
@@ -99,6 +101,10 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
             width={400}
             height={200}
           />
+
+
+        </div>
+         
           <div>Yes votes: {votingData.yes} ETH</div>
           <div>No votes: {votingData.no} ETH</div>
 
@@ -120,7 +126,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
               
             </div>  
 
-          <div>Deadline: {votingData.deadline}</div>
+          <div className='mt-5 '>Deadline: {votingData.deadline}</div>
         </>
       ) : (
         <div>Loading voting data...</div>

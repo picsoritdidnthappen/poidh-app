@@ -31,7 +31,7 @@ const ConnectWallet = () => {
       <DynamicConnectButton>
         
         <div 
-        className=' bg-gradient-to-t  from-[#D8393A] to-[#D8393A] flex items-center gap-x-2 border-[#F15E5F] border rounded-md px-2 py-2 '>
+        className=' bg-gradient-to-t  text-[10px] lg:text-base from-[#D8393A] to-[#D8393A] flex items-center gap-x-2 border-[#F15E5F] border rounded-md px-2 py-2 '>
         connect
         <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M8.00016 2.2795C5.78015 2.2795 3.84088 3.48484 2.80244 5.27998C2.61808 5.59869 2.21026 5.7076 1.89155 5.52324C1.57285 5.33888 1.46394 4.93106 1.6483 4.61235C2.91526 2.42215 5.28495 0.946167 8.00016 0.946167C12.0502 0.946167 15.3335 4.22941 15.3335 8.2795C15.3335 12.3296 12.0502 15.6128 8.00016 15.6128C5.28495 15.6128 2.91526 14.1368 1.6483 11.9466C1.46394 11.6279 1.57285 11.2201 1.89155 11.0358C2.21026 10.8514 2.61808 10.9603 2.80244 11.279C3.84088 13.0742 5.78015 14.2795 8.00016 14.2795C11.3139 14.2795 14.0002 11.5932 14.0002 8.2795C14.0002 4.96579 11.3139 2.2795 8.00016 2.2795Z" fill="white"/>
@@ -45,7 +45,7 @@ const ConnectWallet = () => {
 
        :
        <div 
-       className=' bg-gradient-to-t from-black to-[#7E7E7E] flex items-center gap-x-2 border-[#A6A6A6] border rounded-md px-2 py-2 '
+       className=' bg-gradient-to-t text-[10px] lg:text-base from-black to-[#7E7E7E] flex items-center gap-x-2 border-[#A6A6A6] border rounded-md px-2 py-2 '
        onClick={() => handleLogOut()}
        >
        disconnect

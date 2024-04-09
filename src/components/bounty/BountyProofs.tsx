@@ -41,16 +41,16 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   return (
     <div>
       <div className='flex flex-col gap-x-2 py-4 border-b border-dashed'>
-      <div>Currently voting on: {currentVotingClaim === 0 ? "no claim for vote selected" : currentVotingClaim}</div>
+      {/* <div>Currently voting on: {currentVotingClaim === 0 ? "no claim for vote selected" : currentVotingClaim}</div> */}
       <div>
       <span>({claimsData ? claimsData.length : 0})</span>
-      <span>proofs</span></div>
+      <span>claims</span></div>
       </div>
       {claimsData && claimsData.length > 0 ? 
       <ProofList  currentVotingClaim={currentVotingClaim}  openBounty={isMultiplayer} youOwner={isOwner}  data={claimsData} /> 
       : <NoProof bountyId={bountyId}/>
       } 
-      <div>
+      <div className='grid grid-cols-12'>
         {currentVotingClaim !== 0 ? 
         <Voting  bountyId={bountyId} /> : null}
       </div>

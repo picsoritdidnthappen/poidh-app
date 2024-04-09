@@ -9,6 +9,7 @@ interface BountyContextType {
   isOwner: boolean;
   isMultiplayer: boolean | null;
   isBountyClaimed: boolean | null;
+  isBountyCanceled: boolean | null;
 }
 
 
@@ -22,6 +23,8 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
   const [isOwner, setIsOwner] = useState(false);
   const [isMultiplayer, setIsMultiplayer] = useState(false);
   const [isBountyClaimed, setIsBountyClaimed] = useState<boolean | null>(null); 
+  const [isBountyCanceled, setIsBountyCanceled] = useState<boolean | null>(null); 
+
 
   const { user } = useDynamicContext();
   const currentUser = user?.verifiedCredentials[0].address;
@@ -32,6 +35,7 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
         setBountyData(data);
         setIsOwner(currentUser === data.issuer);
         setIsBountyClaimed(data.claimer !== "0x0000000000000000000000000000000000000000");
+        setIsBountyCanceled(data.claimer === data.issuer);
       }).catch(console.error);
 
       getParticipants(bountyId).then((openBounty) => {
@@ -41,7 +45,7 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
   }, [bountyId, currentUser]);
 
   return (
-    <BountyContext.Provider value={{ bountyData, isOwner, isMultiplayer, isBountyClaimed }}>
+    <BountyContext.Provider value={{ bountyData, isOwner, isMultiplayer, isBountyClaimed, isBountyCanceled }}>
       {children}
     </BountyContext.Provider>
   );

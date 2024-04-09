@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Withdraw from '@/components/ui/Withdraw';
 import CancelOpenBounty from '@/components/ui/CancelOpenBounty';
+import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 function weiToEther(weiValue: string | number): string {
   const etherValue = Number(weiValue) / 1e18;
@@ -43,6 +44,7 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
 
   const isCurrentUserAParticipant = currentUser ? participants?.addresses.includes(currentUser) : false;
 
+  const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
 
 
   return (
@@ -60,12 +62,12 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
         </button>
 
         {showParticipants && (
-          <div className='border mt-5 border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'>
+          <div className='border mt-5 border-white rounded-full px-10 lg:px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'>
             <div className='flex flex-col'>
               {participants ? (
                 participants.addresses.map((address, index) => (
-                  <div key={index}>
-                    {address} - {weiToEther(participants.amounts[index])} ETH
+                  <div className="py-2" key={index}>
+                    {address.substring(0, 6)}...{address.substring(address.length - 3)} - {weiToEther(participants.amounts[index])} ETH
                   </div>
                 ))
               ) : (
@@ -77,11 +79,18 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
       </div>
 <div>
 
-<JoinBounty bountyId={bountyId} />
+
+{isOwner ?
 <CancelOpenBounty bountyId={bountyId} />
+: null
+}
 </div>
       <div>
-      {isCurrentUserAParticipant ? <Withdraw bountyId={bountyId}/>  :  <JoinBounty bountyId={bountyId} /> }
+      {isCurrentUserAParticipant && !isBountyClaimed ? <Withdraw bountyId={bountyId}/>  :  null}
+      </div>
+
+      <div>
+      {!isCurrentUserAParticipant && !isBountyClaimed ?   <JoinBounty bountyId={bountyId} /> : null }
       </div>
 
     </>

@@ -55,7 +55,7 @@ const AccountInfo = () => {
     getClaimsByUser(address)
     .then((data: any) => {
       setClaimsData(data);
-      const completedClaims = data.filter((claim: any) => claim.accepted !== true).length;
+      const completedClaims = data.filter((claim: any) => claim.accepted === true).length;
       setCompletedClaims(completedClaims);
       console.log(claimsData); 
     });
