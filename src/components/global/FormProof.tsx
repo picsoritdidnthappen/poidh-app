@@ -55,7 +55,11 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       setCid(resData.IpfsHash);
       setUploading(false);
       console.log(resData)
-      setUri(`${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${resData.IpfsHash}`);
+      setUri(JSON.stringify({
+        name: name,
+        description: description,
+        uri: `${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${cid}`
+      }));
 
     } catch (e) {
       console.log(e);
@@ -76,7 +80,11 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
     }
 
     try {
-      setUri(`${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${cid}`);
+      setUri(JSON.stringify({
+        name: name,
+        description: description,
+        uri: `${process.env.NEXT_PUBLIC_GATEWAY_URL}/ipfs/${cid}`
+      }));
       console.log("setting uri")
       console.log(name)
       console.log(uri)

@@ -55,14 +55,14 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
         </div>
         <button
           onClick={toggleParticipants}
-          className='border border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
+          className='border border-white rounded-full mt-5  px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
         >
           {participants ? `${participants.addresses.length} contributors` : 'Loading contributors...'}
           <span className={`${showParticipants ? '-rotate-180' : '' } animation-all duration-300 `} ><ExpandMoreIcon /></span>
         </button>
 
         {showParticipants && (
-          <div className='border mt-5 border-white rounded-full px-10 lg:px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'>
+          <div className='border mt-5 border-white rounded-[8px] px-10 lg:px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'>
             <div className='flex flex-col'>
               {participants ? (
                 participants.addresses.map((address, index) => (
