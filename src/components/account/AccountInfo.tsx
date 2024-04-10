@@ -28,6 +28,13 @@ const AccountInfo = () => {
   const [completedClaims, setCompletedClaims] = useState("");
   const [submitedClaims, setSubmitedClaims] = useState<ClaimsData[]>([]);
   const [currentSection, setCurrentSection] = useState<string>('a');
+  const [totalETHPaid, setTotalETHPaid] = useState<number>(0);
+  const [totalETHEarn, setTotalETHEarn] = useState<number>(0);
+
+
+
+  
+
 
 
 
@@ -84,11 +91,11 @@ const AccountInfo = () => {
     .then((data: any) => {
       setClaimsData(data);
       const completedClaims = data.filter((claim: any) => claim.accepted === true);
-      const submitedClaims = data.filter((claim: any) => claim.accepted === false);
+      const submitedClaims = data;
 
       setCompletedClaims(completedClaims);
       setSubmitedClaims(submitedClaims);
-
+      console.log(completedClaims)
     });
 
 
@@ -102,12 +109,13 @@ const AccountInfo = () => {
 
   useEffect(() => {
     const fetchClaimInformation = async () => {
-      const claimIds = completedBounties.map(bounty => bounty.claimId);
-      const claimInformationPromises = claimIds.map(async (claimId) => {
-        const uri = await getURI(claimId);
+      const claimInformationPromises = completedBounties.map(async (bounty) => {
+        const uri = await getURI(bounty.claimId);
+        const amount = bounty.amount;
         return {
-          claimId: claimId,
-          claimURI: uri
+          claimId: bounty.claimId,
+          claimURI: uri,
+          amount: amount
         };
       });
       const claimInformation = await Promise.all(claimInformationPromises);
@@ -116,6 +124,30 @@ const AccountInfo = () => {
   
     fetchClaimInformation();
   }, [completedBounties]);
+
+
+  
+useEffect(() => {
+  let totalAmount: bigint = BigInt(0);
+  completedBounties.forEach(bounty => {
+    totalAmount += BigInt(bounty.amount);
+  });
+  const totalAmountETH = ethers.formatEther(totalAmount);
+  setTotalETHPaid(Number(totalAmountETH));
+}, [completedBounties]);
+
+
+useEffect(() => {
+  let totalAmountEarn: bigint = BigInt(0);
+  completedBounties.forEach(bounty => {
+    totalAmountEarn += BigInt(bounty.amount);
+  });
+  const totalAmountEarnETH = ethers.formatEther(totalAmountEarn);
+  setTotalETHEarn(Number(totalAmountEarnETH));
+}, [completedBounties]);
+
+
+  
   
   const handleFilterButtonClick = (section: string) => {
     setCurrentSection(section);
@@ -137,7 +169,7 @@ const AccountInfo = () => {
 
         <div className='flex flex-col'>
       <div>completed bounties: <span className='font-bold' >{completedBounties.length}</span></div>
-      <div>total eth paid: <span className='font-bold' >0.0144</span>  </div>
+      <div>total eth paid: <span className='font-bold' >{totalETHPaid}</span>  </div>
       <div>in progress bounties: <span className='font-bold' >{inProgressBounties.length}</span> </div>
       <div>total eth in contract: <span className='font-bold' >{ETHinContract}</span>  </div>
       <div>completed claims: <span className='font-bold' >{completedClaims.length}</span></div>
@@ -156,10 +188,10 @@ const AccountInfo = () => {
 
   
           <div className='flex flex-row overflow-x-scroll items-center py-12 border-b border-white lg:justify-center gap-x-5 '>
-            <FilterButton onClick={() => handleFilterButtonClick('a')} >nft's (3)</FilterButton>
-            <FilterButton onClick={() => handleFilterButtonClick('b')} >your bounties ({inProgressBounties.length})</FilterButton>
-            <FilterButton onClick={() => handleFilterButtonClick('c')} >submitted claims ({submitedClaims.length})</FilterButton>
-            <FilterButton>collab bounties (0)</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('a')} show={currentSection !== 'a'} >nft's ({completedBounties.length})</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('b')} show={currentSection !== 'b'}>your bounties ({inProgressBounties.length})</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'c'}>submitted claims ({submitedClaims.length})</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton>
           </div>
     
           <div>

@@ -30,6 +30,7 @@ export interface BountiesData {
   id: string;
   issuer: string;
   name: string;
+  amount: bigint | string;
   description: string;
   claimer: string;
   createdAt: bigint; 

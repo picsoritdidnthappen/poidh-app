@@ -1,10 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
 
-// export const config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,12 +10,11 @@ export async function POST(request: NextRequest) {
     const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_JWT}`,
       },
       body: data,
     });
     const { IpfsHash } = await res.json();
-    console.log(IpfsHash);
 
     return NextResponse.json({ IpfsHash }, { status: 200 });
   } catch (e) {
