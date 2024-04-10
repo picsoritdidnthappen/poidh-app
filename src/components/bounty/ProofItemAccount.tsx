@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { getURI, acceptClaim, submitClaimForVote} from '@/app/context/web3';
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useBountyContext } from '@/components/bounty/BountyProvider';
+import Link from 'next/link';
 
 
 interface ProofItemProps {
@@ -14,14 +15,14 @@ interface ProofItemProps {
   youOwner:boolean;
   accepted:boolean;
   isAccepted:boolean
-  openBounty: boolean | null;
+  // openBounty: boolean | null;
 }
 
-const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, description, issuer , bountyId, accepted, isAccepted}) => {
+const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer , bountyId, accepted, isAccepted}) => {
 
   const { user, primaryWallet } = useDynamicContext(); 
   const [claimsURI, setClaimsURI] = useState("")
-  const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
+  // const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
 
 
 
@@ -74,9 +75,10 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
 
   return (
     <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl ' >
-       <div className='left-5 top-5 absolute text-white'>{isMultiplayer && isOwner ? 
+     <Link href={`/bounty/${bountyId}`}>
+       {/* <div className='left-5 top-5 absolute text-white'>{isMultiplayer && isOwner ? 
        <button onClick={handleSubmitClaimForVote} >submit for vote</button>
-       : null}</div>
+       : null}</div> */}
         { accepted  ?
         <div className="right-5 top-5  text-white bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
         accepted
@@ -84,13 +86,13 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
          :
         null 
         } 
-
+{/* 
         {  isOwner && !isBountyClaimed && primaryWallet ? 
         <div onClick={handleAcceptClaim} className="right-5 top-5 cursor-pointer text-[#F15E5F] hover:text-white hover:bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
         accept
         </div> :
         null
-        }
+        } */}
 
 <div className="bg-[#12AAFF] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden">
   {claimsURI && (
@@ -119,6 +121,7 @@ const ProofItem: React.FC<ProofItemProps> = ({ openBounty, id, title, descriptio
       <div>claim id: {id}</div>
 
       </div>
+    </Link> 
     </div>
   );
 };

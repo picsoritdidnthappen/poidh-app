@@ -4,10 +4,13 @@ import {  ethers } from "ethers";
 import {
   useDynamicContext,
 } from '@dynamic-labs/sdk-react-core'
-import { getSigner, getContract, getBountiesByUser, getProvider, getClaimsByUser } from '@/app/context/web3';
+import { getSigner, getContract, getBountiesByUser, getProvider, getClaimsByUser, getNftsOfOwner , getClaimById, getURI} from '@/app/context/web3';
 import Button from '@/components/ui/Button';
 import BountyList from '@/components/ui/BountyList';
 import { BountiesData, ClaimsData } from '@/types/web3';
+import FilterButton from '@/components/ui/FilterButton';
+import ProofList from '@/components/bounty/ProofList';
+import ProofListAccount from '@/components/bounty/ProofListAccount';
 
 
 
@@ -19,10 +22,13 @@ const AccountInfo = () => {
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
   const [claimsData, setClaimsData] = useState<ClaimsData[]>([]);
 
-  const [completedBounties, setCompletedBounties] = useState("");
+  const [completedBounties, setCompletedBounties] = useState<BountiesData[]>([]);
   const [inProgressBounties, setInProgressBounties] = useState("");
   const [ETHinContract, setETHinContract] = useState("");
   const [completedClaims, setCompletedClaims] = useState("");
+  const [submitedClaims, setSubmitedClaims] = useState<ClaimsData[]>([]);
+  const [currentSection, setCurrentSection] = useState<string>('a');
+
 
 
 
@@ -41,23 +47,48 @@ const AccountInfo = () => {
       const contractBalance = await provider.getBalance(contract.getAddress())
       const balanceETH = ethers.formatEther(contractBalance)
       setETHinContract(balanceETH)
+      
+
+      // console.log("getting nft...")
+
+      // const getNfts = await getNftsOfOwner()
+
+      // console.log(getNfts)
+
+      // const balance = await getNfts.balanceOf(primaryWallet?.address);
+
+
+      // const tid = await getNfts.tokenOfOwnerByIndex(primaryWallet?.address, 0)
+
+      // console.log(tid)
+
+      // console.log("got nft...")
 
 
       getBountiesByUser(address, 0, [])
      .then((data: any) => {
       setBountiesData(data)
-      const completedBounties = data.filter((bounty:any) => bounty.claimer !== '0x0000000000000000000000000000000000000000' && bounty.claimer.toLowerCase() !== address.toLowerCase()).length;
-      const inProgressBounties = data.filter((bounty:any) => bounty.claimer === '0x0000000000000000000000000000000000000000').length;
+      const completedBounties = data.filter((bounty:any) => bounty.claimer !== '0x0000000000000000000000000000000000000000' && bounty.claimer.toLowerCase() !== address.toLowerCase());
+      const inProgressBounties = data.filter((bounty:any) => bounty.claimer === '0x0000000000000000000000000000000000000000');
       setInProgressBounties(inProgressBounties);
       setCompletedBounties(completedBounties);
+
+
     })
+
+
+
+
 
     getClaimsByUser(address)
     .then((data: any) => {
       setClaimsData(data);
-      const completedClaims = data.filter((claim: any) => claim.accepted !== true).length;
+      const completedClaims = data.filter((claim: any) => claim.accepted === true);
+      const submitedClaims = data.filter((claim: any) => claim.accepted === false);
+
       setCompletedClaims(completedClaims);
-      console.log(claimsData); 
+      setSubmitedClaims(submitedClaims);
+
     });
 
 
@@ -68,6 +99,29 @@ const AccountInfo = () => {
       userInformation().catch(console.error);
     }
   }, [primaryWallet]);
+
+  useEffect(() => {
+    const fetchClaimInformation = async () => {
+      const claimIds = completedBounties.map(bounty => bounty.claimId);
+      const claimInformationPromises = claimIds.map(async (claimId) => {
+        const uri = await getURI(claimId);
+        return {
+          claimId: claimId,
+          claimURI: uri
+        };
+      });
+      const claimInformation = await Promise.all(claimInformationPromises);
+      console.log("Claim Information:", claimInformation);
+    };
+  
+    fetchClaimInformation();
+  }, [completedBounties]);
+  
+  const handleFilterButtonClick = (section: string) => {
+    setCurrentSection(section);
+  };
+  
+
   
 
   return (
@@ -82,11 +136,11 @@ const AccountInfo = () => {
           </div>
 
         <div className='flex flex-col'>
-      <div>completed bounties: <span className='font-bold' >{completedBounties}</span></div>
+      <div>completed bounties: <span className='font-bold' >{completedBounties.length}</span></div>
       <div>total eth paid: <span className='font-bold' >0.0144</span>  </div>
-      <div>in progress bounties: <span className='font-bold' >{inProgressBounties}</span> </div>
+      <div>in progress bounties: <span className='font-bold' >{inProgressBounties.length}</span> </div>
       <div>total eth in contract: <span className='font-bold' >{ETHinContract}</span>  </div>
-      <div>completed claims: <span className='font-bold' >{completedClaims}</span></div>
+      <div>completed claims: <span className='font-bold' >{completedClaims.length}</span></div>
       <div>total eth earned: <span className='font-bold' >0.0109</span>  </div>
 
      
@@ -100,9 +154,33 @@ const AccountInfo = () => {
    </div>
   </div>
 
-    <div>
-      <BountyList  bountiesData={bountiesData} />
-    </div>
+  
+          <div className='flex flex-row overflow-x-scroll items-center py-12 border-b border-white lg:justify-center gap-x-5 '>
+            <FilterButton onClick={() => handleFilterButtonClick('a')} >nft's (3)</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('b')} >your bounties ({inProgressBounties.length})</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('c')} >submitted claims ({submitedClaims.length})</FilterButton>
+            <FilterButton>collab bounties (0)</FilterButton>
+          </div>
+    
+          <div>
+            {currentSection === 'a' && (
+              <div>
+                <BountyList  bountiesData={completedBounties} />
+              </div>
+            )}
+            {currentSection === 'b' && (
+              <div>
+                <BountyList  bountiesData={bountiesData} />
+              </div>
+            )}
+            {currentSection === 'c' && (
+              <div>
+                <ProofListAccount youOwner={true}  data={submitedClaims} /> 
+              </div>
+            )}
+          </div>
+
+
    </div>
       ) : (
         <div className='h-screen w-full flex items-center justify-center flex-col' >

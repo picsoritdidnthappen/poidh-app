@@ -3,7 +3,7 @@ import { Contract, ethers } from "ethers";
 import abi from './abi';
 import abiNFT from './abiNFT'
 import chains from './config'; 
-import {  CreateBountyFunction,withdrawFromOpenBountyFunction ,SubmitClaimForVoteFunction, GetParticipants, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction, JoinOpenBountyFunction, BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, VoteClaimFunction, ResolveVoteFunction  } from '../../types/web3';
+import {  CreateBountyFunction,withdrawFromOpenBountyFunction ,SubmitClaimForVoteFunction, GetParticipants, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction, JoinOpenBountyFunction, BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, VoteClaimFunction, ResolveVoteFunction, GetClaimByIdFunction  } from '../../types/web3';
 
 
 const currentChain = chains.sepolia;
@@ -31,6 +31,35 @@ export const getNFTContractRead = async () => {
   const provider = await getProvider();
   return new Contract(currentChain.contracts.nftContract, abiNFT, provider);
 };
+
+
+export const getNftsOfOwner = async () => {
+  const contract = getNFTContractRead()
+
+  // console.log(contract)
+  // console.log(balance)
+  return contract
+}
+
+// async function getNFTsOfOwner() {
+//   const contract = new ethers.Contract(contractAddress, erc721ABI, provider);
+//   const balance = await contract.balanceOf(ownerAddress); //Returns the number of tokens owned by the address
+
+//   let tokenIds = [];
+
+//   for(let i = 0; i < balance.toNumber(); i++) {
+//     const tokenId = await contract.tokenOfOwnerByIndex(ownerAddress, i); //Get the token ID based on the index from the balanceOf call
+//     tokenIds.push(tokenId.toString());
+//   }
+
+//   console.log(`Token IDs owned by ${ownerAddress}: ${tokenIds}`);
+// }
+
+
+
+
+
+
 
 
 
@@ -118,7 +147,6 @@ export const submitClaimForVote: SubmitClaimForVoteFunction = async (
     console.error('Error accepting claim:', error);
   }
 };
-
 
 export const cancelOpenBounty: CancelBountyFunction = async (
   primaryWallet, id
@@ -283,10 +311,13 @@ export const getBountiesByUser: GetBountiesByUserFunction = async (
 
 
 export const fetchAllBounties: GetAllBountiesFunction = async () => {
+
   const contractRead = await getContractRead();
   const bountyCounter = await contractRead.bountyCounter();
 
   let allBounties: Bounty[] = [];
+
+
   const totalBounties = Number(bountyCounter.toString());
 
   for (let offset = Math.floor(totalBounties / 10) * 10; offset >= 0; offset -= 10) {
@@ -308,7 +339,6 @@ export const fetchAllBounties: GetAllBountiesFunction = async () => {
 
   allBounties.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
 
-  console.log(allBounties)
   return allBounties;
 };
 
@@ -404,6 +434,45 @@ export const getClaimsByBountyId: GetClaimsByBountyIdFunction = async (id) => {
   }));
   return formattedClaims;
 };
+
+
+export const getClaimById: GetClaimByIdFunction = async (claimId) => {
+  const contractRead = await getContractRead();
+  const claimById = await contractRead.claims(claimId);
+
+  const formattedClaim: Claim[] = [{
+    id: claimById[0].toString(),
+    issuer: claimById[1],
+    bountyId: claimById[2].toString(),
+    bountyIssuer: claimById[3],
+    name: claimById[4],
+    description: claimById[5],
+    createdAt: claimById[6].toString(),
+    accepted: claimById[7]
+  }];
+
+  return formattedClaim;
+};
+
+
+
+
+
+// export const getClaimById: GetClaimByIdFunction = async (claimId) => {
+//   const contractRead = await getContractRead();
+//   const claimById = await contractRead.claims(claimId);
+
+//   const names = claimById['#names'];
+//   const data = claimById.filter((_, index) => index !== '#names');
+
+//   const formattedClaim = {};
+//   names.forEach((name, index) => {
+//     formattedClaim[name] = data[index];
+//   });
+
+//   return formattedClaim;
+// };
+
 
 export const getURI: GetURIFunction = async (claimId) => {
   const contractNFT = await getNFTContractRead();

@@ -12,7 +12,7 @@ interface Wallet {
 
 // Contract Data Types
 export type MainContractType = Contract;
-export type NFTContractType = Contract;
+// export type NFTContractType = Contract;
 
 // Bounties and Claims
 export interface Bounty {
@@ -27,6 +27,27 @@ export interface Bounty {
 }
 
 export interface BountiesData {
+  id: string;
+  issuer: string;
+  name: string;
+  description: string;
+  claimer: string;
+  createdAt: bigint; 
+  claimId: string;
+}
+
+
+export interface BountiesDataClosed {
+  id: string;
+  issuer: string;
+  name: string;
+  description: string;
+  claimer: string;
+  createdAt: bigint; 
+  claimId: string;
+}
+
+export interface BountiesDataOpen {
   id: string;
   issuer: string;
   name: string;
@@ -61,6 +82,9 @@ export interface OpenBounty {
   addresses: Address[];
   amounts: Amount[];
 }
+
+
+
 
 
 
@@ -118,4 +142,9 @@ export type ResolveVoteFunction = (primaryWallet: Wallet, bountyId: string,  ) =
 
 export type GetClaimsByUserFunction = (user: string) => Promise<Claim[]>;
 export type GetClaimsByBountyIdFunction = (id: string) => Promise<Claim[]>;
+export type GetClaimByIdFunction = (claimId: string) => Promise<Claim[]>;
+
+
+
+
 export type GetURIFunction = (claimId: string) => Promise<string>;

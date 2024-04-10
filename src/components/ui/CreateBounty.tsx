@@ -127,7 +127,7 @@ const CreateBounty = () => {
 null }
 
       {showForm && (
-        <div className='fixed w-[92%] md:w-auto top-16 left-1/2 -translate-x-1/2 '>
+        <div className='fixed w-[92%] md:w-auto top-32 lg:top-16 left-1/2 -translate-x-1/2  lg:translate-x-0'>
         <button onClick={() => setShowForm(!showForm)} className='right-0 absolute border border-[#D1ECFF] backdrop-blur-sm bg-white/30 rounded-full p-2'>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M13 1L1 13M1 1L13 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

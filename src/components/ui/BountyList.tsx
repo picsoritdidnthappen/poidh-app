@@ -28,28 +28,21 @@ const item = {
 
 
 const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
-const [showFilters, setShowFilters] = useState(false);
+// const [showFilters, setShowFilters] = useState(false);
 
 
 
-  useEffect(() => {
-    if (window.location.pathname === '/account') {
-      setShowFilters(true);
-    } else {
-      setShowFilters(false);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (window.location.pathname === '/account') {
+  //     setShowFilters(true);
+  //   } else {
+  //     setShowFilters(false);
+  //   }
+  // }, []);
 
   return (
     <>
-      {showFilters && (
-        <div className='flex flex-row items-center py-12 border-b border-white justify-center gap-x-5 '>
-          <FilterButton>nft's (3) </FilterButton>
-          <FilterButton>your bounties (0) </FilterButton>
-          <FilterButton>submitted claims (0)</FilterButton>
-          <FilterButton>collab bounties (0) </FilterButton>
-        </div>
-      )}
+     
 
       <motion.div className='container mx-auto px-5 py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '
        variants={container}

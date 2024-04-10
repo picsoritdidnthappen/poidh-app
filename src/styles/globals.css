@@ -146,3 +146,12 @@ body {
   opacity: 1;
   transition: opacity 300ms ease-in-out;
 }
+
+.aspect-w-1 {
+  width: 100%;
+}
+
+.aspect-h-1 {
+  height: 0;
+  padding-bottom: 100%;
+}
