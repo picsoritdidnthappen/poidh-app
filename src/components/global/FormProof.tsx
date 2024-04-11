@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 
 import { createClaim } from '@/app/context/web3';
 
-import { buildMetadata, uploadFile, uploadMetadata } from '../../app/api/files/route';
+import { buildMetadata, uploadFile, uploadMetadata } from '../../lib/pinata';
 
 interface FormProofProps {
   bountyId: string;
