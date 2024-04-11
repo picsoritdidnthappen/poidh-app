@@ -1,9 +1,9 @@
-import React from 'react';
 import { Metadata } from 'next';
-import { DynamicContextProvider, DynamicWidget } from '@dynamic-labs/sdk-react-core';
-import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import React from 'react';
+
 import '@/styles/globals.css';
 import '@/styles/colors.css';
+
 import { siteConfig } from '@/constant/config';
 
 const metadata: Metadata = {

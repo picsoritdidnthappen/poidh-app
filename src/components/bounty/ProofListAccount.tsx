@@ -1,5 +1,6 @@
-import ProofItemAccount from '@/components/bounty/ProofItemAccount';
 import React, { useEffect, useState } from 'react';
+
+import ProofItemAccount from '@/components/bounty/ProofItemAccount';
 
 
 interface Claim {

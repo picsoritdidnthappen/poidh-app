@@ -1,8 +1,8 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import BountyItem from '@/components/ui/BountyItem'; 
-import FilterButton from '@/components/ui/FilterButton';
+
 import {  BountyListProps } from '../../types/web3';
 
 
@@ -51,7 +51,7 @@ const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
 
         {bountiesData.map((bounty) => (
           <motion.div className='lg:col-span-4' key={bounty.id} variants={item}>
-            <BountyItem id={bounty.id} title={bounty.name} description={bounty.description} />
+            <BountyItem id={bounty.id} title={bounty.name} description={bounty.description} amount={bounty.amount} />
           </motion.div>
         ))}
 

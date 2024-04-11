@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
-import ButtonCTA from '@/components/ui/ButtonCTA';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import React from 'react';
+
 import { withdrawFromOpenBounty } from '@/app/context/web3';
 
 

@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { fetchBountyById, getParticipants } from '@/app/context/web3';
+import React, { createContext, ReactNode,useContext, useEffect, useState } from 'react';
+
+import { bountyCurrentVotingClaim, fetchBountyById, getParticipants } from '@/app/context/web3';
+
 import { Bounty } from '@/types/web3';
 
 
@@ -24,6 +26,8 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
   const [isMultiplayer, setIsMultiplayer] = useState(false);
   const [isBountyClaimed, setIsBountyClaimed] = useState<boolean | null>(null); 
   const [isBountyCanceled, setIsBountyCanceled] = useState<boolean | null>(null); 
+  const [isVoting, setIsVoting] = useState<boolean | null>(null); 
+
 
 
   const { user } = useDynamicContext();
@@ -41,6 +45,15 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
       getParticipants(bountyId).then((openBounty) => {
         setIsMultiplayer(openBounty.addresses.length > 0);
       }).catch(console.error);
+
+
+      (async () => {
+        const currentVotingClaim = await bountyCurrentVotingClaim(bountyId);
+        setIsVoting(currentVotingClaim === 0)
+      })();
+      
+      console.log("current voting:")
+      console.log(isVoting)
     }
   }, [bountyId, currentUser]);
 

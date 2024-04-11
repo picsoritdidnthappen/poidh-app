@@ -20,7 +20,7 @@ export interface Bounty {
   issuer: string;
   name: string;
   description: string;
-  amount: string;
+  amount: string | bigint | number;
   claimer: string;
   createdAt: bigint; 
   claimId: string;
@@ -30,6 +30,7 @@ export interface BountiesData {
   id: string;
   issuer: string;
   name: string;
+  amount: string | bigint | number;
   description: string;
   claimer: string;
   createdAt: bigint; 

@@ -1,9 +1,12 @@
-import { fetchAllBounties } from "@/app/context/web3";
-import BountyList from "@/components/ui/BountyList";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useEffect, useState } from "react";
-import { BountiesData } from '../../types/web3';
+
+import BountyList from "@/components/ui/BountyList";
 import ToggleButton from "@/components/ui/ToggleButton";
+
+import { fetchAllBounties } from "@/app/context/web3";
+
+import { BountiesData } from '../../types/web3';
 
 const ContentHome = () => {
   const { primaryWallet } = useDynamicContext();
@@ -56,7 +59,7 @@ const ContentHome = () => {
   return (
     <>
       <div>
-        <ToggleButton option1={"Open Bounties"} option2={"Past Bounties"} handleToggle={handleToggle} />
+        <ToggleButton option1="Open Bounties" option2="Past Bounties" handleToggle={handleToggle} />
       </div>
       <div className="pb-20">
         {/* Render either openBounties or pastBounties based on displayOpenBounties state */}

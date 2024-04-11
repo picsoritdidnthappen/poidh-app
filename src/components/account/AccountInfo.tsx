@@ -1,16 +1,18 @@
 "use client"
-import { useEffect, useState } from 'react';
-import {  ethers } from "ethers";
 import {
   useDynamicContext,
 } from '@dynamic-labs/sdk-react-core'
-import { getSigner, getContract, getBountiesByUser, getProvider, getClaimsByUser, getNftsOfOwner , getClaimById, getURI} from '@/app/context/web3';
-import Button from '@/components/ui/Button';
-import BountyList from '@/components/ui/BountyList';
-import { BountiesData, ClaimsData } from '@/types/web3';
-import FilterButton from '@/components/ui/FilterButton';
-import ProofList from '@/components/bounty/ProofList';
+import {  ethers } from "ethers";
+import { useEffect, useState } from 'react';
+
 import ProofListAccount from '@/components/bounty/ProofListAccount';
+import BountyList from '@/components/ui/BountyList';
+import Button from '@/components/ui/Button';
+import FilterButton from '@/components/ui/FilterButton';
+
+import { getBountiesByUser, getClaimsByUser, getContract,  getProvider, getSigner, getURI, fetchBountyById} from '@/app/context/web3';
+
+import { BountiesData, ClaimsData } from '@/types/web3';
 
 
 
@@ -25,9 +27,16 @@ const AccountInfo = () => {
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>([]);
   const [inProgressBounties, setInProgressBounties] = useState("");
   const [ETHinContract, setETHinContract] = useState("");
-  const [completedClaims, setCompletedClaims] = useState("");
+  const [completedClaims, setCompletedClaims] = useState<ClaimsData[]>([]);
   const [submitedClaims, setSubmitedClaims] = useState<ClaimsData[]>([]);
   const [currentSection, setCurrentSection] = useState<string>('a');
+  const [totalETHPaid, setTotalETHPaid] = useState<number>(0);
+  const [totalETHEarn, setTotalETHEarn] = useState<number>(0);
+
+
+
+  
+
 
 
 
@@ -84,11 +93,11 @@ const AccountInfo = () => {
     .then((data: any) => {
       setClaimsData(data);
       const completedClaims = data.filter((claim: any) => claim.accepted === true);
-      const submitedClaims = data.filter((claim: any) => claim.accepted === false);
+      const submitedClaims = data;
 
       setCompletedClaims(completedClaims);
       setSubmitedClaims(submitedClaims);
-
+      console.log(completedClaims)
     });
 
 
@@ -102,12 +111,13 @@ const AccountInfo = () => {
 
   useEffect(() => {
     const fetchClaimInformation = async () => {
-      const claimIds = completedBounties.map(bounty => bounty.claimId);
-      const claimInformationPromises = claimIds.map(async (claimId) => {
-        const uri = await getURI(claimId);
+      const claimInformationPromises = completedBounties.map(async (bounty) => {
+        const uri = await getURI(bounty.claimId);
+        const amount = bounty.amount;
         return {
-          claimId: claimId,
-          claimURI: uri
+          claimId: bounty.claimId,
+          claimURI: uri,
+          amount: amount
         };
       });
       const claimInformation = await Promise.all(claimInformationPromises);
@@ -116,6 +126,43 @@ const AccountInfo = () => {
   
     fetchClaimInformation();
   }, [completedBounties]);
+
+
+  
+useEffect(() => {
+  let totalAmount = BigInt(0);
+  completedBounties.forEach(bounty => {
+    totalAmount += BigInt(bounty.amount);
+  });
+  const totalAmountETH = ethers.formatEther(totalAmount);
+  setTotalETHPaid(Number(totalAmountETH));
+}, [completedBounties]);
+
+
+
+
+
+
+
+
+
+useEffect(() => {
+  console.log("claims:");
+  var bountyIds = completedClaims.map(claim => claim.bountyId);
+  let totalAmount = BigInt(0);
+  Promise.all(bountyIds.map(async bountyId => {
+    const bountyData = await fetchBountyById(bountyId);
+    const amountBigInt = BigInt(bountyData.amount);
+    totalAmount += amountBigInt;
+    const totalAmountEarnETH = ethers.formatEther(totalAmount);
+    setTotalETHEarn(Number(totalAmountEarnETH))
+  }))
+}, [completedClaims]);
+
+
+
+
+
   
   const handleFilterButtonClick = (section: string) => {
     setCurrentSection(section);
@@ -135,31 +182,33 @@ const AccountInfo = () => {
             <span className='text-4xl'>{userAddress}</span>
           </div>
 
-        <div className='flex flex-col'>
+      <div className='flex flex-col'>
       <div>completed bounties: <span className='font-bold' >{completedBounties.length}</span></div>
-      <div>total eth paid: <span className='font-bold' >0.0144</span>  </div>
+      <div>total degen paid: <span className='font-bold' >{totalETHPaid}</span>  </div>
       <div>in progress bounties: <span className='font-bold' >{inProgressBounties.length}</span> </div>
-      <div>total eth in contract: <span className='font-bold' >{ETHinContract}</span>  </div>
+      <div>total degen in contract: <span className='font-bold' >{ETHinContract}</span>  </div>
       <div>completed claims: <span className='font-bold' >{completedClaims.length}</span></div>
-      <div>total eth earned: <span className='font-bold' >0.0109</span>  </div>
-
-     
-
-        </div>
+      <div>total degen earned: <span className='font-bold' >{totalETHEarn}</span>  </div>
+      </div>
       
-        </div>
+
+
+
+    </div>
+
+
     <div className='flex flex-col '>
     <span>poidh score:</span>
     <span className='text-4xl text-[#F15E5F] border-y border-dashed'>123456</span>
-   </div>
-  </div>
+    </div>
+    </div>
 
   
           <div className='flex flex-row overflow-x-scroll items-center py-12 border-b border-white lg:justify-center gap-x-5 '>
-            <FilterButton onClick={() => handleFilterButtonClick('a')} >nft's (3)</FilterButton>
-            <FilterButton onClick={() => handleFilterButtonClick('b')} >your bounties ({inProgressBounties.length})</FilterButton>
-            <FilterButton onClick={() => handleFilterButtonClick('c')} >submitted claims ({submitedClaims.length})</FilterButton>
-            <FilterButton>collab bounties (0)</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('a')} show={currentSection !== 'a'} >nft's ({completedBounties.length})</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('b')} show={currentSection !== 'b'}>your bounties ({inProgressBounties.length})</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'c'}>submitted claims ({submitedClaims.length})</FilterButton>
+            <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton>
           </div>
     
           <div>

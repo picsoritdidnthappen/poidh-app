@@ -1,15 +1,10 @@
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { useEffect, useState } from 'react';
-import { fetchBountyById, getParticipants } from '@/app/context/web3';
-import CreateProof from '@/components/ui/CreateProof';
-import JoinBounty from '@/components/ui/JoinBounty';
-import {OpenBounty, Bounty} from '../../types/web3';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { useBountyContext } from '@/components/bounty/BountyProvider';
+import CreateProof from '@/components/ui/CreateProof';
 
 
 
-function weiToEther(weiValue: string | number): string {
+function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
   return etherValue.toFixed(6); 
 }
@@ -52,7 +47,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       <div className='flex flex-col'>
       <div className="flex mt-5 lg:mt-0 gap-x-2 flex-row">
         <span>{bountyData ? weiToEther(bountyData.amount) : "Loading..."}</span>
-        <span>eth</span>
+        <span>degen</span>
       </div>
       {/* <div >{isMultiplayer? "this is multiplayer" : "no this is solo"}</div> */}
       <div className='' > {!isBountyClaimed && !isOwner ? <CreateProof bountyId={bountyId} /> : ""}</div>

@@ -1,6 +1,6 @@
 
 const Button = ({ children }: { children: React.ReactNode }) => {
-  let buttonClasses = `border border-[#F15E5F] text-[#F15E5F] rounded-md px-5 py-2`
+  const buttonClasses = `border border-[#F15E5F] text-[#F15E5F] rounded-md px-5 py-2`
 
   return (
     <div>

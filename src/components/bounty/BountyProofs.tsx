@@ -1,10 +1,13 @@
-import ProofList from '@/components/bounty/ProofList';
 import React, { useEffect, useState } from 'react';
-import {  bountyCurrentVotingClaim, getClaimsByBountyId, getParticipants} from '@/app/context/web3';
-import NoProof from '@/components/bounty/NoProof';
-import { OpenBounty, Claim } from '@/types/web3';
-import Voting from '@/components/bounty/Voting';
+
 import { useBountyContext } from '@/components/bounty/BountyProvider';
+import NoProof from '@/components/bounty/NoProof';
+import ProofList from '@/components/bounty/ProofList';
+import Voting from '@/components/bounty/Voting';
+
+import {  bountyCurrentVotingClaim, getClaimsByBountyId} from '@/app/context/web3';
+
+import { Claim } from '@/types/web3';
 
 
 
@@ -47,13 +50,11 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
       <span>claims</span></div>
       </div>
       {claimsData && claimsData.length > 0 ? 
-      <ProofList  currentVotingClaim={currentVotingClaim}  openBounty={isMultiplayer} youOwner={isOwner}  data={claimsData} /> 
+      <ProofList bountyId={bountyId} currentVotingClaim={currentVotingClaim}  openBounty={isMultiplayer} youOwner={isOwner}  data={claimsData} /> 
       : <NoProof bountyId={bountyId}/>
       } 
-      <div className='grid grid-cols-12'>
-        {currentVotingClaim !== 0 ? 
-        <Voting  bountyId={bountyId} /> : null}
-      </div>
+      
+     
 
 
 
