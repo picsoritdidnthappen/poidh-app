@@ -5,6 +5,8 @@ import {  ethers } from "ethers";
 
 import Button from "@/components/ui/Button"
 
+import Button from "@/components/ui/Button"
+
 interface BountyItemProps {
   id: string;
   title: string;

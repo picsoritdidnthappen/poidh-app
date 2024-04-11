@@ -106,7 +106,6 @@ const ProofItem: React.FC<ProofItemProps> = ({
     // />
      )} */}
 </div>
-
       <div className="p-3">
         <div className="flex flex-col">
           <p className="">{title}</p>

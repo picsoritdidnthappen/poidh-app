@@ -138,14 +138,6 @@ useEffect(() => {
   setTotalETHPaid(Number(totalAmountETH));
 }, [completedBounties]);
 
-
-
-
-
-
-
-
-
 useEffect(() => {
   console.log("claims:");
   var bountyIds = completedClaims.map(claim => claim.bountyId);
@@ -158,11 +150,6 @@ useEffect(() => {
     setTotalETHEarn(Number(totalAmountEarnETH))
   }))
 }, [completedClaims]);
-
-
-
-
-
   
   const handleFilterButtonClick = (section: string) => {
     setCurrentSection(section);
