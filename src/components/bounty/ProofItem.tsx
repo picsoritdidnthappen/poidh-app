@@ -95,17 +95,17 @@ const ProofItem: React.FC<ProofItemProps> = ({
       {isOwner && !isBountyClaimed && primaryWallet ? <div onClick={handleAcceptClaim} className="right-5 top-5 cursor-pointer text-[#F15E5F] hover:text-white hover:bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
         accept
       </div> : null}
-      <div className="bg-[#12AAFF] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden">
-        {imageUrl && (
-          <Image
-          className="object-cover"
-          src={imageUrl}
-          width={259}
-          height={259}
-          alt="claim image"
-        />
-         )}
-      </div>
+      <div style={{backgroundImage: `url(${imageUrl})`}} className="bg-[#12AAFF] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden">
+    {/* {imageUrl && (
+    //   <Image
+    //   className="object-cover w-full"
+    //   src={imageUrl}
+    //   width={259}
+    //   height={259}
+    //   alt="claim image"
+    // />
+     )} */}
+</div>
       <div className="p-3">
         <div className="flex flex-col">
           <p className="">{title}</p>

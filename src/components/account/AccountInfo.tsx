@@ -10,7 +10,7 @@ import BountyList from '@/components/ui/BountyList';
 import Button from '@/components/ui/Button';
 import FilterButton from '@/components/ui/FilterButton';
 
-import { getBountiesByUser, getClaimsByUser, getContract,  getProvider, getSigner, getURI} from '@/app/context/web3';
+import { getBountiesByUser, getClaimsByUser, getContract,  getProvider, getSigner, getURI, fetchBountyById} from '@/app/context/web3';
 
 import { BountiesData, ClaimsData } from '@/types/web3';
 
@@ -27,7 +27,7 @@ const AccountInfo = () => {
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>([]);
   const [inProgressBounties, setInProgressBounties] = useState("");
   const [ETHinContract, setETHinContract] = useState("");
-  const [completedClaims, setCompletedClaims] = useState("");
+  const [completedClaims, setCompletedClaims] = useState<ClaimsData[]>([]);
   const [submitedClaims, setSubmitedClaims] = useState<ClaimsData[]>([]);
   const [currentSection, setCurrentSection] = useState<string>('a');
   const [totalETHPaid, setTotalETHPaid] = useState<number>(0);
@@ -138,18 +138,18 @@ useEffect(() => {
   setTotalETHPaid(Number(totalAmountETH));
 }, [completedBounties]);
 
-
 useEffect(() => {
-  let totalAmountEarn = BigInt(0);
-  completedBounties.forEach(bounty => {
-    totalAmountEarn += BigInt(bounty.amount);
-  });
-  const totalAmountEarnETH = ethers.formatEther(totalAmountEarn);
-  setTotalETHEarn(Number(totalAmountEarnETH));
-}, [completedBounties]);
-
-
-  
+  console.log("claims:");
+  var bountyIds = completedClaims.map(claim => claim.bountyId);
+  let totalAmount = BigInt(0);
+  Promise.all(bountyIds.map(async bountyId => {
+    const bountyData = await fetchBountyById(bountyId);
+    const amountBigInt = BigInt(bountyData.amount);
+    totalAmount += amountBigInt;
+    const totalAmountEarnETH = ethers.formatEther(totalAmount);
+    setTotalETHEarn(Number(totalAmountEarnETH))
+  }))
+}, [completedClaims]);
   
   const handleFilterButtonClick = (section: string) => {
     setCurrentSection(section);
@@ -169,24 +169,26 @@ useEffect(() => {
             <span className='text-4xl'>{userAddress}</span>
           </div>
 
-        <div className='flex flex-col'>
+      <div className='flex flex-col'>
       <div>completed bounties: <span className='font-bold' >{completedBounties.length}</span></div>
-      <div>total eth paid: <span className='font-bold' >{totalETHPaid}</span>  </div>
+      <div>total degen paid: <span className='font-bold' >{totalETHPaid}</span>  </div>
       <div>in progress bounties: <span className='font-bold' >{inProgressBounties.length}</span> </div>
-      <div>total eth in contract: <span className='font-bold' >{ETHinContract}</span>  </div>
+      <div>total degen in contract: <span className='font-bold' >{ETHinContract}</span>  </div>
       <div>completed claims: <span className='font-bold' >{completedClaims.length}</span></div>
-      <div>total eth earned: <span className='font-bold' >0.0109</span>  </div>
-
-     
-
-        </div>
+      <div>total degen earned: <span className='font-bold' >{totalETHEarn}</span>  </div>
+      </div>
       
-        </div>
+
+
+
+    </div>
+
+
     <div className='flex flex-col '>
     <span>poidh score:</span>
     <span className='text-4xl text-[#F15E5F] border-y border-dashed'>123456</span>
-   </div>
-  </div>
+    </div>
+    </div>
 
   
           <div className='flex flex-row overflow-x-scroll items-center py-12 border-b border-white lg:justify-center gap-x-5 '>

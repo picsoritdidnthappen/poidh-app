@@ -459,7 +459,6 @@ export const getClaimById: GetClaimByIdFunction = async (claimId) => {
 
 
 
-
 // export const getClaimById: GetClaimByIdFunction = async (claimId) => {
 //   const contractRead = await getContractRead();
 //   const claimById = await contractRead.claims(claimId);

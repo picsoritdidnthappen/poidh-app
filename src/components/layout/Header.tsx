@@ -9,6 +9,7 @@ import Logo from '@/components/ui/Logo';
 import ConnectWallet from '@/components/web3/ConnectWallet';
 
 import { WalletContext } from '@/app/context/WalletProvider';
+import Banner from '@/components/global/Banner';
 
 const Header = () => {
   const { isAuthenticated } = useDynamicContext();
@@ -28,6 +29,7 @@ const Header = () => {
 
   return (
     <>
+    <Banner />
     <div className='px-5 lg:px-20 py-12 border-b border-white flex justify-between items-center'>
       <Link href="/">
         <Logo/>

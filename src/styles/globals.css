@@ -155,3 +155,7 @@ body {
   height: 0;
   padding-bottom: 100%;
 }
+
+button {
+  text-transform: lowercase;
+}

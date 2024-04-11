@@ -4,7 +4,7 @@ import CreateProof from '@/components/ui/CreateProof';
 
 
 
-function weiToEther(weiValue: string | number): string {
+function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
   return etherValue.toFixed(6); 
 }
@@ -47,7 +47,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       <div className='flex flex-col'>
       <div className="flex mt-5 lg:mt-0 gap-x-2 flex-row">
         <span>{bountyData ? weiToEther(bountyData.amount) : "Loading..."}</span>
-        <span>eth</span>
+        <span>degen</span>
       </div>
       {/* <div >{isMultiplayer? "this is multiplayer" : "no this is solo"}</div> */}
       <div className='' > {!isBountyClaimed && !isOwner ? <CreateProof bountyId={bountyId} /> : ""}</div>

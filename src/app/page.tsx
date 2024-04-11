@@ -18,6 +18,7 @@ const Home = () => {
   return (
       <ContextProvider>
         <WalletProvider>
+        
         <Header />
         <ContentHome/>
         <div className='fixed bottom-0 w-full'>

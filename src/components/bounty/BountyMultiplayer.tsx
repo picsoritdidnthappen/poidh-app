@@ -84,12 +84,14 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
 
 
 {isOwner ?
+<div className='mt-5'>
 <CancelOpenBounty bountyId={bountyId} />
+</div>
 : null
 }
 </div>
       <div>
-      {isCurrentUserAParticipant && !isBountyClaimed ? <Withdraw bountyId={bountyId}/>  :  null}
+      {isCurrentUserAParticipant && !isBountyClaimed && !isOwner? <Withdraw bountyId={bountyId}/>  :  null}
       </div>
 
       <div>
