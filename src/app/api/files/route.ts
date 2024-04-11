@@ -1,27 +1,43 @@
-import { NextResponse, NextRequest } from "next/server";
+import axios from 'axios';
 
+const apiUrl =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3001'
+    : 'https://us-central1-plated-hangout-393021.cloudfunctions.net/poidh';
 
-export async function POST(request: NextRequest) {
+export const uploadFile = async (file: string | Blob) => {
   try {
-    const data = await request.formData();
-    const file: File | null = data.get("file") as unknown as File;
-    data.append("file", file);
-    data.append("pinataMetadata", JSON.stringify({ name: "File to upload" }));
-    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_JWT}`,
-      },
-      body: data,
-    });
-    const { IpfsHash } = await res.json();
-
-    return NextResponse.json({ IpfsHash }, { status: 200 });
-  } catch (e) {
-    console.log(e);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await axios.post(`${apiUrl}/uploadFile`, formData);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return undefined;
   }
-}
+};
+
+export const uploadMetadata = async (metadata: any) => {
+  try {
+    const response = await axios.post(`${apiUrl}/uploadMetadata`, {
+      metadata,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const buildMetadata = (imageURI: any, name: any, description: any) => {
+  const metadata = {
+    description: description,
+    external_url: 'https://kaspotz.github.io/pics-or-it/',
+    image: imageURI,
+    name: name,
+    attributes: [],
+  };
+  return metadata;
+};
+
+export default buildMetadata;

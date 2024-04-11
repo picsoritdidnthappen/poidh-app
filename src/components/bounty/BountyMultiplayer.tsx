@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
-import { getParticipants } from '@/app/context/web3';
-import JoinBounty from '@/components/ui/JoinBounty';
-import { OpenBounty } from '../../types/web3';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import Withdraw from '@/components/ui/Withdraw';
-import CancelOpenBounty from '@/components/ui/CancelOpenBounty';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useEffect,useState } from 'react';
+
 import { useBountyContext } from '@/components/bounty/BountyProvider';
+import CancelOpenBounty from '@/components/ui/CancelOpenBounty';
+import JoinBounty from '@/components/ui/JoinBounty';
+import Withdraw from '@/components/ui/Withdraw';
+
+import { getParticipants } from '@/app/context/web3';
+
+import { OpenBounty } from '../../types/web3';
 
 function weiToEther(weiValue: string | number): string {
   const etherValue = Number(weiValue) / 1e18;

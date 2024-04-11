@@ -15,9 +15,9 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ option1, option2, handleTog
     handleToggle(selectedOption);
   };
 
-  let buttonClasses = `border border-white rounded-full px-5 py-2`
+  const buttonClasses = `border border-white rounded-full px-5 py-2`
 
-  let gradientClasses = `bg-gradient-to-r bg-gradient-to-l`
+  const gradientClasses = `bg-gradient-to-r bg-gradient-to-l`
   
   return (
     <div className='flex container mx-auto border-b border-white  py-12 w-full  justify-center'> 

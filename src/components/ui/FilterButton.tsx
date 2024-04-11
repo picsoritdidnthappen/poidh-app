@@ -7,8 +7,8 @@ interface FilterButtonProps {
 }
 
 const FilterButton = ({ children, onClick, show }: FilterButtonProps) => {
-  let buttonClasses = `border border-white rounded-full px-5 py-2`
-  let gradienClasses = `bg-gradient-to-r bg-gradient-to-l`
+  const buttonClasses = `border border-white rounded-full px-5 py-2`
+  const gradienClasses = `bg-gradient-to-r bg-gradient-to-l`
   
   return (
     <div

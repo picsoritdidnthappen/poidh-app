@@ -1,8 +1,9 @@
 //@ts-nocheck
 
-import { Contract } from "ethers";
-import abi from './abi';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { Contract } from "ethers";
+
+import abi from './abi';
 
 
 

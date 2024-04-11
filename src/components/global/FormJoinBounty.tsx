@@ -1,6 +1,7 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { useState } from 'react';
-import { joinOpenBounty, getContract, getSigner} from '@/app/context/web3';
+
+import {joinOpenBounty} from '@/app/context/web3';
 
 
 

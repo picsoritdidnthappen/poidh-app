@@ -1,5 +1,6 @@
-import ProofItem from '@/components/bounty/ProofItem';
 import React, { useEffect, useState } from 'react';
+
+import ProofItem from '@/components/bounty/ProofItem';
 
 
 interface Claim {

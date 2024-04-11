@@ -1,16 +1,18 @@
 "use client"
-import { useEffect, useState } from 'react';
-import {  ethers } from "ethers";
 import {
   useDynamicContext,
 } from '@dynamic-labs/sdk-react-core'
-import { getSigner, getContract, getBountiesByUser, getProvider, getClaimsByUser, getNftsOfOwner , getClaimById, getURI} from '@/app/context/web3';
-import Button from '@/components/ui/Button';
-import BountyList from '@/components/ui/BountyList';
-import { BountiesData, ClaimsData } from '@/types/web3';
-import FilterButton from '@/components/ui/FilterButton';
-import ProofList from '@/components/bounty/ProofList';
+import {  ethers } from "ethers";
+import { useEffect, useState } from 'react';
+
 import ProofListAccount from '@/components/bounty/ProofListAccount';
+import BountyList from '@/components/ui/BountyList';
+import Button from '@/components/ui/Button';
+import FilterButton from '@/components/ui/FilterButton';
+
+import { getBountiesByUser, getClaimsByUser, getContract,  getProvider, getSigner, getURI} from '@/app/context/web3';
+
+import { BountiesData, ClaimsData } from '@/types/web3';
 
 
 
@@ -128,7 +130,7 @@ const AccountInfo = () => {
 
   
 useEffect(() => {
-  let totalAmount: bigint = BigInt(0);
+  let totalAmount = BigInt(0);
   completedBounties.forEach(bounty => {
     totalAmount += BigInt(bounty.amount);
   });
@@ -138,7 +140,7 @@ useEffect(() => {
 
 
 useEffect(() => {
-  let totalAmountEarn: bigint = BigInt(0);
+  let totalAmountEarn = BigInt(0);
   completedBounties.forEach(bounty => {
     totalAmountEarn += BigInt(bounty.amount);
   });

@@ -1,12 +1,14 @@
 'use client'
-import React, { useContext, useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import ConnectWallet from '@/components/web3/ConnectWallet';
-import Logo from '@/components/ui/Logo';
+import Link from 'next/link';
+import React, { useContext, useEffect,useState } from 'react';
+
 import Menu from '@/components/global/Menu';
-import { WalletContext } from '@/app/context/WalletProvider';
 import Footer from '@/components/layout/Footer';
+import Logo from '@/components/ui/Logo';
+import ConnectWallet from '@/components/web3/ConnectWallet';
+
+import { WalletContext } from '@/app/context/WalletProvider';
 
 const Header = () => {
   const { isAuthenticated } = useDynamicContext();

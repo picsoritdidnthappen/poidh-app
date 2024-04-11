@@ -1,10 +1,13 @@
-import ProofList from '@/components/bounty/ProofList';
 import React, { useEffect, useState } from 'react';
-import {  bountyCurrentVotingClaim, getClaimsByBountyId, getParticipants} from '@/app/context/web3';
-import NoProof from '@/components/bounty/NoProof';
-import { OpenBounty, Claim } from '@/types/web3';
-import Voting from '@/components/bounty/Voting';
+
 import { useBountyContext } from '@/components/bounty/BountyProvider';
+import NoProof from '@/components/bounty/NoProof';
+import ProofList from '@/components/bounty/ProofList';
+import Voting from '@/components/bounty/Voting';
+
+import {  bountyCurrentVotingClaim, getClaimsByBountyId} from '@/app/context/web3';
+
+import { Claim } from '@/types/web3';
 
 
 

@@ -1,11 +1,6 @@
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { useEffect, useState } from 'react';
-import { fetchBountyById, getParticipants } from '@/app/context/web3';
-import CreateProof from '@/components/ui/CreateProof';
-import JoinBounty from '@/components/ui/JoinBounty';
-import {OpenBounty, Bounty} from '../../types/web3';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { useBountyContext } from '@/components/bounty/BountyProvider';
+import CreateProof from '@/components/ui/CreateProof';
 
 
 

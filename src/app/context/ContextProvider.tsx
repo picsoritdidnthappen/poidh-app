@@ -1,10 +1,10 @@
 'use client'
-import React, { ReactNode } from 'react';
+import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import { EthersExtension } from "@dynamic-labs/ethers-v6";
 import {
   DynamicContextProvider,
 } from "@dynamic-labs/sdk-react-core";
-import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
-import { EthersExtension } from "@dynamic-labs/ethers-v6";
+import React, { ReactNode } from 'react';
 
 
 

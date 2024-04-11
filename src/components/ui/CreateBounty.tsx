@@ -1,7 +1,8 @@
 
 import React, {useState} from 'react';
-import ButtonCTA from '@/components/ui/ButtonCTA';
+
 import Form from '@/components/global/Form';
+import ButtonCTA from '@/components/ui/ButtonCTA';
 
 const CreateBounty = () => {
   const [showForm, setShowForm] = useState(false);

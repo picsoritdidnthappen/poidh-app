@@ -1,9 +1,10 @@
 
 import { Contract, ethers } from "ethers";
+
 import abi from './abi';
 import abiNFT from './abiNFT'
 import chains from './config'; 
-import {  CreateBountyFunction,withdrawFromOpenBountyFunction ,SubmitClaimForVoteFunction, GetParticipants, CreateClaimFunction, AcceptClaimFunction, CancelBountyFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetBountiesByUserFunction, Bounty , GetClaimsByUserFunction, GetClaimsByBountyIdFunction, GetURIFunction, Claim, GetAllBountiesFunction, JoinOpenBountyFunction, BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, VoteClaimFunction, ResolveVoteFunction, GetClaimByIdFunction  } from '../../types/web3';
+import {  AcceptClaimFunction, Bounty , BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, CancelBountyFunction, Claim, CreateBountyFunction,CreateClaimFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetAllBountiesFunction, GetBountiesByUserFunction, GetClaimByIdFunction,GetClaimsByBountyIdFunction, GetClaimsByUserFunction, GetParticipants, GetURIFunction, JoinOpenBountyFunction, ResolveVoteFunction, SubmitClaimForVoteFunction, VoteClaimFunction, withdrawFromOpenBountyFunction   } from '../../types/web3';
 
 
 const currentChain = chains.sepolia;
@@ -113,10 +114,11 @@ export const createClaim: CreateClaimFunction = async (
   primaryWallet, name, uri, description, bountyId
 ) => {
   try {
+    console.log('uri', uri)
     const signer = await getSigner(primaryWallet);
     const contract = await getContract(signer);
     const transaction = await contract.createClaim(bountyId, name, uri, description);
-    await transaction.wait();
+    const res = await transaction.wait();
   } catch (error) {
     console.error('Error creating claim:', error);
   }

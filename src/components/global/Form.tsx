@@ -1,8 +1,10 @@
-import { useState } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { createSoloBounty,  createOpenBounty } from '@/app/context/web3';
-import ButtonCTA from '@/components/ui/ButtonCTA';
 import { Switch } from '@mui/material';
+import { useState } from 'react';
+
+import ButtonCTA from '@/components/ui/ButtonCTA';
+
+import { createOpenBounty,createSoloBounty } from '@/app/context/web3';
 
 
 const Form = () => {

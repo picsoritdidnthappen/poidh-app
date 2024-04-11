@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { getURI, acceptClaim, submitClaimForVote } from '@/app/context/web3';
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import React, { useEffect, useState } from 'react';
+
 import { useBountyContext } from '@/components/bounty/BountyProvider';
+
+import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
 
 interface ProofItemProps {
   id: string;

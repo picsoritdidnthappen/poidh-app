@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import React, { useEffect, useState } from 'react';
+
 import { cancelSoloBounty, fetchBountyById,  } from '@/app/context/web3';
+
 import { Bounty } from '@/types/web3';
 
 

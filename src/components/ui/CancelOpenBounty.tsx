@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
-import {cancelOpenBounty} from '@/app/context/web3'
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import React from 'react';
+
+import {cancelOpenBounty} from '@/app/context/web3'
 
 
 interface CancelOpenBountyyProps {

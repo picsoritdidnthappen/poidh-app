@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import React, { createContext, ReactNode,useContext, useEffect, useState } from 'react';
+
 import { fetchBountyById, getParticipants } from '@/app/context/web3';
+
 import { Bounty } from '@/types/web3';
 
 

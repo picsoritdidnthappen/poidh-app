@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import ButtonCTA from '@/components/ui/ButtonCTA';
-import FormProof from '@/components/global/FormProof';
+
 import FormJoinBounty from '@/components/global/FormJoinBounty';
+import ButtonCTA from '@/components/ui/ButtonCTA';
 
 interface JoinBountyProps {
   bountyId: string;

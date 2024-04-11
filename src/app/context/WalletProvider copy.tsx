@@ -1,8 +1,7 @@
 //@ts-nocheck
-import { useContract } from '@/app/context/web3';
-import React, { ReactNode, useEffect, useState } from 'react';
-import { ethers, Contract, Signer } from 'ethers';
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { ethers } from 'ethers';
+import React, { ReactNode, useEffect } from 'react';
+
 import { getContract, getSigner } from '@/app/context/web3';
 
 interface WalletProviderProps {
@@ -33,9 +32,9 @@ const WalletProvider: React.FC<WalletProviderProps> =  ({ children }) => {
       
 
       console.log(signer?.address);
-        let myWallet = '0x7aeb953571294652527b14DF6Bce207B5E3915F1';
-        let reciever = '0x65b810A686034F2Ca2A9873aCD6b10b94e6e8E5d';
-        let tx = {
+        const myWallet = '0x7aeb953571294652527b14DF6Bce207B5E3915F1';
+        const reciever = '0x65b810A686034F2Ca2A9873aCD6b10b94e6e8E5d';
+        const tx = {
             to: reciever,
             value: ethers.parseUnits('0.001', 'ether'),
         };
@@ -45,7 +44,7 @@ const WalletProvider: React.FC<WalletProviderProps> =  ({ children }) => {
         console.log(`Estimated Gas: ${gasEstimate.toString()}`);
 
         // Send transaction
-        let txResponse = await signer.sendTransaction({
+        const txResponse = await signer.sendTransaction({
             ...tx, 
             gasLimit: gasEstimate, 
         });

@@ -1,8 +1,8 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import BountyItem from '@/components/ui/BountyItem'; 
-import FilterButton from '@/components/ui/FilterButton';
+
 import {  BountyListProps } from '../../types/web3';
 
 

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
-import ButtonCTA from '@/components/ui/ButtonCTA';
+
 import FormProof from '@/components/global/FormProof';
+import ButtonCTA from '@/components/ui/ButtonCTA';
 
 interface FormProofProps {
   bountyId: string;

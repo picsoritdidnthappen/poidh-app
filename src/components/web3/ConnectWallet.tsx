@@ -1,6 +1,6 @@
 import {
-  useDynamicContext,
   DynamicConnectButton,
+  useDynamicContext,
 } from '@dynamic-labs/sdk-react-core'
 
 

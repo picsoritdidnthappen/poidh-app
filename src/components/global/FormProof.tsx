@@ -1,7 +1,11 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { createClaim } from '@/app/context/web3';
+import imageCompression from 'browser-image-compression';
+import { useCallback, useEffect,useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+
+import { createClaim } from '@/app/context/web3';
+
+import { buildMetadata, uploadFile, uploadMetadata } from '../../app/api/files/route';
 
 interface FormProofProps {
   bountyId: string;
@@ -12,7 +16,6 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setFile(file);
-    uploadFile(file);
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       if (e.target?.result) {
@@ -26,52 +29,77 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [preview, setPreview] = useState('');
   const { primaryWallet } = useDynamicContext();
   const [name, setName] = useState('');
-  const [uri, setUri] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const [cid, setCid] = useState('');
+  const [imageURI, setImageURI] = useState('');
   const [uploading, setUploading] = useState(false);
   const inputFile = useRef<HTMLInputElement>(null);
 
-  const uploadFile = async (fileToUpload: any) => {
+  const compressImage = async (image: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 10,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
     try {
-      setUploading(true);
-      const data = new FormData();
-      data.set('file', fileToUpload);
-      const res = await fetch('/api/files', {
-        method: 'POST',
-        body: data,
-      });
-      const resData = await res.json();
-      console.log('da kommt cid:', resData.IpfsHash);
-      setCid(resData.IpfsHash);
-      setUploading(false);
-    } catch (e) {
-      console.log(e);
-      setUploading(false);
-      alert('Trouble uploading file');
+      const compressedFile = await imageCompression(image, options);
+      return compressedFile;
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      throw error;
     }
   };
 
+  const retryUpload = async (file: File): Promise<string> => {
+    const MAX_RETRIES = 6;
+    const RETRY_DELAY = 3000;
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const cid = await uploadFile(file);
+        return cid.IpfsHash;
+      } catch (error) {
+        if (attempt === MAX_RETRIES) {
+          throw error;
+        }
+        console.log(`Attempt ${attempt} failed, retrying in ${RETRY_DELAY}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+      }
+    }
+    throw new Error('All attempts failed');
+  };
+
   useEffect(() => {
-    console.log('ciddd:', cid);
-    setUri(
-      JSON.stringify({
-        name: name,
-        description: description,
-        uri: `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${cid}`,
-      })
-    );
-  }, [cid, name, description]);
+    const uploadImage = async () => {
+      if (file) {
+        setUploading(true);
+        try {
+          const compressedFile = await compressImage(file);
+          const cid = await retryUpload(compressedFile);
+          setImageURI(`https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${cid}`);
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          alert('Trouble uploading file');
+        }
+        setUploading(false);
+      }
+    };
+
+    uploadImage();
+  }, [file]);
 
   const handleCreateClaim = async () => {
-    if (!name || !description || !primaryWallet) {
-      alert('Please fill in all fields and connect wallet');
+    if (!name || !description || !primaryWallet || !imageURI) {
+      alert('Please fill in all fields, upload an image, and connect wallet');
       return;
     }
 
     try {
-    
+      const metadata = buildMetadata(imageURI, name, description);
+      const metadataResponse = await uploadMetadata(metadata);
+      const uri = `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${metadataResponse.IpfsHash}`
+      console.log(uri)
+      console.log(imageURI)
       await createClaim(primaryWallet, name, uri, description, bountyId);
       alert('Claim created successfully!');
     } catch (error) {
@@ -81,39 +109,55 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   };
 
   return (
-    <div className=' mt-10 flex text-left flex-col  text-white rounded-md border border-[#D1ECFF]  p-5 flex w-full lg:min-w-[400px]  justify-center backdrop-blur-sm bg-white/30'>
+    <div className="mt-10 flex text-left flex-col text-white rounded-md border border-[#D1ECFF] p-5 flex w-full lg:min-w-[400px] justify-center backdrop-blur-sm bg-white/30">
       <div
         {...getRootProps()}
-        className=' flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center  cursor-pointer'
+        className="flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center cursor-pointer"
       >
         <input {...getInputProps()} />
-        {isDragActive ? <p>Drop the files here ...</p> : <p>drop the file here ...</p>}
-        {preview && <img src={preview} alt='Preview' style={{ width: '200px', height: '200px', marginTop: '10px' }} />}
+        {isDragActive ? (
+          <p>Drop the files here ...</p>
+        ) : (
+          <p>drop the file here ...</p>
+        )}
+        {preview && (
+          <img
+            src={preview}
+            alt="Preview"
+            style={{ width: '200px', height: '200px', marginTop: '10px' }}
+          />
+        )}
       </div>
 
       <span>name</span>
       <input
-        type='text'
-        placeholder=''
+        type="text"
+        placeholder=""
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4'
+        className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
       />
 
       <span>description</span>
       <textarea
         rows={3}
-        placeholder=''
+        placeholder=""
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4'
+        className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
       ></textarea>
 
-      <button disabled={uploading} onClick={() => inputFile.current?.click()}>
+      <button
+        disabled={uploading}
+        onClick={() => inputFile.current?.click()}
+      >
         {uploading ? 'uploading...' : 'upload'}
       </button>
 
-      <button className='border border-white mt-5 rounded-full px-5 py-2' onClick={handleCreateClaim}>
+      <button
+        className="border border-white mt-5 rounded-full px-5 py-2"
+        onClick={handleCreateClaim}
+      >
         create claim
       </button>
     </div>
