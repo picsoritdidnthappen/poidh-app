@@ -21,7 +21,7 @@ const Home = () => {
         
         <Header />
         <ContentHome/>
-        <div className='fixed bottom-0 w-full'>
+        <div className='fixed bottom-0 w-full h-full'>
         <CreateBounty />
         </div>
          <Footer />

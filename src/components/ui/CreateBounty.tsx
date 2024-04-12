@@ -10,7 +10,7 @@ const CreateBounty = () => {
   return (
   <div className='w-full py-12 flex justify-center items-center lg:flex-col'>
 { !showForm ?
-<div className='flex cursor-pointer flex-col items-center justify-center ' onClick={() => setShowForm(!showForm)} >
+<div className='absolute bottom-10 flex cursor-pointer flex-col items-center justify-center ' onClick={() => setShowForm(!showForm)} >
 <svg width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_dd_615_3757)">
 <rect x="16.5" y="17" width="125" height="125" rx="62.5" fill="#E2EFFB" fillOpacity="0.5"/>
