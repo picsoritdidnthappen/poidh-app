@@ -21,8 +21,8 @@ const Home = () => {
         
         <Header />
         <ContentHome/>
-        <div className='fixed bottom-0 w-full h-full'>
-        <CreateBounty />
+        <div className='fixed bottom-0 w-full h-full -z-10'>
+          <CreateBounty />
         </div>
          <Footer />
          </WalletProvider>

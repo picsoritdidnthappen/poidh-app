@@ -58,10 +58,10 @@ const ContentHome = () => {
 
   return (
     <>
-      <div>
+      <div className="z-1">
         <ToggleButton option1="Open Bounties" option2="Past Bounties" handleToggle={handleToggle} />
       </div>
-      <div className="pb-20">
+      <div className="pb-20 z-1">
         {/* Render either openBounties or pastBounties based on displayOpenBounties state */}
         <BountyList bountiesData={displayOpenBounties ? openBounties : pastBounties} />
       </div>
