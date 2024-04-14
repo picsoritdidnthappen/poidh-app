@@ -10,7 +10,7 @@ const chains = {
     },
   },
   degen: {
-    name: "Degen Base Testnet",
+    name: "Degen Mainnet",
     jsonProviderUrl: "https://rpc.degen.tips",
     contracts: {
       mainContract: "0x0Aa50ce0d724cc28f8F7aF4630c32377B4d5c27d",
@@ -18,6 +18,21 @@ const chains = {
     },
   },
 };
+
+export const networks = [
+  {
+    "name": "sepolia",
+    "chainId": 84532,
+  },
+  {
+    "name": "degen",
+    "chainId": 666666666,
+  },
+  {
+    "name": "base",
+    "chainId": 8453,
+  }
+]
 
 
 

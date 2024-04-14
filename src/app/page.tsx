@@ -13,12 +13,9 @@ import WalletProvider from '@/app/context/WalletProvider';
 
 
 const Home = () => {
-
-  
   return (
       <ContextProvider>
         <WalletProvider>
-        
         <Header />
         <ContentHome/>
         <CreateBounty />
