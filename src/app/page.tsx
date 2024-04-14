@@ -13,17 +13,12 @@ import WalletProvider from '@/app/context/WalletProvider';
 
 
 const Home = () => {
-
-  
   return (
       <ContextProvider>
         <WalletProvider>
-        
         <Header />
         <ContentHome/>
-        <div className='fixed bottom-0 w-full'>
         <CreateBounty />
-        </div>
          <Footer />
          </WalletProvider>
       </ContextProvider>

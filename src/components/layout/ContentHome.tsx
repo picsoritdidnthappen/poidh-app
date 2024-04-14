@@ -1,21 +1,63 @@
+'use-client';
+
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useEffect, useState } from "react";
 
 import BountyList from "@/components/ui/BountyList";
 import ToggleButton from "@/components/ui/ToggleButton";
 
+import { networks } from "@/app/context/config";
 import { fetchAllBounties } from "@/app/context/web3";
 
 import { BountiesData } from '../../types/web3';
 
+
 const ContentHome = () => {
-  const { primaryWallet } = useDynamicContext();
+  const { primaryWallet, network, isAuthenticated } = useDynamicContext();
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
   const [openBounties, setOpenBounties] = useState<BountiesData[]>([]);
   const [pastBounties, setPastBounties] = useState<BountiesData[]>([]);
   const [loadedBountiesCount, setLoadedBountiesCount] = useState<number>(20);
   const [hasMoreBounties, setHasMoreBounties] = useState<boolean>(false);
   const [displayOpenBounties, setDisplayOpenBounties] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (typeof window !== 'undefined') {
+        // Client-side only
+        const currentUrl = new URL(window.location.href);
+        const hostname = currentUrl.hostname;
+        const parts = hostname.split('.');
+  
+        let chain = '';
+        switch (parts[0]) {
+          case 'poidh.xyz':
+            chain = 'degen';
+            break;
+          case 'localhost':
+            chain = 'sepolia';
+            break;
+          case 'degen':
+            chain = 'degen';
+            break;
+          case 'base':
+            chain = 'base';
+            break;
+          default:
+            chain = 'degen';
+        }
+  
+        const targetChain = networks.find(n => n.name === chain);
+        const targetChainId = targetChain?.chainId;
+  
+        if (isAuthenticated && targetChainId && targetChainId !== network) {
+          await primaryWallet?.connector.switchNetwork({networkChainId: targetChainId});
+        }
+      }
+    };
+  
+    fetchData();
+  }, [isAuthenticated, network, primaryWallet]); // Re-run on route change
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,10 +100,10 @@ const ContentHome = () => {
 
   return (
     <>
-      <div>
+      <div className="z-1">
         <ToggleButton option1="Open Bounties" option2="Past Bounties" handleToggle={handleToggle} />
       </div>
-      <div className="pb-20">
+      <div className="pb-20 z-1">
         {/* Render either openBounties or pastBounties based on displayOpenBounties state */}
         <BountyList bountiesData={displayOpenBounties ? openBounties : pastBounties} />
       </div>

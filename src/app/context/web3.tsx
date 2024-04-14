@@ -7,7 +7,7 @@ import chains from './config';
 import {  AcceptClaimFunction, Bounty , BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, CancelBountyFunction, Claim, CreateBountyFunction,CreateClaimFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetAllBountiesFunction, GetBountiesByUserFunction, GetClaimByIdFunction,GetClaimsByBountyIdFunction, GetClaimsByUserFunction, GetParticipants, GetURIFunction, JoinOpenBountyFunction, ResolveVoteFunction, SubmitClaimForVoteFunction, VoteClaimFunction, withdrawFromOpenBountyFunction   } from '../../types/web3';
 
 
-const currentChain = chains.sepolia;
+const currentChain = chains.degen;
 
 export const getSigner = async (primaryWallet: any) => {
   const signer = await primaryWallet?.connector?.ethers?.getSigner();

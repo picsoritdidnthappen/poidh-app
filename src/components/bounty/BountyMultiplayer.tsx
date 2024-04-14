@@ -70,7 +70,7 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
               {participants ? (
                 participants.addresses.map((address, index) => (
                   <div className="py-2" key={index}>
-                    {address.substring(0, 6)}...{address.substring(address.length - 3)} - {weiToEther(participants.amounts[index])} ETH
+                    {address.substring(0, 6)}...{address.substring(address.length - 3)} - {weiToEther(participants.amounts[index])} degen
                   </div>
                 ))
               ) : (

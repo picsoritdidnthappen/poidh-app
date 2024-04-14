@@ -34,6 +34,7 @@ const ProofList: React.FC<ProofListProps> = ({ data, youOwner, openBounty, curre
   }, [data]);
 
 
+  console.log(currentVotingClaim)
 
   return (
     <>
@@ -59,8 +60,8 @@ const ProofList: React.FC<ProofListProps> = ({ data, youOwner, openBounty, curre
         <Voting  bountyId={bountyId} /> : null}
       </div>
 
-    <div className={`${currentVotingClaim !== 0 ? "hidden" : ""} container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0`}>
-      <p className='col-span-12'>other claims</p>
+    <div className={`${currentVotingClaim !== 0 ? "lg:grid lg:grid-cols-12" : " hidden "} container mx-auto px-0  py-12 flex flex-col gap-12 lg:gap-12 lg:px-0`}>
+    <p className='col-span-12'>other claims</p>
       {data.map((claim) => (
         <div key={claim.id} className={`${currentVotingClaim === 0 || currentVotingClaim === Number(claim.id) ? "hidden" : ""} lg:col-span-4`}>
         <ProofItem 

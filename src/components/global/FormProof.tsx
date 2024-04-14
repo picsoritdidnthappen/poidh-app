@@ -138,14 +138,15 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
         className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
       />
 
-      <span>description</span>
-      <textarea
-        rows={3}
-        placeholder=""
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
-      ></textarea>
+<span>description</span>
+<textarea
+  rows={3}
+  placeholder=""
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
+  maxLength={304} 
+  className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
+></textarea>
 
       <button
         disabled={uploading}

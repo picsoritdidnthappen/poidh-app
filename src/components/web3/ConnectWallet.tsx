@@ -22,7 +22,7 @@ const ConnectWallet = () => {
 
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col z-10'>
       
 
       {!isAuthenticated ?

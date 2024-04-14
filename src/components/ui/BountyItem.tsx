@@ -1,11 +1,9 @@
+import {  ethers } from "ethers";
 import Link from "next/link";
 import React from 'react';
-import {  ethers } from "ethers";
-
 
 import Button from "@/components/ui/Button"
 
-import Button from "@/components/ui/Button"
 
 interface BountyItemProps {
   id: string;
