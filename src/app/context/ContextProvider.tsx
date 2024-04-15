@@ -19,7 +19,7 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
   return (
     <DynamicContextProvider 
       settings={{ 
-        environmentId: '622731b3-a151-4656-8b08-de858d71d397',
+        environmentId: 'f22c5820-7435-4025-a7ef-0a9b56286070',
         walletConnectors: [EthereumWalletConnectors],
         networkValidationMode: "always",
         walletConnectorExtensions: [EthersExtension],
