@@ -1,6 +1,7 @@
 import {
   DynamicConnectButton,
   useDynamicContext,
+  DynamicWidget,
 } from '@dynamic-labs/sdk-react-core'
 
 
