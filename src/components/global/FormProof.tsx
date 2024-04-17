@@ -99,7 +99,10 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${metadataResponse.IpfsHash}`
       console.log(uri)
-      console.log(imageURI)
+      console.log(metadataResponse.IpfsHash)
+      console.log(bountyId)
+      console.log(primaryWallet)
+      console.log(name)
       await createClaim(primaryWallet, name, uri, description, bountyId);
       alert('Claim created successfully!');
     } catch (error) {
