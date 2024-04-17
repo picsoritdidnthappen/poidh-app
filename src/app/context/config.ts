@@ -13,7 +13,7 @@ const chains = {
     name: "Degen Mainnet",
     jsonProviderUrl: "https://rpc.degen.tips",
     contracts: {
-      mainContract: "0x8E996487b6aBf861D0D70bFA6A40720cCDb82A3d",
+      mainContract: "0x2445BfFc6aB9EEc6C562f8D7EE325CddF1780814",
       nftContract: "0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80",
     },
   },
