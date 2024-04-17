@@ -71,16 +71,12 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
 
   useEffect(() => {
     const uploadImage = async () => {
-      console.log('here1')
       if (file) {
-        console.log('here2')
         setUploading(true);
         try {
           const compressedFile = await compressImage(file);
-          console.log('here3')
           const cid = await retryUpload(compressedFile);
           setImageURI(`https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${cid}`);
-          console.log(`https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${cid}`)
         } catch (error) {
           console.error('Error uploading file:', error);
           alert('Trouble uploading file');
