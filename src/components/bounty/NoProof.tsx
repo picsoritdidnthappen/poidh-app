@@ -62,7 +62,7 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
   return (
     <div className='flex flex-col text-center my-20 w-full items-center'>
       <span>      
-        { !bountyCanceled ?  "this bounty has not yet received any claim." : "bounty canceled"}
+        { !bountyCanceled ?  "this bounty has not yet received a claim" : "bounty canceled"}
       </span>
       {walletConnected && youOwner && !bountyCanceled ? (
         <button onClick={handleCancelBounty} className='border border-[#F15E5F] text-[#F15E5F] rounded-md py-2 px-5 mt-5'>
