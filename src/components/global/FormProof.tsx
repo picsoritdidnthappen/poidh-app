@@ -71,12 +71,16 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
 
   useEffect(() => {
     const uploadImage = async () => {
+      console.log('here1')
       if (file) {
+        console.log('here2')
         setUploading(true);
         try {
           const compressedFile = await compressImage(file);
+          console.log('here3')
           const cid = await retryUpload(compressedFile);
           setImageURI(`https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${cid}`);
+          console.log(`https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${cid}`)
         } catch (error) {
           console.error('Error uploading file:', error);
           alert('Trouble uploading file');
@@ -99,7 +103,10 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${metadataResponse.IpfsHash}`
       console.log(uri)
-      console.log(imageURI)
+      console.log(metadataResponse.IpfsHash)
+      console.log(bountyId)
+      console.log(primaryWallet)
+      console.log(name)
       await createClaim(primaryWallet, name, uri, description, bountyId);
       alert('Claim created successfully!');
     } catch (error) {
