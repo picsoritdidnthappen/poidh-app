@@ -16,8 +16,11 @@ import { BountiesData, ClaimsData, NFTDetails } from '@/types/web3';
 
 import { usePathname } from 'next/navigation';
 import { publicClient, walletClient } from '../../app/context/client'
+import abiNFT from '../../app/context/abiNFT'
+
 import { formatEther } from 'viem'
 import NftList from '../bounty/NftList';
+
 
 
 
@@ -42,18 +45,6 @@ const AccountInfo = () => {
   const [nftDetails, setNftDetails] = useState<NFTDetails[] | null>([]); 
 
 
-  // const [completedNFTs, setCompletedNFTs] = useState<[]>([]);
-
-  // const router = useRouter();  
-
-
-  // const pathname = usePathname();
-
-  // console.log(pathname)
-  // console.log(userAddress)
-
-
-
 
 
 // user info
@@ -63,7 +54,21 @@ useEffect(() => {
       const provider = await getProvider()
       const contract = await getContract(signer)
 
-      const balanceNFT = await getNftsOfOwner();
+
+      // const filter = await publicClient.createContractEventFilter({
+      //   abi: abiNFT,
+      //   address: '0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc',
+      //   eventName: 'Transfer',
+      //   // args: {  
+      //   //   from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+      //   //   to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+      //   // }
+      // })
+
+      // console.log(filter)
+
+
+      const balanceNFT = await getNftsOfOwner(signer);
       const nftDetailsPromises = balanceNFT.map(async (nftId) => {
           const uri = await getURI(nftId);
           const response = await fetch(uri);
@@ -71,7 +76,7 @@ useEffect(() => {
           const claims = await getClaimById(nftId);
           if (claims.length > 0) {
               const { name, description } = claims[0];
-              return {  name: data?.name , description: data?.description , nftId: claims[0].id, uri: data?.image } as NFTDetails;
+              return { name: data?.name, description: data?.description, nftId: claims[0].id, uri: data?.image } as NFTDetails;
           }
           return null;
       });
@@ -246,7 +251,7 @@ const handleFilterButtonClick = (section: string) => {
             <FilterButton onClick={() => handleFilterButtonClick('a')} show={currentSection !== 'a'} >nft's ({completedBounties.length})</FilterButton>
             <FilterButton onClick={() => handleFilterButtonClick('b')} show={currentSection !== 'b'}>your bounties ({inProgressBounties.length + completedBounties.length })</FilterButton>
             <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'c'}>submitted claims ({submitedClaims.length})</FilterButton>
-            <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton>
+            {/* <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton> */}
           </div>
     
           <div>

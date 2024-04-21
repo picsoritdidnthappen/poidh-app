@@ -10,6 +10,7 @@ import { networks } from "@/app/context/config";
 import { fetchAllBounties } from "@/app/context/web3";
 
 import { BountiesData } from '../../types/web3';
+ 
 
 
 const ContentHome = () => {
@@ -48,7 +49,8 @@ const ContentHome = () => {
         }
   
         const targetChain = networks.find(n => n.name === chain);
-
+  
+      
       }
     };
   

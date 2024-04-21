@@ -8,9 +8,7 @@ const CreateBounty = () => {
   const [showForm, setShowForm] = useState(false);
 
   return (
-
   <div className={`fixed ${!showForm ? "bottom-20" : "top-0 left-0" } z-40 w-full py-12 flex justify-center items-center lg:flex-col`} >
-
 { !showForm ?
 <div className='absolute bottom-10 flex cursor-pointer flex-col items-center justify-center ' onClick={() => setShowForm(!showForm)} >
 <svg width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -131,7 +129,6 @@ null }
 
       {showForm && (
         <div className='md:w-auto lg:top-5 relative'>
-
         <button onClick={() => setShowForm(!showForm)} className='absolute right-0 border border-[#D1ECFF] backdrop-blur-sm bg-white/30 rounded-full p-2'>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M13 1L1 13M1 1L13 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
