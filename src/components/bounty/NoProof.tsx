@@ -65,7 +65,7 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
         { !bountyCanceled ?  "this bounty has not yet received a claim" : "bounty canceled"}
       </span>
       {walletConnected && youOwner && !bountyCanceled ? (
-        <button onClick={handleCancelBounty} className='border border-[#F15E5F] text-[#F15E5F] rounded-md py-2 px-5 mt-5'>
+        <button onClick={handleCancelBounty} className='border hidden border-[#F15E5F] text-[#F15E5F] rounded-md py-2 px-5 mt-5'>
           cancel bounty
         </button>
       ) : walletConnected && !youOwner && !bountyCanceled ? (

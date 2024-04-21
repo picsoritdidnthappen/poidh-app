@@ -25,7 +25,13 @@ const ConnectWallet = () => {
 
   return (
     <div className='flex flex-col z-10'>
-       <DynamicWidget variant='modal' />
+
+        <DynamicWidget
+        innerButtonComponent={ <div>
+connect
+
+        </div>}
+       variant='modal' />
 
    
 

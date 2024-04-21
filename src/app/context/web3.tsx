@@ -34,13 +34,27 @@ export const getNFTContractRead = async () => {
 };
 
 
-export const getNftsOfOwner = async () => {
-  const contract = getNFTContractRead()
 
-  // console.log(contract)
-  // console.log(balance)
-  return contract
-}
+export const getNftsOfOwner = async () => {
+  const provider = await getProvider();
+  const contract = new Contract(currentChain.contracts.nftContract, abiNFT, provider);
+  const ownerBalance = await contract.balanceOf("0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc");
+  let tokenIds = [];
+
+  for (let i = 0; i < ownerBalance; i++) {
+    const tokenId = await contract.tokenOfOwnerByIndex("0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc", i);
+    tokenIds.push(tokenId.toString());
+  }
+
+  const tokenDataPromises = tokenIds.map(id => contract.tokenByIndex(id));
+  const tokenData = await Promise.all(tokenDataPromises);
+
+  console.log(`Token IDs owned by 0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc: ${tokenIds}`);
+  console.log("Data:", tokenData);
+  // console.log(ownerBalance);
+
+  return tokenIds;
+};
 
 // async function getNFTsOfOwner() {
 //   const contract = new ethers.Contract(contractAddress, erc721ABI, provider);

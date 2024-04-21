@@ -12,6 +12,7 @@ interface BountyContextType {
   isMultiplayer: boolean | null;
   isBountyClaimed: boolean | null;
   isBountyCanceled: boolean | null;
+  isOwnerContributor:  boolean | null;
 }
 
 
@@ -27,6 +28,8 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
   const [isBountyClaimed, setIsBountyClaimed] = useState<boolean | null>(null); 
   const [isBountyCanceled, setIsBountyCanceled] = useState<boolean | null>(null); 
   const [isVoting, setIsVoting] = useState<boolean | null>(null); 
+  const [isOwnerContributor, setIsOwnerContributor] = useState<boolean | null>(null); 
+
 
 
 
@@ -44,7 +47,24 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
 
       getParticipants(bountyId).then((openBounty) => {
         setIsMultiplayer(openBounty.addresses.length > 0);
+        // console.log("owner is contributor")
+        // console.log(currentUser)
+        // console.log("adres 0:")
+
+        // console.log(openBounty.addresses[0])
+        // console.log("array of addreses:")
+        // console.log(openBounty)
+        setIsOwnerContributor( openBounty.addresses.every(addr => addr === currentUser || addr === "0x0000000000000000000000000000000000000000"));
+
+
       }).catch(console.error);
+
+      // bountyCurrentVotingClaim(bountyId).then({voting} => {
+      //   setIsVoting (voting === 0)
+
+
+      // }).catch(console.error);
+
 
 
       (async () => {
@@ -54,11 +74,13 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
       
       console.log("current voting:")
       console.log(isVoting)
+
+
     }
   }, [bountyId, currentUser]);
 
   return (
-    <BountyContext.Provider value={{ bountyData, isOwner, isMultiplayer, isBountyClaimed, isBountyCanceled }}>
+    <BountyContext.Provider value={{ bountyData, isOwner, isMultiplayer, isBountyClaimed, isBountyCanceled, isOwnerContributor }}>
       {children}
     </BountyContext.Provider>
   );
