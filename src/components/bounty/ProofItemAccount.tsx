@@ -30,15 +30,18 @@ const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer ,
 
   // const notOwner = currentUser === issuer ;
 
-
   useEffect(() => {
     if (id) {
-      getURI(id)
-      .then(data => setClaimsURI(data))
-      .catch(console.error);
+        getURI(id)
+            .then(async (uri) => {
+                const response = await fetch(uri);
+                const data = await response.json();
+                setClaimsURI(data.image)
+            })
+            .catch(console.error);
     }
-   
-  }, [id]);
+}, [id]);
+
 
   const handleAcceptClaim = async () => {
     if (!id || !bountyId || !primaryWallet ) {
@@ -96,11 +99,10 @@ const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer ,
 
 <div className="bg-[#12AAFF] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden">
   {claimsURI && (
-    <img
-      className="object-cover w-full h-full"
-      src={claimsURI}
-      alt="claim image"
-    />
+    <div style={{backgroundImage: `url(${claimsURI})`}} className="bg-[#12AAFF] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden">
+  
+    </div>
+ 
   )}
 </div>
 

@@ -106,12 +106,26 @@ export interface VotingTracker {
   deadline: string; 
 }
 
+export interface URI {
+  description: any;
+  external_url: string;
+  image: any;
+  name: any;
+  attributes: never[];
+} 
+
+export interface NFTDetails {
+  uri: string;
+  name: string;
+  description: string;
+  nftId: string;
+}
 
 
 
 // Contract Interaction Functions
 export type CreateBountyFunction = (primaryWallet: Wallet, name: string, description: string, value: string) => Promise<void>;
-export type CreateClaimFunction = (primaryWallet: Wallet, name: string, uri: string, description: string, bountyId: string) => Promise<void>;
+export type CreateClaimFunction = (primaryWallet: Wallet, name: string, uri: string , description: string, bountyId: string) => Promise<void>;
 export type AcceptClaimFunction = (primaryWallet: Wallet, bountyId: string, claimId: string) => Promise<void>;
 export type CancelBountyFunction = (primaryWallet: Wallet, id: string) => Promise<void>;
 

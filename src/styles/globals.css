@@ -159,3 +159,12 @@ body {
 button {
   text-transform: lowercase;
 }
+
+
+.otherClaims .submitForVote{
+  display:none;
+}
+
+.votingStarted .submitForVote{
+  display:none;
+}

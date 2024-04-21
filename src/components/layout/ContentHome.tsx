@@ -48,11 +48,8 @@ const ContentHome = () => {
         }
   
         const targetChain = networks.find(n => n.name === chain);
-        const targetChainId = targetChain?.chainId;
   
-        if (isAuthenticated && targetChainId && targetChainId !== network) {
-          await primaryWallet?.connector.switchNetwork({networkChainId: targetChainId});
-        }
+      
       }
     };
   

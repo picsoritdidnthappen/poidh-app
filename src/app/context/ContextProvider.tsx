@@ -15,6 +15,157 @@ interface ContextProviderProps {
 
 const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
 
+  const cssOverrides = `
+  
+
+    .dynamic-widget-inline-controls{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border-radius:6px;
+      
+    }
+
+    .dynamic-widget-card{
+      background-color: rgba(209, 236, 255, 0.2); 
+
+    }
+
+    .button--primary{
+      background-color: rgba(209, 236, 255, 0.2); 
+      backdrop-filter: blur(4px);
+    }
+
+    .connect-button:hover:enabled{
+      background-color: rgba(209, 236, 255, 0.5); 
+      backdrop-filter: blur(10px);
+    }
+
+    .wallet-list-item__tile.list-tile:hover:enabled{
+      background-color: rgba(209, 236, 255, 0.5); 
+      backdrop-filter: blur(10px);
+    }
+
+    .list-item-button:hover:enabled{
+      background-color: rgba(209, 236, 255, 0.5); 
+      backdrop-filter: blur(10px);
+    }
+
+    .widget-portal .widget-portal__container{
+      background-color: rgba(209, 236, 255, 0.2); 
+      backdrop-filter: blur(4px);
+    }
+
+    .icon-with-spinner__spinner-container icon-with-spinner__animation svg{
+      fill:white;
+    }
+
+    .modal-card{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      backdrop-filter: blur(4px);
+    }
+
+    .badge__container{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      color:white;
+      backdrop-filter: blur(4px);
+    }
+
+   
+    .social-sign-in--tile__full-width{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      backdrop-filter: blur(4px);
+    }
+
+    .social-sign-in--tile__full-width:hover:enabled{
+      background-color: rgba(209, 236, 255, 0.5); 
+      border:1px solid white;
+      backdrop-filter: blur(4px);
+    }
+
+    .button--padding-login-screen-height{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      backdrop-filter: blur(4px);
+    }
+
+      .input__container .input{
+        background-color: rgba(209, 236, 255, 0.2); 
+        border:1px solid white;
+        backdrop-filter: blur(4px);
+        color:white;
+      }
+      .input__container--dense .input__label{
+        color:white;
+      }
+
+      .pending-signature__container .pending-signature__copy{
+        color:white;
+      }
+
+      .input__container .input:not(.input__error):focus, .input__container .input:not(.input__error):hover{
+        background-color: rgba(209, 236, 255, 0.2); 
+        border:1px solid white;
+        backdrop-filter: blur(4px);
+        color:white;
+      }
+
+      .button--primary{
+        padding: 8px 15px;
+        border-radius:6px;
+      }
+      .connect-button .typography{
+        color:white;
+      }
+
+    .wallet-list-item__tile{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      backdrop-filter: blur(4px);
+    }
+
+    .active-wallet-information-container{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      backdrop-filter: blur(4px);
+    }
+    .dropdown{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      backdrop-filter: blur(4px);
+    }
+
+    .evm-network-control__container{
+      background-color: rgba(209, 236, 255, 0.2); 
+      backdrop-filter: blur(4px);
+
+      }
+
+      .active-wallet-information__dots-menu{
+        color:white;
+
+      } 
+
+
+      .active-wallet-information__dots-menu svg{
+        stroke:white;
+      } 
+
+
+    .typography{
+      color:white!important;
+    }
+
+    .icon-button svg{
+      fill:white!important;
+    }
+
+    .icon--color-text-primary{
+      color:white;
+    }
+  `;
+
 
   return (
     <DynamicContextProvider 
@@ -23,23 +174,7 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
         walletConnectors: [EthereumWalletConnectors],
         networkValidationMode: "always",
         walletConnectorExtensions: [EthersExtension],
-        evmNetworks: [
-          {
-            blockExplorerUrls: ['https://explorer.degen.tips'],
-            chainId: 666666666,
-            chainName: 'Degen Chain',
-            iconUrls: ['https://your-icon-url.com/degen-chain-icon.svg'],
-            name: 'Degen',
-            nativeCurrency: {
-              decimals: 18,
-              name: 'DEGEN',
-              symbol: 'DEGEN',
-            },
-            networkId: 666666666,
-            rpcUrls: ['https://rpc.degen.tips'],
-            vanityName: 'Degen Chain',
-          },
-        ]
+        cssOverrides,
       }}
       > 
      

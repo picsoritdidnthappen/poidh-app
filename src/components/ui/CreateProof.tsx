@@ -15,7 +15,7 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
   return (
     <div className={`${showForm ? "" : ""} w-fit  w-full py-12 flex justify-center items-center lg:flex-col `} >
 
-<div className={` ${!showForm ? "" :  "hidden" } absolute  bottom-12 left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 z-20 flex flex-col items-center justify-center`}   onClick={() => setShowForm(!showForm)} >
+<div className={` ${!showForm ? "" :  "hidden" } fixed  bottom-12 left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 z-20 flex flex-col items-center justify-center`}   onClick={() => setShowForm(!showForm)} >
 <svg width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_dd_615_3757)">
 <rect x="16.5" y="17" width="125" height="125" rx="62.5" fill="#E2EFFB" fillOpacity="0.5"/>
@@ -130,7 +130,7 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
 <ButtonCTA > create claim  </ButtonCTA>
 </div>
       {showForm && (
-        <div className='fixed z-40 w-[92%] md:w-auto top-16 left-1/2 -translate-x-1/2  '>
+        <div className='absolute lg:fixed z-40 w-[92%] md:w-auto top-24 left-1/2 -translate-x-1/2  '>
         <button onClick={() => setShowForm(!showForm)} className='right-0 absolute border border-[#D1ECFF] backdrop-blur-sm bg-white/30 rounded-full p-2'>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M13 1L1 13M1 1L13 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

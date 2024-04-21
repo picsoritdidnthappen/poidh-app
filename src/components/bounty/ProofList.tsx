@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import ProofItem from '@/components/bounty/ProofItem';
 import Voting from '@/components/bounty/Voting';
+import { useBountyContext } from './BountyProvider';
 
 
 interface Claim {
@@ -27,6 +28,8 @@ interface ProofListProps {
 
 const ProofList: React.FC<ProofListProps> = ({ data, youOwner, openBounty, currentVotingClaim, bountyId }) => {
   const [isAccepted, setIsAccepted] = useState(true);
+  const { isMultiplayer } = useBountyContext()!;
+
 
   useEffect(() => {
     const checkAccepted = data.some(claim => claim.accepted === true);
@@ -34,11 +37,10 @@ const ProofList: React.FC<ProofListProps> = ({ data, youOwner, openBounty, curre
   }, [data]);
 
 
-  console.log(currentVotingClaim)
 
   return (
     <>
-    <div className='container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
+    <div className={`${currentVotingClaim === 0  ? "" : "votingStarted"} container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 `}>
       {data.map((claim) => (
         <div key={claim.id} className={`${currentVotingClaim === 0 || currentVotingClaim === Number(claim.id) ? "" : "hidden"} lg:col-span-4`}>
         <ProofItem 
@@ -60,10 +62,10 @@ const ProofList: React.FC<ProofListProps> = ({ data, youOwner, openBounty, curre
         <Voting  bountyId={bountyId} /> : null}
       </div>
 
-    <div className={`${currentVotingClaim !== 0 ? "lg:grid lg:grid-cols-12" : " hidden "} container mx-auto px-0  py-12 flex flex-col gap-12 lg:gap-12 lg:px-0`}>
-    <p className='col-span-12'>other claims</p>
+    <div className={`${currentVotingClaim !== 0 ? "hidden" : ""} container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0`}>
+      <p className={`col-span-12  ${!isMultiplayer ? "hidden" : " " }  ` }  >other claims</p>
       {data.map((claim) => (
-        <div key={claim.id} className={`${currentVotingClaim === 0 || currentVotingClaim === Number(claim.id) ? "hidden" : ""} lg:col-span-4`}>
+        <div key={claim.id} className={`${currentVotingClaim === 0 || currentVotingClaim === Number(claim.id) ? "hidden" : ""} lg:col-span-4 otherClaims`}>
         <ProofItem 
         openBounty={openBounty}
         isAccepted={isAccepted} 

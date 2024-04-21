@@ -99,7 +99,10 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${metadataResponse.IpfsHash}`
       console.log(uri)
-      console.log(imageURI)
+      console.log(metadataResponse.IpfsHash)
+      console.log(bountyId)
+      console.log(primaryWallet)
+      console.log(name)
       await createClaim(primaryWallet, name, uri, description, bountyId);
       alert('Claim created successfully!');
     } catch (error) {
@@ -138,15 +141,14 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
         className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
       />
 
-<span>description</span>
-<textarea
-  rows={3}
-  placeholder=""
-  value={description}
-  onChange={(e) => setDescription(e.target.value)}
-  maxLength={304} 
-  className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
-></textarea>
+      <span>description</span>
+      <textarea
+        rows={3}
+        placeholder=""
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
+      ></textarea>
 
       <button
         disabled={uploading}
