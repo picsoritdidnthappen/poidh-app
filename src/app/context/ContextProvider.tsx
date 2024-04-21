@@ -175,6 +175,7 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
         networkValidationMode: "always",
         walletConnectorExtensions: [EthersExtension],
         cssOverrides,
+
       }}
       > 
      

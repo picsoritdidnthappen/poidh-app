@@ -48,8 +48,7 @@ const ContentHome = () => {
         }
   
         const targetChain = networks.find(n => n.name === chain);
-  
-      
+
       }
     };
   
