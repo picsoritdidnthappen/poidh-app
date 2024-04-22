@@ -46,24 +46,17 @@ export const BountyProvider = ({ bountyId, children }: { bountyId: string, child
       }).catch(console.error);
 
       getParticipants(bountyId).then((openBounty) => {
-        setIsMultiplayer(openBounty.addresses.length > 0);
-        // console.log("owner is contributor")
-        // console.log(currentUser)
-        // console.log("adres 0:")
+        console.log("openBounty.addresses:")
 
-        // console.log(openBounty.addresses[0])
-        // console.log("array of addreses:")
-        // console.log(openBounty)
+        console.log(openBounty.addresses)
+        setIsMultiplayer(openBounty.addresses.length > 0);
+    
         setIsOwnerContributor( openBounty.addresses.every(addr => addr === currentUser || addr === "0x0000000000000000000000000000000000000000"));
 
 
       }).catch(console.error);
 
-      // bountyCurrentVotingClaim(bountyId).then({voting} => {
-      //   setIsVoting (voting === 0)
-
-
-      // }).catch(console.error);
+    
 
 
 

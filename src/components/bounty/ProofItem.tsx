@@ -90,7 +90,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
     <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
 
       <div className='left-5 top-5 absolute  flex flex-col text-white'>
-      {isMultiplayer && isOwner ? 
+      {isMultiplayer && isOwner && !isOwnerContributor ? 
       <button
       className=" submitForVote cursor-pointer text-[#F15E5F] hover:text-white hover:bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5  "
        onClick={handleSubmitClaimForVote}

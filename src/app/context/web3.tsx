@@ -4,7 +4,7 @@ import { Contract, ethers } from "ethers";
 import abi from './abi';
 import abiNFT from './abiNFT'
 import chains from './config'; 
-import {  AcceptClaimFunction, Bounty , BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, CancelBountyFunction, Claim, CreateBountyFunction,CreateClaimFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetAllBountiesFunction, GetBountiesByUserFunction, GetClaimByIdFunction,GetClaimsByBountyIdFunction, GetClaimsByUserFunction, GetParticipants, GetURIFunction, JoinOpenBountyFunction, ResolveVoteFunction, SubmitClaimForVoteFunction, VoteClaimFunction, withdrawFromOpenBountyFunction   } from '../../types/web3';
+import {  AcceptClaimFunction, Bounty , BountyCurrentVotingClaimFunction, BountyVotingTrackerFunction, CancelBountyFunction, Claim, CreateBountyFunction,CreateClaimFunction, FetchBountiesFunction, FetchBountyByIdFunction, GetAllBountiesFunction, GetBountiesByUserFunction, GetClaimByIdFunction,GetClaimsByBountyIdFunction, GetClaimsByUserFunction, GetNftsOfOwnerFunction, GetParticipants, GetURIFunction, JoinOpenBountyFunction, ResolveVoteFunction, SubmitClaimForVoteFunction, VoteClaimFunction, withdrawFromOpenBountyFunction   } from '../../types/web3';
 
 
 const currentChain = chains.degen;
@@ -35,26 +35,23 @@ export const getNFTContractRead = async () => {
 
 
 
-export const getNftsOfOwner = async () => {
+export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
   const provider = await getProvider();
   const contract = new Contract(currentChain.contracts.nftContract, abiNFT, provider);
-  const ownerBalance = await contract.balanceOf("0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc");
+  const ownerBalance = await contract.balanceOf(primaryWallet);
   let tokenIds = [];
 
   for (let i = 0; i < ownerBalance; i++) {
-    const tokenId = await contract.tokenOfOwnerByIndex("0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc", i);
+    const tokenId = await contract.tokenOfOwnerByIndex(primaryWallet, i);
     tokenIds.push(tokenId.toString());
   }
 
   const tokenDataPromises = tokenIds.map(id => contract.tokenByIndex(id));
   const tokenData = await Promise.all(tokenDataPromises);
 
-  console.log(`Token IDs owned by 0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc: ${tokenIds}`);
-  console.log("Data:", tokenData);
-  // console.log(ownerBalance);
-
   return tokenIds;
 };
+
 
 // async function getNFTsOfOwner() {
 //   const contract = new ethers.Contract(contractAddress, erc721ABI, provider);
