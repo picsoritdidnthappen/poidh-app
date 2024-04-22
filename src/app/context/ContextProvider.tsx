@@ -64,7 +64,54 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       backdrop-filter: blur(4px);
     }
 
+    .chip{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      color:white;
+      backdrop-filter: blur(4px);
+    }
+
+    .token-balance-card{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      color:white;
+      backdrop-filter: blur(4px);
+    }
+
+    .input__container .input__label{
+      color:white;
+    }
+
+    .input__container input::placeholder{
+      color:white;
+
+    }
+
+    .transaction-confirmation__content, .action-card, .embedded-reveal-view__body__card, .embedded-reveal-view__body__confirm_card{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      color:white;
+      backdrop-filter: blur(4px);
+    }
+
+
+    .input__container .input:not(.input__error):focus, .input__container .input:not(.input__error):hover, .wallet-settings-view__body__section__title{
+      color:white;
+    }
+
+    .wallet-settings-view__body__section__button__icon{
+      color:white;
+
+    }
+
     .badge__container{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      color:white;
+      backdrop-filter: blur(4px);
+    }
+
+    .user-profile__fields{
       background-color: rgba(209, 236, 255, 0.2); 
       border:1px solid white;
       color:white;
