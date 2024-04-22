@@ -130,7 +130,7 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
 <ButtonCTA > create claim  </ButtonCTA>
 </div>
       {showForm && (
-        <div className='absolute lg:fixed z-40 w-[92%] md:w-auto top-24 left-1/2 -translate-x-1/2  '>
+        <div className='absolute  z-40 w-[92%] md:w-auto top-24 left-1/2 -translate-x-1/2  '>
         <button onClick={() => setShowForm(!showForm)} className='right-0 absolute border border-[#D1ECFF] backdrop-blur-sm bg-white/30 rounded-full p-2'>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
              <path d="M13 1L1 13M1 1L13 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

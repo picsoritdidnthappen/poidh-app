@@ -71,7 +71,13 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <p className=" text-2xl lg:text-4xl text-bold">{bountyData?.name}</p>
         <p className="mt-5">{bountyData?.description}</p>
         <p>Bounty issuer: {bountyData?.issuer}</p>
+
+
        
+
+
+
+
         {/* <div>
             <p>Debug:</p>
 
@@ -105,12 +111,14 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         disabled={!!isBountyClaimed}
         className={`border border-[#F15E5F]  rounded-md py-2 px-5 mt-5 ${isBountyClaimed ? "bg-[#F15E5F] text-white " : "text-[#F15E5F]"} `}  
       >
-        {isBountyClaimed ? "Canceled" : "Cancel Bounty"}
+    {bountyData?.claimer === bountyData?.issuer ? "canceled" : (bountyData?.claimer !== bountyData?.issuer && bountyData?.claimer !== "0x0000000000000000000000000000000000000000" ? "accepted" : (bountyData?.claimer === "0x0000000000000000000000000000000000000000" ? "cancel" : null))}
+
+
       </button>
     )}
   </div>
 </div>
-
+ 
 
     </div>
 
