@@ -111,6 +111,18 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       backdrop-filter: blur(4px);
     }
 
+    .transaction-status-layout__content{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      color:white;
+      backdrop-filter: blur(4px);
+    }
+
+    input:-webkit-autofill, input:-webkit-autofill:active, input:-webkit-autofill:focus, input:-webkit-autofill:hover, select:-webkit-autofill, select:-webkit-autofill:focus, select:-webkit-autofill:hover, textarea:-webkit-autofill, textarea:-webkit-autofill:focus, textarea:-webkit-autofill:hover{
+      -webkit-text-fill-color:white!important;
+      color:white!important;
+    }
+
     .user-profile__fields{
       background-color: rgba(209, 236, 255, 0.2); 
       border:1px solid white;

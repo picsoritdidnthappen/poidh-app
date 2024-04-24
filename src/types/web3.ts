@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 
 // Wallets and Signers
-interface Wallet {
+export interface Wallet {
   address: string;
   authenticated: boolean;
   chain: string;
@@ -146,7 +146,7 @@ export type FetchBountiesFunction = (offset: number) => Promise<Bounty[]>;
 export type FetchBountyByIdFunction = (id: string) => Promise<Bounty>;
 export type GetBountiesByUserFunction = (user: string, offset: number, allBounties: Bounty[]) => Promise<Bounty[]>;
 export type GetAllBountiesFunction = () => Promise<Bounty[]>;
-
+export type GetOpenBountiesByUserFunction = (primaryWallet: Wallet) => Promise<Bounty[]>;
 
 
 export type GetParticipants = (id: string) => Promise<OpenBounty>;

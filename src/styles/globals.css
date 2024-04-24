@@ -166,5 +166,51 @@ button {
 }
 
 .votingStarted .submitForVote{
+
   display:none;
+}
+
+
+/* .bountyItem.pendingClaims div:after{
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: -1;
+  margin: -6px; 
+  background: linear-gradient(to right, #2582D9, #F15E5F);
+
+  border-radius: 0.75rem; 
+}
+
+ */
+
+
+
+
+
+.bg-blur{
+  background-color: rgba(209, 236, 255, 0.2); 
+  color:white;
+  border-radius: 0.75rem;
+  backdrop-filter: blur(4px);
+}
+
+.bountyItem.pendingClaims > div > div.borderBox {
+  border:1px solid #cf5d5d;
+}
+
+.bountyItem.pendingClaims:hover > div > div.borderBox {
+  border:1px solid #4f80c5;
+}
+
+.bountyItem.noClaims > div > div.borderBox {
+  border:1px solid white;
+}
+
+.bountyItem.canceled > div > div.borderBox {
+  border:1px solid white;
+}
+
+.bountyItem.pendingClaims.canceled:hover > div > div.borderBox {
+  border:1px solid white;
 }

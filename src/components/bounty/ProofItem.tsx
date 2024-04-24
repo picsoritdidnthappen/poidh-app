@@ -133,7 +133,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
       <div className="p-3">
         <div className="flex flex-col">
           <p className="">{title}</p>
-          <p className="">{description}</p>
+          <p className="break-all	">{description}</p>
         </div>
         <div className="mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed">
           <span className="">

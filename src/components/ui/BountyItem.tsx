@@ -17,10 +17,14 @@ const BountyItem: React.FC<BountyItemProps> = ({ id, title, description, amount 
   const amountETH = ethers.formatEther(amount);
 
 
+
+
+
   return (
-    <div className='p-5 border-white border rounded-xl lg:col-span-4' >
+    <div className='p-5 relative  lg:col-span-4' >
+      <div className="z-[-1] absolute w-full h-full left-0 top-0 borderBox  bg-blur "></div>
       <h3>{title}</h3>
-      <p className="my-5">{shortDescription}</p>
+      <p className="my-5 break-all	 ">{shortDescription}</p>
 
       <div className="flex items-end justify-between mt-5">
         <div>{Number(amountETH)} degen</div>
