@@ -12,7 +12,7 @@ import { WalletContext } from '@/app/context/WalletProvider';
 import Banner from '@/components/global/Banner';
 
 const Header = () => {
-  const { isAuthenticated } = useDynamicContext();
+  const { isAuthenticated, primaryWallet } = useDynamicContext();
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,7 +29,7 @@ const Header = () => {
   };
 
   const walletContext = useContext(WalletContext);
-  
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -50,7 +50,9 @@ const Header = () => {
 
 
       <div className='flex flex-row  relative items-center gap-x-5'>
-        {isClient && isAuthenticated ? <Link className='hidden lg:block' href="/account">my bounties</Link> : null}
+        {isClient && isAuthenticated ? <Link className='hidden lg:block' href={`/account/${primaryWallet?.address}`}>my bounties</Link> : null}
+
+
        <div className='hidden lg:block'>{isClient ? <ConnectWallet /> : null}</div>
         
 
@@ -118,7 +120,12 @@ const Header = () => {
     {isClient && isAuthenticated ?
     <div className='py-2 border-b border-white flex justify-end px-5 lg:hidden ' >
 
-    <Link href="/account">my bounties</Link> 
+    <Link href={`/account/${primaryWallet?.address}`}>my bounties</Link>
+
+
+
+
+
 
 
 

@@ -16,6 +16,10 @@ import { usePathname } from 'next/navigation';
 
 const Account = () => {
 
+  const pathname = usePathname();
+  const accountLink = pathname.split('/').pop() || '';
+
+  console.log(accountLink)
 
   return (
     <ContextProvider>
