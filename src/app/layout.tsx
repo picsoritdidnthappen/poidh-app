@@ -1,12 +1,15 @@
 import { Metadata } from 'next';
-import React from 'react';
+import * as React from 'react';
 
 import '@/styles/globals.css';
+// !STARTERCONF This is for demo purposes, remove @/styles/colors.css import immediately
 import '@/styles/colors.css';
 
 import { siteConfig } from '@/constant/config';
 
-const metadata: Metadata = {
+// !STARTERCONF Change these default meta
+// !STARTERCONF Look at @/constant/config to change them
+export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.title,
@@ -14,6 +17,8 @@ const metadata: Metadata = {
   },
   description: siteConfig.description,
   robots: { index: true, follow: true },
+  // !STARTERCONF this is the default favicon, you can generate your own from https://realfavicongenerator.net/
+  // ! copy to /favicon folder
   icons: {
     icon: '/favicon/favicon.ico',
     shortcut: '/favicon/favicon-16x16.png',
@@ -34,17 +39,24 @@ const metadata: Metadata = {
     title: siteConfig.title,
     description: siteConfig.description,
     images: [`${siteConfig.url}/images/og.jpg`],
+    // creator: '@th_clarence',
   },
+  // authors: [
+  //   {
+  //     name: 'Theodorus Clarence',
+  //     url: 'https://theodorusclarence.com',
+  //   },
+  // ],
 };
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => (
-
-
-  <html>
-    <body className='bg-blue-300 text-white'>{children}</body>
-  </html>
-
-  
-);
-
-export default RootLayout;
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  );
+}

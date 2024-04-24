@@ -1,16 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true,
+    dirs: ['src'],
   },
 
   reactStrictMode: true,
   swcMinify: true,
 
   // Uncoment to add domain whitelist
-  images: {
-    domains: ['beige-impossible-dragon-883.mypinata.cloud'],
-  },
+  // images: {
+  //   domains: [
+  //     'res.cloudinary.com',
+  //   ],
+  // },
 
   webpack(config) {
     // Grab the existing rule that handles SVG imports
