@@ -170,19 +170,20 @@ button {
   display:none;
 }
 
-
-/* .bountyItem.pendingClaims div:after{
-  content: '';
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  z-index: -1;
-  margin: -6px; 
+.bountyItem.pendingClaims .bg-gradient {
   background: linear-gradient(to right, #2582D9, #F15E5F);
-
-  border-radius: 0.75rem; 
+  transition: all 0.3s ease; /* Add transition property */
 }
 
- */
+.bountyItem.pendingClaims:hover .bg-gradient {
+  background: linear-gradient(to left, #2582D9, #F15E5F);
+}
+
+
+.bg-whiteblue{
+  background:#80b4ebd8;
+
+}
 
 
 
