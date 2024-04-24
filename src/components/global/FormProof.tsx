@@ -154,7 +154,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
         disabled={uploading}
         onClick={() => inputFile.current?.click()}
       >
-        {uploading ? 'uploading...' : 'uploaded 📸'}
+        {uploading ? 'uploading...' : 'upload'}
       </button>
 
       <button
