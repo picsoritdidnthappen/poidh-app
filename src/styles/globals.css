@@ -41,6 +41,14 @@
       U+2215, U+FEFF, U+FFFD;
   }
 
+  @font-face {
+    font-family: 'GeistMono-Regular';
+    font-weight: 100 700;
+    font-style: normal;
+    font-display: swap;
+    src: url('/fonts/GeistMono-Regular.woff2') format('woff2');
+  }
+
   .cursor-newtab {
     cursor: url('/images/new-tab.png') 10 10, pointer;
   }
@@ -115,4 +123,95 @@
   .animated-underline:focus-visible {
     background-size: 0 2px, 100% 2px;
   }
+}
+
+body {
+  font-family: 'GeistMono-Regular';
+  min-height: 100vh;
+  background-size: cover;
+  text-transform: lowercase;
+  background: linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5);
+}
+
+.wallet:hover + .wallet-address {
+  opacity: 1;
+}
+
+.wallet-address {
+  opacity: 0;
+  transition: opacity 300ms ease-in-out;
+}
+
+.wallet-address:hover {
+  opacity: 1;
+  transition: opacity 300ms ease-in-out;
+}
+
+.aspect-w-1 {
+  width: 100%;
+}
+
+.aspect-h-1 {
+  height: 0;
+  padding-bottom: 100%;
+}
+
+button {
+  text-transform: lowercase;
+}
+
+
+.otherClaims .submitForVote{
+  display:none;
+}
+
+.votingStarted .submitForVote{
+
+  display:none;
+}
+
+.bountyItem.pendingClaims .bg-gradient {
+  background: linear-gradient(to right, #2582D9, #F15E5F);
+  transition: all 0.3s ease; /* Add transition property */
+}
+
+.bountyItem.pendingClaims:hover .bg-gradient {
+  background: linear-gradient(to left, #2582D9, #F15E5F);
+}
+
+
+.bg-whiteblue{
+  background:#80b4ebd8;
+
+}
+
+
+
+
+
+.bg-blur{
+  background-color: rgba(209, 236, 255, 0.2); 
+  color:white;
+  border-radius: 0.75rem;
+  backdrop-filter: blur(4px);
+}
+
+.bountyItem.pendingClaims > div > div.borderBox {
+  border:1px solid #cf5d5d;
+}
+
+.bountyItem.pendingClaims:hover > div > div.borderBox {
+  border:1px solid #4f80c5;
+}
+
+.bountyItem.noClaims > div > div.borderBox {
+  border:1px solid white;
+}
+
+.bountyItem.canceled > div > div.borderBox {
+  border:1px solid white;
+}
+
+.bountyItem.pendingClaims.canceled:hover > div > div.borderBox {
+  border:1px solid white;
 }
