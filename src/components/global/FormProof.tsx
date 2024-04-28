@@ -13,6 +13,10 @@ interface FormProofProps {
 }
 
 const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
+  const [walletMessage, setWalletMessage] = useState('');
+
+
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setFile(file);
@@ -157,12 +161,33 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
         {uploading ? 'uploading...' : 'upload'}
       </button>
 
-      <button
-        className="border border-white mt-5 rounded-full px-5 py-2"
-        onClick={handleCreateClaim}
-      >
+    
+
+
+<button
+  className={`border border-white mt-5 rounded-full px-5 py-2 ${
+    !primaryWallet ? "opacity-50 cursor-not-allowed" : ""
+  }`}
+  onClick={() => {
+    if (!primaryWallet) {
+      setWalletMessage("Please connect wallet to continue");
+    } else {
+      handleCreateClaim();
+    }
+  }}
+  onMouseEnter={() => {
+    if (!primaryWallet) {
+      setWalletMessage("Please connect wallet to continue");
+    }
+  }}
+  onMouseLeave={() => {
+    setWalletMessage("");
+  }}
+>
         create claim
       </button>
+      <span id="walletMessage">{walletMessage}</span>
+
     </div>
   );
 };

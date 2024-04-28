@@ -15,6 +15,7 @@ interface FormJoinBountyProps {
 const FormJoinBounty: React.FC<FormJoinBountyProps> = ({ bountyId }) => {
 const [amount, setAmount] = useState('');
 const { primaryWallet } = useDynamicContext();
+const [walletMessage, setWalletMessage] = useState('');
 
 
 
@@ -43,7 +44,8 @@ const handleJoinBounty = async () => {
 
 
 return (
-<div className='flex flex-col '>
+<>
+<div className='flex w-fit flex-col '>
     <span>reward</span>
       <input
         type="number"
@@ -52,8 +54,31 @@ return (
         onChange={(e) => setAmount(e.target.value)}
         className="border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4"
       />
-    <button className='border border-white rounded-full px-5 py-2  backdrop-blur-sm bg-white/30 ' onClick={handleJoinBounty}>join bounty</button>
+    <button 
+    className={`border border-white rounded-full px-5 py-2  backdrop-blur-sm bg-white/30 ${
+      !primaryWallet ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+    onClick={() => {
+      if (!primaryWallet) {
+        setWalletMessage("Please connect wallet to continue");
+      } else {
+        handleJoinBounty();
+      }
+    }}
+    onMouseEnter={() => {
+      if (!primaryWallet) {
+        setWalletMessage("Please connect wallet to continue");
+      }
+    }}
+    onMouseLeave={() => {
+      setWalletMessage("");
+    }}
+    
+    >join bounty</button>
+
 </div>
+    <span id="walletMessage">{walletMessage}</span>
+</>
 );
 };
 
