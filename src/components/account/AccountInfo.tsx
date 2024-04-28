@@ -69,14 +69,14 @@ const AccountInfo = () => {
 
       // const logsData = await provider.getLogs(contract.getAddress())
 
-      const eventFilter = ethers.utils.id("joinOpenBounty(uint256 bountyId)");
+      //const eventFilter = ethers.utils.id("joinOpenBounty(uint256 bountyId)");
 
-      const logsData = await provider.getLogs({
-        address: "0x62d739E1AB4484cf7A59D7553f99D87100386b6B",
-        topics: [eventFilter]
-      });
+     // const logsData = await provider.getLogs({
+     //   address: "0x62d739E1AB4484cf7A59D7553f99D87100386b6B",
+     //   topics: [eventFilter]
+     // });
 
-      console.log("LOGGGGS:", logsData)
+     // console.log("LOGGGGS:", logsData)
 
       // const balanceETH = ethers.formatEther(contractBalance)
 
