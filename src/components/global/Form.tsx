@@ -57,13 +57,13 @@ const Form = () => {
 
 
   const handleCreateBounty = async () => {
-    if (!name || !description || !amount ) {
+    if (!name || !description || !amount || !primaryWallet ) {
       alert("Please fill in all fields and check wallet connection.");
       return;
     }
 
     try {
-      if (isSoloBounty) { 
+      if (isSoloBounty ) { 
         await createSoloBounty(primaryWallet, name, description, amount);
       } else { 
         await createOpenBounty(primaryWallet, name, description, amount);
