@@ -67,18 +67,7 @@ const AccountInfo = () => {
       const provider = await getProvider()
       const contract = await getContract(signer)
 
-      // const logsData = await provider.getLogs(contract.getAddress())
-
-      //const eventFilter = ethers.utils.id("joinOpenBounty(uint256 bountyId)");
-
-     // const logsData = await provider.getLogs({
-     //   address: "0x62d739E1AB4484cf7A59D7553f99D87100386b6B",
-     //   topics: [eventFilter]
-     // });
-
-     // console.log("LOGGGGS:", logsData)
-
-      // const balanceETH = ethers.formatEther(contractBalance)
+     
 
 
       const balanceNFT = await getNftsOfOwner(signer);
@@ -127,18 +116,7 @@ const AccountInfo = () => {
      
       const userInformation = async () => {
         const address = pathname.split('/').pop() || '';
-      //   const provider = await getProvider()
-
-
-      //   const eventFilter = ethers.utils.id("joinOpenBounty(uint256 bountyId)");
-
-      // const logsData = await provider.getLogs({
-      //   address: "0x62d739E1AB4484cf7A59D7553f99D87100386b6B",
-      //   topics: [eventFilter]
-      // });
-
-      // console.log("LOGGGGS:", logsData)
-  
+   
         const balanceNFT = await getNftsOfOwner(address);
         const nftDetailsPromises = balanceNFT.map(async (nftId) => {
             const uri = await getURI(nftId);
