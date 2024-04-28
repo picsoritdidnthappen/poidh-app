@@ -54,6 +54,21 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       backdrop-filter: blur(4px);
     }
 
+    .user-profile__fields, 
+    .embedded-reveal-view__body__card,
+    .embedded-reveal-view__body__confirm_card,
+    .passkey-card{
+      background-color: rgba(209, 236, 255, 0.2); 
+      border:1px solid white;
+      color:white;
+      backdrop-filter: blur(4px);
+    }
+
+    .wallet-settings-view__body__section__title{
+      color:white;
+    }
+
+
     .icon-with-spinner__spinner-container icon-with-spinner__animation svg{
       fill:white;
     }

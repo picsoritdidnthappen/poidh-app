@@ -107,8 +107,8 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
 
         </div>
          
-          <div>Yes votes: {votingData.yes} ETH</div>
-          <div>No votes: {votingData.no} ETH</div>
+          <div>Yes votes: {votingData.yes} degen</div>
+          <div>No votes: {votingData.no} degen</div>
 
             <div className='flex flex-row gap-x-5 '>
               

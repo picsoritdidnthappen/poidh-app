@@ -160,58 +160,66 @@ button {
   text-transform: lowercase;
 }
 
-
-.otherClaims .submitForVote{
-  display:none;
+.otherClaims .submitForVote {
+  display: none;
 }
 
-.votingStarted .submitForVote{
-
-  display:none;
+.votingStarted .submitForVote {
+  display: none;
 }
 
 .bountyItem.pendingClaims .bg-gradient {
-  background: linear-gradient(to right, #2582D9, #F15E5F);
+  background: linear-gradient(to right, #2582d9, #f15e5f);
   transition: all 0.3s ease; /* Add transition property */
 }
 
 .bountyItem.pendingClaims:hover .bg-gradient {
-  background: linear-gradient(to left, #2582D9, #F15E5F);
+  background: linear-gradient(to left, #2582d9, #f15e5f);
 }
 
-
-.bg-whiteblue{
-  background:#80b4ebd8;
-
+.bg-whiteblue {
+  background: #80b4ebd8;
 }
 
+.button .normal {
+  display: block;
+}
 
+.button .press {
+  display: none;
+}
 
+.button:hover .press {
+  display: block;
+}
 
+.button:hover .normal {
+  display: none;
+}
 
-.bg-blur{
-  background-color: rgba(209, 236, 255, 0.2); 
-  color:white;
+.bg-blur {
+  background-color: rgba(209, 236, 255, 0.2);
+  color: white;
   border-radius: 0.75rem;
   backdrop-filter: blur(4px);
 }
 
 .bountyItem.pendingClaims > div > div.borderBox {
-  border:1px solid #cf5d5d;
+  border: 1px solid #cf5d5d;
 }
 
 .bountyItem.pendingClaims:hover > div > div.borderBox {
-  border:1px solid #4f80c5;
+  border: 1px solid #4f80c5;
 }
 
 .bountyItem.noClaims > div > div.borderBox {
-  border:1px solid white;
+  border: 1px solid white;
 }
 
 .bountyItem.canceled > div > div.borderBox {
-  border:1px solid white;
+  border: 1px solid white;
 }
 
 .bountyItem.pendingClaims.canceled:hover > div > div.borderBox {
-  border:1px solid white;
+  border: 1px solid white;
 }
