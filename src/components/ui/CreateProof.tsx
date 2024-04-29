@@ -2,20 +2,37 @@ import React, {useState} from 'react';
 
 import FormProof from '@/components/global/FormProof';
 import ButtonCTA from '@/components/ui/ButtonCTA';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 interface FormProofProps {
   bountyId: string;
 }
 
 const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
+  const { primaryWallet } = useDynamicContext();
+
   const [showForm, setShowForm] = useState(false);
+  const [walletMessage, setWalletMessage] = useState('');
+
+  const handleOpenForm = () => {
+    if (primaryWallet) {
+      setShowForm(!showForm);
+    } else {
+      setWalletMessage("Please connect wallet to continue");
+      setTimeout(() => {
+        setWalletMessage("");
+      }, 3000);
+    }
+  };
 
 
 
   return (
     <div className={`${showForm ? "" : ""} w-fit  w-full py-12 flex justify-center items-center lg:flex-col `} >
 
-<div className={` ${!showForm ? "" :  "hidden" } fixed  bottom-12 left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 z-20 flex flex-col items-center justify-center`}   onClick={() => setShowForm(!showForm)} >
+<div 
+className={` ${!showForm ? "" :  "hidden" } fixed  bottom-12 left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 z-20 flex flex-col items-center justify-center`}  
+ onClick={handleOpenForm} >
 <div className='button'>
 <svg className="normal" width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_dd_615_3757)">
@@ -355,6 +372,9 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
 </svg>
 </div>
 <ButtonCTA > create claim  </ButtonCTA>
+<span className='absolute lg:right-0 bottom-0  translate-y-[25px] lg:translate-x-[0px]  text-nowrap'>{walletMessage}</span>
+
+
 </div>
       {showForm && (
         <div className='absolute  z-40 w-[92%] md:w-auto top-24 left-1/2 -translate-x-1/2  '>

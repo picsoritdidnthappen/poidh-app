@@ -3,14 +3,29 @@ import React, {useState} from 'react';
 
 import Form from '@/components/global/Form';
 import ButtonCTA from '@/components/ui/ButtonCTA';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 const CreateBounty = () => {
-  const [showForm, setShowForm] = useState(false);
+  const { primaryWallet } = useDynamicContext();
+
+  const [showForm, setShowForm] = useState(false); 
+  const [walletMessage, setWalletMessage] = useState('');
+
+  const handleOpenForm = () => {
+    if (primaryWallet) {
+      setShowForm(!showForm);
+    } else {
+      setWalletMessage("Please connect wallet to continue");
+      setTimeout(() => {
+        setWalletMessage("");
+      }, 3000);
+    }
+  };
 
   return (
   <div className={`fixed ${!showForm ? "bottom-20" : "top-0 left-0" } z-40 w-full py-12 flex justify-center items-center lg:flex-col`} >
 { !showForm ?
-<div className='absolute button bottom-10 flex cursor-pointer flex-col items-center justify-center ' onClick={() => setShowForm(!showForm)} >
+<div className='absolute button bottom-10 flex cursor-pointer flex-col items-center justify-center ' onClick={handleOpenForm} >
 <svg className="normal" width="157" height="157" viewBox="0 0 157 157" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_dd_615_3757)">
 <rect x="16.5" y="17" width="125" height="125" rx="62.5" fill="#E2EFFB" fillOpacity="0.5"/>
@@ -350,6 +365,8 @@ const CreateBounty = () => {
 
 
  <ButtonCTA > create bounty </ButtonCTA>
+ <span>{walletMessage}</span>
+
 </div>
 :
 null }
