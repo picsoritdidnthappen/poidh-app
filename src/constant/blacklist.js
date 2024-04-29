@@ -5,4 +5,4 @@ export const blacklist = [
   },
 ];
 
-export const blacklistedBounties = [157];
+export const blacklistedBounties = [160];
