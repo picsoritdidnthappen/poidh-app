@@ -4,6 +4,7 @@ import { useBountyContext } from '@/components/bounty/BountyProvider';
 import NoProof from '@/components/bounty/NoProof';
 import ProofList from '@/components/bounty/ProofList';
 import Voting from '@/components/bounty/Voting';
+import { blacklist, blacklistedBounties } from '@/constant/blacklist';
 
 import {  bountyCurrentVotingClaim, getClaimsByBountyId} from '@/app/context/web3';
 
@@ -28,7 +29,16 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
       // })
       // .catch(console.error);  
       getClaimsByBountyId(bountyId)
-      .then(data => setClaimsData(data))
+      .then(data => {
+        // Filter claims based on blacklist criteria
+        let filteredClaims = data;
+        blacklist.forEach(bounty => {
+          if (bounty.bountyId === Number(bountyId)) {
+            filteredClaims = filteredClaims.filter(claim => !bounty.claims.includes(Number(claim.id)));
+          }
+        });
+        setClaimsData(filteredClaims);
+      })
       .catch(console.error);
   
       (async () => {
@@ -40,6 +50,11 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   
 
   console.log("current voting claim:", currentVotingClaim)
+
+  // Early exit if bountyId is blacklisted
+  if (blacklistedBounties.includes(Number(bountyId))) {
+    return null;
+  }
 
   return (
     <div>
