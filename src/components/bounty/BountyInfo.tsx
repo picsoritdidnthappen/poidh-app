@@ -4,7 +4,7 @@ import { useBountyContext } from '@/components/bounty/BountyProvider';
 import CreateProof from '@/components/ui/CreateProof';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
-
+const ISSUER_URL = "https://degen.poidh.xyz/account/";
 
 function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
@@ -70,7 +70,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       <div className="flex flex-col  lg:max-w-[50%]">
         <p className=" text-2xl lg:text-4xl text-bold">{bountyData?.name}</p>
         <p className="mt-5">{bountyData?.description}</p>
-        <p>Bounty issuer: {bountyData?.issuer}</p>
+        <p>Bounty issuer:<a href={`${ISSUER_URL}${bountyData?.issuer}`} rel="noopener noreferrer">{bountyData?.issuer}</a></p>
 
 
        
