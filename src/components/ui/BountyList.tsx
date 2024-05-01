@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
+import { cn } from '@/lib/utils';
+
 import BountyItem from '@/components/ui/BountyItem';
 
-import { BountyListProps } from '../../types/web3';
 import { getClaimsByBountyId } from '@/app/context/web3';
 
-
+import { BountyListProps } from '../../types/web3';
 
 export interface EnhancedBounty {
   canceledOrClaimed: boolean;
@@ -21,7 +22,6 @@ export interface EnhancedBounty {
   claimId: string;
 }
 
-
 const container = {
   hidden: { opacity: 1, scale: 0 },
   visible: {
@@ -29,21 +29,23 @@ const container = {
     scale: 1,
     transition: {
       delayChildren: 0.3,
-      staggerChildren: 0.2
-    }
-  }
+      staggerChildren: 0.2,
+    },
+  },
 };
 
 const item = {
   hidden: { y: 20, opacity: 0 },
   visible: {
     y: 0,
-    opacity: 1
-  }
+    opacity: 1,
+  },
 };
 
 const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
-  const [enhancedBounties, setEnhancedBounties] = useState<EnhancedBounty[]>([]);
+  const [enhancedBounties, setEnhancedBounties] = useState<EnhancedBounty[]>(
+    []
+  );
 
   useEffect(() => {
     const fetchClaims = async () => {
@@ -51,8 +53,9 @@ const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
         const hasClaims = await getClaimsByBountyId(bounty.id);
         return {
           ...bounty,
-          canceledOrClaimed: bounty.claimer !== "0x0000000000000000000000000000000000000000",
-          hasClaims: hasClaims.length > 0
+          canceledOrClaimed:
+            bounty.claimer !== '0x0000000000000000000000000000000000000000',
+          hasClaims: hasClaims.length > 0,
         };
       });
       const results = await Promise.all(promises);
@@ -64,23 +67,27 @@ const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
 
   return (
     <>
-       <motion.div 
+      <motion.div
         className='container list mx-auto px-5 py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'
         variants={container}
-        initial="hidden"
-        animate="visible"
+        initial='hidden'
+        animate='visible'
       >
         {enhancedBounties.map((bounty) => (
-          <motion.div 
-            className={`${bounty.canceledOrClaimed ? "canceled" : ""} ${!bounty.hasClaims  ? "noClaims" : "pendingClaims"} bountyItem  lg:col-span-4`}
-            key={bounty.id} 
+          <motion.div
+            className={cn(
+              bounty.canceledOrClaimed && 'canceled',
+              !bounty.hasClaims ? 'noClaims' : 'pendingClaims',
+              'bountyItem lg:col-span-4'
+            )}
+            key={bounty.id}
             variants={item}
           >
-            <BountyItem 
-              id={bounty.id} 
-              title={bounty.name} 
-              description={bounty.description} 
-              amount={bounty.amount} 
+            <BountyItem
+              id={bounty.id}
+              title={bounty.name}
+              description={bounty.description}
+              amount={bounty.amount}
             />
           </motion.div>
         ))}
