@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import FormProof from '@/components/global/FormProof';
 import ButtonCTA from '@/components/ui/ButtonCTA';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { toast } from 'react-toastify';
 
 interface FormProofProps {
   bountyId: string;
@@ -18,10 +19,8 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
     if (primaryWallet) {
       setShowForm(!showForm);
     } else {
-      setWalletMessage("Please connect wallet to continue");
-      setTimeout(() => {
-        setWalletMessage("");
-      }, 3000);
+      toast.error("Please connect wallet to continue")
+
     }
   };
 

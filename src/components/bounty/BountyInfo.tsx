@@ -4,6 +4,7 @@ import { useBountyContext } from '@/components/bounty/BountyProvider';
 import CreateProof from '@/components/ui/CreateProof';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { blacklistedBounties } from '@/constant/blacklist';
+import { toast } from 'react-toastify';
 
 
 
@@ -19,9 +20,9 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { isMultiplayer, isOwner, bountyData, isBountyClaimed, isBountyCanceled, isOwnerContributor, } = useBountyContext()!;
 
 
-  console.log("Is multiplayer:", isMultiplayer)
-  console.log("Is Owner:", isOwner)
-  console.log("Is Claimed:", isBountyClaimed)
+  if (blacklistedBounties.includes(Number(bountyId))) {
+    return null;
+  }
 
   // Early exit if bountyId is blacklisted
   if (blacklistedBounties.includes(Number(bountyId))) {
@@ -29,34 +30,45 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   }
 
   const handleCancelBounty = async () => {
-    if (primaryWallet) {
-      try {
-        await cancelSoloBounty(primaryWallet, bountyId);
-        alert('Bounty canceled successfully!');
-      } catch (error) {
-        console.error('Error canceling bounty:', error);
-        alert('Failed to cancel bounty.');
+    if (!primaryWallet) {
+      toast.error('Please connect your wallet first.');
+      return;
+    }
+    try {
+      await cancelSoloBounty(primaryWallet, bountyId);
+      toast.success('Bounty canceled successfully!');
+    } catch (error) {
+      console.error('Error canceling bounty:', error);
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+        toast.error('Transaction denied by user.');
+      } else {
+        toast.error('Failed to cancel bounty.');
       }
-    } else {
-      alert('Please connect your wallet first.');
     }
   };
-
+  
 
 
   const handleCancelOpenBounty = async () => {
-    if (  !primaryWallet ) {
-      alert("Please fill in all fields and connect wallet");
+    if (!primaryWallet) {
+      toast.error("Please connect wallet");
       return;
     }
     try {
       await cancelOpenBounty(primaryWallet, bountyId);
-      alert("Bounty canceled successfully!");
+      toast.success("Bounty canceled successfully!");
     } catch (error) {
       console.error('Error canceling:', error);
-      alert("Failed to cancel.");
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+        toast.error("Transaction denied by user.");
+      } else {
+        toast.error("Failed to cancel.");
+      }
     }
   };
+
 
   const handleCancel = () => {
     if (!isMultiplayer) {
@@ -77,29 +89,6 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <p className=" text-2xl lg:text-4xl text-bold">{bountyData?.name}</p>
         <p className="mt-5">{bountyData?.description}</p>
         <p>Bounty issuer: {bountyData?.issuer}</p>
-
-
-       
-
-
-
-
-        {/* <div>
-            <p>Debug:</p>
-
-            <p>is Owner: {isOwner ? "true" : "false"}</p>
-            <p>isBountyClaimed: {isBountyClaimed ? "true" : "false"}</p>
-            <p>isMultiplayer: {isMultiplayer ? "true" : "false"}</p>
-            <p>isBountyCanceled: {isBountyCanceled ? "true" : "false"}</p>
-            <p>isOwnerContributor: {isOwnerContributor ? "true" : "false"}</p>
-
-            
-
-
-
-        </div> */}
-
-
       </div>
 
       <div className='flex flex-col space-between'>

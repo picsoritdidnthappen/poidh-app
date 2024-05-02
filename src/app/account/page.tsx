@@ -10,7 +10,8 @@ const AccountInfo = dynamic(() => import('@/components/account/AccountInfo'), { 
 import Footer from '@/components/layout/Footer';
 
 import WalletProvider from '@/app/context/WalletProvider';
-import { usePathname } from 'next/navigation';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -26,6 +27,8 @@ const Account = () => {
       </div>
       <Footer />
       </WalletProvider>
+      <ToastContainer />
+
     </ContextProvider>
   );
 };

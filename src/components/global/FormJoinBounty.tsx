@@ -2,6 +2,7 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { useState } from 'react';
 
 import {joinOpenBounty} from '@/app/context/web3';
+import { toast } from 'react-toastify';
 
 
 
@@ -18,29 +19,29 @@ const { primaryWallet } = useDynamicContext();
 const [walletMessage, setWalletMessage] = useState('');
 
 
-
 const handleJoinBounty = async () => {
-  if ( !amount || !primaryWallet ) {
-    alert("Please fill in all fields and connect wallet");
+  if (!amount || !primaryWallet) {
+    toast.error("Please fill in all fields and connect wallet");
     return;
   }
   try {
-    await joinOpenBounty(primaryWallet, bountyId, amount );
-    alert("Bounty created successfully!");
+    await joinOpenBounty(primaryWallet, bountyId, amount);
+    toast.success("Bounty joined successfully!");
     setAmount('');
-  } catch (error) {
-    console.error('Error creating claim:', error);
-    alert("Failed to create claim.");
+  } catch (error: unknown) {
+    console.error('Error joining:', error);
+    // Use a more detailed check to find the error code
+    const errorCode = (error as any)?.info?.error?.code;
+    if (errorCode === 4001) {
+        toast.error('Transaction denied by user');
+    } else {
+        toast.error("Failed to join bounty");
+    }
   }
 };
 
 
 
-// const join = async () => {
-//   const signer = await getSigner(primaryWallet);
-//   const contract = await getContract(signer);
-//   const joinB = await joinOpenBounty(signer, 0.004, 22 )
-// }
 
 
 return (
@@ -60,14 +61,16 @@ return (
     }`}
     onClick={() => {
       if (!primaryWallet) {
-        setWalletMessage("Please connect wallet to continue");
+        toast.error("Please connect wallet to continue")
+
       } else {
         handleJoinBounty();
       }
     }}
     onMouseEnter={() => {
       if (!primaryWallet) {
-        setWalletMessage("Please connect wallet to continue");
+        toast.error("Please connect wallet to continue")
+
       }
     }}
     onMouseLeave={() => {
@@ -77,7 +80,6 @@ return (
     >join bounty</button>
 
 </div>
-    <span id="walletMessage">{walletMessage}</span>
 </>
 );
 };

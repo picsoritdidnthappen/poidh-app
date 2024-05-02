@@ -4,6 +4,7 @@ import React, {useState} from 'react';
 import Form from '@/components/global/Form';
 import ButtonCTA from '@/components/ui/ButtonCTA';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { toast } from 'react-toastify';
 
 const CreateBounty = () => {
   const { primaryWallet } = useDynamicContext();
@@ -15,10 +16,7 @@ const CreateBounty = () => {
     if (primaryWallet) {
       setShowForm(!showForm);
     } else {
-      setWalletMessage("Please connect wallet to continue");
-      setTimeout(() => {
-        setWalletMessage("");
-      }, 3000);
+      toast.error("Please connect wallet to continue")
     }
   };
 

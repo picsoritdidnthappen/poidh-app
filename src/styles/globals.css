@@ -223,3 +223,13 @@ button {
 .bountyItem.pendingClaims.canceled:hover > div > div.borderBox {
   border: 1px solid white;
 }
+
+.Toastify__toast-theme--light {
+  background-color: rgba(209, 236, 255, 0.2) !important;
+  border: 1px solid white !important;
+  color: white !important;
+  backdrop-filter: blur(4px) !important;
+}
+.Toastify__close-button > svg {
+  fill: white !important;
+}
