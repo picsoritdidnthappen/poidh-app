@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
+import { toast } from 'react-toastify';
+
 
 interface ProofItemProps {
   id: string;
@@ -62,29 +64,43 @@ const ProofItem: React.FC<ProofItemProps> = ({
 
   const handleAcceptClaim = async () => {
     if (!id || !bountyId || !primaryWallet) {
-      alert("Please check connection");
+      toast.error("Please check connection");
       return;
     }
     try {
       await acceptClaim(primaryWallet, bountyId, id);
-    } catch (error) {
+      toast.success('Claim accepted!');
+    } catch (error: unknown) {
       console.error('Error accepting claim:', error);
-      alert("Failed to accept claim.");
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+        toast.error('Transaction denied by user.');
+      } else {
+        toast.error("Failed to accept claim.");
+      }
     }
   };
+  
 
   const handleSubmitClaimForVote = async () => {
     if (!id || !bountyId || !primaryWallet) {
-      alert("Please check connection");
+      toast.error("Please check connection");
       return;
     }
     try {
       await submitClaimForVote(primaryWallet, bountyId, id);
-    } catch (error) {
-      console.error('Error accepting claim:', error);
-      alert("Failed to accept claim.");
+      toast.success('Claim submitted!');
+    } catch (error: unknown) {
+      console.error('Error submitting claim:', error);
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+        toast.error('Transaction denied by user');
+      } else {
+        toast.error("Failed to submit claim");
+      }
     }
   };
+  
 
   return (
     <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
@@ -120,15 +136,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
 
 
       <div style={{backgroundImage: `url(${imageUrl})`}} className="bg-[#12AAFF] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden">
-    {/* {imageUrl && (
-    //   <Image
-    //   className="object-cover w-full"
-    //   src={imageUrl}
-    //   width={259}
-    //   height={259}
-    //   alt="claim image"
-    // />
-     )} */}
+  
 </div>
       <div className="p-3">
         <div className="flex flex-col">

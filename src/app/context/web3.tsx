@@ -131,6 +131,7 @@ export const createSoloBounty: CreateBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error creating bounty:", error);
+    throw error;
   }
 };
 
@@ -156,6 +157,8 @@ export const createOpenBounty: CreateBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error creating bounty:", error);
+    throw error;
+
   }
 };
 
@@ -179,6 +182,8 @@ export const createClaim: CreateClaimFunction = async (
     const res = await transaction.wait();
   } catch (error) {
     console.error("Error creating claim:", error);
+    throw error;
+
   }
 };
 
@@ -194,6 +199,8 @@ export const acceptClaim: AcceptClaimFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error accepting claim:", error);
+    throw error;
+
   }
 };
 
@@ -209,6 +216,8 @@ export const submitClaimForVote: SubmitClaimForVoteFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error accepting claim:", error);
+    throw error;
+
   }
 };
 
@@ -223,6 +232,7 @@ export const cancelOpenBounty: CancelBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error canceling open bounty:", error);
+    throw error;
   }
 };
 
@@ -237,6 +247,7 @@ export const cancelSoloBounty: CancelBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error canceling solo bounty:", error);
+    throw error;
   }
 };
 
@@ -251,6 +262,8 @@ export const withdrawFromOpenBounty: withdrawFromOpenBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error widthdraw:", error);
+    throw error;
+
   }
 };
 
@@ -266,6 +279,8 @@ export const voteClaim: VoteClaimFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error voting:", error);
+    throw error;
+
   }
 };
 
@@ -280,6 +295,8 @@ export const resolveVote: ResolveVoteFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error voting:", error);
+    throw error;
+
   }
 };
 
@@ -298,6 +315,8 @@ export const joinOpenBounty: JoinOpenBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error("Error joining open bounty:", error);
+    throw error;
+
   }
 };
 

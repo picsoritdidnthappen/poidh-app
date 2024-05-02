@@ -5,6 +5,7 @@ import { cancelSoloBounty, fetchBountyById,  } from '@/app/context/web3';
 
 import { Bounty } from '@/types/web3';
 
+import { toast } from 'react-toastify';
 
 
 const NoProof = ({ bountyId }: { bountyId: string }) => {
@@ -20,22 +21,22 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
     if (primaryWallet) {
       try {
         await cancelSoloBounty(primaryWallet, bountyId);
-        alert('Bounty canceled successfully!');
+        toast.success('Bounty canceled successfully!');
       } catch (error) {
         console.error('Error canceling bounty:', error);
-        alert('Failed to cancel bounty.');
+        toast.error('Failed to cancel bounty.');
       }
     } else {
-      alert('Please connect your wallet first.');
+      toast.error('Please connect your wallet first.');
     }
   };
   
   const handleAddProof = async () => {
     try {
-      alert('Proof added successfully!');
+      toast.success('Claim added successfully!');
     } catch (error) {
       console.error('Error adding proof:', error);
-      alert('Failed to add proof.');
+      toast.error('Failed to add claim!');
     }
   };
 

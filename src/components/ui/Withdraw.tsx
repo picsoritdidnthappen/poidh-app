@@ -2,6 +2,7 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import React from 'react';
 
 import { withdrawFromOpenBounty } from '@/app/context/web3';
+import { toast } from 'react-toastify';
 
 
 interface WithdrawProps {
@@ -15,15 +16,21 @@ const Withdraw: React.FC<WithdrawProps> = ({ bountyId }) => {
 
 const handlewithdrawFromOpenBounty = async () => {
   if (  !primaryWallet ) {
-    alert("Please fill in all fields and connect wallet");
+    toast.error("Please fill in all fields and connect wallet");
     return;
   }
   try {
     await withdrawFromOpenBounty( primaryWallet, bountyId);
-    alert("Bounty withdraw successful!");
-  } catch (error) {
-    console.error('Error withdraw', error);
-    alert("Failed withdraw");
+    toast.success("withdraw successful!");
+  }  catch (error: unknown) {
+    console.error('Error joining:', error);
+    // Use a more detailed check to find the error code
+    const errorCode = (error as any)?.info?.error?.code;
+    if (errorCode === 4001) {
+        toast.error('Transaction denied by user');
+    } else {
+        toast.error("withdraw failed");
+    }
   }
 };
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import BountyList from "@/components/ui/BountyList";
 import ToggleButton from "@/components/ui/ToggleButton";
+import { blacklistedBounties } from '@/constant/blacklist';
 
 import { networks } from "@/app/context/config";
 import { fetchAllBounties } from "@/app/context/web3";
@@ -72,8 +73,10 @@ const ContentHome = () => {
 
   useEffect(() => {
     // Filter bountiesData into openBounties and pastBounties
-    const open = bountiesData.filter(bounty => bounty.claimer !== "0x0000000000000000000000000000000000000000");
-    const past = bountiesData.filter(bounty => bounty.claimer === "0x0000000000000000000000000000000000000000");
+    const open = bountiesData.filter(bounty => bounty.claimer !== "0x0000000000000000000000000000000000000000" &&
+    !blacklistedBounties.includes(Number(bounty.id)));
+    const past = bountiesData.filter(bounty => bounty.claimer === "0x0000000000000000000000000000000000000000" &&
+    !blacklistedBounties.includes(Number(bounty.id)));
 
     setOpenBounties(open);
     setPastBounties(past);
