@@ -48,7 +48,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       console.error('Failed to vote', error);
       const errorCode = (error as any)?.info?.error?.code;
       if (errorCode === 4001) {
-          toast.error('Transaction denied by user.');
+          toast.error('Transaction denied by user');
       } else {
           toast.error('Failed to vote');
       }
@@ -70,7 +70,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       console.error('Failed to vote', error);
       const errorCode = (error as any)?.info?.error?.code;
       if (errorCode === 4001) {
-          toast.error('Transaction denied by user.');
+          toast.error('Transaction denied by user');
       } else {
           toast.error('Failed to vote');
       }
@@ -86,6 +86,9 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       return;
     }
     try {
+
+     
+
       await resolveVote(primaryWallet, bountyId );
       toast.success("Vote resolved successfully!");
      
@@ -93,7 +96,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       console.error('Failed to resolve vote', error);
       const errorCode = (error as any)?.info?.error?.code;
       if (errorCode === 4001) {
-          toast.error('Transaction denied by user.');
+          toast.error('Transaction denied by user');
       } else {
           toast.error('Failed to resolve vote');
       }
