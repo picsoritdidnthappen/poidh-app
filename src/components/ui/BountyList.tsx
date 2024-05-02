@@ -20,6 +20,7 @@ export interface EnhancedBounty {
   claimer: string;
   createdAt: bigint;
   claimId: string;
+  isMultiplayer: boolean;
 }
 
 const container = {
@@ -88,6 +89,7 @@ const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
               title={bounty.name}
               description={bounty.description}
               amount={bounty.amount}
+              isMultiplayer={bounty.isMultiplayer}
             />
           </motion.div>
         ))}

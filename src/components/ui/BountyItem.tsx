@@ -10,6 +10,7 @@ interface BountyItemProps {
   title: string;
   description: string;
   amount: string | number | bigint;
+  isMultiplayer: boolean;
 }
 
 const BountyItem: React.FC<BountyItemProps> = ({
@@ -17,6 +18,7 @@ const BountyItem: React.FC<BountyItemProps> = ({
   title,
   description,
   amount,
+  isMultiplayer,
 }) => {
   const shortDescription =
     description.length > 50
@@ -35,9 +37,11 @@ const BountyItem: React.FC<BountyItemProps> = ({
           <div className='flex items-end justify-between mt-5'>
             <div className='flex gap-2 items-center'>
               <div>{Number(amountETH)} degen</div>
-              <div>
-                <UsersRound />
-              </div>
+              {isMultiplayer && (
+                <div>
+                  <UsersRound />
+                </div>
+              )}
             </div>
             <Button>
               <Link href={`/bounty/${id}`}>see bounty</Link>

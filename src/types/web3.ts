@@ -1,4 +1,5 @@
-import { Contract } from "ethers";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Contract } from 'ethers';
 
 // Wallets and Signers
 export interface Wallet {
@@ -8,7 +9,6 @@ export interface Wallet {
   connected: boolean;
   id: string;
 }
-
 
 // Contract Data Types
 export type MainContractType = Contract;
@@ -22,8 +22,9 @@ export interface Bounty {
   description: string;
   amount: string | bigint | number;
   claimer: string;
-  createdAt: bigint; 
+  createdAt: bigint;
   claimId: string;
+  isMultiplayer: boolean;
 }
 
 export interface BountiesData {
@@ -33,10 +34,10 @@ export interface BountiesData {
   amount: string | bigint | number;
   description: string;
   claimer: string;
-  createdAt: bigint; 
+  createdAt: bigint;
   claimId: string;
+  isMultiplayer: boolean;
 }
-
 
 export interface BountiesDataClosed {
   id: string;
@@ -44,7 +45,7 @@ export interface BountiesDataClosed {
   name: string;
   description: string;
   claimer: string;
-  createdAt: bigint; 
+  createdAt: bigint;
   claimId: string;
 }
 
@@ -54,11 +55,9 @@ export interface BountiesDataOpen {
   name: string;
   description: string;
   claimer: string;
-  createdAt: bigint; 
+  createdAt: bigint;
   claimId: string;
 }
-
-
 
 export interface ClaimsData {
   accepted: boolean;
@@ -70,7 +69,6 @@ export interface ClaimsData {
   issuer: string;
   name: string;
 }
-
 
 export interface BountyListProps {
   bountiesData: BountiesData[];
@@ -84,11 +82,6 @@ export interface OpenBounty {
   amounts: Amount[];
 }
 
-
-
-
-
-
 export interface Claim {
   id: string;
   issuer: string;
@@ -96,14 +89,14 @@ export interface Claim {
   bountyIssuer: string;
   name: string;
   description: string;
-  createdAt: bigint; 
+  createdAt: bigint;
   accepted: boolean;
 }
 
 export interface VotingTracker {
   yes: string;
   no: string;
-  deadline: string; 
+  deadline: string;
 }
 
 export interface URI {
@@ -112,7 +105,7 @@ export interface URI {
   image: any;
   name: any;
   attributes: never[];
-} 
+}
 
 export interface NFTDetails {
   uri: string;
@@ -125,51 +118,84 @@ export interface TokenIds {
   nftId: string;
 }
 
-
-
 // Contract Interaction Functions
-export type CreateBountyFunction = (primaryWallet: Wallet, name: string, description: string, value: string) => Promise<void>;
-export type CreateClaimFunction = (primaryWallet: Wallet, name: string, uri: string , description: string, bountyId: string) => Promise<void>;
-export type AcceptClaimFunction = (primaryWallet: Wallet, bountyId: string, claimId: string) => Promise<void>;
-export type CancelBountyFunction = (primaryWallet: Wallet, id: string) => Promise<void>;
+export type CreateBountyFunction = (
+  primaryWallet: Wallet,
+  name: string,
+  description: string,
+  value: string
+) => Promise<void>;
+export type CreateClaimFunction = (
+  primaryWallet: Wallet,
+  name: string,
+  uri: string,
+  description: string,
+  bountyId: string
+) => Promise<void>;
+export type AcceptClaimFunction = (
+  primaryWallet: Wallet,
+  bountyId: string,
+  claimId: string
+) => Promise<void>;
+export type CancelBountyFunction = (
+  primaryWallet: Wallet,
+  id: string
+) => Promise<void>;
 
-export type withdrawFromOpenBountyFunction = (primaryWallet: Wallet, id: string) => Promise<void>;
-export type SubmitClaimForVoteFunction = (primaryWallet: Wallet, bountyId: string, claimId: string) => Promise<void>;
+export type withdrawFromOpenBountyFunction = (
+  primaryWallet: Wallet,
+  id: string
+) => Promise<void>;
+export type SubmitClaimForVoteFunction = (
+  primaryWallet: Wallet,
+  bountyId: string,
+  claimId: string
+) => Promise<void>;
 
-
-
-export type JoinOpenBountyFunction = (primaryWallet: Wallet, id: string, value: string  ) => Promise<void>;
-
+export type JoinOpenBountyFunction = (
+  primaryWallet: Wallet,
+  id: string,
+  value: string
+) => Promise<void>;
 
 // Data Fetching Functions
 export type FetchBountiesFunction = (offset: number) => Promise<Bounty[]>;
 export type FetchBountyByIdFunction = (id: string) => Promise<Bounty>;
-export type GetBountiesByUserFunction = (user: string, offset: number, allBounties: Bounty[]) => Promise<Bounty[]>;
+export type GetBountiesByUserFunction = (
+  user: string,
+  offset: number,
+  allBounties: Bounty[]
+) => Promise<Bounty[]>;
 export type GetAllBountiesFunction = () => Promise<Bounty[]>;
-export type GetOpenBountiesByUserFunction = (primaryWallet: Wallet) => Promise<Bounty[]>;
-
+export type GetOpenBountiesByUserFunction = (
+  primaryWallet: Wallet
+) => Promise<Bounty[]>;
 
 export type GetParticipants = (id: string) => Promise<OpenBounty>;
-export type BountyCurrentVotingClaimFunction= (id: string) => Promise<number | null>;
-export type BountyVotingTrackerFunction = (id: string) => Promise<VotingTracker>;
+export type BountyCurrentVotingClaimFunction = (
+  id: string
+) => Promise<number | null>;
+export type BountyVotingTrackerFunction = (
+  id: string
+) => Promise<VotingTracker>;
 
-export type VoteClaimFunction = (primaryWallet: Wallet, id: string, vote: boolean  ) => Promise<void>;
+export type VoteClaimFunction = (
+  primaryWallet: Wallet,
+  id: string,
+  vote: boolean
+) => Promise<void>;
 
-export type ResolveVoteFunction = (primaryWallet: Wallet, bountyId: string,  ) => Promise<void>;
+export type ResolveVoteFunction = (
+  primaryWallet: Wallet,
+  bountyId: string
+) => Promise<void>;
 
-export type GetNftsOfOwnerFunction = (primaryWallet: string) => Promise<string[]>;
-
-
-
-
-
-
+export type GetNftsOfOwnerFunction = (
+  primaryWallet: string
+) => Promise<string[]>;
 
 export type GetClaimsByUserFunction = (user: string) => Promise<Claim[]>;
 export type GetClaimsByBountyIdFunction = (id: string) => Promise<Claim[]>;
 export type GetClaimByIdFunction = (claimId: string) => Promise<Claim[]>;
-
-
-
 
 export type GetURIFunction = (claimId: string) => Promise<string>;
