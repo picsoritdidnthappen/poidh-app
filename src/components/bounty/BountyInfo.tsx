@@ -8,7 +8,6 @@ import { toast } from 'react-toastify';
 
 
 
-
 function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
   return etherValue.toFixed(6); 
@@ -21,6 +20,11 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { isMultiplayer, isOwner, bountyData, isBountyClaimed, isBountyCanceled, isOwnerContributor, } = useBountyContext()!;
 
 
+  if (blacklistedBounties.includes(Number(bountyId))) {
+    return null;
+  }
+
+  // Early exit if bountyId is blacklisted
   if (blacklistedBounties.includes(Number(bountyId))) {
     return null;
   }
