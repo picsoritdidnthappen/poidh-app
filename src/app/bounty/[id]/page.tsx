@@ -8,6 +8,8 @@ import Header from '@/components/layout/Header';
 
 import ContextProvider from '@/app/context/ContextProvider';
 import  WalletProvider  from '@/app/context/WalletProvider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -24,6 +26,7 @@ const Bounty = () => {
     </section>
     <Footer/>
     </WalletProvider>
+    <ToastContainer />
   </ContextProvider>
   );
 };

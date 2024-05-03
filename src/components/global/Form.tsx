@@ -5,6 +5,8 @@ import { useState } from 'react';
 import ButtonCTA from '@/components/ui/ButtonCTA';
 
 import { createOpenBounty,createSoloBounty } from '@/app/context/web3';
+import { toast } from 'react-toastify';
+
 
 
 const Form = () => {
@@ -16,68 +18,42 @@ const Form = () => {
   const [walletMessage, setWalletMessage] = useState('');
 
 
- 
- 
-  //  const handleCreateBounty = async () => {
-  //   if (!name || !description || !amount || !primaryWallet) {
-  //     alert("Please fill in all fields and check wallet connection.");
-  //     return;
-  //   }
-
-  //   try {
-  //     await createSoloBounty(primaryWallet, name, description, amount);
-  //     alert("Bounty created successfully!");
-  //     setName('');
-  //     setDescription('');
-  //     setAmount('');
-  //   } catch (error) {
-  //     console.error('Error creating bounty:', error);
-  //     alert("Failed to create bounty.");
-  //   }
-  // };
-
-
-  // const handleCreateOpenBounty = async () => {
-  //   if (!name || !description || !amount || !primaryWallet) {
-  //     alert("Please fill in all fields and check wallet connection.");
-  //     return;
-  //   }
-
-  //   try {
-  //     await createOpenBounty(primaryWallet, name, description, amount);
-  //     alert("Bounty created successfully!");
-  //     setName('');
-  //     setDescription('');
-  //     setAmount('');
-  //   } catch (error) {
-  //     console.error('Error creating bounty:', error);
-  //     alert("Failed to create bounty.");
-  //   }
-  // };
 
 
   const handleCreateBounty = async () => {
-    if (!name || !description || !amount || !primaryWallet ) {
-      alert("Please fill in all fields and check wallet connection.");
+    if (!name || !description || !amount || !primaryWallet) {
+      toast.error("Please fill in all fields and check wallet connection.");
       return;
     }
-
+  
     try {
-      if (isSoloBounty ) { 
+      const balance = await primaryWallet.connector.getBalance();
+      if (parseFloat(balance as string) < parseFloat(amount)) {
+        toast.error("Insufficient funds for this transaction");
+        return;
+      }
+
+
+      if (isSoloBounty) { 
         await createSoloBounty(primaryWallet, name, description, amount);
       } else { 
         await createOpenBounty(primaryWallet, name, description, amount);
       }
-      alert("Bounty created successfully!");
+      toast.success("Bounty created successfully!");
       setName('');
       setDescription('');
       setAmount('');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating bounty:', error);
-      alert("Failed to create bounty.");
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+        toast.error('Transaction denied by user');
+      } else {
+        toast.error("Failed to create bounty");
+      }
     }
   };
-
+  
   
 
   return (

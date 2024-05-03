@@ -131,7 +131,8 @@ export const createSoloBounty: CreateBountyFunction = async (
     );
     await transaction.wait();
   } catch (error) {
-    console.error('Error creating bounty:', error);
+    console.error("Error creating bounty:", error);
+    throw error;
   }
 };
 
@@ -156,7 +157,8 @@ export const createOpenBounty: CreateBountyFunction = async (
     );
     await transaction.wait();
   } catch (error) {
-    console.error('Error creating bounty:', error);
+    console.error("Error creating bounty:", error);
+    throw error;
   }
 };
 
@@ -179,7 +181,8 @@ export const createClaim: CreateClaimFunction = async (
     );
     const res = await transaction.wait();
   } catch (error) {
-    console.error('Error creating claim:', error);
+    console.error("Error creating claim:", error);
+    throw error;
   }
 };
 
@@ -194,7 +197,8 @@ export const acceptClaim: AcceptClaimFunction = async (
     const transaction = await contract.acceptClaim(bountyId, claimId);
     await transaction.wait();
   } catch (error) {
-    console.error('Error accepting claim:', error);
+    console.error("Error accepting claim:", error);
+    throw error;
   }
 };
 
@@ -209,7 +213,8 @@ export const submitClaimForVote: SubmitClaimForVoteFunction = async (
     const transaction = await contract.submitClaimForVote(bountyId, claimId);
     await transaction.wait();
   } catch (error) {
-    console.error('Error accepting claim:', error);
+    console.error("Error accepting claim:", error);
+    throw error;
   }
 };
 
@@ -223,7 +228,8 @@ export const cancelOpenBounty: CancelBountyFunction = async (
     const transaction = await contract.cancelOpenBounty(id);
     await transaction.wait();
   } catch (error) {
-    console.error('Error canceling open bounty:', error);
+    console.error("Error canceling open bounty:", error);
+    throw error;
   }
 };
 
@@ -237,7 +243,8 @@ export const cancelSoloBounty: CancelBountyFunction = async (
     const transaction = await contract.cancelSoloBounty(id);
     await transaction.wait();
   } catch (error) {
-    console.error('Error canceling solo bounty:', error);
+    console.error("Error canceling solo bounty:", error);
+    throw error;
   }
 };
 
@@ -251,7 +258,8 @@ export const withdrawFromOpenBounty: withdrawFromOpenBountyFunction = async (
     const transaction = await contract.withdrawFromOpenBounty(id);
     await transaction.wait();
   } catch (error) {
-    console.error('Error widthdraw:', error);
+    console.error("Error widthdraw:", error);
+    throw error;
   }
 };
 
@@ -266,7 +274,8 @@ export const voteClaim: VoteClaimFunction = async (
     const transaction = await contract.voteClaim(bountyId, vote);
     await transaction.wait();
   } catch (error) {
-    console.error('Error voting:', error);
+    console.error("Error voting:", error);
+    throw error;
   }
 };
 
@@ -280,7 +289,8 @@ export const resolveVote: ResolveVoteFunction = async (
     const transaction = await contract.resolveVote(bountyId);
     await transaction.wait();
   } catch (error) {
-    console.error('Error voting:', error);
+    console.error("Error voting:", error);
+    throw error;
   }
 };
 
@@ -298,7 +308,8 @@ export const joinOpenBounty: JoinOpenBountyFunction = async (
     const transaction = await contract.joinOpenBounty(id, options);
     await transaction.wait();
   } catch (error) {
-    console.error('Error joining open bounty:', error);
+    console.error("Error joining open bounty:", error);
+    throw error;
   }
 };
 

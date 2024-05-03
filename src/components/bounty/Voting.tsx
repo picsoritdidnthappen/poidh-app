@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { bountyVotingTracker , resolveVote,voteClaim} from '@/app/context/web3';
 
 import { VotingTracker } from '@/types/web3';
+import { toast } from 'react-toastify';
+
 
 interface VotingProps {
   bountyId: string;
@@ -35,34 +37,44 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const voteYes = async () => {
 
     if ( !bountyId || !primaryWallet ) {
-      alert("Please connect wallet");
+      toast.error("Please connect wallet");
       return;
     }
     try {
       await voteClaim(primaryWallet, bountyId, true );
-      alert("Vote made successfully!");
+      toast.success("Vote made successfully!");
      
-    } catch (error) {
-      console.error('Error vote:', error);
-      alert("Failed to vote");
-    }
+    }  catch (error: unknown) {
+      console.error('Failed to vote', error);
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+          toast.error('Transaction denied by user');
+      } else {
+          toast.error('Failed to vote');
+      }
+  }
 
   }
 
   const voteNo = async () => {
 
     if ( !bountyId || !primaryWallet ) {
-      alert("Please connect wallet");
+      toast.error("Please connect wallet");
       return;
     }
     try {
       await voteClaim(primaryWallet, bountyId, false );
-      alert("Vote made successfully!");
+      toast.success("Vote made successfully!");
      
-    } catch (error) {
-      console.error('Error vote:', error);
-      alert("Failed to vote");
-    }
+    } catch (error: unknown) {
+      console.error('Failed to vote', error);
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+          toast.error('Transaction denied by user');
+      } else {
+          toast.error('Failed to vote');
+      }
+  }
 
   }
 
@@ -70,17 +82,25 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const resolveVoteHandle = async () => {
 
     if ( !bountyId || !primaryWallet ) {
-      alert("Please connect wallet");
+      toast.error("Please connect wallet");
       return;
     }
     try {
-      await resolveVote(primaryWallet, bountyId );
-      alert("Vote resolve successfully!");
+
      
-    } catch (error) {
-      console.error('Error resolve vote:', error);
-      alert("Failed to resolve vote");
-    }
+
+      await resolveVote(primaryWallet, bountyId );
+      toast.success("Vote resolved successfully!");
+     
+    } catch (error: unknown) {
+      console.error('Failed to resolve vote', error);
+      const errorCode = (error as any)?.info?.error?.code;
+      if (errorCode === 4001) {
+          toast.error('Transaction denied by user');
+      } else {
+          toast.error('Failed to resolve vote');
+      }
+  }
 
   }
 

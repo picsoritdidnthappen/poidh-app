@@ -2,6 +2,8 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { useState } from 'react';
 
 import {joinOpenBounty} from '@/app/context/web3';
+import { toast } from 'react-toastify';
+import { ethers } from 'ethers';
 
 
 
@@ -18,29 +20,40 @@ const { primaryWallet } = useDynamicContext();
 const [walletMessage, setWalletMessage] = useState('');
 
 
-
 const handleJoinBounty = async () => {
-  if ( !amount || !primaryWallet ) {
-    alert("Please fill in all fields and connect wallet");
+  if (!primaryWallet) {
+    toast.error("Please connect wallet and fill in all fields");
     return;
   }
+  if (!amount) {
+    toast.error("Please enter the amount to join the bounty");
+    return;
+  }
+
   try {
-    await joinOpenBounty(primaryWallet, bountyId, amount );
-    alert("Bounty created successfully!");
+    const balance = await primaryWallet.connector.getBalance();
+    if (parseFloat(balance as string) < parseFloat(amount)) {
+      toast.error("Insufficient funds for this transaction");
+      return;
+    }
+
+    await joinOpenBounty(primaryWallet, bountyId, amount);
+    toast.success("Bounty joined successfully!");
     setAmount('');
-  } catch (error) {
-    console.error('Error creating claim:', error);
-    alert("Failed to create claim.");
+  } catch (error: unknown) {
+    console.error('Error joining:', error);
+    const errorData = error as any;
+    const errorCode = errorData?.info?.error?.code;
+    const errorMessage = errorData?.info?.error?.message;
+    if (errorCode === 4001) {
+      toast.error('Transaction denied by user');
+    } else if (errorMessage && errorMessage.toLowerCase().includes('insufficient funds')) {
+      toast.error('Insufficient funds for this transaction');
+    } else {
+      toast.error("Failed to join bounty");
+    }
   }
 };
-
-
-
-// const join = async () => {
-//   const signer = await getSigner(primaryWallet);
-//   const contract = await getContract(signer);
-//   const joinB = await joinOpenBounty(signer, 0.004, 22 )
-// }
 
 
 return (
@@ -60,14 +73,16 @@ return (
     }`}
     onClick={() => {
       if (!primaryWallet) {
-        setWalletMessage("Please connect wallet to continue");
+        toast.error("Please connect wallet to continue")
+
       } else {
         handleJoinBounty();
       }
     }}
     onMouseEnter={() => {
       if (!primaryWallet) {
-        setWalletMessage("Please connect wallet to continue");
+        toast.error("Please connect wallet to continue")
+
       }
     }}
     onMouseLeave={() => {
@@ -77,7 +92,6 @@ return (
     >join bounty</button>
 
 </div>
-    <span id="walletMessage">{walletMessage}</span>
 </>
 );
 };
