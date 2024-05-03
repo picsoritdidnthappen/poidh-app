@@ -17,18 +17,18 @@ const NftList: React.FC<NftListProps> = ({ nftDetails }) => {
   }
 
   return (
-    <div className='grid md:grid-cols-8 lg:grid-cols-12 my-20 gap-12'>
+    <div className='md:grid flex flex-col md:grid-cols-8 lg:grid-cols-12 my-20 gap-12'>
       {nftDetails.map((detail, index) => (
-        <div className=' md:col-span-4' key={index}>
+        <div className=' md:col-span-4 ' key={index}>
              <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
 
         <div style={{backgroundImage: `url(${detail.uri})`}} className="bg-[#12AAFF] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden">
   
 </div>
 <div className="p-3">
-  <div className="flex flex-col">
+  <div className="flex break-words flex-col">
   <p>{detail.name}</p>
-    <p className="">{detail.description}</p>
+  <p className="">{detail.description}</p>
   </div>
  
 </div>
