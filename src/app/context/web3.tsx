@@ -355,21 +355,28 @@ export const getBountiesByUser: GetBountiesByUserFunction = async (
   const contractRead = await getContractRead();
   const rawBounties = await contractRead.getBountiesByUser(user, offset);
 
-  const newBounties: Bounty[] = rawBounties
+  const bountiesPromise: Bounty[] = rawBounties
     .filter(
       (bounty: any) =>
         bounty[1] !== '0x0000000000000000000000000000000000000000'
     )
-    .map((bounty: any) => ({
-      id: bounty[0].toString(),
-      issuer: bounty[1],
-      name: bounty[2],
-      description: bounty[3],
-      amount: bounty[4].toString(),
-      claimer: bounty[5],
-      createdAt: bounty[6].toString(),
-      claimId: bounty[7].toString(),
-    }));
+    .map(async (bounty: any) => {
+      const participants = await contractRead.getParticipants(bounty.id);
+      const isMultiplayer = participants[0].length > 0;
+      return {
+        id: bounty[0].toString(),
+        issuer: bounty[1],
+        name: bounty[2],
+        description: bounty[3],
+        amount: bounty[4].toString(),
+        claimer: bounty[5],
+        createdAt: bounty[6].toString(),
+        claimId: bounty[7].toString(),
+        isMultiplayer,
+      };
+    });
+
+  const newBounties = await Promise.all(bountiesPromise);
 
   allBounties = [...allBounties, ...newBounties];
 
