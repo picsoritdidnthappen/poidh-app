@@ -18,6 +18,7 @@ export type MainContractType = Contract;
 export interface Bounty {
   id: string;
   issuer: string;
+  issuerDegenOrEnsName?: string | null;
   name: string;
   description: string;
   amount: string | bigint | number;
@@ -80,6 +81,7 @@ type Amount = string;
 export interface OpenBounty {
   addresses: Address[];
   amounts: Amount[];
+  degenOrEnsNames?: (string | null)[];
 }
 
 export interface Claim {
