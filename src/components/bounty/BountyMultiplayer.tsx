@@ -72,7 +72,7 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
                 participants.addresses.map((address, index) => {
                   const formattedAddress = `${address.substring(0, 6)}...${address.substring(address.length - 3)}`;
                   const degenOrEnsName = participants.degenOrEnsNames?.[index];
-                  const displayText = degenOrEnsName ?? formattedAddress;
+                  const displayText = degenOrEnsName || formattedAddress;
 
                   return <div className="py-2" key={index}>
                     {displayText} - {weiToEther(participants.amounts[index])} degen
