@@ -2,10 +2,14 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Contract, ethers } from 'ethers';
+import { isAddress } from 'viem';
+
+import { publicClient } from '@/app/context/publicClient';
 
 import abi from './abi';
 import abiNFT from './abiNFT';
 import chains from './config';
+import DegenDomainNameResolverAbiJson from '../../abi/DegenDomainNameResolver.abi.json'
 import {
   AcceptClaimFunction,
   Bounty,
@@ -342,10 +346,13 @@ export const fetchBountyById: FetchBountyByIdFunction = async (id) => {
   const contractRead = await getContractRead();
   const bounty = await contractRead.bounties(id);
   const participants = await contractRead.getParticipants(id);
+  const issuer = bounty[1];
+  const issuerDegenOrEnsName = await getDegenOrEnsName(issuer);
 
   const formattedBounty: Bounty = {
     id: bounty[0].toString(),
-    issuer: bounty[1],
+    issuer,
+    issuerDegenOrEnsName,
     name: bounty[2],
     description: bounty[3],
     amount: bounty[4].toString(),
@@ -575,3 +582,23 @@ export const getURI: GetURIFunction = async (claimId) => {
   const uri = await contractNFT.tokenURI(claimId);
   return uri;
 };
+
+export const getDegenNameContract = async () => {
+  const provider = await getProvider();
+  return new Contract('0x4087fb91A1fBdef05761C02714335D232a2Bf3a1', DegenDomainNameResolverAbiJson, provider);
+}
+
+/** Returns the degen name if the owner has one, otherwise the ens name */
+export const getDegenOrEnsName = async (addr: string): Promise<string | null> => {
+  if (!isAddress(addr)) {
+    return null;
+  }
+
+  const degenNameContract = await getDegenNameContract();
+  const degenName = await degenNameContract.defaultNames(addr);
+  if (degenName) {
+    return `${degenName}.degen`;
+  }
+
+  return publicClient.getEnsName({ address: addr });
+}

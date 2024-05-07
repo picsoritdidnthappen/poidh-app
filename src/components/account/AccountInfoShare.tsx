@@ -15,7 +15,7 @@ import { getBountiesByUser, getClaimsByUser, getContract,  getProvider, getSigne
 import { BountiesData, ClaimsData, NFTDetails } from '@/types/web3';
 
 import { usePathname } from 'next/navigation';
-import { publicClient, walletClient } from '../../app/context/client'
+import { walletClient } from '../../app/context/client'
 import abiNFT from '../../app/context/abiNFT'
 
 import { formatEther } from 'viem'
