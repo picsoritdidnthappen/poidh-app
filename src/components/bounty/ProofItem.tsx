@@ -6,6 +6,7 @@ import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
 import { toast } from 'react-toastify';
+import { useDegenOrEnsName } from "@/hooks/useDegenOrEnsName";
 
 
 interface ProofItemProps {
@@ -34,6 +35,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
   const [claimsURI, setClaimsURI] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { isMultiplayer, isOwner, bountyData, isBountyClaimed, isOwnerContributor } = useBountyContext()!;
+  const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
 
   useEffect(() => {
     if (id) {
@@ -148,7 +150,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
             issuer
           </span>
           <span>
-            ${issuer.slice(0, 5)}...{issuer.slice(-6)}
+            {issuerDegenOrEnsName || `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
           </span>
         </div>
         <div>claim id: {id}</div>

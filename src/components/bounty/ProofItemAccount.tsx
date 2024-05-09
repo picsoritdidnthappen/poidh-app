@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 import { acceptClaim, getURI, submitClaimForVote} from '@/app/context/web3';
+import { useDegenOrEnsName } from "@/hooks/useDegenOrEnsName";
 
 
 interface ProofItemProps {
@@ -21,7 +22,8 @@ interface ProofItemProps {
 const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer , bountyId, accepted, isAccepted}) => {
 
   const { user, primaryWallet } = useDynamicContext(); 
-  const [claimsURI, setClaimsURI] = useState("")
+  const [claimsURI, setClaimsURI] = useState("");
+  const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
   // const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
 
 
@@ -117,7 +119,7 @@ const ProofItem: React.FC<ProofItemProps> = ({  id, title, description, issuer ,
           issuer
         </span>
         <span>
-        ${issuer.slice(0, 5)}...{issuer.slice(-6)}
+          {issuerDegenOrEnsName || `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
         </span>
       </div>
       <div>claim id: {id}</div>
