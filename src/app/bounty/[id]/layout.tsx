@@ -34,6 +34,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
       locale: 'en_US',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: bountyData.name,
+      description:
+        weiToEther(bountyData.amount) + ' degen ' + bountyData.description,
+      images: [`https://degen.poidh.xyz/images/poidh-preview-hero.png`],
+    },
   };
 }
 
