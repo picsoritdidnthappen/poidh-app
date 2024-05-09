@@ -76,15 +76,13 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   
   
 
-  
-
   return (
     <>
     <div className="flex pt-20 flex-col  justify-between lg:flex-row">
       <div className="flex flex-col  lg:max-w-[50%]">
         <p className=" text-2xl lg:text-4xl text-bold">{bountyData?.name}</p>
         <p className="mt-5">{bountyData?.description}</p>
-        <p>Bounty issuer: {bountyData?.issuer}</p>
+        <p>Bounty issuer: {bountyData?.issuerDegenOrEnsName || bountyData?.issuer}</p>
       </div>
 
       <div className='flex flex-col space-between'>
