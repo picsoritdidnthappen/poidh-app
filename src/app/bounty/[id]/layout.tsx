@@ -1,12 +1,41 @@
 import { Metadata } from 'next';
 import * as React from 'react';
-
+import { fetchBountyById } from '@/app/context/web3';
 import '@/styles/colors.css';
 
-export const metadata: Metadata = {
-  title: 'Bounty',
-  description: 'Bounty details',
+type Props = {
+  params: { id: string };
 };
+
+function weiToEther(weiValue: string | number | bigint): string {
+  const etherValue = Number(weiValue) / 1e18;
+  return etherValue.toFixed(0);
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // read route params
+  const id = params.id;
+
+  // fetch data
+  const bountyData = await fetchBountyById(id);
+
+  return {
+    title: bountyData.name,
+    description:
+      weiToEther(bountyData.amount) + ' degen ' + bountyData.description,
+
+    openGraph: {
+      url: 'https://degen.poidh.xyz',
+      title: bountyData.name,
+      description:
+        weiToEther(bountyData.amount) + ' degen ' + bountyData.description,
+      siteName: 'POIDH',
+      images: [`https://degen.poidh.xyz/images/poidh-preview-hero.png`],
+      type: 'website',
+      locale: 'en_US',
+    },
+  };
+}
 
 export default function BountyLayout({
   children,
