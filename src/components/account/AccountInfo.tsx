@@ -18,6 +18,7 @@ import {
   getClaimById,
   getClaimsByUser,
   getContract,
+  getDegenOrEnsName,
   getNftsOfOwner,
   getProvider,
   getSigner,
@@ -101,7 +102,9 @@ const AccountInfo = () => {
 
       const address = signer.address;
       const formattedAddress = `${address.slice(0, 5)}...${address.slice(-6)}`;
-      setUserAddress(formattedAddress);
+      const degenOrEnsName = await getDegenOrEnsName(address);
+
+      setUserAddress(degenOrEnsName || formattedAddress);
 
       getBountiesByUser(address, 0, []).then((data: any) => {
         setBountiesData(data);
@@ -156,10 +159,10 @@ const AccountInfo = () => {
         );
         setNftDetails(completedNFTs);
 
-        const formattedAddress = `${address.slice(0, 5)}...${address.slice(
-          -6
-        )}`;
-        setUserAddress(formattedAddress);
+        const formattedAddress = `${address.slice(0, 5)}...${address.slice(-6)}`;
+        const degenOrEnsName = await getDegenOrEnsName(address);
+
+        setUserAddress(degenOrEnsName || formattedAddress);
 
         getBountiesByUser(address, 0, []).then((data: any) => {
           setBountiesData(data);
