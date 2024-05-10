@@ -9,7 +9,7 @@ import { publicClient } from '@/app/context/publicClient';
 import abi from './abi';
 import abiNFT from './abiNFT';
 import chains from './config';
-import DegenDomainNameResolverAbiJson from '../../abi/DegenDomainNameResolver.abi.json'
+import DegenDomainNameResolverAbiJson from '../../abi/DegenDomainNameResolver.abi.json';
 import {
   AcceptClaimFunction,
   Bounty,
@@ -135,7 +135,7 @@ export const createSoloBounty: CreateBountyFunction = async (
     );
     await transaction.wait();
   } catch (error) {
-    console.error("Error creating bounty:", error);
+    console.error('Error creating bounty:', error);
     throw error;
   }
 };
@@ -161,7 +161,7 @@ export const createOpenBounty: CreateBountyFunction = async (
     );
     await transaction.wait();
   } catch (error) {
-    console.error("Error creating bounty:", error);
+    console.error('Error creating bounty:', error);
     throw error;
   }
 };
@@ -185,7 +185,7 @@ export const createClaim: CreateClaimFunction = async (
     );
     const res = await transaction.wait();
   } catch (error) {
-    console.error("Error creating claim:", error);
+    console.error('Error creating claim:', error);
     throw error;
   }
 };
@@ -201,7 +201,7 @@ export const acceptClaim: AcceptClaimFunction = async (
     const transaction = await contract.acceptClaim(bountyId, claimId);
     await transaction.wait();
   } catch (error) {
-    console.error("Error accepting claim:", error);
+    console.error('Error accepting claim:', error);
     throw error;
   }
 };
@@ -217,7 +217,7 @@ export const submitClaimForVote: SubmitClaimForVoteFunction = async (
     const transaction = await contract.submitClaimForVote(bountyId, claimId);
     await transaction.wait();
   } catch (error) {
-    console.error("Error accepting claim:", error);
+    console.error('Error accepting claim:', error);
     throw error;
   }
 };
@@ -232,7 +232,7 @@ export const cancelOpenBounty: CancelBountyFunction = async (
     const transaction = await contract.cancelOpenBounty(id);
     await transaction.wait();
   } catch (error) {
-    console.error("Error canceling open bounty:", error);
+    console.error('Error canceling open bounty:', error);
     throw error;
   }
 };
@@ -247,7 +247,7 @@ export const cancelSoloBounty: CancelBountyFunction = async (
     const transaction = await contract.cancelSoloBounty(id);
     await transaction.wait();
   } catch (error) {
-    console.error("Error canceling solo bounty:", error);
+    console.error('Error canceling solo bounty:', error);
     throw error;
   }
 };
@@ -262,7 +262,7 @@ export const withdrawFromOpenBounty: withdrawFromOpenBountyFunction = async (
     const transaction = await contract.withdrawFromOpenBounty(id);
     await transaction.wait();
   } catch (error) {
-    console.error("Error widthdraw:", error);
+    console.error('Error widthdraw:', error);
     throw error;
   }
 };
@@ -278,7 +278,7 @@ export const voteClaim: VoteClaimFunction = async (
     const transaction = await contract.voteClaim(bountyId, vote);
     await transaction.wait();
   } catch (error) {
-    console.error("Error voting:", error);
+    console.error('Error voting:', error);
     throw error;
   }
 };
@@ -293,7 +293,7 @@ export const resolveVote: ResolveVoteFunction = async (
     const transaction = await contract.resolveVote(bountyId);
     await transaction.wait();
   } catch (error) {
-    console.error("Error voting:", error);
+    console.error('Error voting:', error);
     throw error;
   }
 };
@@ -312,7 +312,7 @@ export const joinOpenBounty: JoinOpenBountyFunction = async (
     const transaction = await contract.joinOpenBounty(id, options);
     await transaction.wait();
   } catch (error) {
-    console.error("Error joining open bounty:", error);
+    console.error('Error joining open bounty:', error);
     throw error;
   }
 };
@@ -346,6 +346,7 @@ export const fetchBountyById: FetchBountyByIdFunction = async (id) => {
   const contractRead = await getContractRead();
   const bounty = await contractRead.bounties(id);
   const participants = await contractRead.getParticipants(id);
+  const claim = await contractRead.bountyCurrentVotingClaim(bounty.id);
   const issuer = bounty[1];
   const issuerDegenOrEnsName = await getDegenOrEnsName(issuer);
 
@@ -360,6 +361,7 @@ export const fetchBountyById: FetchBountyByIdFunction = async (id) => {
     createdAt: bounty[6].toString(),
     claimId: bounty[7].toString(),
     isMultiplayer: participants[0].length > 0,
+    inProgress: claim != 0,
   };
 
   return formattedBounty;
@@ -437,11 +439,13 @@ export const fetchAllBounties: GetAllBountiesFunction = async () => {
           bounty.issuer !== '0x0000000000000000000000000000000000000000'
       )
       .map(async (bounty) => {
+        const claim = await contractRead.bountyCurrentVotingClaim(bounty.id);
         const participants = await contractRead.getParticipants(bounty.id);
         const isMultiplayer = participants[0].length > 0;
         return {
           ...bounty,
           isMultiplayer,
+          inProgress: claim != 0,
         };
       });
     const bounties = await Promise.all(bountiesPromise);
@@ -585,11 +589,17 @@ export const getURI: GetURIFunction = async (claimId) => {
 
 export const getDegenNameContract = async () => {
   const provider = await getProvider();
-  return new Contract('0x4087fb91A1fBdef05761C02714335D232a2Bf3a1', DegenDomainNameResolverAbiJson, provider);
-}
+  return new Contract(
+    '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
+    DegenDomainNameResolverAbiJson,
+    provider
+  );
+};
 
 /** Returns the degen name if the owner has one, otherwise the ens name */
-export const getDegenOrEnsName = async (addr: string): Promise<string | null> => {
+export const getDegenOrEnsName = async (
+  addr: string
+): Promise<string | null> => {
   if (!isAddress(addr)) {
     return null;
   }
@@ -601,4 +611,4 @@ export const getDegenOrEnsName = async (addr: string): Promise<string | null> =>
   }
 
   return publicClient.getEnsName({ address: addr });
-}
+};
