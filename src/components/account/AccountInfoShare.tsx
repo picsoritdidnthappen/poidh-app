@@ -10,7 +10,7 @@ import BountyList from '@/components/ui/BountyList';
 import Button from '@/components/ui/Button';
 import FilterButton from '@/components/ui/FilterButton';
 
-import { getBountiesByUser, getClaimsByUser, getContract,  getProvider, getSigner, getURI, fetchBountyById, getNftsOfOwner, getClaimById} from '@/app/context/web3';
+import { getBountiesByUser, getClaimsByUser, getContract,  getProvider, getSigner, getURI, fetchBountyById, getNftsOfOwner, getClaimById, getDegenOrEnsName} from '@/app/context/web3';
 
 import { BountiesData, ClaimsData, NFTDetails } from '@/types/web3';
 
@@ -118,7 +118,9 @@ useEffect(() => {
       
 
       const formattedAddress = `${address.slice(0, 5)}...${address.slice(-6)}`;
-      setUserAddress(formattedAddress);
+      const degenOrEnsName = await getDegenOrEnsName(address);
+
+      setUserAddress(degenOrEnsName || formattedAddress);
 
       const contractBalance = await provider.getBalance(contract.getAddress())
       const balanceETH = ethers.formatEther(contractBalance)
