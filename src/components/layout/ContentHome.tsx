@@ -120,7 +120,7 @@ const ContentHome = () => {
           )}
         >
           <button onClick={() => setDisplay('open')} className='px-5 py-2'>
-            open bounties
+            new bounties
           </button>
           |
           <button onClick={() => setDisplay('progress')} className='px-5 py-2'>
