@@ -75,9 +75,10 @@ const ContentHome = () => {
 
   useEffect(() => {
     // Filter bountiesData into openBounties and pastBounties
+
     const open = bountiesData.filter(
       (bounty) =>
-        bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
+        bounty.claimer === '0x0000000000000000000000000000000000000000' &&
         !blacklistedBounties.includes(Number(bounty.id)) &&
         !bounty.inProgress
     );
@@ -89,7 +90,7 @@ const ContentHome = () => {
     );
     const past = bountiesData.filter(
       (bounty) =>
-        bounty.claimer === '0x0000000000000000000000000000000000000000' &&
+        bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
         !blacklistedBounties.includes(Number(bounty.id)) &&
         !bounty.inProgress
     );
@@ -113,21 +114,31 @@ const ContentHome = () => {
         <div
           className={cn(
             'border border-white rounded-full transition-all bg-gradient-to-r',
+            'md:text-base sm:text-sm text-xs',
             display == 'open' && 'from-red-500 to-40%',
             display == 'progress' &&
               'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
             display == 'past' && 'from-transparent from-60% to-red-500'
           )}
         >
-          <button onClick={() => setDisplay('open')} className='px-5 py-2'>
+          <button
+            onClick={() => setDisplay('open')}
+            className='md:px-5 px-1 py-2'
+          >
             new bounties
           </button>
           |
-          <button onClick={() => setDisplay('progress')} className='px-5 py-2'>
+          <button
+            onClick={() => setDisplay('progress')}
+            className='md:px-5 px-1 py-2'
+          >
             voting in progress
           </button>
           |
-          <button onClick={() => setDisplay('past')} className='px-5 py-2'>
+          <button
+            onClick={() => setDisplay('past')}
+            className='md:px-5 px-1 py-2'
+          >
             past bounties
           </button>
         </div>
