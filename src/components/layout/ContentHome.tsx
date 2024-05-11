@@ -110,39 +110,39 @@ const ContentHome = () => {
 
   return (
     <>
-      <div className='z-1 flex container mx-auto border-b border-white  py-12 w-full  justify-center'>
+      <div className='z-1 flex flex-nowrap container mx-auto border-b border-white py-12 w-full justify-center gap-2  px-8'>
         <div
           className={cn(
-            'border border-white rounded-full transition-all bg-gradient-to-r',
+            'flex flex-nowrap border border-white rounded-full transition-all bg-gradient-to-r',
             'md:text-base sm:text-sm text-xs',
             display == 'open' && 'from-red-500 to-40%',
             display == 'progress' &&
               'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
-            display == 'past' && 'from-transparent from-60% to-red-500'
+            display == 'past' && 'from-transparent from-60% to-red-500',
+            'gap-2 md:gap-4' // Adjust the gap as needed
           )}
         >
           <button
             onClick={() => setDisplay('open')}
-            className='md:px-5 px-1 py-2'
+            className='flex-grow sm:flex-grow-0 md:px-5 px-3 py-2'
           >
             new bounties
           </button>
-          |
           <button
             onClick={() => setDisplay('progress')}
-            className='md:px-5 px-1 py-2'
+            className='flex-grow sm:flex-grow-0 md:px-5 px-3 py-2'
           >
             voting in progress
           </button>
-          |
           <button
             onClick={() => setDisplay('past')}
-            className='md:px-5 px-1 py-2'
+            className='flex-grow sm:flex-grow-0 md:px-5 px-3 py-2'
           >
             past bounties
           </button>
         </div>
       </div>
+
       <div className='pb-20 z-1'>
         {/* Render either openBounties or pastBounties based on displayOpenBounties state */}
         {display == 'open' && <BountyList bountiesData={openBounties} />}
