@@ -26,6 +26,7 @@ export interface Bounty {
   createdAt: bigint;
   claimId: string;
   isMultiplayer: boolean;
+  inProgress: boolean;
 }
 
 export interface BountiesData {
@@ -38,6 +39,7 @@ export interface BountiesData {
   createdAt: bigint;
   claimId: string;
   isMultiplayer: boolean;
+  inProgress: boolean;
 }
 
 export interface BountiesDataClosed {

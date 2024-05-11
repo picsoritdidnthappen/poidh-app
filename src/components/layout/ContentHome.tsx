@@ -3,8 +3,9 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { useEffect, useState } from 'react';
 
+import { cn } from '@/lib/utils';
+
 import BountyList from '@/components/ui/BountyList';
-import ToggleButton from '@/components/ui/ToggleButton';
 
 import { networks } from '@/app/context/config';
 import { fetchAllBounties } from '@/app/context/web3';
@@ -15,12 +16,14 @@ import { BountiesData } from '../../types/web3';
 const ContentHome = () => {
   const { primaryWallet, network, isAuthenticated } = useDynamicContext();
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
+
   const [openBounties, setOpenBounties] = useState<BountiesData[]>([]);
+  const [progressBounties, setProgressBounties] = useState<BountiesData[]>([]);
   const [pastBounties, setPastBounties] = useState<BountiesData[]>([]);
+
   const [loadedBountiesCount, setLoadedBountiesCount] = useState<number>(20);
   const [hasMoreBounties, setHasMoreBounties] = useState<boolean>(false);
-  const [displayOpenBounties, setDisplayOpenBounties] =
-    useState<boolean>(false);
+  const [display, setDisplay] = useState('open');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,15 +78,24 @@ const ContentHome = () => {
     const open = bountiesData.filter(
       (bounty) =>
         bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
-        !blacklistedBounties.includes(Number(bounty.id))
+        !blacklistedBounties.includes(Number(bounty.id)) &&
+        !bounty.inProgress
+    );
+    const progress = bountiesData.filter(
+      (bounty) =>
+        bounty.claimer === '0x0000000000000000000000000000000000000000' &&
+        !blacklistedBounties.includes(Number(bounty.id)) &&
+        bounty.inProgress
     );
     const past = bountiesData.filter(
       (bounty) =>
         bounty.claimer === '0x0000000000000000000000000000000000000000' &&
-        !blacklistedBounties.includes(Number(bounty.id))
+        !blacklistedBounties.includes(Number(bounty.id)) &&
+        !bounty.inProgress
     );
 
     setOpenBounties(open);
+    setProgressBounties(progress);
     setPastBounties(past);
 
     // Update hasMoreBounties based on the total number of bounties
@@ -95,29 +107,38 @@ const ContentHome = () => {
     setLoadedBountiesCount((prevCount) => prevCount + 20);
   };
 
-  const handleToggle = (option: string) => {
-    // Toggle between displaying open and past bounties
-    if (option === 'Open Bounties') {
-      setDisplayOpenBounties(true);
-    } else if (option === 'Past Bounties') {
-      setDisplayOpenBounties(false);
-    }
-  };
-
   return (
     <>
-      <div className='z-1'>
-        <ToggleButton
-          option1='Open Bounties'
-          option2='Past Bounties'
-          handleToggle={handleToggle}
-        />
+      <div className='z-1 flex container mx-auto border-b border-white  py-12 w-full  justify-center'>
+        <div
+          className={cn(
+            'border border-white rounded-full transition-all bg-gradient-to-r',
+            display == 'open' && 'from-red-500 to-40%',
+            display == 'progress' &&
+              'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
+            display == 'past' && 'from-transparent from-60% to-red-500'
+          )}
+        >
+          <button onClick={() => setDisplay('open')} className='px-5 py-2'>
+            open bounties
+          </button>
+          |
+          <button onClick={() => setDisplay('progress')} className='px-5 py-2'>
+            voting in progress
+          </button>
+          |
+          <button onClick={() => setDisplay('past')} className='px-5 py-2'>
+            past bounties
+          </button>
+        </div>
       </div>
       <div className='pb-20 z-1'>
         {/* Render either openBounties or pastBounties based on displayOpenBounties state */}
-        <BountyList
-          bountiesData={displayOpenBounties ? openBounties : pastBounties}
-        />
+        {display == 'open' && <BountyList bountiesData={openBounties} />}
+        {display == 'progress' && (
+          <BountyList bountiesData={progressBounties} />
+        )}
+        {display == 'past' && <BountyList bountiesData={pastBounties} />}
       </div>
       {hasMoreBounties && (
         <div className='flex justify-center items-center pb-96'>
