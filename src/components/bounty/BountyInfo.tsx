@@ -82,7 +82,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       <div className="flex flex-col  lg:max-w-[50%]">
         <p className=" text-2xl lg:text-4xl text-bold">{bountyData?.name}</p>
         <p className="mt-5">{bountyData?.description}</p>
-        <p>Bounty issuer: {bountyData?.issuerDegenOrEnsName || bountyData?.issuer}</p>
+        <p className="mt-5">Bounty issuer: {bountyData?.issuerDegenOrEnsName || bountyData?.issuer}</p>
       </div>
 
       <div className='flex flex-col space-between'>
