@@ -1,6 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import { ToastContainer } from 'react-toastify';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 import ContentHome from '@/components/layout/ContentHome';
 import Footer from '@/components/layout/Footer';
@@ -9,23 +12,18 @@ import CreateBounty from '@/components/ui/CreateBounty';
 
 import ContextProvider from '@/app/context/ContextProvider';
 import WalletProvider from '@/app/context/WalletProvider';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-
 
 const Home = () => {
   return (
-      <ContextProvider>
-        <WalletProvider>
+    <ContextProvider>
+      <WalletProvider>
         <Header />
-        <ContentHome/>
+        <ContentHome />
         <CreateBounty />
-         <Footer />
-         </WalletProvider>
-         <ToastContainer />
-
-      </ContextProvider>
+        <Footer />
+      </WalletProvider>
+      <ToastContainer />
+    </ContextProvider>
   );
 };
 

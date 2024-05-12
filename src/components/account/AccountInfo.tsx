@@ -159,7 +159,9 @@ const AccountInfo = () => {
         );
         setNftDetails(completedNFTs);
 
-        const formattedAddress = `${address.slice(0, 5)}...${address.slice(-6)}`;
+        const formattedAddress = `${address.slice(0, 5)}...${address.slice(
+          -6
+        )}`;
         const degenOrEnsName = await getDegenOrEnsName(address);
 
         setUserAddress(degenOrEnsName || formattedAddress);
