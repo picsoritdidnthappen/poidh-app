@@ -38,13 +38,9 @@ const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
-
-
   <html>
     <body className='bg-blue-300 text-white'>{children}</body>
   </html>
-
-  
 );
 
 export default RootLayout;

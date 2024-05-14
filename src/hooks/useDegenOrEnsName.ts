@@ -1,7 +1,8 @@
-import { getDegenOrEnsName } from "@/app/context/web3";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react';
 
-/** 
+import { getDegenOrEnsName } from '@/app/context/web3';
+
+/**
  * @note we can replace this hook with useQuery from react-query if we decide to install the package and use it
  * */
 export const useDegenOrEnsName = (addr: string) => {
