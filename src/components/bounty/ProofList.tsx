@@ -47,38 +47,41 @@ const ProofList: React.FC<ProofListProps> = ({
         } container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 `}
       >
         {/* Whichever bounty is accepted will show up first instead of always in chronological order */}
-        {data.slice().sort((a, b) => {
-          if (a.accepted) {
-            return -1
-          } else if (b.accepted) {
-            return -1
-          } else {
-            return 0
-          }
-        }).map((claim) => (
-          <div
-            key={claim.id}
-            className={`${
-              currentVotingClaim === 0 ||
-              currentVotingClaim === Number(claim.id)
-                ? ''
-                : 'hidden'
-            } lg:col-span-4`}
-          >
-            <ProofItem
-              openBounty={openBounty}
-              isAccepted={isAccepted}
-              youOwner={youOwner}
-              bountyId={claim.bountyId}
+        {data
+          .slice()
+          .sort((a, b) => {
+            if (a.accepted) {
+              return -1;
+            } else if (b.accepted) {
+              return -1;
+            } else {
+              return 0;
+            }
+          })
+          .map((claim) => (
+            <div
               key={claim.id}
-              id={claim.id}
-              title={claim.name}
-              description={claim.description}
-              issuer={claim.issuer}
-              accepted={claim.accepted}
-            />
-          </div>
-        ))}
+              className={`${
+                currentVotingClaim === 0 ||
+                currentVotingClaim === Number(claim.id)
+                  ? ''
+                  : 'hidden'
+              } lg:col-span-4`}
+            >
+              <ProofItem
+                openBounty={openBounty}
+                isAccepted={isAccepted}
+                youOwner={youOwner}
+                bountyId={claim.bountyId}
+                key={claim.id}
+                id={claim.id}
+                title={claim.name}
+                description={claim.description}
+                issuer={claim.issuer}
+                accepted={claim.accepted}
+              />
+            </div>
+          ))}
       </div>
       <div className='grid grid-cols-12'>
         {currentVotingClaim !== 0 ? <Voting bountyId={bountyId} /> : null}
