@@ -1,6 +1,7 @@
 'use client';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 
 import Banner from '@/components/global/Banner';
@@ -12,7 +13,11 @@ import ConnectWallet from '@/components/web3/ConnectWallet';
 import { WalletContext } from '@/app/context/WalletProvider';
 
 const Header = () => {
-  const { isAuthenticated, primaryWallet } = useDynamicContext();
+  const router = useRouter();
+  const { isAuthenticated, primaryWallet, network, networkConfigurations } =
+    useDynamicContext();
+  const [currentNetwork, setCurrentNetwork] = useState(network);
+  const [currentNetworkName, setCurrentNetworkName] = useState('');
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,7 +35,21 @@ const Header = () => {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    if (network && networkConfigurations && currentNetwork !== network) {
+      const networkname = networkConfigurations['evm']?.find(
+        (net) => net.chainId === network
+      );
+
+      let networkNameToSet = networkname?.name?.toString().toLowerCase();
+      if (networkNameToSet === 'degen chain') {
+        networkNameToSet = 'degen';
+      }
+
+      setCurrentNetwork(network);
+      setCurrentNetworkName(networkNameToSet);
+      router.push(`/${networkNameToSet}`);
+    }
+  }, [network, currentNetwork, networkConfigurations]);
 
   // eslint-disable-next-line unused-imports/no-unused-vars
   const walletAddress = walletContext?.walletAddress;
@@ -50,7 +69,7 @@ const Header = () => {
             {isClient && isAuthenticated ? (
               <Link
                 className='hidden lg:block'
-                href={`/account/${primaryWallet?.address}`}
+                href={`/${currentNetworkName}/account/${primaryWallet?.address}`}
               >
                 my bounties
               </Link>
