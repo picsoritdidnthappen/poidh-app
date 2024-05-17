@@ -45,9 +45,11 @@ const Header = () => {
         networkNameToSet = 'degen';
       }
 
-      setCurrentNetwork(network);
-      setCurrentNetworkName(networkNameToSet);
-      router.push(`/${networkNameToSet}`);
+      if (networkNameToSet) {
+        setCurrentNetwork(network);
+        setCurrentNetworkName(networkNameToSet);
+        router.push(`/${networkNameToSet}`);
+      }
     }
   }, [network, currentNetwork, networkConfigurations]);
 
