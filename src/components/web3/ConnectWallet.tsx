@@ -1,8 +1,16 @@
 import { DynamicWidget, useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const ConnectWallet = () => {
   const { isAuthenticated, handleLogOut } = useDynamicContext();
+  const router = useRouter();
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
   return (
     <div className='flex flex-col z-10'>
       <DynamicWidget
