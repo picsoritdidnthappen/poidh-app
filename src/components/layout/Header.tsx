@@ -23,12 +23,9 @@ const Header = () => {
     walletConnector,
   } = useDynamicContext();
   const [currentNetwork, setCurrentNetwork] = useState(network);
-  const [netstatus, currentNetworkStatus] = useState(false);
   const [currentNetworkName, setCurrentNetworkName] = useState('');
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const currentUrl =
-    typeof window !== 'undefined' ? window.location.href.split('/')[3] : '';
   const [isShowDynamic, setIsShowDynamic] = useState(true);
 
   const handleOpenMenu = () => {
@@ -111,8 +108,6 @@ const Header = () => {
       }
     }
   }, [network, currentNetwork, networkConfigurations, path]);
-
-  const walletAddress = walletContext?.walletAddress;
 
   return (
     <>
