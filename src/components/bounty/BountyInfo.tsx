@@ -16,14 +16,8 @@ function weiToEther(weiValue: string | number | bigint): string {
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
 
-  const {
-    isMultiplayer,
-    isOwner,
-    bountyData,
-    isBountyClaimed,
-    isBountyCanceled,
-    isOwnerContributor,
-  } = useBountyContext()!;
+  const { isMultiplayer, isOwner, bountyData, isBountyClaimed } =
+    useBountyContext()!;
 
   if (blacklistedBounties.includes(Number(bountyId))) {
     return null;
@@ -78,10 +72,22 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   return (
     <>
       <div className='flex pt-20 flex-col  justify-between lg:flex-row'>
-        <div className='flex flex-col  lg:max-w-[50%] break-all'>
+        <div className='flex flex-col  lg:max-w-[50%]'>
           <p className=' text-2xl lg:text-4xl text-bold'>{bountyData?.name}</p>
-          <p className='mt-5'>{bountyData?.description}</p>
           <p className='mt-5'>
+            {bountyData?.description.split(' ').map((word, i) => {
+              if (word.length > 40) {
+                return (
+                  <span className='break-all' key={i}>
+                    {word}{' '}
+                  </span>
+                );
+              } else {
+                return word + ' ';
+              }
+            })}
+          </p>
+          <p className='mt-5 break-all'>
             Bounty issuer:{' '}
             {bountyData?.issuerDegenOrEnsName || bountyData?.issuer}
           </p>
