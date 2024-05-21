@@ -1,9 +1,10 @@
 'use client';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 
+// import { useRouter } from 'next/router';
 import Banner from '@/components/global/Banner';
 import Menu from '@/components/global/Menu';
 import Footer from '@/components/layout/Footer';
@@ -14,13 +15,20 @@ import { WalletContext } from '@/app/context/WalletProvider';
 
 const Header = () => {
   const router = useRouter();
-  const { isAuthenticated, primaryWallet, network, networkConfigurations } =
-    useDynamicContext();
+  const {
+    isAuthenticated,
+    primaryWallet,
+    network,
+    networkConfigurations,
+    walletConnector,
+  } = useDynamicContext();
   const [currentNetwork, setCurrentNetwork] = useState(network);
+  const [netstatus, currentNetworkStatus] = useState(false);
   const [currentNetworkName, setCurrentNetworkName] = useState('');
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
+  const currentUrl =
+    typeof window !== 'undefined' ? window.location.href.split('/')[3] : '';
   const [isShowDynamic, setIsShowDynamic] = useState(true);
 
   const handleOpenMenu = () => {
@@ -32,28 +40,78 @@ const Header = () => {
   };
 
   const walletContext = useContext(WalletContext);
+  const path = usePathname();
+
+  const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
     if (network && networkConfigurations && currentNetwork !== network) {
-      const networkname = networkConfigurations['evm']?.find(
-        (net) => net.chainId === network
+      const currentUrl = path.split('/')[1];
+      const currentUrlNetwork = networkConfigurations['evm']?.find((net) =>
+        net.name.toLowerCase().match(currentUrl)
       );
+      if (
+        currentUrl == currentUrlNetwork?.name.split(' ')[0].toLowerCase() &&
+        !isChanged
+      ) {
+        setIsChanged(true);
+        walletConnector?.switchNetwork({
+          networkChainId: currentUrlNetwork?.chainId,
+        });
+      } else {
+        setIsChanged(true);
 
-      let networkNameToSet = networkname?.name?.toString().toLowerCase();
-      if (networkNameToSet === 'degen chain') {
-        networkNameToSet = 'degen';
-      }
-
-      if (networkNameToSet) {
-        setCurrentNetwork(network);
-        setCurrentNetworkName(networkNameToSet);
+        const networkname = networkConfigurations['evm']?.find(
+          (net) => net.chainId === network
+        );
+        let networkNameToSet = networkname?.name?.toString().toLowerCase();
+        if (networkNameToSet === 'degen chain') {
+          networkNameToSet = 'degen';
+        }
+        if (networkNameToSet) {
+          setCurrentNetwork(network);
+          setCurrentNetworkName(networkNameToSet);
+        }
         router.push(`/${networkNameToSet}`);
       }
     }
-  }, [network, currentNetwork, networkConfigurations]);
+  }, []);
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
+  useEffect(() => {
+    setIsClient(true);
+    if (network && networkConfigurations && currentNetwork !== network) {
+      const currentUrl = path.split('/')[1];
+      const currentUrlNetwork = networkConfigurations['evm']?.find((net) =>
+        net.name.toLowerCase().match(currentUrl)
+      );
+      if (
+        currentUrl == currentUrlNetwork?.name.split(' ')[0].toLowerCase() &&
+        !isChanged
+      ) {
+        setIsChanged(true);
+        walletConnector?.switchNetwork({
+          networkChainId: currentUrlNetwork?.chainId,
+        });
+      } else {
+        setIsChanged(true);
+
+        const networkname = networkConfigurations['evm']?.find(
+          (net) => net.chainId === network
+        );
+        let networkNameToSet = networkname?.name?.toString().toLowerCase();
+        if (networkNameToSet === 'degen chain') {
+          networkNameToSet = 'degen';
+        }
+        if (networkNameToSet) {
+          setCurrentNetwork(network);
+          setCurrentNetworkName(networkNameToSet);
+        }
+        router.push(`/${networkNameToSet}`);
+      }
+    }
+  }, [network, currentNetwork, networkConfigurations, path]);
+
   const walletAddress = walletContext?.walletAddress;
 
   return (
