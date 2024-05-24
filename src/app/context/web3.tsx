@@ -4,11 +4,12 @@
 import { Contract, ethers } from 'ethers';
 import { isAddress } from 'viem';
 
+import chainStatusStore from '@/store/chainStatus.store';
+
 import { publicClient } from '@/app/context/publicClient';
 
 import abi from './abi';
 import abiNFT from './abiNFT';
-import chains from './config';
 import DegenDomainNameResolverAbiJson from '../../abi/DegenDomainNameResolver.abi.json';
 import {
   AcceptClaimFunction,
@@ -37,34 +38,37 @@ import {
   withdrawFromOpenBountyFunction,
 } from '../../types/web3';
 
-const currentChain = chains.degen;
-
 export const getSigner = async (primaryWallet: any) => {
   const signer = await primaryWallet?.connector?.ethers?.getSigner();
   return signer;
 };
 
 export const getProvider = async () => {
+  const currentChain = chainStatusStore.currentChain;
   const provider = new ethers.JsonRpcProvider(currentChain.jsonProviderUrl);
   return provider;
 };
 
 export const getContract = async (signer: any) => {
+  const currentChain = chainStatusStore.currentChain;
   return new Contract(currentChain.contracts.mainContract, abi, signer);
 };
 
 export const getContractRead = async () => {
   const provider = await getProvider();
+  const currentChain = chainStatusStore.currentChain;
   return new Contract(currentChain.contracts.mainContract, abi, provider);
 };
 
 export const getNFTContractRead = async () => {
   const provider = await getProvider();
+  const currentChain = chainStatusStore.currentChain;
   return new Contract(currentChain.contracts.nftContract, abiNFT, provider);
 };
 
 export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
   const provider = await getProvider();
+  const currentChain = chainStatusStore.currentChain;
   const contractNFT = new Contract(
     currentChain.contracts.nftContract,
     abiNFT,
@@ -88,6 +92,7 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
   primaryWallet
 ) => {
   const provider = await getProvider();
+  const currentChain = chainStatusStore.currentChain;
   const contract = new Contract(
     currentChain.contracts.mainContract,
     abi,

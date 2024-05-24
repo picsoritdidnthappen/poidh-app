@@ -20,16 +20,16 @@ const chains = {
     name: 'Arbitrum One',
     jsonProviderUrl: 'https://arb1.arbitrum.io/rpc',
     contracts: {
+      mainContract: '0x0Aa50ce0d724cc28f8F7aF4630c32377B4d5c27d',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
-      poidhContract: '0x0Aa50ce0d724cc28f8F7aF4630c32377B4d5c27d',
     },
   },
   base: {
     name: 'Base Network',
-    jsonProviderUrl: 'https://base.org/rpc',
+    jsonProviderUrl: 'https://mainnet.base.org',
     contracts: {
+      mainContract: '0xb502c5856F7244DccDd0264A541Cc25675353D39',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
-      poidhContract: '0xb502c5856F7244DccDd0264A541Cc25675353D39',
     },
   },
 };
@@ -44,12 +44,12 @@ export const networks = [
     chainId: 666666666,
   },
   {
-    name: 'base',
-    chainId: 8453,
-  },
-  {
     name: 'arbitrum',
     chainId: 42161,
+  },
+  {
+    name: 'base',
+    chainId: 8453,
   },
 ];
 
