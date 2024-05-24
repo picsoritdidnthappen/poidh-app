@@ -18,7 +18,6 @@ import {
   getClaimById,
   getClaimsByUser,
   getContract,
-  getDegenOrEnsName,
   getNftsOfOwner,
   getProvider,
   getSigner,
@@ -58,80 +57,6 @@ const AccountInfo = () => {
 
   // user info
   useEffect(() => {
-    const userInformation = async () => {
-      const signer = await getSigner(primaryWallet);
-
-      const provider = await getProvider();
-      const contract = await getContract(signer);
-
-      // const logsData = await provider.getLogs(contract.getAddress())
-
-      // const eventFilter = ethers.utils.id("joinOpenBounty(uint256 bountyId)");
-
-      // const logsData = await provider.getLogs({
-      //   address: "0x62d739E1AB4484cf7A59D7553f99D87100386b6B",
-      //   topics: [eventFilter]
-      // });
-
-      // console.log("LOGGGGS:", logsData)
-
-      // const balanceETH = ethers.formatEther(contractBalance)
-
-      const balanceNFT = await getNftsOfOwner(signer);
-      const nftDetailsPromises = balanceNFT.map(async (nftId) => {
-        const uri = await getURI(nftId);
-        const response = await fetch(uri);
-        const data = await response.json();
-        const claims = await getClaimById(nftId);
-        if (claims.length > 0) {
-          const { name, description } = claims[0];
-          return {
-            name: data?.name,
-            description: data?.description,
-            nftId: claims[0].id,
-            uri: data?.image,
-          } as NFTDetails;
-        }
-        return null;
-      });
-
-      const completedNFTs = (await Promise.all(nftDetailsPromises)).filter(
-        (nft): nft is NFTDetails => nft !== null
-      );
-      setNftDetails(completedNFTs);
-
-      const address = signer.address;
-      const formattedAddress = `${address.slice(0, 5)}...${address.slice(-6)}`;
-      const degenOrEnsName = await getDegenOrEnsName(address);
-
-      setUserAddress(degenOrEnsName || formattedAddress);
-
-      getBountiesByUser(address, 0, []).then((data: any) => {
-        setBountiesData(data);
-        const completedBounties = data.filter(
-          (bounty: any) =>
-            bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
-            bounty.claimer.toLowerCase() !== address.toLowerCase()
-        );
-        const inProgressBounties = data.filter(
-          (bounty: any) =>
-            bounty.claimer === '0x0000000000000000000000000000000000000000'
-        );
-        setInProgressBounties(inProgressBounties);
-        setCompletedBounties(completedBounties);
-      });
-
-      getClaimsByUser(address).then((data: any) => {
-        setClaimsData(data);
-        const completedClaims = data.filter(
-          (claim: any) => claim.accepted === true
-        );
-        const submitedClaims = data;
-        setCompletedClaims(completedClaims);
-        setSubmitedClaims(submitedClaims);
-      });
-    };
-
     if ((pathname.split('/').pop() || '') !== '') {
       const userInformation2 = async () => {
         const address = pathname.split('/').pop() || '';
@@ -162,9 +87,11 @@ const AccountInfo = () => {
         const formattedAddress = `${address.slice(0, 5)}...${address.slice(
           -6
         )}`;
-        const degenOrEnsName = await getDegenOrEnsName(address);
 
-        setUserAddress(degenOrEnsName || formattedAddress);
+        // const degenOrEnsName = await getDegenOrEnsName(address);
+        // console.log('degenOrEnsName', degenOrEnsName);
+
+        setUserAddress(formattedAddress);
 
         getBountiesByUser(address, 0, []).then((data: any) => {
           setBountiesData(data);
@@ -205,6 +132,11 @@ const AccountInfo = () => {
 
   useEffect(() => {
     const fetchClaimInformation = async () => {
+      const signer = await getSigner(primaryWallet);
+
+      const provider = await getProvider();
+      const contract = await getContract(signer);
+      console.log('xxxxxxxxxxxxxxxxxxxxxxxx', contract);
       const claimInformationPromises = completedBounties.map(async (bounty) => {
         const uri = await getURI(bounty.claimId);
         const amount = bounty.amount;
