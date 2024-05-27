@@ -85,6 +85,7 @@ const Header = () => {
           setCurrentNetworkName(networkNameToSet);
           router.push(`/${networkNameToSet}`);
         }
+        console.log('currentBountyNetwork-----', networkNameToSet);
       }
     }
   }, [
