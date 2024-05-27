@@ -2,7 +2,7 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Banner from '@/components/global/Banner';
 import Menu from '@/components/global/Menu';
@@ -13,7 +13,6 @@ import ConnectWallet from '@/components/web3/ConnectWallet';
 import chainStatusStore from '@/store/chainStatus.store';
 
 import chains from '@/app/context/config';
-import { WalletContext } from '@/app/context/WalletProvider';
 
 const Header = () => {
   const router = useRouter();
@@ -39,7 +38,6 @@ const Header = () => {
     setIsShowDynamic(!isShowDynamic);
   };
 
-  const walletContext = useContext(WalletContext);
   const path = usePathname();
 
   useEffect(() => {
