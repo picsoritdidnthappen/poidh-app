@@ -38,6 +38,12 @@ const BountyItem: React.FC<BountyItemProps> = ({
 
   useEffect(() => {
     setIsClient(true);
+    const currentUrl = path.split('/')[1];
+    if (currentUrl === '') {
+      setCurrentNetworkName('base');
+    } else {
+      setCurrentNetworkName(currentUrl);
+    }
   }, []);
 
   useEffect(() => {
@@ -46,13 +52,14 @@ const BountyItem: React.FC<BountyItemProps> = ({
       const currentUrlNetwork = networkConfigurations['evm']?.find((net) =>
         net.name.toLowerCase().match(currentUrl)
       );
+
       let currentBountyNetwork = currentUrlNetwork?.name.toLowerCase();
       if (currentBountyNetwork === 'degen chain') {
         currentBountyNetwork = 'degen';
       }
+
       if (currentBountyNetwork) {
         setCurrentNetwork(network);
-        setCurrentNetworkName(currentBountyNetwork);
       }
     }
   }, [
