@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
+import { getNetworkNameFromPath } from '@/lib/utils';
+
 import Banner from '@/components/global/Banner';
 import Menu from '@/components/global/Menu';
 import Footer from '@/components/layout/Footer';
@@ -11,8 +13,6 @@ import Logo from '@/components/ui/Logo';
 import ConnectWallet from '@/components/web3/ConnectWallet';
 
 import chainStatusStore from '@/store/chainStatus.store';
-
-import chains from '@/app/context/config';
 
 const Header = () => {
   const router = useRouter();
@@ -45,14 +45,24 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    const networkName = getNetworkNameFromPath(path);
+    setCurrentNetworkName(networkName);
+    chainStatusStore.setCurrentChainFromNetwork(networkName);
+  }, [path]);
+
+  useEffect(() => {
     if (isClient && network && networkConfigurations) {
-      const currentUrl = path.split('/')[1];
+      const currentUrl = path;
+      const urls = currentUrl.split('/').filter((word) => word.length > 0);
+      const currentUrlFirst = path.split('/')[1];
+      const firstWord = urls.length > 0 ? urls[0] : '';
       const currentUrlNetwork = networkConfigurations['evm']?.find((net) =>
-        net.name.toLowerCase().match(currentUrl)
+        net.name.toLowerCase().match(currentUrlFirst)
       );
 
       if (
-        currentUrl === currentUrlNetwork?.name.split(' ')[0].toLowerCase() &&
+        currentUrlFirst ===
+          currentUrlNetwork?.name.split(' ')[0].toLowerCase() &&
         !isChanged
       ) {
         setIsChanged(true);
@@ -61,6 +71,7 @@ const Header = () => {
         });
       } else if (currentNetwork !== network) {
         setIsChanged(true);
+
         const networkname = networkConfigurations['evm']?.find(
           (net) => net.chainId === network
         );
@@ -68,24 +79,18 @@ const Header = () => {
 
         if (networkNameToSet === 'degen chain') {
           networkNameToSet = 'degen';
-          chainStatusStore.setCurrentChain(chains.degen);
         }
 
-        switch (networkNameToSet) {
-          case 'base':
-            chainStatusStore.setCurrentChain(chains.base);
-            break;
-          case 'arbitrum':
-            chainStatusStore.setCurrentChain(chains.arbitrum);
-            break;
-        }
-
-        if (networkNameToSet) {
+        if (networkNameToSet && firstWord !== networkNameToSet) {
           setCurrentNetwork(network);
           setCurrentNetworkName(networkNameToSet);
-          router.push(`/${networkNameToSet}`);
+          const currentUrl = new URL(window.location.href);
+          const pathnameParts = currentUrl.pathname.split('/').filter(Boolean);
+          pathnameParts[0] = networkNameToSet;
+          const newPathname = `/${pathnameParts.join('/')}`;
+
+          router.push(newPathname);
         }
-        console.log('currentBountyNetwork-----', networkNameToSet);
       }
     }
   }, [

@@ -136,7 +136,6 @@ const AccountInfo = () => {
 
       const provider = await getProvider();
       const contract = await getContract(signer);
-      console.log('xxxxxxxxxxxxxxxxxxxxxxxx', contract);
       const claimInformationPromises = completedBounties.map(async (bounty) => {
         const uri = await getURI(bounty.claimId);
         const amount = bounty.amount;

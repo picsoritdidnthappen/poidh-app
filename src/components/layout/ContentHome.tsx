@@ -7,10 +7,7 @@ import { cn } from '@/lib/utils';
 
 import BountyList from '@/components/ui/BountyList';
 
-import chainStatusStore from '@/store/chainStatus.store';
-
 import { networks } from '@/app/context/config';
-import chains from '@/app/context/config';
 import { fetchAllBounties } from '@/app/context/web3';
 import { blacklistedBounties } from '@/constant/blacklist';
 
@@ -35,17 +32,6 @@ const ContentHome = () => {
         const currentUrl = new URL(window.location.href);
         const hostname = currentUrl.hostname;
         const parts = hostname.split('.');
-        const newworkName = currentUrl.pathname.substring(1);
-        console.log('current URL_______', newworkName);
-
-        switch (newworkName) {
-          case 'base':
-            chainStatusStore.setCurrentChain(chains.base);
-            break;
-          case 'arbitrum':
-            chainStatusStore.setCurrentChain(chains.arbitrum);
-            break;
-        }
 
         let chain = '';
         switch (parts[0]) {
