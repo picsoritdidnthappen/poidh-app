@@ -1,5 +1,6 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import React, { useEffect, useState } from 'react';
+import { LiaCopySolid } from 'react-icons/lia';
 import { toast } from 'react-toastify';
 
 import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
@@ -107,6 +108,16 @@ const ProofItem: React.FC<ProofItemProps> = ({
     }
   };
 
+  const copyAddresstoClipboard = (address: string) => {
+    try {
+      navigator.clipboard.writeText(address);
+      toast.success('Address copied to clipboard');
+    } catch (error) {
+      console.error('Error copying address to clipboard:', error);
+      toast.error('Failed to copy address to clipboard');
+    }
+  };
+
   return (
     <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
       <div className='left-5 top-5 absolute  flex flex-col text-white'>
@@ -146,9 +157,14 @@ const ProofItem: React.FC<ProofItemProps> = ({
         </div>
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
           <span className=''>issuer</span>
-          <span>
+          <span className='flex flex-row'>
             {issuerDegenOrEnsName ||
               `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
+            <span className='ml-1'>
+              <button onClick={() => copyAddresstoClipboard(issuer)}>
+                <LiaCopySolid color='white' size={20} />
+              </button>
+            </span>
           </span>
         </div>
         <div>claim id: {id}</div>
