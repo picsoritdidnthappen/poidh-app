@@ -609,6 +609,8 @@ export const getDegenOrEnsName = async (
     return null;
   }
 
+  if (chainStatusStore.currentChain?.name === 'Arbitrum One') return addr;
+
   const degenNameContract = await getDegenNameContract();
   const degenName = await degenNameContract.defaultNames(addr);
   if (degenName) {

@@ -54,7 +54,17 @@ const AccountInfo = () => {
   const address = (pathname.split('/').pop() || '') === '';
 
   const userAccount = primaryWallet?.address === pathname.split('/').pop();
+  const path = usePathname();
+  const [currentNetworkName, setCurrentNetworkName] = useState('');
 
+  useEffect(() => {
+    const currentUrl = path.split('/')[1];
+    if (currentUrl === '') {
+      setCurrentNetworkName('base');
+    } else {
+      setCurrentNetworkName(currentUrl);
+    }
+  }, []);
   // user info
   useEffect(() => {
     if ((pathname.split('/').pop() || '') !== '') {
@@ -224,7 +234,7 @@ const AccountInfo = () => {
                   <span className='font-bold'> {nftDetails?.length}</span>
                 </div>
                 <div>
-                  total degen paid:{' '}
+                  total {currentNetworkName} paid:{' '}
                   <span className='font-bold'>{totalETHPaid}</span>{' '}
                 </div>
                 <div>
@@ -232,7 +242,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{inProgressBounties.length}</span>{' '}
                 </div>
                 <div>
-                  total degen in contract:{' '}
+                  total {currentNetworkName} in contract:{' '}
                   <span className='font-bold'>{ETHinContract}</span>{' '}
                 </div>
                 <div>
@@ -240,7 +250,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{completedClaims.length}</span>
                 </div>
                 <div>
-                  total degen earned:{' '}
+                  total {currentNetworkName} earned:{' '}
                   <span className='font-bold'>{totalETHEarn}</span>
                 </div>
               </div>
@@ -312,7 +322,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{nftDetails?.length}</span>
                 </div>
                 <div>
-                  total degen paid:{' '}
+                  total {currentNetworkName} paid:{' '}
                   <span className='font-bold'>{totalETHPaid}</span>{' '}
                 </div>
                 <div>
@@ -320,7 +330,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{inProgressBounties.length}</span>{' '}
                 </div>
                 <div>
-                  total degen in contract:{' '}
+                  total {currentNetworkName} in contract:{' '}
                   <span className='font-bold'>{ETHinContract}</span>{' '}
                 </div>
                 <div>
@@ -328,7 +338,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{completedClaims.length}</span>
                 </div>
                 <div>
-                  total degen earned:{' '}
+                  total {currentNetworkName} earned:{' '}
                   <span className='font-bold'>{totalETHEarn}</span>{' '}
                 </div>
               </div>
