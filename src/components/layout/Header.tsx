@@ -105,7 +105,7 @@ const Header = () => {
 
   return (
     <>
-      <Banner />
+      <Banner networkName={currentNetworkName} />
       <div className='px-5 lg:px-20 pt-12 pb-2 border-b border-white flex justify-between items-center'>
         <Link href='/'>
           <Logo />

@@ -1,4 +1,6 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { usePathname } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
@@ -15,6 +17,18 @@ function weiToEther(weiValue: string | number | bigint): string {
 
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
+
+  const path = usePathname();
+  const [currentNetworkName, setCurrentNetworkName] = useState('');
+
+  useEffect(() => {
+    const currentUrl = path.split('/')[1];
+    if (currentUrl === '') {
+      setCurrentNetworkName('base');
+    } else {
+      setCurrentNetworkName(currentUrl);
+    }
+  }, []);
 
   const {
     isMultiplayer,
@@ -92,7 +106,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             <span>
               {bountyData ? weiToEther(bountyData.amount) : 'Loading...'}
             </span>
-            <span>degen</span>
+            <span>{currentNetworkName}</span>
           </div>
 
           <div>
