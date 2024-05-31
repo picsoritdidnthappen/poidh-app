@@ -73,8 +73,10 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
     <>
       <div className='flex pt-20 flex-col  justify-between lg:flex-row'>
         <div className='flex flex-col  lg:max-w-[50%]'>
-          <p className=' text-2xl lg:text-4xl text-bold'>{bountyData?.name}</p>
-          <p className='mt-5'>
+          <p className=' text-2xl lg:text-4xl text-bold normal-case'>
+            {bountyData?.name}
+          </p>
+          <p className='mt-5 normal-case'>
             {bountyData?.description.split(' ').map((word, i) => {
               if (word.length > 40) {
                 return (
