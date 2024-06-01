@@ -82,7 +82,11 @@ const BountyItem: React.FC<BountyItemProps> = ({
           <div className='flex items-end justify-between mt-5'>
             <div className='flex gap-2 items-center'>
               <div>
-                {Number(amountETH)} {currentNetworkName}
+                {Number(amountETH)}{' '}
+                {currentNetworkName === 'base' ||
+                currentNetworkName === 'arbitrum'
+                  ? 'eth'
+                  : 'degen'}
               </div>
               {isMultiplayer && (
                 <div>

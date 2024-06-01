@@ -106,13 +106,20 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             <span>
               {bountyData ? weiToEther(bountyData.amount) : 'Loading...'}
             </span>
-            <span>{currentNetworkName}</span>
+            <span>
+              {currentNetworkName === 'base' ||
+              currentNetworkName === 'arbitrum'
+                ? 'eth'
+                : 'degen'}
+            </span>
           </div>
 
           <div>
             {!isBountyClaimed && !isOwner ? (
               <CreateProof bountyId={bountyId} />
             ) : (
+              // <div>create</div>
+              // <div>create</div>
               <button
                 onClick={handleCancel}
                 disabled={!!isBountyClaimed}

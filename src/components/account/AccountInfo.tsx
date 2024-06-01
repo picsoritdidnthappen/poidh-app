@@ -29,10 +29,27 @@ import NftList from '../bounty/NftList';
 import { BountiesData, ClaimsData, NFTDetails } from '@/types/web3';
 
 const AccountInfo = () => {
-  const { isAuthenticated, primaryWallet } = useDynamicContext();
+  const { isAuthenticated, primaryWallet, network } = useDynamicContext();
   const [userAddress, setUserAddress] = useState('0x111...123456');
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
   const [claimsData, setClaimsData] = useState<ClaimsData[]>([]);
+  const [currency, setCurrency] = useState('');
+
+  useEffect(() => {
+    switch (network) {
+      case 8453:
+        setCurrency('eth');
+        break;
+      case 666666666:
+        setCurrency('degen');
+        break;
+      case 42161:
+        setCurrency('eth');
+        break;
+      default:
+        setCurrency('eth');
+    }
+  }, [network]);
 
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>(
     []
@@ -234,7 +251,7 @@ const AccountInfo = () => {
                   <span className='font-bold'> {nftDetails?.length}</span>
                 </div>
                 <div>
-                  total {currentNetworkName} paid:{' '}
+                  total {currency} paid:{' '}
                   <span className='font-bold'>{totalETHPaid}</span>{' '}
                 </div>
                 <div>
@@ -242,7 +259,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{inProgressBounties.length}</span>{' '}
                 </div>
                 <div>
-                  total {currentNetworkName} in contract:{' '}
+                  total {currency} in contract:{' '}
                   <span className='font-bold'>{ETHinContract}</span>{' '}
                 </div>
                 <div>
@@ -250,7 +267,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{completedClaims.length}</span>
                 </div>
                 <div>
-                  total {currentNetworkName} earned:{' '}
+                  total {currency} earned:{' '}
                   <span className='font-bold'>{totalETHEarn}</span>
                 </div>
               </div>
@@ -322,7 +339,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{nftDetails?.length}</span>
                 </div>
                 <div>
-                  total {currentNetworkName} paid:{' '}
+                  total {currency} paid:{' '}
                   <span className='font-bold'>{totalETHPaid}</span>{' '}
                 </div>
                 <div>
@@ -330,7 +347,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{inProgressBounties.length}</span>{' '}
                 </div>
                 <div>
-                  total {currentNetworkName} in contract:{' '}
+                  total {currency} in contract:{' '}
                   <span className='font-bold'>{ETHinContract}</span>{' '}
                 </div>
                 <div>
@@ -338,7 +355,7 @@ const AccountInfo = () => {
                   <span className='font-bold'>{completedClaims.length}</span>
                 </div>
                 <div>
-                  total {currentNetworkName} earned:{' '}
+                  total {currency} earned:{' '}
                   <span className='font-bold'>{totalETHEarn}</span>{' '}
                 </div>
               </div>

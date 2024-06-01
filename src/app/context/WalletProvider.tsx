@@ -2,6 +2,7 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ethers } from 'ethers';
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface WalletContextType {
   walletAddress: string | null;
@@ -17,7 +18,8 @@ interface WalletProviderProps {
 
 const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const { primaryWallet } = useDynamicContext();
+  const { primaryWallet, network } = useDynamicContext();
+  const router = useRouter();
 
   const walletConnection = async (): Promise<void> => {
     if ((window as any).ethereum === undefined) {
@@ -43,6 +45,14 @@ const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   useEffect(() => {
     walletConnection();
   }, [primaryWallet]);
+
+  useEffect(() => {
+    if (network === '42161') {
+      router.push('/arbitrum');
+    } else if (network === '8453') {
+      router.push('/base');
+    }
+  }, [network, router]);
 
   return (
     <WalletContext.Provider value={{ walletAddress }}>

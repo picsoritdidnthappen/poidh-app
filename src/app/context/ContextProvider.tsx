@@ -27,6 +27,8 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       background-color: rgba(209, 236, 255, 0.2); 
       backdrop-filter: blur(4px);
     }
+   
+    
 
     .connect-button:hover:enabled{
       background-color: rgba(209, 236, 255, 0.5); 
