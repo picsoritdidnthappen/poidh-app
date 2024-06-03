@@ -369,6 +369,31 @@ export const fetchBounties: FetchBountiesFunction = async (
   return allBounties.slice(0, count);
 };
 
+export const fetchBountyById: FetchBountyByIdFunction = async (id) => {
+  const contractRead = await getContractRead();
+  const bounty = await contractRead.bounties(id);
+  const participants = await contractRead.getParticipants(id);
+  const claim = await contractRead.bountyCurrentVotingClaim(bounty.id);
+  const issuer = bounty[1];
+  const issuerDegenOrEnsName = await getDegenOrEnsName(issuer);
+
+  const formattedBounty: Bounty = {
+    id: bounty[0].toString(),
+    issuer,
+    issuerDegenOrEnsName,
+    name: bounty[2],
+    description: bounty[3],
+    amount: bounty[4].toString(),
+    claimer: bounty[5],
+    createdAt: bounty[6].toString(),
+    claimId: bounty[7].toString(),
+    isMultiplayer: participants[0].length > 0,
+    inProgress: claim != 0,
+  };
+
+  return formattedBounty;
+};
+
 export const getBountiesByUser: GetBountiesByUserFunction = async (
   user,
   offset = 0,
