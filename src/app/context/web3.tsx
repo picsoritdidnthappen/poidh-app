@@ -364,8 +364,6 @@ export const fetchBounties: FetchBountiesFunction = async (
     offset += rawBounties.length;
   }
 
-  allBounties.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
-
   return allBounties.slice(0, count);
 };
 

@@ -76,7 +76,9 @@ const ContentHome = () => {
         const totalBounties = Number(bountyCounter.toString());
         const data = await fetchBounties(totalBounties - PAGE_SIZE, PAGE_SIZE);
 
-        setBountiesData(data);
+        setBountiesData(
+          data.sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+        );
         setTotalBounties(totalBounties);
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -121,14 +123,13 @@ const ContentHome = () => {
     try {
       setFetchingBounties(true);
 
-      const data = await fetchBounties(
-        totalBounties - (loadedBountiesCount + PAGE_SIZE),
-        PAGE_SIZE
-      );
+      const offset = totalBounties - (loadedBountiesCount + PAGE_SIZE);
+      const data = await fetchBounties(offset, PAGE_SIZE);
 
-      console.log({ totalBounties, loadedBountiesCount });
-
-      setBountiesData([...bountiesData, ...data]);
+      setBountiesData((prevBountiesData) => {
+        const result = [...prevBountiesData, ...data];
+        return result.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
+      });
       setLoadedBountiesCount((prevCount) => prevCount + PAGE_SIZE);
     } finally {
       setFetchingBounties(false);
