@@ -6,12 +6,22 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ContentHome from '@/components/layout/ContentHome';
 import CreateBounty from '@/components/ui/CreateBounty';
+import { Network } from 'ethers';
+import NetworkSelector from '@/components/ui/NetworkSelector';
+import { useState } from 'react';
 
 const Home = () => {
+  const [showSections, setShowSections] = useState(false);
+
   return (
     <>
-      <ContentHome />
-      <CreateBounty />
+      <NetworkSelector setShowSections={setShowSections} />
+      {showSections && (
+        <div>
+          <ContentHome />
+          <CreateBounty />
+        </div>
+      )}
     </>
   );
 };
