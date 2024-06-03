@@ -13,7 +13,7 @@ import { blacklistedBounties } from '@/constant/blacklist';
 import { BountiesData } from '../../types/web3';
 import { fetchBounties, getContractRead } from '@/app/context/web3';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 18;
 
 const ContentHome = () => {
   const { primaryWallet, network, isAuthenticated } = useDynamicContext();

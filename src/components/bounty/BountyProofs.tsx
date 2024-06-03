@@ -13,7 +13,7 @@ import { blacklist, blacklistedBounties } from '@/constant/blacklist';
 
 import { Claim } from '@/types/web3';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 18;
 
 const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   const [claimsData, setClaimsData] = useState<Claim[] | null>(null);
