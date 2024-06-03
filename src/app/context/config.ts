@@ -26,7 +26,8 @@ const chains = {
   },
   base: {
     name: 'Base Network',
-    jsonProviderUrl: 'https://mainnet.base.org',
+    jsonProviderUrl:
+      'https://api.developer.coinbase.com/rpc/v1/base/q_7UksVVI6bvOgx0y6-hR123IsVxVk3-',
     contracts: {
       mainContract: '0xb502c5856F7244DccDd0264A541Cc25675353D39',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
