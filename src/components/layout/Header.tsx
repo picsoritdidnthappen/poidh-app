@@ -401,7 +401,7 @@ const Header = () => {
       ) : null}
       {!isAuthenticated && path !== '/' ? (
         <div className='px-5 relative lg:px-20 flex justify-end'>
-          <div className='flex absolute chainButtons top-0 mt-5 flex-row gap-2'>
+          <div className='hidden lg:flex absolute chainButtons top-0 mt-5 flex-row gap-2'>
             <button
               className={`${
                 activeButton === 'arbitrum' ? 'active' : ''
