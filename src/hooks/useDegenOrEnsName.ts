@@ -15,7 +15,7 @@ export const useDegenOrEnsName = (addr: string) => {
     };
 
     cb();
-  }, []);
+  }, [addr]);
 
   return result;
 };
