@@ -233,15 +233,3 @@ button {
 .Toastify__close-button > svg {
   fill: white !important;
 }
-
-.chainButtons:hover > .chainButton {
-  display: block;
-}
-
-.chainButton {
-  display: none;
-}
-
-.chainButton.active {
-  display: block;
-}
