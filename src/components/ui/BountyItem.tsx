@@ -1,7 +1,10 @@
+'use client';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ethers } from 'ethers';
 import { UsersRound } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
+import { usePathname } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/Button';
 
@@ -25,6 +28,48 @@ const BountyItem: React.FC<BountyItemProps> = ({
       ? `${description.substring(0, 50)}...`
       : description;
   const amountETH = ethers.formatEther(amount);
+  const { network, networkConfigurations, walletConnector } =
+    useDynamicContext();
+  const [currentNetwork, setCurrentNetwork] = useState(network);
+  const [currentNetworkName, setCurrentNetworkName] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  const path = usePathname();
+
+  useEffect(() => {
+    setIsClient(true);
+    const currentUrl = path.split('/')[1];
+    if (currentUrl === '') {
+      setCurrentNetworkName('base');
+    } else {
+      setCurrentNetworkName(currentUrl);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isClient && network && networkConfigurations) {
+      const currentUrl = path.split('/')[1];
+      const currentUrlNetwork = networkConfigurations['evm']?.find((net) =>
+        net.name.toLowerCase().match(currentUrl)
+      );
+
+      let currentBountyNetwork = currentUrlNetwork?.name.toLowerCase();
+      if (currentBountyNetwork === 'degen chain') {
+        currentBountyNetwork = 'degen';
+      }
+
+      if (currentBountyNetwork) {
+        setCurrentNetwork(network);
+      }
+    }
+  }, [
+    isClient,
+    network,
+    networkConfigurations,
+    path,
+    walletConnector,
+    currentNetwork,
+  ]);
 
   return (
     <>
@@ -36,7 +81,13 @@ const BountyItem: React.FC<BountyItemProps> = ({
 
           <div className='flex items-end justify-between mt-5'>
             <div className='flex gap-2 items-center'>
-              <div>{Number(amountETH)} degen</div>
+              <div>
+                {Number(amountETH)}{' '}
+                {currentNetworkName === 'base' ||
+                currentNetworkName === 'arbitrum'
+                  ? 'eth'
+                  : 'degen'}
+              </div>
               {isMultiplayer && (
                 <div>
                   <UsersRound />
@@ -44,7 +95,9 @@ const BountyItem: React.FC<BountyItemProps> = ({
               )}
             </div>
             <Button>
-              <Link href={`/bounty/${id}`}>see bounty</Link>
+              <Link href={`/${currentNetworkName}/bounty/${id}`}>
+                see bounty
+              </Link>
             </Button>
           </div>
         </div>

@@ -1,4 +1,6 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { usePathname } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
@@ -16,8 +18,26 @@ function weiToEther(weiValue: string | number | bigint): string {
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
 
-  const { isMultiplayer, isOwner, bountyData, isBountyClaimed } =
-    useBountyContext()!;
+  const path = usePathname();
+  const [currentNetworkName, setCurrentNetworkName] = useState('');
+
+  useEffect(() => {
+    const currentUrl = path.split('/')[1];
+    if (currentUrl === '') {
+      setCurrentNetworkName('base');
+    } else {
+      setCurrentNetworkName(currentUrl);
+    }
+  }, []);
+
+  const {
+    isMultiplayer,
+    isOwner,
+    bountyData,
+    isBountyClaimed,
+    isBountyCanceled,
+    isOwnerContributor,
+  } = useBountyContext()!;
 
   if (blacklistedBounties.includes(Number(bountyId))) {
     return null;
@@ -100,13 +120,20 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             <span>
               {bountyData ? weiToEther(bountyData.amount) : 'Loading...'}
             </span>
-            <span>degen</span>
+            <span>
+              {currentNetworkName === 'base' ||
+              currentNetworkName === 'arbitrum'
+                ? 'eth'
+                : 'degen'}
+            </span>
           </div>
 
           <div>
             {!isBountyClaimed && !isOwner ? (
               <CreateProof bountyId={bountyId} />
             ) : (
+              // <div>create</div>
+              // <div>create</div>
               <button
                 onClick={handleCancel}
                 disabled={!!isBountyClaimed}

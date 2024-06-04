@@ -27,6 +27,8 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       background-color: rgba(209, 236, 255, 0.2); 
       backdrop-filter: blur(4px);
     }
+   
+    
 
     .connect-button:hover:enabled{
       background-color: rgba(209, 236, 255, 0.5); 
@@ -237,7 +239,7 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
   return (
     <DynamicContextProvider
       settings={{
-        environmentId: 'f22c5820-7435-4025-a7ef-0a9b56286070',
+        environmentId: 'c130bdd5-31c5-4688-bb4e-9b7f7f0db942',
         walletConnectors: [EthereumWalletConnectors],
         networkValidationMode: 'always',
         walletConnectorExtensions: [EthersExtension],

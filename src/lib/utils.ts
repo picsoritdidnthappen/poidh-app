@@ -5,3 +5,13 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export function getNetworkNameFromPath(path: string) {
+  const token = path.split('/')[1]
+  let networkName = 'base'
+  if(token && (token === 'base' || token === 'degen' || token === 'arbitrum')) {
+    networkName = token
+  }
+
+  return networkName;
+}

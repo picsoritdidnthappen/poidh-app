@@ -171,7 +171,7 @@ const ContentHome = () => {
         </div>
       </div>
 
-      <div className='pb-20 z-1'>
+      <div className='pb-20 min-h-[55vh] z-1'>
         {/* Render either openBounties or pastBounties based on displayOpenBounties state */}
         {display == 'open' && <BountyList bountiesData={openBounties} />}
         {display == 'progress' && (
