@@ -163,10 +163,7 @@ export type JoinOpenBountyFunction = (
 ) => Promise<void>;
 
 // Data Fetching Functions
-export type FetchBountiesFunction = (
-  offset: number,
-  count?: number
-) => Promise<Bounty[]>;
+export type FetchBountiesFunction = (offset: number) => Promise<Bounty[]>;
 export type FetchBountyByIdFunction = (id: string) => Promise<Bounty>;
 export type GetBountiesByUserFunction = (
   user: string,
