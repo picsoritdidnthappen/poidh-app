@@ -1,13 +1,9 @@
 import React from 'react';
 
-interface bannerProps {
-  networkName: string;
-}
-
-const Banner = ({ networkName }: bannerProps) => {
+const Banner = () => {
   return (
     <div className='flex items-center justify-center text-center bg-[#F15E5F] text-white absolute w-full top-0 left-0'>
-      {networkName} with us but please remember this app is in alpha stage
+      degen with us but please remember this app is in alpha stage
     </div>
   );
 };

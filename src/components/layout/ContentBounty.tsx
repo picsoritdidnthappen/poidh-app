@@ -7,6 +7,7 @@ import { BountyProvider } from '@/components/bounty/BountyProvider';
 const ContentBounty = () => {
   const pathname = usePathname();
   const bountyId = pathname.split('/').pop() || '';
+
   return (
     <BountyProvider bountyId={bountyId}>
       <div className='pb-44'>

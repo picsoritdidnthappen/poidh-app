@@ -5,6 +5,7 @@ import { RiAlarmWarningFill } from 'react-icons/ri';
 
 export default function Error({
   error,
+  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;

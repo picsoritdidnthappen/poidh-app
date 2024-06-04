@@ -1,25 +1,30 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import * as React from 'react';
+
+import Header from '@/components/layout/Header';
+
+import ContextProvider from '@/app/context/ContextProvider';
+const AccountInfo = dynamic(() => import('@/components/account/AccountInfo'), {
+  ssr: false,
+});
 import { ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-import ContentBounty from '@/components/layout/ContentBounty';
 import Footer from '@/components/layout/Footer';
-import Header from '@/components/layout/Header';
 
-import ContextProvider from '@/app/context/ContextProvider';
 import WalletProvider from '@/app/context/WalletProvider';
 
-const Bounty = () => {
+const Account = () => {
   return (
     <ContextProvider>
       <WalletProvider>
         <Header />
-        <section className='px-5 lg:px-20'>
-          <ContentBounty />
-        </section>
+        <div className='container mx-auto px-5 lg:px-0 pt-16'>
+          <AccountInfo />
+        </div>
         <Footer />
       </WalletProvider>
       <ToastContainer />
@@ -27,4 +32,4 @@ const Bounty = () => {
   );
 };
 
-export default Bounty;
+export default Account;

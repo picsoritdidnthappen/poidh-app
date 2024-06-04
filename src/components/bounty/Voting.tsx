@@ -17,24 +17,7 @@ interface VotingProps {
 
 const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const [votingData, setVotingData] = useState<VotingTracker | null>(null);
-  const { primaryWallet, network } = useDynamicContext();
-  const [currency, setCurrency] = useState('');
-
-  useEffect(() => {
-    switch (network) {
-      case 8453:
-        setCurrency('eth');
-        break;
-      case 666666666:
-        setCurrency('degen');
-        break;
-      case 42161:
-        setCurrency('eth');
-        break;
-      default:
-        setCurrency('eth');
-    }
-  }, [network]);
+  const { primaryWallet } = useDynamicContext();
 
   const weiToEth = (weiValue: string) => parseFloat(weiValue) / 10 ** 18;
 
@@ -128,12 +111,8 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
             />
           </div>
 
-          <div>
-            Yes votes: {votingData.yes} {currency}
-          </div>
-          <div>
-            No votes: {votingData.no} {currency}
-          </div>
+          <div>Yes votes: {votingData.yes} degen</div>
+          <div>No votes: {votingData.no} degen</div>
 
           <div className='flex flex-row gap-x-5 '>
             <button

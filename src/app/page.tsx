@@ -1,28 +1,29 @@
 'use client';
 
 import * as React from 'react';
+import { ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
 
 import ContentHome from '@/components/layout/ContentHome';
+import Footer from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
 import CreateBounty from '@/components/ui/CreateBounty';
-import { Network } from 'ethers';
-import NetworkSelector from '@/components/ui/NetworkSelector';
-import { useState } from 'react';
+
+import ContextProvider from '@/app/context/ContextProvider';
+import WalletProvider from '@/app/context/WalletProvider';
 
 const Home = () => {
-  const [showSections, setShowSections] = useState(false);
-
   return (
-    <>
-      <NetworkSelector setShowSections={setShowSections} />
-      {showSections && (
-        <div>
-          <ContentHome />
-          <CreateBounty />
-        </div>
-      )}
-    </>
+    <ContextProvider>
+      <WalletProvider>
+        <Header />
+        <ContentHome />
+        <CreateBounty />
+        <Footer />
+      </WalletProvider>
+      <ToastContainer />
+    </ContextProvider>
   );
 };
 

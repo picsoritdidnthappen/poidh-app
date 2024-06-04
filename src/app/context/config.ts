@@ -15,24 +15,6 @@ const chains = {
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
     },
   },
-  arbitrum: {
-    name: 'Arbitrum One',
-    jsonProviderUrl:
-      'https://arbitrum-mainnet.infura.io/v3/91b50d6f88e74281bc3240160cf1b3eb',
-    contracts: {
-      mainContract: '0x0Aa50ce0d724cc28f8F7aF4630c32377B4d5c27d',
-      nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
-    },
-  },
-  base: {
-    name: 'Base Network',
-    jsonProviderUrl:
-      'https://api.developer.coinbase.com/rpc/v1/base/q_7UksVVI6bvOgx0y6-hR123IsVxVk3-',
-    contracts: {
-      mainContract: '0xb502c5856F7244DccDd0264A541Cc25675353D39',
-      nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
-    },
-  },
 };
 
 export const networks = [
@@ -43,10 +25,6 @@ export const networks = [
   {
     name: 'degen',
     chainId: 666666666,
-  },
-  {
-    name: 'arbitrum',
-    chainId: 42161,
   },
   {
     name: 'base',
