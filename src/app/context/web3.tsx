@@ -57,6 +57,7 @@ export const getContract = async (signer: any) => {
 export const getContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
+  console.log('getContractRead', currentChain.name);
   return new Contract(currentChain.contracts.mainContract, abi, provider);
 };
 
