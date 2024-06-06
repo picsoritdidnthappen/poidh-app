@@ -10,7 +10,6 @@ import CreateBounty from '@/components/ui/CreateBounty';
 import { Network } from 'ethers';
 import NetworkSelector from '@/components/ui/NetworkSelector';
 import { useState } from 'react';
-import { ToastContainer } from 'react-toastify';
 
 
 const Home = () => {
