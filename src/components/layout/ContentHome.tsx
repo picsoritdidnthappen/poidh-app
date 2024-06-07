@@ -8,8 +8,10 @@ import { cn } from '@/lib/utils';
 import BountyList from '@/components/ui/BountyList';
 
 import { networks } from '@/app/context/config';
-import { fetchAllBounties } from '@/app/context/web3';
+import { fetchBounties, getContractRead } from '@/app/context/web3';
 import { blacklistedBounties } from '@/constant/blacklist';
+
+const PAGE_SIZE = 18;
 
 import { BountiesData } from '../../types/web3';
 
@@ -21,8 +23,12 @@ const ContentHome = () => {
   const [progressBounties, setProgressBounties] = useState<BountiesData[]>([]);
   const [pastBounties, setPastBounties] = useState<BountiesData[]>([]);
 
-  const [loadedBountiesCount, setLoadedBountiesCount] = useState<number>(20);
+  const [loadedBountiesCount, setLoadedBountiesCount] =
+    useState<number>(PAGE_SIZE);
   const [hasMoreBounties, setHasMoreBounties] = useState<boolean>(false);
+  const [fetchingBounties, setFetchingBounties] = useState<boolean>(false);
+
+  const [totalBounties, setTotalBounties] = useState<number>(0);
   const [display, setDisplay] = useState('open');
 
   useEffect(() => {
@@ -60,18 +66,29 @@ const ContentHome = () => {
   }, [isAuthenticated, network, primaryWallet]); // Re-run on route change
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitData = async () => {
       try {
-        const data = await fetchAllBounties();
-        setBountiesData(data);
+        setFetchingBounties(true);
+
+        const contractRead = await getContractRead();
+        const bountyCounter = await contractRead.bountyCounter();
+        const totalBounties = Number(bountyCounter.toString());
+        const data = await fetchBounties(totalBounties - PAGE_SIZE, PAGE_SIZE);
+
+        setBountiesData(
+          data.sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+        );
+        setTotalBounties(totalBounties);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log('Error fetching bounties:', error);
+      } finally {
+        setFetchingBounties(false);
       }
     };
 
-    fetchData();
-  }, [primaryWallet]);
+    fetchInitData();
+  }, []);
 
   useEffect(() => {
     // Filter bountiesData into openBounties and pastBounties
@@ -100,12 +117,24 @@ const ContentHome = () => {
     setPastBounties(past);
 
     // Update hasMoreBounties based on the total number of bounties
-    setHasMoreBounties(bountiesData.length > loadedBountiesCount);
-  }, [bountiesData, loadedBountiesCount]);
+    setHasMoreBounties(loadedBountiesCount < totalBounties);
+  }, [bountiesData, totalBounties, loadedBountiesCount]);
 
-  const handleLoadMore = () => {
-    // Increase the number of loaded bounties by 20
-    setLoadedBountiesCount((prevCount) => prevCount + 20);
+  const handleLoadMore = async () => {
+    try {
+      setFetchingBounties(true);
+
+      const offset = totalBounties - (loadedBountiesCount + PAGE_SIZE);
+      const data = await fetchBounties(offset, PAGE_SIZE);
+
+      setBountiesData((prevBountiesData) => {
+        const result = [...prevBountiesData, ...data];
+        return result.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
+      });
+      setLoadedBountiesCount((prevCount) => prevCount + PAGE_SIZE);
+    } finally {
+      setFetchingBounties(false);
+    }
   };
 
   return (
@@ -143,7 +172,7 @@ const ContentHome = () => {
         </div>
       </div>
 
-      <div className='pb-20 min-h-[55vh] z-1'>
+      <div className='pb-20 z-1'>
         {/* Render either openBounties or pastBounties based on displayOpenBounties state */}
         {display == 'open' && <BountyList bountiesData={openBounties} />}
         {display == 'progress' && (
@@ -156,8 +185,9 @@ const ContentHome = () => {
           <button
             className='border border-white rounded-full px-5  backdrop-blur-sm bg-[#D1ECFF]/20  py-2'
             onClick={handleLoadMore}
+            disabled={fetchingBounties}
           >
-            show more
+            {fetchingBounties ? 'loading...' : 'show more'}
           </button>
         </div>
       )}
