@@ -9,7 +9,7 @@ import CreateProof from '@/components/ui/CreateProof';
 
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context/web3';
 import { blacklistedBounties } from '@/constant/blacklist';
-
+//
 function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
   return etherValue.toFixed(6);
