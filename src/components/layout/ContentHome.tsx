@@ -73,6 +73,7 @@ const ContentHome = () => {
         const contractRead = await getContractRead();
         const bountyCounter = await contractRead.bountyCounter();
         const totalBounties = Number(bountyCounter.toString());
+        console.log('totalBounties', totalBounties);
         const data = await fetchBounties(totalBounties - PAGE_SIZE, PAGE_SIZE);
 
         setBountiesData(
