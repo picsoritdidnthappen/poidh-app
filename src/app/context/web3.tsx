@@ -336,6 +336,13 @@ export const fetchBounties: FetchBountiesFunction = async (
   const bountyCounter = await contractRead.bountyCounter();
   const totalBounties = Number(bountyCounter.toString());
 
+  if (offset < 0) {
+    offset = 0;
+    count = totalBounties;
+  } else if (offset + count > totalBounties) {
+    count = totalBounties - offset;
+  }
+
   while (bountiesLength < count && offset < totalBounties) {
     const rawBounties = (await contractRead.getBounties(offset)) as Bounty[];
     const bountiesPromise = rawBounties
