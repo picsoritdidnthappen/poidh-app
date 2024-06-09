@@ -18,6 +18,21 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       
     }
 
+
+    .overlay-card--content{
+      background-color: rgba(209, 236, 255, 0.2); 
+      backdrop-filter: blur(4px);
+      z-index:999999!important;
+
+    }
+
+    .dynamic-widget-inline-controls__network-picker-list{
+      background-color: rgba(209, 236, 255, 0.2); 
+      backdrop-filter: blur(4px);
+      z-index:999999!important;
+    }
+
+    
     .dynamic-widget-card{
       background-color: rgba(209, 236, 255, 0.2); 
 
