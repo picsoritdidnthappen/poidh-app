@@ -110,7 +110,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             })}
           </p>
           <p className='mt-5 normal-case break-all'>
-            Bounty issuer:{' '}
+            bounty issuer:{' '}
             {bountyData?.issuerDegenOrEnsName || bountyData?.issuer}
           </p>
         </div>
