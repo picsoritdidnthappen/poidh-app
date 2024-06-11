@@ -97,7 +97,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             {bountyData?.name}
           </p>
           <p className='mt-5'>
-            {bountyData?.description.split(' ').map((word, i) => {
+            {bountyData?.description.split(/\s+/).map((word, i) => {
               if (word.length > 40) {
                 return (
                   <span className='break-all' key={i}>
