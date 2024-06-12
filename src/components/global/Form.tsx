@@ -6,6 +6,8 @@ import { toast } from 'react-toastify';
 
 import ButtonCTA from '@/components/ui/ButtonCTA';
 
+import chainStatusStore from '@/store/chainStatus.store';
+
 import { createOpenBounty, createSoloBounty } from '@/app/context/web3';
 
 const Form = () => {
@@ -16,7 +18,7 @@ const Form = () => {
   const [amount, setAmount] = useState('');
   const [isSoloBounty, setIsSoloBounty] = useState(true);
   const [walletMessage, setWalletMessage] = useState('');
-
+  const currentChain = chainStatusStore.currentChain;
   const handleCreateBounty = async () => {
     if (!name || !description || !amount || !primaryWallet) {
       toast.error('Please fill in all fields and check wallet connection.');
@@ -41,7 +43,8 @@ const Form = () => {
       setDescription('');
       setAmount('');
       console.log('tx ', tx.logs[0].args[0]);
-      router.push(`/bounty/${tx.logs[0].args[0]}`);
+
+      router.push(`/${currentChain.name}/bounty/${tx.logs[0].args[0]}`);
     } catch (error: unknown) {
       console.error('Error creating bounty:', error);
       const errorCode = (error as any)?.info?.error?.code;
