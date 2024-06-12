@@ -243,7 +243,9 @@ const AccountInfo = () => {
             <div>
               <div className='flex flex-col border-b border-dashed'>
                 <span>user</span>
-                <span className='text-4xl'>{userAddress}</span>
+                <span className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
+                  {userAddress}
+                </span>
               </div>
               <div className='flex flex-col'>
                 <div>
@@ -330,7 +332,9 @@ const AccountInfo = () => {
             <div>
               <div className='flex flex-col border-b border-dashed'>
                 <span>user</span>
-                <span className='text-4xl'>{userAddress}</span>
+                <span className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
+                  {userAddress}
+                </span>
               </div>
 
               <div className='flex flex-col'>

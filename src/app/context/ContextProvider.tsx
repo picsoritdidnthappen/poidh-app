@@ -26,17 +26,8 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       display:none;
     }
 
-    .overlay-card--content{
-      background-color: rgba(209, 236, 255, 0.2); 
-      backdrop-filter: blur(4px);
 
-    }
-
-    .dynamic-widget-inline-controls__network-picker-list{
-      background-color: rgba(209, 236, 255, 0.2); 
-      backdrop-filter: blur(4px);
-    }
-
+    
     .dynamic-widget-card{
       background-color: rgba(209, 236, 255, 0.2); 
 
@@ -258,7 +249,7 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
   return (
     <DynamicContextProvider
       settings={{
-        environmentId: 'c130bdd5-31c5-4688-bb4e-9b7f7f0db942',
+        environmentId: 'f22c5820-7435-4025-a7ef-0a9b56286070',
         walletConnectors: [EthereumWalletConnectors],
         networkValidationMode: 'always',
         walletConnectorExtensions: [EthersExtension],
