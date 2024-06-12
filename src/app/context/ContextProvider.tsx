@@ -25,11 +25,13 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       z-index:999999!important;
 
     }
+ 
+    div.dynamic-widget-inline-controls > div:nth-child(1){
+      display:none;
+    }
 
-    .dynamic-widget-inline-controls__network-picker-list{
-      background-color: rgba(209, 236, 255, 0.2); 
-      backdrop-filter: blur(4px);
-      z-index:999999!important;
+    .dynamic-widget-inline-controls__network-picker.evm-network-control__container{
+      display:none;
     }
 
     

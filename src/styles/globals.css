@@ -204,6 +204,12 @@ button {
   backdrop-filter: blur(4px);
 }
 
+.bg-blur-white {
+  background-color: rgba(209, 236, 255, 0.2);
+  color: white;
+  backdrop-filter: blur(4px);
+}
+
 .bountyItem.pendingClaims > div > div.borderBox {
   border: 1px solid #cf5d5d;
 }
