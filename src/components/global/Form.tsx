@@ -1,5 +1,6 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Switch } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -9,6 +10,7 @@ import { createOpenBounty, createSoloBounty } from '@/app/context/web3';
 
 const Form = () => {
   const { primaryWallet } = useDynamicContext();
+  const router = useRouter();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -27,16 +29,19 @@ const Form = () => {
         toast.error('Insufficient funds for this transaction');
         return;
       }
+      let tx;
 
       if (isSoloBounty) {
-        await createSoloBounty(primaryWallet, name, description, amount);
+        tx = await createSoloBounty(primaryWallet, name, description, amount);
       } else {
-        await createOpenBounty(primaryWallet, name, description, amount);
+        tx = await createOpenBounty(primaryWallet, name, description, amount);
       }
       toast.success('Bounty created successfully!');
       setName('');
       setDescription('');
       setAmount('');
+      console.log('tx ', tx.logs[0].args[0]);
+      router.push(`/bounty/${tx.logs[0].args[0]}`);
     } catch (error: unknown) {
       console.error('Error creating bounty:', error);
       const errorCode = (error as any)?.info?.error?.code;
