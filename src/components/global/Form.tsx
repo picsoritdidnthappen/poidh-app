@@ -42,9 +42,17 @@ const Form = () => {
       setName('');
       setDescription('');
       setAmount('');
-      console.log('tx ', tx.logs[0].args[0]);
-
-      router.push(`/${currentChain.name}/bounty/${tx.logs[0].args[0]}`);
+      console.log(
+        'URL CHECKER:',
+        `/${currentChain.name.split(' ')[0].toLowerCase()}/bounty/${
+          tx.logs[0].args[0]
+        }`
+      );
+      router.push(
+        `/${currentChain.name.split(' ')[0].toLowerCase()}/bounty/${
+          tx.logs[0].args[0]
+        }`
+      );
     } catch (error: unknown) {
       console.error('Error creating bounty:', error);
       const errorCode = (error as any)?.info?.error?.code;
