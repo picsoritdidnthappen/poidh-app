@@ -18,6 +18,25 @@ const ContextProvider: React.FC<ContextProviderProps> = ({ children }) => {
       
     }
 
+    div.dynamic-widget-inline-controls > div:nth-child(1){
+      display:none;
+    }
+
+    .dynamic-widget-inline-controls__network-picker.evm-network-control__container{
+      display:none;
+    }
+
+    .overlay-card--content{
+      background-color: rgba(209, 236, 255, 0.2); 
+      backdrop-filter: blur(4px);
+
+    }
+
+    .dynamic-widget-inline-controls__network-picker-list{
+      background-color: rgba(209, 236, 255, 0.2); 
+      backdrop-filter: blur(4px);
+    }
+
     .dynamic-widget-card{
       background-color: rgba(209, 236, 255, 0.2); 
 

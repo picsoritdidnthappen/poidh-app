@@ -10,9 +10,14 @@ import Banner from '@/components/global/Banner';
 import Menu from '@/components/global/Menu';
 import Footer from '@/components/layout/Footer';
 import Logo from '@/components/ui/Logo';
-import ConnectWallet from '@/components/web3/ConnectWallet';
+// import ConnectWallet from '@/components/web3/ConnectWallet';
 
 import chainStatusStore from '@/store/chainStatus.store';
+import dynamic from 'next/dynamic';
+
+const ConnectWallet = dynamic(() => import('@/components/web3/ConnectWallet'), {
+  ssr: false,
+});
 
 const Header = () => {
   const router = useRouter();
@@ -150,7 +155,12 @@ const Header = () => {
               </Link>
             ) : null}
             <div className='hidden lg:block'>
-              {isClient ? <ConnectWallet /> : null}
+              {isClient ? (
+                <ConnectWallet
+                  isClient={isClient}
+                  network={currentNetworkName}
+                />
+              ) : null}
             </div>
             <div
               onClick={handleOpenDynamic}
@@ -388,7 +398,7 @@ const Header = () => {
           !isShowDynamic ? 'hidden' : ''
         } py-2 lg:hidden border-b border-white flex justify-end px-5`}
       >
-        <ConnectWallet />
+        <ConnectWallet isClient={isClient} network={currentNetworkName} />
       </div>
       {isClient && isAuthenticated ? (
         <div className='py-2 border-b border-white flex justify-end px-5 lg:hidden'>
