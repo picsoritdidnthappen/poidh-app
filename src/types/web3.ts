@@ -128,7 +128,7 @@ export type CreateBountyFunction = (
   name: string,
   description: string,
   value: string
-) => Promise<void>;
+) => Promise<any>;
 export type CreateClaimFunction = (
   primaryWallet: Wallet,
   name: string,
