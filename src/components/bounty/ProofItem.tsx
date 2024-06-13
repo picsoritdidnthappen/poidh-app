@@ -8,6 +8,7 @@ import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
 import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
+import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
 
 interface ProofItemProps {
   id: string;
@@ -153,7 +154,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
       <div className='p-3'>
         <div className='flex flex-col'>
           <p className='normal-case'>{title}</p>
-          <p className='break-all normal-case	'>{description}</p>
+          <p className='normal-case'>{applyBreakAllToLongWords(description)}</p>
         </div>
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
           <span className=''>issuer</span>
