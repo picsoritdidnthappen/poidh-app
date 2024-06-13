@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/Button';
+import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
 
 interface BountyItemProps {
   id: string;
@@ -77,7 +78,9 @@ const BountyItem: React.FC<BountyItemProps> = ({
         <div className='p-5 flex flex-col justify-between relative z-20 h-full lg:col-span-4'>
           <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px]  bg-whiteblue '></div>
           <h3 className='normal-case'>{title}</h3>
-          <p className='my-5 break-all normal-case'>{shortDescription}</p>
+          <p className='my-5 normal-case'>
+            {applyBreakAllToLongWords(shortDescription)}
+          </p>
 
           <div className='flex items-end justify-between mt-5'>
             <div className='flex gap-2 items-center'>

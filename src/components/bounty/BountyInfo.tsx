@@ -9,6 +9,7 @@ import CreateProof from '@/components/ui/CreateProof';
 
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context/web3';
 import { blacklistedBounties } from '@/constant/blacklist';
+import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
 //
 function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
@@ -97,17 +98,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             {bountyData?.name}
           </p>
           <p className='mt-5'>
-            {bountyData?.description.split(/\s/).map((word, i) => {
-              if (word.length > 40) {
-                return (
-                  <span className='break-all' key={i}>
-                    {word}{' '}
-                  </span>
-                );
-              } else {
-                return word + ' ';
-              }
-            })}
+            {applyBreakAllToLongWords(bountyData?.description)}
           </p>
           <p className='mt-5 normal-case break-all'>
             bounty issuer:{' '}
