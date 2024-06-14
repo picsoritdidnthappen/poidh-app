@@ -19,7 +19,7 @@ const chains = {
   arbitrum: {
     name: 'Arbitrum One',
     jsonProviderUrl:
-      'https://arbitrum-mainnet.infura.io/v3/91b50d6f88e74281bc3240160cf1b3eb',
+      'https://arb-mainnet.g.alchemy.com/v2/vePHk-Vg-wjRw9LtykUKxDTxoUA2FHSh',
     contracts: {
       mainContract: '0x0Aa50ce0d724cc28f8F7aF4630c32377B4d5c27d',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
