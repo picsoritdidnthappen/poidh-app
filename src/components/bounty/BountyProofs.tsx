@@ -49,7 +49,6 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
     // setYouOwner(null);
 
     const networkUrl = path.split('/')[1];
-    console.log('networkUrl: ', networkUrl);
     if (networkUrl === '') {
       setClientChain('base');
     } else {
@@ -67,7 +66,6 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
           // Filter claims based on blacklist criteria
           let filteredClaims = data;
           const blacklistedClaims = getBlacklistedClaims(networkUrl);
-          console.log('blacklistedClaims: ', blacklistedClaims);
           const bounty = blacklistedClaims.find(
             (b) => b.bountyId === Number(bountyId)
           );
