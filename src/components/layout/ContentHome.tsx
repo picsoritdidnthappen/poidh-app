@@ -110,7 +110,8 @@ const ContentHome = () => {
       (bounty) =>
         bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
         !blacklistedBounties.includes(Number(bounty.id)) &&
-        !bounty.inProgress
+        !bounty.inProgress &&
+        bounty.claimer !== bounty.issuer
     );
 
     setOpenBounties(open);
