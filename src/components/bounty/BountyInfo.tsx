@@ -22,6 +22,17 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const path = usePathname();
   const [currentNetworkName, setCurrentNetworkName] = useState('');
 
+  const getBlacklistedBounties = (chain: string | undefined): Number[] => {
+    if (!chain || !blacklistedBounties[chain]) return [];
+    return blacklistedBounties[chain];
+  };
+
+  const isBountyBlacklisted = (id: string): boolean => {
+    const blacklistedBountiesForChain =
+      getBlacklistedBounties(currentNetworkName);
+    return blacklistedBountiesForChain.includes(Number(id));
+  };
+
   useEffect(() => {
     const currentUrl = path.split('/')[1];
     if (currentUrl === '') {
@@ -40,7 +51,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
     isOwnerContributor,
   } = useBountyContext()!;
 
-  if (blacklistedBounties.includes(Number(bountyId))) {
+  if (isBountyBlacklisted(bountyId)) {
     return null;
   }
 

@@ -122,6 +122,11 @@ export interface TokenIds {
   nftId: string;
 }
 
+export interface blackListClaims {
+  bountyId: number;
+  claims: number[];
+}
+
 // Contract Interaction Functions
 export type CreateBountyFunction = (
   primaryWallet: Wallet,

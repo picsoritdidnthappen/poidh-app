@@ -10,8 +10,9 @@ import {
   getClaimsByBountyId,
 } from '@/app/context/web3';
 import { blacklist, blacklistedBounties } from '@/constant/blacklist';
+import { usePathname } from 'next/navigation';
 
-import { Claim } from '@/types/web3';
+import { Claim, blackListClaims } from '@/types/web3';
 
 const PAGE_SIZE = 18;
 
@@ -21,11 +22,39 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   const [currentVotingClaim, setCurrentVotingClaim] = useState<number | null>(
     null
   );
+  const [clientChain, setClientChain] = useState<string>();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { isMultiplayer, isOwner } = useBountyContext()!;
 
+  const path = usePathname();
+
+  const getBlacklistedBounties = (chain: string | undefined): Number[] => {
+    if (!chain || !blacklistedBounties[chain]) return [];
+    return blacklistedBounties[chain];
+  };
+
+  const isBountyBlacklisted = (id: string): boolean => {
+    const blacklistedBountiesForChain = getBlacklistedBounties(clientChain);
+    return blacklistedBountiesForChain.includes(Number(id));
+  };
+
+  const getBlacklistedClaims = (
+    chain: string | undefined
+  ): blackListClaims[] => {
+    if (!chain || !blacklist[chain]) return [];
+    return blacklist[chain];
+  };
+
   useEffect(() => {
     // setYouOwner(null);
+
+    const networkUrl = path.split('/')[1];
+    if (networkUrl === '') {
+      setClientChain('base');
+    } else {
+      setClientChain(networkUrl);
+    }
+
     if (bountyId) {
       // getParticipants(bountyId)
       // .then((openBounty) => {
@@ -36,13 +65,15 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
         .then((data) => {
           // Filter claims based on blacklist criteria
           let filteredClaims = data;
-          blacklist.forEach((bounty) => {
-            if (bounty.bountyId === Number(bountyId)) {
-              filteredClaims = filteredClaims.filter(
-                (claim) => !bounty.claims.includes(Number(claim.id))
-              );
-            }
-          });
+          const blacklistedClaims = getBlacklistedClaims(networkUrl);
+          const bounty = blacklistedClaims.find(
+            (b) => b.bountyId === Number(bountyId)
+          );
+          if (bounty) {
+            filteredClaims = filteredClaims.filter(
+              (claim) => !bounty.claims.includes(Number(claim.id))
+            );
+          }
           setClaimsData(filteredClaims);
           setPaginatedClaimsData(filteredClaims.slice(0, PAGE_SIZE));
         })
@@ -70,7 +101,7 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   console.log('current voting claim:', currentVotingClaim);
 
   // Early exit if bountyId is blacklisted
-  if (blacklistedBounties.includes(Number(bountyId))) {
+  if (isBountyBlacklisted(bountyId)) {
     return null;
   }
 
