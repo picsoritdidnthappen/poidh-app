@@ -2,6 +2,7 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Switch } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { toast } from 'react-toastify';
 
 import ButtonCTA from '@/components/ui/ButtonCTA';
@@ -99,6 +100,14 @@ const Form = () => {
           onChange={() => setIsSoloBounty(!isSoloBounty)}
           inputProps={{ 'aria-label': 'controlled' }}
         />
+      </div>
+      <div className='ml-5 text-sm'>
+        <span className='flex gap-2 items-center max-w-md '>
+          <IoIosInformationCircleOutline />
+          {isSoloBounty
+            ? 'you are the sole bounty contributor'
+            : 'users can add additional funds to your bounty'}
+        </span>
       </div>
 
       <button
