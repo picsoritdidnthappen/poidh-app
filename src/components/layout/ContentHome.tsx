@@ -10,6 +10,7 @@ import BountyList from '@/components/ui/BountyList';
 import { networks } from '@/app/context/config';
 import { fetchBounties, getContractRead } from '@/app/context/web3';
 import { blacklistedBounties } from '@/constant/blacklist';
+import { usePathname } from 'next/navigation';
 
 const PAGE_SIZE = 18;
 
@@ -30,6 +31,19 @@ const ContentHome = () => {
 
   const [totalBounties, setTotalBounties] = useState<number>(0);
   const [display, setDisplay] = useState('open');
+  const [clientChain, setClientChain] = useState<string>();
+
+  const path = usePathname();
+
+  const getBlacklistedBounties = (chain: string | undefined): Number[] => {
+    if (!chain || !blacklistedBounties[chain]) return [];
+    return blacklistedBounties[chain];
+  };
+
+  const isBountyBlacklisted = (id: string): boolean => {
+    const blacklistedBountiesForChain = getBlacklistedBounties(clientChain);
+    return blacklistedBountiesForChain.includes(Number(id));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,6 +75,13 @@ const ContentHome = () => {
         const targetChain = networks.find((n) => n.name === chain);
       }
     };
+
+    const networkUrl = path.split('/')[1];
+    if (networkUrl === '') {
+      setClientChain('base');
+    } else {
+      setClientChain(networkUrl);
+    }
 
     fetchData();
   }, [isAuthenticated, network, primaryWallet]); // Re-run on route change
@@ -97,19 +118,19 @@ const ContentHome = () => {
     const open = bountiesData.filter(
       (bounty) =>
         bounty.claimer === '0x0000000000000000000000000000000000000000' &&
-        !blacklistedBounties.includes(Number(bounty.id)) &&
+        !isBountyBlacklisted(bounty.id) &&
         !bounty.inProgress
     );
     const progress = bountiesData.filter(
       (bounty) =>
         bounty.claimer === '0x0000000000000000000000000000000000000000' &&
-        !blacklistedBounties.includes(Number(bounty.id)) &&
+        !isBountyBlacklisted(bounty.id) &&
         bounty.inProgress
     );
     const past = bountiesData.filter(
       (bounty) =>
         bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
-        !blacklistedBounties.includes(Number(bounty.id)) &&
+        !isBountyBlacklisted(bounty.id) &&
         !bounty.inProgress &&
         bounty.claimer !== bounty.issuer
     );
