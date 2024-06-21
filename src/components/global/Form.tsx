@@ -2,6 +2,7 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Switch } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { toast } from 'react-toastify';
 
 import ButtonCTA from '@/components/ui/ButtonCTA';
@@ -91,6 +92,10 @@ const Form = () => {
         onChange={(e) => setAmount(e.target.value)}
         className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4'
       />
+      <div className='flex text-balance gap-2 text-xs mb-2 items-center'>
+        <IoIosInformationCircleOutline /> a 2.5% fee is deducted from completed
+        bounties
+      </div>
 
       <div className='flex items-center justify-start gap-2'>
         <span>{isSoloBounty ? 'Solo Bounty' : 'Open Bounty'}</span>
@@ -99,6 +104,14 @@ const Form = () => {
           onChange={() => setIsSoloBounty(!isSoloBounty)}
           inputProps={{ 'aria-label': 'controlled' }}
         />
+      </div>
+      <div className=' text-xs'>
+        <span className='flex gap-2 items-center max-w-md '>
+          <IoIosInformationCircleOutline />
+          {isSoloBounty
+            ? 'you are the sole bounty contributor'
+            : 'users can add additional funds to your bounty'}
+        </span>
       </div>
 
       <button
