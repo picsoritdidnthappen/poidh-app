@@ -8,7 +8,7 @@ type Blacklist = {
 };
 
 type BlacklistBounty = {
-  [key: string]: Number[];
+  [key: string]: number[];
 };
 
 export const blacklist: Blacklist = {

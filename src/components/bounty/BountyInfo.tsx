@@ -3,13 +3,14 @@ import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
+import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { useBountyContext } from '@/components/bounty/BountyProvider';
 import CreateProof from '@/components/ui/CreateProof';
 
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context/web3';
 import { blacklistedBounties } from '@/constant/blacklist';
-import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
 //
 function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
@@ -22,9 +23,9 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const path = usePathname();
   const [currentNetworkName, setCurrentNetworkName] = useState('');
 
-  const getBlacklistedBounties = (chain: string | undefined): Number[] => {
+  const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !blacklistedBounties[chain]) return [];
-    return blacklistedBounties[chain];
+    return blacklistedBounties[chain] as number[];
   };
 
   const isBountyBlacklisted = (id: string): boolean => {
@@ -108,7 +109,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
           <p className=' text-2xl lg:text-4xl text-bold normal-case'>
             {bountyData?.name}
           </p>
-          <p className='mt-5'>
+          <p className='mt-5 normal-case'>
             {applyBreakAllToLongWords(bountyData?.description)}
           </p>
           <p className='mt-5 normal-case break-all'>
