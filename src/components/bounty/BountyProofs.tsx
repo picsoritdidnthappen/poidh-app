@@ -28,9 +28,9 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
 
   const path = usePathname();
 
-  const getBlacklistedBounties = (chain: string | undefined): Number[] => {
+  const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !blacklistedBounties[chain]) return [];
-    return blacklistedBounties[chain];
+    return blacklistedBounties[chain] as number[];
   };
 
   const isBountyBlacklisted = (id: string): boolean => {
