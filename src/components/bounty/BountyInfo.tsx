@@ -25,7 +25,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !blacklistedBounties[chain]) return [];
-    return blacklistedBounties[chain];
+    return blacklistedBounties[chain] as number[];
   };
 
   const isBountyBlacklisted = (id: string): boolean => {
