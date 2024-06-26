@@ -86,7 +86,12 @@ export const blacklist: Blacklist = {
       claims: [1499, 1509, 1514, 1515, 1539],
     },
   ],
-  base: [],
+  base: [
+    {
+      bountyId: 34,
+      claims: [88],
+    },
+  ],
   arbitrum: [],
 };
 
