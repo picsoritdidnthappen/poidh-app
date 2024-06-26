@@ -1243,7 +1243,7 @@ const CreateBounty = () => {
                 </defs>
               </svg>
 
-              <ButtonCTA> create bountyies </ButtonCTA>
+              <ButtonCTA> create bounty </ButtonCTA>
               <span>{walletMessage}</span>
             </div>
           )
