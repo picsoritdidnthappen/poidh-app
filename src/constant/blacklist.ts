@@ -92,6 +92,6 @@ export const blacklist: Blacklist = {
 
 export const blacklistedBounties: BlacklistBounty = {
   degen: [160, 220],
-  base: [],
-  arbitrum: [],
+  base: [61],
+  arbitrum: [21],
 };
