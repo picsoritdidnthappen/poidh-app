@@ -81,13 +81,22 @@ export const blacklist: Blacklist = {
         1338,
       ],
     },
+    {
+      bountyId: 392,
+      claims: [1499, 1509, 1514, 1515, 1539],
+    },
   ],
-  base: [],
+  base: [
+    {
+      bountyId: 34,
+      claims: [88],
+    },
+  ],
   arbitrum: [],
 };
 
 export const blacklistedBounties: BlacklistBounty = {
   degen: [160, 220],
-  base: [],
-  arbitrum: [],
+  base: [61],
+  arbitrum: [21],
 };
