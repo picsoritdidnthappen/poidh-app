@@ -1,11 +1,12 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Switch } from '@mui/material';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { toast } from 'react-toastify';
+
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 import ButtonCTA from '@/components/ui/ButtonCTA';
 
@@ -72,7 +73,7 @@ const Form = () => {
   };
 
   return (
-    <div className=' mt-10 flex text-left flex-col  text-white rounded-[30px] border border-[#D1ECFF]  p-5 flex w-full lg:min-w-[400px]  justify-center backdrop-blur-sm bg-white/30'>
+    <div className='mt-10 flex text-left flex-col text-white rounded-[30px] border border-[#D1ECFF] p-5 w-full lg:min-w-[400px] justify-center backdrop-blur-sm bg-poidhBlue/60'>
       <span>title</span>
       <input
         type='text'
@@ -122,7 +123,6 @@ const Form = () => {
 
       {inTxn ? (
         <Box className='flex justify-center items-center mt-5'>
-          z
           <CircularProgress />
         </Box>
       ) : (

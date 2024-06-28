@@ -164,7 +164,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       </button>
 
       <button
-        className={`border border-white mt-5 rounded-full px-5 py-2 ${
+        className={`border bg-poidhRed mt-5 rounded-full px-5 py-2 ${
           !primaryWallet ? 'opacity-50 cursor-not-allowed' : ''
         }`}
         onClick={() => {
