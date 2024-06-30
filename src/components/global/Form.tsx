@@ -31,14 +31,13 @@ const Form = () => {
     }
 
     try {
-      setInTxn(true);
       const balance = await primaryWallet.connector.getBalance();
       if (parseFloat(balance as string) < parseFloat(amount)) {
         toast.error('Insufficient funds for this transaction');
         return;
       }
       let tx;
-
+      setInTxn(true);
       if (isSoloBounty) {
         tx = await createSoloBounty(primaryWallet, name, description, amount);
       } else {

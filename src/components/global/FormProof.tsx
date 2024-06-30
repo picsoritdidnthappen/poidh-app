@@ -37,6 +37,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [imageURI, setImageURI] = useState('');
   const [uploading, setUploading] = useState(false);
   const inputFile = useRef<HTMLInputElement>(null);
+  const [inTxn, setInTxn] = useState(false);
 
   const compressImage = async (image: File): Promise<File> => {
     const options = {
@@ -107,9 +108,11 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       const metadata = buildMetadata(imageURI, name, description);
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${metadataResponse.IpfsHash}`;
+      setInTxn(true);
       await createClaim(primaryWallet, name, uri, description, bountyId);
       toast.success('Claim created successfully!');
     } catch (error: unknown) {
+      setInTxn(false);
       console.error('Error creating claim:', error);
       const errorCode = (error as any)?.info?.error?.code;
       if (errorCode === 4001) {
@@ -121,7 +124,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   };
 
   return (
-    <div className='mt-10 flex text-left flex-col text-white rounded-md border border-[#D1ECFF] p-5 flex w-full lg:min-w-[400px] justify-center backdrop-blur-sm bg-white/30'>
+    <div className='mt-10 flex text-left flex-col text-white rounded-md border border-[#D1ECFF] p-5 flex w-full lg:min-w-[400px] justify-center backdrop-blur-sm bg-poidhBlue/60'>
       <div
         {...getRootProps()}
         className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center cursor-pointer'
@@ -136,7 +139,13 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
           <img
             src={preview}
             alt='Preview'
-            style={{ width: '200px', height: '200px', marginTop: '10px' }}
+            style={{
+              width: '300px',
+              height: '300px',
+              marginTop: '10px',
+              borderRadius: '10px',
+              objectFit: 'contain',
+            }}
           />
         )}
       </div>
@@ -160,7 +169,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       ></textarea>
 
       <button disabled={uploading} onClick={() => inputFile.current?.click()}>
-        {uploading ? 'uploading...' : 'upload'}
+        {uploading ? 'uploading image...' : 'upload'}
       </button>
 
       <button
