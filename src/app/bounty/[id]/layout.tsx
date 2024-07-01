@@ -14,31 +14,47 @@ function weiToEther(weiValue: string | number | bigint): string {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-
   try {
-    // read route params
+    // Read route params
     const id = params?.id;
     let currency = 'eth';
     let netName = 'base';
 
     chainStatusStore.setCurrentChainFromNetwork(netName);
 
-    // fetch data
+    // Fetch data
     const bountyData = await fetchBountyById(id);
 
+    if (!bountyData) {
+      throw new Error('Bounty data is null or undefined');
+    }
+
+    // Log fetched data for debugging
+    console.log('Fetched bountyData:', bountyData);
+
+    if (!bountyData.amount) {
+      throw new Error('Bounty amount is null or undefined');
+    }
+
+    // Validate amount
+    const bountyAmount = Number(bountyData.amount);
+    if (isNaN(bountyAmount)) {
+      throw new Error('Bounty amount is not a valid number');
+    }
+
     return {
-      title: bountyData?.name,
+      title: bountyData?.name || '',
       description:
-        weiToEther(Number(bountyData?.amount)) +
+        weiToEther(bountyAmount) +
         ` ${currency} ` +
-        bountyData?.description,
+        (bountyData?.description || ''),
 
       openGraph: {
-        title: bountyData?.name,
+        title: bountyData?.name || '',
         description:
-          weiToEther(Number(bountyData?.amount)) +
+          weiToEther(bountyAmount) +
           ` ${currency} ` +
-          bountyData?.description,
+          (bountyData?.description || ''),
         siteName: 'POIDH',
         images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
         type: 'website',
@@ -46,11 +62,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       twitter: {
         card: 'summary_large_image',
-        title: bountyData?.name,
+        title: bountyData?.name || '',
         description:
-          weiToEther(Number(bountyData?.amount)) +
+          weiToEther(bountyAmount) +
           ` ${currency} ` +
-          bountyData?.description,
+          (bountyData?.description || ''),
         images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
       },
     };
