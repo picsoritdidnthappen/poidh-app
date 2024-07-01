@@ -74,38 +74,40 @@ const BountyItem: React.FC<BountyItemProps> = ({
 
   return (
     <>
-      <div className='relative p-[2px] h-full  rounded-xl'>
-        <div className='p-5 flex flex-col justify-between relative z-20 h-full lg:col-span-4'>
-          <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px]  bg-whiteblue '></div>
-          <h3 className='normal-case'>{title}</h3>
-          <p className='my-5 normal-case'>
-            {applyBreakAllToLongWords(shortDescription)}
-          </p>
+      <Link href={`/${currentNetworkName}/bounty/${id}`}>
+        <div className='relative p-[2px] h-full  rounded-xl'>
+          <div className='p-5 flex flex-col justify-between relative z-20 h-full lg:col-span-4'>
+            <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px]  bg-whiteblue '></div>
+            <h3 className='normal-case'>{title}</h3>
+            <p className='my-5 normal-case'>
+              {applyBreakAllToLongWords(shortDescription)}
+            </p>
 
-          <div className='flex items-end justify-between mt-5'>
-            <div className='flex gap-2 items-center'>
-              <div>
-                {Number(amountETH)}{' '}
-                {currentNetworkName === 'base' ||
-                currentNetworkName === 'arbitrum'
-                  ? 'eth'
-                  : 'degen'}
-              </div>
-              {isMultiplayer && (
+            <div className='flex items-end justify-between mt-5'>
+              <div className='flex gap-2 items-center'>
                 <div>
-                  <UsersRound />
+                  {Number(amountETH)}{' '}
+                  {currentNetworkName === 'base' ||
+                  currentNetworkName === 'arbitrum'
+                    ? 'eth'
+                    : 'degen'}
                 </div>
-              )}
+                {isMultiplayer && (
+                  <div>
+                    <UsersRound />
+                  </div>
+                )}
+              </div>
+              <Button>
+                <Link href={`/${currentNetworkName}/bounty/${id}`}>
+                  see bounty
+                </Link>
+              </Button>
             </div>
-            <Button>
-              <Link href={`/${currentNetworkName}/bounty/${id}`}>
-                see bounty
-              </Link>
-            </Button>
           </div>
+          <div className='z-10 bg-gradient rounded-[8px] h-full w-full absolute top-0 right-0 bottom-0 left-0'></div>
         </div>
-        <div className='z-10 bg-gradient rounded-[8px] h-full w-full absolute top-0 right-0 bottom-0 left-0'></div>
-      </div>
+      </Link>
     </>
   );
 };

@@ -5,7 +5,7 @@ import chainStatusStore from '@/store/chainStatus.store';
 import '@/styles/colors.css';
 
 type Props = {
-  params: { id: string; netname: string };
+  params: { id: string };
 };
 
 function weiToEther(weiValue: string | number | bigint): string {
