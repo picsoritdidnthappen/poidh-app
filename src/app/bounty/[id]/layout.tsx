@@ -27,18 +27,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const bountyData = await fetchBountyById(id);
 
     return {
-      title: bountyData.name,
+      title: bountyData?.name,
       description:
-        weiToEther(bountyData.amount) +
+        weiToEther(Number(bountyData?.amount)) +
         ` ${currency} ` +
-        bountyData.description,
+        bountyData?.description,
 
       openGraph: {
-        title: bountyData.name,
+        title: bountyData?.name,
         description:
-          weiToEther(bountyData.amount) +
+          weiToEther(Number(bountyData?.amount)) +
           ` ${currency} ` +
-          bountyData.description,
+          bountyData?.description,
         siteName: 'POIDH',
         images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
         type: 'website',
@@ -46,11 +46,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       twitter: {
         card: 'summary_large_image',
-        title: bountyData.name,
+        title: bountyData?.name,
         description:
-          weiToEther(bountyData.amount) +
+          weiToEther(Number(bountyData?.amount)) +
           ` ${currency} ` +
-          bountyData.description,
+          bountyData?.description,
         images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
       },
     };
