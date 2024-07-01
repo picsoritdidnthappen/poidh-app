@@ -15,6 +15,8 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [showForm, setShowForm] = useState(false);
   const [walletMessage, setWalletMessage] = useState('');
   const [isVisible, setIsVisible] = useState(true);
+  const [deviceType, setDeviceType] = useState<any>(null);
+
   let lastScrollY = 0;
 
   const handleOpenForm = () => {
@@ -25,20 +27,40 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
     }
   };
   const controlButton = () => {
-    // if scroll down
-    if (window.scrollY > lastScrollY) {
-      setIsVisible(false);
-    } else {
-      // if scroll up
-      setIsVisible(true);
+    if (deviceType === 'android' || deviceType === 'ios') {
+      // If scroll down
+      if (window.scrollY > lastScrollY) {
+        setIsVisible(false);
+      } else {
+        // If scroll up
+        setIsVisible(true);
+      }
+      lastScrollY = window.scrollY;
     }
-    lastScrollY = window.scrollY;
   };
   useEffect(() => {
-    window.addEventListener('scroll', controlButton);
-    return () => {
-      window.removeEventListener('scroll', controlButton);
-    };
+    if (deviceType === 'android' || deviceType === 'ios') {
+      window.addEventListener('scroll', controlButton);
+      return () => {
+        window.removeEventListener('scroll', controlButton);
+      };
+    }
+  }, [deviceType]);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+
+    const isAndroid = userAgent.match(/Android/i);
+    const isIOS = userAgent.match(/iPhone|iPad|iPod/i);
+    const isLaptop = !isAndroid && !isIOS;
+
+    if (isAndroid) {
+      setDeviceType('android');
+    } else if (isIOS) {
+      setDeviceType('ios');
+    } else {
+      setDeviceType('laptop');
+    }
   }, []);
 
   return (
@@ -47,7 +69,7 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
         showForm ? '' : ''
       } w-fit  w-full py-12 flex justify-center items-center lg:flex-col `}
     >
-      {isVisible && (
+      {(deviceType === 'laptop' || isVisible) && (
         <div
           className={` ${
             !showForm ? '' : 'hidden'
