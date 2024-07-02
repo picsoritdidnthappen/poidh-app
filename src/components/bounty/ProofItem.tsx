@@ -79,6 +79,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
     try {
       await acceptClaim(primaryWallet, bountyId, id);
       toast.success('Claim accepted!');
+      window.location.reload();
     } catch (error: unknown) {
       console.error('Error accepting claim:', error);
       const errorCode = (error as any)?.info?.error?.code;
