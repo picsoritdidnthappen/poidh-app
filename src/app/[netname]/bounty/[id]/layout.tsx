@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     //chainStatusStore.setCurrentChainFromNetwork(netName);
     //const bountyData = await fetchBountyById(id);
 
-    console.log('layout bountyData: ', bountyData);
+    //console.log('layout bountyData: ', bountyData);
 
     return {
       title: 'Static Title',
