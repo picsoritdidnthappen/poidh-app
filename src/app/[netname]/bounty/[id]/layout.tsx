@@ -49,8 +49,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     console.log('currency: ', currency);
 
     // fetch data
-    chainStatusStore.setCurrentChainFromNetwork(netName);
-    const bountyData = await fetchBountyById(id);
+    //chainStatusStore.setCurrentChainFromNetwork(netName);
+    //const bountyData = await fetchBountyById(id);
 
     console.log('layout bountyData: ', bountyData);
 
