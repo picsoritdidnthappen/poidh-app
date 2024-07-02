@@ -34,6 +34,7 @@ const FormJoinBounty: React.FC<FormJoinBountyProps> = ({ bountyId }) => {
       await joinOpenBounty(primaryWallet, bountyId, amount);
       toast.success('Bounty joined successfully!');
       setAmount('');
+      window.location.reload();
     } catch (error: unknown) {
       console.error('Error joining:', error);
       const errorData = error as any;
