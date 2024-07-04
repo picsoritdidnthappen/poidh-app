@@ -429,12 +429,12 @@ const Header = () => {
               >
                 <style type='text/css'>
                   {`
-      .st0 { fill: none; }
-      .st1 { fill: #213147; }
-      .st2 { fill: #12AAFF; }
-      .st3 { fill: #9DCCED; }
-      .st4 { fill: #FFFFFF; }
-    `}
+        .st0 { fill: none; }
+        .st1 { fill: #213147; }
+        .st2 { fill: #12AAFF; }
+        .st3 { fill: #9DCCED; }
+        .st4 { fill: #FFFFFF; }
+      `}
                 </style>
                 <g id='Layer_x0020_1'>
                   <g id='_2405588477232'>
@@ -487,6 +487,7 @@ const Header = () => {
                 </g>
               </svg>
             </button>
+
             <button
               className={`${
                 activeButton === 'base' ? 'active' : ''
@@ -506,6 +507,7 @@ const Header = () => {
                 />
               </svg>
             </button>
+
             <button
               className={`${
                 activeButton === 'degen' ? 'active' : ''

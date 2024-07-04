@@ -111,6 +111,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       setInTxn(true);
       await createClaim(primaryWallet, name, uri, description, bountyId);
       toast.success('Claim created successfully!');
+      window.location.reload();
     } catch (error: unknown) {
       setInTxn(false);
       console.error('Error creating claim:', error);

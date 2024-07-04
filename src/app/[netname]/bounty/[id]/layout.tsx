@@ -49,45 +49,65 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     console.log('currency: ', currency);
 
     // fetch data
-    chainStatusStore.setCurrentChainFromNetwork(netName);
-    const bountyData = await fetchBountyById(id);
+    //chainStatusStore.setCurrentChainFromNetwork(netName);
+    //const bountyData = await fetchBountyById(id);
 
-    console.log('layout bountyData: ', bountyData);
+    //console.log('layout bountyData: ', bountyData);
 
     return {
-      title: bountyData?.name,
-      description:
-        weiToEther(Number(bountyData?.amount)) +
-        ` ${currency} ` +
-        bountyData?.description,
-
+      title: 'Static Title',
+      description: 'Static Description',
       openGraph: {
-        title: bountyData?.name,
-        description:
-          weiToEther(Number(bountyData?.amount)) +
-          ` ${currency} ` +
-          bountyData?.description,
+        title: 'Static OpenGraph Title',
+        description: 'Static OpenGraph Description',
         siteName: 'POIDH',
-        images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
+        images: ['https://poidh.xyz/images/poidh-preview-hero.png'],
         type: 'website',
         locale: 'en_US',
       },
       twitter: {
         card: 'summary_large_image',
-        title: bountyData?.name,
-        description:
-          weiToEther(Number(bountyData?.amount)) +
-          ` ${currency} ` +
-          bountyData?.description,
-        images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
+        title: 'Static Twitter Title',
+        description: 'Static Twitter Description',
+        images: ['https://poidh.xyz/images/poidh-preview-hero.png'],
       },
     };
+
+    // return {
+    //   title: bountyData?.name,
+    //   description:
+    //     weiToEther(Number(bountyData?.amount)) +
+    //     ` ${currency} ` +
+    //     bountyData?.description,
+
+    //   openGraph: {
+    //     title: bountyData?.name,
+    //     description:
+    //       weiToEther(Number(bountyData?.amount)) +
+    //       ` ${currency} ` +
+    //       bountyData?.description,
+    //     siteName: 'POIDH',
+    //     images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
+    //     type: 'website',
+    //     locale: 'en_US',
+    //   },
+    //   twitter: {
+    //     card: 'summary_large_image',
+    //     title: bountyData?.name,
+    //     description:
+    //       weiToEther(Number(bountyData?.amount)) +
+    //       ` ${currency} ` +
+    //       bountyData?.description,
+    //     images: [`https://poidh.xyz/images/poidh-preview-hero.png`],
+    //   },
+    // };
   } catch (error) {
     console.log('layout open graph error: ', error);
     return {};
   }
 }
 
+// Ensure that the layout component is correctly exporting the children
 export default function BountyLayout({
   children,
 }: {
