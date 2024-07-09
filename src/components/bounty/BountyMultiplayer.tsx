@@ -21,7 +21,7 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
   const [showParticipants, setShowParticipants] = useState(false);
   // const [userParticipate, setUserParticipate] = useState(false);
   const pathname = usePathname();
-  const netname = pathname.split('/')[2];
+  const netname = pathname.split('/')[1];
   const { user } = useDynamicContext();
   const currentUser = user?.verifiedCredentials[0].address;
 
