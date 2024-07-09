@@ -9,6 +9,7 @@ import Withdraw from '@/components/ui/Withdraw';
 import { getDegenOrEnsName, getParticipants } from '@/app/context/web3';
 
 import { OpenBounty } from '../../types/web3';
+import { usePathname } from 'next/navigation';
 
 function weiToEther(weiValue: string | number): string {
   const etherValue = Number(weiValue) / 1e18;
@@ -19,7 +20,8 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
   const [participants, setParticipants] = useState<OpenBounty | null>(null);
   const [showParticipants, setShowParticipants] = useState(false);
   // const [userParticipate, setUserParticipate] = useState(false);
-
+  const pathname = usePathname();
+  const netname = pathname.split('/')[2];
   const { user } = useDynamicContext();
   const currentUser = user?.verifiedCredentials[0].address;
 
@@ -96,7 +98,7 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
                   return (
                     <div className='py-2' key={index}>
                       {displayText} - {weiToEther(participants.amounts[index])}{' '}
-                      degen
+                      {netname === 'degen' ? 'DEGEN' : 'ETH'}
                     </div>
                   );
                 })
