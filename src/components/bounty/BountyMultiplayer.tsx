@@ -15,7 +15,13 @@ function weiToEther(weiValue: string | number): string {
   return etherValue.toFixed(10);
 }
 
-const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
+const BountyMultiplayer = ({
+  bountyId,
+  currentNetworkName,
+}: {
+  bountyId: string;
+  currentNetworkName: string;
+}) => {
   const [participants, setParticipants] = useState<OpenBounty | null>(null);
   const [showParticipants, setShowParticipants] = useState(false);
   // const [userParticipate, setUserParticipate] = useState(false);
@@ -61,6 +67,14 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
   const { isMultiplayer, isOwner, bountyData, isBountyClaimed } =
     useBountyContext()!;
 
+  // getting the current network to show currency based on that
+  const getCurrency = () => {
+    if (currentNetworkName === 'base' || currentNetworkName === 'arbitrum') {
+      return 'eth';
+    }
+    return 'degen';
+  };
+
   return (
     <>
       <div>
@@ -96,7 +110,7 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
                   return (
                     <div className='py-2' key={index}>
                       {displayText} - {weiToEther(participants.amounts[index])}{' '}
-                      degen
+                      {getCurrency()}
                     </div>
                   );
                 })
