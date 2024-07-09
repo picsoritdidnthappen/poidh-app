@@ -6,7 +6,11 @@ import { useBountyContext } from '@/components/bounty/BountyProvider';
 import JoinBounty from '@/components/ui/JoinBounty';
 import Withdraw from '@/components/ui/Withdraw';
 
-import { getDegenOrEnsName, getParticipants } from '@/app/context/web3';
+import {
+  getDegenOrEnsName,
+  getDegenOrEth,
+  getParticipants,
+} from '@/app/context/web3';
 
 import { OpenBounty } from '../../types/web3';
 
@@ -96,7 +100,7 @@ const BountyMultiplayer = ({ bountyId }: { bountyId: string }) => {
                   return (
                     <div className='py-2' key={index}>
                       {displayText} - {weiToEther(participants.amounts[index])}{' '}
-                      degen
+                      {getDegenOrEth()}
                     </div>
                   );
                 })

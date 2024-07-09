@@ -654,3 +654,10 @@ export const getDegenOrEnsName = async (
 
   return publicClient.getEnsName({ address: addr });
 };
+
+export const getDegenOrEth = () => {
+  const currentNetworkName = chainStatusStore.currentChain?.name;
+  return currentNetworkName === 'base' || currentNetworkName === 'arbitrum'
+    ? 'eth'
+    : 'degen';
+};
