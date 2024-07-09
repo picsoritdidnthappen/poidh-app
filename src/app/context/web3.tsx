@@ -657,7 +657,10 @@ export const getDegenOrEnsName = async (
 
 export const getDegenOrEth = () => {
   const currentNetworkName = chainStatusStore.currentChain?.name;
-  return currentNetworkName === 'base' || currentNetworkName === 'arbitrum'
+  console.log('currentNetworkName', currentNetworkName);
+
+  return currentNetworkName === 'Base Network' ||
+    currentNetworkName === 'Arbitrum Network'
     ? 'eth'
     : 'degen';
 };
