@@ -164,7 +164,10 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
 
       {isMultiplayer ? (
         <div>
-          <BountyMultiplayer bountyId={bountyId} />
+          <BountyMultiplayer
+            bountyId={bountyId}
+            currentNetworkName={currentNetworkName} // passed in current network to show currency based on that
+          />
         </div>
       ) : null}
     </>
