@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
 
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
-import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
 
 interface ProofItemProps {
   id: string;
@@ -31,7 +30,6 @@ const ProofItem: React.FC<ProofItemProps> = ({
   const { user, primaryWallet } = useDynamicContext();
   const [claimsURI, setClaimsURI] = useState('');
   const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
-  const [isExpanded, setIsExpanded] = useState(false);
   // const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
 
   // const currentUser = user?.verifiedCredentials[0].address;
@@ -78,12 +76,8 @@ const ProofItem: React.FC<ProofItemProps> = ({
     }
   };
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   return (
-    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl h-[600px] overflow-scroll'>
+    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
       <Link href={`/bounty/${bountyId}`}>
         {/* <div className='left-5 top-5 absolute text-white'>{isMultiplayer && isOwner ? 
        <button onClick={handleSubmitClaimForVote} >submit for vote</button>
@@ -113,20 +107,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className=''>{title}</p>
-            <div className='flex items-end'>
-              <p
-                className={`normal-case ${
-                  isExpanded ? '' : 'line-clamp-3 flex-grow'
-                }`}
-              >
-                {applyBreakAllToLongWords(description)}
-              </p>
-              {description.split(' ').length > 15 && (
-                <button onClick={toggleExpand} className='text-gray-200 mt-2'>
-                  {isExpanded ? '▲' : '▼'}
-                </button>
-              )}
-            </div>
+            <p className=''>{description}</p>
           </div>
 
           <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
