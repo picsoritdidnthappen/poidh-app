@@ -35,7 +35,6 @@ const ProofItem: React.FC<ProofItemProps> = ({
   const { user, primaryWallet } = useDynamicContext();
   const [claimsURI, setClaimsURI] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
   const {
     isMultiplayer,
     isOwner,
@@ -121,12 +120,8 @@ const ProofItem: React.FC<ProofItemProps> = ({
     }
   };
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   return (
-    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl h-[600px] overflow-scroll'>
+    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
       <div className='left-5 top-5 absolute  flex flex-col text-white'>
         {isMultiplayer && isOwner && !isOwnerContributor ? (
           <button
@@ -160,20 +155,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
       <div className='p-3'>
         <div className='flex flex-col'>
           <p className='normal-case'>{title}</p>
-          <div className='flex items-end'>
-            <p
-              className={`normal-case ${
-                isExpanded ? '' : 'line-clamp-3 flex-grow'
-              }`}
-            >
-              {applyBreakAllToLongWords(description)}
-            </p>
-            {description.split(' ').length > 15 && (
-              <button onClick={toggleExpand} className='text-gray-200 mt-2'>
-                {isExpanded ? '▲' : '▼'}
-              </button>
-            )}
-          </div>
+          <p className='normal-case'>{applyBreakAllToLongWords(description)}</p>
         </div>
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
           <span className=''>issuer</span>
