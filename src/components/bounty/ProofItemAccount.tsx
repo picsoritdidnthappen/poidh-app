@@ -112,10 +112,10 @@ const ProofItem: React.FC<ProofItemProps> = ({
 
           <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
             <span className=''>issuer</span>
-            <span>
+            <Link href={`/account/${issuer}`} className='hover:text-gray-200'>
               {issuerDegenOrEnsName ||
                 `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
-            </span>
+            </Link>
           </div>
           <div>claim id: {id}</div>
         </div>

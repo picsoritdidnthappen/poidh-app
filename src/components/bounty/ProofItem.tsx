@@ -9,6 +9,7 @@ import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+import Link from 'next/link';
 
 interface ProofItemProps {
   id: string;
@@ -160,8 +161,10 @@ const ProofItem: React.FC<ProofItemProps> = ({
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
           <span className=''>issuer</span>
           <span className='flex flex-row'>
-            {issuerDegenOrEnsName ||
-              `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
+            <Link href={`/account/${issuer}`} className='hover:text-gray-200'>
+              {issuerDegenOrEnsName ||
+                `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
+            </Link>
             <span className='ml-1'>
               <button onClick={() => copyAddresstoClipboard(issuer)}>
                 <LiaCopySolid color='white' size={20} />

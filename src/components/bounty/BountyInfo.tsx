@@ -11,6 +11,7 @@ import CreateProof from '@/components/ui/CreateProof';
 
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context/web3';
 import { blacklistedBounties } from '@/constant/blacklist';
+import Link from 'next/link';
 //
 function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
@@ -114,7 +115,13 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
           </p>
           <p className='mt-5 normal-case break-all'>
             bounty issuer:{' '}
-            {bountyData?.issuerDegenOrEnsName || bountyData?.issuer}
+            <Link
+              href={`/account/${bountyData?.issuer}`}
+              className='hover:text-gray-200'
+            >
+              {' '}
+              {bountyData?.issuerDegenOrEnsName || bountyData?.issuer}
+            </Link>
           </p>
         </div>
 
