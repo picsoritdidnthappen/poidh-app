@@ -77,7 +77,7 @@ const ProofList: React.FC<ProofListProps> = ({
 
       <div
         className={`${
-          currentVotingClaim !== 0 ? 'hidden' : ''
+          currentVotingClaim !== 0 ? 'block' : 'hidden'
         } container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0`}
       >
         <p className={`col-span-12  ${!isMultiplayer ? 'hidden' : ' '}  `}>
