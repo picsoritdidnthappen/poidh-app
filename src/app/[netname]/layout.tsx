@@ -1,8 +1,9 @@
 import React from 'react';
-
 import '@/styles/globals.css';
 import '@/styles/colors.css';
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
+import Head from 'next/head';
 
 type Props = {
   params: { id: string; netname: string };
@@ -10,7 +11,6 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    // read route params
     const _netname = params?.netname;
     const netname =
       _netname === 'base'
@@ -20,9 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         : 'Degen Chain';
 
     return {
-      title:
-        `poidh on ${netname} - pics or it didn't happen` ||
-        'poidh - pics or it didn\t happen',
+      title: `poidh on ${netname} - pics or it didn't happen`,
       description:
         "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
     };
@@ -32,11 +30,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <html>
-    <head></head>
-    <body className='bg-blue-300 text-white'>{children}</body>
-  </html>
-);
+const CanonicalWrapper = async ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const headersList = headers();
+  const referer = headersList.get('referer');
+  const url = referer ? String(referer) : '';
 
-export default RootLayout;
+  return (
+    <>
+      <Head>
+        <link rel='canonical' href={url} />
+      </Head>
+      <>{children}</>
+    </>
+  );
+};
+
+export default CanonicalWrapper;
