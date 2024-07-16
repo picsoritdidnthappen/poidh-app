@@ -9,6 +9,8 @@ import { useBountyContext } from '@/components/bounty/BountyProvider';
 
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface ProofItemProps {
   id: string;
@@ -35,6 +37,9 @@ const ProofItem: React.FC<ProofItemProps> = ({
   const { user, primaryWallet } = useDynamicContext();
   const [claimsURI, setClaimsURI] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const path = usePathname();
+  const [currentNetworkName, setCurrentNetworkName] = useState('');
   const {
     isMultiplayer,
     isOwner,
@@ -43,6 +48,11 @@ const ProofItem: React.FC<ProofItemProps> = ({
     isOwnerContributor,
   } = useBountyContext()!;
   const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
+
+  useEffect(() => {
+    const currentUrl = path.split('/')[1];
+    setCurrentNetworkName(currentUrl || 'base');
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -160,8 +170,13 @@ const ProofItem: React.FC<ProofItemProps> = ({
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
           <span className=''>issuer</span>
           <span className='flex flex-row'>
-            {issuerDegenOrEnsName ||
-              `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
+            <Link
+              href={`/${currentNetworkName}/account/${issuer}`}
+              className='hover:text-gray-200'
+            >
+              {issuerDegenOrEnsName ||
+                `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
+            </Link>
             <span className='ml-1'>
               <button onClick={() => copyAddresstoClipboard(issuer)}>
                 <LiaCopySolid color='white' size={20} />
