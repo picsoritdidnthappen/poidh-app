@@ -126,7 +126,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
   };
 
   return (
-    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl h-[600px] overflow-scroll'>
+    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl'>
       <div className='left-5 top-5 absolute  flex flex-col text-white'>
         {isMultiplayer && isOwner && !isOwnerContributor ? (
           <button
@@ -161,11 +161,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
         <div className='flex flex-col'>
           <p className='normal-case'>{title}</p>
           <div className='flex items-end'>
-            <p
-              className={`normal-case ${
-                isExpanded ? '' : 'line-clamp-3 flex-grow'
-              }`}
-            >
+            <p className={`normal-case ${isExpanded ? '' : 'line-clamp-4'}`}>
               {applyBreakAllToLongWords(description)}
             </p>
             {description.split(' ').length > 15 && (
