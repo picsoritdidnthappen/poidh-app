@@ -116,7 +116,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
           <p className='mt-5 normal-case break-all'>
             bounty issuer:{' '}
             <Link
-              href={`/account/${bountyData?.issuer}`}
+              href={`/${currentNetworkName}/account/${bountyData?.issuer}`}
               className='hover:text-gray-200'
             >
               {' '}

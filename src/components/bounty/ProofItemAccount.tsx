@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
 
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
+import { usePathname } from 'next/navigation';
 
 interface ProofItemProps {
   id: string;
@@ -35,6 +36,13 @@ const ProofItem: React.FC<ProofItemProps> = ({
   // const currentUser = user?.verifiedCredentials[0].address;
 
   // const notOwner = currentUser === issuer ;
+  const path = usePathname();
+  const [currentNetworkName, setCurrentNetworkName] = useState('');
+
+  useEffect(() => {
+    const currentUrl = path.split('/')[1];
+    setCurrentNetworkName(currentUrl || 'base');
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -112,7 +120,10 @@ const ProofItem: React.FC<ProofItemProps> = ({
 
           <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
             <span className=''>issuer</span>
-            <Link href={`/account/${issuer}`} className='hover:text-gray-200'>
+            <Link
+              href={`/${currentNetworkName}/account/${issuer}`}
+              className='hover:text-gray-200'
+            >
               {issuerDegenOrEnsName ||
                 `$` + issuer.slice(0, 5) + '...' + issuer.slice(-6)}
             </Link>
