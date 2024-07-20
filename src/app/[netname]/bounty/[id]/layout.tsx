@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import * as React from 'react';
 import { fetchBountyById } from '@/app/context/web3';
 import chainStatusStore from '@/store/chainStatus.store';
+import Head from 'next/head';
 
 import '@/styles/colors.css';
 
@@ -16,42 +17,26 @@ function weiToEther(weiValue: string | number | bigint): string {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    // read route params
     const id = params?.id;
-    let token = null;
-    try {
-      token = params.netname;
-    } catch (error) {
-      console.log('params?.netname open graph error: ', error);
-      return {};
-    }
-    let currency = 'degen';
+    const token = params?.netname || null;
 
+    let currency = 'degen';
     let netName = 'base';
-    if (
-      token &&
-      (token === 'base' || token === 'degen' || token === 'arbitrum')
-    ) {
+
+    if (token && ['base', 'degen', 'arbitrum'].includes(token)) {
       netName = token;
     }
 
-    if (
-      !netName ||
-      netName === '' ||
-      netName == 'arbitrum' ||
-      netName == 'base'
-    ) {
+    if (!netName || netName === 'arbitrum' || netName === 'base') {
       currency = 'eth';
     }
 
-    // fetch data
-    chainStatusStore.setCurrentChainFromNetwork(netName);
+    await chainStatusStore.setCurrentChainFromNetwork(netName, true);
     const bountyData = await fetchBountyById(id);
 
     return {
       title: bountyData?.name || '',
       description: bountyData?.description || '',
-
       openGraph: {
         title: bountyData?.name || '',
         description: bountyData?.description || '',
@@ -73,11 +58,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-// Ensure that the layout component is correctly exporting the children
 export default function BountyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <Head>
+        <></> {/* Ensure Head has children */}
+      </Head>
+      {children}
+    </>
+  );
 }

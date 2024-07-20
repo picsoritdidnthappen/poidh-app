@@ -1,34 +1,62 @@
-import { action,makeObservable, observable } from "mobx";
-
+import { action, makeObservable, observable } from 'mobx';
 import chains from '../app/context/config';
 
 class ChainStatusStore {
-    currentChain = chains.base;
+  currentChain = chains.base;
 
-    constructor() {
-        makeObservable(this, {
-            currentChain: observable,   
-            setCurrentChain: action,
-        })
-    }
+  constructor() {
+    makeObservable(this, {
+      currentChain: observable,
+      setCurrentChain: action,
+    });
+  }
 
-    setCurrentChain(chain: any) {
-        this.currentChain = chain;
-    }
+  setCurrentChain(chain: any) {
+    this.currentChain = chain;
+  }
 
-    setCurrentChainFromNetwork(network?: string) {
-        switch (network) {
-            case 'degen':
-              this.setCurrentChain(chains.degen);
-              break;
-            case 'base':
-              this.setCurrentChain(chains.base);
-              break;
-            case 'arbitrum':
-              this.setCurrentChain(chains.arbitrum);
-              break;
-        }
+  async setCurrentChainFromNetwork(
+    network?: string,
+    asyncMode: boolean = false
+  ) {
+    const setChain = (chain: any) => {
+      this.setCurrentChain(chain);
+    };
+
+    if (asyncMode) {
+      switch (network) {
+        case 'degen':
+          return new Promise<void>((resolve) => {
+            setChain(chains.degen);
+            resolve();
+          });
+        case 'base':
+          return new Promise<void>((resolve) => {
+            setChain(chains.base);
+            resolve();
+          });
+        case 'arbitrum':
+          return new Promise<void>((resolve) => {
+            setChain(chains.arbitrum);
+            resolve();
+          });
+        default:
+          return Promise.resolve();
+      }
+    } else {
+      switch (network) {
+        case 'degen':
+          setChain(chains.degen);
+          break;
+        case 'base':
+          setChain(chains.base);
+          break;
+        case 'arbitrum':
+          setChain(chains.arbitrum);
+          break;
+      }
     }
+  }
 }
 
 export default new ChainStatusStore();
