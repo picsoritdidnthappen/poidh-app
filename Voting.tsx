@@ -16,6 +16,9 @@ interface VotingProps {
 
 const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const [votingData, setVotingData] = useState<VotingTracker | null>(null);
+  const [deadlineTimestamp, setDeadlineTimestamp] = useState<number | null>(
+    null
+  );
   const { primaryWallet } = useDynamicContext();
 
   const weiToEth = (weiValue: string) => parseFloat(weiValue) / 10 ** 18;
@@ -30,6 +33,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
           no: weiToEth(voting.no).toString(),
           deadline: new Date(parseInt(voting.deadline) * 1000).toLocaleString(),
         });
+        setDeadlineTimestamp(parseInt(voting.deadline));
       })();
     }
   }, [bountyId]);
@@ -77,13 +81,19 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   };
 
   const isVotingPeriodOver = () => {
-    if (!votingData) return false;
-    const currentTime = Date.now();
-    const deadlineTime = new Date(
-      parseInt(votingData.deadline) * 1000
-    ).getTime();
-    return currentTime > deadlineTime;
+    if (deadlineTimestamp === null) return false;
+    const currentTime = Math.floor(Date.now() / 1000);
+    return currentTime > deadlineTimestamp;
   };
+
+  console.log(
+    'Voting period over:',
+    isVotingPeriodOver(),
+    'Current time:',
+    Math.floor(Date.now() / 1000),
+    'Deadline:',
+    deadlineTimestamp
+  );
 
   return (
     <div className='col-span-12 lg:col-span-3 p-5 lg:p-0 '>
