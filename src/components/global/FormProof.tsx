@@ -19,6 +19,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setFile(file);
+    setUploadComplete(false);
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       if (e.target?.result) {
@@ -36,6 +37,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [file, setFile] = useState<File | null>(null);
   const [imageURI, setImageURI] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
   const inputFile = useRef<HTMLInputElement>(null);
   const [inTxn, setInTxn] = useState(false);
 
@@ -79,12 +81,14 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
     const uploadImage = async () => {
       if (file) {
         setUploading(true);
+        setUploadComplete(false);
         try {
           const compressedFile = await compressImage(file);
           const cid = await retryUpload(compressedFile);
           setImageURI(
             `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${cid}`
           );
+          setUploadComplete(true);
         } catch (error) {
           console.error('Error uploading file:', error);
           alert('Trouble uploading file');
@@ -169,8 +173,20 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
         className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4'
       ></textarea>
 
-      <button disabled={uploading} onClick={() => inputFile.current?.click()}>
-        {uploading ? 'uploading image...' : 'upload'}
+      <button
+        disabled={uploading}
+        onClick={() => {
+          if (!uploadComplete) {
+            inputFile.current?.click();
+          }
+        }}
+        className={`mt-4 ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+      >
+        {uploading
+          ? 'uploading image...'
+          : uploadComplete
+          ? 'uploaded 📸'
+          : 'upload'}
       </button>
 
       <button
