@@ -109,15 +109,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
     }
   };
 
-  const isVotingPeriodOver = () => {
-    if (!votingData) return false;
-    const currentTime = Date.now();
-    const deadlineTime = new Date(
-      parseInt(votingData.deadline) * 1000
-    ).getTime();
-    return currentTime > deadlineTime;
-  };
-
   return (
     <div className='col-span-12 lg:col-span-3 p-5 lg:p-0 '>
       {votingData ? (
@@ -157,14 +148,12 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
             >
               no
             </button>
-            {isVotingPeriodOver() && (
-              <button
-                className='border mt-5 border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
-                onClick={resolveVoteHandle}
-              >
-                resolve vote
-              </button>
-            )}
+            <button
+              className='border mt-5 border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
+              onClick={resolveVoteHandle}
+            >
+              resolve vote
+            </button>
           </div>
 
           <div className='mt-5 '>Deadline: {votingData.deadline}</div>
