@@ -33,7 +33,7 @@ export const blacklist: Blacklist = {
     },
     {
       bountyId: 204,
-      claims: [540, 541, 542],
+      claims: [540, 541, 542, 567],
     },
     {
       bountyId: 230,
@@ -49,7 +49,7 @@ export const blacklist: Blacklist = {
     },
     {
       bountyId: 299,
-      claims: [720, 721, 723, 726, 727, 728, 729, 730, 733, 734, 738],
+      claims: [720, 721, 723, 726, 727, 728, 729, 730, 733, 734, 738, 719, 722, 724, 725, 731, 732, 739, 771, 939, 972],
     },
     {
       bountyId: 329,
@@ -90,16 +90,8 @@ export const blacklist: Blacklist = {
       claims: [1760],
     },
     {
-      bountyId: 204,
-      claims: [567],
-    },
-    {
       bountyId: 267,
       claims: [743, 744, 745],
-    },
-    {
-      bountyId: 299,
-      claims: [719, 722, 724, 725, 731, 732, 739, 771, 939, 972],
     },
     {
       bountyId: 566,
