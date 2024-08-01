@@ -6,9 +6,8 @@ import { ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-import ContentHome from '@/components/layout/ContentHome';
-import CreateBounty from '@/components/ui/CreateBounty';
-import NetworkSelector from '@/components/ui/NetworkSelector';
+import { ContentHome } from '@/components/layout';
+import { CreateBounty, NetworkSelector } from '@/components/ui';
 
 const Home = () => {
   const [showSections, setShowSections] = useState(false);

@@ -13,10 +13,11 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const { primaryWallet } = useDynamicContext();
 
   const [showForm, setShowForm] = useState(false);
-  const [walletMessage, setWalletMessage] = useState('');
+  // const [walletMessage, setWalletMessage] = useState('');
   const [isVisible, setIsVisible] = useState(true);
-  const [deviceType, setDeviceType] = useState<any>(null);
+  const [deviceType, setDeviceType] = useState<'android' | 'ios' | 'laptop'>();
 
+  // Refactor Notes -- useRef to make a ref for scroll feature, check if it will optimize window event listeners
   let lastScrollY = 0;
 
   const handleOpenForm = () => {
@@ -52,7 +53,7 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
 
     const isAndroid = userAgent.match(/Android/i);
     const isIOS = userAgent.match(/iPhone|iPad|iPod/i);
-    const isLaptop = !isAndroid && !isIOS;
+    //const isLaptop = !isAndroid && !isIOS;
 
     if (isAndroid) {
       setDeviceType('android');
@@ -65,9 +66,11 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
 
   return (
     <div
-      className={`${
-        showForm ? '' : ''
-      } w-fit  w-full py-12 flex justify-center items-center lg:flex-col `}
+      className={
+        /*`${
+        showForm ? '' : '' */ `
+      } w-fit  w-full py-12 flex justify-center items-center lg:flex-col `
+      }
     >
       {(deviceType === 'laptop' || isVisible) && (
         <div
@@ -1272,7 +1275,9 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
           </div>
           <ButtonCTA> create claim </ButtonCTA>
           <span className='absolute lg:right-0 bottom-0  translate-y-[25px] lg:translate-x-[0px]  text-nowrap'>
-            {walletMessage}
+            {
+              //walletMessage
+            }
           </span>
         </div>
       )}

@@ -1,9 +1,10 @@
+import { Metadata } from 'next';
+import Head from 'next/head';
+import { headers } from 'next/headers';
 import React from 'react';
+
 import '@/styles/globals.css';
 import '@/styles/colors.css';
-import { Metadata } from 'next';
-import { headers } from 'next/headers';
-import Head from 'next/head';
 
 type Props = {
   params: { id: string; netname: string };

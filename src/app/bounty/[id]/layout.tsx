@@ -1,13 +1,16 @@
 import { Metadata } from 'next';
-import * as React from 'react';
-import { fetchBountyById } from '@/app/context/web3';
-import chainStatusStore from '@/store/chainStatus.store';
+import React from 'react';
+
 import '@/styles/colors.css';
+
+import chainStatusStore from '@/store/chainStatus.store';
+import { fetchBountyById } from '@/app/context/web3';
 
 type Props = {
   params: { id: string };
 };
 
+//Refactor Change -- Make this a global util, used in multiple places
 function weiToEther(weiValue: string | number | bigint): string {
   const etherValue = Number(weiValue) / 1e18;
   return etherValue.toFixed(6);
@@ -17,12 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     // Read route params
     const id = params?.id;
-    let currency = 'eth';
-    let netName = 'base';
+    const currency = 'eth';
+    const netName = 'base';
 
     chainStatusStore.setCurrentChainFromNetwork(netName);
 
     // Fetch data
+    // Recator Change -- Look to see if instead of doing a blockchain Query, we instead
     const bountyData = await fetchBountyById(id);
 
     if (!bountyData) {

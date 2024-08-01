@@ -2,15 +2,12 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Contract, ethers } from 'ethers';
-import { isAddress } from 'viem';
+import { Address, isAddress } from 'viem';
 
+import { publicClient } from '@/lib/publicClient';
 import chainStatusStore from '@/store/chainStatus.store';
+import { ABI, DEGENNAMERESABI, NFTABI } from '@/constant';
 
-import { publicClient } from '@/app/context/publicClient';
-
-import abi from './abi';
-import abiNFT from './abiNFT';
-import DegenDomainNameResolverAbiJson from '../../abi/DegenDomainNameResolver.abi.json';
 import {
   AcceptClaimFunction,
   Bounty,
@@ -26,12 +23,14 @@ import {
   GetBountiesByUserFunction,
   GetClaimByIdFunction,
   GetClaimsByBountyIdFunction,
+  GetClaimsByMulticall,
   GetClaimsByUserFunction,
   GetNftsOfOwnerFunction,
   GetOpenBountiesByUserFunction,
   GetParticipants,
   GetURIFunction,
   JoinOpenBountyFunction,
+  MultiCallInput,
   ResolveVoteFunction,
   SubmitClaimForVoteFunction,
   VoteClaimFunction,
@@ -51,20 +50,20 @@ export const getProvider = async () => {
 
 export const getContract = async (signer: any) => {
   const currentChain = chainStatusStore.currentChain;
-  return new Contract(currentChain.contracts.mainContract, abi, signer);
+  return new Contract(currentChain.contracts.mainContract, ABI, signer);
 };
 
 export const getContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
   console.log('getContractRead', currentChain.name);
-  return new Contract(currentChain.contracts.mainContract, abi, provider);
+  return new Contract(currentChain.contracts.mainContract, ABI, provider);
 };
 
 export const getNFTContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
-  return new Contract(currentChain.contracts.nftContract, abiNFT, provider);
+  return new Contract(currentChain.contracts.nftContract, NFTABI, provider);
 };
 
 export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
@@ -72,7 +71,7 @@ export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
   const currentChain = chainStatusStore.currentChain;
   const contractNFT = new Contract(
     currentChain.contracts.nftContract,
-    abiNFT,
+    NFTABI,
     provider
   );
   const ownerBalance = await contractNFT.balanceOf(primaryWallet);
@@ -96,7 +95,7 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
   const currentChain = chainStatusStore.currentChain;
   const contract = new Contract(
     currentChain.contracts.mainContract,
-    abi,
+    ABI,
     provider
   );
   const ownerBalance = await contract.balanceOf(primaryWallet);
@@ -631,7 +630,7 @@ export const getDegenNameContract = async () => {
   const provider = await getProvider();
   return new Contract(
     '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
-    DegenDomainNameResolverAbiJson,
+    DEGENNAMERESABI,
     provider
   );
 };
@@ -653,4 +652,24 @@ export const getDegenOrEnsName = async (
   }
 
   return publicClient.getEnsName({ address: addr });
+};
+
+/* Uses Multicall vis-a-vis Multicall3 to bunch contract calls */
+
+export const getClaimsByMulticall: GetClaimsByMulticall = async (
+  bountyData
+) => {
+  const MultiCallObejcts: MultiCallInput[] = bountyData.map((bounty) => {
+    return {
+      address: chainStatusStore.currentChain.contracts.mainContract as Address,
+      abi: ABI,
+      functionName: 'getClaimsByBountyId',
+      args: [bounty.id],
+    };
+  });
+  const results = (
+    await publicClient.multicall({ contracts: MultiCallObejcts })
+  ).map((v) => v.result);
+
+  return results;
 };

@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 
-import { createClaim } from '@/app/context/web3';
-
-import { buildMetadata, uploadFile, uploadMetadata } from '../../lib/pinata';
+import { buildMetadata, uploadFile, uploadMetadata } from '@/lib/pinata';
+import { createClaim } from '@/app/context';
+import { ErrorInfo } from '@/types';
 
 interface FormProofProps {
   bountyId: string;
@@ -34,7 +34,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const [imageURI, setImageURI] = useState('');
+  const [imageURI, setImageURI] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const inputFile = useRef<HTMLInputElement>(null);
   const [inTxn, setInTxn] = useState(false);
@@ -49,6 +49,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       const compressedFile = await imageCompression(image, options);
       return compressedFile;
     } catch (error) {
+      // Refactor Change -- Remove console.error
       console.error('Error compressing image:', error);
       throw error;
     }
@@ -115,7 +116,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
     } catch (error: unknown) {
       setInTxn(false);
       console.error('Error creating claim:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {

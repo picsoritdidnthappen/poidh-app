@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
 import * as React from 'react';
-import { fetchBountyById } from '@/app/context/web3';
-import chainStatusStore from '@/store/chainStatus.store';
 
 import '@/styles/colors.css';
+
+import chainStatusStore from '@/store/chainStatus.store';
+import { fetchBountyById } from '@/app/context/web3';
 
 type Props = {
   params: { id: string; netname: string };

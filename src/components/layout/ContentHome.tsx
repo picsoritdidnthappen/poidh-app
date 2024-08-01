@@ -1,22 +1,19 @@
 'use-client';
 
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
+import { BountyList } from '@/components/ui';
+import { fetchBounties, getContractRead } from '@/app/context';
+import { BlacklistedBounties, PAGE_SIZE } from '@/constant/';
+import { BountiesData } from '@/types';
 
-import BountyList from '@/components/ui/BountyList';
-
-import { networks } from '@/app/context/config';
-import { fetchBounties, getContractRead } from '@/app/context/web3';
-import { blacklistedBounties } from '@/constant/blacklist';
-import { usePathname } from 'next/navigation';
-
-const PAGE_SIZE = 18;
-
-import { BountiesData } from '../../types/web3';
+type DisplayType = 'open' | 'progress' | 'past';
 
 const ContentHome = () => {
+  //States and Hooks
   const { primaryWallet, network, isAuthenticated } = useDynamicContext();
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
 
@@ -30,14 +27,22 @@ const ContentHome = () => {
   const [fetchingBounties, setFetchingBounties] = useState<boolean>(false);
 
   const [totalBounties, setTotalBounties] = useState<number>(0);
-  const [display, setDisplay] = useState('open');
+  const [display, setDisplay] = useState<DisplayType>('open');
   const [clientChain, setClientChain] = useState<string>();
 
   const path = usePathname();
 
+  const bountyDataMapping: { [key in DisplayType]: BountiesData[] } = {
+    open: openBounties,
+    progress: progressBounties,
+    past: pastBounties,
+  };
+
+  // Special Functions
+
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
-    if (!chain || !blacklistedBounties[chain]) return [];
-    return blacklistedBounties[chain] as number[];
+    if (!chain || !BlacklistedBounties[chain]) return [];
+    return BlacklistedBounties[chain] as number[];
   };
 
   const isBountyBlacklisted = (id: string): boolean => {
@@ -45,48 +50,52 @@ const ContentHome = () => {
     return blacklistedBountiesForChain.includes(Number(id));
   };
 
+  // useEffects
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (typeof window !== 'undefined') {
+  //       // Refactor Change - Look to see if client side rendering works, or if this is a dev tool.
+  //       // Client-side only
+  //       const currentUrl = new URL(window.location.href);
+  //       const hostname = currentUrl.hostname;
+  //       const parts = hostname.split('.');
+
+  //       let chain = '';
+  //       switch (parts[0]) {
+  //         case 'poidh.xyz':
+  //           chain = 'degen';
+  //           break;
+  //         case 'localhost':
+  //           chain = 'sepolia';
+  //           break;
+  //         case 'degen':
+  //           chain = 'degen';
+  //           break;
+  //         case 'base':
+  //           chain = 'base';
+  //           break;
+  //         default:
+  //           chain = 'degen';
+  //       }
+
+  //       // eslint-disable-next-line unused-imports/no-unused-vars
+  //       const targetChain = Networks.find((n) => n.name === chain);
+  //     }
+  //   };
+
+  //   const networkUrl = path.split('/')[1];
+  //   if (networkUrl === '') {
+  //     setClientChain('base');
+  //   } else {
+  //     setClientChain(networkUrl);
+  //   }
+
+  //   //fetchData();
+  // }, [isAuthenticated, network, primaryWallet]); // Re-run on route change
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (typeof window !== 'undefined') {
-        // Client-side only
-        const currentUrl = new URL(window.location.href);
-        const hostname = currentUrl.hostname;
-        const parts = hostname.split('.');
-
-        let chain = '';
-        switch (parts[0]) {
-          case 'poidh.xyz':
-            chain = 'degen';
-            break;
-          case 'localhost':
-            chain = 'sepolia';
-            break;
-          case 'degen':
-            chain = 'degen';
-            break;
-          case 'base':
-            chain = 'base';
-            break;
-          default:
-            chain = 'degen';
-        }
-
-        // eslint-disable-next-line unused-imports/no-unused-vars
-        const targetChain = networks.find((n) => n.name === chain);
-      }
-    };
-
-    const networkUrl = path.split('/')[1];
-    if (networkUrl === '') {
-      setClientChain('base');
-    } else {
-      setClientChain(networkUrl);
-    }
-
-    fetchData();
-  }, [isAuthenticated, network, primaryWallet]); // Re-run on route change
-
-  useEffect(() => {
+    // Refactor Change - Remove Console.log
     const fetchInitData = async () => {
       try {
         setFetchingBounties(true);
@@ -94,8 +103,7 @@ const ContentHome = () => {
         const contractRead = await getContractRead();
         const bountyCounter = await contractRead.bountyCounter();
         const totalBounties = Number(bountyCounter.toString());
-        console.log('totalBounties', totalBounties);
-        const data = await fetchBounties(totalBounties - PAGE_SIZE, PAGE_SIZE);
+        const data = await fetchBounties(-PAGE_SIZE, PAGE_SIZE);
 
         setBountiesData(
           data.sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
@@ -114,7 +122,7 @@ const ContentHome = () => {
 
   useEffect(() => {
     // Filter bountiesData into openBounties and pastBounties
-
+    // Refactor Change - Look To Refactor this, and determine if more optimized to only use current state to filter bounties.
     const open = bountiesData.filter(
       (bounty) =>
         bounty.claimer === '0x0000000000000000000000000000000000000000' &&
@@ -143,6 +151,8 @@ const ContentHome = () => {
     setHasMoreBounties(loadedBountiesCount < totalBounties);
   }, [bountiesData, totalBounties, loadedBountiesCount]);
 
+  // Refactor Change - Find out this function and if there is a special case for it being here, or if we can move it up to special functions.
+
   const handleLoadMore = async () => {
     try {
       setFetchingBounties(true);
@@ -160,6 +170,7 @@ const ContentHome = () => {
     }
   };
 
+  // JSX To Return
   return (
     <>
       <div className='z-1 flex flex-nowrap container mx-auto border-b border-white py-12 w-full justify-center gap-2  px-8'>
@@ -196,12 +207,13 @@ const ContentHome = () => {
       </div>
 
       <div className='pb-20 z-1'>
-        {/* Render either openBounties or pastBounties based on displayOpenBounties state */}
-        {display == 'open' && <BountyList bountiesData={openBounties} />}
-        {display == 'progress' && (
-          <BountyList bountiesData={progressBounties} />
-        )}
-        {display == 'past' && <BountyList bountiesData={pastBounties} />}
+        {/* Render either openBounties or pastBounties based on displayOpenBounties state
+        
+        
+        Refactor Change - Look To Refactor This so you use the state to use only one Bountylist component.
+        */}
+
+        <BountyList bountiesData={bountyDataMapping[display]} />
       </div>
       {hasMoreBounties && (
         <div className='flex justify-center items-center pb-96'>

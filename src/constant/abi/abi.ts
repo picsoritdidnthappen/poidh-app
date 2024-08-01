@@ -1,4 +1,4 @@
-export const abi = [
+const abi = [
   {
     inputs: [
       {
@@ -1215,6 +1215,6 @@ export const abi = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-];
+] as const; // Ian Note - Make sure this doesn't fuck up anything
 
 export default abi;

@@ -1,8 +1,8 @@
 'use client';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ethers } from 'ethers';
-import React, { createContext, ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { createContext, ReactNode, useEffect, useState } from 'react';
 
 interface WalletContextType {
   walletAddress: string | null;

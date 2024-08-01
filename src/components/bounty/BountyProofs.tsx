@@ -1,18 +1,16 @@
 /* eslint-disable no-console */
+import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { useBountyContext } from '@/components/bounty/BountyProvider';
 import NoProof from '@/components/bounty/NoProof';
 import ProofList from '@/components/bounty/ProofList';
-
 import {
   bountyCurrentVotingClaim,
   getClaimsByBountyId,
 } from '@/app/context/web3';
 import { blacklist, blacklistedBounties } from '@/constant/blacklist';
-import { usePathname } from 'next/navigation';
-
-import { Claim, blackListClaims } from '@/types/web3';
+import { blackListClaims, Claim } from '@/types/web3';
 
 const PAGE_SIZE = 18;
 

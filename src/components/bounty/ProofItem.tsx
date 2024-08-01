@@ -1,16 +1,14 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { LiaCopySolid } from 'react-icons/lia';
 import { toast } from 'react-toastify';
 
-import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
-
-import { useBountyContext } from '@/components/bounty/BountyProvider';
-
-import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
+import { useBountyContext } from '@/components/bounty/BountyProvider';
+import { acceptClaim, getURI, submitClaimForVote } from '@/app/context';
 
 interface ProofItemProps {
   id: string;

@@ -1,8 +1,7 @@
 import { usePathname } from 'next/navigation';
 
-import BountyInfo from '@/components/bounty/BountyInfo';
-import BountyProofs from '@/components/bounty/BountyProofs';
-import { BountyProvider } from '@/components/bounty/BountyProvider';
+import { BountyInfo, BountyProofs, BountyProvider } from '@/components/bounty';
+
 
 const ContentBounty = () => {
   const pathname = usePathname();

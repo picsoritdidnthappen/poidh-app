@@ -1,3 +1,5 @@
+// Refactor Notes - Possibly Unused Code?
+
 import { createWalletClient, custom } from 'viem';
 import { mainnet } from 'viem/chains';
 

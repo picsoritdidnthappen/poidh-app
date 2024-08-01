@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import Button from '@/components/ui/Button';
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+import { Button } from '@/components/ui';
 
 interface BountyItemProps {
   id: string;

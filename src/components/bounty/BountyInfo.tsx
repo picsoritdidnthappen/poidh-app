@@ -1,22 +1,23 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
+import { weiToEth } from '@/lib';
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
-
-import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
-import { useBountyContext } from '@/components/bounty/BountyProvider';
-import CreateProof from '@/components/ui/CreateProof';
-
-import { cancelOpenBounty, cancelSoloBounty } from '@/app/context/web3';
-import { blacklistedBounties } from '@/constant/blacklist';
-import Link from 'next/link';
+import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
+import { CreateProof } from '@/components/ui';
+import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
+import { BlacklistedBounties } from '@/constant';
+import { ErrorInfo } from '@/types';
 //
-function weiToEther(weiValue: string | number | bigint): string {
-  const etherValue = Number(weiValue) / 1e18;
-  return etherValue.toFixed(6);
-}
+
+// Recator Changes -- Import this, since it will be global soon
+// function weiToEther(weiValue: string | number | bigint): string {
+//   const etherValue = Number(weiValue) / 1e18;
+//   return etherValue.toFixed(6);
+// }
 
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
@@ -25,8 +26,8 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const [currentNetworkName, setCurrentNetworkName] = useState('');
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
-    if (!chain || !blacklistedBounties[chain]) return [];
-    return blacklistedBounties[chain] as number[];
+    if (!chain || !BlacklistedBounties[chain]) return [];
+    return BlacklistedBounties[chain] as number[];
   };
 
   const isBountyBlacklisted = (id: string): boolean => {
@@ -36,6 +37,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   };
 
   useEffect(() => {
+    // Refactor Change -- Makes this into a global Function, it already is, so import it.
     const currentUrl = path.split('/')[1];
     if (currentUrl === '') {
       setCurrentNetworkName('base');
@@ -44,14 +46,8 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
     }
   }, []);
 
-  const {
-    isMultiplayer,
-    isOwner,
-    bountyData,
-    isBountyClaimed,
-    isBountyCanceled,
-    isOwnerContributor,
-  } = useBountyContext()!;
+  const { isMultiplayer, isOwner, bountyData, isBountyClaimed } =
+    useBountyContext() || {};
 
   if (isBountyBlacklisted(bountyId)) {
     return null;
@@ -66,8 +62,9 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       await cancelSoloBounty(primaryWallet, bountyId);
       toast.success('Bounty canceled successfully!');
     } catch (error) {
+      // Refactor Change -- Remove This
       console.error('Error canceling bounty:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');
       } else {
@@ -85,8 +82,9 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       await cancelOpenBounty(primaryWallet, bountyId);
       toast.success('Bounty canceled successfully!');
     } catch (error) {
+      // Refactor Change -- Remove This
       console.error('Error canceling:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');
       } else {
@@ -128,7 +126,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <div className='flex flex-col space-between'>
           <div className='flex mt-5 lg:mt-0 gap-x-2 flex-row'>
             <span>
-              {bountyData ? weiToEther(bountyData.amount) : 'Loading...'}
+              {bountyData ? weiToEth(bountyData.amount) : 'Loading...'}
             </span>
             <span>
               {currentNetworkName === 'base' ||

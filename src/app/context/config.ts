@@ -1,4 +1,8 @@
-const chains = {
+import { Chain } from '@/types';
+
+type NetworkChoices = 'sepolia' | 'degen' | 'arbitrum' | 'base';
+
+export const chains: { [key in NetworkChoices]: Chain } = {
   sepolia: {
     name: 'Sepolia Base Testnet',
     jsonProviderUrl: 'https://sepolia.base.org',
@@ -54,5 +58,3 @@ export const networks = [
     chainId: 8453,
   },
 ];
-
-export default chains;

@@ -1,17 +1,14 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Switch } from '@mui/material';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { toast } from 'react-toastify';
 
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-
 import ButtonCTA from '@/components/ui/ButtonCTA';
-
 import chainStatusStore from '@/store/chainStatus.store';
-
 import { createOpenBounty, createSoloBounty } from '@/app/context/web3';
 
 const Form = () => {
