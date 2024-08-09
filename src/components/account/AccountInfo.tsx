@@ -3,15 +3,15 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable no-console */
 'use client';
+
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ethers } from 'ethers';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import ProofListAccount from '@/components/bounty/ProofListAccount';
-import BountyList from '@/components/ui/BountyList';
-import FilterButton from '@/components/ui/FilterButton';
-
+import { NftList, ProofListAccount } from '@/components/bounty';
+import { FilterButton } from '@/components/ui';
+import { BountyList } from '@/components/ui';
 import {
   fetchBountyById,
   getBountiesByUser,
@@ -23,9 +23,6 @@ import {
   getSigner,
   getURI,
 } from '@/app/context/web3';
-
-import NftList from '../bounty/NftList';
-
 import { BountiesData, ClaimsData, NFTDetails } from '@/types/web3';
 
 const AccountInfo = () => {
@@ -71,7 +68,7 @@ const AccountInfo = () => {
   const address = (pathname.split('/').pop() || '') === '';
 
   const userAccount = primaryWallet?.address === pathname.split('/').pop();
-  const path = usePathname();
+  const path = usePathname(); // Duplicate Code?
   const [currentNetworkName, setCurrentNetworkName] = useState('');
 
   useEffect(() => {
