@@ -6,11 +6,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { getNetworkNameFromPath } from '@/lib/utils';
-import Banner from '@/components/global/Banner';
-import Menu from '@/components/global/Menu';
-import Footer from '@/components/layout/Footer';
-import Logo from '@/components/ui/Logo';
+import { Banner, Menu } from '@/components/global';
+import { Footer } from '@/components/layout';
+import { Logo } from '@/components/ui';
 
+// import { useGetChain } from '@/hooks';
 // import ConnectWallet from '@/components/web3/ConnectWallet';
 import chainStatusStore from '@/store/chainStatus.store';
 
@@ -28,6 +28,7 @@ const Header = () => {
     networkConfigurations,
     walletConnector,
   } = useDynamicContext();
+  //const currentChain = useGetChain();
   const [currentNetwork, setCurrentNetwork] = useState(network);
   const [currentNetworkName, setCurrentNetworkName] = useState('');
   const [isClient, setIsClient] = useState(false);
@@ -41,7 +42,7 @@ const Header = () => {
     router.push(`/${chain}`);
   };
 
-  const [networkLink, setNetworkLink] = useState('');
+  // const [networkLink, setNetworkLink] = useState('');
 
   const handleOpenMenu = () => {
     setIsOpen(!isOpen);
@@ -117,21 +118,21 @@ const Header = () => {
     currentNetwork,
   ]);
 
-  useEffect(() => {
-    switch (network) {
-      case 8453:
-        setNetworkLink('base');
-        break;
-      case 666666666:
-        setNetworkLink('degen');
-        break;
-      case 42161:
-        setNetworkLink('arbitrum');
-        break;
-      default:
-        setNetworkLink('base');
-    }
-  }, [network]);
+  // useEffect(() => {
+  //   switch (network) {
+  //     case 8453:
+  //       setNetworkLink('base');
+  //       break;
+  //     case 666666666:
+  //       setNetworkLink('degen');
+  //       break;
+  //     case 42161:
+  //       setNetworkLink('arbitrum');
+  //       break;
+  //     default:
+  //       setNetworkLink('base');
+  //   }
+  // }, [network]);
 
   return (
     <>

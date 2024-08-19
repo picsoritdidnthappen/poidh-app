@@ -1,11 +1,11 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { LiaCopySolid } from 'react-icons/lia';
 import { toast } from 'react-toastify';
 
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+import { useGetChain } from '@/hooks';
 import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
 import { useBountyContext } from '@/components/bounty/BountyProvider';
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context';
@@ -36,8 +36,9 @@ const ProofItem: React.FC<ProofItemProps> = ({
   const [claimsURI, setClaimsURI] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const path = usePathname();
-  const [currentNetworkName, setCurrentNetworkName] = useState('');
+  // const path = usePathname();
+  //const [currentNetworkName, setCurrentNetworkName] = useState('');
+  const currentNetworkName = useGetChain();
   const {
     isMultiplayer,
     isOwner,
@@ -47,10 +48,10 @@ const ProofItem: React.FC<ProofItemProps> = ({
   } = useBountyContext()!;
   const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
 
-  useEffect(() => {
-    const currentUrl = path.split('/')[1];
-    setCurrentNetworkName(currentUrl || 'base');
-  }, []);
+  // useEffect(() => {
+  //   const currentUrl = path.split('/')[1];
+  //   setCurrentNetworkName(currentUrl || 'base');
+  // }, []);
 
   useEffect(() => {
     if (id) {

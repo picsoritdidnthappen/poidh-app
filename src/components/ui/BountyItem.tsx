@@ -31,6 +31,7 @@ const BountyItem: React.FC<BountyItemProps> = ({
   const amountETH = ethers.formatEther(amount);
   const { network, networkConfigurations, walletConnector } =
     useDynamicContext();
+
   const [currentNetwork, setCurrentNetwork] = useState(network);
   const [currentNetworkName, setCurrentNetworkName] = useState('');
   const [isClient, setIsClient] = useState(false);

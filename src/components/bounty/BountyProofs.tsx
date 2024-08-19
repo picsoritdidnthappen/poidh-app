@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
+import { useGetChain } from '@/hooks';
 import { useBountyContext } from '@/components/bounty/BountyProvider';
 import NoProof from '@/components/bounty/NoProof';
 import ProofList from '@/components/bounty/ProofList';
@@ -20,11 +20,12 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   const [currentVotingClaim, setCurrentVotingClaim] = useState<number | null>(
     null
   );
-  const [clientChain, setClientChain] = useState<string>();
+  // const [clientChain, setClientChain] = useState<string>();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { isMultiplayer, isOwner } = useBountyContext()!;
 
-  const path = usePathname();
+  const clientChain = useGetChain();
+  //const path = usePathname();
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !blacklistedBounties[chain]) return [];
@@ -46,12 +47,12 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   useEffect(() => {
     // setYouOwner(null);
 
-    const networkUrl = path.split('/')[1];
-    if (networkUrl === '') {
-      setClientChain('base');
-    } else {
-      setClientChain(networkUrl);
-    }
+    // const networkUrl = path.split('/')[1];
+    // if (networkUrl === '') {
+    //   setClientChain('base');
+    // } else {
+    //   setClientChain(networkUrl);
+    // }
 
     if (bountyId) {
       // getParticipants(bountyId)
@@ -63,7 +64,7 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
         .then((data) => {
           // Filter claims based on blacklist criteria
           let filteredClaims = data;
-          const blacklistedClaims = getBlacklistedClaims(networkUrl);
+          const blacklistedClaims = getBlacklistedClaims(clientChain);
           const bounty = blacklistedClaims.find(
             (b) => b.bountyId === Number(bountyId)
           );

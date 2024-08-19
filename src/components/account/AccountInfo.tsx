@@ -69,16 +69,16 @@ const AccountInfo = () => {
 
   const userAccount = primaryWallet?.address === pathname.split('/').pop();
   const path = usePathname(); // Duplicate Code?
-  const [currentNetworkName, setCurrentNetworkName] = useState('');
+  //const [currentNetworkName, setCurrentNetworkName] = useState('');
 
-  useEffect(() => {
-    const currentUrl = path.split('/')[1];
-    if (currentUrl === '') {
-      setCurrentNetworkName('base');
-    } else {
-      setCurrentNetworkName(currentUrl);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const currentUrl = path.split('/')[1];
+  //   if (currentUrl === '') {
+  //     setCurrentNetworkName('base');
+  //   } else {
+  //     setCurrentNetworkName(currentUrl);
+  //   }
+  // }, []);
   // user info
   useEffect(() => {
     if ((pathname.split('/').pop() || '') !== '') {
