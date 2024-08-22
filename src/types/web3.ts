@@ -114,13 +114,13 @@ export interface VotingTracker {
   deadline: string;
 }
 
-export interface URI {
-  description: any;
-  external_url: string;
-  image: any;
-  name: any;
-  attributes: never[];
-}
+// export interface URI {
+//   description: any;
+//   external_url: string;
+//   image: any;
+//   name: any;
+//   attributes: never[];
+// }
 
 export interface NFTDetails {
   uri: string;
@@ -227,6 +227,6 @@ export type GetNftsOfOwnerFunction = (
 export type GetClaimsByUserFunction = (user: string) => Promise<Claim[]>;
 export type GetClaimsByBountyIdFunction = (id: string) => Promise<Claim[]>;
 export type GetClaimsByMulticall = (ids: BountiesData[]) => Promise<any>;
-export type GetClaimByIdFunction = (claimId: string) => Promise<Claim[]>;
+export type GetClaimByIdFunction = (claimId: string) => Promise<Claim>;
 
 export type GetURIFunction = (claimId: string) => Promise<string>;

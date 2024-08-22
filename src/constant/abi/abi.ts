@@ -1215,6 +1215,6 @@ const abi = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-] as const; // Ian Note - Make sure this doesn't fuck up anything
+] as const;
 
 export default abi;

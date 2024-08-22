@@ -1,4 +1,3 @@
-export { walletClient as WalletClient } from './client';
 export { chains as chains, networks as Networks } from './config';
 export { default as ContextProvider } from './ContextProvider';
 export {

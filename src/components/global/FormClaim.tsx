@@ -4,16 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 
-import { buildMetadata, uploadFile, uploadMetadata } from '@/lib/pinata';
+import { buildMetadata, uploadFile, uploadMetadata } from '@/lib';
 import { createClaim } from '@/app/context';
 import { ErrorInfo } from '@/types';
 
-interface FormProofProps {
+interface FormClaimProps {
   bountyId: string;
   showForm?: boolean;
 }
 
-const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
+const FormClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
   const [walletMessage, setWalletMessage] = useState('');
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -37,7 +37,7 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   const [imageURI, setImageURI] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const inputFile = useRef<HTMLInputElement>(null);
-  const [inTxn, setInTxn] = useState(false);
+  //const [inTxn, setInTxn] = useState(false);
 
   const compressImage = async (image: File): Promise<File> => {
     const options = {
@@ -109,12 +109,12 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
       const metadata = buildMetadata(imageURI, name, description);
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `https://beige-impossible-dragon-883.mypinata.cloud/ipfs/${metadataResponse.IpfsHash}`;
-      setInTxn(true);
+      //setInTxn(true);
       await createClaim(primaryWallet, name, uri, description, bountyId);
       toast.success('Claim created successfully!');
       window.location.reload();
     } catch (error: unknown) {
-      setInTxn(false);
+      //setInTxn(false);
       console.error('Error creating claim:', error);
       const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
@@ -203,4 +203,4 @@ const FormProof: React.FC<FormProofProps> = ({ bountyId }) => {
   );
 };
 
-export default FormProof;
+export default FormClaim;

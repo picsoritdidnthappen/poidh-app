@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+import { applyBreakAllToLongWords } from '@/lib';
 import { Button } from '@/components/ui';
 
 interface BountyItemProps {
@@ -31,6 +31,7 @@ const BountyItem: React.FC<BountyItemProps> = ({
   const amountETH = ethers.formatEther(amount);
   const { network, networkConfigurations, walletConnector } =
     useDynamicContext();
+
   const [currentNetwork, setCurrentNetwork] = useState(network);
   const [currentNetworkName, setCurrentNetworkName] = useState('');
   const [isClient, setIsClient] = useState(false);

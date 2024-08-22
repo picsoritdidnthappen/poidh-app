@@ -1,12 +1,11 @@
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
-import { acceptClaim, getURI, submitClaimForVote } from '@/app/context';
+import { useDegenOrEnsName, useGetChain } from '@/hooks';
+import { getURI } from '@/app/context';
 
-interface ProofItemProps {
+interface ClaimItemProps {
   id: string;
   title: string;
   description: string;
@@ -14,20 +13,21 @@ interface ProofItemProps {
   bountyId: string;
   youOwner: boolean;
   accepted: boolean;
-  isAccepted: boolean;
+  isAccepted?: boolean;
   // openBounty: boolean | null;
 }
 
-const ProofItem: React.FC<ProofItemProps> = ({
+const ClaimItem: React.FC<ClaimItemProps> = ({
   id,
   title,
   description,
   issuer,
   bountyId,
   accepted,
-  isAccepted,
+  // isAccepted,
 }) => {
-  const { user, primaryWallet } = useDynamicContext();
+  // const { primaryWallet } = useDynamicContext();
+  const currentNetworkName = useGetChain();
   const [claimsURI, setClaimsURI] = useState('');
   const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
   // const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
@@ -35,13 +35,13 @@ const ProofItem: React.FC<ProofItemProps> = ({
   // const currentUser = user?.verifiedCredentials[0].address;
 
   // const notOwner = currentUser === issuer ;
-  const path = usePathname();
-  const [currentNetworkName, setCurrentNetworkName] = useState('');
+  //const path = usePathname();
+  //const [currentNetworkName, setCurrentNetworkName] = useState('');
 
-  useEffect(() => {
-    const currentUrl = path.split('/')[1];
-    setCurrentNetworkName(currentUrl || 'base');
-  }, []);
+  // useEffect(() => {
+  //   const currentUrl = path.split('/')[1];
+  //   setCurrentNetworkName(currentUrl || 'base');
+  // }, []);
 
   useEffect(() => {
     if (id) {
@@ -55,36 +55,36 @@ const ProofItem: React.FC<ProofItemProps> = ({
     }
   }, [id]);
 
-  const handleAcceptClaim = async () => {
-    if (!id || !bountyId || !primaryWallet) {
-      alert('Please check connection');
-      return;
-    }
+  // const handleAcceptClaim = async () => {
+  //   if (!id || !bountyId || !primaryWallet) {
+  //     alert('Please check connection');
+  //     return;
+  //   }
 
-    try {
-      await acceptClaim(primaryWallet, bountyId, id);
-    } catch (error) {
-      console.error('Error accepting claim:', error);
-      alert('Failed to accept claim.');
-    }
-  };
+  //   try {
+  //     await acceptClaim(primaryWallet, bountyId, id);
+  //   } catch (error) {
+  //     console.error('Error accepting claim:', error);
+  //     alert('Failed to accept claim.');
+  //   }
+  // };
 
-  const handleSubmitClaimForVote = async () => {
-    if (!id || !bountyId || !primaryWallet) {
-      alert('Please check connection');
-      return;
-    }
+  // const handleSubmitClaimForVote = async () => {
+  //   if (!id || !bountyId || !primaryWallet) {
+  //     alert('Please check connection');
+  //     return;
+  //   }
 
-    try {
-      await submitClaimForVote(primaryWallet, bountyId, id);
-    } catch (error) {
-      console.error('Error accepting claim:', error);
-      alert('Failed to accept claim.');
-    }
-  };
+  //   try {
+  //     await submitClaimForVote(primaryWallet, bountyId, id);
+  //   } catch (error) {
+  //     console.error('Error accepting claim:', error);
+  //     alert('Failed to accept claim.');
+  //   }
+  // };
 
   return (
-    <div className='p-[2px] border text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
+    <div className='p-[2px] text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
       <Link href={`/bounty/${bountyId}`}>
         {/* <div className='left-5 top-5 absolute text-white'>{isMultiplayer && isOwner ? 
        <button onClick={handleSubmitClaimForVote} >submit for vote</button>
@@ -134,4 +134,4 @@ const ProofItem: React.FC<ProofItemProps> = ({
   );
 };
 
-export default ProofItem;
+export default ClaimItem;

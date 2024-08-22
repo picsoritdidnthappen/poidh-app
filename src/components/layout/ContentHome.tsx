@@ -3,8 +3,8 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-import { cn } from '@/lib/utils';
+import { useGetChain } from '@/hooks';
+import { cn } from '@/lib';
 import { BountyList } from '@/components/ui';
 import { fetchBounties, getContractRead } from '@/app/context';
 import { BlacklistedBounties, PAGE_SIZE } from '@/constant/';
@@ -14,7 +14,7 @@ type DisplayType = 'open' | 'progress' | 'past';
 
 const ContentHome = () => {
   //States and Hooks
-  const { primaryWallet, network, isAuthenticated } = useDynamicContext();
+  // const { primaryWallet, network, isAuthenticated } = useDynamicContext();
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
 
   const [openBounties, setOpenBounties] = useState<BountiesData[]>([]);
@@ -28,8 +28,9 @@ const ContentHome = () => {
 
   const [totalBounties, setTotalBounties] = useState<number>(0);
   const [display, setDisplay] = useState<DisplayType>('open');
-  const [clientChain, setClientChain] = useState<string>();
+  //const [clientChain, setClientChain] = useState<string>();
 
+  const clientChain = useGetChain();
   const path = usePathname();
 
   const bountyDataMapping: { [key in DisplayType]: BountiesData[] } = {
