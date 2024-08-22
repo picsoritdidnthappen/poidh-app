@@ -1,19 +1,14 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useEffect, useState } from 'react';
-
-import { useBountyContext } from '@/components/bounty/BountyProvider';
-import JoinBounty from '@/components/ui/JoinBounty';
-import Withdraw from '@/components/ui/Withdraw';
+import { Address } from 'viem';
+import { useBountyContext } from '@/components/bounty';
+import { JoinBounty, Withdraw } from '@/components/ui';
 
 import { getDegenOrEnsName, getParticipants } from '@/app/context/web3';
+import { weiToEth } from '@/lib';
 
-import { OpenBounty } from '../../types/web3';
-
-function weiToEther(weiValue: string | number): string {
-  const etherValue = Number(weiValue) / 1e18;
-  return etherValue.toFixed(10);
-}
+import { OpenBounty } from '@/types/web3';
 
 const BountyMultiplayer = ({
   bountyId,
@@ -27,7 +22,7 @@ const BountyMultiplayer = ({
   // const [userParticipate, setUserParticipate] = useState(false);
 
   const { user } = useDynamicContext();
-  const currentUser = user?.verifiedCredentials[0].address;
+  const currentUser = user?.verifiedCredentials[0].address as Address;
 
   useEffect(() => {
     if (bountyId) {
@@ -64,7 +59,7 @@ const BountyMultiplayer = ({
     ? participants?.addresses.includes(currentUser)
     : false;
 
-  const { isMultiplayer, isOwner, bountyData, isBountyClaimed } =
+  const { /*isMultiplayer,*/ isOwner, /*bountyData,*/ isBountyClaimed } =
     useBountyContext()!;
 
   // getting the current network to show currency based on that
@@ -109,7 +104,7 @@ const BountyMultiplayer = ({
 
                   return (
                     <div className='py-2' key={index}>
-                      {displayText} - {weiToEther(participants.amounts[index])}{' '}
+                      {displayText} - {weiToEth(participants.amounts[index])}{' '}
                       {getCurrency()}
                     </div>
                   );

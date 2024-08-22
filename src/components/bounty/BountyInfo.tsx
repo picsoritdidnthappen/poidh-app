@@ -3,11 +3,11 @@ import Link from 'next/link';
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { weiToEth } from '@/lib';
-import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+import { weiToEth, applyBreakAllToLongWords } from '@/lib';
+
 import { useGetChain } from '@/hooks';
 import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
-import { CreateProof } from '@/components/ui';
+import { CreateClaim } from '@/components/ui';
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
 import { BlacklistedBounties } from '@/constant';
 import { ErrorInfo } from '@/types';
@@ -135,7 +135,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
 
           <div>
             {!isBountyClaimed && !isOwner ? (
-              <CreateProof bountyId={bountyId} />
+              <CreateClaim bountyId={bountyId} />
             ) : (
               // <div>create</div>
               // <div>create</div>

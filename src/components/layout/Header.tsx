@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import { getNetworkNameFromPath } from '@/lib/utils';
+import { getNetworkNameFromPath } from '@/lib';
 import { Banner, Menu } from '@/components/global';
 import { Footer } from '@/components/layout';
 import { Logo } from '@/components/ui';

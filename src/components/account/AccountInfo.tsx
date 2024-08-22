@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { NftList, ProofListAccount } from '@/components/bounty';
+import { ClaimsListAccount, NftList } from '@/components/bounty';
 import { FilterButton } from '@/components/ui';
 import { BountyList } from '@/components/ui';
 import {
@@ -23,7 +23,13 @@ import {
   getSigner,
   getURI,
 } from '@/app/context/web3';
-import { BountiesData, ClaimsData, NFTDetails } from '@/types/web3';
+import {
+  BountiesData,
+  Bounty,
+  Claim,
+  ClaimsData,
+  NFTDetails,
+} from '@/types/web3';
 
 const AccountInfo = () => {
   const { isAuthenticated, primaryWallet, network } = useDynamicContext();
@@ -84,23 +90,20 @@ const AccountInfo = () => {
     if ((pathname.split('/').pop() || '') !== '') {
       const userInformation2 = async () => {
         const address = pathname.split('/').pop() || '';
-
+        // !- Check for breaking change here with type enforcement
         const balanceNFT = await getNftsOfOwner(address);
         const nftDetailsPromises = balanceNFT.map(async (nftId) => {
           const uri = await getURI(nftId);
           const response = await fetch(uri);
           const data = await response.json();
           const claims = await getClaimById(nftId);
-          if (claims.length > 0) {
-            const { name, description } = claims[0];
-            return {
-              name: data?.name,
-              description: data?.description,
-              nftId: claims[0].id,
-              uri: data?.image,
-            } as NFTDetails;
-          }
-          return null;
+
+          return {
+            name: claims.name,
+            description: claims.description,
+            nftId: claims.id,
+            uri: data?.image,
+          } as NFTDetails;
         });
 
         const completedNFTs = (await Promise.all(nftDetailsPromises)).filter(
@@ -116,17 +119,17 @@ const AccountInfo = () => {
         // console.log('degenOrEnsName', degenOrEnsName);
 
         setUserAddress(formattedAddress);
-
-        getBountiesByUser(address, 0, []).then((data: any) => {
+        // !- Check for Breaking Changes Here with type enforcement
+        getBountiesByUser(address, 0, []).then((data: Bounty[]) => {
           setBountiesData(data);
           const completedBounties = data.filter(
-            (bounty: any) =>
-              bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
-              bounty.claimer.toLowerCase() !== address.toLowerCase()
+            (bounty: Bounty) =>
+              bounty.issuer !== '0x0000000000000000000000000000000000000000' &&
+              bounty.issuer.toLowerCase() !== address.toLowerCase()
           );
           const inProgressBounties = data.filter(
-            (bounty: any) =>
-              bounty.claimer === '0x0000000000000000000000000000000000000000'
+            (bounty: Bounty) =>
+              bounty.issuer === '0x0000000000000000000000000000000000000000'
           );
           setInProgressBounties(inProgressBounties);
           console.log('in progress bounties:');
@@ -134,11 +137,11 @@ const AccountInfo = () => {
 
           setCompletedBounties(completedBounties);
         });
-
-        getClaimsByUser(address).then((data: any) => {
+        // !- Check for Breaking Changes Here with type enforcement
+        getClaimsByUser(address).then((data) => {
           setClaimsData(data);
           const completedClaims = data.filter(
-            (claim: any) => claim.accepted === true
+            (claim: Claim) => claim.accepted === true
           );
           const submitedClaims = data;
           setCompletedClaims(completedClaims);
@@ -318,7 +321,7 @@ const AccountInfo = () => {
             )}
             {currentSection === 'c' && (
               <div>
-                <ProofListAccount youOwner={true} data={submitedClaims} />
+                <ClaimsListAccount youOwner={true} data={submitedClaims} />
               </div>
             )}
           </div>
@@ -407,7 +410,7 @@ const AccountInfo = () => {
             )}
             {currentSection === 'c' && (
               <div>
-                <ProofListAccount youOwner={true} data={submitedClaims} />
+                <ClaimsListAccount youOwner={true} data={submitedClaims} />
               </div>
             )}
           </div>

@@ -3,11 +3,8 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 
-import ProofListAccount from '@/components/bounty/ProofListAccount';
-import BountyList from '@/components/ui/BountyList';
-import Button from '@/components/ui/Button';
-import FilterButton from '@/components/ui/FilterButton';
-
+import { ClaimsListAccount, NftList } from '@/components/bounty';
+import { BountyList, Button, FilterButton } from '@/components/ui/';
 import {
   fetchBountyById,
   getBountiesByUser,
@@ -19,11 +16,14 @@ import {
   getProvider,
   getSigner,
   getURI,
-} from '@/app/context/web3';
-
-import NftList from '../bounty/NftList';
-
-import { BountiesData, ClaimsData, NFTDetails } from '@/types/web3';
+} from '@/app/context';
+import {
+  BountiesData,
+  Bounty,
+  Claim,
+  ClaimsData,
+  NFTDetails,
+} from '@/types/web3';
 
 const AccountInfo = () => {
   const { isAuthenticated, primaryWallet } = useDynamicContext();
@@ -34,7 +34,7 @@ const AccountInfo = () => {
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>(
     []
   );
-  const [inProgressBounties, setInProgressBounties] = useState('');
+  const [inProgressBounties, setInProgressBounties] = useState<Bounty[]>();
   const [ETHinContract, setETHinContract] = useState('');
   const [completedClaims, setCompletedClaims] = useState<ClaimsData[]>([]);
   const [submitedClaims, setSubmitedClaims] = useState<ClaimsData[]>([]);
@@ -56,16 +56,13 @@ const AccountInfo = () => {
         const response = await fetch(uri);
         const data = await response.json();
         const claims = await getClaimById(nftId);
-        if (claims.length > 0) {
-          const { name, description } = claims[0];
-          return {
-            name: data?.name,
-            description: data?.description,
-            nftId: claims[0].id,
-            uri: data?.image,
-          } as NFTDetails;
-        }
-        return null;
+        // !- Check breaking change single claim type enforcement
+        return {
+          name: claims.name,
+          description: claims.description,
+          nftId: claims.id,
+          uri: data?.image,
+        } as NFTDetails;
       });
 
       const completedNFTs = (await Promise.all(nftDetailsPromises)).filter(
@@ -112,31 +109,31 @@ const AccountInfo = () => {
       const balanceETH = ethers.formatEther(contractBalance);
       setETHinContract(balanceETH);
 
-      getBountiesByUser(address, 0, []).then((data: any) => {
+      getBountiesByUser(address, 0, []).then((data: Bounty[]) => {
         setBountiesData(data);
         const completedBounties = data.filter(
-          (bounty: any) =>
+          (bounty: Bounty) =>
             bounty.claimer !== '0x0000000000000000000000000000000000000000' &&
             bounty.claimer.toLowerCase() !== address.toLowerCase()
         );
         const inProgressBounties = data.filter(
-          (bounty: any) =>
+          (bounty: Bounty) =>
             bounty.claimer === '0x0000000000000000000000000000000000000000'
         );
         setInProgressBounties(inProgressBounties);
         setCompletedBounties(completedBounties);
       });
 
-      getClaimsByUser(address).then((data: any) => {
-        setClaimsData(data);
+      getClaimsByUser(address).then((data: ClaimsData[]) => {
+        //setClaimsData(data);
         const completedClaims = data.filter(
-          (claim: any) => claim.accepted === true
+          (claim: Claim) => claim.accepted === true
         );
         const submitedClaims = data;
 
         setCompletedClaims(completedClaims);
         setSubmitedClaims(submitedClaims);
-        console.log(completedClaims);
+        //console.log(completedClaims);
       });
 
       return formattedAddress;
@@ -215,7 +212,9 @@ const AccountInfo = () => {
                 </div>
                 <div>
                   in progress bounties:{' '}
-                  <span className='font-bold'>{inProgressBounties.length}</span>{' '}
+                  <span className='font-bold'>
+                    {inProgressBounties ? inProgressBounties.length : '0'}
+                  </span>{' '}
                 </div>
                 <div>
                   total degen in contract:{' '}
@@ -252,7 +251,9 @@ const AccountInfo = () => {
               show={currentSection !== 'b'}
             >
               your bounties (
-              {inProgressBounties.length + completedBounties.length})
+              {(inProgressBounties ? inProgressBounties.length : 0) +
+                completedBounties.length}
+              )
             </FilterButton>
             <FilterButton
               onClick={() => handleFilterButtonClick('c')}
@@ -277,7 +278,7 @@ const AccountInfo = () => {
             )}
             {currentSection === 'c' && (
               <div>
-                <ProofListAccount youOwner={true} data={submitedClaims} />
+                <ClaimsListAccount youOwner={true} data={submitedClaims} />
               </div>
             )}
           </div>

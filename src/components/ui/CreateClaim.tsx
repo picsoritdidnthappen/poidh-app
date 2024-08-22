@@ -2,14 +2,14 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import FormProof from '@/components/global/FormProof';
-import ButtonCTA from '@/components/ui/ButtonCTA';
+import { FormClaim } from '@/components/global';
+import { ButtonCTA } from '@/components/ui';
 
-interface FormProofProps {
+interface FormClaimProps {
   bountyId: string;
 }
 
-const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
+const CreateClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
   const { primaryWallet } = useDynamicContext();
 
   const [showForm, setShowForm] = useState(false);
@@ -1304,11 +1304,11 @@ const CreateProof: React.FC<FormProofProps> = ({ bountyId }) => {
               />
             </svg>
           </button>
-          <FormProof bountyId={bountyId} showForm={showForm} />
+          <FormClaim bountyId={bountyId} showForm={showForm} />
         </div>
       )}
     </div>
   );
 };
 
-export default CreateProof;
+export default CreateClaim;

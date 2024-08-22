@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
+import { useDegenOrEnsName } from '@/hooks';
 
 interface NFTDetail {
   uri: string;

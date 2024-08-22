@@ -5,12 +5,12 @@ import { LiaCopySolid } from 'react-icons/lia';
 import { toast } from 'react-toastify';
 
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
-import { useGetChain } from '@/hooks';
-import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
-import { useBountyContext } from '@/components/bounty/BountyProvider';
+import { useGetChain, useDegenOrEnsName } from '@/hooks';
+import { useBountyContext } from '@/components/bounty';
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context';
+import { ErrorInfo } from '@/types';
 
-interface ProofItemProps {
+interface ClaimItemProps {
   id: string;
   title: string;
   description: string;
@@ -22,17 +22,17 @@ interface ProofItemProps {
   openBounty: boolean | null;
 }
 
-const ProofItem: React.FC<ProofItemProps> = ({
-  openBounty,
+const ClaimItem: React.FC<ClaimItemProps> = ({
+  //openBounty,
   id,
   title,
   description,
   issuer,
   bountyId,
   accepted,
-  isAccepted,
+  //isAccepted,
 }) => {
-  const { user, primaryWallet } = useDynamicContext();
+  const { primaryWallet } = useDynamicContext();
   const [claimsURI, setClaimsURI] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -42,7 +42,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
   const {
     isMultiplayer,
     isOwner,
-    bountyData,
+    //bountyData,
     isBountyClaimed,
     isOwnerContributor,
   } = useBountyContext()!;
@@ -91,7 +91,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
       window.location.reload();
     } catch (error: unknown) {
       console.error('Error accepting claim:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');
       } else {
@@ -110,7 +110,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
       toast.success('Claim submitted!');
     } catch (error: unknown) {
       console.error('Error submitting claim:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {
@@ -189,4 +189,4 @@ const ProofItem: React.FC<ProofItemProps> = ({
   );
 };
 
-export default ProofItem;
+export default ClaimItem;

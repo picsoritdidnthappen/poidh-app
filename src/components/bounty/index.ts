@@ -1,7 +1,12 @@
+export { default as BountyClaims } from './BountyClaimss';
 export { default as BountyInfo } from './BountyInfo';
 export { default as BountyMultiplayer } from './BountyMultiplayer';
-export { default as BountyProofs } from './BountyProofs';
 export { BountyProvider as BountyProvider } from './BountyProvider';
 export { useBountyContext as useBountyContext } from './BountyProvider';
+export { default as ClaimItem } from './ClaimItem';
+export { default as ClaimItemAccount } from './ClaimItemAccount';
+export { default as ClaimList } from './ClaimList';
+export { default as ClaimsListAccount } from './ClaimListAccount';
 export { default as NftList } from './NftList';
-export { default as ProofListAccount } from './ProofListAccount';
+export { default as NoClaim } from './NoClaim';
+export { default as Voting } from './Voting';

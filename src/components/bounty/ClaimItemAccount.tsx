@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useDegenOrEnsName, useGetChain } from '@/hooks';
 import { getURI } from '@/app/context';
 
-interface ProofItemProps {
+interface ClaimItemProps {
   id: string;
   title: string;
   description: string;
@@ -17,7 +17,7 @@ interface ProofItemProps {
   // openBounty: boolean | null;
 }
 
-const ProofItem: React.FC<ProofItemProps> = ({
+const ClaimItem: React.FC<ClaimItemProps> = ({
   id,
   title,
   description,
@@ -134,4 +134,4 @@ const ProofItem: React.FC<ProofItemProps> = ({
   );
 };
 
-export default ProofItem;
+export default ClaimItem;
