@@ -20,9 +20,11 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const [votingData, setVotingData] = useState<VotingTracker | null>(null);
   const { primaryWallet } = useDynamicContext();
   const [currency, setCurrency] = useState('');
-
   const pathname = usePathname();
-  setCurrency(pathname === 'degen' ? 'degen' : 'eth');
+
+  useEffect(() => {
+    setCurrency(pathname === 'degen' ? 'degen' : 'eth');
+  }, [pathname]);
 
   // useEffect(() => {
   //   switch (network) {
