@@ -1,5 +1,6 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { PieChart } from '@mui/x-charts/PieChart';
+import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -17,24 +18,27 @@ interface VotingProps {
 
 const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const [votingData, setVotingData] = useState<VotingTracker | null>(null);
-  const { primaryWallet, network } = useDynamicContext();
+  const { primaryWallet } = useDynamicContext();
   const [currency, setCurrency] = useState('');
 
-  useEffect(() => {
-    switch (network) {
-      case 8453:
-        setCurrency('eth');
-        break;
-      case 666666666:
-        setCurrency('degen');
-        break;
-      case 42161:
-        setCurrency('eth');
-        break;
-      default:
-        setCurrency('eth');
-    }
-  }, [network]);
+  const pathname = usePathname();
+  setCurrency(pathname === 'degen' ? 'degen' : 'eth');
+
+  // useEffect(() => {
+  //   switch (network) {
+  //     case 8453:
+  //       setCurrency('eth');
+  //       break;
+  //     case 666666666:
+  //       setCurrency('degen');
+  //       break;
+  //     case 42161:
+  //       setCurrency('eth');
+  //       break;
+  //     default:
+  //       setCurrency('eth');
+  //   }
+  // }, [network]);
 
   const weiToEth = (weiValue: string) => parseFloat(weiValue) / 10 ** 18;
 
