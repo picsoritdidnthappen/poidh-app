@@ -10,7 +10,7 @@ const chains = {
   degen: {
     name: 'Degen Mainnet',
     jsonProviderUrl: 'https://rpc.degen.tips',
-    rpc: 'https://rpc.degen.tips/E5xa24BftzZHkonuWxbngPdajGNxTyRPc',
+    rpc: 'https://rpc-degen-mainnet-1.t.conduit.xyz/8TM2tJu2NV9h6McqXqDPHCnsvCdwVgyrH',
     contracts: {
       mainContract: '0x2445BfFc6aB9EEc6C562f8D7EE325CddF1780814',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
