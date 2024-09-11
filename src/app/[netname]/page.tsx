@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
+import React from 'react';
+import { ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify';
 
 import ContentHome from '@/components/layout/ContentHome';
 import CreateBounty from '@/components/ui/CreateBounty';

@@ -1,10 +1,10 @@
 'use-client';
 
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useGetChain } from '@/hooks';
+
 import { cn } from '@/lib';
+import { useGetChain } from '@/hooks';
 import { BountyList } from '@/components/ui';
 import { fetchBounties, getContractRead } from '@/app/context';
 import { BlacklistedBounties, PAGE_SIZE } from '@/constant/';
@@ -104,7 +104,7 @@ const ContentHome = () => {
         const contractRead = await getContractRead();
         const bountyCounter = await contractRead.bountyCounter();
         const totalBounties = Number(bountyCounter.toString());
-        const data = await fetchBounties(-PAGE_SIZE, PAGE_SIZE);
+        const data = await fetchBounties(totalBounties - PAGE_SIZE, PAGE_SIZE);
 
         setBountiesData(
           data.sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
