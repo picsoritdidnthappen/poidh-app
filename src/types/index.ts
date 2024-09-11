@@ -10,10 +10,9 @@ export type { BountyListProps as BountyListProps } from './web3';
 export type { OpenBounty as OpenBounty } from './web3';
 export type { Claim as Claim } from './web3';
 export type { VotingTracker as VotingTracker } from './web3';
-
 export type { NFTDetails as NftDetails } from './web3';
 export type { TokenIds as TokenIds } from './web3';
-export type { BlackListClaims as BlackListClaims } from './web3';
+export type { blackListClaims as BlackListClaims } from './web3';
 export type { CreateBountyFunction as CreateBountyFunction } from './web3';
 export type { CreateClaimFunction as CreateClaimFunction } from './web3';
 export type { AcceptClaimFunction as AcceptClaimFunction } from './web3';
