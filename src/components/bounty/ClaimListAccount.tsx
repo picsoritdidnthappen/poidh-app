@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import ProofItemAccount from '@/components/bounty/ProofItemAccount';
+import { ClaimItemAccount } from '@/components/bounty';
 
 interface Claim {
   id: string;
@@ -13,12 +13,12 @@ interface Claim {
   accepted: boolean;
 }
 
-interface ProofListProps {
+interface ClaimListProps {
   data: Claim[];
-  youOwner: any;
+  youOwner: boolean;
 }
 
-const ProofList: React.FC<ProofListProps> = ({ data }) => {
+const ProofList: React.FC<ClaimListProps> = ({ data }) => {
   const [isAccepted, setIsAccepted] = useState(true);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const ProofList: React.FC<ProofListProps> = ({ data }) => {
     <div className='container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
       {data.map((claim) => (
         <div key={claim.id} className={` lg:col-span-4`}>
-          <ProofItemAccount
+          <ClaimItemAccount
             isAccepted={isAccepted}
             youOwner={true}
             bountyId={claim.bountyId}

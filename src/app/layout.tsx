@@ -1,12 +1,14 @@
 // src/app/layout.tsx
+import { headers } from 'next/headers';
 import React from 'react';
+
 import '@/styles/globals.css';
 import '@/styles/colors.css';
+
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import ContextProvider from '@/app/context/ContextProvider';
 import WalletProvider from '@/app/context/WalletProvider';
-import { headers } from 'next/headers';
 
 export const metadata = {
   title: "poidh - pics or it didn't happen",

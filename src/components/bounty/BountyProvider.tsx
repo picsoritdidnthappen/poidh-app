@@ -11,8 +11,7 @@ import {
   bountyCurrentVotingClaim,
   fetchBountyById,
   getParticipants,
-} from '@/app/context/web3';
-
+} from '@/app/context';
 import { Bounty } from '@/types/web3';
 
 interface BountyContextType {
@@ -35,6 +34,7 @@ export const BountyProvider = ({
   bountyId: string;
   children: ReactNode;
 }) => {
+  // Refactor Notes -- Remove Console.errors and logs from this page
   const [bountyData, setBountyData] = useState<Bounty | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [isMultiplayer, setIsMultiplayer] = useState(false);

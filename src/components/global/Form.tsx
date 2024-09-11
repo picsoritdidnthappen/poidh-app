@@ -1,18 +1,16 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Switch } from '@mui/material';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { toast } from 'react-toastify';
 
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-
-import ButtonCTA from '@/components/ui/ButtonCTA';
-
+import { ButtonCTA } from '@/components/ui';
 import chainStatusStore from '@/store/chainStatus.store';
-
-import { createOpenBounty, createSoloBounty } from '@/app/context/web3';
+import { createOpenBounty, createSoloBounty } from '@/app/context';
+import { ErrorInfo } from '@/types';
 
 const Form = () => {
   const { primaryWallet } = useDynamicContext();
@@ -62,7 +60,7 @@ const Form = () => {
     } catch (error: unknown) {
       setInTxn(false);
       console.error('Error creating bounty:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {

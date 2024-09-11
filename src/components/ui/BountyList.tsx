@@ -2,14 +2,11 @@ import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
+import { BountyItem } from '@/components/ui';
+import { getClaimsByBountyId } from '@/app/context';
+import { BountyListProps } from '@/types';
 
-import BountyItem from '@/components/ui/BountyItem';
-
-import { getClaimsByBountyId } from '@/app/context/web3';
-
-import { BountyListProps } from '../../types/web3';
-
-export interface EnhancedBounty {
+type EnhancedBounty = {
   canceledOrClaimed: boolean;
   hasClaims: boolean;
   id: string;
@@ -21,7 +18,7 @@ export interface EnhancedBounty {
   createdAt: bigint;
   claimId: string;
   isMultiplayer: boolean;
-}
+};
 
 const container = {
   hidden: { opacity: 1, scale: 0 },
@@ -50,7 +47,9 @@ const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
 
   useEffect(() => {
     const fetchClaims = async () => {
+      // Refactor Notes -- Look at viem Multicall to see if we can refactor this to be more efficient.
       const promises = bountiesData.map(async (bounty) => {
+        // Refactor Change -- This is probably why arbitrum is not working, this is causing us to go over the free limit, and we need to refactor this to be more efficient.
         const hasClaims = await getClaimsByBountyId(bounty.id);
         return {
           ...bounty,

@@ -1,16 +1,13 @@
 'use client';
 
 import * as React from 'react';
-
-import 'react-toastify/dist/ReactToastify.css';
+import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
-import ContentHome from '@/components/layout/ContentHome';
-import CreateBounty from '@/components/ui/CreateBounty';
-import { Network } from 'ethers';
-import NetworkSelector from '@/components/ui/NetworkSelector';
-import { useState } from 'react';
+import 'react-toastify/dist/ReactToastify.css';
 
+import { ContentHome } from '@/components/layout';
+import { CreateBounty, NetworkSelector } from '@/components/ui';
 
 const Home = () => {
   const [showSections, setShowSections] = useState(false);

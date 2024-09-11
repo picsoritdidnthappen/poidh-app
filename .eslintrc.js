@@ -5,7 +5,12 @@ module.exports = {
     node: true,
   },
   ignorePatterns: ['!.prettierrc.js'],
-  plugins: ['@typescript-eslint', 'simple-import-sort', 'unused-imports'],
+  plugins: [
+    '@typescript-eslint',
+    'simple-import-sort',
+    'unused-imports',
+    'import',
+  ],
   extends: [
     'eslint:recommended',
     'next',
@@ -14,6 +19,21 @@ module.exports = {
     'prettier',
   ],
   rules: {
+    'import/order': [
+      'error',
+      {
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          'parent',
+          'sibling',
+          'index',
+        ],
+        'newlines-between': 'always',
+      },
+    ],
+    'import/newline-after-import': 'error',
     'no-unused-vars': 'off',
     'no-console': 'warn',
     '@typescript-eslint/explicit-module-boundary-types': 'off',

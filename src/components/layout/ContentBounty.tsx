@@ -1,8 +1,6 @@
 import { usePathname } from 'next/navigation';
 
-import BountyInfo from '@/components/bounty/BountyInfo';
-import BountyProofs from '@/components/bounty/BountyProofs';
-import { BountyProvider } from '@/components/bounty/BountyProvider';
+import { BountyClaims, BountyInfo, BountyProvider } from '@/components/bounty';
 
 const ContentBounty = () => {
   const pathname = usePathname();
@@ -11,7 +9,7 @@ const ContentBounty = () => {
     <BountyProvider bountyId={bountyId}>
       <div className='pb-44'>
         <BountyInfo bountyId={bountyId} />
-        <BountyProofs bountyId={bountyId} />
+        <BountyClaims bountyId={bountyId} />
       </div>
     </BountyProvider>
   );

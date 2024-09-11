@@ -2,8 +2,8 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import Form from '@/components/global/Form';
-import ButtonCTA from '@/components/ui/ButtonCTA';
+import { Form } from '@/components/global';
+import { ButtonCTA } from '@/components/ui';
 
 const CreateBounty = () => {
   const { primaryWallet } = useDynamicContext();

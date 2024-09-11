@@ -5,3 +5,5 @@ export const siteConfig = {
   /** Without additional '/' on the end, e.g. https://theodorusclarence.com */
   url: 'https://tsnext-tw.thcl.dev',
 };
+
+export const PAGE_SIZE = 18;

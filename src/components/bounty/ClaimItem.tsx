@@ -1,18 +1,16 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { LiaCopySolid } from 'react-icons/lia';
 import { toast } from 'react-toastify';
 
-import { useDegenOrEnsName } from '@/hooks/useDegenOrEnsName';
-
-import { useBountyContext } from '@/components/bounty/BountyProvider';
-
-import { acceptClaim, getURI, submitClaimForVote } from '@/app/context/web3';
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useGetChain, useDegenOrEnsName } from '@/hooks';
+import { useBountyContext } from '@/components/bounty';
+import { acceptClaim, getURI, submitClaimForVote } from '@/app/context';
+import { ErrorInfo } from '@/types';
 
-interface ProofItemProps {
+interface ClaimItemProps {
   id: string;
   title: string;
   description: string;
@@ -24,35 +22,36 @@ interface ProofItemProps {
   openBounty: boolean | null;
 }
 
-const ProofItem: React.FC<ProofItemProps> = ({
-  openBounty,
+const ClaimItem: React.FC<ClaimItemProps> = ({
+  //openBounty,
   id,
   title,
   description,
   issuer,
   bountyId,
   accepted,
-  isAccepted,
+  //isAccepted,
 }) => {
-  const { user, primaryWallet } = useDynamicContext();
+  const { primaryWallet } = useDynamicContext();
   const [claimsURI, setClaimsURI] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const path = usePathname();
-  const [currentNetworkName, setCurrentNetworkName] = useState('');
+  // const path = usePathname();
+  //const [currentNetworkName, setCurrentNetworkName] = useState('');
+  const currentNetworkName = useGetChain();
   const {
     isMultiplayer,
     isOwner,
-    bountyData,
+    //bountyData,
     isBountyClaimed,
     isOwnerContributor,
   } = useBountyContext()!;
   const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
 
-  useEffect(() => {
-    const currentUrl = path.split('/')[1];
-    setCurrentNetworkName(currentUrl || 'base');
-  }, []);
+  // useEffect(() => {
+  //   const currentUrl = path.split('/')[1];
+  //   setCurrentNetworkName(currentUrl || 'base');
+  // }, []);
 
   useEffect(() => {
     if (id) {
@@ -92,7 +91,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
       window.location.reload();
     } catch (error: unknown) {
       console.error('Error accepting claim:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');
       } else {
@@ -111,7 +110,7 @@ const ProofItem: React.FC<ProofItemProps> = ({
       toast.success('Claim submitted!');
     } catch (error: unknown) {
       console.error('Error submitting claim:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {
@@ -190,4 +189,4 @@ const ProofItem: React.FC<ProofItemProps> = ({
   );
 };
 
-export default ProofItem;
+export default ClaimItem;

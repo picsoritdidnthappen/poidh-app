@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
 import * as React from 'react';
-import { fetchBountyById } from '@/app/context/web3';
-import chainStatusStore from '@/store/chainStatus.store';
-import Head from 'next/head';
 
 import '@/styles/colors.css';
+
+import chainStatusStore from '@/store/chainStatus.store';
+import { fetchBountyById } from '@/app/context/web3';
 
 type Props = {
   params: { id: string; netname: string };
@@ -17,26 +17,42 @@ function weiToEther(weiValue: string | number | bigint): string {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
+    // read route params
     const id = params?.id;
-    const token = params?.netname || null;
-
+    let token = null;
+    try {
+      token = params.netname;
+    } catch (error) {
+      console.log('params?.netname open graph error: ', error);
+      return {};
+    }
     let currency = 'degen';
-    let netName = 'base';
 
-    if (token && ['base', 'degen', 'arbitrum'].includes(token)) {
+    let netName = 'base';
+    if (
+      token &&
+      (token === 'base' || token === 'degen' || token === 'arbitrum')
+    ) {
       netName = token;
     }
 
-    if (!netName || netName === 'arbitrum' || netName === 'base') {
+    if (
+      !netName ||
+      netName === '' ||
+      netName == 'arbitrum' ||
+      netName == 'base'
+    ) {
       currency = 'eth';
     }
 
-    await chainStatusStore.setCurrentChainFromNetwork(netName, true);
+    // fetch data
+    chainStatusStore.setCurrentChainFromNetwork(netName);
     const bountyData = await fetchBountyById(id);
 
     return {
       title: bountyData?.name || '',
       description: bountyData?.description || '',
+
       openGraph: {
         title: bountyData?.name || '',
         description: bountyData?.description || '',
@@ -58,17 +74,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+// Ensure that the layout component is correctly exporting the children
 export default function BountyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      <Head>
-        <></> {/* Ensure Head has children */}
-      </Head>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
