@@ -45,7 +45,9 @@ const Footer = () => {
         </div>
       </div>
       <div className='flex flex-row justify-center text-center text-[10px] lg:text-md pb-4 sm:pb-0'>
+
         2024 &nbsp; <Link href='https://www.poidh.xyz'> POIDH</Link>
+
       </div>
     </>
   );
