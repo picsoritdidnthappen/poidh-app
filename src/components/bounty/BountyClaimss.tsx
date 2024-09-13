@@ -1,36 +1,31 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 
-import { useBountyContext } from '@/components/bounty/BountyProvider';
-import NoProof from '@/components/bounty/NoProof';
-import ProofList from '@/components/bounty/ProofList';
+import { useGetChain } from '@/hooks';
+import { ClaimList, NoClaim, useBountyContext } from '@/components/bounty';
 
-import {
-  bountyCurrentVotingClaim,
-  getClaimsByBountyId,
-} from '@/app/context/web3';
-import { blacklist, blacklistedBounties } from '@/constant/blacklist';
-import { usePathname } from 'next/navigation';
-
-import { Claim, blackListClaims } from '@/types/web3';
+import { bountyCurrentVotingClaim, getClaimsByBountyId } from '@/app/context';
+import { Blacklist, BlacklistedBounties } from '@/constant';
+import { BlackListClaims, Claim } from '@/types';
 
 const PAGE_SIZE = 18;
 
-const BountyProofs = ({ bountyId }: { bountyId: string }) => {
+const BountyClaimss = ({ bountyId }: { bountyId: string }) => {
   const [claimsData, setClaimsData] = useState<Claim[] | null>(null);
   const [paginatedClaimsData, setPaginatedClaimsData] = useState<Claim[]>([]);
   const [currentVotingClaim, setCurrentVotingClaim] = useState<number | null>(
     null
   );
-  const [clientChain, setClientChain] = useState<string>();
+  // const [clientChain, setClientChain] = useState<string>();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { isMultiplayer, isOwner } = useBountyContext()!;
 
-  const path = usePathname();
+  const clientChain = useGetChain();
+  //const path = usePathname();
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
-    if (!chain || !blacklistedBounties[chain]) return [];
-    return blacklistedBounties[chain] as number[];
+    if (!chain || !BlacklistedBounties[chain]) return [];
+    return BlacklistedBounties[chain] as number[];
   };
 
   const isBountyBlacklisted = (id: string): boolean => {
@@ -40,20 +35,20 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
 
   const getBlacklistedClaims = (
     chain: string | undefined
-  ): blackListClaims[] => {
-    if (!chain || !blacklist[chain]) return [];
-    return blacklist[chain];
+  ): BlackListClaims[] => {
+    if (!chain || !Blacklist[chain]) return [];
+    return Blacklist[chain];
   };
 
   useEffect(() => {
     // setYouOwner(null);
 
-    const networkUrl = path.split('/')[1];
-    if (networkUrl === '') {
-      setClientChain('base');
-    } else {
-      setClientChain(networkUrl);
-    }
+    // const networkUrl = path.split('/')[1];
+    // if (networkUrl === '') {
+    //   setClientChain('base');
+    // } else {
+    //   setClientChain(networkUrl);
+    // }
 
     if (bountyId) {
       // getParticipants(bountyId)
@@ -65,7 +60,7 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
         .then((data) => {
           // Filter claims based on blacklist criteria
           let filteredClaims = data;
-          const blacklistedClaims = getBlacklistedClaims(networkUrl);
+          const blacklistedClaims = getBlacklistedClaims(clientChain);
           const bounty = blacklistedClaims.find(
             (b) => b.bountyId === Number(bountyId)
           );
@@ -115,7 +110,7 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
         </div>
       </div>
       {claimsData && claimsData.length > 0 ? (
-        <ProofList
+        <ClaimList
           bountyId={bountyId}
           currentVotingClaim={currentVotingClaim}
           openBounty={isMultiplayer}
@@ -123,7 +118,7 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
           data={paginatedClaimsData}
         />
       ) : (
-        <NoProof bountyId={bountyId} />
+        <NoClaim bountyId={bountyId} />
       )}
       {hasMoreClaims && (
         <div className='flex justify-center items-center pb-96'>
@@ -139,4 +134,4 @@ const BountyProofs = ({ bountyId }: { bountyId: string }) => {
   );
 };
 
-export default BountyProofs;
+export default BountyClaimss;

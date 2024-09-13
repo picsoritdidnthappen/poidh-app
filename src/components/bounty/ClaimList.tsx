@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import ProofItem from '@/components/bounty/ProofItem';
-import Voting from '@/components/bounty/Voting';
+import { ClaimItem, Voting } from '@/components/bounty';
 
-import { useBountyContext } from './BountyProvider';
+import { useBountyContext } from '@/components/bounty';
 
 interface Claim {
   id: string;
@@ -16,15 +15,15 @@ interface Claim {
   accepted: boolean;
 }
 
-interface ProofListProps {
+interface ClaimListProps {
   data: Claim[];
-  youOwner: any;
+  youOwner: boolean;
   openBounty: boolean | null;
   currentVotingClaim: number | null;
   bountyId: string;
 }
 
-const ProofList: React.FC<ProofListProps> = ({
+const ClaimList: React.FC<ClaimListProps> = ({
   data,
   youOwner,
   openBounty,
@@ -56,7 +55,7 @@ const ProofList: React.FC<ProofListProps> = ({
                 : 'hidden'
             } lg:col-span-4`}
           >
-            <ProofItem
+            <ClaimItem
               openBounty={openBounty}
               isAccepted={isAccepted}
               youOwner={youOwner}
@@ -93,7 +92,7 @@ const ProofList: React.FC<ProofListProps> = ({
                 : ''
             } lg:col-span-4 otherClaims`}
           >
-            <ProofItem
+            <ClaimItem
               openBounty={openBounty}
               isAccepted={isAccepted}
               youOwner={youOwner}
@@ -112,4 +111,4 @@ const ProofList: React.FC<ProofListProps> = ({
   );
 };
 
-export default ProofList;
+export default ClaimList;

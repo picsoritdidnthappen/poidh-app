@@ -1,57 +1,53 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import React from 'react';
 import { toast } from 'react-toastify';
 
-import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
+import { weiToEth, applyBreakAllToLongWords } from '@/lib';
 
-import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
-import { useBountyContext } from '@/components/bounty/BountyProvider';
-import CreateProof from '@/components/ui/CreateProof';
-
-import { cancelOpenBounty, cancelSoloBounty } from '@/app/context/web3';
-import { blacklistedBounties } from '@/constant/blacklist';
-import Link from 'next/link';
+import { useGetChain } from '@/hooks';
+import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
+import { CreateClaim } from '@/components/ui';
+import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
+import { BlacklistedBounties } from '@/constant';
+import { ErrorInfo } from '@/types';
 //
-function weiToEther(weiValue: string | number | bigint): string {
-  const etherValue = Number(weiValue) / 1e18;
-  return etherValue.toFixed(6);
-}
+
+// Recator Changes -- Import this, since it will be global soon
+// function weiToEther(weiValue: string | number | bigint): string {
+//   const etherValue = Number(weiValue) / 1e18;
+//   return etherValue.toFixed(6);
+// }
 
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
+  const userChain = useGetChain();
 
-  const path = usePathname();
-  const [currentNetworkName, setCurrentNetworkName] = useState('');
+  // const path = usePathname();
+  // const [currentNetworkName, setCurrentNetworkName] = useState('');
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
-    if (!chain || !blacklistedBounties[chain]) return [];
-    return blacklistedBounties[chain] as number[];
+    if (!chain || !BlacklistedBounties[chain]) return [];
+    return BlacklistedBounties[chain] as number[];
   };
 
   const isBountyBlacklisted = (id: string): boolean => {
-    const blacklistedBountiesForChain =
-      getBlacklistedBounties(currentNetworkName);
+    const blacklistedBountiesForChain = getBlacklistedBounties(userChain);
     return blacklistedBountiesForChain.includes(Number(id));
   };
 
-  useEffect(() => {
-    const currentUrl = path.split('/')[1];
-    if (currentUrl === '') {
-      setCurrentNetworkName('base');
-    } else {
-      setCurrentNetworkName(currentUrl);
-    }
-  }, []);
+  // useEffect(() => {
+  //   // Refactor Change -- Makes this into a global Function, it already is, so import it.
+  //   const currentUrl = path.split('/')[1];
+  //   if (currentUrl === '') {
+  //     setCurrentNetworkName('base');
+  //   } else {
+  //     setCurrentNetworkName(currentUrl);
+  //   }
+  // }, []);
 
-  const {
-    isMultiplayer,
-    isOwner,
-    bountyData,
-    isBountyClaimed,
-    isBountyCanceled,
-    isOwnerContributor,
-  } = useBountyContext()!;
+  const { isMultiplayer, isOwner, bountyData, isBountyClaimed } =
+    useBountyContext() || {};
 
   if (isBountyBlacklisted(bountyId)) {
     return null;
@@ -66,8 +62,9 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       await cancelSoloBounty(primaryWallet, bountyId);
       toast.success('Bounty canceled successfully!');
     } catch (error) {
+      // Refactor Change -- Remove This
       console.error('Error canceling bounty:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');
       } else {
@@ -85,8 +82,9 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       await cancelOpenBounty(primaryWallet, bountyId);
       toast.success('Bounty canceled successfully!');
     } catch (error) {
+      // Refactor Change -- Remove This
       console.error('Error canceling:', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');
       } else {
@@ -116,7 +114,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
           <p className='mt-5 normal-case break-all'>
             bounty issuer:{' '}
             <Link
-              href={`/${currentNetworkName}/account/${bountyData?.issuer}`}
+              href={`/${userChain}/account/${bountyData?.issuer}`}
               className='hover:text-gray-200'
             >
               {' '}
@@ -128,19 +126,16 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <div className='flex flex-col space-between'>
           <div className='flex mt-5 lg:mt-0 gap-x-2 flex-row'>
             <span>
-              {bountyData ? weiToEther(bountyData.amount) : 'Loading...'}
+              {bountyData ? weiToEth(bountyData.amount) : 'Loading...'}
             </span>
             <span>
-              {currentNetworkName === 'base' ||
-              currentNetworkName === 'arbitrum'
-                ? 'eth'
-                : 'degen'}
+              {userChain === ('base' || 'arbitrum') ? 'eth' : 'degen'}
             </span>
           </div>
 
           <div>
             {!isBountyClaimed && !isOwner ? (
-              <CreateProof bountyId={bountyId} />
+              <CreateClaim bountyId={bountyId} />
             ) : (
               // <div>create</div>
               // <div>create</div>
@@ -173,7 +168,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <div>
           <BountyMultiplayer
             bountyId={bountyId}
-            currentNetworkName={currentNetworkName} // passed in current network to show currency based on that
+            currentNetworkName={userChain} // passed in current network to show currency based on that
           />
         </div>
       ) : null}

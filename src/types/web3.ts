@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Contract } from 'ethers';
+import { Abi, Address } from 'viem';
 
 // Wallets and Signers
 export interface Wallet {
@@ -9,6 +10,17 @@ export interface Wallet {
   connected: boolean;
   id: string;
 }
+
+// Chains & Chain Contract Info
+export type Chain = {
+  name: string;
+  jsonProviderUrl: string;
+  rpc?: string;
+  contracts: {
+    mainContract: string;
+    nftContract: string;
+  };
+};
 
 // Contract Data Types
 export type MainContractType = Contract;
@@ -77,7 +89,6 @@ export interface BountyListProps {
   bountiesData: BountiesData[];
 }
 
-type Address = string;
 type Amount = string;
 
 export interface OpenBounty {
@@ -103,13 +114,13 @@ export interface VotingTracker {
   deadline: string;
 }
 
-export interface URI {
-  description: any;
-  external_url: string;
-  image: any;
-  name: any;
-  attributes: never[];
-}
+// export interface URI {
+//   description: any;
+//   external_url: string;
+//   image: any;
+//   name: any;
+//   attributes: never[];
+// }
 
 export interface NFTDetails {
   uri: string;
@@ -126,6 +137,13 @@ export interface blackListClaims {
   bountyId: number;
   claims: number[];
 }
+
+export type MultiCallInput = {
+  address: Address;
+  abi: Abi;
+  functionName: string;
+  args: any[];
+};
 
 // Contract Interaction Functions
 export type CreateBountyFunction = (
@@ -208,6 +226,7 @@ export type GetNftsOfOwnerFunction = (
 
 export type GetClaimsByUserFunction = (user: string) => Promise<Claim[]>;
 export type GetClaimsByBountyIdFunction = (id: string) => Promise<Claim[]>;
-export type GetClaimByIdFunction = (claimId: string) => Promise<Claim[]>;
+export type GetClaimsByMulticall = (ids: BountiesData[]) => Promise<any>;
+export type GetClaimByIdFunction = (claimId: string) => Promise<Claim>;
 
 export type GetURIFunction = (claimId: string) => Promise<string>;

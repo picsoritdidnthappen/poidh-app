@@ -3,12 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { cancelSoloBounty, fetchBountyById } from '@/app/context/web3';
-
 import { Bounty } from '@/types/web3';
 
-const NoProof = ({ bountyId }: { bountyId: string }) => {
+const NoClaim = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
-  const [bountyData, setBountyData] = useState<Bounty | null>(null);
+  //const [bountyData, setBountyData] = useState<Bounty | null>(null);
 
   const [youOwner, setYouOwner] = useState<boolean | null>(null);
   const [bountyCanceled, setBountyCanceled] = useState<boolean | null>(null);
@@ -29,11 +28,11 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
     }
   };
 
-  const handleAddProof = async () => {
+  const handleAddClaim = async () => {
     try {
       toast.success('Claim added successfully!');
     } catch (error) {
-      console.error('Error adding proof:', error);
+      console.error('Error adding claim:', error);
       toast.error('Failed to add claim!');
     }
   };
@@ -45,7 +44,7 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
     if (bountyId) {
       fetchBountyById(bountyId)
         .then((data) => {
-          setBountyData(data);
+          //setBountyData(data);
           setYouOwner(primaryWallet?.address === data.issuer);
           setBountyCanceled(data.issuer === data.claimer);
         })
@@ -69,7 +68,7 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
         </button>
       ) : walletConnected && !youOwner && !bountyCanceled ? (
         <button
-          onClick={handleAddProof}
+          onClick={handleAddClaim}
           className='border hidden rounded-md py-2 px-5 mt-5 border-blue-500'
         >
           add claim
@@ -79,4 +78,4 @@ const NoProof = ({ bountyId }: { bountyId: string }) => {
   );
 };
 
-export default NoProof;
+export default NoClaim;

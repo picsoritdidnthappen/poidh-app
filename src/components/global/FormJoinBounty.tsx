@@ -2,7 +2,8 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { joinOpenBounty } from '@/app/context/web3';
+import { joinOpenBounty } from '@/app/context';
+import { ErrorInfo } from '@/types';
 
 interface FormJoinBountyProps {
   bountyId: string;
@@ -37,7 +38,7 @@ const FormJoinBounty: React.FC<FormJoinBountyProps> = ({ bountyId }) => {
       window.location.reload();
     } catch (error: unknown) {
       console.error('Error joining:', error);
-      const errorData = error as any;
+      const errorData = error as ErrorInfo;
       const errorCode = errorData?.info?.error?.code;
       const errorMessage = errorData?.info?.error?.message;
       if (errorCode === 4001) {

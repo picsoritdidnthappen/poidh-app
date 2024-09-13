@@ -2,7 +2,8 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { withdrawFromOpenBounty } from '@/app/context/web3';
+import { withdrawFromOpenBounty } from '@/app/context';
+import { ErrorInfo } from '@/types';
 
 interface WithdrawProps {
   bountyId: string;
@@ -22,7 +23,7 @@ const Withdraw: React.FC<WithdrawProps> = ({ bountyId }) => {
     } catch (error: unknown) {
       console.error('Error joining:', error);
       // Use a more detailed check to find the error code
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {

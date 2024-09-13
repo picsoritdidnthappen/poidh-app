@@ -4,13 +4,8 @@ import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import {
-  bountyVotingTracker,
-  resolveVote,
-  voteClaim,
-} from '@/app/context/web3';
-
-import { VotingTracker } from '@/types/web3';
+import { bountyVotingTracker, resolveVote, voteClaim } from '@/app/context';
+import { VotingTracker, ErrorInfo } from '@/types';
 
 interface VotingProps {
   bountyId: string;
@@ -25,6 +20,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   useEffect(() => {
     setCurrency(pathname.split('/')[1] === 'degen' ? 'degen' : 'eth');
   }, [pathname]);
+
 
   const weiToEth = (weiValue: string) => parseFloat(weiValue) / 10 ** 18;
 
@@ -52,7 +48,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       toast.success('Vote made successfully!');
     } catch (error: unknown) {
       console.error('Failed to vote', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {
@@ -71,7 +67,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       toast.success('Vote made successfully!');
     } catch (error: unknown) {
       console.error('Failed to vote', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {
@@ -90,7 +86,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       toast.success('Vote resolved successfully!');
     } catch (error: unknown) {
       console.error('Failed to resolve vote', error);
-      const errorCode = (error as any)?.info?.error?.code;
+      const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');
       } else {

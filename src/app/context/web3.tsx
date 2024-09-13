@@ -1,16 +1,10 @@
-/* eslint-disable no-console */
-/* eslint-disable unused-imports/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Contract, ethers } from 'ethers';
 import { isAddress } from 'viem';
 
+import { publicClient } from '@/lib';
 import chainStatusStore from '@/store/chainStatus.store';
+import { ABI, DEGENNAMERESABI, NFTABI } from '@/constant';
 
-import { publicClient } from '@/app/context/publicClient';
-
-import abi from './abi';
-import abiNFT from './abiNFT';
-import DegenDomainNameResolverAbiJson from '../../abi/DegenDomainNameResolver.abi.json';
 import {
   AcceptClaimFunction,
   Bounty,
@@ -26,12 +20,14 @@ import {
   GetBountiesByUserFunction,
   GetClaimByIdFunction,
   GetClaimsByBountyIdFunction,
+  GetClaimsByMulticall,
   GetClaimsByUserFunction,
   GetNftsOfOwnerFunction,
   GetOpenBountiesByUserFunction,
   GetParticipants,
   GetURIFunction,
   JoinOpenBountyFunction,
+  MultiCallInput,
   ResolveVoteFunction,
   SubmitClaimForVoteFunction,
   VoteClaimFunction,
@@ -51,20 +47,20 @@ export const getProvider = async () => {
 
 export const getContract = async (signer: any) => {
   const currentChain = chainStatusStore.currentChain;
-  return new Contract(currentChain.contracts.mainContract, abi, signer);
+  return new Contract(currentChain.contracts.mainContract, ABI, signer);
 };
 
 export const getContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
   console.log('getContractRead', currentChain.name);
-  return new Contract(currentChain.contracts.mainContract, abi, provider);
+  return new Contract(currentChain.contracts.mainContract, ABI, provider);
 };
 
 export const getNFTContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
-  return new Contract(currentChain.contracts.nftContract, abiNFT, provider);
+  return new Contract(currentChain.contracts.nftContract, NFTABI, provider);
 };
 
 export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
@@ -72,7 +68,7 @@ export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
   const currentChain = chainStatusStore.currentChain;
   const contractNFT = new Contract(
     currentChain.contracts.nftContract,
-    abiNFT,
+    NFTABI,
     provider
   );
   const ownerBalance = await contractNFT.balanceOf(primaryWallet);
@@ -96,7 +92,7 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
   const currentChain = chainStatusStore.currentChain;
   const contract = new Contract(
     currentChain.contracts.mainContract,
-    abi,
+    ABI,
     provider
   );
   const ownerBalance = await contract.balanceOf(primaryWallet);
@@ -158,7 +154,7 @@ export const createOpenBounty: CreateBountyFunction = async (
     const contract = await getContract(signer);
 
     const options = {
-      value: ethers.parseEther(value.toString()),
+      value: ethers.parseEther(value),
     };
 
     const transaction = await contract.createOpenBounty(
@@ -346,23 +342,23 @@ export const fetchBounties: FetchBountiesFunction = async (
   }
 
   while (bountiesLength < count && offset < totalBounties) {
-    const rawBounties = (await contractRead.getBounties(offset)) as Bounty[];
+    const rawBounties = await contractRead.getBounties(offset);
     const bountiesPromise = rawBounties
-      .map((bounty) => ({
-        id: bounty.id,
-        issuer: bounty.issuer,
-        name: bounty.name,
-        description: bounty.description,
-        amount: bounty.amount,
-        claimer: bounty.claimer,
-        createdAt: bounty.createdAt,
-        claimId: bounty.claimId,
+      .map((bounty: string[] | bigint[]) => ({
+        id: bounty[0].toString(),
+        issuer: bounty[1].toString(),
+        name: bounty[2].toString(),
+        description: bounty[3].toString(),
+        amount: bounty[4].toString(),
+        claimer: bounty[5].toString(),
+        createdAt: BigInt(bounty[6]),
+        claimId: bounty[7].toString(),
       }))
       .filter(
-        (bounty) =>
+        (bounty: Bounty) =>
           bounty.issuer !== '0x0000000000000000000000000000000000000000'
       )
-      .map(async (bounty) => {
+      .map(async (bounty: Bounty) => {
         const claim = await contractRead.bountyCurrentVotingClaim(bounty.id);
         const participants = await contractRead.getParticipants(bounty.id);
         const isMultiplayer = participants[0].length > 0;
@@ -462,23 +458,23 @@ export const fetchAllBounties: GetAllBountiesFunction = async () => {
     offset >= 0;
     offset -= 10
   ) {
-    const rawBounties = (await contractRead.getBounties(offset)) as Bounty[];
+    const rawBounties = await contractRead.getBounties(offset);
     const bountiesPromise = rawBounties
-      .map((bounty) => ({
-        id: bounty.id,
-        issuer: bounty.issuer,
-        name: bounty.name,
-        description: bounty.description,
-        amount: bounty.amount,
-        claimer: bounty.claimer,
-        createdAt: bounty.createdAt,
-        claimId: bounty.claimId,
+      .map((bounty: (string | bigint)[]) => ({
+        id: bounty[0].toString(),
+        issuer: bounty[1].toString(),
+        name: bounty[2].toString(),
+        description: bounty[3].toString(),
+        amount: bounty[4].toString(),
+        claimer: bounty[5].toString(),
+        createdAt: BigInt(bounty[6]),
+        claimId: bounty[7].toString(),
       }))
       .filter(
-        (bounty) =>
+        (bounty: Bounty) =>
           bounty.issuer !== '0x0000000000000000000000000000000000000000'
       )
-      .map(async (bounty) => {
+      .map(async (bounty: Bounty) => {
         const claim = await contractRead.bountyCurrentVotingClaim(bounty.id);
         const participants = await contractRead.getParticipants(bounty.id);
         const isMultiplayer = participants[0].length > 0;
@@ -554,16 +550,18 @@ export const bountyVotingTracker: BountyVotingTrackerFunction = async (id) => {
 export const getClaimsByUser: GetClaimsByUserFunction = async (user) => {
   const contractRead = await getContractRead();
   const claimsRaw = await contractRead.getClaimsByUser(user);
-  const formattedClaims: Claim[] = claimsRaw.map((claim: any) => ({
-    id: claim[0].toString(),
-    issuer: claim[1],
-    bountyId: claim[2].toString(),
-    bountyIssuer: claim[3],
-    name: claim[4],
-    description: claim[5],
-    createdAt: claim[6],
-    accepted: claim[7],
-  }));
+  const formattedClaims: Claim[] = claimsRaw.map(
+    (claim: (string | bigint)[]) => ({
+      id: claim[0].toString(),
+      issuer: claim[1],
+      bountyId: claim[2].toString(),
+      bountyIssuer: claim[3],
+      name: claim[4],
+      description: claim[5],
+      createdAt: claim[6],
+      accepted: claim[7],
+    })
+  );
 
   formattedClaims.sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
 
@@ -590,19 +588,16 @@ export const getClaimById: GetClaimByIdFunction = async (claimId) => {
   const contractRead = await getContractRead();
   const claimById = await contractRead.claims(claimId);
 
-  const formattedClaim: Claim[] = [
-    {
-      id: claimById[0].toString(),
-      issuer: claimById[1],
-      bountyId: claimById[2].toString(),
-      bountyIssuer: claimById[3],
-      name: claimById[4],
-      description: claimById[5],
-      createdAt: claimById[6].toString(),
-      accepted: claimById[7],
-    },
-  ];
-
+  const formattedClaim: Claim = {
+    id: claimById[0].toString(),
+    issuer: claimById[1],
+    bountyId: claimById[2].toString(),
+    bountyIssuer: claimById[3],
+    name: claimById[4],
+    description: claimById[5],
+    createdAt: claimById[6].toString(),
+    accepted: claimById[7],
+  };
   return formattedClaim;
 };
 
@@ -631,7 +626,7 @@ export const getDegenNameContract = async () => {
   const provider = await getProvider();
   return new Contract(
     '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
-    DegenDomainNameResolverAbiJson,
+    DEGENNAMERESABI,
     provider
   );
 };
@@ -654,3 +649,23 @@ export const getDegenOrEnsName = async (
 
   return publicClient.getEnsName({ address: addr });
 };
+
+/* Uses Multicall vis-a-vis Multicall3 to bunch contract calls */
+
+// export const getClaimsByMulticall: GetClaimsByMulticall = async (
+//   bountyData
+// ) => {
+//   const MultiCallObejcts: MultiCallInput[] = bountyData.map((bounty) => {
+//     return {
+//       address: chainStatusStore.currentChain.contracts.mainContract as Address,
+//       abi: ABI,
+//       functionName: 'getClaimsByBountyId',
+//       args: [bounty.id],
+//     };
+//   });
+//   const results = (
+//     await publicClient.multicall({ contracts: MultiCallObejcts })
+//   ).map((v) => v.result);
+
+//   return results;
+// };

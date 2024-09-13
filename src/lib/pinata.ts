@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+type PinataMetadata = {
+  name: string;
+  description: string;
+  image: string;
+  external_url: string;
+  attributes: never[];
+};
+
 const apiUrl =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:3001'
@@ -17,7 +25,7 @@ export const uploadFile = async (file: string | Blob) => {
   }
 };
 
-export const uploadMetadata = async (metadata: any) => {
+export const uploadMetadata = async (metadata: PinataMetadata) => {
   try {
     const response = await axios.post(`${apiUrl}/uploadMetadata`, {
       metadata,
@@ -29,10 +37,14 @@ export const uploadMetadata = async (metadata: any) => {
   }
 };
 
-export const buildMetadata = (imageURI: any, name: any, description: any) => {
+export const buildMetadata = (
+  imageURI: string,
+  name: string,
+  description: string
+): PinataMetadata => {
   const metadata = {
     description: description,
-    external_url: 'https://kaspotz.github.io/pics-or-it/',
+    external_url: 'https://poidh.xyz/',
     image: imageURI,
     name: name,
     attributes: [],

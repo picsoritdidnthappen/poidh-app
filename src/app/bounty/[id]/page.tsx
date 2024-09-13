@@ -1,11 +1,11 @@
 'use client';
 
-import * as React from 'react';
-
-import 'react-toastify/dist/ReactToastify.css';
+import React from 'react';
 import { ToastContainer } from 'react-toastify';
 
-import ContentBounty from '@/components/layout/ContentBounty';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { ContentBounty } from '@/components/layout';
 
 const Bounty = () => {
   return (
