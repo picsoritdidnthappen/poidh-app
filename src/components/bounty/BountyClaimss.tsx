@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 
 import { useGetChain } from '@/hooks';
 import { ClaimList, NoClaim, useBountyContext } from '@/components/bounty';
-
 import { bountyCurrentVotingClaim, getClaimsByBountyId } from '@/app/context';
 import { Blacklist, BlacklistedBounties } from '@/constant';
 import { BlackListClaims, Claim } from '@/types';
