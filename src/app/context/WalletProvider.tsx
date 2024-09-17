@@ -49,7 +49,7 @@ const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
         const account = accounts[0];
         setWalletAddress(account);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     } else {
       setWalletAddress('No wallet');
