@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     // Log fetched data for debugging
-    console.log('Fetched bountyData:', bountyData);
+    // console.log('Fetched bountyData:', bountyData);
 
     if (!bountyData.amount) {
       throw new Error('Bounty amount is null or undefined');
@@ -75,7 +75,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch (error) {
-    console.log('layout open graph error: ', error);
+    // console.log('layout open graph error: ', error);
     return {};
   }
 }

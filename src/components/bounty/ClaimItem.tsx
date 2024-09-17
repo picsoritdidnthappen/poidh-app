@@ -5,7 +5,7 @@ import { LiaCopySolid } from 'react-icons/lia';
 import { toast } from 'react-toastify';
 
 import { applyBreakAllToLongWords } from '@/lib/uiHelpers';
-import { useGetChain, useDegenOrEnsName } from '@/hooks';
+import { useDegenOrEnsName, useGetChain } from '@/hooks';
 import { useBountyContext } from '@/components/bounty';
 import { acceptClaim, getURI, submitClaimForVote } from '@/app/context';
 import { ErrorInfo } from '@/types';
