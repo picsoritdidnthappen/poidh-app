@@ -3,7 +3,8 @@ import Link from 'next/link';
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { applyBreakAllToLongWords, weiToEth } from '@/lib';
+import { weiToEth, applyBreakAllToLongWords } from '@/lib';
+
 import { useGetChain } from '@/hooks';
 import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
 import { CreateClaim } from '@/components/ui';
@@ -62,7 +63,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       toast.success('Bounty canceled successfully!');
     } catch (error) {
       // Refactor Change -- Remove This
-      // console.error('Error canceling bounty:', error);
+      console.error('Error canceling bounty:', error);
       const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');
@@ -82,7 +83,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       toast.success('Bounty canceled successfully!');
     } catch (error) {
       // Refactor Change -- Remove This
-      // console.error('Error canceling:', error);
+      console.error('Error canceling:', error);
       const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user.');

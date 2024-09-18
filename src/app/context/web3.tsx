@@ -19,12 +19,14 @@ import {
   GetBountiesByUserFunction,
   GetClaimByIdFunction,
   GetClaimsByBountyIdFunction,
+  GetClaimsByMulticall,
   GetClaimsByUserFunction,
   GetNftsOfOwnerFunction,
   GetOpenBountiesByUserFunction,
   GetParticipants,
   GetURIFunction,
   JoinOpenBountyFunction,
+  MultiCallInput,
   ResolveVoteFunction,
   SubmitClaimForVoteFunction,
   VoteClaimFunction,
@@ -50,6 +52,7 @@ export const getContract = async (signer: any) => {
 export const getContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
+  console.log('getContractRead', currentChain.name);
   return new Contract(currentChain.contracts.mainContract, ABI, provider);
 };
 

@@ -10,10 +10,10 @@ type Props = {
   params: { id: string; netname: string };
 };
 
-// function weiToEther(weiValue: string | number | bigint): string {
-//   const etherValue = Number(weiValue) / 1e18;
-//   return etherValue.toFixed(6);
-// }
+function weiToEther(weiValue: string | number | bigint): string {
+  const etherValue = Number(weiValue) / 1e18;
+  return etherValue.toFixed(6);
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     try {
       token = params.netname;
     } catch (error) {
+      console.log('params?.netname open graph error: ', error);
       return {};
     }
     let currency = 'degen';
@@ -68,6 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch (error) {
+    console.log('layout open graph error: ', error);
     return {};
   }
 }

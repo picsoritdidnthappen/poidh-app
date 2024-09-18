@@ -1,13 +1,13 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Address } from 'viem';
-
-import { weiToEth } from '@/lib';
 import { useBountyContext } from '@/components/bounty';
 import { JoinBounty, Withdraw } from '@/components/ui';
+
 import { getDegenOrEnsName, getParticipants } from '@/app/context/web3';
+import { weiToEth } from '@/lib';
+
 import { OpenBounty } from '@/types/web3';
 
 const BountyMultiplayer = ({
@@ -104,10 +104,8 @@ const BountyMultiplayer = ({
 
                   return (
                     <div className='py-2' key={index}>
-                      <Link href={`/${currentNetworkName}/account/${address}`}>
-                        {displayText}
-                      </Link>{' '}
-                      - {weiToEth(participants.amounts[index])} {getCurrency()}
+                      {displayText} - {weiToEth(participants.amounts[index])}{' '}
+                      {getCurrency()}
                     </div>
                   );
                 })
