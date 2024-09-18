@@ -13,7 +13,8 @@ export const chains: { [key in NetworkChoices]: Chain } = {
   },
   degen: {
     name: 'Degen Mainnet',
-    jsonProviderUrl: 'https://rpc-degen-mainnet-1.t.conduit.xyz/8TM2tJu2NV9h6McqXqDPHCnsvCdwVgyrH',
+    jsonProviderUrl:
+      'https://rpc-degen-mainnet-1.t.conduit.xyz/8TM2tJu2NV9h6McqXqDPHCnsvCdwVgyrH',
     rpc: 'https://rpc-degen-mainnet-1.t.conduit.xyz/8TM2tJu2NV9h6McqXqDPHCnsvCdwVgyrH',
     contracts: {
       mainContract: '0x2445BfFc6aB9EEc6C562f8D7EE325CddF1780814',
