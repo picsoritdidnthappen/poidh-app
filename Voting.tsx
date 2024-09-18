@@ -1,13 +1,11 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { PieChart } from '@mui/x-charts/PieChart';
 import React, { useEffect, useState } from 'react';
-
 import {
   bountyVotingTracker,
   resolveVote,
   voteClaim,
 } from '@/app/context/web3';
-
 import { VotingTracker } from '@/types/web3';
 
 interface VotingProps {

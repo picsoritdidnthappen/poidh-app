@@ -1,6 +1,5 @@
 import { Contract, ethers } from 'ethers';
 import { isAddress } from 'viem';
-
 import { publicClient } from '@/lib';
 import chainStatusStore from '@/store/chainStatus.store';
 import { ABI, DEGENNAMERESABI, NFTABI } from '@/constant';
@@ -51,7 +50,6 @@ export const getContract = async (signer: any) => {
 export const getContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
-  // console.log('getContractRead', currentChain.name);
   return new Contract(currentChain.contracts.mainContract, ABI, provider);
 };
 
@@ -78,7 +76,7 @@ export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
   }
 
   const tokenDataPromises = tokenIds.map((id) => contractNFT.tokenByIndex(id));
-  const tokenData = await Promise.all(tokenDataPromises);
+  await Promise.all(tokenDataPromises);
 
   return tokenIds;
 };
@@ -97,22 +95,6 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
 
   return ownerBalance;
 };
-
-// async function getNFTsOfOwner() {
-//   const contract = new ethers.Contract(contractAddress, erc721ABI, provider);
-//   const balance = await contract.balanceOf(ownerAddress); //Returns the number of tokens owned by the address
-
-//   let tokenIds = [];
-
-//   for(let i = 0; i < balance.toNumber(); i++) {
-//     const tokenId = await contract.tokenOfOwnerByIndex(ownerAddress, i); //Get the token ID based on the index from the balanceOf call
-//     tokenIds.push(tokenId.toString());
-//   }
-
-//   console.log(`Token IDs owned by ${ownerAddress}: ${tokenIds}`);
-// }
-
-// WRITE Functions
 
 export const createSoloBounty: CreateBountyFunction = async (
   primaryWallet,
@@ -176,7 +158,6 @@ export const createClaim: CreateClaimFunction = async (
   bountyId
 ) => {
   try {
-    console.log('uri', uri);
     const signer = await getSigner(primaryWallet);
     const contract = await getContract(signer);
     const transaction = await contract.createClaim(
@@ -185,7 +166,7 @@ export const createClaim: CreateClaimFunction = async (
       uri,
       description
     );
-    const res = await transaction.wait();
+    await transaction.wait();
   } catch (error) {
     console.error('Error creating claim:', error);
     throw error;
@@ -319,8 +300,6 @@ export const joinOpenBounty: JoinOpenBountyFunction = async (
   }
 };
 
-// READ Functions
-
 export const fetchBounties: FetchBountiesFunction = async (
   offset,
   count = 10
@@ -411,22 +390,22 @@ export const getBountiesByUser: GetBountiesByUserFunction = async (
 
   const bountiesPromise: Bounty[] = rawBounties
     .filter(
-      (bounty: any) =>
-        bounty[1] !== '0x0000000000000000000000000000000000000000'
+      (bounty: Bounty) =>
+        bounty.issuer !== '0x0000000000000000000000000000000000000000'
     )
-    .map(async (bounty: any) => {
+    .map(async (bounty: Bounty) => {
       const participants = await contractRead.getParticipants(bounty.id);
       const isMultiplayer = participants[0].length > 0;
       return {
-        id: bounty[0].toString(),
-        issuer: bounty[1],
-        name: bounty[2],
-        description: bounty[3],
-        amount: bounty[4].toString(),
-        claimer: bounty[5],
-        createdAt: bounty[6].toString(),
-        claimId: bounty[7].toString(),
-        isMultiplayer,
+        id: bounty.id.toString(),
+        issuer: bounty.issuer,
+        name: bounty.name,
+        description: bounty.description,
+        amount: bounty.amount.toString(),
+        claimer: bounty.claimer,
+        createdAt: bounty.createdAt.toString(),
+        claimId: bounty.claimId.toString(),
+        isMultiplayer: isMultiplayer,
       };
     });
 
@@ -458,15 +437,15 @@ export const fetchAllBounties: GetAllBountiesFunction = async () => {
   ) {
     const rawBounties = await contractRead.getBounties(offset);
     const bountiesPromise = rawBounties
-      .map((bounty: (string | bigint)[]) => ({
-        id: bounty[0].toString(),
-        issuer: bounty[1].toString(),
-        name: bounty[2].toString(),
-        description: bounty[3].toString(),
-        amount: bounty[4].toString(),
-        claimer: bounty[5].toString(),
-        createdAt: BigInt(bounty[6]),
-        claimId: bounty[7].toString(),
+      .map((bounty: Bounty) => ({
+        id: bounty.id.toString(),
+        issuer: bounty.issuer.toString(),
+        name: bounty.name.toString(),
+        description: bounty.description.toString(),
+        amount: bounty.amount.toString(),
+        claimer: bounty.claimer.toString(),
+        createdAt: BigInt(bounty.createdAt),
+        claimId: bounty.claimId.toString(),
       }))
       .filter(
         (bounty: Bounty) =>
