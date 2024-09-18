@@ -65,9 +65,9 @@ export const BountyProvider = ({
 
       getParticipants(bountyId)
         .then((openBounty) => {
-          // console.log('openBounty.addresses:');
+          console.log('openBounty.addresses:');
 
-          // console.log(openBounty.addresses);
+          console.log(openBounty.addresses);
           setIsMultiplayer(openBounty.addresses.length > 0);
 
           setIsOwnerContributor(
@@ -85,8 +85,8 @@ export const BountyProvider = ({
         setIsVoting(currentVotingClaim === 0);
       })();
 
-      // console.log('current voting:');
-      // console.log(isVoting);
+      console.log('current voting:');
+      console.log(isVoting);
     }
   }, [bountyId, currentUser]);
 

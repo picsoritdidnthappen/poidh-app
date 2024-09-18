@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const Footer = () => {
   return (
-    <div>
+    <>
       <div className='flex flex-col lg:flex-row container mx-auto lg:px-0 px-5 w-full justify-between items-center '>
         <div className='flex flex-row gap-5'>
           <Link href='https://warpcast.com/~/channel/poidh'>
@@ -45,9 +45,11 @@ const Footer = () => {
         </div>
       </div>
       <div className='flex flex-row justify-center text-center text-[10px] lg:text-md pb-4 sm:pb-0'>
-        2024&nbsp;<Link href='https://www.poidh.xyz'>POIDH</Link>
+
+        2024 &nbsp; <Link href='https://www.poidh.xyz'> POIDH</Link>
+
       </div>
-    </div>
+    </>
   );
 };
 

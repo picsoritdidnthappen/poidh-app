@@ -7,13 +7,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getNetworkNameFromPath(path: string) {
-  const token = path.split('/')[1];
-  let networkName = 'base';
-  if (
-    token &&
-    (token === 'base' || token === 'degen' || token === 'arbitrum')
-  ) {
-    networkName = token;
+  const token = path.split('/')[1]
+  let networkName = 'base'
+  if(token && (token === 'base' || token === 'degen' || token === 'arbitrum')) {
+    networkName = token
   }
 
   return networkName;
