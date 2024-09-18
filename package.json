@@ -23,7 +23,7 @@
     "@dynamic-labs/sdk-react-core": "^2.2.4",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@mui/icons-material": "^5.16.7",
+    "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.14",
     "@mui/x-charts": "^7.1.1",
     "axios": "^1.6.8",

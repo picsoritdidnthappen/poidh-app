@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { ClaimItem, Voting } from '@/components/bounty';
+
 import { useBountyContext } from '@/components/bounty';
 
 interface Claim {

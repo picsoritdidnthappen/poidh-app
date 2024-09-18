@@ -172,7 +172,7 @@ const AccountInfo = () => {
   }, [completedBounties]);
 
   useEffect(() => {
-    // console.log('claims:');
+    console.log('claims:');
     const bountyIds = completedClaims.map((claim) => claim.bountyId);
     let totalAmount = BigInt(0);
     Promise.all(
