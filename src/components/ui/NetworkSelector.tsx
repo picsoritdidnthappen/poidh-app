@@ -1,39 +1,14 @@
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import Link from 'next/link';
+import React from 'react';
 
-interface NetworkSelectorProps {
-  setShowSections: (value: boolean) => void;
-}
-
-const NetworkSelector: React.FC<NetworkSelectorProps> = ({
-  setShowSections,
-}) => {
-  // States and Hooks
-  const [showButton, setShowButton] = useState(true);
-  const router = useRouter();
-
-  // Special Functions
-
-  const handleClickChain = (chain: string) => {
-    setShowButton(false);
-    setShowSections(true);
-    router.push(`/${chain}`);
-  };
-
-  // JSX Returned
+const NetworkSelector: React.FC = () => {
   return (
     <>
-      <div
-        className={` ${
-          !showButton ? 'hidden' : ''
-        }   px-5  lg:px-20 flex flex-col min-h-[75vh] justify-center items-center`}
-      >
-        <p>select network</p>
-
-        <div className='flex    mt-5 flex-row gap-2'>
-          <button
-            className={` border-[#D1ECFF]  arbitrum border rounded-full backdrop-blur-sm  hover:bg-white/50 bg-white/30 w-[100px] h-[100px] p-5  `}
-            onClick={() => handleClickChain('arbitrum')}
+      <div className='px-5  lg:px-20 flex flex-col justify-center items-center'>
+        <div className='flex mt-5 flex-row gap-2'>
+          <Link
+            href='/arbitrum'
+            className={` border-[#D1ECFF]  arbitrum border rounded-full backdrop-blur-sm  hover:bg-white/50 bg-white/30 w-[100px] h-[100px] p-5`}
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
@@ -46,12 +21,12 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
             >
               <style type='text/css'>
                 {`
-        .st0 { fill: none; }
-        .st1 { fill: #213147; }
-        .st2 { fill: #12AAFF; }
-        .st3 { fill: #9DCCED; }
-        .st4 { fill: #FFFFFF; }
-      `}
+                  .st0 { fill: none; }
+                  .st1 { fill: #213147; }
+                  .st2 { fill: #12AAFF; }
+                  .st3 { fill: #9DCCED; }
+                  .st4 { fill: #FFFFFF; }
+                `}
               </style>
               <g id='Layer_x0020_1'>
                 <g id='_2405588477232'>
@@ -103,10 +78,10 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
                 </g>
               </g>
             </svg>
-          </button>
-          <button
+          </Link>
+          <Link
+            href='/base'
             className={`border-[#D1ECFF]  base border rounded-full backdrop-blur-sm  hover:bg-white/50 bg-white/30 w-[100px] h-[100px] p-5  `}
-            onClick={() => handleClickChain('base')}
           >
             <svg
               width='100%'
@@ -120,10 +95,10 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
                 fill='#0052FF'
               />
             </svg>
-          </button>
-          <button
+          </Link>
+          <Link
+            href='/degen'
             className={`border-[#D1ECFF]  degen border rounded-full backdrop-blur-sm hover:bg-white/50 bg-white/30 w-[100px] h-[100px] p-5  `}
-            onClick={() => handleClickChain('degen')}
           >
             <svg
               width='100%'
@@ -145,7 +120,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
                 fill='#A36EFD'
               />
             </svg>
-          </button>
+          </Link>
         </div>
       </div>
     </>
