@@ -14,7 +14,6 @@ interface ClaimItemProps {
   youOwner: boolean;
   accepted: boolean;
   isAccepted?: boolean;
-  // openBounty: boolean | null;
 }
 
 const ClaimItem: React.FC<ClaimItemProps> = ({
@@ -24,24 +23,10 @@ const ClaimItem: React.FC<ClaimItemProps> = ({
   issuer,
   bountyId,
   accepted,
-  // isAccepted,
 }) => {
-  // const { primaryWallet } = useDynamicContext();
   const currentNetworkName = useGetChain();
   const [claimsURI, setClaimsURI] = useState('');
   const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
-  // const { isMultiplayer, isOwner, bountyData, isBountyClaimed} = useBountyContext()!;
-
-  // const currentUser = user?.verifiedCredentials[0].address;
-
-  // const notOwner = currentUser === issuer ;
-  //const path = usePathname();
-  //const [currentNetworkName, setCurrentNetworkName] = useState('');
-
-  // useEffect(() => {
-  //   const currentUrl = path.split('/')[1];
-  //   setCurrentNetworkName(currentUrl || 'base');
-  // }, []);
 
   useEffect(() => {
     if (id) {
@@ -55,52 +40,14 @@ const ClaimItem: React.FC<ClaimItemProps> = ({
     }
   }, [id]);
 
-  // const handleAcceptClaim = async () => {
-  //   if (!id || !bountyId || !primaryWallet) {
-  //     alert('Please check connection');
-  //     return;
-  //   }
-
-  //   try {
-  //     await acceptClaim(primaryWallet, bountyId, id);
-  //   } catch (error) {
-  //     console.error('Error accepting claim:', error);
-  //     alert('Failed to accept claim.');
-  //   }
-  // };
-
-  // const handleSubmitClaimForVote = async () => {
-  //   if (!id || !bountyId || !primaryWallet) {
-  //     alert('Please check connection');
-  //     return;
-  //   }
-
-  //   try {
-  //     await submitClaimForVote(primaryWallet, bountyId, id);
-  //   } catch (error) {
-  //     console.error('Error accepting claim:', error);
-  //     alert('Failed to accept claim.');
-  //   }
-  // };
-
   return (
     <div className='p-[2px] text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl '>
       <Link href={`/bounty/${bountyId}`}>
-        {/* <div className='left-5 top-5 absolute text-white'>{isMultiplayer && isOwner ? 
-       <button onClick={handleSubmitClaimForVote} >submit for vote</button>
-       : null}</div> */}
         {accepted ? (
           <div className='right-5 top-5  text-white bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute '>
             accepted
           </div>
         ) : null}
-        {/* 
-        {  isOwner && !isBountyClaimed && primaryWallet ? 
-        <div onClick={handleAcceptClaim} className="right-5 top-5 cursor-pointer text-[#F15E5F] hover:text-white hover:bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5 absolute ">
-        accept
-        </div> :
-        null
-        } */}
 
         <div className='bg-[#12AAFF] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
           {claimsURI && (

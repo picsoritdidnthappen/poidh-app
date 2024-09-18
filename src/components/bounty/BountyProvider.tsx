@@ -84,9 +84,6 @@ export const BountyProvider = ({
         const currentVotingClaim = await bountyCurrentVotingClaim(bountyId);
         setIsVoting(currentVotingClaim === 0);
       })();
-
-      console.log('current voting:');
-      console.log(isVoting);
     }
   }, [bountyId, currentUser]);
 

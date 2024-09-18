@@ -46,12 +46,6 @@ const Form = () => {
       setName('');
       setDescription('');
       setAmount('');
-      console.log(
-        'URL CHECKER:',
-        `/${currentChain.name.split(' ')[0].toLowerCase()}/bounty/${
-          tx.logs[0].args[0]
-        }`
-      );
       router.push(
         `/${currentChain.name.split(' ')[0].toLowerCase()}/bounty/${
           tx.logs[0].args[0]
@@ -1349,8 +1343,6 @@ const Form = () => {
       )}
 
       <span id='walletMessage'>{walletMessage}</span>
-
-      {/* <button className='hidden' onClick={handleCreateOpenBounty}>Create Open Bounty</button> */}
     </div>
   );
 };

@@ -10,7 +10,7 @@ interface NFTDetail {
 }
 
 interface NftListProps {
-  nftDetails: NFTDetail[] | null; // Allow nftDetails to be null
+  nftDetails: NFTDetail[] | null;
 }
 
 interface NftListItemProps {
@@ -19,7 +19,7 @@ interface NftListItemProps {
 
 const NftList: React.FC<NftListProps> = ({ nftDetails }) => {
   if (nftDetails === null) {
-    return <div className='text-center py-20'>no NFT details available.</div>; // Handling the case where nftDetails is null
+    return <div className='text-center py-20'>no NFT details available.</div>;
   }
 
   return (

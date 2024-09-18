@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 
 import { useGetChain } from '@/hooks';
 import { ClaimList, NoClaim, useBountyContext } from '@/components/bounty';
-
 import { bountyCurrentVotingClaim, getClaimsByBountyId } from '@/app/context';
 import { Blacklist, BlacklistedBounties } from '@/constant';
 import { BlackListClaims, Claim } from '@/types';
@@ -16,12 +15,10 @@ const BountyClaimss = ({ bountyId }: { bountyId: string }) => {
   const [currentVotingClaim, setCurrentVotingClaim] = useState<number | null>(
     null
   );
-  // const [clientChain, setClientChain] = useState<string>();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { isMultiplayer, isOwner } = useBountyContext()!;
 
   const clientChain = useGetChain();
-  //const path = usePathname();
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !BlacklistedBounties[chain]) return [];
@@ -41,24 +38,9 @@ const BountyClaimss = ({ bountyId }: { bountyId: string }) => {
   };
 
   useEffect(() => {
-    // setYouOwner(null);
-
-    // const networkUrl = path.split('/')[1];
-    // if (networkUrl === '') {
-    //   setClientChain('base');
-    // } else {
-    //   setClientChain(networkUrl);
-    // }
-
     if (bountyId) {
-      // getParticipants(bountyId)
-      // .then((openBounty) => {
-      //   setOpenBounty(openBounty.addresses.length === 0 ? false : true);
-      // })
-      // .catch(console.error);
       getClaimsByBountyId(bountyId)
         .then((data) => {
-          // Filter claims based on blacklist criteria
           let filteredClaims = data;
           const blacklistedClaims = getBlacklistedClaims(clientChain);
           const bounty = blacklistedClaims.find(
@@ -95,7 +77,6 @@ const BountyClaimss = ({ bountyId }: { bountyId: string }) => {
 
   console.log('current voting claim:', currentVotingClaim);
 
-  // Early exit if bountyId is blacklisted
   if (isBountyBlacklisted(bountyId)) {
     return null;
   }
@@ -103,7 +84,6 @@ const BountyClaimss = ({ bountyId }: { bountyId: string }) => {
   return (
     <div>
       <div className='flex flex-col gap-x-2 py-4 border-b border-dashed'>
-        {/* <div>Currently voting on: {currentVotingClaim === 0 ? "no claim for vote selected" : currentVotingClaim}</div> */}
         <div>
           <span>({claimsData ? claimsData.length : 0})</span>
           <span>claims</span>

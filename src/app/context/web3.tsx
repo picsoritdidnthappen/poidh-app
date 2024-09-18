@@ -50,7 +50,6 @@ export const getContract = async (signer: any) => {
 export const getContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
-  console.log('getContractRead', currentChain.name);
   return new Contract(currentChain.contracts.mainContract, ABI, provider);
 };
 
@@ -97,8 +96,6 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
 
   return ownerBalance;
 };
-
-// WRITE Functions
 
 export const createSoloBounty: CreateBountyFunction = async (
   primaryWallet,
@@ -559,21 +556,6 @@ export const getClaimById: GetClaimByIdFunction = async (claimId) => {
   return formattedClaim;
 };
 
-// export const getClaimById: GetClaimByIdFunction = async (claimId) => {
-//   const contractRead = await getContractRead();
-//   const claimById = await contractRead.claims(claimId);
-
-//   const names = claimById['#names'];
-//   const data = claimById.filter((_, index) => index !== '#names');
-
-//   const formattedClaim = {};
-//   names.forEach((name, index) => {
-//     formattedClaim[name] = data[index];
-//   });
-
-//   return formattedClaim;
-// };
-
 export const getURI: GetURIFunction = async (claimId) => {
   const contractNFT = await getNFTContractRead();
   const uri = await contractNFT.tokenURI(claimId);
@@ -589,7 +571,6 @@ export const getDegenNameContract = async () => {
   );
 };
 
-/** Returns the degen name if the owner has one, otherwise the ens name */
 export const getDegenOrEnsName = async (
   addr: string
 ): Promise<string | null> => {
