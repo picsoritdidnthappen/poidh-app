@@ -114,14 +114,6 @@ export interface VotingTracker {
   deadline: string;
 }
 
-// export interface URI {
-//   description: any;
-//   external_url: string;
-//   image: any;
-//   name: any;
-//   attributes: never[];
-// }
-
 export interface NFTDetails {
   uri: string;
   name: string;
@@ -221,8 +213,8 @@ export type ResolveVoteFunction = (
 ) => Promise<void>;
 
 export type GetNftsOfOwnerFunction = (
-  primaryWallet: string
-) => Promise<string[]>;
+  primaryWallet: Address
+) => Promise<Address[]>;
 
 export type GetClaimsByUserFunction = (user: string) => Promise<Claim[]>;
 export type GetClaimsByBountyIdFunction = (id: string) => Promise<Claim[]>;
