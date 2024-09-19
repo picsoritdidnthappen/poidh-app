@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable unused-imports/no-unused-vars */
-/* eslint-disable no-console */
+
 'use client';
 
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
@@ -38,22 +37,6 @@ const AccountInfo = () => {
   const [userAddress, setUserAddress] = useState('0x111...123456');
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
   const [claimsData, setClaimsData] = useState<ClaimsData[]>([]);
-
-  // useEffect(() => {
-  //   switch (network) {
-  //     case 8453:
-  //       setCurrency('eth');
-  //       break;
-  //     case 666666666:
-  //       setCurrency('degen');
-  //       break;
-  //     case 42161:
-  //       setCurrency('eth');
-  //       break;
-  //     default:
-  //       setCurrency('eth');
-  //   }
-  // }, [network]);
 
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>(
     []
@@ -137,8 +120,6 @@ const AccountInfo = () => {
               bounty.issuer === '0x0000000000000000000000000000000000000000'
           );
           setInProgressBounties(inProgressBounties);
-          console.log('in progress bounties:');
-          console.log(inProgressBounties);
 
           setCompletedBounties(completedBounties);
         });
@@ -156,10 +137,6 @@ const AccountInfo = () => {
 
       userInformation2().catch(console.error);
     }
-
-    // if (isAuthenticated &&  (pathname.split('/').pop() || '') !== primaryWallet.address  ) {
-    //     userInformation().catch(console.error);
-    //   }
   }, [primaryWallet, isAuthenticated]);
 
   useEffect(() => {
@@ -222,7 +199,6 @@ const AccountInfo = () => {
       totalETHEarn * 1000 +
       totalETHPaid * 1000 +
       (nftDetails?.length ?? 0) * 10;
-    console.log('NFT Details:::', nftDetails?.length);
     setPoidhScore(Number(poidhScore));
   }, [
     completedBounties,
@@ -236,9 +212,6 @@ const AccountInfo = () => {
   const handleFilterButtonClick = (section: string) => {
     setCurrentSection(section);
   };
-
-  console.log('AAAA:', isAuthenticated);
-  console.log('AAAADDD:', address);
 
   return (
     <div>
