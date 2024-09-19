@@ -20,14 +20,12 @@ import {
   GetBountiesByUserFunction,
   GetClaimByIdFunction,
   GetClaimsByBountyIdFunction,
-  GetClaimsByMulticall,
   GetClaimsByUserFunction,
   GetNftsOfOwnerFunction,
   GetOpenBountiesByUserFunction,
   GetParticipants,
   GetURIFunction,
   JoinOpenBountyFunction,
-  MultiCallInput,
   ResolveVoteFunction,
   SubmitClaimForVoteFunction,
   VoteClaimFunction,
@@ -80,7 +78,7 @@ export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
   }
 
   const tokenDataPromises = tokenIds.map((id) => contractNFT.tokenByIndex(id));
-  const tokenData = await Promise.all(tokenDataPromises);
+  await Promise.all(tokenDataPromises);
 
   return tokenIds;
 };
@@ -99,20 +97,6 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
 
   return ownerBalance;
 };
-
-// async function getNFTsOfOwner() {
-//   const contract = new ethers.Contract(contractAddress, erc721ABI, provider);
-//   const balance = await contract.balanceOf(ownerAddress); //Returns the number of tokens owned by the address
-
-//   let tokenIds = [];
-
-//   for(let i = 0; i < balance.toNumber(); i++) {
-//     const tokenId = await contract.tokenOfOwnerByIndex(ownerAddress, i); //Get the token ID based on the index from the balanceOf call
-//     tokenIds.push(tokenId.toString());
-//   }
-
-//   console.log(`Token IDs owned by ${ownerAddress}: ${tokenIds}`);
-// }
 
 // WRITE Functions
 
@@ -493,29 +477,6 @@ export const fetchAllBounties: GetAllBountiesFunction = async () => {
   return allBounties;
 };
 
-// export const fetchAllBounties: GetAllBountiesFunction = async (offset: number = 0) => {
-//   const contractRead = await getContractRead();
-//   // Assuming getBounties function can accept offset and returns a fixed number of bounties per call (e.g., 10)
-//   const rawBounties = await contractRead.getBounties(offset) as Bounty[];
-
-//   // Map and filter the raw bounties as before
-//   const bounties = rawBounties
-//     .map(bounty => ({
-//       id: bounty.id,
-//       issuer: bounty.issuer,
-//       name: bounty.name,
-//       description: bounty.description,
-//       amount: bounty.amount,
-//       claimer: bounty.claimer,
-//       createdAt: bounty.createdAt,
-//       claimId: bounty.claimId,
-//     }))
-//     .filter(bounty => bounty.issuer !== "0x0000000000000000000000000000000000000000");
-
-//   // No need to sort here since we're fetching in batches
-//   return bounties;
-// };
-
 export const getParticipants: GetParticipants = async (id) => {
   const contractRead = await getContractRead();
   const rawParticipants = await contractRead.getParticipants(id);
@@ -649,23 +610,3 @@ export const getDegenOrEnsName = async (
 
   return publicClient.getEnsName({ address: addr });
 };
-
-/* Uses Multicall vis-a-vis Multicall3 to bunch contract calls */
-
-// export const getClaimsByMulticall: GetClaimsByMulticall = async (
-//   bountyData
-// ) => {
-//   const MultiCallObejcts: MultiCallInput[] = bountyData.map((bounty) => {
-//     return {
-//       address: chainStatusStore.currentChain.contracts.mainContract as Address,
-//       abi: ABI,
-//       functionName: 'getClaimsByBountyId',
-//       args: [bounty.id],
-//     };
-//   });
-//   const results = (
-//     await publicClient.multicall({ contracts: MultiCallObejcts })
-//   ).map((v) => v.result);
-
-//   return results;
-// };
