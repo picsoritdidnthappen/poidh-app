@@ -26,7 +26,9 @@ Or if you have the [GitHube CLI](https://cli.github.com) installed:
 `gh repo clone picsoritdidnthappen/poidh-app`
 
 <div style="text-align: right;">
-  <a href="#basic-guide">↑ Scroll Up</a>
+
+<a href="#basic-guide">↑ Scroll Up</a>
+
 </div>
 
 ---
@@ -34,7 +36,9 @@ Or if you have the [GitHube CLI](https://cli.github.com) installed:
 #### Installing nodejs and pnpm
 
 <div style="text-align: right;">
-  <a href="#basic-guide">↑ Scroll Up</a>
+
+<a href="#basic-guide">↑ Scroll Up</a>
+
 </div>
 
 ---
@@ -42,7 +46,9 @@ Or if you have the [GitHube CLI](https://cli.github.com) installed:
 #### Installing Dependencies
 
 <div style="text-align: right;">
-  <a href="#basic-guide">↑ Scroll Up</a>
+
+<a href="#basic-guide">↑ Scroll Up</a>
+
 </div>
 
 ---
@@ -50,7 +56,9 @@ Or if you have the [GitHube CLI](https://cli.github.com) installed:
 #### Submitting Pull Requests
 
 <div style="text-align: right;">
-  <a href="#basic-guide">↑ Scroll Up</a>
+
+<a href="#basic-guide">↑ Scroll Up</a>
+
 </div>
 
 ---
