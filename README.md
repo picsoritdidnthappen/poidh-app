@@ -1,28 +1,49 @@
-## Refactor Notes:
+## Contributing
 
-Steps:
+Please look over this documentation before you start coding and submitting changes. This will help make your pull request as seamless as possible.
 
-- Make sure everything is typed in a clean way
-- Fix linting and formatting errors
-- Fix hydration errors
-- Remove redundant code / Unused files
-- Rename everything with Proofs -> Claims
-- Make sure everything that can/should be rendered server side is (ie rpc requests, etc)
+If you are a beginner and/or unsure where to start, please look in the discussion tab.
 
-Bugs Encountered:
+### Basic Guide
 
-Changes Made:
+This guide is intended to get you started with contributing. It will set up your local environment to handle running the POIDH app. It will also set up your local environment with automatic formatting and linting.
 
-# POIDH App
+- [Cloning the repository](#cloning-the-repoistory)
+- [Installing Node.js and pnpm](#installing-nodejs-and-pnpm)
+- [Installing Dependencies](#installing-dependencies)
+- [Submitting Pull Request](#submitting-pull-requests)
 
-## Overview
+---
 
-POIDH App
+#### cloning the repoistory
 
-## Installation
+To begin, clone the repository for your local machine using git. [Please refer to the git documentation if you do not have git installed.](https://git-scm.com/docs)
 
-To install the dependencies, run the following command:
+`git clone https://github.com/poidh/poidh-app.git`
 
-```sh
-npm install
-```
+Or if you have the [GitHube CLI](cli.github.com) installed:
+
+`gh repo clone picsoritdidnthappen/poidh-app`
+
+<div style="text-align: right;">
+  <a href="#top">↑ Scroll Up</a>
+</div>
+---
+#### Installing nodejs and pnpm
+
+<div style="text-align: right;">
+  <a href="#top">↑ Scroll Up</a>
+</div>
+---
+#### Installing Dependencies
+
+<div style="text-align: right;">
+  <a href="#top">↑ Scroll Up</a>
+</div>
+---
+#### Submitting Pull Requests
+
+<div style="text-align: right;">
+  <a href="#top">↑ Scroll Up</a>
+</div>
+---
