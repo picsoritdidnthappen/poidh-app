@@ -21,29 +21,29 @@ To begin, clone the repository for your local machine using git. [Please refer t
 
 `git clone https://github.com/poidh/poidh-app.git`
 
-Or if you have the [GitHube CLI](cli.github.com) installed:
+Or if you have the [GitHube CLI](https://cli.github.com) installed:
 
 `gh repo clone picsoritdidnthappen/poidh-app`
 
 <div style="text-align: right;">
-  <a href="#top">↑ Scroll Up</a>
+  <a href="#basic-guide">↑ Scroll Up</a>
 </div>
 ---
 #### Installing nodejs and pnpm
 
 <div style="text-align: right;">
-  <a href="#top">↑ Scroll Up</a>
+  <a href="#basic-guide">↑ Scroll Up</a>
 </div>
 ---
 #### Installing Dependencies
 
 <div style="text-align: right;">
-  <a href="#top">↑ Scroll Up</a>
+  <a href="#basic-guide">↑ Scroll Up</a>
 </div>
 ---
 #### Submitting Pull Requests
 
 <div style="text-align: right;">
-  <a href="#top">↑ Scroll Up</a>
+  <a href="#basic-guide">↑ Scroll Up</a>
 </div>
 ---
