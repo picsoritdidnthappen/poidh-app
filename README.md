@@ -85,4 +85,4 @@ When submitted, github will automatically build, lint and format the changes. On
 
 ---
 
-You are all set. Happy hacking and thanks once again for helping to contribute to POIDH.
+You are all set! Happy hacking and thanks once again for helping to contribute to POIDH.
