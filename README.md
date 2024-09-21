@@ -25,40 +25,32 @@ Or if you have the [GitHube CLI](https://cli.github.com) installed:
 
 `gh repo clone picsoritdidnthappen/poidh-app`
 
-<div style="text-align: right;">
-
+<div align="right">
 <a href="#basic-guide">↑ Scroll Up</a>
-
 </div>
 
 ---
 
 #### Installing nodejs and pnpm
 
-<div style="text-align: right;">
-
+<div align="right">
 <a href="#basic-guide">↑ Scroll Up</a>
-
 </div>
 
 ---
 
 #### Installing Dependencies
 
-<div style="text-align: right;">
-
+<div align="right">
 <a href="#basic-guide">↑ Scroll Up</a>
-
 </div>
 
 ---
 
 #### Submitting Pull Requests
 
-<div style="text-align: right;">
-
+<div align="right">
 <a href="#basic-guide">↑ Scroll Up</a>
-
 </div>
 
 ---
