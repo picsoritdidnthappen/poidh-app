@@ -1,30 +1,24 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { weiToEth, applyBreakAllToLongWords } from '@/lib';
-
-import { useGetChain } from '@/hooks';
+import {
+  applyBreakAllToLongWords,
+  getNetworkNameFromPath,
+  weiToEth,
+} from '@/lib';
 import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
 import { CreateClaim } from '@/components/ui';
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
 import { BlacklistedBounties } from '@/constant';
 import { ErrorInfo } from '@/types';
-//
-
-// Recator Changes -- Import this, since it will be global soon
-// function weiToEther(weiValue: string | number | bigint): string {
-//   const etherValue = Number(weiValue) / 1e18;
-//   return etherValue.toFixed(6);
-// }
 
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
-  const userChain = useGetChain();
-
-  // const path = usePathname();
-  // const [currentNetworkName, setCurrentNetworkName] = useState('');
+  const userChain = getNetworkNameFromPath(usePathname());
+  //const userChain = useGetChain();
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !BlacklistedBounties[chain]) return [];
@@ -35,16 +29,6 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
     const blacklistedBountiesForChain = getBlacklistedBounties(userChain);
     return blacklistedBountiesForChain.includes(Number(id));
   };
-
-  // useEffect(() => {
-  //   // Refactor Change -- Makes this into a global Function, it already is, so import it.
-  //   const currentUrl = path.split('/')[1];
-  //   if (currentUrl === '') {
-  //     setCurrentNetworkName('base');
-  //   } else {
-  //     setCurrentNetworkName(currentUrl);
-  //   }
-  // }, []);
 
   const { isMultiplayer, isOwner, bountyData, isBountyClaimed } =
     useBountyContext() || {};
@@ -168,7 +152,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
         <div>
           <BountyMultiplayer
             bountyId={bountyId}
-            currentNetworkName={userChain} // passed in current network to show currency based on that
+            currentNetworkName={userChain}
           />
         </div>
       ) : null}
