@@ -61,24 +61,12 @@ const AccountInfo = () => {
   const address = (pathname.split('/').pop() || '') === '';
 
   const userAccount = primaryWallet?.address === pathname.split('/').pop();
-  const path = usePathname(); // Duplicate Code?
-  //const [currentNetworkName, setCurrentNetworkName] = useState('');
 
-  // useEffect(() => {
-  //   const currentUrl = path.split('/')[1];
-  //   if (currentUrl === '') {
-  //     setCurrentNetworkName('base');
-  //   } else {
-  //     setCurrentNetworkName(currentUrl);
-  //   }
-  // }, []);
-  // user info
   useEffect(() => {
     if ((pathname.split('/').pop() || '') !== '') {
       const userInformation2 = async () => {
         const address = (pathname.split('/').pop() ||
           '0x0000000000000000000000000000000000000000') as Address;
-        // !- Check for breaking change here with type enforcement
         const balanceNFT = await getNftsOfOwner(address);
         const nftDetailsPromises = balanceNFT.map(async (nftId) => {
           const uri = await getURI(nftId);
@@ -107,7 +95,6 @@ const AccountInfo = () => {
         // console.log('degenOrEnsName', degenOrEnsName);
 
         setUserAddress(formattedAddress);
-        // !- Check for Breaking Changes Here with type enforcement
         getBountiesByUser(address, 0, []).then((data: Bounty[]) => {
           setBountiesData(data);
           const completedBounties = data.filter(
@@ -123,7 +110,6 @@ const AccountInfo = () => {
 
           setCompletedBounties(completedBounties);
         });
-        // !- Check for Breaking Changes Here with type enforcement
         getClaimsByUser(address).then((data) => {
           setClaimsData(data);
           const completedClaims = data.filter(
