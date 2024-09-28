@@ -37,7 +37,6 @@ const FormClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
   const [imageURI, setImageURI] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const inputFile = useRef<HTMLInputElement>(null);
-  //const [inTxn, setInTxn] = useState(false);
 
   const compressImage = async (image: File): Promise<File> => {
     const options = {
@@ -49,7 +48,6 @@ const FormClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
       const compressedFile = await imageCompression(image, options);
       return compressedFile;
     } catch (error) {
-      // Refactor Change -- Remove console.error
       console.error('Error compressing image:', error);
       throw error;
     }
@@ -181,7 +179,6 @@ const FormClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
         onClick={() => {
           if (!primaryWallet) {
             toast.error('Please connect wallet to continue');
-            // setWalletMessage("Please connect wallet to continue");
           } else {
             handleCreateClaim();
           }
@@ -189,7 +186,6 @@ const FormClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
         onMouseEnter={() => {
           if (!primaryWallet) {
             toast.error('Please connect wallet to continue');
-            // setWalletMessage("Please connect wallet to continue");
           }
         }}
         onMouseLeave={() => {

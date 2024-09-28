@@ -47,9 +47,7 @@ const BountyList: React.FC<BountyListProps> = ({ bountiesData }) => {
 
   useEffect(() => {
     const fetchClaims = async () => {
-      // Refactor Notes -- Look at viem Multicall to see if we can refactor this to be more efficient.
       const promises = bountiesData.map(async (bounty) => {
-        // Refactor Change -- This is probably why arbitrum is not working, this is causing us to go over the free limit, and we need to refactor this to be more efficient.
         const hasClaims = await getClaimsByBountyId(bounty.id);
         return {
           ...bounty,

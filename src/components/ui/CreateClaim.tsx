@@ -13,11 +13,9 @@ const CreateClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
   const { primaryWallet } = useDynamicContext();
 
   const [showForm, setShowForm] = useState(false);
-  // const [walletMessage, setWalletMessage] = useState('');
   const [isVisible, setIsVisible] = useState(true);
   const [deviceType, setDeviceType] = useState<'android' | 'ios' | 'laptop'>();
 
-  // Refactor Notes -- useRef to make a ref for scroll feature, check if it will optimize window event listeners
   let lastScrollY = 0;
 
   const handleOpenForm = () => {
@@ -29,11 +27,9 @@ const CreateClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
   };
   const controlButton = () => {
     if (deviceType === 'android' || deviceType === 'ios') {
-      // If scroll down
       if (window.scrollY > lastScrollY) {
         setIsVisible(false);
       } else {
-        // If scroll up
         setIsVisible(true);
       }
       lastScrollY = window.scrollY;
@@ -53,7 +49,6 @@ const CreateClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
 
     const isAndroid = userAgent.match(/Android/i);
     const isIOS = userAgent.match(/iPhone|iPad|iPod/i);
-    //const isLaptop = !isAndroid && !isIOS;
 
     if (isAndroid) {
       setDeviceType('android');
@@ -1275,9 +1270,7 @@ const CreateClaim: React.FC<FormClaimProps> = ({ bountyId }) => {
           </div>
           <ButtonCTA> create claim </ButtonCTA>
           <span className='absolute lg:right-0 bottom-0  translate-y-[25px] lg:translate-x-[0px]  text-nowrap'>
-            {
-              //walletMessage
-            }
+            {}
           </span>
         </div>
       )}

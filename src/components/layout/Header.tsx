@@ -10,9 +10,6 @@ import { Banner, Menu } from '@/components/global';
 import { Footer } from '@/components/layout';
 import { Logo } from '@/components/ui';
 
-// import { useGetChain } from '@/hooks';
-// import ConnectWallet from '@/components/web3/ConnectWallet';
-import chainStatusStore from '@/store/chainStatus.store';
 
 const ConnectWallet = dynamic(() => import('@/components/web3/ConnectWallet'), {
   ssr: false,
@@ -28,7 +25,6 @@ const Header = () => {
     networkConfigurations,
     walletConnector,
   } = useDynamicContext();
-  //const currentChain = useGetChain();
   const [currentNetwork, setCurrentNetwork] = useState(network);
   const [currentNetworkName, setCurrentNetworkName] = useState('');
   const [isClient, setIsClient] = useState(false);
@@ -41,8 +37,6 @@ const Header = () => {
     setActiveButton(chain);
     router.push(`/${chain}`);
   };
-
-  // const [networkLink, setNetworkLink] = useState('');
 
   const handleOpenMenu = () => {
     setIsOpen(!isOpen);
@@ -118,22 +112,6 @@ const Header = () => {
     currentNetwork,
   ]);
 
-  // useEffect(() => {
-  //   switch (network) {
-  //     case 8453:
-  //       setNetworkLink('base');
-  //       break;
-  //     case 666666666:
-  //       setNetworkLink('degen');
-  //       break;
-  //     case 42161:
-  //       setNetworkLink('arbitrum');
-  //       break;
-  //     default:
-  //       setNetworkLink('base');
-  //   }
-  // }, [network]);
-
   return (
     <>
       <Banner networkName={currentNetworkName} />
@@ -142,7 +120,7 @@ const Header = () => {
           <Logo />
         </Link>
         <div className='hidden lg:block'>
-          <Menu menuPoints={['about us', 'how it works']} />
+          <Menu />
         </div>
         <div className='flex flex-col'>
           <div className='flex flex-row relative items-center gap-x-5'>
@@ -243,7 +221,7 @@ const Header = () => {
               </button>
               <div></div>
               <div className='flex flex-col items-center justify-center'>
-                <Menu menuPoints={['about us', 'how it works']} />
+                <Menu />
                 {!isAuthenticated && path !== '/' ? (
                   <div className='px-5  lg:px-20 flex  justify-center'>
                     <div className='flex   top-0 mt-5 flex-row gap-2'>

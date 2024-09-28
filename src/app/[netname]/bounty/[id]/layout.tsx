@@ -23,7 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     try {
       token = params.netname;
     } catch (error) {
-      console.log('params?.netname open graph error: ', error);
+
+
       return {};
     }
     let currency = 'degen';
@@ -69,12 +70,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch (error) {
-    console.log('layout open graph error: ', error);
+
     return {};
   }
 }
 
-// Ensure that the layout component is correctly exporting the children
 export default function BountyLayout({
   children,
 }: {

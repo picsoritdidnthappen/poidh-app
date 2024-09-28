@@ -1,6 +1,5 @@
 'use-client';
 
-import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { cn } from '@/lib';
@@ -28,18 +27,14 @@ const ContentHome = () => {
 
   const [totalBounties, setTotalBounties] = useState<number>(0);
   const [display, setDisplay] = useState<DisplayType>('open');
-  //const [clientChain, setClientChain] = useState<string>();
 
   const clientChain = useGetChain();
-  const path = usePathname();
 
   const bountyDataMapping: { [key in DisplayType]: BountiesData[] } = {
     open: openBounties,
     progress: progressBounties,
     past: pastBounties,
   };
-
-  // Special Functions
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !BlacklistedBounties[chain]) return [];
@@ -51,52 +46,7 @@ const ContentHome = () => {
     return blacklistedBountiesForChain.includes(Number(id));
   };
 
-  // useEffects
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (typeof window !== 'undefined') {
-  //       // Refactor Change - Look to see if client side rendering works, or if this is a dev tool.
-  //       // Client-side only
-  //       const currentUrl = new URL(window.location.href);
-  //       const hostname = currentUrl.hostname;
-  //       const parts = hostname.split('.');
-
-  //       let chain = '';
-  //       switch (parts[0]) {
-  //         case 'poidh.xyz':
-  //           chain = 'degen';
-  //           break;
-  //         case 'localhost':
-  //           chain = 'sepolia';
-  //           break;
-  //         case 'degen':
-  //           chain = 'degen';
-  //           break;
-  //         case 'base':
-  //           chain = 'base';
-  //           break;
-  //         default:
-  //           chain = 'degen';
-  //       }
-
-  //       // eslint-disable-next-line unused-imports/no-unused-vars
-  //       const targetChain = Networks.find((n) => n.name === chain);
-  //     }
-  //   };
-
-  //   const networkUrl = path.split('/')[1];
-  //   if (networkUrl === '') {
-  //     setClientChain('base');
-  //   } else {
-  //     setClientChain(networkUrl);
-  //   }
-
-  //   //fetchData();
-  // }, [isAuthenticated, network, primaryWallet]); // Re-run on route change
-
   useEffect(() => {
-    // Refactor Change - Remove Console.log
     const fetchInitData = async () => {
       try {
         setFetchingBounties(true);
@@ -152,8 +102,6 @@ const ContentHome = () => {
     setHasMoreBounties(loadedBountiesCount < totalBounties);
   }, [bountiesData, totalBounties, loadedBountiesCount]);
 
-  // Refactor Change - Find out this function and if there is a special case for it being here, or if we can move it up to special functions.
-
   const handleLoadMore = async () => {
     try {
       setFetchingBounties(true);
@@ -171,7 +119,6 @@ const ContentHome = () => {
     }
   };
 
-  // JSX To Return
   return (
     <>
       <div className='z-1 flex flex-nowrap container mx-auto border-b border-white py-12 w-full justify-center gap-2  px-8'>
@@ -183,7 +130,7 @@ const ContentHome = () => {
             display == 'progress' &&
               'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
             display == 'past' && 'from-transparent from-60% to-red-500',
-            'gap-2 md:gap-4' // Adjust the gap as needed
+            'gap-2 md:gap-4'
           )}
         >
           <button
@@ -208,12 +155,6 @@ const ContentHome = () => {
       </div>
 
       <div className='pb-20 z-1'>
-        {/* Render either openBounties or pastBounties based on displayOpenBounties state
-        
-        
-        Refactor Change - Look To Refactor This so you use the state to use only one Bountylist component.
-        */}
-
         <BountyList bountiesData={bountyDataMapping[display]} />
       </div>
       {hasMoreBounties && (
