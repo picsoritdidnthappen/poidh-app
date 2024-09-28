@@ -68,6 +68,7 @@ const AccountInfo = () => {
       const userInformation2 = async () => {
         const address = (pathname.split('/').pop() ||
           '0x0000000000000000000000000000000000000000') as Address;
+
         const balanceNFT = await getNftsOfOwner(address);
         const nftDetailsPromises = balanceNFT.map(async (nftId) => {
           const uri = await getURI(nftId);

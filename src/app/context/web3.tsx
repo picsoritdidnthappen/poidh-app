@@ -50,6 +50,7 @@ export const getContract = async (signer: any) => {
 export const getContractRead = async () => {
   const provider = await getProvider();
   const currentChain = chainStatusStore.currentChain;
+
   return new Contract(currentChain.contracts.mainContract, ABI, provider);
 };
 
@@ -77,7 +78,7 @@ export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
 
   const tokenDataPromises = tokenIds.map((id) => contractNFT.tokenByIndex(id));
   await Promise.all(tokenDataPromises);
-  await Promise.all(tokenDataPromises);
+
 
   return tokenIds;
 };
@@ -96,6 +97,7 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
 
   return ownerBalance;
 };
+
 
 export const createSoloBounty: CreateBountyFunction = async (
   primaryWallet,

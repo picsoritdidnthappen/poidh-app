@@ -23,6 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     try {
       token = params.netname;
     } catch (error) {
+
+
       return {};
     }
     let currency = 'degen';
@@ -68,6 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch (error) {
+
     return {};
   }
 }

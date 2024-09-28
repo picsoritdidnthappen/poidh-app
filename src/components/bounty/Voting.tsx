@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { bountyVotingTracker, resolveVote, voteClaim } from '@/app/context';
-import { ErrorInfo, VotingTracker } from '@/types';
+import { VotingTracker, ErrorInfo } from '@/types';
 
 interface VotingProps {
   bountyId: string;
@@ -20,6 +20,7 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   useEffect(() => {
     setCurrency(pathname.split('/')[1] === 'degen' ? 'degen' : 'eth');
   }, [pathname]);
+
 
   const weiToEth = (weiValue: string) => parseFloat(weiValue) / 10 ** 18;
 

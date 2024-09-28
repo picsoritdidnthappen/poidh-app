@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       throw new Error('Bounty data is null or undefined');
     }
 
+
     if (!bountyData.amount) {
       throw new Error('Bounty amount is null or undefined');
     }
@@ -63,6 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch (error) {
+
     return {};
   }
 }
