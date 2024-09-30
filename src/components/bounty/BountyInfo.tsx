@@ -8,6 +8,7 @@ import {
   applyBreakAllToLongWords,
   weiToEth,
 } from '@/lib';
+import { useGetChain } from '@/hooks';
 import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
 import { CreateClaim } from '@/components/ui';
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
