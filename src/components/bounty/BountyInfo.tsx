@@ -1,11 +1,13 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { weiToEth, applyBreakAllToLongWords } from '@/lib';
-
-import { useGetChain } from '@/hooks';
+import {
+  applyBreakAllToLongWords,
+  weiToEth,
+} from '@/lib';
 import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
 import { CreateClaim } from '@/components/ui';
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
@@ -15,6 +17,7 @@ import { ErrorInfo } from '@/types';
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
   const userChain = useGetChain();
+
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !BlacklistedBounties[chain]) return [];
@@ -108,9 +111,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             <span>
               {bountyData ? weiToEth(bountyData.amount) : 'Loading...'}
             </span>
-            <span>
-              {userChain === ('base' || 'arbitrum') ? 'eth' : 'degen'}
-            </span>
+            <span>{userChain !== 'degen' ? 'eth' : 'degen'}</span>
           </div>
 
           <div>
