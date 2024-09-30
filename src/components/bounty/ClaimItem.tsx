@@ -23,35 +23,20 @@ interface ClaimItemProps {
 }
 
 const ClaimItem: React.FC<ClaimItemProps> = ({
-  //openBounty,
   id,
   title,
   description,
   issuer,
   bountyId,
   accepted,
-  //isAccepted,
 }) => {
   const { primaryWallet } = useDynamicContext();
   const [claimsURI, setClaimsURI] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-  // const path = usePathname();
-  //const [currentNetworkName, setCurrentNetworkName] = useState('');
   const currentNetworkName = useGetChain();
-  const {
-    isMultiplayer,
-    isOwner,
-    //bountyData,
-    isBountyClaimed,
-    isOwnerContributor,
-  } = useBountyContext()!;
+  const { isMultiplayer, isOwner, isBountyClaimed, isOwnerContributor } =
+    useBountyContext()!;
   const issuerDegenOrEnsName = useDegenOrEnsName(issuer);
-
-  // useEffect(() => {
-  //   const currentUrl = path.split('/')[1];
-  //   setCurrentNetworkName(currentUrl || 'base');
-  // }, []);
 
   useEffect(() => {
     if (id) {

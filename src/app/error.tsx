@@ -1,4 +1,4 @@
-'use client'; // Error components must be Client Components
+'use client';
 
 import * as React from 'react';
 import { RiAlarmWarningFill } from 'react-icons/ri';

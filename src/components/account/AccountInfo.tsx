@@ -62,6 +62,7 @@ const AccountInfo = () => {
 
   const userAccount = primaryWallet?.address === pathname.split('/').pop();
 
+
   useEffect(() => {
     if ((pathname.split('/').pop() || '') !== '') {
       const userInformation2 = async () => {
@@ -90,9 +91,6 @@ const AccountInfo = () => {
         const formattedAddress = `${address.slice(0, 5)}...${address.slice(
           -6
         )}`;
-
-        // const degenOrEnsName = await getDegenOrEnsName(address);
-        // console.log('degenOrEnsName', degenOrEnsName);
 
         setUserAddress(formattedAddress);
         getBountiesByUser(address, 0, []).then((data: Bounty[]) => {
@@ -268,14 +266,12 @@ const AccountInfo = () => {
             >
               submitted claims ({submitedClaims.length})
             </FilterButton>
-            {/* <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton> */}
           </div>
 
           <div>
             {currentSection === 'a' && (
               <div>
                 <NftList nftDetails={nftDetails} />
-                {/* <BountyList  bountiesData={completedBounties} /> */}
               </div>
             )}
             {currentSection === 'b' && (
@@ -357,14 +353,12 @@ const AccountInfo = () => {
             >
               submitted claims ({submitedClaims.length})
             </FilterButton>
-            {/* <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton> */}
           </div>
 
           <div>
             {currentSection === 'a' && (
               <div>
                 <NftList nftDetails={nftDetails} />
-                {/* <BountyList  bountiesData={completedBounties} /> */}
               </div>
             )}
             {currentSection === 'b' && (

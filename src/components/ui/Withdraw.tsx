@@ -22,7 +22,6 @@ const Withdraw: React.FC<WithdrawProps> = ({ bountyId }) => {
       toast.success('withdraw successful!');
     } catch (error: unknown) {
       console.error('Error joining:', error);
-      // Use a more detailed check to find the error code
       const errorCode = (error as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
         toast.error('Transaction denied by user');

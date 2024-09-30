@@ -29,7 +29,6 @@ const AccountInfo = () => {
   const { isAuthenticated, primaryWallet } = useDynamicContext();
   const [userAddress, setUserAddress] = useState('0x111...123456');
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
-  const [claimsData, setClaimsData] = useState<ClaimsData[]>([]);
 
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>(
     []
@@ -56,7 +55,6 @@ const AccountInfo = () => {
         const response = await fetch(uri);
         const data = await response.json();
         const claims = await getClaimById(nftId);
-        // !- Check breaking change single claim type enforcement
         return {
           name: claims.name,
           description: claims.description,
@@ -70,35 +68,7 @@ const AccountInfo = () => {
       );
       setNftDetails(completedNFTs);
 
-      //VIEM
-      // const balance = await publicClient.getBalance({
-      //   address: '0x2fe17A509032Ce9F0AEBA6f2c1B8Dd0EaB304aAc',
-      // })
-
-      // const balanceAsEther = formatEther(balance)
-      // console.log("balance")
-
-      // console.log(balanceAsEther)
-      // const success = await walletClient.watchAsset({
-      //   type: 'ERC20',
-      //   options: {
-      //     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      //     decimals: 18,
-      //     symbol: 'WETH',
-      //   },
-      // })
-      // console.log("success")
-
-      // console.log(success)
-
       const address = signer.address;
-
-      // useEffect(() => {
-      //   if (address !== "0x111...123456") {
-      //     const newUrl = `http://localhost:3000/account/${address}`;
-      //     window.history.pushState({ path: newUrl }, '', newUrl);
-      //   }
-      // }, [address]); // This effect depends on userAddress and runs whenever it changes
 
       const formattedAddress = `${address.slice(0, 5)}...${address.slice(-6)}`;
       const degenOrEnsName = await getDegenOrEnsName(address);
@@ -125,7 +95,6 @@ const AccountInfo = () => {
       });
 
       getClaimsByUser(address).then((data: ClaimsData[]) => {
-        //setClaimsData(data);
         const completedClaims = data.filter(
           (claim: Claim) => claim.accepted === true
         );
@@ -133,7 +102,6 @@ const AccountInfo = () => {
 
         setCompletedClaims(completedClaims);
         setSubmitedClaims(submitedClaims);
-        //console.log(completedClaims);
       });
 
       return formattedAddress;
@@ -261,14 +229,12 @@ const AccountInfo = () => {
             >
               submitted claims ({submitedClaims.length})
             </FilterButton>
-            {/* <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton> */}
           </div>
 
           <div>
             {currentSection === 'a' && (
               <div>
                 <NftList nftDetails={nftDetails} />
-                {/* <BountyList  bountiesData={completedBounties} /> */}
               </div>
             )}
             {currentSection === 'b' && (

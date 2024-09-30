@@ -19,7 +19,6 @@ const BountyMultiplayer = ({
 }) => {
   const [participants, setParticipants] = useState<OpenBounty | null>(null);
   const [showParticipants, setShowParticipants] = useState(false);
-  // const [userParticipate, setUserParticipate] = useState(false);
 
   const { user } = useDynamicContext();
   const currentUser = user?.verifiedCredentials[0].address as Address;

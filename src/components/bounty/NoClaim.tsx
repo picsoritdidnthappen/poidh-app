@@ -7,7 +7,6 @@ import { Bounty } from '@/types/web3';
 
 const NoClaim = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
-  //const [bountyData, setBountyData] = useState<Bounty | null>(null);
 
   const [youOwner, setYouOwner] = useState<boolean | null>(null);
   const [bountyCanceled, setBountyCanceled] = useState<boolean | null>(null);
@@ -44,7 +43,6 @@ const NoClaim = ({ bountyId }: { bountyId: string }) => {
     if (bountyId) {
       fetchBountyById(bountyId)
         .then((data) => {
-          //setBountyData(data);
           setYouOwner(primaryWallet?.address === data.issuer);
           setBountyCanceled(data.issuer === data.claimer);
         })

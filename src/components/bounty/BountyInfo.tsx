@@ -6,9 +6,9 @@ import { toast } from 'react-toastify';
 
 import {
   applyBreakAllToLongWords,
-  getNetworkNameFromPath,
   weiToEth,
 } from '@/lib';
+import { useGetChain } from '@/hooks';
 import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
 import { CreateClaim } from '@/components/ui';
 import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
@@ -17,8 +17,8 @@ import { ErrorInfo } from '@/types';
 
 const BountyInfo = ({ bountyId }: { bountyId: string }) => {
   const { primaryWallet } = useDynamicContext();
-  const userChain = getNetworkNameFromPath(usePathname());
-  //const userChain = useGetChain();
+  const userChain = useGetChain();
+
 
   const getBlacklistedBounties = (chain: string | undefined): number[] => {
     if (!chain || !BlacklistedBounties[chain]) return [];
@@ -46,7 +46,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       await cancelSoloBounty(primaryWallet, bountyId);
       toast.success('Bounty canceled successfully!');
     } catch (error) {
-      // Refactor Change -- Remove This
+
       console.error('Error canceling bounty:', error);
       const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
@@ -66,7 +66,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
       await cancelOpenBounty(primaryWallet, bountyId);
       toast.success('Bounty canceled successfully!');
     } catch (error) {
-      // Refactor Change -- Remove This
+
       console.error('Error canceling:', error);
       const errorCode = (error as unknown as ErrorInfo)?.info?.error?.code;
       if (errorCode === 4001) {
@@ -119,8 +119,6 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             {!isBountyClaimed && !isOwner ? (
               <CreateClaim bountyId={bountyId} />
             ) : (
-              // <div>create</div>
-              // <div>create</div>
               <button
                 onClick={handleCancel}
                 disabled={!!isBountyClaimed}
