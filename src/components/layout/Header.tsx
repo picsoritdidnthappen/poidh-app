@@ -9,9 +9,6 @@ import { getNetworkNameFromPath } from '@/lib';
 import { Banner, Menu } from '@/components/global';
 import { Footer } from '@/components/layout';
 import { Logo } from '@/components/ui';
-
-// import { useGetChain } from '@/hooks';
-// import ConnectWallet from '@/components/web3/ConnectWallet';
 import chainStatusStore from '@/store/chainStatus.store';
 
 const ConnectWallet = dynamic(() => import('@/components/web3/ConnectWallet'), {
