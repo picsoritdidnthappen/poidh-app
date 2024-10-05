@@ -1,13 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable unused-imports/no-unused-vars */
-
+/* eslint-disable no-console */
 'use client';
 
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ethers } from 'ethers';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Address } from 'viem';
 
 import { ClaimsListAccount, NftList } from '@/components/bounty';
 import { FilterButton } from '@/components/ui';
@@ -32,10 +32,27 @@ import {
 } from '@/types/web3';
 
 const AccountInfo = () => {
-  const { isAuthenticated, primaryWallet } = useDynamicContext();
+  const { isAuthenticated, primaryWallet, network } = useDynamicContext();
   const [userAddress, setUserAddress] = useState('0x111...123456');
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
   const [claimsData, setClaimsData] = useState<ClaimsData[]>([]);
+  const [currency, setCurrency] = useState('');
+
+  useEffect(() => {
+    switch (network) {
+      case 8453:
+        setCurrency('eth');
+        break;
+      case 666666666:
+        setCurrency('degen');
+        break;
+      case 42161:
+        setCurrency('eth');
+        break;
+      default:
+        setCurrency('eth');
+    }
+  }, [network]);
 
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>(
     []
@@ -54,9 +71,6 @@ const AccountInfo = () => {
   const [nftDetails, setNftDetails] = useState<NFTDetails[] | null>([]);
 
   const pathname = usePathname();
-  const currency =
-    getNetworkNameFromPath(pathname) === 'degen' ? 'degen' : 'eth';
-
   const address = (pathname.split('/').pop() || '') === '';
 
   const userAccount = primaryWallet?.address === pathname.split('/').pop();
@@ -77,7 +91,7 @@ const AccountInfo = () => {
       const userInformation2 = async () => {
         const address = pathname.split('/').pop() || '';
         // !- Check for breaking change here with type enforcement
-        const balanceNFT = await getNftsOfOwner(address);
+        const balanceNFT = await getNftsOfOwner(address as `0x${string}`);
         const nftDetailsPromises = balanceNFT.map(async (nftId) => {
           const uri = await getURI(nftId);
           const response = await fetch(uri);
@@ -118,6 +132,8 @@ const AccountInfo = () => {
               bounty.issuer === '0x0000000000000000000000000000000000000000'
           );
           setInProgressBounties(inProgressBounties);
+          console.log('in progress bounties:');
+          console.log(inProgressBounties);
 
           setCompletedBounties(completedBounties);
         });
@@ -135,6 +151,10 @@ const AccountInfo = () => {
 
       userInformation2().catch(console.error);
     }
+
+    // if (isAuthenticated &&  (pathname.split('/').pop() || '') !== primaryWallet.address  ) {
+    //     userInformation().catch(console.error);
+    //   }
   }, [primaryWallet, isAuthenticated]);
 
   useEffect(() => {
@@ -197,6 +217,7 @@ const AccountInfo = () => {
       totalETHEarn * 1000 +
       totalETHPaid * 1000 +
       (nftDetails?.length ?? 0) * 10;
+    console.log('NFT Details:::', nftDetails?.length);
     setPoidhScore(Number(poidhScore));
   }, [
     completedBounties,
@@ -210,6 +231,9 @@ const AccountInfo = () => {
   const handleFilterButtonClick = (section: string) => {
     setCurrentSection(section);
   };
+
+  console.log('AAAA:', isAuthenticated);
+  console.log('AAAADDD:', address);
 
   return (
     <div>
