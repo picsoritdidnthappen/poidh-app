@@ -13,7 +13,8 @@ export const chains: { [key in NetworkChoices]: Chain } = {
   },
   degen: {
     name: 'Degen Mainnet',
-    jsonProviderUrl: 'https://rpc-degen-mainnet-1.t.conduit.xyz/8TM2tJu2NV9h6McqXqDPHCnsvCdwVgyrH',
+    jsonProviderUrl:
+      'https://rpc-degen-mainnet-1.t.conduit.xyz/8TM2tJu2NV9h6McqXqDPHCnsvCdwVgyrH',
     rpc: 'https://rpc-degen-mainnet-1.t.conduit.xyz/8TM2tJu2NV9h6McqXqDPHCnsvCdwVgyrH',
     contracts: {
       mainContract: '0x2445BfFc6aB9EEc6C562f8D7EE325CddF1780814',
@@ -23,7 +24,7 @@ export const chains: { [key in NetworkChoices]: Chain } = {
   arbitrum: {
     name: 'Arbitrum One',
     jsonProviderUrl:
-      'https://arb-mainnet.g.alchemy.com/v2/vePHk-Vg-wjRw9LtykUKxDTxoUA2FHSh',
+      'https://arb-mainnet.g.alchemy.com/v2/jbQWCYaaoydawZPSf6DT1OUriin72mV3',
     contracts: {
       mainContract: '0x0Aa50ce0d724cc28f8F7aF4630c32377B4d5c27d',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
