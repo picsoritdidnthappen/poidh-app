@@ -3,7 +3,6 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable no-console */
 'use client';
-
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ethers } from 'ethers';
 import { usePathname } from 'next/navigation';
@@ -37,7 +36,6 @@ const AccountInfo = () => {
   const [bountiesData, setBountiesData] = useState<BountiesData[]>([]);
   const [claimsData, setClaimsData] = useState<ClaimsData[]>([]);
   const [currency, setCurrency] = useState('');
-
   useEffect(() => {
     switch (network) {
       case 8453:
@@ -53,7 +51,6 @@ const AccountInfo = () => {
         setCurrency('eth');
     }
   }, [network]);
-
   const [completedBounties, setCompletedBounties] = useState<BountiesData[]>(
     []
   );
@@ -67,16 +64,12 @@ const AccountInfo = () => {
   const [totalETHPaid, setTotalETHPaid] = useState<number>(0);
   const [totalETHEarn, setTotalETHEarn] = useState<number>(0);
   const [poidhScore, setPoidhScore] = useState<number>(0);
-
   const [nftDetails, setNftDetails] = useState<NFTDetails[] | null>([]);
-
   const pathname = usePathname();
   const address = (pathname.split('/').pop() || '') === '';
-
   const userAccount = primaryWallet?.address === pathname.split('/').pop();
   const path = usePathname(); // Duplicate Code?
   //const [currentNetworkName, setCurrentNetworkName] = useState('');
-
   // useEffect(() => {
   //   const currentUrl = path.split('/')[1];
   //   if (currentUrl === '') {
@@ -91,13 +84,12 @@ const AccountInfo = () => {
       const userInformation2 = async () => {
         const address = pathname.split('/').pop() || '';
         // !- Check for breaking change here with type enforcement
-        const balanceNFT = await getNftsOfOwner(address as `0x${string}`);
+        const balanceNFT = await getNftsOfOwner(address);
         const nftDetailsPromises = balanceNFT.map(async (nftId) => {
           const uri = await getURI(nftId);
           const response = await fetch(uri);
           const data = await response.json();
           const claims = await getClaimById(nftId);
-
           return {
             name: claims.name,
             description: claims.description,
@@ -105,19 +97,15 @@ const AccountInfo = () => {
             uri: data?.image,
           } as NFTDetails;
         });
-
         const completedNFTs = (await Promise.all(nftDetailsPromises)).filter(
           (nft): nft is NFTDetails => nft !== null
         );
         setNftDetails(completedNFTs);
-
         const formattedAddress = `${address.slice(0, 5)}...${address.slice(
           -6
         )}`;
-
         // const degenOrEnsName = await getDegenOrEnsName(address);
         // console.log('degenOrEnsName', degenOrEnsName);
-
         setUserAddress(formattedAddress);
         // !- Check for Breaking Changes Here with type enforcement
         getBountiesByUser(address, 0, []).then((data: Bounty[]) => {
@@ -134,7 +122,6 @@ const AccountInfo = () => {
           setInProgressBounties(inProgressBounties);
           console.log('in progress bounties:');
           console.log(inProgressBounties);
-
           setCompletedBounties(completedBounties);
         });
         // !- Check for Breaking Changes Here with type enforcement
@@ -148,19 +135,15 @@ const AccountInfo = () => {
           setSubmitedClaims(submitedClaims);
         });
       };
-
       userInformation2().catch(console.error);
     }
-
     // if (isAuthenticated &&  (pathname.split('/').pop() || '') !== primaryWallet.address  ) {
     //     userInformation().catch(console.error);
     //   }
   }, [primaryWallet, isAuthenticated]);
-
   useEffect(() => {
     const fetchClaimInformation = async () => {
       const signer = await getSigner(primaryWallet);
-
       const provider = await getProvider();
       const contract = await getContract(signer);
       const claimInformationPromises = completedBounties.map(async (bounty) => {
@@ -174,10 +157,8 @@ const AccountInfo = () => {
       });
       const claimInformation = await Promise.all(claimInformationPromises);
     };
-
     fetchClaimInformation();
   }, [completedBounties]);
-
   useEffect(() => {
     let totalAmount = BigInt(0);
     completedBounties.forEach((bounty) => {
@@ -186,7 +167,6 @@ const AccountInfo = () => {
     const totalAmountETH = ethers.formatEther(totalAmount);
     setTotalETHPaid(Number(totalAmountETH));
   }, [completedBounties]);
-
   useEffect(() => {
     let totalAmount = BigInt(0);
     inProgressBounties.forEach((bounty) => {
@@ -195,12 +175,9 @@ const AccountInfo = () => {
     const totalAmountETH = ethers.formatEther(totalAmount);
     setETHinContract(Number(totalAmountETH));
   }, [inProgressBounties]);
-
   useEffect(() => {
     const bountyIds = completedClaims.map((claim) => claim.bountyId);
-
     let totalAmount = BigInt(0);
-
     Promise.all(
       bountyIds.map(async (bountyId) => {
         const bountyData = await fetchBountyById(bountyId);
@@ -211,7 +188,6 @@ const AccountInfo = () => {
       })
     );
   }, [completedClaims]);
-
   useEffect(() => {
     const poidhScore =
       totalETHEarn * 1000 +
@@ -227,14 +203,11 @@ const AccountInfo = () => {
     totalETHPaid,
     primaryWallet,
   ]);
-
   const handleFilterButtonClick = (section: string) => {
     setCurrentSection(section);
   };
-
   console.log('AAAA:', isAuthenticated);
   console.log('AAAADDD:', address);
-
   return (
     <div>
       {isAuthenticated && address ? (
@@ -274,7 +247,6 @@ const AccountInfo = () => {
                 </div>
               </div>
             </div>
-
             <div className='flex flex-col '>
               <span>poidh score:</span>
               <span className='text-4xl text-[#F15E5F] border-y border-dashed'>
@@ -282,7 +254,6 @@ const AccountInfo = () => {
               </span>
             </div>
           </div>
-
           <div className='flex flex-row overflow-x-scroll items-center py-12 border-b border-white lg:justify-center gap-x-5 '>
             <FilterButton
               onClick={() => handleFilterButtonClick('a')}
@@ -306,7 +277,6 @@ const AccountInfo = () => {
             </FilterButton>
             {/* <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton> */}
           </div>
-
           <div>
             {currentSection === 'a' && (
               <div>
@@ -336,7 +306,6 @@ const AccountInfo = () => {
                   {userAddress}
                 </span>
               </div>
-
               <div className='flex flex-col'>
                 <div>
                   completed bounties:{' '}
@@ -364,7 +333,6 @@ const AccountInfo = () => {
                 </div>
               </div>
             </div>
-
             <div className='flex flex-col '>
               <span>poidh score:</span>
               <span className='text-4xl text-[#F15E5F] border-y border-dashed'>
@@ -372,7 +340,6 @@ const AccountInfo = () => {
               </span>
             </div>
           </div>
-
           <div className='flex flex-row overflow-x-scroll items-center py-12 border-b border-white lg:justify-center gap-x-5 '>
             <FilterButton
               onClick={() => handleFilterButtonClick('a')}
@@ -395,7 +362,6 @@ const AccountInfo = () => {
             </FilterButton>
             {/* <FilterButton onClick={() => handleFilterButtonClick('c')} show={currentSection !== 'd'}  >collab bounties (0)</FilterButton> */}
           </div>
-
           <div>
             {currentSection === 'a' && (
               <div>
@@ -419,5 +385,4 @@ const AccountInfo = () => {
     </div>
   );
 };
-
 export default AccountInfo;

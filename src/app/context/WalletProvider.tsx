@@ -8,15 +8,12 @@ import { EIP1193Provider } from 'viem';
 interface WalletContextType {
   walletAddress: string | null;
 }
-
 export const WalletContext = createContext<WalletContextType | undefined>(
   undefined
 );
-
 interface WalletProviderProps {
   children: ReactNode;
 }
-
 const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const { primaryWallet, network, isAuthenticated } = useDynamicContext();
@@ -24,20 +21,19 @@ const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
 
   const walletConnection = async (): Promise<void> => {
     const ethereum = window.ethereum as EIP1193Provider | undefined;
-    // Teat to make sure non-breaking changes
-    if (ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(
-          window.ethereum as EIP1193Provider
-        );
-        const accounts = await provider.send('eth_requestAccounts', []);
-        const account = accounts[0];
-        setWalletAddress(account);
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
+    if (!ethereum) {
       setWalletAddress('No wallet');
+      return;
+    }
+    try {
+      const provider = new ethers.BrowserProvider(
+        window.ethereum as EIP1193Provider
+      );
+      const accounts = await provider.send('eth_requestAccounts', []);
+      const account = accounts[0];
+      setWalletAddress(account);
+    } catch (error) {
+      console.log(error);
       return;
     }
   };
@@ -47,7 +43,6 @@ const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       walletConnection();
     }
   }, [primaryWallet, isAuthenticated]);
-
   useEffect(() => {
     if (network === '42161') {
       router.push('/arbitrum');
@@ -55,12 +50,10 @@ const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       router.push('/base');
     }
   }, [network, router]);
-
   return (
     <WalletContext.Provider value={{ walletAddress }}>
       {children}
     </WalletContext.Provider>
   );
 };
-
 export default WalletProvider;
