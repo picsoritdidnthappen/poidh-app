@@ -127,9 +127,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             <span>
               {bountyData ? weiToEth(bountyData.amount) : 'Loading...'}
             </span>
-            <span>
-              {userChain === ('base' || 'arbitrum') ? 'eth' : 'degen'}
-            </span>
+            <span>{userChain === 'degen' ? 'degen' : 'eth'}</span>
           </div>
 
           <div>
