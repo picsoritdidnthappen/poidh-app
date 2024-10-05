@@ -1,6 +1,7 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -14,8 +15,10 @@ interface VotingProps {
 const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const [votingData, setVotingData] = useState<VotingTracker | null>(null);
   const { primaryWallet } = useDynamicContext();
+  const { primaryWallet } = useDynamicContext();
   const [currency, setCurrency] = useState('');
   const pathname = usePathname();
+  console.log('Pathname', pathname.split('/')[1]);
 
   useEffect(() => {
     setCurrency(pathname.split('/')[1] === 'degen' ? 'degen' : 'eth');

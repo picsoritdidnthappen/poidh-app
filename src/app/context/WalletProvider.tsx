@@ -24,19 +24,20 @@ const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
 
   const walletConnection = async (): Promise<void> => {
     const ethereum = window.ethereum as EIP1193Provider | undefined;
-    if (!ethereum) {
+    // Teat to make sure non-breaking changes
+    if (ethereum) {
+      try {
+        const provider = new ethers.BrowserProvider(
+          window.ethereum as EIP1193Provider
+        );
+        const accounts = await provider.send('eth_requestAccounts', []);
+        const account = accounts[0];
+        setWalletAddress(account);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
       setWalletAddress('No wallet');
-      return;
-    }
-    try {
-      const provider = new ethers.BrowserProvider(
-        window.ethereum as EIP1193Provider
-      );
-      const accounts = await provider.send('eth_requestAccounts', []);
-      const account = accounts[0];
-      setWalletAddress(account);
-    } catch (error) {
-      console.log(error);
       return;
     }
   };

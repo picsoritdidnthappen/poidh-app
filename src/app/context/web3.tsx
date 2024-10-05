@@ -31,6 +31,11 @@ import {
   VoteClaimFunction,
   withdrawFromOpenBountyFunction,
 } from '../../types/web3';
+import abi from './abi';
+import abiNFT from './abiNFT';
+import chains from './config';
+
+const currentChain = chains.degen;
 
 export const getSigner = async (primaryWallet: any) => {
   const signer = await primaryWallet?.connector?.ethers?.getSigner();
@@ -38,14 +43,12 @@ export const getSigner = async (primaryWallet: any) => {
 };
 
 export const getProvider = async () => {
-  const currentChain = chainStatusStore.currentChain;
   const provider = new ethers.JsonRpcProvider(currentChain.jsonProviderUrl);
   return provider;
 };
 
 export const getContract = async (signer: any) => {
-  const currentChain = chainStatusStore.currentChain;
-  return new Contract(currentChain.contracts.mainContract, ABI, signer);
+  return new Contract(currentChain.contracts.mainContract, abi, signer);
 };
 
 export const getContractRead = async () => {
@@ -57,13 +60,11 @@ export const getContractRead = async () => {
 
 export const getNFTContractRead = async () => {
   const provider = await getProvider();
-  const currentChain = chainStatusStore.currentChain;
-  return new Contract(currentChain.contracts.nftContract, NFTABI, provider);
+  return new Contract(currentChain.contracts.nftContract, abiNFT, provider);
 };
 
 export const getNftsOfOwner: GetNftsOfOwnerFunction = async (primaryWallet) => {
   const provider = await getProvider();
-  const currentChain = chainStatusStore.currentChain;
   const contractNFT = new Contract(
     currentChain.contracts.nftContract,
     NFTABI,
@@ -87,7 +88,6 @@ export const getOpenBountiesByUser: GetOpenBountiesByUserFunction = async (
   primaryWallet
 ) => {
   const provider = await getProvider();
-  const currentChain = chainStatusStore.currentChain;
   const contract = new Contract(
     currentChain.contracts.mainContract,
     ABI,
@@ -119,11 +119,9 @@ export const createSoloBounty: CreateBountyFunction = async (
       description,
       options
     );
-    const receipt = await transaction.wait();
-    return receipt;
+    await transaction.wait();
   } catch (error) {
     console.error('Error creating bounty:', error);
-    throw error;
   }
 };
 
@@ -146,11 +144,9 @@ export const createOpenBounty: CreateBountyFunction = async (
       description,
       options
     );
-    const receipt = await transaction.wait();
-    return receipt;
+    await transaction.wait();
   } catch (error) {
     console.error('Error creating bounty:', error);
-    throw error;
   }
 };
 
@@ -174,7 +170,6 @@ export const createClaim: CreateClaimFunction = async (
     const res = await transaction.wait();
   } catch (error) {
     console.error('Error creating claim:', error);
-    throw error;
   }
 };
 
@@ -190,7 +185,6 @@ export const acceptClaim: AcceptClaimFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error accepting claim:', error);
-    throw error;
   }
 };
 
@@ -206,7 +200,6 @@ export const submitClaimForVote: SubmitClaimForVoteFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error accepting claim:', error);
-    throw error;
   }
 };
 
@@ -221,7 +214,6 @@ export const cancelOpenBounty: CancelBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error canceling open bounty:', error);
-    throw error;
   }
 };
 
@@ -236,7 +228,6 @@ export const cancelSoloBounty: CancelBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error canceling solo bounty:', error);
-    throw error;
   }
 };
 
@@ -251,7 +242,6 @@ export const withdrawFromOpenBounty: withdrawFromOpenBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error widthdraw:', error);
-    throw error;
   }
 };
 
@@ -267,7 +257,6 @@ export const voteClaim: VoteClaimFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error voting:', error);
-    throw error;
   }
 };
 
@@ -282,7 +271,6 @@ export const resolveVote: ResolveVoteFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error voting:', error);
-    throw error;
   }
 };
 
@@ -301,19 +289,12 @@ export const joinOpenBounty: JoinOpenBountyFunction = async (
     await transaction.wait();
   } catch (error) {
     console.error('Error joining open bounty:', error);
-    throw error;
   }
 };
 
 // READ Functions
 
-export const fetchBounties: FetchBountiesFunction = async (
-  offset,
-  count = 10
-) => {
-  let bountiesLength = 0;
-  let allBounties: Bounty[] = [];
-
+export const fetchBounties: FetchBountiesFunction = async (offset) => {
   const contractRead = await getContractRead();
   const bountyCounter = await contractRead.bountyCounter();
   const totalBounties = Number(bountyCounter.toString());
@@ -365,23 +346,16 @@ export const fetchBounties: FetchBountiesFunction = async (
 export const fetchBountyById: FetchBountyByIdFunction = async (id) => {
   const contractRead = await getContractRead();
   const bounty = await contractRead.bounties(id);
-  const participants = await contractRead.getParticipants(id);
-  const claim = await contractRead.bountyCurrentVotingClaim(bounty.id);
-  const issuer = bounty[1];
-  const issuerDegenOrEnsName = await getDegenOrEnsName(issuer);
 
   const formattedBounty: Bounty = {
     id: bounty[0].toString(),
-    issuer,
-    issuerDegenOrEnsName,
+    issuer: bounty[1],
     name: bounty[2],
     description: bounty[3],
     amount: bounty[4].toString(),
     claimer: bounty[5],
     createdAt: bounty[6].toString(),
     claimId: bounty[7].toString(),
-    isMultiplayer: participants[0].length > 0,
-    inProgress: claim != 0,
   };
 
   return formattedBounty;
@@ -395,28 +369,21 @@ export const getBountiesByUser: GetBountiesByUserFunction = async (
   const contractRead = await getContractRead();
   const rawBounties = await contractRead.getBountiesByUser(user, offset);
 
-  const bountiesPromise: Bounty[] = rawBounties
+  const newBounties: Bounty[] = rawBounties
     .filter(
       (bounty: any) =>
         bounty[1] !== '0x0000000000000000000000000000000000000000'
     )
-    .map(async (bounty: any) => {
-      const participants = await contractRead.getParticipants(bounty.id);
-      const isMultiplayer = participants[0].length > 0;
-      return {
-        id: bounty[0].toString(),
-        issuer: bounty[1],
-        name: bounty[2],
-        description: bounty[3],
-        amount: bounty[4].toString(),
-        claimer: bounty[5],
-        createdAt: bounty[6].toString(),
-        claimId: bounty[7].toString(),
-        isMultiplayer,
-      };
-    });
-
-  const newBounties = await Promise.all(bountiesPromise);
+    .map((bounty: any) => ({
+      id: bounty[0].toString(),
+      issuer: bounty[1],
+      name: bounty[2],
+      description: bounty[3],
+      amount: bounty[4].toString(),
+      claimer: bounty[5],
+      createdAt: bounty[6].toString(),
+      claimId: bounty[7].toString(),
+    }));
 
   allBounties = [...allBounties, ...newBounties];
 

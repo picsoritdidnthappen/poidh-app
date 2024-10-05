@@ -114,6 +114,14 @@ export interface VotingTracker {
   deadline: string;
 }
 
+// export interface URI {
+//   description: any;
+//   external_url: string;
+//   image: any;
+//   name: any;
+//   attributes: never[];
+// }
+
 export interface NFTDetails {
   uri: string;
   name: string;
