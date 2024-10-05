@@ -1,12 +1,11 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { usePathname } from 'next/navigation';
-import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { bountyVotingTracker, resolveVote, voteClaim } from '@/app/context';
-import { VotingTracker, ErrorInfo } from '@/types';
+import { ErrorInfo, VotingTracker } from '@/types';
 
 interface VotingProps {
   bountyId: string;
@@ -14,7 +13,7 @@ interface VotingProps {
 
 const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   const [votingData, setVotingData] = useState<VotingTracker | null>(null);
-  const { primaryWallet } = useDynamicContext();
+
   const { primaryWallet } = useDynamicContext();
   const [currency, setCurrency] = useState('');
   const pathname = usePathname();
@@ -23,7 +22,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   useEffect(() => {
     setCurrency(pathname.split('/')[1] === 'degen' ? 'degen' : 'eth');
   }, [pathname]);
-
 
   const weiToEth = (weiValue: string) => parseFloat(weiValue) / 10 ** 18;
 
