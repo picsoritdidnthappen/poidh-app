@@ -1,7 +1,9 @@
+/* eslint-disable simple-import-sort/imports */
 import { z } from 'zod';
+
+import prisma from 'prisma/prisma';
+
 import { baseProcedure, createTRPCRouter } from '../init';
-import prisma from '@/lib/prisma';
-import { User } from 'lucide-react';
 
 export const appRouter = createTRPCRouter({
   bounty: baseProcedure
@@ -224,7 +226,6 @@ export const appRouter = createTRPCRouter({
         },
         select: {
           primaryId: true,
-          bountyId: true,
           title: true,
           description: true,
           createdAt: true,
@@ -232,6 +233,7 @@ export const appRouter = createTRPCRouter({
           url: true,
           bounty: {
             select: {
+              primaryId: true,
               amount: true,
             },
           },

@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 // src/app/layout.tsx
 import { headers } from 'next/headers';
 import React from 'react';
