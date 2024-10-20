@@ -9,6 +9,7 @@ import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import ContextProvider from '@/app/context/ContextProvider';
 import WalletProvider from '@/app/context/WalletProvider';
+import { TRPCProvider } from '@/trpc/client';
 
 export const metadata = {
   title: "poidh - pics or it didn't happen",
@@ -27,13 +28,15 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
         <link rel='canonical' href={url} />
       </head>
       <body className='bg-blue-300 text-white'>
-        <ContextProvider>
-          <WalletProvider>
-            <Header />
-            {children}
-            <Footer />
-          </WalletProvider>
-        </ContextProvider>
+        <TRPCProvider>
+          <ContextProvider>
+            <WalletProvider>
+              <Header />
+              {children}
+              <Footer />
+            </WalletProvider>
+          </ContextProvider>
+        </TRPCProvider>
       </body>
     </html>
   );
