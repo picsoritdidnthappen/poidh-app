@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { bountyVotingTracker, resolveVote, voteClaim } from '@/app/context';
-import { VotingTracker, ErrorInfo } from '@/types';
+import { ErrorInfo, VotingTracker } from '@/types';
 
 interface VotingProps {
   bountyId: string;
@@ -20,7 +20,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
   useEffect(() => {
     setCurrency(pathname.split('/')[1] === 'degen' ? 'degen' : 'eth');
   }, [pathname]);
-
 
   const weiToEth = (weiValue: string) => parseFloat(weiValue) / 10 ** 18;
 
@@ -37,7 +36,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       })();
     }
   }, [bountyId]);
-
   const voteYes = async () => {
     if (!bountyId || !primaryWallet) {
       toast.error('Please connect wallet');
@@ -56,7 +54,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       }
     }
   };
-
   const voteNo = async () => {
     if (!bountyId || !primaryWallet) {
       toast.error('Please connect wallet');
@@ -75,7 +72,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       }
     }
   };
-
   const resolveVoteHandle = async () => {
     if (!bountyId || !primaryWallet) {
       toast.error('Please connect wallet');
@@ -94,7 +90,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
       }
     }
   };
-
   return (
     <div className='col-span-12 lg:col-span-3 p-5 lg:p-0 '>
       {votingData ? (
@@ -113,14 +108,12 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
               height={200}
             />
           </div>
-
           <div>
             Yes votes: {votingData.yes} {currency}
           </div>
           <div>
             No votes: {votingData.no} {currency}
           </div>
-
           <div className='flex flex-row gap-x-5 '>
             <button
               className='border mt-5 border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
@@ -141,7 +134,6 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
               resolve vote
             </button>
           </div>
-
           <div className='mt-5 '>Deadline: {votingData.deadline}</div>
         </>
       ) : (
@@ -150,5 +142,4 @@ const Voting: React.FC<VotingProps> = ({ bountyId }) => {
     </div>
   );
 };
-
 export default Voting;

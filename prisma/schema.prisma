@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Bounty {
+  id            Decimal             @id @db.Decimal(78, 0)
+  primaryId     Decimal             @db.Decimal(78, 0)
+  chainId       Decimal             @db.Decimal(78, 0)
+  title         String
+  description   String
+  amount        String
+  issuer        String
+  createdAt     Decimal             @db.Decimal(78, 0)
+  inProgress    Int
+  isCanceled    Int?
+  isBanned      Int
+  isMultiplayer Int?
+  yes           Decimal?            @db.Decimal(78, 0)
+  no            Decimal?            @db.Decimal(78, 0)
+  deadline      Decimal?            @db.Decimal(78, 0)
+  user          User?               @relation(fields: [issuer], references: [id])
+  claims        Claim[]
+  votes         Vote[]
+  participants  ParticipantBounty[]
+
+  @@index([chainId], map: "Bounty_chainIdIndex")
+  @@index([primaryId], map: "Bounty_primaryIdIndex")
+}
+
+model Claim {
+  id          Decimal @id @db.Decimal(78, 0)
+  primaryId   Decimal @db.Decimal(78, 0)
+  chainId     Decimal @db.Decimal(78, 0)
+  title       String
+  url         String
+  description String
+  createdAt   Decimal @db.Decimal(78, 0)
+  isBanned    Int
+  ownerId     String
+  accepted    Int
+  bountyId    Decimal @db.Decimal(78, 0)
+  issuerId    String
+  issuer      User    @relation(fields: [issuerId], references: [id])
+  bounty      Bounty  @relation(fields: [bountyId], references: [id])
+  votes       Vote[]
+}
+
+model ParticipantBounty {
+  id       Decimal @id @db.Decimal(78, 0)
+  amount   String
+  userId   String
+  bountyId Decimal @db.Decimal(78, 0)
+  user     User    @relation(fields: [userId], references: [id])
+  bounty   Bounty  @relation(fields: [bountyId], references: [id])
+}
+
+model User {
+  id             String              @id
+  ens            String?
+  degenName      String?
+  participations ParticipantBounty[]
+  bounties       Bounty[]
+  claims         Claim[]
+  votes          Vote[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Vote {
+  id       String  @id
+  vote     String
+  claimId  Decimal @db.Decimal(78, 0)
+  userId   String
+  bountyId Decimal @db.Decimal(78, 0)
+  user     User    @relation(fields: [userId], references: [id])
+  bounty   Bounty  @relation(fields: [bountyId], references: [id])
+  claim    Claim   @relation(fields: [claimId], references: [id])
+}
+
+model ponder_meta {
+  key   String @id
+  value Json?
+
+  @@map("_ponder_meta")
+}
+
+model ponder_reorg__Bounty {
+  id            Decimal  @db.Decimal(78, 0)
+  primaryId     Decimal? @db.Decimal(78, 0)
+  chainId       Decimal? @db.Decimal(78, 0)
+  title         String?
+  description   String?
+  amount        String?
+  issuer        String?
+  createdAt     Decimal? @db.Decimal(78, 0)
+  inProgress    Int?
+  isCanceled    Int?
+  isBanned      Int?
+  isMultiplayer Int?
+  yes           Decimal? @db.Decimal(78, 0)
+  no            Decimal? @db.Decimal(78, 0)
+  deadline      Decimal? @db.Decimal(78, 0)
+  operation_id  Int      @id @default(autoincrement())
+  checkpoint    String   @db.VarChar(75)
+  operation     Int
+
+  @@map("_ponder_reorg__Bounty")
+}
+
+model ponder_reorg__Claim {
+  id           Decimal  @db.Decimal(78, 0)
+  primaryId    Decimal? @db.Decimal(78, 0)
+  chainId      Decimal? @db.Decimal(78, 0)
+  title        String?
+  url          String?
+  description  String?
+  createdAt    Decimal? @db.Decimal(78, 0)
+  isBanned     Int?
+  ownerId      String?
+  accepted     Int?
+  bountyId     Decimal? @db.Decimal(78, 0)
+  issuerId     String?
+  operation_id Int      @id @default(autoincrement())
+  checkpoint   String   @db.VarChar(75)
+  operation    Int
+
+  @@map("_ponder_reorg__Claim")
+}
+
+model ponder_reorg__ParticipantBounty {
+  id           Decimal  @db.Decimal(78, 0)
+  amount       String?
+  userId       String?
+  bountyId     Decimal? @db.Decimal(78, 0)
+  operation_id Int      @id @default(autoincrement())
+  checkpoint   String   @db.VarChar(75)
+  operation    Int
+
+  @@map("_ponder_reorg__ParticipantBounty")
+}
+
+model ponder_reorg__User {
+  id           String
+  ens          String?
+  degenName    String?
+  operation_id Int     @id @default(autoincrement())
+  checkpoint   String  @db.VarChar(75)
+  operation    Int
+
+  @@map("_ponder_reorg__User")
+}
+
+model ponder_reorg__Vote {
+  id           String
+  vote         String?
+  claimId      Decimal? @db.Decimal(78, 0)
+  userId       String?
+  bountyId     Decimal? @db.Decimal(78, 0)
+  operation_id Int      @id @default(autoincrement())
+  checkpoint   String   @db.VarChar(75)
+  operation    Int
+
+  @@map("_ponder_reorg__Vote")
+}

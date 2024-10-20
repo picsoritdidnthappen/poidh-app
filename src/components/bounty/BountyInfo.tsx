@@ -3,8 +3,7 @@ import Link from 'next/link';
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { weiToEth, applyBreakAllToLongWords } from '@/lib';
-
+import { applyBreakAllToLongWords, weiToEth } from '@/lib';
 import { useGetChain } from '@/hooks';
 import { BountyMultiplayer, useBountyContext } from '@/components/bounty';
 import { CreateClaim } from '@/components/ui';
@@ -128,9 +127,7 @@ const BountyInfo = ({ bountyId }: { bountyId: string }) => {
             <span>
               {bountyData ? weiToEth(bountyData.amount) : 'Loading...'}
             </span>
-            <span>
-              {userChain === ('base' || 'arbitrum') ? 'eth' : 'degen'}
-            </span>
+            <span>{userChain === 'degen' ? 'degen' : 'eth'}</span>
           </div>
 
           <div>
