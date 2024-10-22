@@ -172,6 +172,10 @@ export const blacklist: Blacklist = {
                579, 585, 590, 591, 592, 596, 598, 603,
                604, 605, 606],
     },
+    {
+      bountyId: 202,
+      claims: [645],
+    },
   ],
   arbitrum: [],
 };
