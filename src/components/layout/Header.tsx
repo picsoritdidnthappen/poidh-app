@@ -1,18 +1,15 @@
+/* eslint-disable simple-import-sort/imports */
 'use client';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import { getNetworkNameFromPath } from '@/lib';
+import { useGetChain } from '@/hooks/new/useGetChain';
 import { Banner, Menu } from '@/components/global';
 import { Footer } from '@/components/layout';
 import { Logo } from '@/components/ui';
-
-// import { useGetChain } from '@/hooks';
-// import ConnectWallet from '@/components/web3/ConnectWallet';
-import chainStatusStore from '@/store/chainStatus.store';
 
 const ConnectWallet = dynamic(() => import('@/components/web3/ConnectWallet'), {
   ssr: false,
@@ -21,28 +18,18 @@ const ConnectWallet = dynamic(() => import('@/components/web3/ConnectWallet'), {
 const Header = () => {
   const router = useRouter();
 
-  const {
-    isAuthenticated,
-    primaryWallet,
-    network,
-    networkConfigurations,
-    walletConnector,
-  } = useDynamicContext();
-  //const currentChain = useGetChain();
-  const [currentNetwork, setCurrentNetwork] = useState(network);
-  const [currentNetworkName, setCurrentNetworkName] = useState('');
+  const { isAuthenticated, primaryWallet } = useDynamicContext();
+  const chain = useGetChain();
+
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isShowDynamic, setIsShowDynamic] = useState(true);
-  const [isChanged, setIsChanged] = useState(false);
   const [activeButton, setActiveButton] = useState('arbitrum');
 
   const handleClickChain = (chain: string) => {
     setActiveButton(chain);
     router.push(`/${chain}`);
   };
-
-  // const [networkLink, setNetworkLink] = useState('');
 
   const handleOpenMenu = () => {
     setIsOpen(!isOpen);
@@ -52,93 +39,19 @@ const Header = () => {
     setIsShowDynamic(!isShowDynamic);
   };
 
-  const path = usePathname();
-
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
-    const networkName = getNetworkNameFromPath(path);
-    setCurrentNetworkName(networkName);
-    setActiveButton(networkName);
-    chainStatusStore.setCurrentChainFromNetwork(networkName);
-  }, [path]);
-
-  useEffect(() => {
-    if (isClient && network && networkConfigurations) {
-      const currentUrl = path;
-      const urls = currentUrl.split('/').filter((word) => word.length > 0);
-      const currentUrlFirst = path.split('/')[1];
-      const firstWord = urls.length > 0 ? urls[0] : '';
-      const currentUrlNetwork = networkConfigurations['evm']?.find((net) =>
-        net.name.toLowerCase().match(currentUrlFirst)
-      );
-
-      if (
-        currentUrlFirst ===
-          currentUrlNetwork?.name.split(' ')[0].toLowerCase() &&
-        !isChanged
-      ) {
-        setIsChanged(true);
-        walletConnector?.switchNetwork({
-          networkChainId: currentUrlNetwork?.chainId,
-        });
-      } else if (currentNetwork !== network) {
-        setIsChanged(true);
-
-        const networkname = networkConfigurations['evm']?.find(
-          (net) => net.chainId === network
-        );
-        let networkNameToSet = networkname?.name?.toLowerCase();
-
-        if (networkNameToSet === 'degen chain') {
-          networkNameToSet = 'degen';
-        }
-
-        if (networkNameToSet && firstWord !== networkNameToSet) {
-          setCurrentNetwork(network);
-          setCurrentNetworkName(networkNameToSet);
-          const currentUrl = new URL(window.location.href);
-          const pathnameParts = currentUrl.pathname.split('/').filter(Boolean);
-          pathnameParts[0] = networkNameToSet;
-          const newPathname = `/${pathnameParts.join('/')}`;
-
-          router.push(newPathname);
-        }
-      }
-    }
-  }, [
-    isClient,
-    network,
-    networkConfigurations,
-    path,
-    walletConnector,
-    isChanged,
-    currentNetwork,
-  ]);
-
-  // useEffect(() => {
-  //   switch (network) {
-  //     case 8453:
-  //       setNetworkLink('base');
-  //       break;
-  //     case 666666666:
-  //       setNetworkLink('degen');
-  //       break;
-  //     case 42161:
-  //       setNetworkLink('arbitrum');
-  //       break;
-  //     default:
-  //       setNetworkLink('base');
-  //   }
-  // }, [network]);
+    setActiveButton(chain.chainPathName);
+  }, [chain]);
 
   return (
     <>
-      <Banner networkName={currentNetworkName} />
+      <Banner networkName={chain.chainPathName} />
       <div className='px-5 lg:px-20 pt-12 pb-2 border-b border-white flex justify-between items-center'>
-        <Link href={`/${currentNetworkName}`}>
+        <Link href={`/new/${chain.chainPathName}`}>
           <Logo />
         </Link>
         <div className='hidden lg:block'>
@@ -149,18 +62,15 @@ const Header = () => {
             {isClient && isAuthenticated ? (
               <Link
                 className='hidden lg:block'
-                href={`/${currentNetworkName}/account/${primaryWallet?.address}`}
+                href={`/${chain.chainPathName}/account/${primaryWallet?.address}`}
               >
                 my bounties
               </Link>
             ) : null}
             <div className='hidden lg:block'>
-              {isClient ? (
-                <ConnectWallet
-                  isClient={isClient}
-                  network={currentNetworkName}
-                />
-              ) : null}
+              {isClient && (
+                <ConnectWallet isClient={isClient} network={chain.name} />
+              )}
             </div>
             <div
               onClick={handleOpenDynamic}
@@ -244,7 +154,7 @@ const Header = () => {
               <div></div>
               <div className='flex flex-col items-center justify-center'>
                 <Menu menuPoints={['about us', 'how it works']} />
-                {!isAuthenticated && path !== '/' ? (
+                {!isAuthenticated ? (
                   <div className='px-5  lg:px-20 flex  justify-center'>
                     <div className='flex   top-0 mt-5 flex-row gap-2'>
                       <button
@@ -398,18 +308,18 @@ const Header = () => {
           !isShowDynamic ? 'hidden' : ''
         } py-2 lg:hidden border-b border-white flex justify-end px-5`}
       >
-        <ConnectWallet isClient={isClient} network={currentNetworkName} />
+        <ConnectWallet isClient={isClient} network={chain.chainPathName} />
       </div>
       {isClient && isAuthenticated ? (
         <div className='py-2 border-b border-white flex justify-end px-5 lg:hidden'>
           <Link
-            href={`/${currentNetworkName}/account/${primaryWallet?.address}`}
+            href={`/new/${chain.chainPathName}/account/${primaryWallet?.address}`}
           >
             my bounties
           </Link>
         </div>
       ) : null}
-      {!isAuthenticated && path !== '/' ? (
+      {!isAuthenticated ? (
         <div className='px-5 relative lg:px-20 flex justify-end'>
           <div className='hidden lg:flex absolute chainButtons top-0 mt-5 flex-row gap-2'>
             <button

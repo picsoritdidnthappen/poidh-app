@@ -1,10 +1,6 @@
 export { chains as chains, networks as Networks } from './config';
 export { default as ContextProvider } from './ContextProvider';
 export {
-  WalletContext as WalletContext,
-  default as WalletProvider,
-} from './WalletProvider';
-export {
   acceptClaim as acceptClaim,
   bountyCurrentVotingClaim as bountyCurrentVotingClaim,
   bountyVotingTracker as bountyVotingTracker,

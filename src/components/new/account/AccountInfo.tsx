@@ -73,9 +73,9 @@ export default function AccountInfo({ address }: { address: string }) {
   }, [totalETHEarn, totalETHPaid, NFTs]);
 
   return (
-    <div>
+    <>
       {address && (
-        <div className='p-24'>
+        <div className='p-8'>
           <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start'>
             <div>
               <div className='flex flex-col border-b border-dashed'>
@@ -170,7 +170,7 @@ export default function AccountInfo({ address }: { address: string }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

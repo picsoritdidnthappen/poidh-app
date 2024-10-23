@@ -2,7 +2,7 @@
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Address, formatEther } from 'viem';
+import { formatEther } from 'viem';
 
 import { ExpandMoreIcon } from '@/components/new/global/Icons';
 import JoinBounty from '@/components/new/ui/JoinBounty';
@@ -24,8 +24,7 @@ export default function BountyMultiplayer({
   isCanceled: boolean;
 }) {
   const [showParticipants, setShowParticipants] = useState(false);
-  const { user } = useDynamicContext();
-  const currentUser = user?.verifiedCredentials[0].address as Address;
+  const { primaryWallet } = useDynamicContext();
 
   const { data, isSuccess } = trpc.participants.useQuery({
     bountyId: bountyId,
@@ -37,7 +36,7 @@ export default function BountyMultiplayer({
   };
 
   const isCurrentUserAParticipant = data?.some(
-    (participant) => participant.user.id === currentUser
+    (participant) => participant.user.id === primaryWallet?.address
   );
 
   return (
@@ -93,9 +92,9 @@ export default function BountyMultiplayer({
         )}
       </div>
       <div>
-        {isCurrentUserAParticipant && inProgress && currentUser !== issuer && (
-          <Withdraw bountyId={bountyId} />
-        )}
+        {isCurrentUserAParticipant &&
+          inProgress &&
+          primaryWallet?.address !== issuer && <Withdraw bountyId={bountyId} />}
       </div>
 
       <div>

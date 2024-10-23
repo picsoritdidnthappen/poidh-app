@@ -1,5 +1,4 @@
 /* eslint-disable simple-import-sort/imports */
-// src/app/layout.tsx
 import { headers } from 'next/headers';
 import React from 'react';
 
@@ -9,7 +8,6 @@ import '@/styles/colors.css';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import ContextProvider from '@/app/context/ContextProvider';
-import WalletProvider from '@/app/context/WalletProvider';
 import { TRPCProvider } from '@/trpc/client';
 
 export const metadata = {
@@ -31,11 +29,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <body className='bg-blue-300 text-white'>
         <TRPCProvider>
           <ContextProvider>
-            <WalletProvider>
-              <Header />
-              {children}
-              <Footer />
-            </WalletProvider>
+            <Header />
+            {children}
+            <Footer />
           </ContextProvider>
         </TRPCProvider>
       </body>
