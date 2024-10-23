@@ -66,7 +66,6 @@ export default function ClaimList({
               <ClaimItem
                 isMultiplayer={isMultiplayer}
                 bountyId={bountyId}
-                key={claim.id}
                 id={claim.id}
                 title={claim.title}
                 description={claim.description}

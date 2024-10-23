@@ -9,7 +9,7 @@ export const appRouter = createTRPCRouter({
   bounty: baseProcedure
     .input(z.object({ id: z.string(), chainId: z.string() }))
     .query(async ({ input }) => {
-      return prisma.bounty.findFirstOrThrow({
+      const bounty = await prisma.bounty.findFirstOrThrow({
         where: {
           primaryId: input.id.toString(),
           chainId: input.chainId.toString(),
@@ -21,6 +21,15 @@ export const appRouter = createTRPCRouter({
           },
         },
       });
+      return {
+        ...bounty,
+        id: bounty.primaryId.toString(),
+        hasClaims: bounty.claims.length > 0,
+        inProgress: Boolean(bounty.inProgress),
+        isMultiplayer: Boolean(bounty.isMultiplayer),
+        isBanned: Boolean(bounty.isBanned),
+        isCanceled: Boolean(bounty.isCanceled),
+      };
     }),
 
   bounties: baseProcedure

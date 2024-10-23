@@ -8,8 +8,8 @@ import { formatEther } from 'viem';
 import { useGetChain } from '@/hooks/new/useGetChain';
 import BountyMultiplayer from '@/components/new/bounty/BountyMultiplayer';
 import CreateClaim from '@/components/new/ui/CreateClaim';
-import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
 import { trpc } from '@/trpc/client';
+import { cancelOpenBounty, cancelSoloBounty } from '@/app/context';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const { primaryWallet } = useDynamicContext();
@@ -45,17 +45,18 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
     <>
       <div className='flex pt-20 flex-col  justify-between lg:flex-row'>
         <div className='flex flex-col  lg:max-w-[50%]'>
-          <p className='text-2xl lg:text-4xl text-bold normal-case'>
+          <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case'>
             {bounty.title}
           </p>
-          <p className='mt-5 normal-case'>{bounty.description}</p>
+          <p className='max-w-[30ch] overflow-hidden text-ellipsis mt-5 normal-case'>
+            {bounty.description}
+          </p>
           <p className='mt-5 normal-case break-all'>
             bounty issuer:{' '}
             <Link
               href={`/new/${chain.chainPathName}/account/${bounty.issuer}`}
               className='hover:text-gray-200'
             >
-              {' '}
               {bounty.issuer}
             </Link>
           </p>
@@ -68,7 +69,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           </div>
 
           <div>
-            {bounty.inProgress && primaryWallet?.id !== bounty.issuer ? (
+            {bounty.inProgress && primaryWallet?.address !== bounty.issuer ? (
               <CreateClaim bountyId={bountyId} />
             ) : (
               <button
@@ -82,7 +83,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
               >
                 {bounty.isCanceled
                   ? 'canceled'
-                  : primaryWallet?.id === bounty.issuer
+                  : primaryWallet?.address === bounty.issuer
                   ? 'cancel'
                   : !bounty.inProgress
                   ? 'accepted'
@@ -92,17 +93,14 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           </div>
         </div>
       </div>
-
       {bounty.isMultiplayer && (
-        <div>
-          <BountyMultiplayer
-            chain={chain}
-            bountyId={bountyId}
-            inProgress={Boolean(bounty.inProgress)}
-            issuer={bounty.issuer}
-            isCanceled={Boolean(bounty.isCanceled)}
-          />
-        </div>
+        <BountyMultiplayer
+          chain={chain}
+          bountyId={bountyId}
+          inProgress={Boolean(bounty.inProgress)}
+          issuer={bounty.issuer}
+          isCanceled={Boolean(bounty.isCanceled)}
+        />
       )}
     </>
   );

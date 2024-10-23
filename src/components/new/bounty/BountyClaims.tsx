@@ -58,7 +58,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
       {claims.data ? (
         <ClaimList
           bountyId={bountyId}
-          isMultiplayer={Boolean(bounty?.isMultiplayer)}
+          isMultiplayer={bounty?.isMultiplayer || false}
           votingClaim={
             votingClaim
               ? {

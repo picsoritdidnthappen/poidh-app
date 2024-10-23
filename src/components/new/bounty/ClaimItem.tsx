@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { acceptClaim, submitClaimForVote } from '@/app/context';
 import { useGetChain } from '@/hooks/new/useGetChain';
 import { CopyIcon } from '@/components/new/global/Icons';
+import { trpc } from '@/trpc/client';
 
 export default function ClaimItem({
   id,
@@ -30,6 +31,10 @@ export default function ClaimItem({
   const { primaryWallet } = useDynamicContext();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const chain = useGetChain();
+  const { data: bounty } = trpc.bounty.useQuery({
+    id: bountyId,
+    chainId: chain.id.toString(),
+  });
 
   const fetchImageUrl = async (url: string) => {
     const response = await fetch(url);
@@ -84,7 +89,7 @@ export default function ClaimItem({
           </button>
         )}
 
-        {primaryWallet?.address && primaryWallet && (
+        {bounty && primaryWallet?.address === bounty.issuer && (
           <div
             onClick={handleAcceptClaim}
             className=' acceptButton cursor-pointer mt-5 text-[#F15E5F] hover:text-white hover:bg-[#F15E5F] border border-[#F15E5F] rounded-[8px] py-2 px-5  '
@@ -129,7 +134,7 @@ export default function ClaimItem({
                   toast.success('Address copied to clipboard');
                 }}
               >
-                <CopyIcon width={14} height={14} />
+                <CopyIcon width={16} height={16} />
               </button>
             </span>
           </span>
