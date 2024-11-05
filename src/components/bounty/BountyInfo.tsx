@@ -5,11 +5,11 @@ import { formatEther } from 'viem';
 
 import { useGetChain } from '@/hooks/useGetChain';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
-import CreateClaim from '@/components/ui/CreateClaim';
 import { trpc } from '@/trpc/client';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation } from '@tanstack/react-query';
+import DisplayAddress from '@/components/DisplayAddress';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -58,60 +58,55 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
 
   return (
     <>
-      <div className='flex pt-20 flex-col  justify-between lg:flex-row'>
-        <div className='flex flex-col  lg:max-w-[50%]'>
+      <div className='flex pt-20 flex-col justify-between lg:flex-row'>
+        <div className='flex flex-col  lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case'>
             {bounty.data.title}
           </p>
-          <p className='max-w-[50ch] mt-5 normal-case'>
-            {bounty.data.description}
-          </p>
+          <p className='mt-5 normal-case'>{bounty.data.description}</p>
           <p className='mt-5 normal-case break-all'>
             bounty issuer:{' '}
             <Link
               href={`/${chain.slug}/account/${bounty.data.issuer}`}
               className='hover:text-gray-200'
             >
-              {bounty.data.issuer}
+              <DisplayAddress address={bounty.data.issuer} chain={chain} />
             </Link>
           </p>
         </div>
-
         <div className='flex flex-col space-between'>
           <div className='flex mt-5 lg:mt-0 gap-x-2 flex-row'>
             <span>{formatEther(BigInt(bounty.data.amount))}</span>
             <span>{chain.currency}</span>
           </div>
-
           <div>
             {bounty.data.inProgress &&
-            account.address !== bounty.data.issuer ? (
-              <CreateClaim bountyId={bountyId} />
-            ) : (
-              <button
-                onClick={() => {
-                  if (account.isConnected) {
-                    cancelMutation.mutate(BigInt(bountyId));
-                  } else {
-                    toast.error('Please connect wallet to continue');
-                  }
-                }}
-                disabled={!bounty.data.inProgress}
-                className={`border border-[#F15E5F]  rounded-md py-2 px-5 mt-5 ${
-                  !bounty.data.inProgress
-                    ? 'bg-[#F15E5F] text-white '
-                    : 'text-[#F15E5F]'
-                } `}
-              >
-                {bounty.data.isCanceled
-                  ? 'canceled'
-                  : account.address === bounty.data.issuer
-                  ? 'cancel'
-                  : !bounty.data.inProgress
-                  ? 'accepted'
-                  : null}
-              </button>
-            )}
+              account.isConnected &&
+              account.address === bounty.data.issuer && (
+                <button
+                  onClick={() => {
+                    if (account.isConnected) {
+                      cancelMutation.mutate(BigInt(bountyId));
+                    } else {
+                      toast.error('Please connect wallet to continue');
+                    }
+                  }}
+                  disabled={!bounty.data.inProgress}
+                  className={`border border-[#F15E5F] rounded-md py-2 px-5 mt-5 ${
+                    !bounty.data.inProgress
+                      ? 'bg-[#F15E5F] text-white'
+                      : 'hover:bg-red-400 hover:text-white'
+                  } `}
+                >
+                  {bounty.data.isCanceled
+                    ? 'canceled'
+                    : account.address === bounty.data.issuer
+                    ? 'cancel'
+                    : !bounty.data.inProgress
+                    ? 'accepted'
+                    : null}
+                </button>
+              )}
           </div>
         </div>
       </div>

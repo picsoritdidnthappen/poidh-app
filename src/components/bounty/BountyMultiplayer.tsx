@@ -1,15 +1,14 @@
-import Link from 'next/link';
 import { useState } from 'react';
-import { formatEther } from 'viem';
-import { useQuery } from '@tanstack/react-query';
 
 import { ExpandMoreIcon } from '@/components/global/Icons';
 import JoinBounty from '@/components/ui/JoinBounty';
 import Withdraw from '@/components/ui/Withdraw';
 import { trpc } from '@/trpc/client';
 import { Chain } from '@/utils/types';
-import { getDegenOrEnsName } from '@/utils/web3';
 import { useAccount } from 'wagmi';
+import DisplayAddress from '@/components/DisplayAddress';
+import { formatEther } from 'viem';
+import { cn } from '@/utils';
 
 export default function BountyMultiplayer({
   chain,
@@ -50,9 +49,10 @@ export default function BountyMultiplayer({
             ? `${participants.data.length} contributors`
             : 'Loading contributors...'}
           <span
-            className={`${
-              showParticipants ? '-rotate-180' : ''
-            } animation-all duration-300 `}
+            className={cn(
+              showParticipants ? '-rotate-180' : '',
+              'animation-all duration-300'
+            )}
           >
             <ExpandMoreIcon width={16} height={16} />
           </span>
@@ -63,11 +63,16 @@ export default function BountyMultiplayer({
             <div className='flex flex-col'>
               {participants.isSuccess ? (
                 participants.data.map((participant) => (
-                  <Participant
-                    participant={participant}
-                    chain={chain}
-                    key={participant.user.id}
-                  />
+                  <p key={participant.user.id} className='flex items-center'>
+                    <DisplayAddress
+                      address={participant.user.id}
+                      chain={chain}
+                    />
+                    &nbsp;
+                    {`${formatEther(BigInt(participant.amount))} ${
+                      chain.currency
+                    }`}
+                  </p>
                 ))
               ) : (
                 <p>Loading addresses…</p>
@@ -85,47 +90,4 @@ export default function BountyMultiplayer({
       ) : null}
     </>
   );
-}
-function Participant({
-  chain,
-  participant,
-}: {
-  chain: Chain;
-  participant: {
-    user: { id: string; ens: string | null; degenName: string | null };
-    amount: string;
-  };
-}) {
-  const walletDisplayName = useQuery({
-    queryKey: ['getWalletDisplayName', participant.user.id, chain.slug],
-    queryFn: () =>
-      getWalletDisplayName({
-        address: participant.user.id,
-        chainName: chain.slug,
-      }),
-  });
-
-  return (
-    <div className='py-2'>
-      <Link href={`/${chain.slug}/account/${participant.user.id}`}>
-        {walletDisplayName.data ?? participant.user.id}
-      </Link>{' '}
-      - {formatEther(BigInt(participant.amount))} {chain.currency}
-    </div>
-  );
-}
-
-async function getWalletDisplayName({
-  address,
-  chainName,
-}: {
-  address: string;
-  chainName: 'arbitrum' | 'base' | 'degen';
-}) {
-  const nickname = await getDegenOrEnsName({ address, chainName });
-  if (nickname) {
-    return nickname;
-  }
-
-  return address.slice(0, 6) + '…' + address.slice(-4);
 }

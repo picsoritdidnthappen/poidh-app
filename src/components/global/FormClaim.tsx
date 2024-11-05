@@ -1,5 +1,5 @@
 import imageCompression from 'browser-image-compression';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 
@@ -10,33 +10,75 @@ import abi from '@/constant/abi/abi';
 import Image from 'next/image';
 import { useMutation } from '@tanstack/react-query';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogActions,
+  Button,
+  CircularProgress,
+  Box,
+} from '@mui/material';
+
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
-export default function FormClaim({ bountyId }: { bountyId: string }) {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    setFile(file);
-    const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      if (e.target?.result) {
-        setPreview(e.target.result.toString());
-      }
-    };
-    reader.readAsDataURL(file);
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-  const [preview, setPreview] = useState('');
-  const account = useAccount();
+export default function FormClaim({
+  bountyId,
+  open,
+  onClose,
+}: {
+  bountyId: string;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [preview, setPreview] = useState<string>('');
+  const [imageURI, setImageURI] = useState<string>('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [file, setFile] = useState<File | null>(null);
-  const [imageURI, setImageURI] = useState<string>('');
   const [uploading, setUploading] = useState(false);
-  const inputFile = useRef<HTMLInputElement>(null);
+
+  const account = useAccount();
   const writeContract = useWriteContract({});
   const chain = useGetChain();
-  const switctChain = useSwitchChain();
+  const switchChain = useSwitchChain();
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      const selectedFile = acceptedFiles[0];
+      const reader = new FileReader();
+
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          setPreview(e.target.result.toString());
+          handleImageUpload(selectedFile);
+        }
+      };
+
+      reader.readAsDataURL(selectedFile);
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    maxFiles: 1,
+    accept: {
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+    },
+    disabled: !!imageURI,
+  });
+
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const compressedFile = await compressImage(file);
+      const cid = await retryUpload(compressedFile);
+      setImageURI(`${LINK_IPFS}/${cid}`);
+    } catch (error) {
+      toast.error('Error uploading image');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const compressImage = async (image: File): Promise<File> => {
     const options = {
@@ -44,9 +86,7 @@ export default function FormClaim({ bountyId }: { bountyId: string }) {
       maxWidthOrHeight: 1920,
       useWebWorker: true,
     };
-
-    const compressedFile = await imageCompression(image, options);
-    return compressedFile;
+    return await imageCompression(image, options);
   };
 
   const retryUpload = async (file: File): Promise<string> => {
@@ -58,37 +98,17 @@ export default function FormClaim({ bountyId }: { bountyId: string }) {
         const cid = await uploadFile(file);
         return cid.IpfsHash;
       } catch (error) {
-        if (attempt === MAX_RETRIES) {
-          throw error;
-        }
+        if (attempt === MAX_RETRIES) throw error;
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
       }
     }
-    throw new Error('All attempts failed');
+    throw new Error('All upload attempts failed');
   };
-
-  useEffect(() => {
-    const uploadImage = async () => {
-      if (file) {
-        setUploading(true);
-        try {
-          const compressedFile = await compressImage(file);
-          const cid = await retryUpload(compressedFile);
-          setImageURI(`${LINK_IPFS}/${cid}`);
-        } catch (error) {
-          toast.error('Trouble uploading file');
-        }
-        setUploading(false);
-      }
-    };
-
-    uploadImage();
-  }, [file]);
 
   const createClaimMutations = useMutation({
     mutationFn: async (bountyId: bigint) => {
       if (chain.id !== account.chainId) {
-        await switctChain.switchChainAsync({ chainId: chain.id });
+        await switchChain.switchChainAsync({ chainId: chain.id });
       }
       const metadata = buildMetadata(imageURI, name, description);
       const metadataResponse = await uploadMetadata(metadata);
@@ -106,71 +126,110 @@ export default function FormClaim({ bountyId }: { bountyId: string }) {
   useEffect(() => {
     if (createClaimMutations.isSuccess) {
       toast.success('Claim created successfully');
+      onClose();
     }
     if (createClaimMutations.isError) {
       toast.error('Failed to create claim');
     }
-  }, [createClaimMutations.isSuccess, createClaimMutations.isError]);
+  }, [createClaimMutations.isSuccess, createClaimMutations.isError, onClose]);
 
   return (
-    <div className='mt-10 text-left flex-col text-white rounded-md border border-[#D1ECFF] p-5 flex w-full lg:min-w-[400px] justify-center backdrop-blur-sm bg-poidhBlue/60'>
-      <div
-        {...getRootProps()}
-        className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center cursor-pointer'
-      >
-        <input {...getInputProps()} />
-        {isDragActive && <p>drop files here…</p>}
-        {preview && (
-          <Image
-            src={preview}
-            alt='Preview'
-            width={300}
-            height={300}
-            style={{
-              marginTop: '10px',
-              borderRadius: '10px',
-              objectFit: 'contain',
-            }}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth='xs'
+      PaperProps={{
+        className: 'bg-poidhBlue/80',
+        style: {
+          borderRadius: '10px',
+          color: 'white',
+          border: '1px solid #D1ECFF',
+        },
+      }}
+    >
+      <DialogContent>
+        <div
+          {...getRootProps()}
+          style={{
+            border: '2px dashed #D1ECFF',
+            padding: '20px',
+            borderRadius: '30px',
+            textAlign: 'center',
+            cursor: imageURI ? 'default' : 'pointer',
+            marginBottom: '10px',
+            opacity: imageURI ? 0.5 : 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            height: '300px',
+          }}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p>Drop the image here...</p>
+          ) : (
+            <p>
+              {imageURI
+                ? 'Image uploaded'
+                : 'Drag & drop or click to upload an image'}
+            </p>
+          )}
+          {preview && (
+            <Image
+              src={preview}
+              alt='Preview'
+              width={200}
+              height={200}
+              style={{
+                marginTop: '10px',
+                borderRadius: '10px',
+                objectFit: 'contain',
+              }}
+            />
+          )}
+        </div>
+        <Box mt={2} mb={-3}>
+          <span>title</span>
+          <input
+            type='text'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
           />
-        )}
-      </div>
-
-      <span>name</span>
-      <input
-        type='text'
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4'
-      />
-
-      <span>description</span>
-      <textarea
-        rows={3}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4'
-      ></textarea>
-
-      <button disabled={uploading} onClick={() => inputFile.current?.click()}>
-        {uploading ? 'uploading image...' : 'upload'}
-      </button>
-
-      <button
-        className={`border bg-poidhRed mt-5 rounded-full px-5 py-2 ${
-          account.isDisconnected ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-        onClick={() => {
-          if (name && description && account.isConnected && imageURI) {
-            createClaimMutations.mutate(BigInt(bountyId));
-          } else {
-            toast.error(
-              'Please fill in all fields, upload an image, and connect wallet'
-            );
+          <span>description</span>
+          <textarea
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+          ></textarea>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => {
+            if (name && description && account.isConnected && imageURI) {
+              createClaimMutations.mutate(BigInt(bountyId));
+            } else {
+              toast.error(
+                'Please fill in all fields, upload an image, and connect wallet'
+              );
+            }
+          }}
+          color='error'
+          variant='contained'
+          className='w-full rounded-full'
+          disabled={
+            account.isDisconnected ||
+            !name ||
+            !description ||
+            uploading ||
+            !imageURI
           }
-        }}
-      >
-        create claim
-      </button>
-    </div>
+        >
+          {uploading ? <CircularProgress size={24} /> : 'Create Claim'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

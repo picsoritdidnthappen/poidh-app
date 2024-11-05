@@ -30,7 +30,7 @@ export default function ClaimList({
       <div
         className={`${
           votingClaim ? 'votingStarted' : ''
-        } container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 `}
+        } container mx-auto px-0 py-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 `}
       >
         {votingClaim && (
           <div className='lg:col-span-4'>
@@ -51,11 +51,7 @@ export default function ClaimList({
         {votingClaim && <Voting bountyId={bountyId} />}
       </div>
 
-      <div
-        className={
-          'container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'
-        }
-      >
+      <div className='container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
         <p className={`col-span-12  ${!isMultiplayer ? 'hidden' : ' '}  `}>
           other claims
         </p>

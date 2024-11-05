@@ -9,18 +9,14 @@ export default function CreateBounty() {
   const { isConnected } = useAccount();
 
   return (
-    <div
-      className={`fixed ${
-        !showForm ? 'bottom-20' : 'top-0 left-0'
-      } z-40 w-full py-12 flex justify-center items-center lg:flex-col`}
-    >
+    <div className='fixed bottom-8 z-40 w-full flex justify-center items-center lg:flex-col'>
       {isConnected && !showForm && (
         <div
-          className='absolute button bottom-10 flex cursor-pointer flex-col items-center justify-center '
+          className='absolute button bottom-10 flex cursor-pointer flex-col items-center justify-center'
           onClick={() => setShowForm(true)}
         >
           <GameButton />
-          <ButtonCTA> create bounty </ButtonCTA>
+          <ButtonCTA>create bounty</ButtonCTA>
         </div>
       )}
 

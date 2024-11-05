@@ -101,13 +101,13 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
         />
       )}
       {claims.hasNextPage && (
-        <div className='flex justify-center items-center pb-96'>
+        <div className='flex justify-center items-center'>
           <button
             onClick={() => claims.fetchNextPage()}
-            className='border border-white rounded-full px-5  backdrop-blur-sm bg-[#D1ECFF]/20  py-2'
+            className='border border-white rounded-full px-5 backdrop-blur-sm bg-[#D1ECFF]/20 py-2'
             disabled={claims.isFetchingNextPage}
           >
-            {claims.isFetchingNextPage ? 'loading...' : 'show more'}
+            {claims.isFetchingNextPage ? 'loading…' : 'show more'}
           </button>
         </div>
       )}

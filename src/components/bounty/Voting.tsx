@@ -29,7 +29,7 @@ export default function Voting({ bountyId }: { bountyId: string }) {
 
   useEffect(() => {
     fetchVotingData();
-  }, [bountyId, chain]);
+  });
 
   const voteMutation = useMutation({
     mutationFn: async ({
