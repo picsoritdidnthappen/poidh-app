@@ -1,8 +1,8 @@
 import React from 'react';
 
-import ClaimItem from '@/components/bounty/ClaimItem';
 import Voting from '@/components/bounty/Voting';
 import { Claim } from '@/utils/types';
+import ClaimItem from './ClaimItem';
 
 export default function ClaimList({
   bountyId,

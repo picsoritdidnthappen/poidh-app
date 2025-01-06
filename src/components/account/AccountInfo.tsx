@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { formatEther } from 'viem';
 
 import { useGetChain } from '@/hooks/useGetChain';
-import ClaimsListAccount from '@/components/bounty/ClaimListAccount';
-import NftList from '@/components/bounty/NftList';
 import BountyList from '@/components/ui/BountyList';
 import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
 import { formatWalletAddress } from '@/utils/web3';
+import FilterButton from '@/components/ui/FilterButton';
+import NftList from '../nft/NftList';
+import ClaimsListAccount from '../claim/ClaimListAccount';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
