@@ -5,11 +5,16 @@ import { CopyIcon } from '@/components/global/Icons';
 import { chains } from '@/utils/config';
 import { Claim } from '@/utils/types';
 import { Chain } from '@/utils/types';
-import { useRouter } from 'next/navigation';
 import { formatEther } from 'viem';
+import DisplayAddress from '@/components/DisplayAddress';
 
-const getChainById = (chainId: number): Chain | undefined =>
-  Object.values(chains).find((chain) => chain.id === chainId);
+const getChainById = (chainId: number): Chain => {
+  const chain = Object.values(chains).find((chain) => chain.id === chainId);
+  if (!chain) {
+    throw new Error(`Chain with ID ${chainId} not found`);
+  }
+  return chain;
+};
 
 export default function PastBountyCard({
   claim,
@@ -22,7 +27,6 @@ export default function PastBountyCard({
   bountyTitle: string;
   bountyAmount: string;
 }) {
-  const router = useRouter();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const chain = getChainById(chainId);
@@ -40,12 +44,9 @@ export default function PastBountyCard({
   return (
     <>
       {claim && (
-        <div
+        <Link
           className='lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl cursor-pointer'
-          onClick={() => {
-            const chainName = chain?.slug;
-            router.push(`/${chainName}/bounty/${claim.bountyId}`);
-          }}
+          href={`/${chain?.slug}/bounty/${claim.bountyId}`}
         >
           <div className='p-[2px] text-white relative bg-[#F15E5F] border-[#F15E5F] border-2 rounded-xl'>
             <div>
@@ -70,14 +71,14 @@ export default function PastBountyCard({
                 <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
                   <span className=''>issuer</span>
                   <span className='flex flex-row'>
-                    <Link
-                      href={`/${chain?.slug}/account/${claim?.issuer}`}
+                    <div
                       className='hover:text-gray-200'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
                     >
-                      {claim?.issuer.slice(0, 5) +
-                        '…' +
-                        claim?.issuer.slice(-6)}
-                    </Link>
+                      <DisplayAddress address={claim.issuer} chain={chain} />
+                    </div>
                     <span className='ml-1 text-white'>
                       <button
                         onClick={async () => {
@@ -102,7 +103,7 @@ export default function PastBountyCard({
               {formatEther(BigInt(bountyAmount))} {chain?.currency}
             </span>
           </div>
-        </div>
+        </Link>
       )}
     </>
   );
