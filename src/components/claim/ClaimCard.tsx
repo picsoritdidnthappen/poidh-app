@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
-import { BanIcon } from '../global/Icons';
+import { BanIcon, CloseIcon, ZoomInIcon, ZoomOutIcon } from '../global/Icons';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -38,7 +38,23 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const banClaimMutation = trpc.banClaim.useMutation({});
   const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
 
+  const [scale, setScale] = useState(1);
   const [isImageFullscreen, setIsImageFullscreen] = useState(false);
+
+  const handleZoomIn = () => {
+    setScale((prev) => Math.min(prev + 0.5, 3));
+  };
+
+  const handleZoomOut = () => {
+    setScale((prev) => Math.max(prev - 0.5, 0.5));
+  };
+
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setIsImageFullscreen(false);
+      setScale(1);
+    }
+  };
 
   const signMutation = useMutation({
     mutationFn: async (claimId: string) => {
@@ -176,29 +192,44 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
       <Dialog
         open={isImageFullscreen}
-        onClose={() => setIsImageFullscreen(false)}
+        onClose={() => {
+          setIsImageFullscreen(false);
+          setScale(1);
+        }}
         className='relative z-[60]'
       >
-        <div className='fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center'>
+        <div
+          className='fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center'
+          onClick={handleBackgroundClick}
+        >
           <div className='relative w-full h-full flex items-center justify-center p-4'>
+            <div className='absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10'>
+              <div className='bg-blur rounded-lg border border-white/20 flex items-center'>
+                <button
+                  onClick={handleZoomOut}
+                  className='text-white/80 hover:text-white p-2 transition-colors'
+                >
+                  <ZoomOutIcon width={20} height={20} />
+                </button>
+                <div className='px-3 text-white/90 text-sm border-l border-r border-white/20'>
+                  {Math.round(scale * 100)}%
+                </div>
+                <button
+                  onClick={handleZoomIn}
+                  className='text-white/80 hover:text-white p-2 transition-colors'
+                >
+                  <ZoomInIcon width={20} height={20} />
+                </button>
+              </div>
+            </div>
             <button
-              onClick={() => setIsImageFullscreen(false)}
-              className='absolute top-4 right-4 text-white/80 hover:text-white z-10'
+              onClick={() => {
+                setIsImageFullscreen(false);
+                setScale(1);
+              }}
+              className='absolute top-4 right-4 text-white/80 hover:text-white p-2 bg-blur rounded-lg border border-white/20'
             >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                className='h-6 w-6'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M6 18L18 6M6 6l12 12'
-                />
-              </svg>
+              <CloseIcon width={20} height={20} />
             </button>
             {claim.imageUrl && (
               <Image
@@ -206,8 +237,8 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                 alt={claim.title}
                 width={400}
                 height={400}
-                className='max-w-full max-h-full object-contain'
-                onClick={() => setIsImageFullscreen(false)}
+                className='max-w-full max-h-full object-contain transition-transform duration-200'
+                style={{ transform: `scale(${scale})` }}
               />
             )}
           </div>
