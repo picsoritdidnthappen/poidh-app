@@ -377,3 +377,30 @@ export function SortIcon({
     </svg>
   );
 }
+
+export function BanIcon({
+  width = 24,
+  height = 24,
+}: {
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      className='h-4 w-4 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.5)]'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      width={width}
+      height={height}
+    >
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={2}
+        d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'
+      />
+    </svg>
+  );
+}

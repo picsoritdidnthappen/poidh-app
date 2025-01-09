@@ -5,14 +5,15 @@ import prisma from 'prisma/prisma';
 import { baseProcedure, createTRPCRouter } from '../init';
 import serverEnv from '@/utils/serverEnv';
 import { TRPCError } from '@trpc/server';
-import { getAddress } from 'viem';
-import { chains } from '@/utils/config';
+import { formatEther, getAddress } from 'viem';
+import { chains, getChainById } from '@/utils/config';
 import { getBanSignatureFirstLine } from '@/utils/utils';
+import { Currency } from '@/utils/types';
 
 export const addressSchema = z
   .string()
   .regex(/^0x[a-fA-F0-9]{40}$/)
-  .transform((v) => getAddress(v));
+  .transform((v) => getAddress(v).toLocaleLowerCase());
 
 export const chainNameSchema = z
   .string()
@@ -170,15 +171,15 @@ export const appRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       return await prisma.$queryRaw`
-        SELECT c.*, 
-          c.chain_id AS "chainId", 
-          c.is_accepted AS "accepted", 
-          c.bounty_id AS "bountyId", 
-          b.title AS "bountyTitle", 
+        SELECT c.*,
+          c.chain_id AS "chainId",
+          c.is_accepted AS "accepted",
+          c.bounty_id AS "bountyId",
+          b.title AS "bountyTitle",
           b.amount AS "bountyAmount"
         FROM "Claims" c
         JOIN (
-            SELECT id, chain_id, title, amount 
+            SELECT id, chain_id, title, amount
             FROM "Bounties"
             WHERE in_progress IS FALSE
               AND is_canceled IS FALSE
@@ -295,7 +296,7 @@ export const appRouter = createTRPCRouter({
   userBounties: baseProcedure
     .input(
       z.object({
-        address: z.string().transform((v) => v.toLocaleLowerCase()),
+        address: addressSchema,
         chainId: z.number(),
       })
     )
@@ -340,7 +341,7 @@ export const appRouter = createTRPCRouter({
   userClaims: baseProcedure
     .input(
       z.object({
-        address: z.string().transform((v) => v.toLocaleLowerCase()),
+        address: addressSchema,
         chainId: z.number(),
       })
     )
@@ -375,7 +376,7 @@ export const appRouter = createTRPCRouter({
   userNFTs: baseProcedure
     .input(
       z.object({
-        address: z.string().transform((v) => v.toLocaleLowerCase()),
+        address: addressSchema,
         chainId: z.number(),
       })
     )
@@ -467,7 +468,7 @@ export const appRouter = createTRPCRouter({
     .input(
       z.object({
         bountyId: z.number(),
-        participantAddress: z.string().transform((v) => v.toLocaleLowerCase()),
+        participantAddress: addressSchema,
         chainId: z.number(),
       })
     )
@@ -487,7 +488,7 @@ export const appRouter = createTRPCRouter({
     .input(
       z.object({
         bountyId: z.number(),
-        participantAddress: z.string().transform((v) => v.toLocaleLowerCase()),
+        participantAddress: addressSchema,
         chainId: z.number(),
       })
     )
@@ -626,6 +627,94 @@ export const appRouter = createTRPCRouter({
         },
       });
     }),
+
+  accountScore: baseProcedure
+    .input(z.object({ address: addressSchema, chainId: z.number() }))
+    .query(async ({ input }) => {
+      const chain = getChainById({
+        chainId: input.chainId as 666666666 | 42161 | 8453,
+      });
+      const bounties = await prisma.bounties.findMany({
+        where: {
+          issuer: input.address,
+          chain_id: input.chainId,
+          ban: {
+            none: {},
+          },
+          is_canceled: false,
+        },
+        select: {
+          amount: true,
+          in_progress: true,
+        },
+      });
+
+      const claims = await prisma.claims.findMany({
+        where: {
+          issuer: input.address,
+          chain_id: input.chainId,
+          ban: {
+            none: {},
+          },
+        },
+        select: {
+          is_accepted: true,
+          bounty: {
+            select: {
+              id: true,
+              amount: true,
+            },
+          },
+        },
+      });
+
+      const NFTsCount = await prisma.claims.count({
+        where: {
+          owner: input.address,
+          chain_id: input.chainId,
+        },
+      });
+
+      const amountInContract = formatEther(
+        bounties
+          .filter((bounty) => !bounty.in_progress)
+          .flatMap((bounty) => BigInt(bounty.amount))
+          .reduce((total, amount) => total + amount, BigInt(0))
+      );
+
+      const totalPaid = formatEther(
+        bounties
+          .filter((bounty) => bounty.in_progress)
+          .flatMap((bounty) => BigInt(bounty.amount))
+          .reduce((total, amount) => total + amount, BigInt(0))
+      );
+
+      const totalEarn = formatEther(
+        claims
+          .filter((claim) => claim.is_accepted)
+          .flatMap((claim) => BigInt(claim.bounty!.amount))
+          .reduce((total, amount) => total + amount, BigInt(0))
+      );
+
+      const price = await fetchPrice({ currency: chain.currency });
+
+      const result = {
+        amountInContract: convertAmount({ price, amount: amountInContract }),
+        totalPaid: convertAmount({ price, amount: totalPaid }),
+        totalEarn: convertAmount({ price, amount: totalEarn }),
+      };
+
+      const poidhScore =
+        result.totalEarn.amountUSD +
+        result.totalPaid.amountUSD +
+        NFTsCount * 10;
+
+      return {
+        ...result,
+        poidhScore: Number(poidhScore.toFixed(0)),
+        acceptedClaimsCount: claims.filter((claim) => claim.is_accepted).length,
+      };
+    }),
 });
 
 export function checkIsAdmin(address?: string) {
@@ -633,6 +722,21 @@ export function checkIsAdmin(address?: string) {
     return false;
   }
   return serverEnv.ADMINS.includes(address.toLocaleLowerCase());
+}
+
+export async function fetchPrice({ currency }: { currency: Currency }) {
+  const response = await fetch(
+    `https://api.coinbase.com/v2/exchange-rates?currency=${currency}`
+  );
+  const body = await response.json();
+  return Number(body.data.rates.USD);
+}
+
+function convertAmount({ amount, price }: { amount: string; price: number }) {
+  return {
+    amountCrypto: Number(amount),
+    amountUSD: price * Number(amount),
+  };
 }
 
 export type AppRouter = typeof appRouter;

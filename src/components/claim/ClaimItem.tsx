@@ -2,12 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetChain } from '@/hooks/useGetChain';
 import { trpc, trpcClient } from '@/trpc/client';
-import {
-  useAccount,
-  useSignMessage,
-  useSwitchChain,
-  useWriteContract,
-} from 'wagmi';
+import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '@/components/global/Loading';
@@ -15,6 +10,7 @@ import { cn } from '@/utils';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/ui/DisplayAddress';
 import CopyAddressButton from '@/components/ui/CopyAddressButton';
+import ClaimCard from './ClaimCard';
 
 export default function ClaimItem({
   id,
@@ -40,48 +36,12 @@ export default function ClaimItem({
   const chain = useGetChain();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
-  const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
-  const banClaimMutation = trpc.banClaim.useMutation({});
-  const { signMessageAsync } = useSignMessage();
   const utils = trpc.useUtils();
+  const [openCard, setOpenCard] = useState<boolean>(false);
 
-  const signMutation = useMutation({
-    mutationFn: async (claimId: string) => {
-      const chainId = await account.connector?.getChainId();
-      if (chainId !== 8453) {
-        //arbitrum has a problem with message signing, so all confirmations are on base
-        await switctChain.switchChainAsync({ chainId: 8453 });
-      }
-      const message = getBanSignatureFirstLine({
-        id: Number(claimId),
-        chainId: chain.id,
-        type: 'claim',
-      });
-      if (account.address) {
-        const signature = await signMessageAsync({ message }).catch(() => null);
-        if (!signature) {
-          throw new Error('Failed to sign message');
-        }
-
-        await banClaimMutation.mutateAsync({
-          id: Number(claimId),
-          chainId: chain.id,
-          address: account.address,
-          chainName: chain.slug,
-          message,
-          signature,
-        });
-      }
-    },
-    onSuccess: () => {
-      toast.success('Claim banned');
-    },
-    onError: (error) => {
-      toast.error('Failed to ban claim: ' + error.message);
-    },
-    onSettled: () => {
-      utils.bountyClaims.refetch();
-    },
+  const accountStats = trpc.accountScore.useQuery({
+    address: issuer,
+    chainId: chain.id,
   });
 
   const [status, setStatus] = useState<string>('');
@@ -193,6 +153,23 @@ export default function ClaimItem({
         open={acceptClaimMutation.isPending || submitForVoteMutation.isPending}
         status={status}
       />
+      <ClaimCard
+        claim={{
+          id,
+          description,
+          imageUrl,
+          title,
+          currency: chain.currency,
+          issuer: {
+            completedClaims: accountStats.data?.acceptedClaimsCount ?? 0,
+            address: issuer,
+            earnedAmount: accountStats.data?.totalEarn.amountCrypto ?? 0,
+            scorePoidh: accountStats.data?.poidhScore ?? 0,
+          },
+        }}
+        onClose={() => setOpenCard(false)}
+        open={openCard}
+      />
       <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
         <div className='left-5 top-5 absolute  flex flex-col text-white'>
           {bounty.data &&
@@ -226,26 +203,11 @@ export default function ClaimItem({
             accepted
           </div>
         )}
-        {isAdmin.data && (
-          <button
-            onClick={() => {
-              if (isAdmin.data) {
-                signMutation.mutate(id);
-              } else {
-                toast.error('You are not an admin');
-              }
-            }}
-            className={cn(
-              'border border-poidhRed w-fit rounded-md py-2 px-5 mt-5 hover:bg-red-400 hover:text-white absolute right-5 top-5'
-            )}
-          >
-            ban
-          </button>
-        )}
         <div
           style={{ backgroundImage: `url(${imageUrl})` }}
-          className='bg-poidhBlue bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
-        ></div>
+          className='bg-[#12AAFF] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+          onClick={() => setOpenCard(true)}
+        />
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
