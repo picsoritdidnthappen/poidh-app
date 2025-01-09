@@ -102,16 +102,27 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
           <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-3 bg-gradient-to-b from-[#2a81d5] to-[#70aae2]'>
             <div className='bg-blur rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 border border-white/20'>
               <div
-                className='bg-blur-white rounded-lg p-2 h-48 sm:h-64 flex items-center justify-center cursor-pointer'
+                className='bg-blur-white rounded-lg p-2 h-48 sm:h-64 flex items-center justify-center cursor-pointer relative'
                 onClick={() => claim.imageUrl && setIsImageFullscreen(true)}
               >
+                {claim.imageUrl && (
+                  <div
+                    className='absolute inset-0 rounded-lg opacity-30'
+                    style={{
+                      backgroundImage: `url(${claim.imageUrl})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                    }}
+                  />
+                )}
                 {claim.imageUrl ? (
                   <Image
                     src={claim.imageUrl}
                     alt={claim.title}
                     width={400}
                     height={400}
-                    className='max-h-full max-w-full object-contain transition-transform'
+                    className='max-h-full max-w-full object-contain transition-transform relative z-20'
                   />
                 ) : (
                   <div className='text-white/60'>No Image</div>
