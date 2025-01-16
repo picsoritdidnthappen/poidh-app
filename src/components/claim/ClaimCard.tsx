@@ -1,6 +1,6 @@
 import { useGetChain } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
-import { Currency } from '@/utils/types';
+import { Currency, Netname } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { BanIcon, CloseIcon, ZoomInIcon, ZoomOutIcon } from '../global/Icons';
+import { degen } from 'viem/chains';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -159,22 +160,48 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
                 <div className='grid grid-cols-3 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs'>
                   <div className='bg-blur-white rounded p-1.5 sm:p-2'>
-                    <div className='font-bold text-white'>
-                      {claim.issuer.scorePoidh}
+                    <div className='h-6 flex items-center justify-center'>
+                      <span
+                        style={getScoreColor({
+                          chainName: chain.slug,
+                          score: claim.issuer.scorePoidh,
+                          type: 'score',
+                        })}
+                      >
+                        {claim.issuer.scorePoidh}
+                      </span>
                     </div>
-                    <div className='text-white/80'>Score</div>
+                    <div className='text-white/80 mt-1'>Score</div>
                   </div>
+
                   <div className='bg-blur-white rounded p-1.5 sm:p-2'>
-                    <div className='font-bold text-white'>
-                      {claim.issuer.completedClaims}
+                    <div className='h-6 flex items-center justify-center'>
+                      <span
+                        style={getScoreColor({
+                          chainName: chain.slug,
+                          score: claim.issuer.completedClaims,
+                          type: 'claims',
+                        })}
+                      >
+                        {claim.issuer.completedClaims}
+                      </span>
                     </div>
-                    <div className='text-white/80'>Claims</div>
+                    <div className='text-white/80 mt-1'>Claims</div>
                   </div>
+
                   <div className='bg-blur-white rounded p-1.5 sm:p-2'>
-                    <div className='font-bold text-white'>
-                      {claim.issuer.earnedAmount}
+                    <div className='h-6 flex items-center justify-center'>
+                      <span
+                        style={getScoreColor({
+                          chainName: chain.slug,
+                          score: claim.issuer.earnedAmount,
+                          type: 'earned',
+                        })}
+                      >
+                        {claim.issuer.earnedAmount}
+                      </span>
                     </div>
-                    <div className='text-white/80'>
+                    <div className='text-white/80 mt-1'>
                       Earned ({claim.currency})
                     </div>
                   </div>
@@ -257,4 +284,66 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       </Dialog>
     </>
   );
+}
+
+function getScoreColor({
+  score,
+  type,
+  chainName,
+}: {
+  score: number;
+  type: 'score' | 'earned' | 'claims';
+  chainName: Netname;
+}) {
+  const colors = ['#ffffff', '#cce5ff', '#ff4d4d', '#ff0000'];
+
+  const styles = [
+    { shadow: 'none', scale: 1 },
+    { shadow: '1px 1px 0 #ffffff', scale: 1 },
+    { shadow: '1px 1px 0 #ffffff', scale: 1 },
+    { shadow: '1px 1px 0 #ffffff', scale: 1 },
+  ];
+
+  const thresholdsConfig: Record<
+    'ether' | 'degen',
+    Partial<Record<'score' | 'earned' | 'claims', number[]>>
+  > = {
+    degen: {
+      earned: [0, 1000, 5000, 10000],
+      score: [0, 50, 150, 200],
+      claims: [0, 1, 3, 10],
+    },
+    ether: {
+      earned: [0, 0.001, 0.02, 0.1],
+      score: [0, 50, 150, 200],
+      claims: [0, 1, 3, 10],
+    },
+  };
+
+  const thresholds = thresholdsConfig[
+    chainName === 'degen' ? 'degen' : 'ether'
+  ]?.[type] ?? [0, 1, 10, 100];
+
+  let colorIndex = 0;
+  for (let i = thresholds.length - 1; i >= 0; i--) {
+    if (score >= thresholds[i]) {
+      colorIndex = i;
+      break;
+    }
+  }
+
+  const finalIndex = Math.min(colorIndex, colors.length - 1);
+  const style = styles[finalIndex];
+
+  return {
+    color: colors[finalIndex],
+    textShadow: style.shadow,
+    fontWeight: 600,
+    transform: `scale(${style.scale})`,
+    transition: 'all 0.2s ease',
+    fontFamily: 'monospace',
+    display: 'inline-block',
+    fontSize: '0.9rem',
+    letterSpacing: '0.5px',
+  };
 }

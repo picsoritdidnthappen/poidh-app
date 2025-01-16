@@ -39,7 +39,7 @@ export default function ClaimItem({
   const utils = trpc.useUtils();
   const [openCard, setOpenCard] = useState<boolean>(false);
 
-  const accountStats = trpc.accountScore.useQuery({
+  const accountStats = trpc.accountStats.useQuery({
     address: issuer,
     chainId: chain.id,
   });

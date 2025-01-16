@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { formatEther } from 'viem';
+import { useState } from 'react';
 
 import { useGetChain } from '@/hooks/useGetChain';
 import BountyList from '@/components/ui/BountyList';
@@ -46,45 +45,10 @@ export default function AccountInfo({ address }: { address: string }) {
 
   const [currentSection, setCurrentSection] = useState<Section>('nfts');
 
-  const [ETHinContract, setETHinContract] = useState<string>('0');
-  const [totalETHPaid, setTotalETHPaid] = useState<string>('0');
-  const [totalETHEarn, setTotalETHEarn] = useState<string>('0');
-  const [poidhScore, setPoidhScore] = useState<number>(0);
-
-  useEffect(() => {
-    let totalAmount = BigInt(0);
-    bounties.data
-      ?.filter((bounty) => !bounty.inProgress)
-      .forEach((bounty) => {
-        totalAmount += BigInt(bounty.amount);
-      });
-    setTotalETHPaid(formatEther(totalAmount));
-    totalAmount = BigInt(0);
-    bounties.data
-      ?.filter((bounty) => bounty.inProgress)
-      .forEach((bounty) => {
-        totalAmount += BigInt(bounty.amount);
-      });
-    setETHinContract(formatEther(totalAmount));
-  }, [bounties]);
-
-  useEffect(() => {
-    const totalAmount =
-      claims.data
-        ?.filter((claim) => claim.is_accepted)
-        .flatMap((claim) => claim.bounty!.amount)
-        .reduce((prev, curr) => BigInt(prev) + BigInt(curr), BigInt(0)) ||
-      BigInt(0);
-    setTotalETHEarn(formatEther(totalAmount));
-  }, [claims]);
-
-  useEffect(() => {
-    const poidhScore =
-      Number(totalETHEarn) * 1000 +
-      Number(totalETHPaid) * 1000 +
-      (NFTs.data?.length ?? 0) * 10;
-    setPoidhScore(Number(poidhScore.toFixed(2)));
-  }, [totalETHEarn, totalETHPaid, NFTs]);
+  const accountStats = trpc.accountStats.useQuery(
+    { address, chainId: chain.id },
+    { enabled: !!address }
+  );
 
   return (
     <>
@@ -99,41 +63,35 @@ export default function AccountInfo({ address }: { address: string }) {
                 </span>
               </div>
               <div className='flex flex-col'>
+                <div>{`completed bounties: ${NFTs.data?.length ?? 0}`}</div>
                 <div>
-                  completed bounties:{' '}
-                  <span className='font-bold'> {NFTs.data?.length ?? 0}</span>
+                  {`total paid: ${
+                    accountStats.data?.totalPaid.amountCrypto ?? 0
+                  } ${chain.currency}`}
+                </div>
+                <div>in progress bounties: {bounties.data?.length ?? 0}</div>
+                <div>
+                  {`total in contract: ${
+                    accountStats.data?.amountInContract.amountCrypto ?? 0
+                  } ${chain.currency}`}
                 </div>
                 <div>
-                  total {chain.currency} paid:{' '}
-                  <span className='font-bold'>{totalETHPaid}</span>{' '}
+                  {`completed claims: ${
+                    accountStats.data?.acceptedClaimsCount ?? 0
+                  }
+                    `}
                 </div>
                 <div>
-                  in progress bounties:{' '}
-                  <span className='font-bold'>
-                    {bounties.data?.length ?? 0}
-                  </span>{' '}
-                </div>
-                <div>
-                  total {chain.currency} in contract:{' '}
-                  <span className='font-bold'>{ETHinContract}</span>{' '}
-                </div>
-                <div>
-                  completed claims:{' '}
-                  <span className='font-bold'>
-                    {claims.data?.filter((claim) => claim.is_accepted).length ??
-                      0}
-                  </span>
-                </div>
-                <div>
-                  total {chain.currency} earned:{' '}
-                  <span className='font-bold'>{totalETHEarn}</span>
+                  {`total earned: ${
+                    accountStats.data?.totalEarn.amountCrypto ?? 0
+                  } ${chain.currency}`}
                 </div>
               </div>
             </div>
             <div className='flex flex-col '>
               <span>poidh score:</span>
               <span className='text-4xl text-poihRed border-y border-dashed'>
-                {poidhScore}
+                {accountStats.data?.poidhScore}
               </span>
             </div>
           </div>
