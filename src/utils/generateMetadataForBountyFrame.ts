@@ -3,7 +3,7 @@ import { Netname } from '@/utils/types';
 import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
 
-const appUrl = 'https://poidh-app-theta.vercel.app';
+const appUrl = 'https://poidh.xyz';
 
 export const generateMetadataForBountyFrame = async ({
   params,
@@ -12,7 +12,7 @@ export const generateMetadataForBountyFrame = async ({
 }): Promise<Metadata> => {
   const frame = {
     version: 'next',
-    // imageUrl: `${appUrl}/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
+    imageUrl: `${appUrl}/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
     button: {
       title: 'See Claims',
       action: {
@@ -28,15 +28,12 @@ export const generateMetadataForBountyFrame = async ({
   const id = params.id;
   const chain = chains[params.netname as keyof typeof chains];
 
-  const bounty =
-    id !== 'null'
-      ? await prisma.bounties.findFirst({
-          where: {
-            id: Number(id),
-            chain_id: chain.id,
-          },
-        })
-      : null;
+  const bounty = await prisma.bounties.findFirst({
+    where: {
+      id: Number(id),
+      chain_id: chain.id,
+    },
+  });
 
   return {
     title: bounty?.title || "poidh - pics or it didn't happen",
@@ -61,8 +58,8 @@ export const generateMetadataForBountyFrame = async ({
         "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
       images: ['https://poidh.xyz/images/poidh-preview-hero.png'],
     },
-    // other: {
-    //   'fc:frame': JSON.stringify(frame),
-    // },
+    other: {
+      'fc:frame': JSON.stringify(frame),
+    },
   };
 };

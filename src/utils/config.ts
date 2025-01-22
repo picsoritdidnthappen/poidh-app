@@ -43,10 +43,6 @@ export const chains: Record<Netname, Chain> = {
   },
 };
 
-export function getChainById({
-  chainId,
-}: {
-  chainId: ChainId;
-}) {
+export function getChainById({ chainId }: { chainId: ChainId }): Chain {
   return Object.values(chains).find((chain) => chain.id === chainId)!;
 }

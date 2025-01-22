@@ -3,10 +3,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CopyIcon } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
+import CreateClaim from '@/components/ui/CreateClaim';
 import ButtonCTA from '@/components/ui/ButtonCTA';
+import FormClaim from '@/components/global/FormClaim';
 import { useAccount } from 'wagmi';
-import ClaimForm from '@/components/frame/claims/Claimform';
-import JoinBounty from '@/components/frame/claims/FormJoinBounty';
+import FormJoinBounty from '@/components/global/FormJoinBounty';
 
 // Types
 interface ChainInfo {
@@ -142,6 +143,8 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const { address, isConnected } = useAccount();
   const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
   const [showClaimForm, setShowClaimForm] = useState(false);
+  const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
+  const { address, isConnected } = useAccount();
 
   const fetchImageUrl = async (url: string, claimId: number) => {
     try {
@@ -159,7 +162,6 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   useEffect(() => {
     const fetchBounty = async () => {
       setLoading(true);
-      console.log(chainId, bountyId);
       try {
         const response = await fetch(`/api/bounties/${chainId}/${bountyId}`);
         if (!response.ok) {
@@ -248,10 +250,10 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                   create claim
                 </button>
               </div>
-              <ClaimForm
+              <FormClaim
                 bountyId={bountyId}
-                open={showClaimForm}
                 onClose={() => setShowClaimForm(false)}
+                open={showClaimForm}
               />
             </>
           )}
@@ -261,7 +263,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
               <div onClick={() => setShowJoinForm(true)}>
                 <ButtonCTA>join bounty</ButtonCTA>
               </div>
-              <JoinBounty
+              <FormJoinBounty
                 bountyId={bountyId}
                 onClose={() => setShowJoinForm(false)}
                 open={showJoinForm}
@@ -331,6 +333,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
           ))}
         </div>
       )}
+      <CreateClaim bountyId={String(bounty.id)} />
     </div>
   );
 };

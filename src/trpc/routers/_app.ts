@@ -8,7 +8,7 @@ import { TRPCError } from '@trpc/server';
 import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
 import { getBanSignatureFirstLine } from '@/utils/utils';
-import { Currency } from '@/utils/types';
+import { ChainId, Currency } from '@/utils/types';
 
 export const addressSchema = z
   .string()
@@ -629,11 +629,14 @@ export const appRouter = createTRPCRouter({
     }),
 
   accountStats: baseProcedure
-    .input(z.object({ address: addressSchema, chainId: z.number() }))
+    .input(
+      z.object({
+        address: addressSchema,
+        chainId: z.number().transform((num) => num as ChainId),
+      })
+    )
     .query(async ({ input }) => {
-      const chain = getChainById({
-        chainId: input.chainId as 666666666 | 42161 | 8453,
-      });
+      const chain = getChainById({ chainId: input.chainId });
       const address = input.address.toLowerCase();
       const bounties = await prisma.bounties.findMany({
         where: {

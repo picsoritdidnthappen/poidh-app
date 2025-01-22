@@ -40,7 +40,7 @@ export default function BountyList({ bounties }: { bounties: Bounty[] }) {
               bounty.hasClaims ? 'pendingClaims' : 'noClaims',
               'bountyItem lg:col-span-4'
             )}
-            key={bounty.id}
+            key={`${bounty.network}-${bounty.id}`}
             variants={{
               hidden: { y: 20, opacity: 0 },
               visible: {

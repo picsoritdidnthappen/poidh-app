@@ -40,3 +40,7 @@ async function getWalletDisplayName({
 }) {
   return (await getDegenOrEnsName({ address, chainName })) || null;
 }
+
+function formatWalletAddress(address: string): string {
+  return address.slice(0, 6) + '…' + address.slice(-4);
+}
