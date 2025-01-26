@@ -163,3 +163,7 @@ export default function AccountInfo({ address }: { address: string }) {
     </>
   );
 }
+
+export function formatAddress(address: string) {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+}

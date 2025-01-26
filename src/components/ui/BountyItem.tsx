@@ -46,7 +46,7 @@ export default function BountyItem({ bounty }: { bounty: Bounty }) {
   );
 }
 
-function formatAmount(amount: string): string {
+function formatAmount(amount: string) {
   const num = parseFloat(amount);
 
   if (isNaN(num)) {

@@ -36,7 +36,7 @@ function ClaimItem({ claim }: { claim: Claim }) {
     <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
       <Link href={`/${chain.slug}/bounty/${claim.bountyId}`}>
         {claim.accepted && (
-          <div className='right-5 top-5  text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute '>
+          <div className='right-5 top-5  text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute'>
             accepted
           </div>
         )}

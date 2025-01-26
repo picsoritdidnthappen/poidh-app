@@ -16,7 +16,7 @@ export default function PastBountyCard({
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const chain = getChainById(claim.chainId as ChainId);
+  const chain = getChainById({ chainId: claim.chainId as ChainId });
 
   const fetchImageUrl = async (url: string) => {
     const response = await fetch(url);
