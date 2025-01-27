@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useGetChain } from '@/hooks/useGetChain';
@@ -15,7 +15,11 @@ import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import Loading from '@/components/global/Loading';
 import { cn } from '@/utils';
-import { getBanSignatureFirstLine } from '@/utils/utils';
+import {
+  fetchPrice,
+  formatAmount,
+  getBanSignatureFirstLine,
+} from '@/utils/utils';
 import DisplayAddress from '@/components/ui/DisplayAddress';
 import CopyAddressButton from '@/components/ui/CopyAddressButton';
 
@@ -27,6 +31,8 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
   const banBountyMutation = trpc.banBounty.useMutation({});
   const { signMessageAsync } = useSignMessage();
+
+  const [price, setPrice] = useState<number>(0);
 
   const [status, setStatus] = useState<string>('');
 
@@ -121,6 +127,10 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
     },
   });
 
+  useEffect(() => {
+    fetchPrice({ currency: chain.currency }).then(setPrice);
+  }, [chain.currency]);
+
   if (!bounty.data) {
     return null;
   }
@@ -166,7 +176,11 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
             </button>
           )}
           <p className='mt-5 font-bold'>
-            {`${formatEther(BigInt(bounty.data.amount))} ${chain.currency}`}
+            {formatAmount({
+              amount: formatEther(BigInt(bounty.data.amount)),
+              currency: chain.currency,
+              price: price.toString(),
+            })}
           </p>
         </div>
         <div className='flex flex-col space-between'>

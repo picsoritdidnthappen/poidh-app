@@ -1,4 +1,3 @@
-/* eslint-disable import/order */
 import * as React from 'react';
 import '@/styles/colors.css';
 import { generateMetadataForBountyFrame } from '@/utils/generateMetadataForBountyFrame';

@@ -61,9 +61,9 @@ model ParticipationsBounties {
 }
 
 model Users {
-  address    String
-  ens        String?
-  degen_name String?
+  address   String
+  twitter   String?
+  farcaster String?
 
   participations ParticipationsBounties[]
   claims         Claims[]

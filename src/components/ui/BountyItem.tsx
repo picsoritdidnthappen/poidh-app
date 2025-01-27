@@ -1,10 +1,11 @@
 'use client';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatEther } from 'viem';
 
 import { useGetChain } from '@/hooks/useGetChain';
 import { UsersRoundIcon } from '@/components/global/Icons';
+import { fetchPrice, formatAmount } from '@/utils/utils';
 
 interface Bounty {
   id: string;
@@ -16,8 +17,14 @@ interface Bounty {
 }
 
 export default function BountyItem({ bounty }: { bounty: Bounty }) {
-  const amount = formatEther(BigInt(bounty.amount)).toString();
   const chain = useGetChain();
+  const [price, setPrice] = useState<number>(0);
+  const amount = formatEther(BigInt(bounty.amount)).toString();
+
+  useEffect(() => {
+    fetchPrice({ currency: chain.currency }).then(setPrice);
+  }, [chain.currency]);
+
   return (
     <>
       <Link href={`/${chain.slug}/bounty/${bounty.id}`}>
@@ -33,7 +40,11 @@ export default function BountyItem({ bounty }: { bounty: Bounty }) {
             <div className='flex items-end justify-between mt-5'>
               <div className='flex gap-2 items-center'>
                 <div>
-                  {formatAmount(amount)} {chain.currency}
+                  {formatAmount({
+                    amount,
+                    currency: chain.currency,
+                    price: price.toString(),
+                  })}
                 </div>
                 {bounty.isMultiplayer && <UsersRoundIcon />}
               </div>
@@ -44,18 +55,4 @@ export default function BountyItem({ bounty }: { bounty: Bounty }) {
       </Link>
     </>
   );
-}
-
-function formatAmount(amount: string) {
-  const num = parseFloat(amount);
-
-  if (isNaN(num)) {
-    return '0';
-  }
-
-  if (num < 0.001) {
-    return '<0.001';
-  }
-
-  return num.toString();
 }
