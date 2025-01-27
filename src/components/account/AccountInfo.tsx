@@ -10,45 +10,32 @@ import { formatWalletAddress } from '@/utils/web3';
 import FilterButton from '@/components/ui/FilterButton';
 import NftList from '../nft/NftList';
 import ClaimsListAccount from '../claim/ClaimListAccount';
+import { useAccount } from 'wagmi';
+import { AddIcon, TwitterXIcon, FarcasterIcon } from '../global/Icons';
+import AddSocial from '@/components/ui/AddSocial';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
 export default function AccountInfo({ address }: { address: string }) {
   const chain = useGetChain();
-  const bounties = trpc.userBounties.useQuery(
-    {
-      address,
-      chainId: chain.id,
-    },
-    {
-      enabled: !!address,
-    }
-  );
-  const claims = trpc.userClaims.useQuery(
-    {
-      address,
-      chainId: chain.id,
-    },
-    {
-      enabled: !!address,
-    }
-  );
-  const NFTs = trpc.userNFTs.useQuery(
-    {
-      address,
-      chainId: chain.id,
-    },
-    {
-      enabled: !!address,
-    }
-  );
+  const userAddress = useAccount();
 
-  const [currentSection, setCurrentSection] = useState<Section>('nfts');
+  const [currentSection, setCurrentSection] = useState<Section>('nft');
+  const [showAddSocial, setShowAddSocial] = useState(false);
 
-  const accountStats = trpc.accountStats.useQuery(
+  const accountActivities = trpc.accountActivities.useQuery(
     { address, chainId: chain.id },
     { enabled: !!address }
   );
+
+  const accountStats = trpc.accountInfo.useQuery(
+    { address, chainId: chain.id },
+    { enabled: !!address }
+  );
+
+  const accoutSocials = trpc.accountSocials.useQuery({
+    address,
+  });
 
   return (
     <>
@@ -56,20 +43,55 @@ export default function AccountInfo({ address }: { address: string }) {
         <div>
           <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-8'>
             <div>
-              <div className='flex flex-col border-b border-dashed'>
+              <div className='flex flex-col border-b border-dashed pb-4'>
                 <span>user</span>
-                <span className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
-                  {formatWalletAddress(address)}
-                </span>
+                <div className='flex flex-row items-center gap-2'>
+                  <span className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
+                    {formatAddress(address)}
+                  </span>
+                  {userAddress.address?.toLowerCase() === address && (
+                    <div
+                      onClick={() => setShowAddSocial(true)}
+                      className='flex items-center gap-1 px-3 py-1.5 hover:text-[#F15E5F] transition-colors duration-200 hover:cursor-pointer'
+                    >
+                      <AddIcon width={32} height={32} /> Social
+                    </div>
+                  )}
+                </div>
+                <div className='flex items-center gap-2'>
+                  {accoutSocials.data?.twitter && (
+                    <a
+                      className='opacity-40 hover:opacity-100 transition-opacity cursor-pointer'
+                      href={accoutSocials.data.twitter ?? ''}
+                      title='Add Twitter'
+                    >
+                      <TwitterXIcon width={28} height={28} />
+                    </a>
+                  )}
+                  {accoutSocials.data?.farcaster && (
+                    <a
+                      className='opacity-40 hover:opacity-100 transition-opacity cursor-pointer'
+                      href={accoutSocials.data.farcaster ?? ''}
+                      title='Add Farcaster'
+                    >
+                      <FarcasterIcon width={28} height={28} />
+                    </a>
+                  )}
+                </div>
               </div>
               <div className='flex flex-col'>
-                <div>{`completed bounties: ${NFTs.data?.length ?? 0}`}</div>
+                <div>{`completed bounties: ${
+                  accountActivities.data?.NFTs.length ?? 0
+                }`}</div>
                 <div>
                   {`total paid: ${
                     accountStats.data?.totalPaid.amountCrypto ?? 0
                   } ${chain.currency}`}
                 </div>
-                <div>in progress bounties: {bounties.data?.length ?? 0}</div>
+                <div>
+                  in progress bounties:{' '}
+                  {accountActivities.data?.bounties.length ?? 0}
+                </div>
                 <div>
                   {`total in contract: ${
                     accountStats.data?.amountInContract.amountCrypto ?? 0
@@ -108,58 +130,46 @@ export default function AccountInfo({ address }: { address: string }) {
                   'from-transparent from-60% to-red-500'
               )}
             >
-              <button
-                onClick={() => setCurrentSection('nfts')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
-              >
-                NFTs({NFTs.data?.length ?? 0})
-              </button>
-              <button
-                onClick={() => setCurrentSection('bounties')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
-              >
-                bounties ({bounties.data?.length ?? 0})
-              </button>
-              <button
-                onClick={() => setCurrentSection('claims')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
-              >
-                claims ({claims.data?.length ?? 0})
-              </button>
-            </div>
+              NFTs ({accountActivities.data?.NFTs.length ?? 0})
+            </FilterButton>
+            <FilterButton
+              onClick={() => setCurrentSection('bounties')}
+              show={currentSection !== 'bounties'}
+            >
+              bounties ({accountActivities.data?.bounties.length ?? 0})
+            </FilterButton>
+            <FilterButton
+              onClick={() => setCurrentSection('claims')}
+              show={currentSection !== 'claims'}
+            >
+              claims ({accountActivities.data?.claims.length ?? 0})
+            </FilterButton>
           </div>
 
           <div>
             {currentSection === 'nfts' && (
               <div className='lg:px-20 px-8'>
-                <NftList NFTs={NFTs.data ?? []} />
+                <NftList NFTs={accountActivities.data?.NFTs ?? []} />
               </div>
             )}
             {currentSection === 'bounties' && (
-              <BountyList bounties={bounties.data ?? []} />
+              <BountyList bounties={accountActivities.data?.bounties ?? []} />
             )}
             {currentSection === 'claims' && (
               <div className='lg:px-20 px-8'>
                 <ClaimsListAccount
-                  claims={
-                    claims.data?.map((claim) => {
-                      return {
-                        id: claim.id.toString(),
-                        title: claim.title,
-                        description: claim.description,
-                        issuer: claim.issuer,
-                        bountyId: claim.bounty!.id.toString(),
-                        accepted: claim.is_accepted || false,
-                        url: claim.url,
-                      };
-                    }) ?? []
-                  }
+                  claims={accountActivities.data?.claims ?? []}
                 />
               </div>
             )}
           </div>
         </div>
       )}
+      <AddSocial
+        open={showAddSocial}
+        onClose={() => setShowAddSocial(false)}
+        address={address}
+      />
     </>
   );
 }

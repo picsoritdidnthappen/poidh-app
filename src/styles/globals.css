@@ -217,15 +217,12 @@ button {
 }
 
 .bg-blur {
-  background-color: rgba(209, 236, 255, 0.2);
-  color: white;
-  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
 }
 
 .bg-blur-white {
-  background-color: rgba(209, 236, 255, 0.2);
-  color: white;
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(4px);
 }
 

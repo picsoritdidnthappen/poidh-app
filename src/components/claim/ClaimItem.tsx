@@ -6,8 +6,6 @@ import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '@/components/global/Loading';
-import { cn } from '@/utils';
-import { getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/ui/DisplayAddress';
 import CopyAddressButton from '@/components/ui/CopyAddressButton';
 import ClaimCard from './ClaimCard';
@@ -39,7 +37,7 @@ export default function ClaimItem({
   const utils = trpc.useUtils();
   const [openCard, setOpenCard] = useState<boolean>(false);
 
-  const accountStats = trpc.accountStats.useQuery({
+  const accountStats = trpc.accountInfo.useQuery({
     address: issuer,
     chainId: chain.id,
   });
@@ -166,6 +164,7 @@ export default function ClaimItem({
             earnedAmount: accountStats.data?.totalEarn.amountCrypto ?? 0,
             scorePoidh: accountStats.data?.poidhScore ?? 0,
           },
+          bountyId,
         }}
         onClose={() => setOpenCard(false)}
         open={openCard}

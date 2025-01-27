@@ -1,6 +1,6 @@
 import { useGetChain } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
-import { Currency, Netname } from '@/utils/types';
+import { Currency } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { BanIcon, CloseIcon, ZoomInIcon, ZoomOutIcon } from '../global/Icons';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { formatAddress } from '../account/AccountInfo';
 
@@ -27,6 +26,7 @@ export type ClaimCardProps = {
       completedClaims: number;
       earnedAmount: number;
     };
+    bountyId: string;
   };
   onClose: () => void;
 };
@@ -36,11 +36,15 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const utils = trpc.useUtils();
   const chain = useGetChain();
   const switctChain = useSwitchChain();
-  const router = useRouter;
   const { signMessageAsync } = useSignMessage();
 
   const banClaimMutation = trpc.banClaim.useMutation({});
   const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
+  const isIssuer = trpc.isIssuer.useQuery({
+    address: account.address,
+    chainId: chain.id,
+    bountyId: Number(claim.bountyId),
+  });
 
   const [scale, setScale] = useState(1);
   const [isImageFullscreen, setIsImageFullscreen] = useState(false);
@@ -61,7 +65,13 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   };
 
   const signMutation = useMutation({
-    mutationFn: async (claimId: string) => {
+    mutationFn: async ({
+      claimId,
+      bountyId,
+    }: {
+      claimId: string;
+      bountyId: string;
+    }) => {
       const chainId = await account.connector?.getChainId();
       if (chainId !== 8453) {
         //arbitrum has a problem with message signing, so all confirmations are on base
@@ -81,6 +91,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         await banClaimMutation.mutateAsync({
           id: Number(claimId),
           chainId: chain.id,
+          bountyId: Number(bountyId),
           address: account.address,
           chainName: chain.slug,
           message,
@@ -190,10 +201,15 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                 </div>
               </div>
             </div>
-            {isAdmin.data && (
+            {(isAdmin.data || isIssuer.data) && (
               <div className='flex gap-3 mt-3'>
                 <button
-                  onClick={async () => await signMutation.mutateAsync(claim.id)}
+                  onClick={async () =>
+                    await signMutation.mutateAsync({
+                      bountyId: claim.bountyId,
+                      claimId: claim.id,
+                    })
+                  }
                   className='flex-1 relative group'
                 >
                   <div className='absolute inset-0 bg-[#cf5d5d] rounded-md transform translate-y-[2px]'></div>

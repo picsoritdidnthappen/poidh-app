@@ -4,6 +4,8 @@ export type Netname = 'degen' | 'base' | 'arbitrum';
 
 export type ChainId = 666666666 | 42161 | 8453;
 
+export type SocialType = 'twitter' | 'farcaster';
+
 export type Chain = {
   id: number;
   name: string;

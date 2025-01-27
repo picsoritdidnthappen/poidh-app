@@ -164,23 +164,25 @@ export function ArbitrumIcon({
             <rect className='st0' width='20px' height='20px'></rect>
             <g>
               <g>
-                <path
-                  className='st1'
-                  d='M226,760v980c0,63,33,120,88,152l849,490c54,31,121,31,175,0l849-490c54-31,88-89,88-152V760 c0-63-33-120-88-152l-849-490c-54-31-121-31-175,0L314,608c-54,31-87,89-87,152H226z'
-                ></path>
                 <g>
+                  <path
+                    className='st1'
+                    d='M226,760v980c0,63,33,120,88,152l849,490c54,31,121,31,175,0l849-490c54-31,88-89,88-152V760 c0-63-33-120-88-152l-849-490c-54-31-121-31-175,0L314,608c-54,31-87,89-87,152H226z'
+                  ></path>
                   <g>
                     <g>
-                      <path
-                        className='st2'
-                        d='M1435,1440l-121,332c-3,9-3,19,0,29l208,571l241-139l-289-793C1467,1422,1442,1422,1435,1440z'
-                      ></path>
-                    </g>
-                    <g>
-                      <path
-                        className='st2'
-                        d='M1678,882c-7-18-32-18-39,0l-121,332c-3,9-3,19,0,29l341,935l241-139L1678,883V882z'
-                      ></path>
+                      <g>
+                        <path
+                          className='st2'
+                          d='M1435,1440l-121,332c-3,9-3,19,0,29l208,571l241-139l-289-793C1467,1422,1442,1422,1435,1440z'
+                        ></path>
+                      </g>
+                      <g>
+                        <path
+                          className='st2'
+                          d='M1678,882c-7-18-32-18-39,0l-121,332c-3,9-3,19,0,29l341,935l241-139L1678,883V882z'
+                        ></path>
+                      </g>
                     </g>
                   </g>
                 </g>
@@ -454,6 +456,83 @@ export function ZoomOutIcon({
         strokeLinejoin='round'
         strokeWidth={2}
         d='M18 12H6'
+      />
+    </svg>
+  );
+}
+
+export function AddIcon({
+  width = 24,
+  height = 24,
+}: {
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 24 24'
+      strokeWidth={1.5}
+      stroke='currentColor'
+      width={width}
+      height={height}
+    >
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        d='M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+      />
+    </svg>
+  );
+}
+
+export function TwitterXIcon({
+  width = 24,
+  height = 24,
+}: {
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width={width}
+      height={height}
+      fill='currentColor'
+      viewBox='0 0 16 16'
+    >
+      <path d='M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z' />
+    </svg>
+  );
+}
+
+export function FarcasterIcon({
+  width = 24,
+  height = 24,
+}: {
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox='0 0 1000 1000'
+      fill='currentColor'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <path
+        d='M257.778 155.556H742.222V844.445H671.111V528.889H670.414C662.554 441.677 589.258 373.333 500 373.333C410.742 373.333 337.446 441.677 329.586 528.889H328.889V844.445H257.778V155.556Z'
+        fill='currentColor'
+      />
+      <path
+        d='M128.889 253.333L157.778 351.111H182.222V746.667C169.949 746.667 160 756.616 160 768.889V795.556H155.556C143.283 795.556 133.333 805.505 133.333 817.778V844.445H382.222V817.778C382.222 805.505 372.273 795.556 360 795.556H355.556V768.889C355.556 756.616 345.606 746.667 333.333 746.667H306.667V253.333H128.889Z'
+        fill='currentColor'
+      />
+      <path
+        d='M675.556 746.667C663.282 746.667 653.333 756.616 653.333 768.889V795.556H648.889C636.616 795.556 626.667 805.505 626.667 817.778V844.445H875.556V817.778C875.556 805.505 865.606 795.556 853.333 795.556H848.889V768.889C848.889 756.616 838.94 746.667 826.667 746.667V351.111H851.111L880 253.333H702.222V746.667H675.556Z'
+        fill='currentColor'
       />
     </svg>
   );
