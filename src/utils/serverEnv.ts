@@ -15,6 +15,7 @@ const envSchema = z.object({
         .split(',')
         .map((v) => v.trim())
     ),
+  VERCEL_URL: z.string().default('https://poidh.xyz'),
 });
 
 export default envSchema.parse(process.env);
