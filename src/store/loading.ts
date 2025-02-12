@@ -10,6 +10,8 @@ export const loadingAtom = atom<LoadingState>({
   status: '',
 });
 
+export const pollingChainIdAtom = atom<number | null>(null);
+
 export const setLoadingAtom = atom(
   null,
   (get, set, { isLoading, status = 'Loading...' }: Partial<LoadingState>) => {

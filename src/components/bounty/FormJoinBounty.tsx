@@ -14,8 +14,9 @@ import {
   Typography,
 } from '@mui/material';
 import { cn } from '@/utils';
-import Loading from '@/components/global/Loading';
 import { trpc, trpcClient } from '@/trpc/client';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { setLoadingAtom, pollingChainIdAtom } from '@/store/loading';
 
 export default function FormJoinBounty({
   bountyId,
@@ -27,21 +28,25 @@ export default function FormJoinBounty({
   onClose: () => void;
 }) {
   const [amount, setAmount] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
   const utils = trpc.useUtils();
 
   const account = useAccount();
   const writeContract = useWriteContract({});
   const chain = useGetChain();
   const switchChain = useSwitchChain();
+  const setLoading = useSetAtom(setLoadingAtom);
+  const setPollingChainId = useSetAtom(pollingChainIdAtom);
+  const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const bountyMutation = useMutation({
     mutationFn: async (bountyId: bigint) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
+        setLoading({ isLoading: true, status: 'Switching network...' });
         await switchChain.switchChainAsync({ chainId: chain.id });
       }
-      setStatus('Waiting approval');
+      setLoading({ isLoading: true, status: 'Waiting approval' });
+      setPollingChainId(chain.id);
       await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -52,10 +57,10 @@ export default function FormJoinBounty({
       });
 
       for (let i = 0; i < 60; i++) {
-        setStatus('Indexing ' + i + 's');
+        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const participant = await trpcClient.isJoinedBounty.query({
           bountyId: Number(bountyId),
-          chainId: chain.id,
+          chainId: pollingChainId ?? chain.id,
           participantAddress: account.address!,
         });
         if (participant) {
@@ -74,7 +79,9 @@ export default function FormJoinBounty({
     },
     onSettled: () => {
       utils.participations.refetch();
+      setPollingChainId(null);
       setAmount('');
+      setLoading({ isLoading: false, status: '' });
     },
   });
 
@@ -85,7 +92,6 @@ export default function FormJoinBounty({
 
   return (
     <>
-      <Loading open={bountyMutation.isPending} status={status} />
       <Dialog
         open={open}
         onClose={() => {
