@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useGetChain } from '@/hooks/useGetChain';
 import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
@@ -12,9 +13,9 @@ import { useMutation } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogActions, Box } from '@mui/material';
 import { decodeEventLog } from 'viem';
 import { trpc, trpcClient } from '@/trpc/client';
-import Loading from '@/components/global/Loading';
 import GameButton from '@/components/global/GameButton';
 import ButtonCTA from '@/components/global/ButtonCTA';
+import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -31,10 +32,12 @@ export default function FormClaim({
   const [imageURI, setImageURI] = useState<string>('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
   const utils = trpc.useUtils();
   const [uploading, setUploading] = useState(false);
+  const setLoading = useSetAtom(setLoadingAtom);
+  const setPollingChainId = useSetAtom(pollingChainIdAtom);
+  const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const account = useAccount();
   const writeContract = useWriteContract({});
@@ -107,11 +110,17 @@ export default function FormClaim({
     mutationFn: async (bountyId: bigint) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
+        setLoading({ isLoading: true, status: 'Switching network...' });
         await switchChain.switchChainAsync({ chainId: chain.id });
       }
+
+      setLoading({ isLoading: true, status: 'Uploading metadata...' });
       const metadata = buildMetadata(imageURI, name, description);
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `${LINK_IPFS}/${metadataResponse.IpfsHash}`;
+
+      setLoading({ isLoading: true, status: 'Creating claim...' });
+      setPollingChainId(chain.id);
       const tx = await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -119,7 +128,7 @@ export default function FormClaim({
         args: [bountyId, name, uri, description],
       });
 
-      setStatus('Waiting for receipt');
+      setLoading({ isLoading: true, status: 'Waiting for receipt...' });
       const receipt = await chain.provider.waitForTransactionReceipt({
         hash: tx,
       });
@@ -149,10 +158,10 @@ export default function FormClaim({
       const claimId = log.args.id.toString();
 
       for (let i = 0; i < 60; i++) {
-        setStatus('Indexing ' + i + 's');
+        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const claim = await trpcClient.isClaimCreated.query({
           id: Number(claimId),
-          chainId: chain.id,
+          chainId: pollingChainId ?? chain.id,
         });
 
         if (claim) {
@@ -164,13 +173,16 @@ export default function FormClaim({
       throw new Error('Failed to index bounty');
     },
     onSuccess: () => {
+      setLoading({ isLoading: false });
       toast.success('Claim created successfully');
     },
     onError: (error) => {
+      setLoading({ isLoading: false });
       toast.error('Failed to create claim: ' + error.message);
     },
     onSettled: () => {
       utils.bountyClaims.refetch();
+      setPollingChainId(null);
       setName('');
       setDescription('');
       setImageURI('');
@@ -179,85 +191,82 @@ export default function FormClaim({
   });
 
   return (
-    <>
-      <Loading open={createClaimMutations.isPending} status={status} />
-      <Dialog
-        open={open}
-        onClose={onClose}
-        maxWidth='xs'
-        PaperProps={{
-          className: 'bg-poidhBlue/80',
-          style: {
-            borderRadius: '10px',
-            color: 'white',
-            border: '1px solid #D1ECFF',
-          },
-        }}
-      >
-        <DialogContent>
-          <div
-            {...getRootProps()}
-            className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center cursor-pointer'
-          >
-            <input {...getInputProps()} />
-            {isDragActive ? (
-              <p>Drop the image here...</p>
-            ) : (
-              <p>
-                {imageURI
-                  ? 'Image uploaded'
-                  : 'Drag & drop or click to upload an image'}
-              </p>
-            )}
-            {preview && (
-              <Image
-                src={preview}
-                alt='Preview'
-                className='w-[300px] h-[300px] mt-2 rounded-md object-contain'
-              />
-            )}
-          </div>
-          <Box mt={2} mb={-3}>
-            <span>title</span>
-            <input
-              type='text'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth='xs'
+      PaperProps={{
+        className: 'bg-poidhBlue/80',
+        style: {
+          borderRadius: '10px',
+          color: 'white',
+          border: '1px solid #D1ECFF',
+        },
+      }}
+    >
+      <DialogContent>
+        <div
+          {...getRootProps()}
+          className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center cursor-pointer'
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p>Drop the image here...</p>
+          ) : (
+            <p>
+              {imageURI
+                ? 'Image uploaded'
+                : 'Drag & drop or click to upload an image'}
+            </p>
+          )}
+          {preview && (
+            <Image
+              src={preview}
+              alt='Preview'
+              className='w-[300px] h-[300px] mt-2 rounded-md object-contain'
             />
-            <span>description</span>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
-            ></textarea>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <button
-            className={cn(
-              'flex flex-row items-center justify-center',
-              account.isDisconnected && 'opacity-50 cursor-not-allowed'
-            )}
-            onClick={() => {
-              if (name && description && imageURI && !uploading) {
-                onClose();
-                createClaimMutations.mutate(BigInt(bountyId));
-              } else {
-                toast.error(
-                  'Please fill in all fields and check wallet connection.'
-                );
-              }
-            }}
-          >
-            <div className='button'>
-              <GameButton />
-            </div>
-            <ButtonCTA>create claim</ButtonCTA>
-          </button>
-        </DialogActions>
-      </Dialog>
-    </>
+          )}
+        </div>
+        <Box mt={2} mb={-3}>
+          <span>title</span>
+          <input
+            type='text'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+          />
+          <span>description</span>
+          <textarea
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+          ></textarea>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <button
+          className={cn(
+            'flex flex-row items-center justify-center',
+            account.isDisconnected && 'opacity-50 cursor-not-allowed'
+          )}
+          onClick={() => {
+            if (name && description && imageURI && !uploading) {
+              onClose();
+              createClaimMutations.mutate(BigInt(bountyId));
+            } else {
+              toast.error(
+                'Please fill in all fields and check wallet connection.'
+              );
+            }
+          }}
+        >
+          <div className='button'>
+            <GameButton />
+          </div>
+          <ButtonCTA>create claim</ButtonCTA>
+        </button>
+      </DialogActions>
+    </Dialog>
   );
 }

@@ -9,6 +9,8 @@ import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { trpc } from '@/trpc/client';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 
 function formatDeadline(date: Date) {
   return date.toLocaleString('en-US', {
@@ -32,7 +34,8 @@ export default function Voting({
   const chain = useGetChain();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
-
+  const setLoading = useSetAtom(setLoadingAtom);
+  const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const voting = useQuery({
     queryKey: ['bountyVotingTracker', { id: bountyId, chainName: chain.slug }],
     queryFn: () => bountyVotingTracker({ id: bountyId, chainName: chain.slug }),
@@ -65,8 +68,12 @@ export default function Voting({
     }) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
+        setLoading({ isLoading: true, status: 'Swithing network' });
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
+
+      setPollingChainId(chain.id);
+      setLoading({ isLoading: true, status: '' });
       await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -84,6 +91,7 @@ export default function Voting({
       toast.error('Failed to vote: ' + error.message);
     },
     onSettled: () => {
+      setLoading({ isLoading: false, status: '' });
       voting.refetch();
     },
   });

@@ -1,27 +1,34 @@
-import Loading from '@/components/global/Loading';
 import abi from '@/constant/abi/abi';
 import { useGetChain } from '@/hooks/useGetChain';
+import { setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import { useSetAtom, useAtomValue } from 'jotai';
+import React from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { pollingChainIdAtom } from '@/store/loading';
 
 export default function Withdraw({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
   const account = useAccount();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
-  const [status, setStatus] = useState<string>('');
   const utils = trpc.useUtils();
+  const setLoading = useSetAtom(setLoadingAtom);
+  const setPollingChainId = useSetAtom(pollingChainIdAtom);
+  const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const withdrawFromOpenBountyMutation = useMutation({
     mutationFn: async (bountyId: bigint) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
+        setLoading({ isLoading: true, status: 'Swithing network' });
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
-      setStatus('Waiting approval');
+
+      setPollingChainId(chain.id);
+      setLoading({ isLoading: true, status: 'Waiting approval' });
       await writeContract.writeContractAsync({
         abi,
         chainId: chain.id,
@@ -30,11 +37,11 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
         args: [bountyId],
       });
 
-      for (let i = 0; i < 60; i++) {
-        setStatus('Indexing ' + i + 's');
+      for (let i = 0; i < 180; i++) {
+        setLoading({ isLoading: true, status: 'Indexing ' + i + 's' });
         const participant = await trpcClient.isWithdrawBounty.query({
           bountyId: Number(bountyId),
-          chainId: chain.id,
+          chainId: pollingChainId ?? chain.id,
           participantAddress: account.address!,
         });
         if (!participant) {
@@ -53,15 +60,13 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
     },
     onSettled: () => {
       utils.participations.refetch();
+      setLoading({ isLoading: false, status: '' });
+      setPollingChainId(null);
     },
   });
 
   return (
     <>
-      <Loading
-        open={withdrawFromOpenBountyMutation.isPending}
-        status={status}
-      />
       <div className=' py-12 w-fit '>
         <button
           className='border border-white rounded-full px-5 py-2  backdrop-blur-sm bg-white/30 hover:bg-white/40'
