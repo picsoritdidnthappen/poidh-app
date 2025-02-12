@@ -36,7 +36,6 @@ export default function JoinBounty({
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
   // const {wait} = useWaitForTransactionReceipt()
-
   const doTransaction = async (bountyId: bigint) => {
     try {
       setStatus('Sending transaction');
