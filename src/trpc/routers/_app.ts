@@ -486,7 +486,7 @@ export const appRouter = createTRPCRouter({
         where: {
           user_address_bounty_id_chain_id: {
             bounty_id: input.bountyId,
-            user_address: input.participantAddress,
+            user_address: input.participantAddress.toLowerCase(),
             chain_id: input.chainId,
           },
         },
@@ -506,7 +506,7 @@ export const appRouter = createTRPCRouter({
         where: {
           user_address_bounty_id_chain_id: {
             bounty_id: input.bountyId,
-            user_address: input.participantAddress,
+            user_address: input.participantAddress.toLowerCase(),
             chain_id: input.chainId,
           },
         },

@@ -5,10 +5,12 @@ import { trpc, trpcClient } from '@/trpc/client';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation } from '@tanstack/react-query';
-import Loading from '@/components/global/Loading';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import ClaimCard from './ClaimCard';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { setLoadingAtom } from '@/store/loading';
+import { pollingChainIdAtom } from '@/store/loading';
 
 export default function ClaimItem({
   id,
@@ -36,13 +38,14 @@ export default function ClaimItem({
   const switctChain = useSwitchChain();
   const utils = trpc.useUtils();
   const [openCard, setOpenCard] = useState<boolean>(false);
+  const setLoading = useSetAtom(setLoadingAtom);
+  const setPollingChainId = useSetAtom(pollingChainIdAtom);
+  const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const accountStats = trpc.accountInfo.useQuery({
     address: issuer,
     chainId: chain.id,
   });
-
-  const [status, setStatus] = useState<string>('');
 
   const bounty = trpc.bounty.useQuery(
     {
@@ -74,9 +77,13 @@ export default function ClaimItem({
     }) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
+        setLoading({ isLoading: true, status: 'Switching network...' });
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
-      setStatus('Waiting approval');
+
+      setPollingChainId(chain.id);
+      setLoading({ isLoading: true, status: 'Waiting approval' });
+
       await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -86,10 +93,10 @@ export default function ClaimItem({
       });
 
       for (let i = 0; i < 60; i++) {
-        setStatus('Indexing ' + i + 's');
+        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const accepted = await trpcClient.isAcceptedClaim.query({
           id: Number(claimId),
-          chainId: chain.id,
+          chainId: pollingChainId ?? chain.id,
         });
         if (accepted) {
           return;
@@ -101,14 +108,16 @@ export default function ClaimItem({
     },
 
     onSuccess: () => {
+      setLoading({ isLoading: false });
       toast.success('Claim accepted');
     },
     onError: (error) => {
+      setLoading({ isLoading: false });
       toast.error('Failed to accept claim:' + error.message);
     },
     onSettled: () => {
       utils.bountyClaims.refetch();
-      setStatus('');
+      setLoading({ isLoading: false, status: '' });
     },
   });
 
@@ -124,13 +133,16 @@ export default function ClaimItem({
       if (chain.id !== chainId) {
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
-      setStatus('Waiting approval');
+
+      setPollingChainId(chain.id);
+      setLoading({ isLoading: true, status: 'Waiting approval' });
+
       await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'submitClaimForVote',
         args: [bountyId, claimId],
-        chainId: chain.id,
+        chainId: pollingChainId ?? chain.id,
       });
     },
     onSuccess: () => {
@@ -141,16 +153,12 @@ export default function ClaimItem({
       toast.error('Failed to submit claim for vote: ' + error.message);
     },
     onSettled: () => {
-      setStatus('');
+      setLoading({ isLoading: false, status: '' });
     },
   });
 
   return (
     <>
-      <Loading
-        open={acceptClaimMutation.isPending || submitForVoteMutation.isPending}
-        status={status}
-      />
       <ClaimCard
         claim={{
           id,
