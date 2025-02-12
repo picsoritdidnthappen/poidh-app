@@ -14,6 +14,7 @@ export type Chain = {
     mainContract: string;
     nftContract: string;
   };
+  explorer: string;
 };
 
 export type Wallet = {

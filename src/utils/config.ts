@@ -16,6 +16,7 @@ export const chains: Record<Netname, Chain> = {
       mainContract: '0x2445BfFc6aB9EEc6C562f8D7EE325CddF1780814',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
     },
+    explorer: 'https://explorer.degen.tips/tx/',
   },
   arbitrum: {
     id: 42161,
@@ -27,6 +28,7 @@ export const chains: Record<Netname, Chain> = {
       mainContract: '0x0Aa50ce0d724cc28f8F7aF4630c32377B4d5c27d',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
     },
+    explorer: 'https://arbiscan.io/tx/',
   },
   base: {
     id: 8453,
@@ -40,9 +42,10 @@ export const chains: Record<Netname, Chain> = {
       mainContract: '0xb502c5856F7244DccDd0264A541Cc25675353D39',
       nftContract: '0xDdfb1A53E7b73Dba09f79FCA24765C593D447a80',
     },
+    explorer: 'https://basescan.org/tx/',
   },
 };
 
-export function getChainById(chainId: ChainId): Chain {
+export function getChainById({ chainId }: { chainId: ChainId }) {
   return Object.values(chains).find((chain) => chain.id === chainId)!;
 }

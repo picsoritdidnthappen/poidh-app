@@ -1,5 +1,5 @@
 // components/frame/claims/Bounty.tsx
-import { BountyResponse } from '@/app/(root)/api/bounties/[chainName]/[bountyId]/route';
+import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import React from 'react';
 
 const calculateFontSize = (title: string) => {

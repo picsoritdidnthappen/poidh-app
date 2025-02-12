@@ -1,8 +1,8 @@
-import CopyAddressButton from '@/components/ui/CopyAddressButton';
-import DisplayAddress from '@/components/ui/DisplayAddress';
 import { useGetChain } from '@/hooks/useGetChain';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import DisplayAddress from '../global/DisplayAddress';
+import CopyAddressButton from '../global/CopyAddressButton';
 
 type NFT = {
   id: string;

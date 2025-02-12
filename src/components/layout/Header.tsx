@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 
 import { useGetChain } from '@/hooks/useGetChain';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
-import Logo from '@/components/ui/Logo';
 import {
   ArbitrumIcon,
   BaseIcon,
@@ -18,6 +17,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { cn } from '@/utils';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Logo from '../global/Logo';
 
 const Header = () => {
   const chain = useGetChain();

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useGetChain } from '@/hooks/useGetChain';
@@ -15,9 +15,16 @@ import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import Loading from '@/components/global/Loading';
 import { cn } from '@/utils';
-import { getBanSignatureFirstLine } from '@/utils/utils';
-import DisplayAddress from '@/components/ui/DisplayAddress';
-import CopyAddressButton from '@/components/ui/CopyAddressButton';
+import {
+  fetchPrice,
+  formatAmount,
+  getBanSignatureFirstLine,
+} from '@/utils/utils';
+import DisplayAddress from '@/components/global/DisplayAddress';
+import CopyAddressButton from '@/components/global/CopyAddressButton';
+import BountyHistory from './BountyHistory';
+import Withdraw from './Withdraw';
+import JoinBounty from './JoinBounty';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -28,6 +35,8 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const banBountyMutation = trpc.banBounty.useMutation({});
   const { signMessageAsync } = useSignMessage();
 
+  const [price, setPrice] = useState<number>(0);
+
   const [status, setStatus] = useState<string>('');
 
   const bounty = trpc.bounty.useQuery(
@@ -36,6 +45,16 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
       chainId: chain.id,
     },
     { enabled: !!bountyId }
+  );
+
+  const participants = trpc.participations.useQuery(
+    {
+      bountyId: Number(bountyId),
+      chainId: chain.id,
+    },
+    {
+      enabled: !!bountyId,
+    }
   );
 
   const signMutation = useMutation({
@@ -121,6 +140,22 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
     },
   });
 
+  const isCurrentUserAParticipant = participants.data?.some(
+    (participant) =>
+      participant.user_address.toLocaleLowerCase() ===
+      account.address?.toLocaleLowerCase()
+  );
+
+  useEffect(() => {
+    fetchPrice({ currency: chain.currency }).then(setPrice);
+  }, [chain.currency]);
+
+  const canWithdraw =
+    account.address?.toLocaleLowerCase() !==
+      bounty.data?.issuer.toLocaleLowerCase() &&
+    !bounty.data?.is_voting &&
+    isCurrentUserAParticipant;
+
   if (!bounty.data) {
     return null;
   }
@@ -166,7 +201,11 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
             </button>
           )}
           <p className='mt-5 font-bold'>
-            {`${formatEther(BigInt(bounty.data.amount))} ${chain.currency}`}
+            {formatAmount({
+              amount: formatEther(BigInt(bounty.data.amount)),
+              currency: chain.currency,
+              price: price.toString(),
+            })}
           </p>
         </div>
         <div className='flex flex-col space-between'>
@@ -190,14 +229,20 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
         </div>
       </div>
       {bounty.data.isMultiplayer && (
-        <BountyMultiplayer
-          chain={chain}
-          bountyId={bountyId}
-          inProgress={Boolean(bounty.data.inProgress)}
-          isVoting={!!bounty.data.is_voting && !!bounty.data.inProgress}
-          issuer={bounty.data.issuer}
-        />
+        <BountyMultiplayer chain={chain} bountyId={bountyId} />
       )}
+      <BountyHistory
+        transactions={bounty.data.transactions.map((transaction) => {
+          return { ...transaction, timestamp: Number(transaction.timestamp) };
+        })}
+      />
+      {bounty.data.is_multiplayer &&
+        bounty.data.inProgress &&
+        (canWithdraw ? (
+          <Withdraw bountyId={bountyId} />
+        ) : (
+          !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
+        ))}
     </>
   );
 }

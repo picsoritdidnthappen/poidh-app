@@ -26,6 +26,7 @@ model Bounties {
   participations ParticipationsBounties[]
   issuerUser     Users?                   @relation(fields: [issuer], references: [address])
   ban            Ban[]
+  transactions   Transactions[]
 
   @@id([id, chain_id])
 }
@@ -61,9 +62,9 @@ model ParticipationsBounties {
 }
 
 model Users {
-  address    String
-  ens        String?
-  degen_name String?
+  address   String
+  twitter   String?
+  farcaster String?
 
   participations ParticipationsBounties[]
   claims         Claims[]
@@ -82,4 +83,18 @@ model Ban {
 
   bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
   claim  Claims?   @relation(fields: [claim_id, chain_id], references: [id, chain_id])
+}
+
+model Transactions {
+  tx        String
+  index     Int
+  bounty_id Int
+  chain_id  Int
+  address   String
+  action    String
+  timestamp Decimal @db.Decimal(78, 0)
+
+  bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+
+  @@id([tx, index, chain_id])
 }

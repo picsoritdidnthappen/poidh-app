@@ -55,32 +55,32 @@
 
   /* #region  /**=========== Typography =========== */
   .h0 {
-    @apply font-primary text-3xl font-bold md:text-5xl text-white;
+    @apply font-primary text-3xl font-bold md:text-5xl;
   }
 
   h1,
   .h1 {
-    @apply font-primary text-2xl font-bold md:text-4xl text-white;
+    @apply font-primary text-2xl font-bold md:text-4xl;
   }
 
   h2,
   .h2 {
-    @apply font-primary text-xl font-bold md:text-3xl text-white;
+    @apply font-primary text-xl font-bold md:text-3xl;
   }
 
   h3,
   .h3 {
-    @apply font-primary text-lg font-bold md:text-2xl text-white;
+    @apply font-primary text-lg font-bold md:text-2xl;
   }
 
   h4,
   .h4 {
-    @apply font-primary text-base font-bold md:text-lg text-white;
+    @apply font-primary text-base font-bold md:text-lg;
   }
 
   body,
   .p {
-    @apply font-primary text-sm md:text-base text-white;
+    @apply font-primary text-sm md:text-base;
   }
   /* #endregion  /**======== Typography =========== */
 
@@ -217,15 +217,12 @@ button {
 }
 
 .bg-blur {
-  background-color: rgba(209, 236, 255, 0.2);
-  color: white;
-  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
 }
 
 .bg-blur-white {
-  background-color: rgba(209, 236, 255, 0.2);
-  color: white;
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(4px);
 }
 

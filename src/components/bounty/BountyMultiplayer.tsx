@@ -1,31 +1,21 @@
 import { useState } from 'react';
 
 import { ExpandMoreIcon } from '@/components/global/Icons';
-import JoinBounty from '@/components/ui/JoinBounty';
-import Withdraw from '@/components/ui/Withdraw';
 import { trpc } from '@/trpc/client';
 import { Chain } from '@/utils/types';
-import { useAccount } from 'wagmi';
-import DisplayAddress from '@/components/ui/DisplayAddress';
 import { formatEther } from 'viem';
 import { cn } from '@/utils';
-import CopyAddressButton from '@/components/ui/CopyAddressButton';
+import CopyAddressButton from '../global/CopyAddressButton';
+import DisplayAddress from '../global/DisplayAddress';
 
 export default function BountyMultiplayer({
   chain,
   bountyId,
-  inProgress,
-  issuer,
-  isVoting,
 }: {
   chain: Chain;
   bountyId: string;
-  inProgress: boolean;
-  issuer: string;
-  isVoting: boolean;
 }) {
   const [showParticipants, setShowParticipants] = useState(false);
-  const account = useAccount();
 
   const participants = trpc.participations.useQuery(
     {
@@ -37,74 +27,57 @@ export default function BountyMultiplayer({
     }
   );
 
-  const isCurrentUserAParticipant = participants.data?.some(
-    (participant) =>
-      participant.user_address.toLocaleLowerCase() ===
-      account.address?.toLocaleLowerCase()
-  );
-
   return (
-    <>
-      <div>
-        <button
-          onClick={() => setShowParticipants(!showParticipants)}
-          className='border border-white rounded-full mt-5  px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
-        >
+    <div className='max-w-3xl border border-white/20 rounded-lg backdrop-blur-sm bg-[#D1ECFF]/10 mt-5'>
+      <button
+        onClick={() => setShowParticipants(!showParticipants)}
+        className='w-full px-5 py-3 flex justify-between items-center hover:bg-[#D1ECFF]/10 transition-all'
+      >
+        <span>
           {participants.data
             ? `${participants.data.length} contributors`
             : 'Loading contributors...'}
-          <span
-            className={cn(
-              showParticipants ? '-rotate-180' : '',
-              'animation-all duration-300'
-            )}
-          >
-            <ExpandMoreIcon width={16} height={16} />
-          </span>
-        </button>
+        </span>
+        <span
+          className={cn(
+            'transition-transform duration-200',
+            showParticipants ? 'rotate-180' : ''
+          )}
+        >
+          <ExpandMoreIcon width={16} height={16} />
+        </span>
+      </button>
 
-        {showParticipants && (
-          <div className='border mt-5 border-white rounded-[8px] py-2 px-4 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'>
-            <div className='flex flex-col px-0'>
-              {participants.isSuccess ? (
-                participants.data.map((participant) => (
-                  <div
-                    key={participant.user_address}
-                    className='flex items-center justify-between w-full'
-                  >
-                    <div className='flex flex-row items-center'>
-                      <div className='mr-1'>
-                        <CopyAddressButton
-                          address={participant.user_address}
-                          size={10}
-                        />
-                      </div>
-                      <DisplayAddress
-                        chain={chain}
-                        address={participant.user_address}
-                      />
-                    </div>
-                    &nbsp;
-                    {`${formatEther(BigInt(participant.amount))} ${
-                      chain.currency
-                    }`}
+      {showParticipants && (
+        <div className='divide-y divide-white/10'>
+          {participants.isSuccess ? (
+            participants.data.map((participant) => (
+              <div
+                key={participant.user_address}
+                className='flex items-center p-4 hover:bg-[#D1ECFF]/10 transition-all'
+              >
+                <div className='flex flex-col sm:flex-row sm:items-center w-full gap-2 sm:gap-4'>
+                  <div className='flex items-center gap-1 min-w-[200px]'>
+                    <CopyAddressButton
+                      address={participant.user_address}
+                      size={12}
+                    />
+                    <DisplayAddress
+                      chain={chain}
+                      address={participant.user_address}
+                    />
                   </div>
-                ))
-              ) : (
-                <p>Loading addresses…</p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-      {account.address?.toLocaleLowerCase() !== issuer.toLocaleLowerCase() &&
-      !isVoting &&
-      inProgress &&
-      isCurrentUserAParticipant ? (
-        <Withdraw bountyId={bountyId} />
-      ) : (
-        !isVoting && inProgress && <JoinBounty bountyId={bountyId} />
+                  <div className='text-sm text-white/60'>
+                    {formatEther(BigInt(participant.amount))} {chain.currency}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className='p-4 text-white/60'>Loading addresses…</div>
+          )}
+        </div>
       )}
-    </>
+    </div>
   );
 }

@@ -4,11 +4,11 @@ import { useState } from 'react';
 
 import { useGetChain } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
-import BountyList from '@/components/ui/BountyList';
 import { cn } from '@/utils';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
 import { SortIcon } from '@/components/global/Icons';
+import BountyList from '../bounty/BountyList';
 
 type DisplayType = 'open' | 'progress' | 'past';
 type SortType = 'value' | 'id';

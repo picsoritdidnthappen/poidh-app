@@ -77,3 +77,7 @@ export function calcId({
 }) {
   return (BigInt(chainId) * BigInt(100_000) + id).toString();
 }
+
+export function formatWalletAddress(address: string): string {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+}

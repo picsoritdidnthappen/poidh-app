@@ -1,9 +1,9 @@
-import FormBounty from '@/components/global/FormBounty';
-import FormClaim from '@/components/global/FormClaim';
 import GameButton, { PlainGameButton } from '@/components/global/GameButton';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount } from 'wagmi';
+import FormBounty from '../bounty/FormBounty';
+import FormClaim from '../claims/FormClaim';
 
 export default function NavBarMobile({
   type,
