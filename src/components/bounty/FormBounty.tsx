@@ -18,8 +18,9 @@ import { cn } from '@/utils';
 import GameButton from '@/components/global/GameButton';
 import { InfoIcon } from '@/components/global/Icons';
 import ButtonCTA from '../global/ButtonCTA';
-import { useSetAtom } from 'jotai';
-import { setLoadingAtom } from '@/store/loading';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
+import { trpcClient } from '@/trpc/client';
 
 type Bounty = {
   title: string;
@@ -43,6 +44,8 @@ export default function FormBounty({
   const switctChain = useSwitchChain();
   const router = useRouter();
   const setLoading = useSetAtom(setLoadingAtom);
+  const setPollingChainId = useSetAtom(pollingChainIdAtom);
+  const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const createBountyMutations = useMutation({
     mutationFn: async () => {
@@ -65,6 +68,7 @@ export default function FormBounty({
         args: [name, description],
         chainId: chain.id,
       });
+      setPollingChainId(chain.id);
 
       setLoading({
         isLoading: true,
@@ -90,7 +94,20 @@ export default function FormBounty({
         throw new Error('Invalid event: ' + data.eventName);
       }
 
-      return data.args.id.toString();
+      for (let i = 0; i < 60; i++) {
+        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
+        const bounty = await trpcClient.isBountyCreated.query({
+          id: Number(data.args.id),
+          chainId: pollingChainId ?? chain.id,
+        });
+
+        if (bounty) {
+          return data.args.id.toString();
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1_000));
+      }
+
+      throw new Error('Failed to index bounty');
     },
     onSuccess: (bountyId) => {
       setLoading({ isLoading: true, status: 'Indexing…' });
