@@ -13,14 +13,14 @@ export const generateMetadataForBountyFrame = async ({
 }): Promise<Metadata> => {
   const frame = {
     version: 'next',
-    imageUrl: `${APP_URL}/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
+    imageUrl: `https://poidh-app-theta.vercel.app/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
     button: {
       title: 'See Claims',
       action: {
         type: 'launch_frame',
         name: 'See Claims',
-        url: `${APP_URL}/frames/${params?.netname}/${params?.id}`,
-        splashImageUrl: `${APP_URL}/Logo_poidh.svg`,
+        url: `https://poidh-app-theta.vercel.app/frames/${params?.netname}/${params?.id}`,
+        splashImageUrl: `https://poidh-app-theta.vercel.app/Logo_poidh.svg`,
         splashBackgroundColor: '#93c5fd',
       },
     },
