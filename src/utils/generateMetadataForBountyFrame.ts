@@ -13,7 +13,7 @@ export const generateMetadataForBountyFrame = async ({
 }): Promise<Metadata> => {
   const frame = {
     version: 'next',
-    // imageUrl: `${APP_URL}/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
+    imageUrl: `${APP_URL}/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
     button: {
       title: 'See Claims',
       action: {
