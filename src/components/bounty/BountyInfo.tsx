@@ -13,7 +13,6 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
-import Loading from '@/components/global/Loading';
 import { cn } from '@/utils';
 import {
   fetchPrice,
@@ -25,6 +24,8 @@ import CopyAddressButton from '@/components/global/CopyAddressButton';
 import BountyHistory from './BountyHistory';
 import Withdraw from './Withdraw';
 import JoinBounty from './JoinBounty';
+import { useSetAtom } from 'jotai';
+import { setLoadingAtom } from '@/store/loading';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -34,10 +35,9 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
   const banBountyMutation = trpc.banBounty.useMutation({});
   const { signMessageAsync } = useSignMessage();
+  const setLoading = useSetAtom(setLoadingAtom);
 
   const [price, setPrice] = useState<number>(0);
-
-  const [status, setStatus] = useState<string>('');
 
   const bounty = trpc.bounty.useQuery(
     {
@@ -101,10 +101,11 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
     mutationFn: async (bountyId: bigint) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
+        setLoading({ isLoading: true, status: 'Switching network...' });
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
 
-      setStatus('Waiting approval');
+      setLoading({ isLoading: true, status: 'Waiting approval' });
       await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -116,7 +117,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
       });
 
       for (let i = 0; i < 60; i++) {
-        setStatus('Indexing ' + i + 's');
+        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const canceled = await trpcClient.isBountyCanceled.query({
           id: Number(bountyId),
           chainId: chain.id,
@@ -129,14 +130,15 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
       throw new Error('Failed to cancel bounty');
     },
     onSuccess: () => {
+      setLoading({ isLoading: false });
       toast.success('Bounty canceled');
     },
     onError: (error) => {
+      setLoading({ isLoading: false });
       toast.error('Failed to cancel bounty: ' + error.message);
     },
     onSettled: () => {
       bounty.refetch();
-      setStatus('');
     },
   });
 
@@ -162,7 +164,6 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
 
   return (
     <>
-      <Loading open={cancelMutation.isPending} status={status} />
       <div className='flex pt-20 flex-col justify-between lg:flex-row'>
         <div className='flex flex-col  lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>

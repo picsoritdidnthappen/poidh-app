@@ -28,35 +28,36 @@ export const generateMetadataForBountyFrame = async ({
 
   const id = params.id;
   const chain = chains[params.netname as keyof typeof chains];
-
-  if (id === 'null') {
-    return {
+  const defaultMetadata = {
+    title: "poidh - pics or it didn't happen",
+    description:
+      "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+    openGraph: {
       title: "poidh - pics or it didn't happen",
       description:
         "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-      openGraph: {
-        title: "poidh - pics or it didn't happen",
-        description:
-          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-        siteName: 'POIDH',
-        images: [`${APP_URL}/images/poidh-preview-hero.png`],
-        type: 'website',
-        locale: 'en_US',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: "poidh - pics or it didn't happen",
-        description:
-          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-        images: [`${APP_URL}/images/poidh-preview-hero.png`],
-      },
-      other: {
-        'fc:frame': JSON.stringify(frame),
-      },
-    };
+      siteName: 'POIDH',
+      images: [`${APP_URL}/images/poidh-preview-hero.png`],
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: "poidh - pics or it didn't happen",
+      description:
+        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+      images: [`${APP_URL}/images/poidh-preview-hero.png`],
+    },
+    other: {
+      'fc:frame': JSON.stringify(frame),
+    },
+  };
+
+  if (id === 'null') {
+    return defaultMetadata;
   }
 
-  const bounty = await prisma.bounties.findUniqueOrThrow({
+  const bounty = await prisma.bounties.findUnique({
     where: {
       id_chain_id: {
         id: Number(id),
@@ -64,6 +65,10 @@ export const generateMetadataForBountyFrame = async ({
       },
     },
   });
+
+  if (!bounty) {
+    return defaultMetadata;
+  }
 
   return {
     title: bounty.title,

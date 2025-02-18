@@ -1,28 +1,23 @@
 import { createPublicClient, http } from 'viem';
 import { arbitrum, base, degen, mainnet } from 'viem/chains';
+import clientEnv from './clientEnv';
 
 export const mainnetPublicClient = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http(clientEnv.MAINNET_RPC_URL),
 });
 
 export const basePublicClient = createPublicClient({
   chain: base,
-  transport: http(
-    'https://base-mainnet.g.alchemy.com/v2/u14hNDLOC4WItmevbcUWItEg6KThN5W0'
-  ),
+  transport: http(clientEnv.BASE_RPC_URL),
 });
 
 export const degenPublicClient = createPublicClient({
   chain: degen,
-  transport: http(
-    'https://degen-mainnet.g.alchemy.com/v2/u14hNDLOC4WItmevbcUWItEg6KThN5W0'
-  ),
+  transport: http(clientEnv.DEGEN_RPC_URL),
 });
 
 export const arbitrumPublicClient = createPublicClient({
   chain: arbitrum,
-  transport: http(
-    'https://arb-mainnet.g.alchemy.com/v2/vePHk-Vg-wjRw9LtykUKxDTxoUA2FHSh'
-  ),
+  transport: http(clientEnv.ARBITRUM_RPC_URL),
 });
