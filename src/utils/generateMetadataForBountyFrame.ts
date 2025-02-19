@@ -28,6 +28,7 @@ export const generateMetadataForBountyFrame = async ({
 
   const id = params.id;
   const chain = chains[params.netname as keyof typeof chains];
+
   const defaultMetadata = {
     title: "poidh - pics or it didn't happen",
     description:
@@ -87,8 +88,8 @@ export const generateMetadataForBountyFrame = async ({
       description: bounty.description,
       images: [`${APP_URL}/images/poidh-preview-hero.png`],
     },
-    // other: {
-    //   'fc:frame': JSON.stringify(frame),
-    // },
+    other: {
+      'fc:frame': JSON.stringify(frame),
+    },
   };
 };
