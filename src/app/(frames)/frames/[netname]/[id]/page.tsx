@@ -1,4 +1,4 @@
-import App from '@/app/frames/[netname]/[id]/app';
+import App from '@/app/(frames)/frames/[netname]/[id]/app';
 import { generateMetadataForBountyFrame } from '@/utils/generateMetadataForBountyFrame';
 
 export const generateMetadata = generateMetadataForBountyFrame;

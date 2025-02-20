@@ -21,7 +21,8 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@farcaster/frame-sdk": "^0.0.16",
+    "@farcaster/frame-sdk": "^0.0.28",
+    "@farcaster/frame-wagmi-connector": "^0.0.16",
     "@headlessui/react": "^2.2.0",
     "@mui/material": "^5.15.18",
     "@mui/x-charts": "^7.5.1",

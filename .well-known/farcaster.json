@@ -1,0 +1,18 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjQ2OTY3OCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEU0MTI1M0ZFQkViZjFiMkJGNDhmNWEyYWNGYjNEOURkNDNkMmFGMTYifQ",
+    "payload": "eyJkb21haW4iOiJwb2lkaC1hcHAtdGhldGEudmVyY2VsLmFwcCJ9",
+    "signature": "MHhjY2E2MzNjMzU3YjY2YzcyMTY2ODgyZTI3YmNiOGQ5NGQwODA3NzdhODE0NjdjODMwOTE5ZDYyNjE1YTNhZjRmMzMxMmFlYWQ4MGQ2MjVlN2JkZWE5YmRiODllMjM4NjY2OGYzYjE0YWI0Mzg1YjIzMDJmMDYxMjMzMWM5MTE0OTFj"
+  },
+  "frame": {
+    "version": "1",
+    "name": "Poidh",
+    "iconUrl": "https://poidh-app-theta.vercel.app/icon.png",
+    "homeUrl": "https://poidh-app-theta.vercel.app",
+    "imageUrl": "https://poidh-app-theta.vercel.app/image.png",
+    "buttonTitle": "Check this out",
+    "splashImageUrl": "https://poidh-app-theta.vercel.app/Logo_poidh.svg",
+    "splashBackgroundColor": "#eeccff",
+    "webhookUrl": "https://poidh-app-theta.vercel.app/api/webhook"
+  }
+}
