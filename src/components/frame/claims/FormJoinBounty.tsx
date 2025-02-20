@@ -40,7 +40,6 @@ export default function JoinBounty({
   const doTransaction = async (bountyId: bigint) => {
     try {
       setStatus('Sending transaction');
-
       const hash = await writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -51,46 +50,68 @@ export default function JoinBounty({
       });
 
       setStatus('Waiting for confirmation');
-
       const transaction = await publicClient?.waitForTransactionReceipt({
         hash,
       });
 
-      await bountyMutation.mutate(BigInt(bountyId));
+      if (!transaction) throw new Error('Transaction failed');
+
+      // Pass both the bountyId and transaction hash for tracking
+      await bountyMutation.mutate({
+        bountyId,
+        hash: transaction.transactionHash,
+      });
     } catch (error) {
       console.error(error);
-      toast.error('Failed to join bounty: ' + (error as any).message);
-      setStatus('Failed to join bounty');
+      toast.error('Failed to join bounty: ' + (error as Error).message);
+      setStatus('');
+      throw error;
     }
   };
 
   const bountyMutation = useMutation({
-    mutationFn: async (bountyId: bigint) => {
+    mutationFn: async ({
+      bountyId,
+      hash,
+    }: {
+      bountyId: bigint;
+      hash: string;
+    }) => {
       for (let i = 0; i < 60; i++) {
-        setStatus('Indexing ' + i + 's');
+        setStatus(`Indexing ${i}s`);
         const participant = await trpcClient.isJoinedBounty.query({
           bountyId: Number(bountyId),
           chainId: chain.id,
           participantAddress: account.address!,
         });
+
         if (participant) {
-          return;
+          setStatus('');
+          return participant;
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
       }
-
-      throw new Error('Failed to join bounty');
+      throw new Error('indexing_timeout');
     },
     onSuccess: () => {
       toast.success('Bounty joined successfully');
+      onClose();
+      utils.participations.refetch();
+      setAmount('');
+      setStatus('');
     },
     onError: (error) => {
-      toast.error('Failed to join bounty: ' + error.message);
+      if (error.message === 'indexing_timeout') {
+        toast.warning(
+          'Transaction was submitted but indexing timed out. Please check your status in a few minutes.'
+        );
+      } else {
+        toast.error('Failed to join bounty: ' + error.message);
+      }
+      setStatus('');
     },
     onSettled: () => {
       utils.participations.refetch();
-      setAmount('');
-      setTxHash(null);
     },
   });
 

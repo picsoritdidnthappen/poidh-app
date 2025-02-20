@@ -12,6 +12,7 @@ import GameButton from '@/components/global/GameButton';
 import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import ButtonCTA from '@/components/global/ButtonCTA';
+import { decodeEventLog } from 'viem';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -99,11 +100,12 @@ export default function ClaimForm({
 
   const doTransaction = async (bountyId: bigint) => {
     try {
-      setStatus('Sending transaction');
+      setStatus('Uploading metadata');
       const metadata = buildMetadata(imageURI, name, description);
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `${LINK_IPFS}/${metadataResponse.IpfsHash}`;
 
+      setStatus('Sending transaction');
       const hash = await writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -117,42 +119,75 @@ export default function ClaimForm({
         hash,
       });
 
-      await bountyMutation.mutate(BigInt(bountyId));
+      const log = transaction?.logs
+        .map((log) => {
+          try {
+            return decodeEventLog({
+              abi,
+              data: log.data,
+              topics: log.topics,
+            });
+          } catch (e) {
+            return null;
+          }
+        })
+        .find((log) => log?.eventName === 'ClaimCreated');
+
+      if (!log) throw new Error('No claim creation logs found');
+      if (log.eventName !== 'ClaimCreated')
+        throw new Error('Invalid event: ' + log.eventName);
+
+      const claimId = log.args.id.toString();
+      await bountyMutation.mutate({ bountyId, claimId });
     } catch (error) {
       console.error(error);
-      toast.error('Failed to create claim: ' + (error as any).message);
-      setStatus('Failed to create claim');
+      toast.error('Failed to create claim: ' + (error as Error).message);
+      setStatus('');
+      throw error;
     }
   };
 
   const bountyMutation = useMutation({
-    mutationFn: async (bountyId: bigint) => {
+    mutationFn: async ({
+      bountyId,
+      claimId,
+    }: {
+      bountyId: bigint;
+      claimId: string;
+    }) => {
       for (let i = 0; i < 60; i++) {
-        setStatus('Indexing ' + i + 's');
+        setStatus(`Indexing ${i}s`);
         const claim = await trpcClient.isClaimCreated.query({
-          id: Number(bountyId),
+          id: Number(claimId),
           chainId: chain.id,
         });
+
         if (claim) {
-          return;
+          setStatus('');
+          return claim;
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
       }
-
-      throw new Error('Failed to index bounty');
+      throw new Error('indexing_timeout');
     },
     onSuccess: () => {
       toast.success('Claim created successfully');
-    },
-    onError: (error) => {
-      toast.error('Failed to create claim: ' + error.message);
-    },
-    onSettled: () => {
+      onClose();
       utils.bountyClaims.refetch();
       setName('');
       setDescription('');
       setImageURI('');
       setPreview('');
+    },
+    onError: (error) => {
+      if (error.message === 'indexing_timeout') {
+        toast.warning(
+          'Claim was created but indexing timed out. Please refresh in a few minutes.'
+        );
+      } else {
+        toast.error('Failed to create claim: ' + error.message);
+      }
+      setStatus('');
     },
   });
 
