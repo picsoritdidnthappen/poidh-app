@@ -1,4 +1,5 @@
 // components/frame/claims/Bounty.tsx
+
 import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import React from 'react';
 
