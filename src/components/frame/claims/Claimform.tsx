@@ -20,10 +20,12 @@ export default function ClaimForm({
   bountyId,
   open,
   onClose,
+  chainId,
 }: {
   bountyId: string;
   open: boolean;
   onClose: () => void;
+  chainId: string;
 }) {
   const [preview, setPreview] = useState<string>('');
   const [imageURI, setImageURI] = useState<string>('');
@@ -35,7 +37,7 @@ export default function ClaimForm({
   const [uploading, setUploading] = useState(false);
 
   const account = useAccount();
-  const chain = useGetChain();
+  const chain = useGetChain(chainId);
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
 
