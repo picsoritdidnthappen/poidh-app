@@ -99,6 +99,7 @@ export default function JoinBounty({
       utils.participations.refetch();
       setAmount('');
       setStatus('');
+      window.location.reload();
     },
     onError: (error) => {
       if (error.message === 'indexing_timeout') {

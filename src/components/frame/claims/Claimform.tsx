@@ -178,6 +178,7 @@ export default function ClaimForm({
       setDescription('');
       setImageURI('');
       setPreview('');
+      window.location.reload();
     },
     onError: (error) => {
       if (error.message === 'indexing_timeout') {
