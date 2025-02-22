@@ -1,4 +1,5 @@
 // components/frame/claims/Bounty.tsx
+
 import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import React from 'react';
 
@@ -69,7 +70,7 @@ const BountyCard = ({
         }}
       >
         <img
-          src='https://poidh-app-theta.vercel.app/Logo_poidh.svg'
+          src='https://poidh.xyz/Logo_poidh.svg'
           width='96'
           height='48'
           alt='Logo'

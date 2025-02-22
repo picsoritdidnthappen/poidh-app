@@ -13,14 +13,14 @@ export const generateMetadataForBountyFrame = async ({
 }): Promise<Metadata> => {
   const frame = {
     version: 'next',
-    // imageUrl: `${APP_URL}/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
+    imageUrl: `https://poidh.xyz/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
     button: {
       title: 'See Claims',
       action: {
         type: 'launch_frame',
         name: 'See Claims',
-        url: `${APP_URL}/frames/${params?.netname}/${params?.id}`,
-        splashImageUrl: `${APP_URL}/Logo_poidh.svg`,
+        url: `https://poidh.xyz/frames/${params?.netname}/${params?.id}`,
+        splashImageUrl: `https://poidh.xyz/Logo_poidh.svg`,
         splashBackgroundColor: '#93c5fd',
       },
     },
@@ -28,6 +28,7 @@ export const generateMetadataForBountyFrame = async ({
 
   const id = params.id;
   const chain = chains[params.netname as keyof typeof chains];
+
   const defaultMetadata = {
     title: "poidh - pics or it didn't happen",
     description:
@@ -87,8 +88,8 @@ export const generateMetadataForBountyFrame = async ({
       description: bounty.description,
       images: [`${APP_URL}/images/poidh-preview-hero.png`],
     },
-    // other: {
-    //   'fc:frame': JSON.stringify(frame),
-    // },
+    other: {
+      'fc:frame': JSON.stringify(frame),
+    },
   };
 };

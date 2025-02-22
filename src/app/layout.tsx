@@ -9,6 +9,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { WalletProvider } from '@/components/global/WalletProvider';
 import { ToastContainer } from 'react-toastify';
 import { LoadingProvider } from '@/components/global/LoadingProvider';
+import ClientLayout from '@/app/layout.client';
 
 export const metadata = {
   title: "poidh - pics or it didn't happen - crypto bounties",
@@ -30,8 +31,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
         <TRPCProvider>
           <WalletProvider>
             <LoadingProvider>
-              <Header />
-              {children}
+              <ClientLayout>{children}</ClientLayout>
               <ToastContainer />
             </LoadingProvider>
           </WalletProvider>

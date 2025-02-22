@@ -15,8 +15,11 @@ importers:
         specifier: ^11.14.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1)(supports-color@8.1.1))(@types/react@18.3.18)(react@18.3.1)(supports-color@8.1.1)
       '@farcaster/frame-sdk':
+        specifier: ^0.0.28
+        version: 0.0.28(typescript@5.7.3)(zod@3.24.1)
+      '@farcaster/frame-wagmi-connector':
         specifier: ^0.0.16
-        version: 0.0.16(typescript@5.7.3)(zod@3.24.1)
+        version: 0.0.16(@farcaster/frame-sdk@0.0.28(typescript@5.7.3)(zod@3.24.1))(@wagmi/core@2.16.3(@tanstack/query-core@5.65.0)(@types/react@18.3.18)(react@18.3.1)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.22.16(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)))(viem@2.22.16(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))
       '@headlessui/react':
         specifier: ^2.2.0
         version: 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1105,11 +1108,18 @@ packages:
   '@ethersproject/wordlists@5.7.0':
     resolution: {integrity: sha512-S2TFNJNfHWVHNE6cNDjbVlZ6MgE17MIxMbMg2zv3wn+3XSJGosL1m9ZVv3GXCf/2ymSsQ+hRI5IzoMJTG6aoVA==}
 
-  '@farcaster/frame-core@0.0.15':
-    resolution: {integrity: sha512-WQfAEqyQAz3EzEdfqAMV7s2VMIYBGWz0Qt5CUUkmSelvv0a+8A61YmBnpemCi3NEwWzEJBTc/IxzQ29w2axPBg==}
+  '@farcaster/frame-core@0.0.26':
+    resolution: {integrity: sha512-DqBsi+lz7WBlqcxJfYv8ZiU8+Th4Y49euq13kCxVOn6YU/rKR7Wq6E6N1bgeb625wyoIrlC3NnPRXf5SoRxNhA==}
 
-  '@farcaster/frame-sdk@0.0.16':
-    resolution: {integrity: sha512-043j2EiCOaHvS1ox0yVx7KZQU5LB1P+39waK3xtX0knNKQ54wZxCOTcca0kUcJfTBN5db7iVPOh/E+LJ5kjDew==}
+  '@farcaster/frame-sdk@0.0.28':
+    resolution: {integrity: sha512-raxJkwy9oNDTodyfcY8DNvQNkt/9wdWGIqGnXW70biBPfVxfdG9WAqy1Bm552KSynd0+hGzcrQVwkMNzvpSZBg==}
+
+  '@farcaster/frame-wagmi-connector@0.0.16':
+    resolution: {integrity: sha512-9ymoD49f8mT7itHdZnnXWqt6MQKqaxG/1QzOr+0MBnSPL+BTBpbKFGCUMbhLdEE2XDool139oM5uMxlPEOOP2A==}
+    peerDependencies:
+      '@farcaster/frame-sdk': ^0.0.28
+      '@wagmi/core': ^2.14.1
+      viem: ^2.21.55
 
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
@@ -7751,22 +7761,28 @@ snapshots:
       '@ethersproject/properties': 5.7.0
       '@ethersproject/strings': 5.7.0
 
-  '@farcaster/frame-core@0.0.15(typescript@5.7.3)':
+  '@farcaster/frame-core@0.0.26(typescript@5.7.3)':
     dependencies:
       ox: 0.4.4(typescript@5.7.3)(zod@3.24.1)
       zod: 3.24.1
     transitivePeerDependencies:
       - typescript
 
-  '@farcaster/frame-sdk@0.0.16(typescript@5.7.3)(zod@3.24.1)':
+  '@farcaster/frame-sdk@0.0.28(typescript@5.7.3)(zod@3.24.1)':
     dependencies:
-      '@farcaster/frame-core': 0.0.15(typescript@5.7.3)
+      '@farcaster/frame-core': 0.0.26(typescript@5.7.3)
       comlink: 4.4.2
       eventemitter3: 5.0.1
       ox: 0.4.4(typescript@5.7.3)(zod@3.24.1)
     transitivePeerDependencies:
       - typescript
       - zod
+
+  '@farcaster/frame-wagmi-connector@0.0.16(@farcaster/frame-sdk@0.0.28(typescript@5.7.3)(zod@3.24.1))(@wagmi/core@2.16.3(@tanstack/query-core@5.65.0)(@types/react@18.3.18)(react@18.3.1)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.22.16(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)))(viem@2.22.16(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))':
+    dependencies:
+      '@farcaster/frame-sdk': 0.0.28(typescript@5.7.3)(zod@3.24.1)
+      '@wagmi/core': 2.16.3(@tanstack/query-core@5.65.0)(@types/react@18.3.18)(react@18.3.1)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.22.16(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))
+      viem: 2.22.16(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
 
   '@fastify/busboy@2.1.1': {}
 
@@ -11614,7 +11630,7 @@ snapshots:
 
   extension-port-stream@3.0.0:
     dependencies:
-      readable-stream: 3.6.2
+      readable-stream: 4.7.0
       webextension-polyfill: 0.10.0
 
   fast-copy@3.0.2: {}
