@@ -33,7 +33,7 @@ export default function App({
   }, [isSDKLoaded]);
 
   return (
-    <div className='min-h-screen bg-black'>
+    <div className='min-h-screen'>
       <Header chainId={chainId} />
       <Claims chainId={chainId} bountyId={bountyId} />
     </div>

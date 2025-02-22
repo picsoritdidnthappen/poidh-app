@@ -1,9 +1,14 @@
-import { useGetChain } from '@/hooks/useGetChain';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther } from 'viem';
-import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useChainId,
+  usePublicClient,
+  useSwitchChain,
+  useWriteContract,
+} from 'wagmi';
 import {
   Box,
   Button,
@@ -16,37 +21,54 @@ import { cn } from '@/utils';
 import Loading from '@/components/global/Loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import abi from '@/constant/abi/abi';
+import { Netname } from '@/utils/types';
+import { chains } from '@/utils/config';
 
 export default function JoinBounty({
   bountyId,
   open,
   onClose,
+  chainId,
 }: {
   bountyId: string;
   open: boolean;
   onClose: () => void;
+  chainId: Netname;
 }) {
   const [amount, setAmount] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const [txHash, setTxHash] = useState<`0x${string}` | null>(null);
   const utils = trpc.useUtils();
   const account = useAccount();
-  const chain = useGetChain();
-  // const { sendTransaction } = useSendTransaction();
+  const currentChainId = useChainId();
+  const { switchChainAsync } = useSwitchChain();
+  const CurrChain = chains[chainId];
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
-  // const {wait} = useWaitForTransactionReceipt()
 
   const doTransaction = async (bountyId: bigint) => {
     try {
+      // Check if we need to switch chains
+      if (currentChainId !== CurrChain.id) {
+        setStatus('Switching network');
+        try {
+          await switchChainAsync({ chainId: CurrChain.id });
+        } catch (error) {
+          console.error('Failed to switch chain:', error);
+          toast.error('Failed to switch network. Please switch manually.');
+          setStatus('');
+          return;
+        }
+      }
+
       setStatus('Sending transaction');
       const hash = await writeContractAsync({
         abi,
-        address: chain.contracts.mainContract as `0x${string}`,
+        address: CurrChain.contracts.mainContract as `0x${string}`,
         value: BigInt(parseEther(amount)),
         functionName: 'joinOpenBounty',
         args: [bountyId],
-        chainId: chain.id,
+        chainId: CurrChain.id,
       });
 
       setStatus('Waiting for confirmation');
@@ -81,7 +103,7 @@ export default function JoinBounty({
         setStatus(`Indexing ${i}s`);
         const participant = await trpcClient.isJoinedBounty.query({
           bountyId: Number(bountyId),
-          chainId: chain.id,
+          chainId: CurrChain.id,
           participantAddress: account.address!,
         });
 
@@ -160,7 +182,7 @@ export default function JoinBounty({
               type='number'
               className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full placeholder:text-gray-300'
               onChange={handleAmountChange}
-              placeholder={`enter amount in ${chain.currency}`}
+              placeholder={`enter amount in ${CurrChain.currency}`}
             />
           </Box>
         </DialogContent>

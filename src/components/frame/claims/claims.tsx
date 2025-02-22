@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-no-undef */
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CopyIcon } from '@/components/global/Icons';
+import { CloseIcon, CopyIcon, ExpandMoreIcon } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
 import { useAccount } from 'wagmi';
 import ClaimForm from '@/components/frame/claims/Claimform';
@@ -143,6 +143,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const { address, isConnected } = useAccount();
   const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
   const [showClaimForm, setShowClaimForm] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
 
   const fetchImageUrl = async (url: string, claimId: number) => {
     try {
@@ -196,7 +197,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
 
   if (loading) {
     return (
-      <div className='text-center text-white bg-[#12AAFF]  font-bold w-full'>
+      <div className='text-center text-white bg-[#12AAFF]  font-bold w-full h-screen'>
         Bounty Loading...
       </div>
     );
@@ -204,7 +205,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
 
   if (!bounty) {
     return (
-      <div className='text-center text-white bg-[#12AAFF]  font-bold w-full'>
+      <div className='text-center text-white bg-[#12AAFF]  font-bold w-full h-full'>
         Bounty Not Found :(
       </div>
     );
@@ -235,12 +236,40 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
             -6
           )}`}
         </p>
-        <p className='text-base md:text-lg font-medium text-center'>
-          bounty issuer:{' '}
-          {`${bounty.issuer.address.slice(0, 5)}…${bounty.issuer.address.slice(
-            -6
-          )}`}
-        </p>
+        {/* Participants Section */}
+        {isOpen && (
+          <div className=''>
+            <button
+              onClick={() => setShowParticipants(!showParticipants)}
+              className='w-full flex items-center gap-4 p-2 rounded-md hover:bg-[#D1ECFF]/10 transition-all duration-200'
+            >
+              <span>bounty participants: {bounty.participants.length}</span>
+              {showParticipants ? <CloseIcon /> : <ExpandMoreIcon />}
+            </button>
+
+            {showParticipants && (
+              <div className='mt-2 p-3 border border-[#D1ECFF] rounded-md bg-[#D1ECFF]/5'>
+                {bounty.participants.map((participant, index) => (
+                  <div
+                    key={index}
+                    className='flex items-center justify-between py-2 border-b border-[#D1ECFF]/30 last:border-0'
+                  >
+                    {`${participant.address.slice(
+                      0,
+                      5
+                    )}…${participant.address.slice(-6)}`}
+                    <div className='flex items-center gap-2'>
+                      <span>
+                        {formatAmount(participant.amount, bounty.chain_id)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <p className='text-base md:text-lg font-medium text-center'>
           Total Claims:{' '}
           <span className='underline'>{bounty.claims.length}</span>
@@ -273,6 +302,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                 bountyId={bountyId}
                 onClose={() => setShowJoinForm(false)}
                 open={showJoinForm}
+                chainId={chainId}
               />
             </>
           )}
