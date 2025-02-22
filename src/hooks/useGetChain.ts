@@ -14,17 +14,8 @@ const chainIds = {
   arbitrum: '42161',
 };
 
-export const useGetChain = (chainId?: string): Chain => {
+export const useGetChain = (): Chain => {
   const pathname = usePathname();
-
-  // If chainId is provided, look up by chain ID first
-  if (chainId) {
-    for (const [key, id] of Object.entries(chainIds)) {
-      if (id === chainId) {
-        return chains[key as Netname];
-      }
-    }
-  }
 
   // If no chainId match or chainId not provided, look up by path
   for (const [key, value] of Object.entries(chainPathName)) {

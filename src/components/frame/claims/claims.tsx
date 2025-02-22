@@ -7,6 +7,7 @@ import { useAccount } from 'wagmi';
 import ClaimForm from '@/components/frame/claims/Claimform';
 import JoinBounty from '@/components/frame/claims/FormJoinBounty';
 import ButtonCTA from '@/components/global/ButtonCTA';
+import { Netname } from '@/utils/types';
 
 // Types
 interface ChainInfo {
@@ -132,7 +133,7 @@ const formatAmount = (amount: string, chainId: ChainId): string => {
 
 interface ClaimsProps {
   bountyId: string;
-  chainId: string;
+  chainId: Netname;
 }
 
 const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {

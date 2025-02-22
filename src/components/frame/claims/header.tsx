@@ -2,12 +2,15 @@ import React from 'react';
 import Image from 'next/image';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
+import { chains } from '@/utils/config';
+import { Netname } from '@/utils/types';
 
 interface HeaderProps {
-  chainId: string;
+  chainId: Netname;
 }
 
 const Header: React.FC<HeaderProps> = ({ chainId }) => {
+  console.log('🚀 ~ connect walli chainId:', chainId);
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
@@ -19,12 +22,15 @@ const Header: React.FC<HeaderProps> = ({ chainId }) => {
   ];
 
   const handleConnection = () => {
+    const currChain = chains[chainId];
+    console.log('🚀 ~ handleConnection ~ currChain.id:', currChain.id);
+
     if (isConnected) {
       disconnect();
     } else {
       connect({
         connector: connectors[0],
-        chainId: parseInt(chainId),
+        chainId: currChain.id,
       });
     }
   };

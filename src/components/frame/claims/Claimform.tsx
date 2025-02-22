@@ -5,39 +5,50 @@ import Image from 'next/image';
 import { useMutation } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogActions } from '@mui/material';
 import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
-import { useGetChain } from '@/hooks/useGetChain';
 import { trpc, trpcClient } from '@/trpc/client';
 import Loading from '@/components/global/Loading';
 import GameButton from '@/components/global/GameButton';
-import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useChainId,
+  usePublicClient,
+  useSwitchChain,
+  useWriteContract,
+} from 'wagmi';
 import abi from '@/constant/abi/abi';
 import ButtonCTA from '@/components/global/ButtonCTA';
 import { decodeEventLog } from 'viem';
+import { chains } from '@/utils/config';
+import { Netname } from '@/utils/types';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
+
+interface ClaimFormProps {
+  bountyId: string;
+  open: boolean;
+  onClose: () => void;
+  chainId: Netname; // Updated type to Netname
+}
 
 export default function ClaimForm({
   bountyId,
   open,
   onClose,
   chainId,
-}: {
-  bountyId: string;
-  open: boolean;
-  onClose: () => void;
-  chainId: string;
-}) {
+}: ClaimFormProps) {
   const [preview, setPreview] = useState<string>('');
   const [imageURI, setImageURI] = useState<string>('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
-  const utils = trpc.useUtils();
   const [uploading, setUploading] = useState(false);
 
+  const utils = trpc.useUtils();
   const account = useAccount();
-  const chain = useGetChain(chainId);
+  const currentChainId = useChainId();
+  const { switchChainAsync } = useSwitchChain();
+  const CurrChain = chains[chainId];
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
 
@@ -102,6 +113,19 @@ export default function ClaimForm({
 
   const doTransaction = async (bountyId: bigint) => {
     try {
+      // Check if we need to switch chains
+      if (currentChainId !== CurrChain.id) {
+        setStatus('Switching network');
+        try {
+          await switchChainAsync({ chainId: CurrChain.id });
+        } catch (error) {
+          console.error('Failed to switch chain:', error);
+          toast.error('Failed to switch network. Please switch manually.');
+          setStatus('');
+          return;
+        }
+      }
+
       setStatus('Uploading metadata');
       const metadata = buildMetadata(imageURI, name, description);
       const metadataResponse = await uploadMetadata(metadata);
@@ -110,10 +134,10 @@ export default function ClaimForm({
       setStatus('Sending transaction');
       const hash = await writeContractAsync({
         abi,
-        address: chain.contracts.mainContract as `0x${string}`,
+        address: CurrChain.contracts.mainContract as `0x${string}`,
         functionName: 'createClaim',
         args: [bountyId, name, uri, description],
-        chainId: chain.id,
+        chainId: CurrChain.id,
       });
 
       setStatus('Waiting for confirmation');
@@ -161,7 +185,7 @@ export default function ClaimForm({
         setStatus(`Indexing ${i}s`);
         const claim = await trpcClient.isClaimCreated.query({
           id: Number(claimId),
-          chainId: chain.id,
+          chainId: CurrChain.id,
         });
 
         if (claim) {

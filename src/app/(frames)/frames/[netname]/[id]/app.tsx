@@ -1,5 +1,6 @@
 'use client';
 
+import { Netname } from '@/utils/types';
 import sdk from '@farcaster/frame-sdk';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -17,7 +18,7 @@ export default function App({
   chainId,
 }: {
   bountyId: string;
-  chainId: string;
+  chainId: Netname;
 }) {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
 
