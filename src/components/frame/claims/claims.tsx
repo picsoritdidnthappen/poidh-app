@@ -1,13 +1,13 @@
 /* eslint-disable react/jsx-no-undef */
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CopyIcon } from '@/components/global/Icons';
+import { CloseIcon, CopyIcon, ExpandMoreIcon } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
 import { useAccount } from 'wagmi';
-import FormClaim from '@/components/claims/FormClaim';
+import ClaimForm from '@/components/frame/claims/Claimform';
+import JoinBounty from '@/components/frame/claims/FormJoinBounty';
 import ButtonCTA from '@/components/global/ButtonCTA';
-import FormJoinBounty from '@/components/bounty/FormJoinBounty';
-import CreateClaim from '@/components/claims/CreateClaim';
+import { Netname } from '@/utils/types';
 
 // Types
 interface ChainInfo {
@@ -71,6 +71,14 @@ interface BountyResponse {
   bounty: Bounty;
 }
 
+type ChainIds = 8453 | 42161 | 666666666;
+
+interface ChainInfo {
+  symbol: string;
+  isEVM: boolean;
+  name: string;
+}
+
 // Chain configuration
 const CHAIN_INFO: Record<ChainId, ChainInfo> = {
   8453: {
@@ -89,6 +97,13 @@ const CHAIN_INFO: Record<ChainId, ChainInfo> = {
     name: 'Degen',
   },
 };
+
+function getChainId(chainName: string): ChainIds | undefined {
+  const entry = Object.entries(CHAIN_INFO).find(
+    ([_, info]) => info.name.toLowerCase() === chainName.toLowerCase()
+  );
+  return entry ? (Number(entry[0]) as ChainIds) : undefined;
+}
 
 // Amount formatting utility
 const formatAmount = (amount: string, chainId: ChainId): string => {
@@ -118,16 +133,17 @@ const formatAmount = (amount: string, chainId: ChainId): string => {
 
 interface ClaimsProps {
   bountyId: string;
-  chainId: string;
+  chainId: Netname;
 }
 
 const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const [bounty, setBounty] = useState<Bounty | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
-  const [showClaimForm, setShowClaimForm] = useState(false);
   const [showJoinForm, setShowJoinForm] = useState(false);
   const { address, isConnected } = useAccount();
+  const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
+  const [showClaimForm, setShowClaimForm] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
 
   const fetchImageUrl = async (url: string, claimId: number) => {
     try {
@@ -145,6 +161,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   useEffect(() => {
     const fetchBounty = async () => {
       setLoading(true);
+      console.log(chainId, bountyId);
       try {
         const response = await fetch(`/api/bounties/${chainId}/${bountyId}`);
         if (!response.ok) {
@@ -180,7 +197,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
 
   if (loading) {
     return (
-      <div className='text-center text-white font-bold w-full'>
+      <div className='text-center text-white bg-[#12AAFF]  font-bold w-full h-screen'>
         Bounty Loading...
       </div>
     );
@@ -188,7 +205,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
 
   if (!bounty) {
     return (
-      <div className='text-center text-white font-bold w-full'>
+      <div className='text-center text-white bg-[#12AAFF]  font-bold w-full h-full'>
         Bounty Not Found :(
       </div>
     );
@@ -202,7 +219,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   });
 
   return (
-    <div className='w-full flex items-center justify-start px-4 md:px-6 py-4 flex-col gap-4'>
+    <div className='w-full bg-[#12AAFF] flex h-full items-center justify-start px-4 md:px-6 py-4 flex-col gap-4'>
       <div className='w-full flex items-center justify-start flex-col gap-3'>
         <h3 className='text-xl md:text-2xl font-semibold text-center px-2'>
           "{bounty.title}"
@@ -219,6 +236,40 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
             -6
           )}`}
         </p>
+        {/* Participants Section */}
+        {isOpen && (
+          <div className=''>
+            <button
+              onClick={() => setShowParticipants(!showParticipants)}
+              className='w-full flex items-center gap-4 p-2 rounded-md hover:bg-[#D1ECFF]/10 transition-all duration-200'
+            >
+              <span>bounty participants: {bounty.participants.length}</span>
+              {showParticipants ? <CloseIcon /> : <ExpandMoreIcon />}
+            </button>
+
+            {showParticipants && (
+              <div className='mt-2 p-3 border border-[#D1ECFF] rounded-md bg-[#D1ECFF]/5'>
+                {bounty.participants.map((participant, index) => (
+                  <div
+                    key={index}
+                    className='flex items-center justify-between py-2 border-b border-[#D1ECFF]/30 last:border-0'
+                  >
+                    {`${participant.address.slice(
+                      0,
+                      5
+                    )}…${participant.address.slice(-6)}`}
+                    <div className='flex items-center gap-2'>
+                      <span>
+                        {formatAmount(participant.amount, bounty.chain_id)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <p className='text-base md:text-lg font-medium text-center'>
           Total Claims:{' '}
           <span className='underline'>{bounty.claims.length}</span>
@@ -233,10 +284,11 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                   create claim
                 </button>
               </div>
-              <FormClaim
+              <ClaimForm
                 bountyId={bountyId}
-                onClose={() => setShowClaimForm(false)}
                 open={showClaimForm}
+                onClose={() => setShowClaimForm(false)}
+                chainId={chainId}
               />
             </>
           )}
@@ -246,10 +298,11 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
               <div onClick={() => setShowJoinForm(true)}>
                 <ButtonCTA>join bounty</ButtonCTA>
               </div>
-              <FormJoinBounty
+              <JoinBounty
                 bountyId={bountyId}
                 onClose={() => setShowJoinForm(false)}
                 open={showJoinForm}
+                chainId={chainId}
               />
             </>
           )}
@@ -316,7 +369,6 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
           ))}
         </div>
       )}
-      <CreateClaim bountyId={String(bounty.id)} />
     </div>
   );
 };
