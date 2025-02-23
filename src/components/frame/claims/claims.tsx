@@ -8,6 +8,7 @@ import ClaimForm from '@/components/frame/claims/Claimform';
 import JoinBounty from '@/components/frame/claims/FormJoinBounty';
 import ButtonCTA from '@/components/global/ButtonCTA';
 import { Netname } from '@/utils/types';
+import { trpc } from '@/trpc/client';
 
 // Types
 interface ChainInfo {
@@ -158,32 +159,42 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchBounty = async () => {
-      setLoading(true);
-      console.log(chainId, bountyId);
-      try {
-        const response = await fetch(`/api/bounties/${chainId}/${bountyId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch bounty');
-        }
-        const data: BountyResponse = await response.json();
-        setBounty(data.bounty);
-
-        // Fetch images for all claims
-        data.bounty.claims.forEach((claim) => {
-          void fetchImageUrl(claim.url, claim.id);
-        });
-      } catch (error) {
-        console.error('Error fetching bounty:', error);
-        setBounty(null);
-      } finally {
-        setLoading(false);
+  const fetchBounty = async () => {
+    setLoading(true);
+    console.log(chainId, bountyId);
+    try {
+      const response = await fetch(`/api/bounties/${chainId}/${bountyId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch bounty');
       }
-    };
+      const data: BountyResponse = await response.json();
+      setBounty(data.bounty);
 
+      // Fetch images for all claims
+      data.bounty.claims.forEach((claim) => {
+        void fetchImageUrl(claim.url, claim.id);
+      });
+    } catch (error) {
+      console.error('Error fetching bounty:', error);
+      setBounty(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     void fetchBounty();
   }, [bountyId, chainId]);
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      fetchBounty(),
+      utils.participations.invalidate(),
+      utils.bountyClaims.invalidate(),
+      utils.participations.refetch(),
+      utils.bountyClaims.refetch(),
+    ]);
+  };
 
   // Check if there's an accepted claim
   const hasAcceptedClaim = bounty?.claims.some((claim) => claim.is_accepted);
@@ -192,8 +203,17 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
 
   const isOpen = bounty?.status.is_multiplayer;
   const isVoting = bounty?.status.is_voting;
+  const utils = trpc.useUtils();
 
-  console.log('b', bounty);
+  const refreshData = async () => {
+    // Invalidate and refetch all related queries
+    await Promise.all([
+      utils.participations.invalidate(),
+      utils.bountyClaims.invalidate(),
+      utils.participations.refetch(),
+      utils.bountyClaims.refetch(),
+    ]);
+  };
 
   if (loading) {
     return (
@@ -287,7 +307,10 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
               <ClaimForm
                 bountyId={bountyId}
                 open={showClaimForm}
-                onClose={() => setShowClaimForm(false)}
+                onClose={() => {
+                  setShowClaimForm(false);
+                  void handleRefresh();
+                }}
                 chainId={chainId}
               />
             </>
@@ -300,7 +323,10 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
               </div>
               <JoinBounty
                 bountyId={bountyId}
-                onClose={() => setShowJoinForm(false)}
+                onClose={() => {
+                  setShowJoinForm(false);
+                  void handleRefresh();
+                }}
                 open={showJoinForm}
                 chainId={chainId}
               />
