@@ -20,6 +20,7 @@ import ButtonCTA from '@/components/global/ButtonCTA';
 import { decodeEventLog } from 'viem';
 import { chains } from '@/utils/config';
 import { Netname } from '@/utils/types';
+import { useRouter } from 'next/router';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -43,6 +44,7 @@ export default function ClaimForm({
   const [status, setStatus] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const router = useRouter();
 
   const utils = trpc.useUtils();
   const account = useAccount();
@@ -202,6 +204,7 @@ export default function ClaimForm({
       utils.bountyClaims.refetch();
       setName('');
       setDescription('');
+      router.reload();
       setImageURI('');
       setPreview('');
     },

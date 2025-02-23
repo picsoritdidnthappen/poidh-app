@@ -44,7 +44,7 @@ export const buildMetadata = (
 ): PinataMetadata => {
   const metadata = {
     description: description,
-    external_url: 'https://poidh.xyz/',
+    external_url: 'https://poidh-app-theta.vercel.app/',
     image: imageURI,
     name: name,
     attributes: [],
