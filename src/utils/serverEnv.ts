@@ -15,7 +15,7 @@ const envSchema = z.object({
         .split(',')
         .map((v) => v.trim())
     ),
-  VERCEL_URL: z.string().default('https://poidh-app-theta.vercel.app'),
+  VERCEL_URL: z.string().default('https://poidh.xyz'),
   MAINNET_RPC_URL: z.string(),
   DEGEN_RPC_URL: z.string(),
   ARBITRUM_RPC_URL: z.string(),

@@ -41,7 +41,7 @@ export default function SlideOverMenu() {
       <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'>
         report bug
       </MenuLink>
-      <MenuLink href='https://poidh-app-theta.vercel.app/terms'>terms</MenuLink>
+      <MenuLink href='https://poidh.xyz/terms'>terms</MenuLink>
     </div>
   );
 }
