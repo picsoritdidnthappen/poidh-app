@@ -23,7 +23,6 @@ import { trpc, trpcClient } from '@/trpc/client';
 import abi from '@/constant/abi/abi';
 import { Netname } from '@/utils/types';
 import { chains } from '@/utils/config';
-import { useRouter } from 'next/router';
 
 export default function JoinBounty({
   bountyId,

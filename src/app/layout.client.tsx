@@ -12,7 +12,7 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <Header />
+      {shouldShowHeader && <Header />}
       {children}
     </>
   );
