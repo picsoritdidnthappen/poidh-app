@@ -23,7 +23,6 @@ import { trpc, trpcClient } from '@/trpc/client';
 import abi from '@/constant/abi/abi';
 import { Netname } from '@/utils/types';
 import { chains } from '@/utils/config';
-import { useRouter } from 'next/router';
 
 export default function JoinBounty({
   bountyId,
@@ -46,7 +45,6 @@ export default function JoinBounty({
   const CurrChain = chains[chainId];
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
-  const router = useRouter();
 
   const doTransaction = async (bountyId: bigint) => {
     try {
@@ -123,7 +121,6 @@ export default function JoinBounty({
       utils.participations.refetch();
       setAmount('');
       setStatus('');
-      router.reload;
     },
     onError: (error) => {
       if (error.message === 'indexing_timeout') {
