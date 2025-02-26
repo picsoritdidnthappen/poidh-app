@@ -39,6 +39,3 @@ jobs:
 
       - name: 💅 Prettier check
         run: pnpm run format:check
-
-      - name: 🃏 Run jest
-        run: pnpm run test

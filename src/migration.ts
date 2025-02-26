@@ -32,8 +32,4 @@ async function createBanTable() {
   `);
 }
 
-async function dropBanTable() {
-  await pool.query('DROP TABLE IF EXISTS "Ban";');
-}
-
 migrate();

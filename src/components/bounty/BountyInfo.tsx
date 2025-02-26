@@ -105,11 +105,15 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
 
+      if (!bounty.data) {
+        throw new Error('Bounty data not found');
+      }
+
       setLoading({ isLoading: true, status: 'Waiting approval' });
       await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
-        functionName: bounty.data!.isMultiplayer
+        functionName: bounty.data.isMultiplayer
           ? 'cancelOpenBounty'
           : 'cancelSoloBounty',
         args: [bountyId],
