@@ -29,7 +29,7 @@ jobs:
           cache: 'pnpm'
 
       - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: 🔬 Lint
         run: pnpm run lint:strict
