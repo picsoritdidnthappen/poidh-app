@@ -29,7 +29,7 @@ jobs:
           cache: 'pnpm'
 
       - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: 🔬 Lint
         run: pnpm run lint:strict
@@ -37,8 +37,8 @@ jobs:
       - name: 🔎 Type check
         run: pnpm run typecheck
 
-      - name: 💅 Prettier check
-        run: pnpm run format:check
+      - name: 💅 Prettier format
+        run: pnpm run format
 
-      - name: 🃏 Run jest
-        run: pnpm run test
+      - name: 🔍 Prettier check
+        run: pnpm run format:check

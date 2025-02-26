@@ -4,7 +4,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { headers } from 'next/headers';
 import React from 'react';
 import { TRPCProvider } from '@/trpc/client';
-import Header from '@/components/layout/Header';
 import '@rainbow-me/rainbowkit/styles.css';
 import { WalletProvider } from '@/components/global/WalletProvider';
 import { ToastContainer } from 'react-toastify';

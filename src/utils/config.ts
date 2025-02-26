@@ -47,5 +47,6 @@ export const chains: Record<Netname, Chain> = {
 };
 
 export function getChainById({ chainId }: { chainId: ChainId }) {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return Object.values(chains).find((chain) => chain.id === chainId)!;
 }

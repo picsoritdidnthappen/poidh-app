@@ -30,5 +30,3 @@ export function NetworkSelector({
     </div>
   );
 }
-
-export function NetworkSelectorDropDown() {}
