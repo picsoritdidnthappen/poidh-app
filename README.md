@@ -92,6 +92,12 @@ Ensure the database is properly set up before proceeding.
 
 2. This command will update and install all necessary packages.
 
+3. Next run migration script:
+
+   ```bash
+   pnpm migrate
+   ```
+
 <div align="right">
 <a href="#quick-start-guide">↑ Back to Overview</a>
 </div>
