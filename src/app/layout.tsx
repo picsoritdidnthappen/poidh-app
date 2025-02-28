@@ -9,11 +9,30 @@ import { WalletProvider } from '@/components/global/WalletProvider';
 import { ToastContainer } from 'react-toastify';
 import { LoadingProvider } from '@/components/global/LoadingProvider';
 import ClientLayout from '@/app/layout.client';
+import serverEnv from '@/utils/serverEnv';
+
+const APP_URL = serverEnv.VERCEL_URL;
 
 export const metadata = {
   title: "poidh - pics or it didn't happen - crypto bounties",
   description:
     "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+  openGraph: {
+    title: "poidh - pics or it didn't happen - crypto bounties",
+    description:
+      "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+    type: 'website',
+    images: [
+      {
+        url: `${APP_URL}/images/poidh-preview-hero-v2.png`,
+        width: 1200,
+        height: 630,
+        alt: "POIDH - Pics or it didn't happen",
+      },
+    ],
+    siteName: 'POIDH',
+    locale: 'en_US',
+  },
 };
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
