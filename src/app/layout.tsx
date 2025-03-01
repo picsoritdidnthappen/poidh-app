@@ -9,9 +9,10 @@ import { WalletProvider } from '@/components/global/WalletProvider';
 import { ToastContainer } from 'react-toastify';
 import { LoadingProvider } from '@/components/global/LoadingProvider';
 import ClientLayout from '@/app/layout.client';
-import serverEnv from '@/utils/serverEnv';
 
-const APP_URL = serverEnv.VERCEL_URL;
+const headersList = headers();
+const host = headersList.get('host');
+const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
 
 export const metadata = {
   title: "poidh - pics or it didn't happen - crypto bounties",
@@ -24,7 +25,7 @@ export const metadata = {
     type: 'website',
     images: [
       {
-        url: `${APP_URL}/images/poidh-preview-hero-v2.png`,
+        url: `${`${protocol}://${host}`}/images/poidh-preview-hero-v2.png`,
         width: 1200,
         height: 630,
         alt: "POIDH - Pics or it didn't happen",
@@ -36,7 +37,6 @@ export const metadata = {
 };
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const headersList = headers();
   const referer = headersList.get('referer');
   const url = referer ? String(referer) : '';
 
