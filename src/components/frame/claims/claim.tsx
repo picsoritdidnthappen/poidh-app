@@ -1,5 +1,6 @@
 import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import React from 'react';
+import Image from 'next/image';
 
 interface ClaimShowcaseProps {
   claim: BountyResponse['bounty']['claims'][0];
@@ -68,13 +69,13 @@ const ClaimShowcase: React.FC<ClaimShowcaseProps> = ({ claim, url }) => {
           )}
         </div>
         {url && (
-          <img
+          <Image
             src={url}
             tw=' rounded-lg'
             style={{ objectFit: 'cover', width: '30%', aspectRatio: '1:1' }}
             width={200}
             height={200}
-            alt=''
+            alt='Claim proof image'
           />
         )}
       </div>

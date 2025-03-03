@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-undef */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { CloseIcon, CopyIcon, ExpandMoreIcon } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
@@ -72,8 +72,6 @@ interface BountyResponse {
   bounty: Bounty;
 }
 
-type ChainIds = 8453 | 42161 | 666666666;
-
 interface ChainInfo {
   symbol: string;
   isEVM: boolean;
@@ -98,13 +96,6 @@ const CHAIN_INFO: Record<ChainId, ChainInfo> = {
     name: 'Degen',
   },
 };
-
-function getChainId(chainName: string): ChainIds | undefined {
-  const entry = Object.entries(CHAIN_INFO).find(
-    ([_, info]) => info.name.toLowerCase() === chainName.toLowerCase()
-  );
-  return entry ? (Number(entry[0]) as ChainIds) : undefined;
-}
 
 // Amount formatting utility
 const formatAmount = (amount: string, chainId: ChainId): string => {
@@ -141,7 +132,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const [bounty, setBounty] = useState<Bounty | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showJoinForm, setShowJoinForm] = useState(false);
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
   const [showClaimForm, setShowClaimForm] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
@@ -159,7 +150,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
     }
   };
 
-  const fetchBounty = async () => {
+  const fetchBounty = useCallback(async () => {
     setLoading(true);
     console.log(chainId, bountyId);
     try {
@@ -180,11 +171,11 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [bountyId, chainId]);
 
   useEffect(() => {
     void fetchBounty();
-  }, [bountyId, chainId]);
+  }, [bountyId, chainId, fetchBounty]);
 
   const handleRefresh = async () => {
     await Promise.all([
@@ -204,16 +195,6 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const isOpen = bounty?.status.is_multiplayer;
   const isVoting = bounty?.status.is_voting;
   const utils = trpc.useUtils();
-
-  const refreshData = async () => {
-    // Invalidate and refetch all related queries
-    await Promise.all([
-      utils.participations.invalidate(),
-      utils.bountyClaims.invalidate(),
-      utils.participations.refetch(),
-      utils.bountyClaims.refetch(),
-    ]);
-  };
 
   if (loading) {
     return (

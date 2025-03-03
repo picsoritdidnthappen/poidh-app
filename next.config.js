@@ -9,7 +9,12 @@ const nextConfig = {
 
   // Uncoment to add domain whitelist
   images: {
-    domains: ['beige-impossible-dragon-883.mypinata.cloud'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
 
   webpack(config) {

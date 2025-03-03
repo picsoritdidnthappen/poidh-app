@@ -8,12 +8,6 @@ const chainPathName = {
   arbitrum: '/arbitrum',
 };
 
-const chainIds = {
-  degen: '666666666', // Replace with actual Degen chain ID
-  base: '8453',
-  arbitrum: '42161',
-};
-
 export const useGetChain = (): Chain => {
   const pathname = usePathname();
 

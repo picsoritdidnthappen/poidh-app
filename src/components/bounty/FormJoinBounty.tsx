@@ -58,10 +58,13 @@ export default function FormJoinBounty({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
+        if (!account.address) {
+          throw new Error('No wallet address found');
+        }
         const participant = await trpcClient.isJoinedBounty.query({
           bountyId: Number(bountyId),
           chainId: pollingChainId ?? chain.id,
-          participantAddress: account.address!,
+          participantAddress: account.address,
         });
         if (participant) {
           return;

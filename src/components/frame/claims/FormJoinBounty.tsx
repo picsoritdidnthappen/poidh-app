@@ -37,7 +37,6 @@ export default function JoinBounty({
 }) {
   const [amount, setAmount] = useState<string>('');
   const [status, setStatus] = useState<string>('');
-  const [txHash, setTxHash] = useState<`0x${string}` | null>(null);
   const utils = trpc.useUtils();
   const account = useAccount();
   const currentChainId = useChainId();
@@ -79,9 +78,8 @@ export default function JoinBounty({
       if (!transaction) throw new Error('Transaction failed');
 
       // Pass both the bountyId and transaction hash for tracking
-      await bountyMutation.mutate({
+      bountyMutation.mutate({
         bountyId,
-        hash: transaction.transactionHash,
       });
     } catch (error) {
       console.error(error);
@@ -92,19 +90,13 @@ export default function JoinBounty({
   };
 
   const bountyMutation = useMutation({
-    mutationFn: async ({
-      bountyId,
-      hash,
-    }: {
-      bountyId: bigint;
-      hash: string;
-    }) => {
+    mutationFn: async ({ bountyId }: { bountyId: bigint }) => {
       for (let i = 0; i < 60; i++) {
         setStatus(`Indexing ${i}s`);
         const participant = await trpcClient.isJoinedBounty.query({
           bountyId: Number(bountyId),
           chainId: CurrChain.id,
-          participantAddress: account.address!,
+          participantAddress: account.address ?? '',
         });
 
         if (participant) {
