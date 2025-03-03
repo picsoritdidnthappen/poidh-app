@@ -16,8 +16,7 @@
     "format": "prettier -w .",
     "format:check": "prettier -c .",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
-    "prepare": "husky install",
-    "migrate": "tsx src/migration.ts"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -38,13 +37,11 @@
     "axios": "^1.6.8",
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.0.0",
-    "dotenv": "^16.4.7",
     "framer-motion": "^11.0.12",
     "frames.js": "^0.20.0",
     "jotai": "^2.11.3",
     "mobx": "^6.12.3",
     "next": "13.5.3",
-    "pg": "^8.13.3",
     "pino": "^9.5.0",
     "pino-pretty": "^11.3.0",
     "react": "^18.3.1",
@@ -67,7 +64,6 @@
     "@tailwindcss/forms": "^0.5.7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
-    "@types/pg": "^8.11.11",
     "@types/react": "^18.3.3",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@typescript-eslint/eslint-plugin": "^5.62.0",

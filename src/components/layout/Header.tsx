@@ -57,7 +57,7 @@ const Header = () => {
           >
             <MenuIcon width={30} height={30} />
           </button>
-          <Link href='/'>
+          <Link href={`/`}>
             <Logo />
           </Link>
         </div>

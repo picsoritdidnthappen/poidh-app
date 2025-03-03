@@ -92,40 +92,6 @@ Ensure the database is properly set up before proceeding.
 
 2. This command will update and install all necessary packages.
 
-3. Next, create a `.env` file in the project root directory and add the following:
-
-   ```plaintext
-   DATABASE_URL="postgresql://<username>:<password>@<host>:<port>/<database>"
-   ADMINS="0x…,0x…,0x…"
-   OPENAI_API_KEY="sk-…"
-   MAINNET_RPC_URL="https://eth-mainnet…"
-   DEGEN_RPC_URL="https://degen-mainnet…"
-   ARBITRUM_RPC_URL="https://arbitrum-mainnet…"
-   BASE_RPC_URL="https://base-mainnet…"
-   ```
-
-<div align="right">
-<a href="#quick-start-guide">↑ Back to Overview</a>
-</div>
-
----
-
-### Database Migration
-
-0. Make sure that schema.prisma is up to date. Don't forget to replace `schemas` in `datasource db` with your own schemas.
-
-1. After indexer finished indexing, run the following command:
-
-   ```bash
-   pnpm generate
-   ```
-
-2. Next, run the following command to migrate the database:
-
-   ```bash
-   pnpm migrate
-   ```
-
 <div align="right">
 <a href="#quick-start-guide">↑ Back to Overview</a>
 </div>

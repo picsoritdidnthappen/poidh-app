@@ -9,7 +9,7 @@ import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { trpc } from '@/trpc/client';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 
 function formatDeadline(date: Date) {

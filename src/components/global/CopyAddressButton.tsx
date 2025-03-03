@@ -13,7 +13,7 @@ export default function CopyAddressButton({
 
   return (
     <div
-      onClick={() => {
+      onClick={(e) => {
         setCopied(true);
         navigator.clipboard.writeText(address);
         toast.success('address copied to clipboard');

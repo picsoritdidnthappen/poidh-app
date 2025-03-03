@@ -1,5 +1,7 @@
-import { Button, createFrames } from 'frames.js/next';
+import BountyCard from '@/components/frame/claims/Bounty';
+import BountyErrorCard from '@/components/frame/claims/Error';
 import { fetchBounty } from '@/utils/utils';
+import { Button, createFrames } from 'frames.js/next';
 
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000';
 const frames = createFrames({
@@ -17,7 +19,7 @@ const handleRequest = frames(async (ctx) => {
     return {
       image: `/image?success=false&msg=${encodeURI(returnMsg)}`,
       buttons: [
-        <Button key='retry' action='post' target='/'>
+        <Button key={'retry'} action='post' target={`/`}>
           Retry
         </Button>,
       ],
@@ -25,13 +27,13 @@ const handleRequest = frames(async (ctx) => {
   }
 
   try {
-    await fetchBounty(chainId, bountyId);
+    const bountyData = await fetchBounty(chainId!, bountyId!);
 
     return {
       image: `/image?chainId=${chainId}&bountyId=${bountyId}`,
       buttons: [
         <Button
-          key='back'
+          key={'back'}
           action='post'
           target={`/claims?claimId=0&chainId=${chainId}&bountyId=${bountyId}`}
         >
@@ -44,7 +46,7 @@ const handleRequest = frames(async (ctx) => {
       image: `/image?chainId=${chainId}&bountyId=${bountyId}`,
       buttons: [
         <Button
-          key='retry'
+          key={'retry'}
           action='post'
           target={`/?chainId=${chainId}&bountyId=${bountyId}`}
         >

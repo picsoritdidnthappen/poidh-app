@@ -164,7 +164,7 @@ export default function ClaimForm({
         throw new Error('Invalid event: ' + log.eventName);
 
       const claimId = log.args.id.toString();
-      bountyMutation.mutate({ claimId });
+      await bountyMutation.mutate({ bountyId, claimId });
     } catch (error) {
       console.error(error);
       toast.error('Failed to create claim: ' + (error as Error).message);
@@ -174,7 +174,13 @@ export default function ClaimForm({
   };
 
   const bountyMutation = useMutation({
-    mutationFn: async ({ claimId }: { claimId: string }) => {
+    mutationFn: async ({
+      bountyId,
+      claimId,
+    }: {
+      bountyId: bigint;
+      claimId: string;
+    }) => {
       for (let i = 0; i < 60; i++) {
         setStatus(`Indexing ${i}s`);
         const claim = await trpcClient.isClaimCreated.query({

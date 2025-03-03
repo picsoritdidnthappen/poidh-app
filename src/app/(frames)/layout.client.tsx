@@ -7,6 +7,8 @@ import { WagmiConfig, createConfig, http } from 'wagmi';
 import { arbitrum, base, degen } from 'wagmi/chains';
 import { injected, walletConnect } from 'wagmi/connectors';
 import { farcasterFrame } from '@farcaster/frame-wagmi-connector';
+import Image from 'next/image';
+import { useConnect } from 'wagmi';
 
 const config = createConfig({
   chains: [degen, arbitrum, base],

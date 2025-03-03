@@ -372,13 +372,12 @@ export const appRouter = createTRPCRouter({
           orderBy: { id: 'desc' },
         })
       ).map((claim) => {
-        const bountyId = claim.bounty?.id.toString() ?? '';
         return {
           id: claim.id.toString(),
           title: claim.title,
           description: claim.description,
           issuer: claim.issuer,
-          bountyId,
+          bountyId: claim.bounty!.id.toString(),
           accepted: claim.is_accepted || false,
           url: claim.url,
         };
@@ -409,7 +408,7 @@ export const appRouter = createTRPCRouter({
         url: NFT.url,
         title: NFT.title,
         description: NFT.description,
-        bountyId: NFT.bounty?.id.toString() ?? '',
+        bountyId: NFT.bounty!.id.toString(),
         issuer: NFT.issuer,
       }));
 
@@ -671,6 +670,7 @@ export const appRouter = createTRPCRouter({
       const chain = getChainById({
         chainId: input.chainId as 666666666 | 42161 | 8453,
       });
+      const address = input.address.toLowerCase();
       const bounties = await prisma.bounties.findMany({
         where: {
           issuer: input.address.toLowerCase(),
@@ -728,8 +728,8 @@ export const appRouter = createTRPCRouter({
 
       const totalEarn = formatEther(
         claims
-          .filter((claim) => claim.is_accepted && claim.bounty)
-          .flatMap((claim) => BigInt(claim.bounty?.amount ?? 0))
+          .filter((claim) => claim.is_accepted)
+          .flatMap((claim) => BigInt(claim.bounty!.amount))
           .reduce((total, amount) => total + amount, BigInt(0))
       );
 
