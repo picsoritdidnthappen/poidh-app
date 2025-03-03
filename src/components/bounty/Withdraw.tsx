@@ -39,13 +39,10 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
 
       for (let i = 0; i < 180; i++) {
         setLoading({ isLoading: true, status: 'Indexing ' + i + 's' });
-        if (!account.address) {
-          throw new Error('Wallet not connected');
-        }
         const participant = await trpcClient.isWithdrawBounty.query({
           bountyId: Number(bountyId),
           chainId: pollingChainId ?? chain.id,
-          participantAddress: account.address,
+          participantAddress: account.address!,
         });
         if (!participant) {
           return;

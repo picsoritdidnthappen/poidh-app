@@ -2,7 +2,6 @@
 
 import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import React from 'react';
-import Image from 'next/image';
 
 const calculateFontSize = (title: string) => {
   if (title.length > 100) return '18px';
@@ -70,10 +69,10 @@ const BountyCard = ({
           marginBottom: '8px',
         }}
       >
-        <Image
+        <img
           src='https://poidh.xyz/Logo_poidh.svg'
-          width={96}
-          height={48}
+          width='96'
+          height='48'
           alt='Logo'
           style={{
             objectFit: 'contain',

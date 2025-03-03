@@ -8,7 +8,7 @@ type Props = {
   params: { netname: Netname };
 };
 
-const NETNAME_MAP: Record<Netname, string> = {
+const NETNAME_MAP: { [key in Netname]: string } = {
   base: 'Base',
   arbitrum: 'Arbitrum',
   degen: 'Degen Chain',
