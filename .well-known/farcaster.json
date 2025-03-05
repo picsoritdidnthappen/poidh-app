@@ -7,12 +7,12 @@
   "frame": {
     "version": "1",
     "name": "Poidh",
-    "iconUrl": "https://poidh-app-theta.vercel.appicon.png",
+    "iconUrl": "https://poidh-app-theta.vercel.app/icon.png",
     "homeUrl": "https://poidh.xyz",
-    "imageUrl": "https://poidh-app-theta.vercel.appimage.png",
+    "imageUrl": "https://poidh-app-theta.vercel.app/image.png",
     "buttonTitle": "Check this out",
-    "splashImageUrl": "https://poidh-app-theta.vercel.appLogo_poidh.svg",
+    "splashImageUrl": "https://poidh-app-theta.vercel.app/Logo_poidh.svg",
     "splashBackgroundColor": "#eeccff",
-    "webhookUrl": "https://poidh-app-theta.vercel.appapi/webhook"
+    "webhookUrl": "https://poidh-app-theta.vercel.app/api/webhook"
   }
 }

@@ -28,7 +28,7 @@ export const fetchBounty = async (
   bountyId: string | null
 ): Promise<BountyResponse> => {
   const response = await fetch(
-    `https://poidh-app-theta.vercel.appapi/bounties/${chainName}/${bountyId}`
+    `https://poidh-app-theta.vercel.app/api/bounties/${chainName}/${bountyId}`
   );
   const data = await response.json();
 
