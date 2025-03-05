@@ -2,7 +2,6 @@
 
 import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import React from 'react';
-import Image from 'next/image';
 
 const calculateFontSize = (title: string) => {
   if (title.length > 100) return '18px';
@@ -18,17 +17,15 @@ export const formatAmount = (amount: string, chainName: string) => {
 
     if (chainName.toLowerCase() === 'degen') {
       const numberAmount = (parseInt(amount) / 1000000000000000000).toString();
-      return `${numberAmount.toLocaleString()} DEGEN`;
+      return `${numberAmount} DEGEN`;
     } else {
       // For Base and Arbitrum, convert from wei to ETH
       const weiAmount = BigInt(amount);
       const ethAmount = Number(weiAmount) / 1e18;
 
       // Format with maximum 4 decimal places
-      const formattedAmount = ethAmount.toLocaleString(undefined, {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 4,
-      });
+      // Format with maximum 4 decimal places
+      const formattedAmount = ethAmount.toFixed(4);
 
       return `${formattedAmount} ETH`;
     }
@@ -70,7 +67,7 @@ const BountyCard = ({
           marginBottom: '8px',
         }}
       >
-        <Image
+        <img
           src='https://poidh.xyz/Logo_poidh.svg'
           width={96}
           height={48}
