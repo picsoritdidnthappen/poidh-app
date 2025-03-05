@@ -68,7 +68,7 @@ const BountyCard = ({
         }}
       >
         <img
-          src='https://poidh.xyz/Logo_poidh.svg'
+          src='https://poidh-app-theta.vercel.appLogo_poidh.svg'
           width={96}
           height={48}
           alt='Logo'

@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     // Direct API call to fetch bounty data
     const response = await fetch(
-      `https://poidh.xyz/api/bounties/${chainName}/${bountyId}`,
+      `https://poidh-app-theta.vercel.appapi/bounties/${chainName}/${bountyId}`,
       {
         headers: {
           Accept: 'application/json',
