@@ -2,9 +2,6 @@ import { chains } from '@/utils/config';
 import { Netname } from '@/utils/types';
 import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
-import serverEnv from '@/utils/serverEnv';
-
-const APP_URL = serverEnv.VERCEL_URL;
 
 export const generateMetadataForBountyFrame = async ({
   params,
@@ -38,7 +35,7 @@ export const generateMetadataForBountyFrame = async ({
       description:
         "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
       siteName: 'POIDH',
-      images: [`${APP_URL}/images/poidh-preview-hero-v2.png`],
+      images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
       type: 'website',
       locale: 'en_US',
     },
@@ -47,7 +44,7 @@ export const generateMetadataForBountyFrame = async ({
       title: "poidh - pics or it didn't happen",
       description:
         "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-      images: [`${APP_URL}/images/poidh-preview-hero-v2.png`],
+      images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
     },
     other: {
       'fc:frame': JSON.stringify(frame),
@@ -78,7 +75,7 @@ export const generateMetadataForBountyFrame = async ({
       title: bounty.title,
       description: bounty.description,
       siteName: 'POIDH',
-      images: [`${APP_URL}/images/poidh-preview-hero-v2.png`],
+      images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
       type: 'website',
       locale: 'en_US',
     },
@@ -86,7 +83,7 @@ export const generateMetadataForBountyFrame = async ({
       card: 'summary_large_image',
       title: bounty.title,
       description: bounty.description,
-      images: [`${APP_URL}/images/poidh-preview-hero-v2.png`],
+      images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
     },
     other: {
       'fc:frame': JSON.stringify(frame),
