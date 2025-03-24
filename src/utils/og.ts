@@ -22,3 +22,16 @@ export function openGraph({
     ogTemplateTitle ? `&templateTitle=${ogTemplateTitle}` : ''
   }`;
 }
+
+export function generateDynamicOGUrl({
+  type,
+  dataObject,
+}: {
+  type: 'bounty' | 'account';
+  dataObject: Record<string, string>;
+}): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
+  return `${appUrl}/api/og/${type}?${new URLSearchParams(
+    dataObject
+  ).toString()}`;
+}

@@ -1,12 +1,9 @@
-import { Metadata } from 'next';
 import * as React from 'react';
 
 import '@/styles/colors.css';
+import { generateMetadataForAccountPage } from '@/utils/generateMetadata';
 
-export const metadata: Metadata = {
-  title: 'Account',
-  description: 'Account details',
-};
+export const generateMetadata = generateMetadataForAccountPage;
 
 export default function AccountLayout({
   children,

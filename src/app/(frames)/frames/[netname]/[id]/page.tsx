@@ -1,5 +1,5 @@
 import App from '@/app/(frames)/frames/[netname]/[id]/app';
-import { generateMetadataForBountyFrame } from '@/utils/generateMetadataForBountyFrame';
+import { generateMetadataForBountyFrame } from '@/utils/generateMetadata';
 import { Netname } from '@/utils/types';
 
 export const generateMetadata = generateMetadataForBountyFrame;

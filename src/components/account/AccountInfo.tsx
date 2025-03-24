@@ -8,6 +8,7 @@ import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
 import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
+import { formatWalletAddress } from '@/utils/web3';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
@@ -36,7 +37,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 <span>user</span>
                 <div className='flex flex-row items-center gap-2'>
                   <span className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
-                    {formatAddress(address)}
+                    {formatWalletAddress(address)}
                   </span>
                 </div>
               </div>
@@ -133,8 +134,4 @@ export default function AccountInfo({ address }: { address: string }) {
       )}
     </>
   );
-}
-
-export function formatAddress(address: string) {
-  return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
