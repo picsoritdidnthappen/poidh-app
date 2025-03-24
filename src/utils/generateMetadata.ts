@@ -86,8 +86,6 @@ export const generateMetadataForBountyFrame = async ({
     },
   });
 
-  console.log(ogImageUrl, 'fss');
-
   return {
     title: bounty.title,
     description: bounty.description,
@@ -127,55 +125,80 @@ export const generateMetadataForAccountPage = async ({
   const address = params.address;
   const chain = chains[params.netname as keyof typeof chains];
 
-  const accountStats = await trpcCaller.accountInfo({
-    address,
-    chainId: chain.id,
-  });
-  const nftsCount = await prisma.claims.count({
-    where: {
-      owner: address.toLowerCase(),
-      chain_id: chain.id,
-    },
-  });
-
-  const ogImageUrl = generateDynamicOGUrl({
-    type: 'account',
-    dataObject: {
+  try {
+    const accountStats = await trpcCaller.accountInfo({
       address,
-      chain: chain.slug,
-      poidhScore: `${accountStats.poidhScore ?? 0}`,
-      totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
-        chain.currency
-      }`,
-      totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
-        chain.currency
-      }`,
-      nftsCount: `${nftsCount ?? 0}`,
-    },
-  });
+      chainId: chain.id,
+    });
+    const nftsCount = await prisma.claims.count({
+      where: {
+        owner: address.toLowerCase(),
+        chain_id: chain.id,
+      },
+    });
 
-  return {
-    title: `Account ${address}`,
-    description: `Account ${address} details`,
-    openGraph: {
+    const ogImageUrl = generateDynamicOGUrl({
+      type: 'account',
+      dataObject: {
+        address,
+        chain: chain.slug,
+        poidhScore: `${accountStats.poidhScore ?? 0}`,
+        totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
+          chain.currency
+        }`,
+        totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
+          chain.currency
+        }`,
+        nftsCount: `${nftsCount ?? 0}`,
+      },
+    });
+
+    return {
       title: `Account ${address}`,
       description: `Account ${address} details`,
-      siteName: 'POIDH',
-      images: [
-        ogImageUrl,
-        `https://poidh.xyz/images/poidh-preview-hero-v2.png`,
-      ],
-      type: 'website',
-      locale: 'en_US',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `Account ${address}`,
-      description: `Account ${address} details`,
-      images: [
-        ogImageUrl,
-        `https://poidh.xyz/images/poidh-preview-hero-v2.png`,
-      ],
-    },
-  };
+      openGraph: {
+        title: `Account ${address}`,
+        description: `Account ${address} details`,
+        siteName: 'POIDH',
+        images: [
+          ogImageUrl,
+          `https://poidh.xyz/images/poidh-preview-hero-v2.png`,
+        ],
+        type: 'website',
+        locale: 'en_US',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `Account ${address}`,
+        description: `Account ${address} details`,
+        images: [
+          ogImageUrl,
+          `https://poidh.xyz/images/poidh-preview-hero-v2.png`,
+        ],
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata for account page:', error);
+    return {
+      title: "poidh - pics or it didn't happen",
+      description:
+        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+      openGraph: {
+        title: "poidh - pics or it didn't happen",
+        description:
+          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+        siteName: 'POIDH',
+        images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
+        type: 'website',
+        locale: 'en_US',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: "poidh - pics or it didn't happen",
+        description:
+          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+        images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
+      },
+    };
+  }
 };
