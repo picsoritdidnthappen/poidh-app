@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { BanIcon, CloseIcon, ZoomInIcon, ZoomOutIcon } from '../global/Icons';
 import Link from 'next/link';
-import { formatAddress } from '../account/AccountInfo';
+import { formatWalletAddress } from '@/utils/web3';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -171,7 +171,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                     href={`/${chain.slug}/account/${claim.issuer.address}`}
                     className='text-xs sm:text-sm text-white/90 max-w-[15ch] overflow-hidden overflow-ellipsis hover:text-gray-200'
                   >
-                    {formatAddress(claim.issuer.address)}
+                    {formatWalletAddress(claim.issuer.address)}
                   </Link>
                 </div>
 
