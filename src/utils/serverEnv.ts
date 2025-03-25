@@ -19,6 +19,7 @@ const envSchema = z.object({
         .map((v) => v.trim())
     ),
   VERCEL_URL: z.string().default('https://poidh.xyz'),
+  NEXT_PUBLIC_APP_URL: z.string().default('https://poidh.xyz'),
   MAINNET_RPC_URL: z.string(),
   DEGEN_RPC_URL: z.string(),
   ARBITRUM_RPC_URL: z.string(),
