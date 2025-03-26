@@ -73,7 +73,7 @@ export async function GET(request: Request) {
             justifyContent: 'flex-start',
             background:
               'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)',
-            padding: '50px 70px',
+            padding: '75px',
             color: 'white',
             fontFamily: '"GeistMono", sans-serif',
           }}
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
               justifyContent: 'space-between',
               alignItems: 'center',
               width: '100%',
-              marginBottom: '25px',
+              marginBottom: '10px',
             }}
           >
             <h2
@@ -183,8 +183,8 @@ export async function GET(request: Request) {
                 }}
               >
                 {[
-                  { label: 'NFTs', value: nftsCount },
-                  { label: 'POIDH Score', value: poidhScore },
+                  { label: 'nfts', value: nftsCount },
+                  { label: 'poidh score', value: poidhScore },
                 ].map(({ label, value }) => (
                   <div
                     key={label}
@@ -227,8 +227,8 @@ export async function GET(request: Request) {
                 }}
               >
                 {[
-                  { label: 'Total Earned', value: totalEarn },
-                  { label: 'Total Paid', value: totalPaid },
+                  { label: 'total earned', value: totalEarn },
+                  { label: 'total paid', value: totalPaid },
                 ].map(({ label, value }) => (
                   <div
                     key={label}

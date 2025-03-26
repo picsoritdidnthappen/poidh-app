@@ -58,7 +58,7 @@ export async function GET(request: Request) {
             justifyContent: 'flex-start',
             background:
               'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)',
-            padding: '50px 70px',
+            padding: '75px',
             color: 'white',
             fontFamily: '"GeistMono", sans-serif',
           }}
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
           <div
             style={{
               display: 'flex',
-              marginBottom: '30px',
+              marginBottom: '25px',
               marginRight: '15px',
             }}
           >
@@ -93,7 +93,7 @@ export async function GET(request: Request) {
               justifyContent: 'space-between',
               alignItems: 'center',
               width: '100%',
-              marginBottom: '25px',
+              marginBottom: '5px',
             }}
           >
             <h2
@@ -125,22 +125,20 @@ export async function GET(request: Request) {
               {getChainIcon(chain)}
             </div>
           </div>
-          <div
+          <p
             style={{
-              display: 'flex',
+              display: '-webkit-box',
               fontSize: '28px',
-              overflow: 'hidden',
               textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              width: '100%',
+              height: '250px',
+              WebkitLineClamp: 7,
+              WebkitBoxOrient: 'vertical',
             }}
           >
-            {description.split('\n').slice(0, 6).join('\n').length > 450
-              ? `${description
-                  .split('\n')
-                  .slice(0, 6)
-                  .join('\n')
-                  .slice(0, 450)}...`
-              : description.split('\n').slice(0, 6).join('\n')}
-          </div>
+            {description}
+          </p>
           <div
             style={{
               display: 'flex',
@@ -148,8 +146,8 @@ export async function GET(request: Request) {
               justifyContent: 'flex-end',
               fontSize: '28px',
               position: 'absolute',
-              bottom: '70px',
-              right: '50px',
+              bottom: '75px',
+              right: '70px',
             }}
           >
             {formatAmount({
