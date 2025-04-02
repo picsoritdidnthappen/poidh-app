@@ -188,7 +188,8 @@ export default function FormBounty({
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className='border py-2 px-2 rounded-md mb-4 max-h-28 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse'
+            className='border py-2 px-2 rounded-md mb-4 max-h-28 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400'
+            placeholder='pro tip: be detailed and add a deadline'
           ></textarea>
 
           <span>reward</span>
