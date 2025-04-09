@@ -34,16 +34,7 @@ export default function CommentsSection({ url }: { url: string }) {
     {}
   );
 
-  const orphanedComments = validComments.filter(
-    (comment) =>
-      comment.parent_hash &&
-      !validComments.some((c) => c.hash === comment.parent_hash)
-  );
-
-  const topLevelComments = [
-    ...(commentsByParent['root'] || []),
-    ...orphanedComments,
-  ];
+  const topLevelComments = commentsByParent['root'] || [];
 
   return (
     <div id='comments-section' className='w-full pt-20'>
@@ -137,7 +128,7 @@ function Comment({ comment }: { comment: WarpcastCast }) {
           <TextWithLinks>{comment.text}</TextWithLinks>
         </p>
         <div className='mt-1 sm:mt-2 flex items-center space-x-4'>
-          <button className='flex items-center space-x-1'>
+          <button className='flex items-center space-x-1 cursor-default'>
             <HeartIcon />
             <span className='text-xs sm:text-sm text-white/60'>
               {comment.reactions?.likes_count}
