@@ -9,14 +9,7 @@ import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
 import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
 import { ChainId, WarpcastCast } from '@/utils/types';
-import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
 import axios from 'axios';
-
-const neynarClient = new NeynarAPIClient(
-  new Configuration({
-    apiKey: serverEnv.NEYNAR_API_KEY,
-  })
-);
 
 export const addressSchema = z
   .string()
@@ -770,14 +763,21 @@ export const appRouter = createTRPCRouter({
   comments: baseProcedure
     .input(z.object({ url: z.string() }))
     .query(async ({ input }) => {
-      const castsResponse = await neynarClient.fetchFeed({
-        feedType: 'filter',
-        filterType: 'embed_url',
-        embedUrl: input.url,
-      });
+      const { data } = await axios.get(
+        'https://api.neynar.com/v2/farcaster/cast/search',
+        {
+          headers: {
+            'x-api-key': serverEnv.NEYNAR_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          params: {
+            q: `"${input.url}"`,
+            mode: 'literal',
+          },
+        }
+      );
 
-      const casts = castsResponse.casts ?? [];
-
+      const casts = data.result.casts ?? [];
       const conversationPromises = casts.map(async (cast: any) => {
         try {
           const { data } = await axios.get(
