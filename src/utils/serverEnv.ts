@@ -24,6 +24,7 @@ const envSchema = z.object({
   DEGEN_RPC_URL: z.string(),
   ARBITRUM_RPC_URL: z.string(),
   BASE_RPC_URL: z.string(),
+  NEYNAR_API_KEY: z.string(),
 });
 
 export default envSchema.parse(process.env);
