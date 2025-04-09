@@ -8,7 +8,8 @@ import { TRPCError } from '@trpc/server';
 import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
 import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
-import { ChainId } from '@/utils/types';
+import { ChainId, WarpcastCast } from '@/utils/types';
+import axios from 'axios';
 
 export const addressSchema = z
   .string()
@@ -757,6 +758,74 @@ export const appRouter = createTRPCRouter({
         poidhScore: Math.round(improvedPoidhScore),
         acceptedClaimsCount,
       };
+    }),
+
+  comments: baseProcedure
+    .input(z.object({ url: z.string() }))
+    .query(async ({ input }) => {
+      const { data } = await axios.get(
+        'https://api.neynar.com/v2/farcaster/cast/search',
+        {
+          headers: {
+            'x-api-key': serverEnv.NEYNAR_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          params: {
+            q: `"${input.url}"`,
+            mode: 'literal',
+          },
+        }
+      );
+
+      const casts = data.result.casts ?? [];
+      const conversationPromises = casts.map(async (cast: any) => {
+        try {
+          const { data } = await axios.get(
+            'https://api.neynar.com/v2/farcaster/cast/conversation',
+            {
+              headers: {
+                'x-api-key': serverEnv.NEYNAR_API_KEY,
+                'Content-Type': 'application/json',
+              },
+              params: {
+                type: 'hash',
+                identifier: cast.thread_hash,
+                reply_depth: 3,
+              },
+            }
+          );
+          return data.conversation.cast;
+        } catch (error) {
+          console.error('Error fetching conversation:', error);
+          return null;
+        }
+      });
+
+      const conversationCasts = await Promise.all(conversationPromises);
+
+      const flattenCast = (cast: WarpcastCast): WarpcastCast[] => {
+        const stack = [cast];
+        const all = [];
+
+        while (stack.length) {
+          const current = stack.pop()!;
+          all.push(current);
+
+          if (current.direct_replies && current.direct_replies.length > 0) {
+            stack.push(...current.direct_replies);
+          }
+        }
+        return all;
+      };
+
+      const totalCasts: WarpcastCast[] = [];
+      for (const conversationCast of conversationCasts) {
+        if (conversationCast) {
+          totalCasts.push(...flattenCast(conversationCast));
+        }
+      }
+
+      return totalCasts;
     }),
 });
 

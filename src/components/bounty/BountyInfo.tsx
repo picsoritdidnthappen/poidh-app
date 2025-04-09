@@ -26,6 +26,7 @@ import Withdraw from './Withdraw';
 import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
+import TextWithLinks from '@/components/global/TextWithLinks';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -174,7 +175,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
             {bounty.data.title}
           </p>
           <p className='mt-5 normal-case break-words'>
-            {bounty.data.description}
+            <TextWithLinks>{bounty.data.description}</TextWithLinks>
           </p>
           <div className='flex flex-row mt-5 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
