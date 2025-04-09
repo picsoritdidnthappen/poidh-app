@@ -5,12 +5,14 @@ import { useGetChain } from '@/hooks/useGetChain';
 import InfiniteScroll from 'react-infinite-scroller';
 import { bountyCurrentVotingClaim } from '@/utils/web3';
 import ClaimList from '../claims/ClaimList';
+import { CommentsIcon } from '@/components/global/Icons';
 
 const PAGE_SIZE = 9;
 
 export default function BountyClaims({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
   const [votingClaimId, setVotingClaimId] = useState<number | null>(null);
+  const [infiniteEnabled, setInfiniteEnabled] = useState(true);
 
   useEffect(() => {
     const fetchCurrentVotingClaim = async () => {
@@ -60,17 +62,38 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
     return <div className=''>No claims</div>;
   }
 
+  const handleScrollToComments = () => {
+    setInfiniteEnabled(false);
+    document.getElementById('comments-section')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+    setTimeout(() => {
+      setInfiniteEnabled(true);
+    }, 1000);
+  };
+
   return (
     <div>
-      <div className='flex flex-col gap-x-2 py-4 border-b border-dashed'>
-        <div>
+      <div className='flex flex-row justify-between gap-x-2 py-4 pb-2 border-b border-dashed'>
+        <div className='flex items-center'>
           <span>{Number(bountyClaimsCount.data) || 0} claims</span>
+        </div>
+        <div
+          onClick={handleScrollToComments}
+          className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-white/20 transition-colors'
+        >
+          <CommentsIcon width={24} height={24} />
         </div>
       </div>
       {claims.data && (
         <InfiniteScroll
-          loadMore={async () => await claims.fetchNextPage()}
-          hasMore={claims.hasNextPage && !claims.isFetchingNextPage}
+          loadMore={async () =>
+            infiniteEnabled && (await claims.fetchNextPage())
+          }
+          hasMore={
+            infiniteEnabled && claims.hasNextPage && !claims.isFetchingNextPage
+          }
           loader={
             <div key='loader' className='animate-pulse text-center'>
               Loading more...
