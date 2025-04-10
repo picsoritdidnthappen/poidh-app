@@ -1,5 +1,5 @@
 import { useGetChain } from '@/hooks/useGetChain';
-import { getDegenOrEnsName } from '@/utils/web3';
+import { getEnsOrDegenName } from '@/utils/web3';
 import { useEffect, useState } from 'react';
 
 export default function useDegenOrEnsName(addr: string) {
@@ -8,11 +8,11 @@ export default function useDegenOrEnsName(addr: string) {
 
   useEffect(() => {
     const cb = async () => {
-      const degenOrEnsName = await getDegenOrEnsName({
+      const ensOrDegenName = await getEnsOrDegenName({
         chainName: chain.slug,
         address: addr,
       });
-      setResult(degenOrEnsName);
+      setResult(ensOrDegenName);
     };
 
     cb();

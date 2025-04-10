@@ -8,7 +8,8 @@ import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
 import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
-import { formatWalletAddress } from '@/utils/web3';
+import CopyAddressButton from '@/components/global/CopyAddressButton';
+import DisplayAddress from '@/components/global/DisplayAddress';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
@@ -37,8 +38,11 @@ export default function AccountInfo({ address }: { address: string }) {
                 <span>user</span>
                 <div className='flex flex-row items-center gap-2'>
                   <span className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
-                    {formatWalletAddress(address)}
+                    <DisplayAddress chain={chain} address={address} />
                   </span>
+                  <div className=''>
+                    <CopyAddressButton address={address} size={18} />
+                  </div>
                 </div>
               </div>
               <div className='flex flex-col'>
