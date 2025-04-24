@@ -14,7 +14,7 @@ const Breadcrumbs = () => {
     <nav className="text-sm text-gray-500 mt-2">
       <ul className="flex space-x-2">
         <li>
-          <Link href="/" className="hover:underline text-blue-500">
+          <Link href="/" className="hover:underline text-white-500">
             Home
           </Link>
         </li>
@@ -24,11 +24,11 @@ const Breadcrumbs = () => {
 
           return (
             <li key={href} className="flex items-center">
-              <span className="mx-1">/</span>
+              <span className="mx-1">> </span>
               {isLast ? (
-                <span className="text-gray-700">{decodeURIComponent(segment)}</span>
+                <span className="text-gray-900">{decodeURIComponent(segment)}</span>
               ) : (
-                <Link href={href} className="hover:underline text-blue-500">
+                <Link href={href} className="hover:underline text-white-500">
                   {decodeURIComponent(segment)}
                 </Link>
               )}

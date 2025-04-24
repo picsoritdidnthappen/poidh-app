@@ -118,8 +118,8 @@ const Header = () => {
           </Menu>
           <ConnectWalletButton />
         </div>
-        <Breadcrumbs />
       </div>
+      <Breadcrumbs />
     </>
   );
 };
