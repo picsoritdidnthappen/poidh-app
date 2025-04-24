@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 import { useGetChain } from '@/hooks/useGetChain';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
+import Breadcrumbs from './Breadcrumbs';
 import {
   ArbitrumIcon,
   BaseIcon,
@@ -117,6 +118,7 @@ const Header = () => {
           </Menu>
           <ConnectWalletButton />
         </div>
+        <Breadcrumbs />
       </div>
     </>
   );
