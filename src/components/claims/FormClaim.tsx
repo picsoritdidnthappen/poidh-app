@@ -207,7 +207,7 @@ export default function FormClaim({
       <DialogContent>
         <div
           {...getRootProps()}
-          className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center cursor-pointer'
+          className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full justify-center cursor-pointer'
         >
           <input {...getInputProps()} />
           {isDragActive ? (
@@ -223,7 +223,7 @@ export default function FormClaim({
             <Image
               src={preview}
               alt='Preview'
-              className='w-[300px] h-[300px] mt-2 rounded-md object-contain'
+              className='w-full max-w-[300px] h-auto max-h-[300px] mt-2 rounded-md object-contain'
             />
           )}
         </div>
