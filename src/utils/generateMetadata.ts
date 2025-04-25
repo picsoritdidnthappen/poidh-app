@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
 import { createCallerFactory } from '@/trpc/init';
 import { appRouter } from '@/trpc/routers/_app';
+import { fetchPrice } from '@/utils/utils';
 
 export const generateMetadataForBountyFrame = async ({
   params,
@@ -75,6 +76,13 @@ export const generateMetadataForBountyFrame = async ({
     return defaultMetadata;
   }
 
+  let price: number | undefined;
+  try {
+    price = await fetchPrice({ currency: chain.currency });
+  } catch (error) {
+    console.error('Error fetching price:', error);
+  }
+
   const ogImageUrl = generateDynamicOGUrl({
     type: 'bounty',
     dataObject: {
@@ -83,6 +91,7 @@ export const generateMetadataForBountyFrame = async ({
       chain: chain.slug,
       amount: bounty.amount?.toString() || '0',
       currency: chain.currency,
+      price: price ? price.toString() : '',
     },
   });
 
