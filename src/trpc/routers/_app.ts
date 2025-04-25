@@ -778,28 +778,35 @@ export const appRouter = createTRPCRouter({
       );
 
       const casts = data.result.casts ?? [];
-      const conversationPromises = casts.map(async (cast: any) => {
-        try {
-          const { data } = await axios.get(
-            'https://api.neynar.com/v2/farcaster/cast/conversation',
-            {
-              headers: {
-                'x-api-key': serverEnv.NEYNAR_API_KEY,
-                'Content-Type': 'application/json',
-              },
-              params: {
-                type: 'hash',
-                identifier: cast.thread_hash,
-                reply_depth: 3,
-              },
-            }
-          );
-          return data.conversation.cast;
-        } catch (error) {
-          console.error('Error fetching conversation:', error);
-          return null;
+      const uniqueThreadHashes = [
+        ...new Set(
+          casts.map((cast: { thread_hash: string }) => cast.thread_hash)
+        ),
+      ];
+      const conversationPromises = uniqueThreadHashes.map(
+        async (threadHash) => {
+          try {
+            const { data } = await axios.get(
+              'https://api.neynar.com/v2/farcaster/cast/conversation',
+              {
+                headers: {
+                  'x-api-key': serverEnv.NEYNAR_API_KEY,
+                  'Content-Type': 'application/json',
+                },
+                params: {
+                  type: 'hash',
+                  identifier: threadHash,
+                  reply_depth: 3,
+                },
+              }
+            );
+            return data.conversation.cast;
+          } catch (error) {
+            console.error('Error fetching conversation:', error);
+            return null;
+          }
         }
-      });
+      );
 
       const conversationCasts = await Promise.all(conversationPromises);
 
