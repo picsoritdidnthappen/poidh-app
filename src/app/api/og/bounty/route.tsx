@@ -1,6 +1,6 @@
 import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
 import { Currency } from '@/utils/types';
-import { fetchPrice, formatAmount } from '@/utils/utils';
+import { formatAmount } from '@/utils/utils';
 import { ImageResponse } from '@vercel/og';
 import React from 'react';
 import { formatEther } from 'viem';
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   const chain = params.get('chain');
   const amount = params.get('amount');
   const currency = params.get('currency') as Currency;
-  const price = await fetchPrice({ currency });
+  const price = params.get('price');
 
   if (!title || !description || !chain || !amount || !currency) {
     return new Response('Missing or invalid parameters', { status: 400 });
@@ -150,11 +150,13 @@ export async function GET(request: Request) {
               right: '70px',
             }}
           >
-            {formatAmount({
-              amount: formatEther(BigInt(amount)),
-              currency,
-              price: price.toString(),
-            })}
+            {price
+              ? formatAmount({
+                  amount: formatEther(BigInt(amount)),
+                  currency,
+                  price,
+                })
+              : `${formatEther(BigInt(amount))} ${currency}`}
           </div>
         </div>
       ),
