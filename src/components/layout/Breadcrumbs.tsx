@@ -24,7 +24,7 @@ const Breadcrumbs = () => {
 
           return (
             <li key={href} className="flex items-center">
-              <span className="mx-1">> </span>
+              <span className="mx-1">{'>'}</span>
               {isLast ? (
                 <span className="text-gray-900">{decodeURIComponent(segment)}</span>
               ) : (
