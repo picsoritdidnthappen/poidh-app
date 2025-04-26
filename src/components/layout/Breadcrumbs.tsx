@@ -9,24 +9,26 @@ const Breadcrumbs = () => {
 
   // Split the pathname into segments and filter out empty strings
   const pathSegments = pathname.split('/').filter((segment) => segment);
+  
+  const limitedSegments = pathSegments.slice(0, 2); // Limit to 2 segments
 
   return (
     <nav className="text-sm text-gray-500 mt-2">
       <ul className="flex space-x-2">
         <li>
           <Link href="/" className="hover:underline text-white-500">
-            Home
+            Poidh
           </Link>
         </li>
-        {pathSegments.map((segment, index) => {
-          const href = '/' + pathSegments.slice(0, index + 1).join('/');
-          const isLast = index === pathSegments.length - 1;
+        {limitedSegments.map((segment, index) => {
+          const href = '/' + limitedSegments.slice(0, index + 1).join('/');
+          const isLast = index === limitedSegments.length - 1;
 
           return (
             <li key={href} className="flex items-center">
               <span className="mx-1">{'>'}</span>
               {isLast ? (
-                <span className="text-gray-900">{decodeURIComponent(segment)}</span>
+                <span className="text-gray-900">{decodeURIComponent(segment)} bounties</span>
               ) : (
                 <Link href={href} className="hover:underline text-white-500">
                   {decodeURIComponent(segment)}

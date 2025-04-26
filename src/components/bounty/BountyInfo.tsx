@@ -27,6 +27,7 @@ import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
+import Breadcrumbs from '../layout/Breadcrumbs';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -171,6 +172,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
     <>
       <div className='flex pt-20 flex-col justify-between lg:flex-row'>
         <div className='flex flex-col  lg:w-[50%]'>
+          <Breadcrumbs />
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
           </p>
