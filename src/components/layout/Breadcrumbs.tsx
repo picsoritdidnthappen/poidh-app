@@ -9,8 +9,8 @@ const Breadcrumbs = () => {
 
   // Split the pathname into segments and filter out empty strings
   const pathSegments = pathname.split('/').filter((segment) => segment);
-  
-  const limitedSegments = pathSegments.slice(0, 2); // Limit to 2 segments
+
+  const limitedSegments = pathSegments.slice(0, 2);
 
   return (
     <nav className="text-sm text-gray-500 mt-2">
