@@ -214,7 +214,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
             })}
           </p>
         </div>
-        <div className='flex flex-col space-between'>
+        <div className='flex flex-col space-y-4'>
           {bounty.data.inProgress ? (
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&
@@ -222,14 +222,36 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
               <button
                 onClick={() => cancelMutation.mutate(BigInt(bountyId))}
                 disabled={!bounty.data.inProgress}
-                className='border border-poidhRed rounded-md w-fit py-2 px-5 mt-5 hover:bg-red-400 hover:text-white'
+                className='border border-poidhRed rounded-md w-fit py-2 px-5 hover:bg-red-400 hover:text-white'
               >
                 cancel
               </button>
             )
           ) : (
-            <span className='border border-poidhRed w-fit rounded-md py-2 px-5 mt-5 bg-poidhRed text-white'>
+            <span className='border border-poidhRed w-fit rounded-md py-2 px-5 bg-poidhRed text-white'>
               {bounty.data.isCanceled ? 'canceled' : 'accepted'}
+            </span>
+          )}
+          {!bounty.data.inProgress && (
+            <span
+              onClick={() => {
+                if (bounty.data.clanker) {
+                  window.open(
+                    `https://www.clanker.world/clanker/${bounty.data.clanker}`,
+                    '_blank'
+                  );
+                } else {
+                  // Call the Clanker API to create a new clanker
+                }
+              }}
+              className={cn(
+                'border border-poidhRed w-fit rounded-md py-2 px-5',
+                bounty.data.clanker
+                  ? 'bg-poidhRed text-white'
+                  : 'bg-white text-poidhRed hover:bg-poidhRed hover:text-white hover:cursor-pointer'
+              )}
+            >
+              {bounty.data.clanker ? 'view clanker' : 'clank a tribute'}
             </span>
           )}
         </div>

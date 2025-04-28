@@ -1,37 +1,9 @@
 // app/api/bounties/[chainName]/[bountyId]/route.ts
+import { getChainId } from '@/utils/utils';
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
-
-// Define valid chain names as a type
-type ChainName = 'base' | 'degen' | 'arbitrum';
-
-// Chain ID mapping with proper typing
-// Chain ID mapping with proper typing
-const CHAIN_IDS: Record<ChainName, number> = {
-  base: 8453,
-  degen: 666666666,
-  arbitrum: 42161,
-};
-
-// Helper function to validate chain name with proper typing
-function getChainId(chainName: string): number {
-  // Type guard to check if the chain name is valid
-  function isValidChainName(name: string): name is ChainName {
-    return name.toLowerCase() in CHAIN_IDS;
-  }
-
-  if (!isValidChainName(chainName)) {
-    throw new Error(
-      `Invalid chain name: ${chainName}. Valid chains are: ${Object.keys(
-        CHAIN_IDS
-      ).join(', ')}`
-    );
-  }
-
-  return CHAIN_IDS[chainName.toLowerCase() as ChainName];
-}
 
 // Define types for the response structure
 type UserInfo = {
@@ -77,6 +49,7 @@ export type BountyResponse = {
     deadline: number | null;
     participants: ParticipantResponse[];
     claims: ClaimResponse[];
+    clanker: string | null;
   };
 };
 
@@ -149,6 +122,7 @@ export async function GET(
         title: bounty.title,
         description: bounty.description,
         amount: bounty.amount,
+        clanker: bounty.clanker,
         issuer: {
           address: bounty.issuer,
         },

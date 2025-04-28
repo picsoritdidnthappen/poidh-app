@@ -72,6 +72,7 @@ export const appRouter = createTRPCRouter({
         isMultiplayer: bounty.is_multiplayer,
         isBanned: bounty.ban.length > 0,
         isCanceled: bounty.is_canceled,
+        clanker: bounty.clanker,
       };
     }),
 

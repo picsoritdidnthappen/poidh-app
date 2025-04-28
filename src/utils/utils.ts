@@ -7,6 +7,35 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Define valid chain names as a type
+export type ChainName = 'base' | 'degen' | 'arbitrum';
+
+// Chain ID mapping with proper typing
+// Chain ID mapping with proper typing
+export const CHAIN_IDS: Record<ChainName, number> = {
+  base: 8453,
+  degen: 666666666,
+  arbitrum: 42161,
+};
+
+// Helper function to validate chain name with proper typing
+export function getChainId(chainName: string): number {
+  // Type guard to check if the chain name is valid
+  function isValidChainName(name: string): name is ChainName {
+    return name.toLowerCase() in CHAIN_IDS;
+  }
+
+  if (!isValidChainName(chainName)) {
+    throw new Error(
+      `Invalid chain name: ${chainName}. Valid chains are: ${Object.keys(
+        CHAIN_IDS
+      ).join(', ')}`
+    );
+  }
+
+  return CHAIN_IDS[chainName.toLowerCase() as ChainName];
+}
+
 export function getBanSignatureFirstLine({
   id,
   chainId,

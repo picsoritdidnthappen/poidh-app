@@ -23,6 +23,7 @@ model Bounties {
   is_multiplayer   Boolean?
   is_voting        Boolean? @default(false)
   deadline         Int?
+  clanker          String?
 
   claims         Claims[]
   participations ParticipationsBounties[]
