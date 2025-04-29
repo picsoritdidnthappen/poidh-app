@@ -65,7 +65,7 @@ model Claims {
   ban        Ban[]
 
   @@id([id, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("public")
 }
 
 model ParticipationsBounties {
