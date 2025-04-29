@@ -23,16 +23,30 @@ model Bounties {
   is_multiplayer   Boolean?
   is_voting        Boolean? @default(false)
   deadline         Int?
-  clanker          String?
 
   claims         Claims[]
   participations ParticipationsBounties[]
   issuerUser     Users?                   @relation(fields: [issuer], references: [address])
   ban            Ban[]
   transactions   Transactions[]
+  extras         BountyExtras? @relation("BountyToExtras")
+
 
   @@id([id, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("public")
+}
+
+model BountyExtras {
+  id              Int      @id @default(autoincrement())
+  bounty_id       Int
+  chain_id        Int
+  clanker_address String   @db.VarChar(42)
+  created_at      DateTime @default(now())
+
+  bounty     Bounties @relation("BountyToExtras", fields: [bounty_id, chain_id], references: [id, chain_id])
+
+  @@unique([bounty_id, chain_id])
+  @@schema("public")
 }
 
 model Claims {
@@ -51,7 +65,7 @@ model Claims {
   ban        Ban[]
 
   @@id([id, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("public")
 }
 
 model ParticipationsBounties {
@@ -64,7 +78,7 @@ model ParticipationsBounties {
   user   Users?    @relation(fields: [user_address], references: [address])
 
   @@id([user_address, bounty_id, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("public")
 }
 
 model Users {
@@ -77,7 +91,7 @@ model Users {
   bounties       Bounties[]
 
   @@id([address])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("public")
 }
 
 model Ban {
@@ -106,5 +120,5 @@ model Transactions {
   bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
 
   @@id([tx, index, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("public")
 }

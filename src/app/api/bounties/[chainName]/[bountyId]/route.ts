@@ -107,6 +107,11 @@ export async function GET(
             },
           },
         },
+        extras: {
+          select: {
+            clanker_address: true,
+          },
+        },
       },
     });
 
@@ -122,7 +127,7 @@ export async function GET(
         title: bounty.title,
         description: bounty.description,
         amount: bounty.amount,
-        clanker: bounty.clanker,
+        clanker: bounty.extras.clanker_address,
         issuer: {
           address: bounty.issuer,
         },

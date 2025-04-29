@@ -69,6 +69,11 @@ export async function POST(
             },
           },
         },
+        extras: {
+          select: {
+            clanker_address: true,
+          },
+        },
       },
     });
 
@@ -76,7 +81,7 @@ export async function POST(
       return NextResponse.json({ error: 'Bounty not found' }, { status: 404 });
     }
 
-    if (bounty.clanker) {
+    if (bounty.extras.clanker_address) {
       return NextResponse.json(
         { error: 'Bounty already clanked' },
         { status: 400 }
@@ -140,7 +145,13 @@ export async function POST(
     // Update the bounty with the clanker address
     await prisma.bounties.update({
       where: { id_chain_id: { id: bountyIdNum, chain_id: chainId } },
-      data: { clanker: clankerAddress },
+      data: {
+        extras: {
+          update: {
+            clanker_address: clankerAddress,
+          },
+        },
+      },
     });
 
     return Response.json({
