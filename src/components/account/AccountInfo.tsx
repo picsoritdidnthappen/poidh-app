@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-
 import { useGetChain } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
@@ -13,9 +12,17 @@ import DisplayAddress from '@/components/global/DisplayAddress';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
+function StatCard({ title, value }: { title: string; value: string | number }) {
+  return (
+    <div className='bg-white/5 rounded-md p-2.5 backdrop-blur-sm'>
+      <div className='text-xs text-gray-300'>{title}</div>
+      <div className='text-sm font-medium mt-0.5'>{value}</div>
+    </div>
+  );
+}
+
 export default function AccountInfo({ address }: { address: string }) {
   const chain = useGetChain();
-
   const [currentSection, setCurrentSection] = useState<Section>('nfts');
 
   const accountActivities = trpc.accountActivities.useQuery(
@@ -31,60 +38,62 @@ export default function AccountInfo({ address }: { address: string }) {
   return (
     <>
       {address && (
-        <div>
-          <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-8'>
-            <div>
-              <div className='flex flex-col border-b border-dashed pb-4'>
-                <span>user</span>
-                <div className='flex flex-row items-center gap-2'>
-                  <span className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
+        <div className='space-y-6'>
+          <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-6 pb-3 rounded-xl'>
+            <div className='space-y-4 flex-grow'>
+              <div className='border-b border-white/20 pb-3'>
+                <div className='text-sm text-gray-300 mb-1'>user</div>
+                <div className='flex items-center gap-2'>
+                  <span className='text-xl sm:text-2xl md:text-3xl font-medium'>
                     <DisplayAddress chain={chain} address={address} />
                   </span>
-                  <div className=''>
-                    <CopyAddressButton address={address} size={18} />
-                  </div>
+                  <CopyAddressButton address={address} size={20} />
                 </div>
               </div>
-              <div className='flex flex-col'>
-                <div>{`completed bounties: ${
-                  accountActivities.data?.NFTs.length ?? 0
-                }`}</div>
-                <div>
-                  {`total paid: ${
-                    accountStats.data?.totalPaid.amountCrypto ?? 0
-                  } ${chain.currency}`}
-                </div>
-                <div>
-                  in progress bounties:{' '}
-                  {accountActivities.data?.bounties.length ?? 0}
-                </div>
-                <div>
-                  {`total in contract: ${
-                    accountStats.data?.amountInContract.amountCrypto ?? 0
-                  } ${chain.currency}`}
-                </div>
-                <div>
-                  {`completed claims: ${
-                    accountStats.data?.acceptedClaimsCount ?? 0
-                  }
-                    `}
-                </div>
-                <div>
-                  {`total earned: ${
-                    accountStats.data?.totalEarn.amountCrypto ?? 0
-                  } ${chain.currency}`}
-                </div>
+
+              <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-2 max-w-[1400px] mx-auto'>
+                <StatCard
+                  title='completed bounties'
+                  value={accountActivities.data?.NFTs.length ?? 0}
+                />
+                <StatCard
+                  title='total paid'
+                  value={`${formatCryptoValue(
+                    accountStats.data?.totalPaid.amountCrypto
+                  )} ${chain.currency}`}
+                />
+                <StatCard
+                  title='active bounties'
+                  value={accountActivities.data?.bounties.length ?? 0}
+                />
+                <StatCard
+                  title='total in contract'
+                  value={`${formatCryptoValue(
+                    accountStats.data?.amountInContract.amountCrypto
+                  )} ${chain.currency}`}
+                />
+                <StatCard
+                  title='completed claims'
+                  value={accountStats.data?.acceptedClaimsCount ?? 0}
+                />
+                <StatCard
+                  title='total earned'
+                  value={`${formatCryptoValue(
+                    accountStats.data?.totalEarn.amountCrypto
+                  )} ${chain.currency}`}
+                />
               </div>
             </div>
-            <div className='flex flex-col '>
-              <span>poidh score:</span>
-              <span className='text-4xl text-poihRed border-y border-dashed'>
+
+            <div className='mt-3 lg:mt-0 lg:ml-6 p-2 bg-white/5 rounded-lg backdrop-blur-sm text-center'>
+              <div className='text-xs text-gray-300'>poidh score</div>
+              <div className="text-4xl font-bold mt-1 text-poidhRed font-['PixelifySans'] ">
                 {accountStats.data?.poidhScore}
-              </span>
+              </div>
             </div>
           </div>
 
-          <div className='flex flex-row overflow-x-scroll items-center py-6 border-b border-white justify-center gap-x-5 w-full px-3'>
+          <div className='flex flex-row overflow-x-scroll items-center pb-3 border-b border-white justify-center gap-x-5 w-full px-3'>
             <div
               id='btn-container'
               className={cn(
@@ -138,4 +147,16 @@ export default function AccountInfo({ address }: { address: string }) {
       )}
     </>
   );
+}
+
+function formatCryptoValue(value: number | undefined) {
+  if (value === undefined) return '0';
+  const strValue = value.toString();
+  if (strValue.includes('.')) {
+    const [, decimal] = strValue.split('.');
+    if (decimal.length > 5) {
+      return Number(value).toFixed(5);
+    }
+  }
+  return strValue;
 }

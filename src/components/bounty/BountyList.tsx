@@ -19,7 +19,7 @@ export default function BountyList({ bounties }: { bounties: Bounty[] }) {
   return (
     <>
       <motion.div
-        className='container list mx-auto px-5 py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'
+        className='container list mx-auto px-5 pb-12 pt-5 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'
         variants={{
           hidden: { opacity: 1, scale: 0 },
           visible: {

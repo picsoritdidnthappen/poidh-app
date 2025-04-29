@@ -19,7 +19,7 @@ export default function NftList({ NFTs }: { NFTs: NFT[] }) {
   }
 
   return (
-    <div className='container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
+    <div className='container mx-auto px-0  pt-5 pb-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
       {NFTs.map((NFT, index) => (
         <div className='lg:col-span-4' key={index}>
           <NftListItem NFT={NFT} />
