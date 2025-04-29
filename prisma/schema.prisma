@@ -33,7 +33,7 @@ model Bounties {
 
 
   @@id([id, chain_id])
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
 
 model BountyExtras {
@@ -46,7 +46,7 @@ model BountyExtras {
   bounty     Bounties @relation("BountyToExtras", fields: [bounty_id, chain_id], references: [id, chain_id])
 
   @@unique([bounty_id, chain_id])
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
 
 model Claims {
@@ -65,7 +65,7 @@ model Claims {
   ban        Ban[]
 
   @@id([id, chain_id])
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
 
 model ParticipationsBounties {
@@ -78,7 +78,7 @@ model ParticipationsBounties {
   user   Users?    @relation(fields: [user_address], references: [address])
 
   @@id([user_address, bounty_id, chain_id])
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
 
 model Users {
@@ -91,7 +91,7 @@ model Users {
   bounties       Bounties[]
 
   @@id([address])
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
 
 model Ban {
@@ -105,7 +105,7 @@ model Ban {
   bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
   claim  Claims?   @relation(fields: [claim_id, chain_id], references: [id, chain_id])
 
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
 
 model Transactions {
@@ -120,5 +120,5 @@ model Transactions {
   bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
 
   @@id([tx, index, chain_id])
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
