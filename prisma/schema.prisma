@@ -65,7 +65,7 @@ model Claims {
   ban        Ban[]
 
   @@id([id, chain_id])
-  @@schema("public")
+  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
 }
 
 model ParticipationsBounties {
@@ -105,7 +105,7 @@ model Ban {
   bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
   claim  Claims?   @relation(fields: [claim_id, chain_id], references: [id, chain_id])
 
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("public")
 }
 
 model Transactions {
