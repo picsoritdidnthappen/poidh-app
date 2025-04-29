@@ -198,7 +198,7 @@ export default function FormClaim({
       <ClaimConfirm
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
-        imageUrl={imageURI}
+        imageUrl={preview}
         onConfirm={() => createClaimMutations.mutate(BigInt(bountyId))}
       />
       <Dialog
