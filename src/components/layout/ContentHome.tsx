@@ -116,7 +116,7 @@ export default function ContentHome() {
         </div>
       </div>
 
-      <div className='pb-20 z-1'>
+      <div className='pb-20 z-1 mt-7'>
         {bounties.data && (
           <InfiniteScroll
             loadMore={async () => await bounties.fetchNextPage()}
