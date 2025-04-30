@@ -8,7 +8,7 @@ import CopyAddressButton from '../global/CopyAddressButton';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   return (
-    <div className='container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
+    <div className='container mx-auto px-0  pb-12 pt-5 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
       {claims.map((claim) => (
         <div key={claim.id} className={` lg:col-span-4`}>
           <ClaimItem claim={claim} />

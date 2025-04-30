@@ -49,6 +49,13 @@
     src: url('/fonts/GeistMono-Regular.woff2') format('woff2');
   }
 
+  @font-face {
+    font-family: 'PixelifySans';
+    font-style: normal;
+    font-weight: normal;
+    src: url('/fonts/PixelifySans-Regular.ttf') format('truetype');
+  }
+
   .cursor-newtab {
     cursor: url('/images/new-tab.png') 10 10, pointer;
   }
