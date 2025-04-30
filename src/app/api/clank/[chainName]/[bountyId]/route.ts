@@ -81,7 +81,7 @@ export async function POST(
       return NextResponse.json({ error: 'Bounty not found' }, { status: 404 });
     }
 
-    if (bounty.extras.clanker_address) {
+    if (bounty.extras?.clanker_address) {
       return NextResponse.json(
         { error: 'Bounty already clanked' },
         { status: 400 }

@@ -127,7 +127,7 @@ export async function GET(
         title: bounty.title,
         description: bounty.description,
         amount: bounty.amount,
-        clanker: bounty.extras.clanker_address,
+        clanker: bounty.extras?.clanker_address || null,
         issuer: {
           address: bounty.issuer,
         },

@@ -12,6 +12,7 @@ type BountyResponse = {
     title: string;
     description: string;
     amount: string;
+    clanker: string | null;
     issuer: {
       address: string;
     };
