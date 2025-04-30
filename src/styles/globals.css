@@ -50,10 +50,10 @@
   }
 
   @font-face {
-    font-family: 'PixelifySans';
+    font-family: 'PixeloidSans';
     font-style: normal;
     font-weight: normal;
-    src: url('/fonts/PixelifySans-Regular.ttf') format('truetype');
+    src: url('/fonts/PixeloidSans-Regular.ttf') format('truetype');
   }
 
   .cursor-newtab {
