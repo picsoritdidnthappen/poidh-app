@@ -151,7 +151,7 @@ export default function FormJoinBounty({
               }
             }}
           >
-            join bounty
+            add funds
           </Button>
         </DialogActions>
       </Dialog>

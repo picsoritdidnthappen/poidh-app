@@ -193,7 +193,7 @@ export default function JoinBounty({
               }
             }}
           >
-            join bounty
+            add funds
           </Button>
         </DialogActions>
       </Dialog>

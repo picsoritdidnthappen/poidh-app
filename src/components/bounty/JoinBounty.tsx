@@ -14,7 +14,7 @@ export default function JoinBounty({ bountyId }: { bountyId: string }) {
       />
       <div className=' py-12 w-fit cursor-pointer'>
         <div onClick={() => setShowForm(true)}>
-          <ButtonCTA>join bounty</ButtonCTA>
+          <ButtonCTA>add funds</ButtonCTA>
         </div>
       </div>
     </>
