@@ -35,7 +35,7 @@ const handleRequest = frames(async (ctx) => {
           action='post'
           target={`/claims?claimId=0&chainId=${chainId}&bountyId=${bountyId}`}
         >
-          See Claims
+          view bounty
         </Button>,
       ],
     };
