@@ -368,7 +368,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
           {!hasAcceptedClaim && isOpen && !isVoting && (
             <>
               <div onClick={() => setShowJoinForm(true)}>
-                <ButtonCTA>join bounty</ButtonCTA>
+                <ButtonCTA>add funds</ButtonCTA>
               </div>
               <JoinBounty
                 bountyId={bountyId}
