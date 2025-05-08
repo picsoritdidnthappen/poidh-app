@@ -9,6 +9,7 @@ import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
+import { UsersRoundIcon } from '@/components/global/Icons';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
@@ -30,8 +31,13 @@ export default function AccountInfo({ address }: { address: string }) {
     { enabled: !!address }
   );
 
-  const accountStats = trpc.accountInfo.useQuery(
-    { address, chainId: chain.id },
+  const accountStats = trpc.accountInfo.useQuery({
+    address,
+    chainId: chain.id,
+  });
+
+  const ethIdentityStats = trpc.ethIdentityStats.useQuery(
+    { address },
     { enabled: !!address }
   );
 
@@ -43,11 +49,33 @@ export default function AccountInfo({ address }: { address: string }) {
             <div className='space-y-4 flex-grow'>
               <div className='border-b border-white/20 pb-3'>
                 <div className='text-sm text-gray-300 mb-1'>user</div>
-                <div className='flex items-center gap-2'>
-                  <span className='text-xl sm:text-2xl md:text-3xl font-medium'>
-                    <DisplayAddress chain={chain} address={address} />
-                  </span>
-                  <CopyAddressButton address={address} size={20} />
+                <div className='flex flex-col gap-2'>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xl sm:text-2xl md:text-3xl font-medium'>
+                      <DisplayAddress chain={chain} address={address} />
+                    </span>
+                    <CopyAddressButton address={address} size={20} />
+                  </div>
+                  <div className='flex items-center gap-3 text-sm text-gray-300'>
+                    <UsersRoundIcon width={20} height={20} />
+                    <span>
+                      <strong className='text-white'>
+                        {ethIdentityStats.isLoading
+                          ? '...'
+                          : ethIdentityStats.data?.followers_count}
+                      </strong>{' '}
+                      followers
+                    </span>
+                    <span className='text-white'>·</span>
+                    <span>
+                      <strong className='text-white'>
+                        {ethIdentityStats.isLoading
+                          ? '...'
+                          : ethIdentityStats.data?.following_count}
+                      </strong>{' '}
+                      following
+                    </span>
+                  </div>
                 </div>
               </div>
 

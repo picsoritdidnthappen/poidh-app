@@ -834,6 +834,16 @@ export const appRouter = createTRPCRouter({
 
       return totalCasts;
     }),
+
+  ethIdentityStats: baseProcedure
+    .input(z.object({ address: addressSchema }))
+    .query(async ({ input }) => {
+      const response = await fetch(
+        `https://api.ethfollow.xyz/api/v1/users/${input.address}/stats`
+      );
+      const data = await response.json();
+      return data;
+    }),
 });
 
 export function checkIsAdmin(address?: string) {
