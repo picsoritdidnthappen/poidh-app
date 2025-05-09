@@ -9,6 +9,7 @@ import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
+import WarpcastLink from '@/components/global/WarpcastIcon';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
@@ -48,6 +49,10 @@ export default function AccountInfo({ address }: { address: string }) {
                     <DisplayAddress chain={chain} address={address} />
                   </span>
                   <CopyAddressButton address={address} size={20} />
+                  <WarpcastLink
+                    address={address}
+                    className='text-gray-400 hover:text-gray-200 transition-colors'
+                  />
                 </div>
               </div>
 
