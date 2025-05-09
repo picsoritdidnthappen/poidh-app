@@ -27,6 +27,7 @@ import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
+import WarpcastIcon from '@/components/global/WarpcastIcon';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -184,6 +185,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
               <div className='ml-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
+              <WarpcastIcon address={bounty.data.issuer} />
             </div>
           </div>
           {isAdmin.data && (
