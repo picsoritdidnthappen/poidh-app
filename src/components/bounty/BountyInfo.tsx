@@ -169,7 +169,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
 
   return (
     <>
-      <div className='flex pt-20 flex-col justify-between lg:flex-row'>
+      <div className='flex pt-8 flex-col justify-between lg:flex-row'>
         <div className='flex flex-col  lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
