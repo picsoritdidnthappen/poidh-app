@@ -16,7 +16,7 @@ export default function Bounty({ params }: { params: { id: string } }) {
   return (
     <>
       <div className='px-5 lg:px-20'>
-        <div className='py-4'>
+        <div className='py-0'>
           <Breadcrumbs />
         </div>
         <BountyInfo bountyId={params.id} />
