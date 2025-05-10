@@ -182,7 +182,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
               <DisplayAddress chain={chain} address={bounty.data.issuer} />
-              <div className='ml-2'>
+              <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
               <WarpcastIcon address={bounty.data.issuer} />
