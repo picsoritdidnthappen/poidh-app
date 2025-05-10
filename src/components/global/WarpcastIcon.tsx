@@ -59,8 +59,8 @@ const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
       <Image
         src='/images/farcaster_arch.webp'
         alt='Warpcast'
-        width={24} // Adjust size as needed
-        height={24}
+        width={20}
+        height={20}
         className='hover:opacity-80 transition-opacity'
       />
     </a>
