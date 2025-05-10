@@ -27,6 +27,7 @@ import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -169,7 +170,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
 
   return (
     <>
-      <div className='flex pt-20 flex-col justify-between lg:flex-row'>
+      <div className='flex pt-8 flex-col justify-between lg:flex-row'>
         <div className='flex flex-col  lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
@@ -181,9 +182,10 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
               <DisplayAddress chain={chain} address={bounty.data.issuer} />
-              <div className='ml-2'>
+              <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
+              <FarcasterIcon address={bounty.data.issuer} />
             </div>
           </div>
           {isAdmin.data && (
