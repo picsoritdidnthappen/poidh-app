@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import ClaimCard from './ClaimCard';
+import SubmitVotingConfirm from '../bounty/SubmitVotingConfirm';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
@@ -38,7 +39,8 @@ export default function ClaimItem({
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
   const utils = trpc.useUtils();
-  const [openCard, setOpenCard] = useState<boolean>(false);
+  const [openCard, setOpenCard] = useState(false);
+  const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
@@ -178,6 +180,18 @@ export default function ClaimItem({
         onClose={() => setOpenCard(false)}
         open={openCard}
       />
+      <SubmitVotingConfirm
+        isOpen={showVotingConfirm}
+        onClose={() => setShowVotingConfirm(false)}
+        imageUrl={imageUrl ? imageUrl + '?q=50' : ''}
+        onConfirm={() => {
+          submitForVoteMutation.mutate({
+            bountyId: BigInt(bountyId),
+            claimId: BigInt(id),
+          });
+          setShowVotingConfirm(false);
+        }}
+      />
       <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
         <div className='left-5 top-5 absolute  flex flex-col text-white'>
           {bounty.data &&
@@ -188,15 +202,14 @@ export default function ClaimItem({
               <button
                 className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
                 onClick={() => {
-                  bounty.data.participations.length > 1
-                    ? submitForVoteMutation.mutate({
-                        bountyId: BigInt(bountyId),
-                        claimId: BigInt(id),
-                      })
-                    : acceptClaimMutation.mutate({
-                        bountyId: BigInt(bountyId),
-                        claimId: BigInt(id),
-                      });
+                  if (bounty.data.participations.length > 1) {
+                    setShowVotingConfirm(true);
+                  } else {
+                    acceptClaimMutation.mutate({
+                      bountyId: BigInt(bountyId),
+                      claimId: BigInt(id),
+                    });
+                  }
                 }}
               >
                 {bounty.data.participations.length > 1

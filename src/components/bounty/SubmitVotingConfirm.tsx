@@ -1,26 +1,26 @@
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import Image from 'next/image';
 
-interface ClaimConfirmProps {
+interface SubmitVotingConfirmProps {
   isOpen: boolean;
   onClose: () => void;
   imageUrl: string;
   onConfirm: () => void;
 }
 
-export default function ClaimConfirm({
+export default function SubmitVotingConfirm({
   isOpen,
   onClose,
   imageUrl,
   onConfirm,
-}: ClaimConfirmProps) {
+}: SubmitVotingConfirmProps) {
   return (
     <>
       <Dialog open={isOpen} onClose={onClose} className='relative z-50'>
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center p-4'>
           <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-6 bg-poidhBlue border border-[#D1ECFF]'>
-            <DialogTitle className='font-mono text-2xl font-bold text-white mb-4 text-center'>
-              Confirm Your Claim
+            <DialogTitle className='text-2xl font-bold  text-white mb-4 text-center font-mono'>
+              Submit Claim for Voting
             </DialogTitle>
 
             <div className='flex flex-col items-center gap-4'>
@@ -33,18 +33,32 @@ export default function ClaimConfirm({
                 />
               </div>
 
-              <p className='text-white text-sm'>
-                you're about to mint your claim as an nft. you cannot undo this
-                action. if the bounty creator selects your claim, the nft will
-                transfer to them, and the bounty funds will transfer to you.
-              </p>
+              <div className='max-h-[100px] overflow-y-auto custom-scrollbar'>
+                <p className='text-white text-sm'>
+                  you are about to submit this claim for vote. you cannot undo 
+                  this action. doing so will cast your voting shares as a "yes" 
+                  vote for this claim. all other bounty contributors will have 
+                  48 hours to vote "yes" or "no" to confirm the claim. if, after 
+                  48 hours, the majority of participating voters have voted "yes" 
+                  the bounty funds will be claimable by the wallet that submitted 
+                  this claim. you can learn more about open bounty mechanics{' '}
+                  <a
+                    href='https://paragraph.com/@poidh/poidh-open-multiplayer-bounties-explained'
+                    target='_blank'
+                    className='underline'
+                  >
+                    here
+                  </a>
+                  .
+                </p>
+              </div>
 
               <div className='flex gap-3 w-full mt-2'>
                 <button
                   onClick={onClose}
                   className='flex-1 px-4 py-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors'
                 >
-                  Cancel
+                  cancel
                 </button>
                 <button
                   onClick={onConfirm}

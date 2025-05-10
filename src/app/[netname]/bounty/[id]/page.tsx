@@ -7,6 +7,7 @@ import NavBarMobile from '@/components/global/NavBarMobile';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import CreateClaim from '@/components/claims/CreateClaim';
 import CommentsSection from '@/components/bounty/CommentsSection';
+import Breadcrumbs from '@/components/global/Breadcrumbs';
 
 export default function Bounty({ params }: { params: { id: string } }) {
   const isMobile = useScreenSize();
@@ -15,6 +16,9 @@ export default function Bounty({ params }: { params: { id: string } }) {
   return (
     <>
       <div className='px-5 lg:px-20'>
+        <div className='pt-4'>
+          <Breadcrumbs />
+        </div>
         <BountyInfo bountyId={params.id} />
         <BountyClaims bountyId={params.id} />
         <CommentsSection url={`https://poidh.xyz${pathname}`} />
