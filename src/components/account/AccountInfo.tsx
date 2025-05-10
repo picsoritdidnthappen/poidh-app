@@ -36,6 +36,9 @@ export default function AccountInfo({ address }: { address: string }) {
     { enabled: !!address }
   );
 
+  console.log('data');
+  console.log(accountActivities.data?.bounties);
+
   return (
     <>
       {address && (
@@ -69,7 +72,13 @@ export default function AccountInfo({ address }: { address: string }) {
                 />
                 <StatCard
                   title='active bounties'
-                  value={accountActivities.data?.bounties.length ?? 0}
+                  value={
+                    accountActivities.data?.bounties
+                      ? accountActivities.data?.bounties.filter(
+                          (bounty) => bounty.inProgress === true
+                        ).length
+                      : 0
+                  }
                 />
                 <StatCard
                   title='total in contract'
