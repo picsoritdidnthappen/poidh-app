@@ -3,6 +3,7 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
+import WarpcastIcon from '@/components/global/WarpcastIcon';
 
 type NFT = {
   id: string;
@@ -71,7 +72,12 @@ function NftListItem({ NFT }: { NFT: NFT }) {
             </div>
           </div>
         </div>
-        <div>claim id: {NFT.id}</div>
+        <div className='flex flex-row items-center justify-between'>
+          <span>claim id: {NFT.id}</span>
+          <div className='flex flex-row items-center'>
+            <WarpcastIcon address={NFT.issuer} />
+          </div>
+        </div>
       </div>
     </div>
   );
