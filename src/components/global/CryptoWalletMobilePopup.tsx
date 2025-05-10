@@ -29,8 +29,9 @@ export default function CryptoWalletMobilePopup() {
 
   return (
     <div
-      className='fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4'
+      className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4'
       onClick={handleClose}
+      style={{ minHeight: '-webkit-fill-available' }}
     >
       <div
         className='bg-poidhBlue/80 rounded-xl w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] p-6 relative animate-fadeIn border border-[#D1ECFF]'
@@ -60,7 +61,7 @@ export default function CryptoWalletMobilePopup() {
           </h3>
           <p className='text-center text-white/90 leading-relaxed'>
             for best results we recommend using your crypto wallet's mobile
-            browser.
+            browser
           </p>
           <div className='text-center'>
             <span className='text-white/90'>
@@ -74,7 +75,6 @@ export default function CryptoWalletMobilePopup() {
             >
               rainbow.me
             </a>
-            .
           </div>
         </div>
       </div>
