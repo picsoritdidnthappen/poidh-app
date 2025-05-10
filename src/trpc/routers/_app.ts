@@ -330,6 +330,11 @@ export const appRouter = createTRPCRouter({
             in_progress: true,
             claims: {
               take: 1,
+              where: {
+                ban: {
+                  none: {},
+                },
+              },
             },
           },
 
