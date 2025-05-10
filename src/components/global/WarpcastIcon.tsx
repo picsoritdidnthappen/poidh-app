@@ -3,8 +3,8 @@ import Image from 'next/image';
 
 // Props for the component
 interface WarpcastLinkProps {
-  address: string; // The Ethereum address to fetch the Warpcast username for
-  className?: string; // Optional Tailwind CSS classes for styling
+  address: string; // The Ethereum address to fetch the Farcsetr username for
+  className?: string;
 }
 
 const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
@@ -14,7 +14,6 @@ const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
   useEffect(() => {
     async function fetchUsername() {
       try {
-        // Fetch the Farcaster username from the new API route
         const response = await fetch(`/api/farcaster-user?address=${address}`);
         const data = await response.json();
 
@@ -55,7 +54,7 @@ const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
       className={`inline-block ${className}`}
       aria-label={`Visit ${username}'s Warpcast profile`}
     >
-      {/* Warpcast Icon */}
+      {/* Farcaster Icon */}
       <Image
         src='/images/farcaster_arch.webp'
         alt='Warpcast'
