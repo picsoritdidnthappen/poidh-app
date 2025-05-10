@@ -57,7 +57,7 @@ const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
     >
       {/* Warpcast Icon */}
       <Image
-        src='/images/warpcast.webp'
+        src='/images/farcaster_arch.webp'
         alt='Warpcast'
         width={24} // Adjust size as needed
         height={24}
