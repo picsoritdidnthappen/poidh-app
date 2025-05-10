@@ -5,7 +5,7 @@ import { Claim } from '@/utils/types';
 import { useGetChain } from '@/hooks/useGetChain';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
-import WarpcastIcon from '@/components/global/WarpcastIcon';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   return (
@@ -70,7 +70,7 @@ function ClaimItem({ claim }: { claim: Claim }) {
         <div className='flex flex-row items-center justify-between'>
           <span>claim id: {claim?.id}</span>
           <div className='flex flex-row items-center'>
-            <WarpcastIcon address={claim.issuer} />
+            <FarcasterIcon address={claim.issuer} />
           </div>
         </div>
       </div>

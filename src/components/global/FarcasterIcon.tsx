@@ -2,12 +2,15 @@ import React, { useEffect } from 'react';
 import Image from 'next/image';
 
 // Props for the component
-interface WarpcastLinkProps {
+interface FarcasterLinkProps {
   address: string; // The Ethereum address to fetch the Farcsetr username for
   className?: string;
 }
 
-const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
+const FarcasterLink: React.FC<FarcasterLinkProps> = ({
+  address,
+  className,
+}) => {
   const [username, setUsername] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
 
@@ -44,11 +47,11 @@ const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
     return null;
   }
 
-  const warpcastUrl = `https://warpcast.com/${username}`;
+  const farcasterUrl = `https://warpcast.com/${username}`;
 
   return (
     <a
-      href={warpcastUrl}
+      href={farcasterUrl}
       target='_blank'
       rel='noopener noreferrer'
       className={`inline-block ${className}`}
@@ -66,4 +69,4 @@ const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
   );
 };
 
-export default WarpcastLink;
+export default FarcasterLink;

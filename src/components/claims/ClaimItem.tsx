@@ -12,7 +12,7 @@ import SubmitVotingConfirm from '../bounty/SubmitVotingConfirm';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
-import WarpcastIcon from '@/components/global/WarpcastIcon';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
 
 export default function ClaimItem({
   id,
@@ -250,7 +250,7 @@ export default function ClaimItem({
           <div className='flex flex-row items-center justify-between'>
             <span>claim id: {id}</span>
             <div className='flex flex-row items-center'>
-              <WarpcastIcon address={issuer} />
+              <FarcasterIcon address={issuer} />
             </div>
           </div>
         </div>
