@@ -36,9 +36,6 @@ export default function AccountInfo({ address }: { address: string }) {
     { enabled: !!address }
   );
 
-  console.log('data');
-  console.log(accountActivities.data?.bounties);
-
   return (
     <>
       {address && (
