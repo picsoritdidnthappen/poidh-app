@@ -9,7 +9,7 @@ import JoinBounty from '@/components/frame/claims/FormJoinBounty';
 import ButtonCTA from '@/components/global/ButtonCTA';
 import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
-import WarpcastIcon from '@/components/global/WarpcastIcon';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
 
 // Types
 interface ChainInfo {
@@ -442,7 +442,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                 <div className='flex flex-row items-center justify-between'>
                   <span>claim id: {claim.id}</span>
                   <div className='flex flex-row items-center'>
-                    <WarpcastIcon address={claim.issuer.address} />
+                    <FarcasterIcon address={claim.issuer.address} />
                   </div>
                 </div>
               </div>

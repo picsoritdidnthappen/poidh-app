@@ -5,7 +5,7 @@ import { getChainById } from '@/utils/config';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import { fetchPrice, formatAmount } from '@/utils/utils';
-import WarpcastIcon from '@/components/global/WarpcastIcon';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
 
 export default function PastBountyCard({
   claim,
@@ -79,7 +79,7 @@ export default function PastBountyCard({
                 <div className='flex flex-row items-center justify-between'>
                   <span>claim id: {claim?.id}</span>
                   <div className='flex flex-row items-center'>
-                    <WarpcastIcon address={claim.issuer} />
+                    <FarcasterIcon address={claim.issuer} />
                   </div>
                 </div>
               </div>

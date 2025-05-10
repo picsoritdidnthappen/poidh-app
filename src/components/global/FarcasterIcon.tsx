@@ -2,19 +2,21 @@ import React, { useEffect } from 'react';
 import Image from 'next/image';
 
 // Props for the component
-interface WarpcastLinkProps {
-  address: string; // The Ethereum address to fetch the Warpcast username for
-  className?: string; // Optional Tailwind CSS classes for styling
+interface FarcasterLinkProps {
+  address: string; // The Ethereum address to fetch the Farcsetr username for
+  className?: string;
 }
 
-const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
+const FarcasterLink: React.FC<FarcasterLinkProps> = ({
+  address,
+  className,
+}) => {
   const [username, setUsername] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
 
   useEffect(() => {
     async function fetchUsername() {
       try {
-        // Fetch the Farcaster username from the new API route
         const response = await fetch(`/api/farcaster-user?address=${address}`);
         const data = await response.json();
 
@@ -45,26 +47,26 @@ const WarpcastLink: React.FC<WarpcastLinkProps> = ({ address, className }) => {
     return null;
   }
 
-  const warpcastUrl = `https://warpcast.com/${username}`;
+  const farcasterUrl = `https://warpcast.com/${username}`;
 
   return (
     <a
-      href={warpcastUrl}
+      href={farcasterUrl}
       target='_blank'
       rel='noopener noreferrer'
       className={`inline-block ${className}`}
       aria-label={`Visit ${username}'s Warpcast profile`}
     >
-      {/* Warpcast Icon */}
+      {/* Farcaster Icon */}
       <Image
-        src='/images/warpcast.webp'
+        src='/images/farcaster_arch.webp'
         alt='Warpcast'
-        width={24} // Adjust size as needed
-        height={24}
+        width={20}
+        height={20}
         className='hover:opacity-80 transition-opacity'
       />
     </a>
   );
 };
 
-export default WarpcastLink;
+export default FarcasterLink;

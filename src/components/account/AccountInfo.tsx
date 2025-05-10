@@ -9,7 +9,7 @@ import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import WarpcastLink from '@/components/global/WarpcastIcon';
+import WarpcastLink from '@/components/global/FarcasterIcon';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
