@@ -128,6 +128,11 @@ export const appRouter = createTRPCRouter({
         include: {
           claims: {
             take: 1,
+            where: {
+              ban: {
+                none: {},
+              },
+            },
           },
         },
         orderBy: sortById
@@ -330,11 +335,6 @@ export const appRouter = createTRPCRouter({
             in_progress: true,
             claims: {
               take: 1,
-              where: {
-                ban: {
-                  none: {},
-                },
-              },
             },
           },
 
