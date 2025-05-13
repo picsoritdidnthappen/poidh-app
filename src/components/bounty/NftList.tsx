@@ -75,7 +75,7 @@ function NftListItem({ NFT }: { NFT: NFT }) {
         </div>
         <div className='flex flex-row items-center justify-between'>
           <span>claim id: {NFT.id}</span>
-          <div className='flex flex-row items-center gap-1'>
+          <div className='flex flex-row items-center gap-2'>
             <FarcasterIcon address={NFT.issuer} />
             <XLink address={NFT.issuer} />
           </div>

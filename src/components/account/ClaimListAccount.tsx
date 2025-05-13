@@ -70,7 +70,7 @@ function ClaimItem({ claim }: { claim: Claim }) {
         </div>
         <div className='flex flex-row items-center justify-between'>
           <span>claim id: {claim?.id}</span>
-          <div className='flex flex-row items-center gap-1'>
+          <div className='flex flex-row items-center gap-2'>
             <FarcasterIcon address={claim.issuer} />
             <XLink address={claim.issuer} />
           </div>

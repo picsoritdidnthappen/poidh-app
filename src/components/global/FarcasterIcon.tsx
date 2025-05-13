@@ -61,7 +61,7 @@ const FarcasterLink: React.FC<FarcasterLinkProps> = ({
       <Image
         src='/images/farcaster_arch.webp'
         alt='Warpcast'
-        width={20}
+        width={17}
         height={20}
         className='hover:opacity-80 transition-opacity'
       />

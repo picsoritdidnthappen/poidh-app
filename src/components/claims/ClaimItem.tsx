@@ -250,7 +250,7 @@ export default function ClaimItem({
           </div>
           <div className='flex flex-row items-center justify-between'>
             <span>claim id: {id}</span>
-            <div className='flex flex-row items-center gap-1'>
+            <div className='flex flex-row items-center gap-2'>
               <FarcasterIcon address={issuer} />
               <XLink address={issuer} />
             </div>

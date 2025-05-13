@@ -54,7 +54,7 @@ const XLink: React.FC<XLinkProps> = ({ address, className }) => {
       className={`inline-block ${className}`}
       aria-label={`Visit ${username}'s X profile`}
     >
-      <TwitterXIcon width={20} height={20} />
+      <TwitterXIcon width={17} height={20} />
     </a>
   );
 };
