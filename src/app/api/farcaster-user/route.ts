@@ -28,8 +28,16 @@ export async function GET(request: Request) {
     // Extract the user data for the address
     const userDataArray = response.data[address.toLowerCase()];
     if (userDataArray && userDataArray.length > 0) {
+      // Find the X username from verified_accounts
+      const xAccount = userDataArray[0].verified_accounts.find(
+        (account: { platform: string; username: string }) =>
+          account.platform === 'x'
+      );
       return NextResponse.json(
-        { username: userDataArray[0].username },
+        {
+          username: userDataArray[0].username,
+          x_username: xAccount ? xAccount.username : null, // Return X username or null if not found
+        },
         { status: 200 }
       );
     }

@@ -28,6 +28,7 @@ import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -186,6 +187,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
               <FarcasterIcon address={bounty.data.issuer} />
+              <XLink address={bounty.data.issuer} />
             </div>
           </div>
           {isAdmin.data && (
