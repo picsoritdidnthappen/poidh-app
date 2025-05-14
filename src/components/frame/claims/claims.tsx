@@ -10,6 +10,7 @@ import ButtonCTA from '@/components/global/ButtonCTA';
 import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 // Types
 interface ChainInfo {
@@ -441,8 +442,9 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                 </div>
                 <div className='flex flex-row items-center justify-between'>
                   <span>claim id: {claim.id}</span>
-                  <div className='flex flex-row items-center'>
+                  <div className='flex flex-row items-center gap-2'>
                     <FarcasterIcon address={claim.issuer.address} />
+                    <XLink address={claim.issuer.address} />
                   </div>
                 </div>
               </div>

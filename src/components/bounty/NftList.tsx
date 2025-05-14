@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 type NFT = {
   id: string;
@@ -74,8 +75,9 @@ function NftListItem({ NFT }: { NFT: NFT }) {
         </div>
         <div className='flex flex-row items-center justify-between'>
           <span>claim id: {NFT.id}</span>
-          <div className='flex flex-row items-center'>
+          <div className='flex flex-row items-center gap-2'>
             <FarcasterIcon address={NFT.issuer} />
+            <XLink address={NFT.issuer} />
           </div>
         </div>
       </div>
