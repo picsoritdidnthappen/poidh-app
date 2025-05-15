@@ -186,8 +186,10 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
               <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
-              <FarcasterIcon address={bounty.data.issuer} />
-              <XLink address={bounty.data.issuer} />
+              <div className='flex items-center gap-2'>
+                <FarcasterIcon address={bounty.data.issuer} />
+                <XLink address={bounty.data.issuer} />
+              </div>
             </div>
           </div>
           {isAdmin.data && (
