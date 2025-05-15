@@ -16,10 +16,10 @@ export const generateMetadataForBountyFrame = async ({
     version: 'next',
     imageUrl: `https://poidh.xyz/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
     button: {
-      title: 'See Claims',
+      title: 'open bounty',
       action: {
         type: 'launch_frame',
-        name: 'See Claims',
+        name: 'open bounty',
         url: `https://poidh.xyz/frames/${params?.netname}/${params?.id}`,
         splashImageUrl: `https://poidh.xyz/Logo_poidh.svg`,
         splashBackgroundColor: '#93c5fd',
