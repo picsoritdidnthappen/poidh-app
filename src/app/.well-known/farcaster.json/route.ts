@@ -13,11 +13,9 @@ export async function GET(request: NextRequest) {
       },
       frame: {
         version: '1',
-        name: 'Poidh',
-        iconUrl: 'https://poidh-app-theta.vercel.app/icon.png',
+        name: 'poidh',
+        iconUrl: 'https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/151dca9d-4e55-4a8f-0d4f-79cace50d000/original',
         homeUrl: 'https://poidh.xyz',
-        imageUrl: 'https://poidh-app-theta.vercel.app/image.png',
-        buttonTitle: 'Check this out',
         splashImageUrl: 'https://poidh-app-theta.vercel.app/Logo_poidh.svg',
         splashBackgroundColor: '#eeccff',
         webhookUrl: 'https://poidh-app-theta.vercel.app/api/webhook',
