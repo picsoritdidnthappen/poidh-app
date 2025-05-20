@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["public", "cf56f455-102b-46b2-8b09-e7f93ee5b70c"]
+  schemas  = ["public", "f5c72623-8a40-4503-b1a8-5b749dddeaf5"]
 }
 
 model Bounties {
@@ -31,7 +31,7 @@ model Bounties {
   transactions   Transactions[]
 
   @@id([id, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("f5c72623-8a40-4503-b1a8-5b749dddeaf5")
 }
 
 model Claims {
@@ -50,7 +50,7 @@ model Claims {
   ban        Ban[]
 
   @@id([id, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("f5c72623-8a40-4503-b1a8-5b749dddeaf5")
 }
 
 model ParticipationsBounties {
@@ -63,7 +63,7 @@ model ParticipationsBounties {
   user   Users?    @relation(fields: [user_address], references: [address])
 
   @@id([user_address, bounty_id, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("f5c72623-8a40-4503-b1a8-5b749dddeaf5")
 }
 
 model Users {
@@ -76,7 +76,7 @@ model Users {
   bounties       Bounties[]
 
   @@id([address])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("f5c72623-8a40-4503-b1a8-5b749dddeaf5")
 }
 
 model Ban {
@@ -105,5 +105,5 @@ model Transactions {
   bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
 
   @@id([tx, index, chain_id])
-  @@schema("cf56f455-102b-46b2-8b09-e7f93ee5b70c")
+  @@schema("f5c72623-8a40-4503-b1a8-5b749dddeaf5")
 }
