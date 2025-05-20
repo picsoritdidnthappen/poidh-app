@@ -1,4 +1,4 @@
-import { formatWalletAddress, getDegenOrEnsName } from '@/utils/web3';
+import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
 import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
 import { ImageResponse } from '@vercel/og';
 import React from 'react';
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   const totalEarn = params.get('totalEarn');
   const totalPaid = params.get('totalPaid');
   const nftsCount = params.get('nftsCount');
-  const degenOrEnsName = await getDegenOrEnsName({
+  const degenOrEnsName = await getEnsOrDegenName({
     chainName: chain as Netname,
     address: address as string,
   });

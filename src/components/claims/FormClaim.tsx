@@ -16,6 +16,7 @@ import { trpc, trpcClient } from '@/trpc/client';
 import GameButton from '@/components/global/GameButton';
 import ButtonCTA from '@/components/global/ButtonCTA';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
+import ClaimConfirm from '@/components/claims/ClaimConfirm';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -35,6 +36,7 @@ export default function FormClaim({
   const [file, setFile] = useState<File | null>(null);
   const utils = trpc.useUtils();
   const [uploading, setUploading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
@@ -108,6 +110,7 @@ export default function FormClaim({
 
   const createClaimMutations = useMutation({
     mutationFn: async (bountyId: bigint) => {
+      setShowConfirm(false);
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network...' });
@@ -191,82 +194,90 @@ export default function FormClaim({
   });
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth='xs'
-      PaperProps={{
-        className: 'bg-poidhBlue/80',
-        style: {
-          borderRadius: '10px',
-          color: 'white',
-          border: '1px solid #D1ECFF',
-        },
-      }}
-    >
-      <DialogContent>
-        <div
-          {...getRootProps()}
-          className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full lg:min-w-[400px] justify-center cursor-pointer'
-        >
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the image here...</p>
-          ) : (
-            <p>
-              {imageURI
-                ? 'Image uploaded'
-                : 'Drag & drop or click to upload an image'}
-            </p>
-          )}
-          {preview && (
-            <Image
-              src={preview}
-              alt='Preview'
-              className='w-[300px] h-[300px] mt-2 rounded-md object-contain'
-            />
-          )}
-        </div>
-        <Box mt={2} mb={-3}>
-          <span>title</span>
-          <input
-            type='text'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
-          />
-          <span>description</span>
-          <textarea
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
-          ></textarea>
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <button
-          className={cn(
-            'flex flex-row items-center justify-center',
-            account.isDisconnected && 'opacity-50 cursor-not-allowed'
-          )}
-          onClick={() => {
-            if (name && description && imageURI && !uploading) {
-              onClose();
-              createClaimMutations.mutate(BigInt(bountyId));
-            } else {
-              toast.error(
-                'Please fill in all fields and check wallet connection.'
-              );
-            }
-          }}
-        >
-          <div className='button'>
-            <GameButton />
+    <>
+      <ClaimConfirm
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        imageUrl={preview}
+        onConfirm={() => createClaimMutations.mutate(BigInt(bountyId))}
+      />
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth='xs'
+        PaperProps={{
+          className: 'bg-poidhBlue/80',
+          style: {
+            borderRadius: '10px',
+            color: 'white',
+            border: '1px solid #D1ECFF',
+          },
+        }}
+      >
+        <DialogContent>
+          <div
+            {...getRootProps()}
+            className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full justify-center cursor-pointer'
+          >
+            <input {...getInputProps()} />
+            {isDragActive ? (
+              <p>Drop the image here...</p>
+            ) : (
+              <p>
+                {imageURI
+                  ? 'Image uploaded'
+                  : 'Drag & drop or click to upload an image'}
+              </p>
+            )}
+            {preview && (
+              <Image
+                src={preview}
+                alt='Preview'
+                className='w-full max-w-[300px] h-auto max-h-[300px] mt-2 rounded-md object-contain'
+              />
+            )}
           </div>
-          <ButtonCTA>create claim</ButtonCTA>
-        </button>
-      </DialogActions>
-    </Dialog>
+          <Box mt={2} mb={-3}>
+            <span>title</span>
+            <input
+              type='text'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+            />
+            <span>description</span>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+            ></textarea>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <button
+            className={cn(
+              'flex flex-row items-center justify-center',
+              account.isDisconnected && 'opacity-50 cursor-not-allowed'
+            )}
+            onClick={() => {
+              if (name && description) {
+                onClose();
+                setShowConfirm(true);
+              } else {
+                toast.error(
+                  'Please fill in all fields and check wallet connection.'
+                );
+              }
+            }}
+          >
+            <div className='button'>
+              <GameButton />
+            </div>
+            <ButtonCTA>create claim</ButtonCTA>
+          </button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }

@@ -3,6 +3,8 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 type NFT = {
   id: string;
@@ -19,7 +21,7 @@ export default function NftList({ NFTs }: { NFTs: NFT[] }) {
   }
 
   return (
-    <div className='container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
+    <div className='container mx-auto px-0  pt-5 pb-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
       {NFTs.map((NFT, index) => (
         <div className='lg:col-span-4' key={index}>
           <NftListItem NFT={NFT} />
@@ -71,7 +73,13 @@ function NftListItem({ NFT }: { NFT: NFT }) {
             </div>
           </div>
         </div>
-        <div>claim id: {NFT.id}</div>
+        <div className='flex flex-row items-center justify-between'>
+          <span>claim id: {NFT.id}</span>
+          <div className='flex flex-row items-center gap-2'>
+            <FarcasterIcon address={NFT.issuer} />
+            <XLink address={NFT.issuer} />
+          </div>
+        </div>
       </div>
     </div>
   );

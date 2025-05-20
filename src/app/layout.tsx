@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import { LoadingProvider } from '@/components/global/LoadingProvider';
 import ClientLayout from '@/app/layout.client';
 import { Metadata } from 'next';
+import CryptoWalletMobilePopup from '@/components/global/CryptoWalletMobilePopup';
 
 export const metadata: Metadata = {
   title: "poidh - pics or it didn't happen - crypto bounties",
@@ -45,6 +46,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             <LoadingProvider>
               <ClientLayout>{children}</ClientLayout>
               <ToastContainer />
+              <CryptoWalletMobilePopup />
             </LoadingProvider>
           </WalletProvider>
         </TRPCProvider>

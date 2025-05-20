@@ -5,10 +5,12 @@ import { Claim } from '@/utils/types';
 import { useGetChain } from '@/hooks/useGetChain';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   return (
-    <div className='container mx-auto px-0  py-12 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
+    <div className='container mx-auto px-0  pb-12 pt-5 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
       {claims.map((claim) => (
         <div key={claim.id} className={` lg:col-span-4`}>
           <ClaimItem claim={claim} />
@@ -66,7 +68,13 @@ function ClaimItem({ claim }: { claim: Claim }) {
             </div>
           </div>
         </div>
-        <div>claim id: {claim.id}</div>
+        <div className='flex flex-row items-center justify-between'>
+          <span>claim id: {claim?.id}</span>
+          <div className='flex flex-row items-center gap-2'>
+            <FarcasterIcon address={claim.issuer} />
+            <XLink address={claim.issuer} />
+          </div>
+        </div>
       </div>
     </div>
   );

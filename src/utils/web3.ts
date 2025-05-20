@@ -2,7 +2,7 @@ import { ABI, DEGENNAMERESABI } from '@/constant';
 import { chains } from '@/utils/config';
 import { mainnetPublicClient, degenPublicClient } from '@/utils/publicClients';
 
-export async function getDegenOrEnsName({
+export async function getEnsOrDegenName({
   chainName,
   address,
 }: {
@@ -12,6 +12,14 @@ export async function getDegenOrEnsName({
   if (chainName === 'arbitrum') {
     return null;
   }
+  const ensName = await mainnetPublicClient.getEnsName({
+    address: address as `0x${string}`,
+  });
+
+  if (ensName) {
+    return ensName;
+  }
+
   const degenName = await degenPublicClient.readContract({
     abi: DEGENNAMERESABI,
     address: '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
@@ -23,9 +31,7 @@ export async function getDegenOrEnsName({
     return `${degenName}.degen`;
   }
 
-  return mainnetPublicClient.getEnsName({
-    address: address as `0x${string}`,
-  });
+  return null;
 }
 
 export async function bountyCurrentVotingClaim({

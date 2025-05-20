@@ -33,3 +33,33 @@ export type Claim = {
   chainId?: ChainId;
   accepted: boolean;
 };
+
+export interface WarpcastCast {
+  object: 'cast';
+  hash: string;
+  parent_hash: string | null;
+  author: {
+    object: 'user';
+    fid: number;
+    username: string;
+    display_name: string;
+    pfp_url: string;
+    custody_address: string;
+    follower_count: number;
+    following_count: number;
+    verified_addresses: object;
+    power_badge: boolean;
+  };
+  text: string;
+  timestamp: string;
+  reactions: {
+    likes_count: number;
+    recasts_count: number;
+    likes: any[];
+    recasts: any[];
+  };
+  replies: {
+    count: number;
+  };
+  direct_replies: WarpcastCast[];
+}

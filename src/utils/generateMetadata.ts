@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
 import { createCallerFactory } from '@/trpc/init';
 import { appRouter } from '@/trpc/routers/_app';
+import { fetchPrice } from '@/utils/utils';
 
 export const generateMetadataForBountyFrame = async ({
   params,
@@ -13,14 +14,14 @@ export const generateMetadataForBountyFrame = async ({
 }): Promise<Metadata> => {
   const frame = {
     version: 'next',
-    imageUrl: `https://poidh-app-theta.vercel.app/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
+    imageUrl: `https://poidh.xyz/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
     button: {
-      title: 'See Claims',
+      title: 'view bounty',
       action: {
         type: 'launch_frame',
-        name: 'See Claims',
-        url: `https://poidh-app-theta.vercel.app/frames/${params?.netname}/${params?.id}`,
-        splashImageUrl: `https://poidh-app-theta.vercel.app/Logo_poidh.svg`,
+        name: 'view bounty',
+        url: `https://poidh.xyz/frames/${params?.netname}/${params?.id}`,
+        splashImageUrl: `https://poidh.xyz/Logo_poidh.svg`,
         splashBackgroundColor: '#93c5fd',
       },
     },
@@ -75,6 +76,13 @@ export const generateMetadataForBountyFrame = async ({
     return defaultMetadata;
   }
 
+  let price: number | undefined;
+  try {
+    price = await fetchPrice({ currency: chain.currency });
+  } catch (error) {
+    console.error('Error fetching price:', error);
+  }
+
   const ogImageUrl = generateDynamicOGUrl({
     type: 'bounty',
     dataObject: {
@@ -83,6 +91,7 @@ export const generateMetadataForBountyFrame = async ({
       chain: chain.slug,
       amount: bounty.amount?.toString() || '0',
       currency: chain.currency,
+      price: price ? price.toString() : '',
     },
   });
 

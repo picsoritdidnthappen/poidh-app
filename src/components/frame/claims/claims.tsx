@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-undef */
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { CloseIcon, CopyIcon, ExpandMoreIcon } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
@@ -9,6 +9,8 @@ import JoinBounty from '@/components/frame/claims/FormJoinBounty';
 import ButtonCTA from '@/components/global/ButtonCTA';
 import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 // Types
 interface ChainInfo {
@@ -114,8 +116,11 @@ const formatAmount = (amount: string, chainId: ChainId): string => {
         maximumFractionDigits: 4,
       })} ${chain.symbol}`;
     } else {
-      const numberAmount = (parseInt(amount) / 1000000000000000000).toString();
-      return `${numberAmount.toLocaleString()} DEGEN`;
+      const numberAmount = Number(amount) / 1000000000000000000;
+      return `${numberAmount.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} DEGEN`;
     }
   } catch (error) {
     console.error('Error formatting amount:', error);
@@ -136,6 +141,32 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
   const [showClaimForm, setShowClaimForm] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
+
+  // Get the chain ID as a number
+  const numericChainId = useMemo(() => {
+    // Convert from string to number safely
+    if (typeof chainId === 'string') {
+      const chainMap: Record<string, number> = {
+        base: 8453,
+        arbitrum: 42161,
+        degen: 666666666,
+      };
+      return chainMap[chainId] || 0;
+    }
+    return Number(chainId) || 0;
+  }, [chainId]);
+
+  // Fetch claims using TRPC (automatically filters out banned claims)
+  const { data: claimsData } = trpc.bountyClaims.useQuery(
+    {
+      bountyId: Number(bountyId),
+      chainId: numericChainId,
+      limit: 100, // Use a higher limit to get all claims
+    },
+    {
+      enabled: !!bountyId && numericChainId > 0,
+    }
+  );
 
   const fetchImageUrl = async (url: string, claimId: number) => {
     try {
@@ -159,19 +190,54 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
         throw new Error('Failed to fetch bounty');
       }
       const data: BountyResponse = await response.json();
-      setBounty(data.bounty);
 
-      // Fetch images for all claims
-      data.bounty.claims.forEach((claim) => {
-        void fetchImageUrl(claim.url, claim.id);
-      });
+      // If we have TRPC claims data, transform and use it to replace the API claims
+      if (claimsData?.items) {
+        // Transform TRPC claims to match the Claim type
+        const transformedClaims: Claim[] = claimsData.items.map((claim) => ({
+          id: claim.id,
+          chain_id: numericChainId,
+          title: claim.title,
+          description: claim.description,
+          url: claim.url,
+          issuer: {
+            address: claim.issuer,
+          },
+          is_accepted: claim.is_accepted,
+          bounty_id: claim.bounty_id,
+          owner: '', // Default value for owner if not provided by TRPC
+        }));
+
+        setBounty({
+          ...data.bounty,
+          claims: transformedClaims,
+        });
+
+        // Fetch images for all claims
+        transformedClaims.forEach((claim) => {
+          void fetchImageUrl(claim.url, claim.id);
+        });
+      } else {
+        // If no TRPC data, use the API data
+        setBounty(data.bounty);
+
+        // Sort claims by ID in descending order (latest first)
+        const sortedClaims = [...data.bounty.claims].sort(
+          (a, b) => b.id - a.id
+        );
+
+        // Fetch images for all claims
+        sortedClaims.forEach((claim) => {
+          void fetchImageUrl(claim.url, claim.id);
+        });
+      }
     } catch (error) {
       console.error('Error fetching bounty:', error);
       setBounty(null);
     } finally {
       setLoading(false);
     }
-  }, [bountyId, chainId]);
+  }, [bountyId, chainId, claimsData, numericChainId]);
 
   useEffect(() => {
     void fetchBounty();
@@ -196,6 +262,17 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const isVoting = bounty?.status.is_voting;
   const utils = trpc.useUtils();
 
+  // Sort claims to show accepted ones first, then by ID (latest first)
+  const sortedClaims = useMemo(() => {
+    if (!bounty?.claims) return [];
+
+    return [...bounty.claims].sort((a, b) => {
+      if (a.is_accepted && !b.is_accepted) return -1;
+      if (!a.is_accepted && b.is_accepted) return 1;
+      return b.id - a.id; // Sort by id in descending order within acceptance groups
+    });
+  }, [bounty?.claims]);
+
   if (loading) {
     return (
       <div className='text-center text-white bg-[#12AAFF]  font-bold w-full h-screen'>
@@ -211,13 +288,6 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
       </div>
     );
   }
-
-  // Sort claims to show accepted ones first
-  const sortedClaims = [...bounty.claims].sort((a, b) => {
-    if (a.is_accepted && !b.is_accepted) return -1;
-    if (!a.is_accepted && b.is_accepted) return 1;
-    return 0;
-  });
 
   return (
     <div className='w-full bg-[#12AAFF] flex h-full items-center justify-start px-4 md:px-6 py-4 flex-col gap-4'>
@@ -300,7 +370,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
           {!hasAcceptedClaim && isOpen && !isVoting && (
             <>
               <div onClick={() => setShowJoinForm(true)}>
-                <ButtonCTA>join bounty</ButtonCTA>
+                <ButtonCTA>add funds</ButtonCTA>
               </div>
               <JoinBounty
                 bountyId={bountyId}
@@ -370,7 +440,13 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                     </button>
                   </span>
                 </div>
-                <div>claim id: {claim.id}</div>
+                <div className='flex flex-row items-center justify-between'>
+                  <span>claim id: {claim.id}</span>
+                  <div className='flex flex-row items-center gap-2'>
+                    <FarcasterIcon address={claim.issuer.address} />
+                    <XLink address={claim.issuer.address} />
+                  </div>
+                </div>
               </div>
             </div>
           ))}

@@ -26,6 +26,9 @@ import Withdraw from './Withdraw';
 import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
+import TextWithLinks from '@/components/global/TextWithLinks';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -168,20 +171,24 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
 
   return (
     <>
-      <div className='flex pt-20 flex-col justify-between lg:flex-row'>
+      <div className='flex pt-8 flex-col justify-between lg:flex-row'>
         <div className='flex flex-col  lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
           </p>
           <p className='mt-5 normal-case break-words'>
-            {bounty.data.description}
+            <TextWithLinks>{bounty.data.description}</TextWithLinks>
           </p>
           <div className='flex flex-row mt-5 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
               <DisplayAddress chain={chain} address={bounty.data.issuer} />
-              <div className='ml-2'>
+              <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
+              </div>
+              <div className='flex items-center gap-2'>
+                <FarcasterIcon address={bounty.data.issuer} />
+                <XLink address={bounty.data.issuer} />
               </div>
             </div>
           </div>

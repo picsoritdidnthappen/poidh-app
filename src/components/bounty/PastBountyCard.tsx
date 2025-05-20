@@ -5,6 +5,8 @@ import { getChainById } from '@/utils/config';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import { fetchPrice, formatAmount } from '@/utils/utils';
+import FarcasterIcon from '@/components/global/FarcasterIcon';
+import XLink from '@/components/global/TwitterXLink';
 
 export default function PastBountyCard({
   claim,
@@ -64,9 +66,9 @@ export default function PastBountyCard({
                   </p>
                 </div>
                 <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
-                  <span className='shrink-0 mr-2'>issuer&nbsp;</span>
+                  <span className='shrink-0 mr-2'>issuer </span>
                   <div
-                    className='flex flex-row  items-center w-full justify-end overflow-hidden'
+                    className='flex flex-row items-center w-full justify-end overflow-hidden'
                     onClick={(e) => e.stopPropagation()}
                   >
                     <DisplayAddress chain={chain} address={claim.issuer} />
@@ -75,7 +77,13 @@ export default function PastBountyCard({
                     </div>
                   </div>
                 </div>
-                <div className='text-left'>claim id: {claim?.id}</div>
+                <div className='flex flex-row items-center justify-between'>
+                  <span>claim id: {claim?.id}</span>
+                  <div className='flex flex-row items-center gap-2'>
+                    <FarcasterIcon address={claim.issuer} />
+                    <XLink address={claim.issuer} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
