@@ -5,6 +5,31 @@ import { ImageResponse, NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
+type UserInfo = {
+  address?: string;
+  ens?: string | null;
+  degen_name?: string | null;
+};
+
+type ClaimResponse = {
+  id: number;
+  title: string;
+  description: string;
+  url: string;
+  owner: string;
+  issuer: UserInfo;
+  is_accepted: boolean | null;
+};
+
+type ParticipantResponse = {
+  address: string;
+  amount: string;
+  user: {
+    ens: string | null;
+    degen_name: string | null;
+  } | null;
+};
+
 type BountyResponse = {
   bounty: {
     id: number;
@@ -12,9 +37,7 @@ type BountyResponse = {
     title: string;
     description: string;
     amount: string;
-    issuer: {
-      address: string;
-    };
+    issuer: UserInfo;
     status: {
       in_progress: boolean | null;
       is_joined_bounty: boolean | null;
@@ -23,22 +46,8 @@ type BountyResponse = {
       is_voting: boolean | null;
     };
     deadline: number | null;
-    participants: Array<{
-      address: string;
-      amount: string;
-      user: null;
-    }>;
-    claims: Array<{
-      id: number;
-      title: string;
-      description: string;
-      url: string;
-      owner: string;
-      issuer: {
-        address: string;
-      };
-      is_accepted: boolean | null;
-    }>;
+    participants: ParticipantResponse[];
+    claims: ClaimResponse[];
   };
 };
 
@@ -60,7 +69,7 @@ export async function GET(req: NextRequest) {
 
     // Direct API call to fetch bounty data
     const response = await fetch(
-      `https://poidh-app-theta.vercel.app/api/bounties/${chainName}/${bountyId}`,
+      `https://poidh.xyz/api/bounties/${chainName}/${bountyId}`,
       {
         headers: {
           Accept: 'application/json',
