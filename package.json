@@ -17,7 +17,7 @@
     "format:check": "prettier -c .",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prepare": "husky install",
-    "migrate": "tsx src/migration.ts"
+    "migrate": "tsx scripts/migration.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
