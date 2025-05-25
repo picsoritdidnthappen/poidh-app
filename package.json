@@ -20,7 +20,8 @@
     "dev:generate": "prisma generate --schema prisma/schema.dev.prisma",
     "dev:migrate": "prisma migrate dev --schema prisma/schema.dev.prisma",
     "prod:generate": "prisma generate --schema prisma/schema.prod.prisma",
-    "prod:migrate": "prisma migrate deploy --schema prisma/schema.prod.prisma"
+    "prod:migrate": "prisma migrate deploy --schema prisma/schema.prod.prisma",
+    "patch-prisma": "tsx scripts/patchPrismaSchema.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
