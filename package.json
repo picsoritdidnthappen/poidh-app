@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate --schema prisma/schema.prod.prisma && next build",
+    "build": "pnpm patch-prisma && prisma generate --schema prisma/schema.prod.prisma && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
