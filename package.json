@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
-    "generate": "prisma generate",
+    "build": "prisma generate --schema prisma/schema.prod.prisma && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
@@ -17,7 +16,11 @@
     "format:check": "prettier -c .",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prepare": "husky install",
-    "migrate": "tsx scripts/migration.ts"
+    "migrate": "tsx scripts/migration.ts",
+    "dev:generate": "prisma generate --schema prisma/schema.dev.prisma",
+    "dev:migrate": "prisma migrate dev --schema prisma/schema.dev.prisma",
+    "prod:generate": "prisma generate --schema prisma/schema.prod.prisma",
+    "prod:migrate": "prisma migrate deploy --schema prisma/schema.prod.prisma"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
