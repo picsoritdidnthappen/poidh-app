@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "pnpm patch-prisma && prisma generate --schema prisma/schema.prod.prisma && next build",
+    "dev:build": "prisma generate --schema prisma/schema.dev.prisma && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
