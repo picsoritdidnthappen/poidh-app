@@ -102,6 +102,7 @@ Ensure the database is properly set up before proceeding.
    DEGEN_RPC_URL="https://degen-mainnet…"
    ARBITRUM_RPC_URL="https://arbitrum-mainnet…"
    BASE_RPC_URL="https://base-mainnet…"
+   NEYNAR_API_KEY="sk-…"
    ```
 
 <div align="right">
@@ -112,12 +113,10 @@ Ensure the database is properly set up before proceeding.
 
 ### Database Migration
 
-0. Make sure that schema.prisma is up to date. Don't forget to replace `schemas` in `datasource db` with your own schemas.
-
 1. After indexer finished indexing, run the following command:
 
    ```bash
-   pnpm generate
+   pnpm dev:generate
    ```
 
 2. Next, run the following command to migrate the database:
