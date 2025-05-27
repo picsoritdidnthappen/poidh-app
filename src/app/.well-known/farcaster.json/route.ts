@@ -1,33 +1,43 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  try {
-    // get viewer_fid from the query params
-    return NextResponse.json({
-      accountAssociation: {
-        header:
-          'eyJmaWQiOjIyMTAsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg5MmQxODFiMDI5ZGI0MDQ3ODA5OTg4ODJBMjM0NjEzQzA3MjQwMzBkIn0',
-        payload: 'eyJkb21haW4iOiJwb2lkaC54eXoifQ',
-        signature:
-          'MHhjNDY5OWM2ZDJlMWQ0NDM4ZmY3ZjAwNzY0MjI3NjU5ODA1YWI4ODcyZTQ4YzcxZjI3Mzg5OTYxMDg5MzJjNzM4MDM4ZjU4NTU0NDkyZmQwM2Y5YTBkMzc4MTdhZmQ0YmRiNzViNmJjZWZkZjM4ZmZlMTgwZDFlYjIyNGVmZGMxYjFj',
-      },
-      frame: {
-        version: '1',
-        name: 'Poidh',
-        iconUrl: 'https://poidh.xyz/icon.png',
-        homeUrl: 'https://poidh.xyz',
-        imageUrl: 'https://poidh.xyz/image.png',
-        buttonTitle: 'Check this out',
-        splashImageUrl: 'https://poidh.xyz/Logo_poidh.svg',
-        splashBackgroundColor: '#eeccff',
-        webhookUrl: 'https://poidh.xyz/api/webhook',
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: 'Failed to fetch NFT owners with Farcaster profiles' },
-      { status: 500 }
-    );
-  }
+const appUrl = process.env.NEXT_PUBLIC_URL ?? 'https://poidh.xyz';
+const header =
+  process.env.NEXT_PUBLIC_HEADER ??
+  'eyJmaWQiOjIyMTAsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg5MmQxODFiMDI5ZGI0MDQ3ODA5OTg4ODJBMjM0NjEzQzA3MjQwMzBkIn0';
+const payload =
+  process.env.NEXT_PUBLIC_PAYLOAD ?? 'eyJkb21haW4iOiJwb2lkaC54eXoifQ';
+const signature =
+  process.env.NEXT_PUBLIC_SIGNATURE ??
+  'MHhjNDY5OWM2ZDJlMWQ0NDM4ZmY3ZjAwNzY0MjI3NjU5ODA1YWI4ODcyZTQ4YzcxZjI3Mzg5OTYxMDg5MzJjNzM4MDM4ZjU4NTU0NDkyZmQwM2Y5YTBkMzc4MTdhZmQ0YmRiNzViNmJjZWZkZjM4ZmZlMTgwZDFlYjIyNGVmZGMxYjFj';
+
+export async function GET() {
+  const config = {
+    accountAssociation: {
+      header,
+      payload,
+      signature,
+    },
+    frame: {
+      version: '0.0.1', // subject to change
+      name: 'Poidh',
+      iconUrl: `${appUrl}/icon.png`,
+      splashImageUrl: `${appUrl}/Logo_poidh.svg`,
+      splashBackgroundColor: '#eeccff',
+      homeUrl: appUrl,
+      heroImageUrl: `${appUrl}/images/poidh-preview-hero-v1.png`,
+      webhookUrl: `${appUrl}/api/webhook`,
+      subtitle: 'Incentivize tasks with bounties',
+      description: 'Create, share, and approve bounties on Farcaster',
+      primaryCategory: 'productivity',
+      tags: ['bounties', 'tasks', 'incentives', 'blockchain'],
+      tagline: 'Incentivize anything onchain',
+      ogTitle: 'Poidh',
+      ogDescription: 'Incentivize tasks with bounties on Farcaster',
+      ogImageUrl: `${appUrl}/image.png`,
+    },
+  };
+
+  return NextResponse.json(config);
 }
+
+export const runtime = 'edge';
