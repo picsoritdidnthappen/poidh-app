@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["public", "f5c72623-8a40-4503-b1a8-5b749dddeaf5"]
+  schemas  = ["public", "251d0ac6-3e09-4fe2-929b-c4f5adc55390"]
 }
 
 model Bounties {
