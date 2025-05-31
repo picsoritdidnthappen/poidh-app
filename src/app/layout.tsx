@@ -19,15 +19,15 @@ const APP_NAME = 'Poidh';
 const APP_DESCRIPTION =
   "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs on Arbitrum, Base, or Degen Chain";
 const APP_OG_IMAGE_URL =
-  `${process.env.NEXT_PUBLIC_URL}/images/poidh-preview-hero-v1.png` ||
-  `https://poidh.xyz/images/poidh-preview-hero-v1.png`;
+  `${process.env.NEXT_PUBLIC_URL}/images/poidh-preview-hero-v2.png` ||
+  `https://poidh.xyz/images/poidh-preview-hero-v2.png`;
 const APP_ICON_URL =
   `${process.env.NEXT_PUBLIC_URL}/icon.png` || 'https://poidh.xyz/icon.png';
 const APP_SPLASH_URL =
   `${process.env.NEXT_PUBLIC_URL}/Logo_poidh.svg` ||
   'https://poidh.xyz/Logo_poidh.svg';
 const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
-const APP_BUTTON_TEXT = 'Launch Poidh';
+const APP_BUTTON_TEXT = 'launch poidh';
 
 export const metadataBase = new URL('https://poidh.xyz');
 

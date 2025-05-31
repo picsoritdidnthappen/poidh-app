@@ -24,7 +24,7 @@ export async function GET() {
       splashImageUrl: `${appUrl}/Logo_poidh.svg`,
       splashBackgroundColor: '#eeccff',
       homeUrl: appUrl,
-      heroImageUrl: `${appUrl}/images/poidh-preview-hero-v1.png`,
+      heroImageUrl: `${appUrl}/images/poidh-preview-hero-v2.png`,
       webhookUrl: `${appUrl}/api/webhook`,
       subtitle: 'Incentivize tasks with bounties',
       description: 'Create, share, and approve bounties on Farcaster',
