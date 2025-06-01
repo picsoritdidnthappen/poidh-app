@@ -26,7 +26,7 @@ export async function GET() {
       homeUrl: appUrl,
       heroImageUrl: `${appUrl}/images/poidh-preview-hero-v2.png`,
       webhookUrl: `${appUrl}/api/webhook`,
-      subtitle: 'incentivize tasks with bounties',
+      subtitle: 'incentivize things',
       description: 'create, share, and approve bounties on Farcaster',
       primaryCategory: 'productivity',
       tags: ['bounties', 'tasks', 'incentives', 'blockchain'],
