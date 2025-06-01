@@ -15,7 +15,7 @@ import { Provider } from 'jotai';
 
 // Constants for metadata
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
-const APP_NAME = 'poidh';
+const APP_NAME = 'Poidh';
 const APP_DESCRIPTION =
   "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs on Arbitrum, Base, or Degen Chain";
 const APP_OG_IMAGE_URL =
