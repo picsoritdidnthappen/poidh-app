@@ -7,6 +7,13 @@ import { createCallerFactory } from '@/trpc/init';
 import { appRouter } from '@/trpc/routers/_app';
 import { fetchPrice } from '@/utils/utils';
 
+const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
+const APP_ICON_URL =
+  `${process.env.NEXT_PUBLIC_URL}/icon.png` || 'https://poidh.xyz/icon.png';
+const APP_SPLASH_URL =
+  `${process.env.NEXT_PUBLIC_URL}/Logo_poidh.svg` ||
+  'https://poidh.xyz/Logo_poidh.svg';
+const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
 export const generateMetadataForBountyFrame = async ({
   params,
 }: {
@@ -20,9 +27,10 @@ export const generateMetadataForBountyFrame = async ({
       action: {
         type: 'launch_frame',
         name: 'view bounty',
-        url: `https://poidh.xyz/frames/${params?.netname}/${params?.id}`,
-        splashImageUrl: `https://poidh.xyz/Logo_poidh.svg`,
-        splashBackgroundColor: '#93c5fd',
+        url: `${APP_URL}/${params?.netname}/bounty/${params?.id}`,
+        splashImageUrl: APP_SPLASH_URL,
+        iconUrl: APP_ICON_URL,
+        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
       },
     },
   };
