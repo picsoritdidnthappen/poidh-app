@@ -26,7 +26,7 @@ export const generateMetadataForBountyFrame = async ({
       title: 'view bounty',
       action: {
         type: 'launch_frame',
-        name: 'view bounty',
+        name: 'poidh',
         url: `${APP_URL}/${params?.netname}/bounty/${params?.id}`,
         splashImageUrl: APP_SPLASH_URL,
         iconUrl: APP_ICON_URL,
