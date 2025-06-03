@@ -14,6 +14,12 @@ const APP_SPLASH_URL =
   `${process.env.NEXT_PUBLIC_URL}/Logo_poidh.svg` ||
   'https://poidh.xyz/Logo_poidh.svg';
 const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
+const APP_OG_IMAGE_URL =
+  `${process.env.NEXT_PUBLIC_URL}/images/poidh-preview-hero-v2.png` ||
+  `https://poidh.xyz/images/poidh-preview-hero-v2.png`;
+const APP_BUTTON_TEXT = 'launch poidh';
+const APP_NAME = 'poidh';
+
 export const generateMetadataForBountyFrame = async ({
   params,
 }: {
@@ -119,6 +125,61 @@ export const generateMetadataForBountyFrame = async ({
       title: bounty.title,
       description: bounty.description,
       images: [ogImageUrl],
+    },
+    other: {
+      'fc:frame': JSON.stringify(frame),
+    },
+  };
+};
+
+export const generateMetadataForNetnameFrame = async ({
+  params,
+}: {
+  params: { netname: Netname };
+}): Promise<Metadata> => {
+  const frame = {
+    version: 'next',
+    imageUrl: APP_OG_IMAGE_URL,
+    button: {
+      title: APP_BUTTON_TEXT,
+      action: {
+        type: 'launch_frame',
+        name: APP_NAME,
+        url: `${APP_URL}/${params?.netname}`,
+        splashImageUrl: APP_SPLASH_URL,
+        iconUrl: APP_ICON_URL,
+        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+      },
+    },
+  };
+
+  return {
+    title: "poidh - pics or it didn't happen - crypto bounties",
+    description:
+      "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+    openGraph: {
+      type: 'website',
+      url: APP_URL,
+      title: "poidh - pics or it didn't happen - crypto bounties",
+      description:
+        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+      siteName: 'POIDH',
+      images: [
+        {
+          url: APP_OG_IMAGE_URL,
+          width: 600,
+          height: 400,
+          alt: "poidh - pics or it didn't happen - crypto bounties",
+        },
+      ],
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: "poidh - pics or it didn't happen - crypto bounties",
+      description:
+        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+      images: [APP_OG_IMAGE_URL],
     },
     other: {
       'fc:frame': JSON.stringify(frame),
