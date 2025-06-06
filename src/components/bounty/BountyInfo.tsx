@@ -29,6 +29,7 @@ import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import FarcasterIcon from '@/components/global/FarcasterIcon';
 import XLink from '@/components/global/TwitterXLink';
+import ShareButton from '@/components/global/ShareButton';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -221,6 +222,12 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           </p>
         </div>
         <div className='flex flex-col space-between'>
+          <div className='flex items-center gap-2'>
+            <ShareButton
+              url={`https://poidh.xyz/${chain.slug}/bounty/${bountyId}`}
+              title={bounty.data.title}
+            />
+          </div>
           {bounty.data.inProgress ? (
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&

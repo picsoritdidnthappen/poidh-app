@@ -31,7 +31,7 @@ model Bounties {
   transactions   Transactions[]
 
   @@id([id, chain_id])
-  @@schema("f5c72623-8a40-4503-b1a8-5b749dddeaf5")
+  @@schema("public")
 }
 
 model Claims {

@@ -602,3 +602,29 @@ export function LookupIcon({
     </svg>
   );
 }
+
+export function ShareIcon({
+  width = 24,
+  height = 24,
+}: {
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 24 24'
+      strokeWidth={1.5}
+      stroke='currentColor'
+      width={width}
+      height={height}
+    >
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        d='M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314a2.25 2.25 0 1 1 .434 2.44L7.217 13.134m0-2.186 9.566 5.314a2.25 2.25 0 1 1-.434 2.44L7.217 10.907Z'
+      />
+    </svg>
+  );
+}
