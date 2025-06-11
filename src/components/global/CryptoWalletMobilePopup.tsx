@@ -1,5 +1,6 @@
 'use client';
 
+import sdk from '@farcaster/frame-sdk';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 
@@ -12,8 +13,9 @@ export default function CryptoWalletMobilePopup() {
     const isMobile = /Mobi|Android|iPhone|iPad|iPod|Tablet|Mobile|CriOS/i.test(
       navigator.userAgent
     );
+    const isMiniApp = sdk.isInMiniApp();
 
-    if (isMobile && !isHomePage && !popupClosed) {
+    if (isMobile && !isMiniApp && !isHomePage && !popupClosed) {
       setOpen(true);
     }
   }, []);
