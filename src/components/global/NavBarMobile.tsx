@@ -16,7 +16,17 @@ export default function NavBarMobile({
   const account = useAccount();
   return (
     <>
-      <nav className='fixed bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8 z-50'>
+      <nav
+        className='fixed bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8 z-50'
+        onClick={(e) => {
+          e.stopPropagation();
+          if (account.address) {
+            setShowForm(true);
+            return;
+          }
+          toast.error('Please connect your wallet');
+        }}
+      >
         <div
           className='absolute inset-0 rounded-t-2xl bg-blue-300/80'
           style={{
@@ -29,16 +39,7 @@ export default function NavBarMobile({
         <p className='text-white font-semibold z-10'>create</p>
 
         <div className='w-[157px] h-[157px] -mt-8 relative z-10'>
-          <div
-            className='bg-transparent rounded-full'
-            onClick={() => {
-              if (account.address) {
-                setShowForm(true);
-                return;
-              }
-              toast.error('Please connect your wallet');
-            }}
-          >
+          <div className='bg-transparent rounded-full'>
             <div className={type === 'claim' ? 'mr-2' : ''}>
               {showForm ? (
                 <PlainGameButton />
