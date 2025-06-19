@@ -47,7 +47,9 @@ const Home = () => {
       <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
         select a network to get started
       </h3>
-      <NetworkSelector height={60} width={60} />
+      <div className='mt-5 mb-6'>
+        <NetworkSelector height={96} width={96} />
+      </div>
       {randomClaims && !randomClaims.error && (
         <>
           <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
