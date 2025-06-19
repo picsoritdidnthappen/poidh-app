@@ -10,6 +10,7 @@ import {
   DegenIcon,
   ExpandMoreIcon,
   MenuIcon,
+  UserIcon,
   WalletIcon,
 } from '@/components/global/Icons';
 import { Button, Drawer, Menu, MenuItem } from '@mui/material';
@@ -18,9 +19,11 @@ import { cn } from '@/utils';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Logo from '../global/Logo';
+import { useAccount } from 'wagmi';
 
 const Header = () => {
   const chain = useGetChain();
+  const account = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
@@ -115,6 +118,14 @@ const Header = () => {
               </MenuItem>
             ))}
           </Menu>
+          {account.address && (
+            <Link
+              href={`/${chain.slug}/account/${account.address}`}
+              className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+            >
+              <UserIcon />
+            </Link>
+          )}
           <ConnectWalletButton />
         </div>
       </div>
