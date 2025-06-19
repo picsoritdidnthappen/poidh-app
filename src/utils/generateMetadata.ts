@@ -153,14 +153,21 @@ export const generateMetadataForNetnameFrame = async ({
     },
   };
 
+  const chainNames: Record<Netname, string> = {
+    arbitrum: 'Arbitrum',
+    base: 'Base',
+    degen: 'Degen Chain',
+  };
+
+  const chainDisplayName = chainNames[params.netname] || params.netname;
   return {
-    title: "poidh - pics or it didn't happen - crypto bounties",
+    title: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
     description:
       "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
     openGraph: {
       type: 'website',
       url: APP_URL,
-      title: "poidh - pics or it didn't happen - crypto bounties",
+      title: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
       description:
         "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
       siteName: 'POIDH',
@@ -169,14 +176,14 @@ export const generateMetadataForNetnameFrame = async ({
           url: APP_OG_IMAGE_URL,
           width: 600,
           height: 400,
-          alt: "poidh - pics or it didn't happen - crypto bounties",
+          alt: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
         },
       ],
       locale: 'en_US',
     },
     twitter: {
       card: 'summary_large_image',
-      title: "poidh - pics or it didn't happen - crypto bounties",
+      title: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
       description:
         "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
       images: [APP_OG_IMAGE_URL],
