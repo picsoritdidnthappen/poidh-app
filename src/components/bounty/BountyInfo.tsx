@@ -29,6 +29,7 @@ import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import FarcasterIcon from '@/components/global/FarcasterIcon';
 import XLink from '@/components/global/TwitterXLink';
+import { ShareIcon } from '@/components/global/Icons';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -41,6 +42,12 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const setLoading = useSetAtom(setLoadingAtom);
 
   const [price, setPrice] = useState<number>(0);
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      toast.success('bounty link copied to clipboard');
+    });
+  };
 
   const bounty = trpc.bounty.useQuery(
     {
@@ -240,6 +247,13 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           )}
         </div>
       </div>
+      <button
+        type='button'
+        onClick={handleShare}
+        className='flex items-center gap-1 mt-3 underline hover:no-underline w-fit'
+      >
+        share bounty <ShareIcon width={16} height={16} />
+      </button>
       {bounty.data.isMultiplayer && (
         <BountyMultiplayer chain={chain} bountyId={bountyId} />
       )}
