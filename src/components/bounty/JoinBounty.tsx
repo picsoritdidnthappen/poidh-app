@@ -13,7 +13,7 @@ export default function JoinBounty({ bountyId }: { bountyId: string }) {
         open={showForm}
         onClose={() => setShowForm(false)}
       />
-      <div className='py-12 w-fit cursor-pointer'>
+      <div className='py-8 w-fit cursor-pointer'>
         <div onClick={() => setShowForm(true)}>
           <ButtonCTA>
             add funds <PlusIcon width={15} height={15} />

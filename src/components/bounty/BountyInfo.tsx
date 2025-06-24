@@ -219,7 +219,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          <p className='mt-5 text-lg mb-8 font-bold'>
+          <p className='mt-5 text-lg mb-5 font-bold'>
             {formatAmount({
               amount: formatEther(BigInt(bounty.data.amount)),
               currency: chain.currency,
@@ -247,13 +247,6 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           )}
         </div>
       </div>
-      <button
-        type='button'
-        onClick={handleShare}
-        className='flex items-center gap-1 mt-3 underline hover:no-underline w-fit'
-      >
-        share bounty <ShareIcon width={16} height={16} />
-      </button>
       {bounty.data.isMultiplayer && (
         <BountyMultiplayer chain={chain} bountyId={bountyId} />
       )}
@@ -262,13 +255,22 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           return { ...transaction, timestamp: Number(transaction.timestamp) };
         })}
       />
-      {bounty.data.is_multiplayer &&
-        bounty.data.inProgress &&
-        (canWithdraw ? (
-          <Withdraw bountyId={bountyId} />
-        ) : (
-          !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
-        ))}
+      {bounty.data.is_multiplayer && bounty.data.inProgress && (
+        <div className='flex items-center gap-4'>
+          {canWithdraw ? (
+            <Withdraw bountyId={bountyId} />
+          ) : (
+            !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
+          )}
+          <button
+            type='button'
+            onClick={handleShare}
+            className='flex items-center gap-1 underline hover:no-underline w-fit'
+          >
+            share bounty <ShareIcon width={16} height={16} />
+          </button>
+        </div>
+      )}
     </>
   );
 }
