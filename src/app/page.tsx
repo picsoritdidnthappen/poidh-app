@@ -26,17 +26,17 @@ const Home = () => {
     <>
       <div className='flex flex-col items-center justify-center text-center p-6 min-h-[85vh] pt-8 md:pt-24 lg:pt-32'>
         <h1 className='font-mono text-4xl mb-8'>poidh</h1>
-        <p className='text-lg mb-8'>you can just incentivize things</p>
+        <h3 className='font-mono text-xl mb-6 tracking-wide'>you can just incentivize things</p>
 
-        <h3 className='font-mono text-xl mb-6 tracking-wide'>
+        <h3 className='font-mono text-4xl mb-8'>
           step 1 - fund a bounty 💰
         </h3>
 
-        <h3 className='font-mono text-xl mb-6 tracking-wide'>
+        <h3 className='font-mono text-4xl mb-8'>
           step 2 - share it 📢
         </h3>
 
-        <h3 className='font-mono text-xl mb-6 tracking-wide'>
+        <h3 className='font-mono text-4xl mb-8'>
           step 3 - approve it 🤝
         </h3>
 
