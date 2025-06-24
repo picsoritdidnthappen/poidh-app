@@ -70,7 +70,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
 
   return (
     <>
-      <div className=' py-12 w-fit '>
+      <div className='w-fit'>
         <button
           className='border border-white rounded-full px-5 py-2  backdrop-blur-sm bg-white/30 hover:bg-white/40'
           onClick={() => {
