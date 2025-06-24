@@ -31,26 +31,17 @@ const Home = () => {
         <h3 className='font-mono text-xl mb-6 tracking-wide'>
           step 1 - fund a bounty 💰
         </h3>
-        <p className='mb-6'>
-          write a bounty description and deposit funds to incentivize task
-          completion
-        </p>
 
         <h3 className='font-mono text-xl mb-6 tracking-wide'>
-          step 2 - share the bounty 📢
+          step 2 - share it 📢
         </h3>
-        <p className='mb-6'>
-          get your bounty in front of people who are interested in completing it
-        </p>
 
         <h3 className='font-mono text-xl mb-6 tracking-wide'>
-          step 3 - approve a claim 🤝
+          step 3 - approve it 🤝
         </h3>
-        <p className='mb-6'>
-          monitor your submissions and confirm a claim with a single click
-        </p>
+
         <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
-          select a network to get started
+          click the 🕹️ to get started
         </h3>
         <div className='mt-5 mb-6'>
           <NetworkSelector height={96} width={96} />
