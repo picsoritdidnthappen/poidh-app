@@ -28,14 +28,17 @@ const Home = () => {
         <h1 className='font-mono text-4xl mb-8'>poidh</h1>
         <h2 className='font-mono text-xl mb-6 tracking-wide'>you can just incentivize things</h2>
 
+        <p className='text-lg mb-8'>step 1</p>
         <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
           fund a bounty 💰
         </h3>
 
+        <p className='text-lg mb-8'>step 2</p>
         <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
           share it 📢
         </h3>
 
+        <p className='text-lg mb-8'>step 3</p>
         <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
           approve it 🤝
         </h3>
