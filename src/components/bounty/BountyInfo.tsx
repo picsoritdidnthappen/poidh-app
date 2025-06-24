@@ -219,7 +219,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          <p className='mt-5 font-bold'>
+          <p className='mt-5 text-lg mb-8 font-bold'>
             {formatAmount({
               amount: formatEther(BigInt(bounty.data.amount)),
               currency: chain.currency,
