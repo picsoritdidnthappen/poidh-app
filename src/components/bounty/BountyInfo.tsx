@@ -255,22 +255,22 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           return { ...transaction, timestamp: Number(transaction.timestamp) };
         })}
       />
-      {bounty.data.is_multiplayer && bounty.data.inProgress && (
-        <div className='flex items-center gap-4'>
-          {canWithdraw ? (
+      <div className='flex items-center gap-4 my-8'>
+        {bounty.data.is_multiplayer &&
+          bounty.data.inProgress &&
+          (canWithdraw ? (
             <Withdraw bountyId={bountyId} />
           ) : (
             !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
-          )}
-          <button
-            type='button'
-            onClick={handleShare}
-            className='flex items-center gap-1 underline hover:no-underline w-fit'
-          >
-            share bounty <ShareIcon width={16} height={16} />
-          </button>
-        </div>
-      )}
+          ))}
+        <button
+          type='button'
+          onClick={handleShare}
+          className='flex items-center gap-1 underline hover:no-underline w-fit'
+        >
+          share bounty <ShareIcon width={16} height={16} />
+        </button>
+      </div>
     </>
   );
 }
