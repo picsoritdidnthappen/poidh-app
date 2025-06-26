@@ -36,7 +36,7 @@ export default function NavBarMobile({
           }}
         />
 
-        <p className='text-white font-semibold z-10'>create</p>
+        <p className='text-white font-semibold z-10 text-xl'>create</p>
 
         <div className='w-[157px] h-[157px] -mt-8 relative z-10'>
           <div className='bg-transparent rounded-full'>
@@ -52,7 +52,7 @@ export default function NavBarMobile({
           </div>
         </div>
 
-        <p className='text-white font-semibold z-10'>{type}</p>
+        <p className='text-white font-semibold z-10 text-xl'>{type}</p>
       </nav>
 
       {type === 'bounty' ? (
