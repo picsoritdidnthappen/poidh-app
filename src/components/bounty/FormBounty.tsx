@@ -233,7 +233,7 @@ export default function FormBounty({
               className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md placeholder:text-slate-400 w-full pr-28 overflow-hidden whitespace-nowrap text-ellipsis'
             />
             {usdPerToken !== null && (
-              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
+              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
                 (${formatUsdShort(usdPerToken)})
               </span>
             )}
