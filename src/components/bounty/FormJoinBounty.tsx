@@ -1,7 +1,8 @@
 import abi from '@/constant/abi/abi';
 import { useGetChain } from '@/hooks/useGetChain';
+import { fetchPrice, formatUsdShort } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther } from 'viem';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
@@ -28,6 +29,8 @@ export default function FormJoinBounty({
   onClose: () => void;
 }) {
   const [amount, setAmount] = useState<string>('');
+  const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
+  const [price, setPrice] = useState<number>(0);
   const utils = trpc.useUtils();
 
   const account = useAccount();
@@ -88,9 +91,22 @@ export default function FormJoinBounty({
     },
   });
 
+  useEffect(() => {
+    fetchPrice({ currency: chain.currency }).then(setPrice);
+  }, [chain.currency]);
+
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.replace(/[^0-9.]/g, '');
-    setAmount(value);
+    const raw = event.target.value;
+    const integerPart = raw.split(/[.,]/)[0];
+    if (integerPart.length > 20) return;
+
+    setAmount(raw);
+    const value = Number(raw);
+    if (!isNaN(value) && value > 0) {
+      setUsdPerToken(parseFloat((value * price).toFixed(2)));
+    } else {
+      setUsdPerToken(null);
+    }
   };
 
   return (
@@ -126,12 +142,21 @@ export default function FormJoinBounty({
             >
               Reward
             </Typography>
-            <input
-              type='number'
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full placeholder:text-slate-400'
-              onChange={handleAmountChange}
-              placeholder={`enter amount in ${chain.currency}`}
-            />
+            <div className='relative w-full mb-4'>
+              <input
+                type='number'
+                step='any'
+                value={amount}
+                onChange={handleAmountChange}
+                placeholder={`amount in ${chain.currency}`}
+                className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full pr-28 placeholder:text-slate-400 overflow-hidden whitespace-nowrap text-ellipsis'
+              />
+              {usdPerToken !== null && (
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
+                  (${formatUsdShort(usdPerToken)})
+                </span>
+              )}
+            </div>
           </Box>
         </DialogContent>
         <DialogActions>

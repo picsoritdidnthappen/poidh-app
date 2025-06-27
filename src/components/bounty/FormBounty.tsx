@@ -5,7 +5,7 @@ import {
   DialogContent,
   Switch,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useGetChain } from '@/hooks/useGetChain';
@@ -21,6 +21,7 @@ import ButtonCTA from '../global/ButtonCTA';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpcClient } from '@/trpc/client';
+import { fetchPrice, formatUsdShort } from '@/utils/utils';
 
 type Bounty = {
   title: string;
@@ -37,7 +38,18 @@ export default function FormBounty({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
+  const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isSoloBounty, setIsSoloBounty] = useState(true);
+  const [price, setPrice] = useState<number>(0);
+
+  useEffect(() => {
+    if (amount) {
+      const value = Number(amount);
+      if (!isNaN(value) && value > 0) {
+        setUsdPerToken(parseFloat((value * price).toFixed(2)));
+      }
+    }
+  }, [price, amount]);
   const chain = useGetChain();
   const writeContract = useWriteContract({});
   const account = useAccount();
@@ -46,6 +58,10 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
+
+  useEffect(() => {
+    fetchPrice({ currency: chain.currency }).then(setPrice);
+  }, [chain.currency]);
 
   const createBountyMutations = useMutation({
     mutationFn: async () => {
@@ -152,6 +168,7 @@ export default function FormBounty({
       onClose={() => {
         onClose();
         setAmount('');
+        setUsdPerToken(null);
       }}
       maxWidth='xs'
       fullWidth
@@ -193,13 +210,34 @@ export default function FormBounty({
           ></textarea>
 
           <span>reward</span>
-          <input
-            type='number'
-            placeholder={`amount in ${chain.currency}`}
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 placeholder:text-slate-400'
-          />
+          <div className='relative w-full mb-4'>
+            <input
+              type='number'
+              step='any'
+              placeholder={`amount in ${chain.currency}`}
+              value={amount}
+              maxLength={16}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const integerPart = raw.split(/[.,]/)[0];
+                if (integerPart.length > 20) return;
+
+                setAmount(raw);
+                const value = Number(raw);
+                if (!isNaN(value) && value > 0) {
+                  setUsdPerToken(parseFloat((value * price).toFixed(2)));
+                } else {
+                  setUsdPerToken(null);
+                }
+              }}
+              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md placeholder:text-slate-400 w-full pr-28 overflow-hidden whitespace-nowrap text-ellipsis'
+            />
+            {usdPerToken !== null && (
+              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
+                (${formatUsdShort(usdPerToken)})
+              </span>
+            )}
+          </div>
           <div className='flex text-balance gap-2 text-xs mb-2 items-center'>
             <InfoIcon width={18} height={18} /> a 2.5% fee is deducted from
             completed bounties
@@ -239,6 +277,7 @@ export default function FormBounty({
           onClick={() => {
             if (name && description && amount) {
               onClose();
+              setUsdPerToken(null);
               createBountyMutations.mutate();
             } else {
               toast.error(
