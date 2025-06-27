@@ -62,3 +62,22 @@ export async function fetchPrice({ currency }: { currency: Currency }) {
   const body = await response.json();
   return Number(body.data.rates.USD);
 }
+
+export function formatUsdShort(value: number): string {
+  const abs = Math.abs(value);
+  if (abs >= 1_000_000_000_000_000_000_000)
+    return (value / 1_000_000_000_000_000_000_000).toFixed(2) + 'Sx';
+  if (abs >= 1_000_000_000_000_000_000)
+    return (value / 1_000_000_000_000_000_000).toFixed(2) + 'Qi';
+  if (abs >= 1_000_000_000_000_000)
+    return (value / 1_000_000_000_000_000).toFixed(2) + 'Qa';
+  if (abs >= 1_000_000_000_000)
+    return (value / 1_000_000_000_000).toFixed(2) + 'T';
+  if (abs >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + 'B';
+  if (abs >= 1_000_000) return (value / 1_000_000).toFixed(2) + 'M';
+  if (abs >= 1_000) return (value / 1_000).toFixed(2) + 'K';
+  return value.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
