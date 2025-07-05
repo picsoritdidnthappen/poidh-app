@@ -21,7 +21,7 @@ export async function GET() {
       version: '0.0.1', // subject to change
       name: 'poidh',
       iconUrl: `${appUrl}/icon.png`,
-      splashImageUrl: `${appUrl}/Logo_poidh.svg`,
+      splashImageUrl: `https://poidh.xyz/Logo_poidh.svg`,
       splashBackgroundColor: '#2a81d5',
       homeUrl: appUrl,
       heroImageUrl: `${appUrl}/images/poidh-preview-hero-v2.png`,
