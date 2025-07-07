@@ -33,7 +33,7 @@ export async function GET() {
       tagline: "incentivize things",
       ogTitle: "poidh",
       ogDescription: "incentivize tasks with bounties on Farcaster",
-      ogImageUrl: "https://poidh.xyz/image.png",
+      ogImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
     },
   };
 
