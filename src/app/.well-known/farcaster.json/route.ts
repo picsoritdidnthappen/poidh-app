@@ -18,10 +18,10 @@ export async function GET() {
       signature,
     },
     frame: {
-      version: "0.0.1", // subject to change
+      version: "1", // subject to change
       name: "poidh",
       iconUrl: "https://poidh.xyz/icon.png",
-      splashImageUrl: "https://poidh.xyz/Logo_poidh.svg",
+      splashImageUrl: "https://poidh.xyz/splash.png",
       splashBackgroundColor: "#2a81d5",
       homeUrl: "https://poidh.xyz/",
       heroImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
