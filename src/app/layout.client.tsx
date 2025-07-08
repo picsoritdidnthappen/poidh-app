@@ -20,8 +20,6 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isLoaded]);
 
-  console.log('Path:', pathname, 'Show Header:', shouldShowHeader);
-
   return (
     <>
       {shouldShowHeader && <Header />}
