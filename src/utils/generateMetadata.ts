@@ -204,6 +204,22 @@ export const generateMetadataForAccountPage = async ({
   const address = params.address;
   const chain = chains[params.netname as keyof typeof chains];
 
+  const frame = {
+    version: 'next',
+    imageUrl: APP_OG_IMAGE_URL,
+    button: {
+      title: 'view profile',
+      action: {
+        type: 'launch_frame',
+        name: 'view profile',
+        url: `${APP_URL}/${params?.netname}/account/${params?.address}`,
+        splashImageUrl: APP_SPLASH_URL,
+        iconUrl: APP_ICON_URL,
+        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+      },
+    },
+  };
+
   try {
     const accountStats = await trpcCaller.accountInfo({
       address,
@@ -249,6 +265,9 @@ export const generateMetadataForAccountPage = async ({
         description: `Account ${address} details`,
         images: [ogImageUrl],
       },
+      other: {
+        'fc:frame': JSON.stringify(frame),
+      },
     };
   } catch (error) {
     console.error('Error generating metadata for account page:', error);
@@ -271,6 +290,9 @@ export const generateMetadataForAccountPage = async ({
         description:
           "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
         images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
+      },
+      other: {
+        'fc:frame': JSON.stringify(frame),
       },
     };
   }
