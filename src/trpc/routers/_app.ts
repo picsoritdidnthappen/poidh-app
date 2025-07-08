@@ -10,6 +10,7 @@ import { chains, getChainById } from '@/utils/config';
 import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
 import { ChainId, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
+import { Leaderboard } from '@prisma/client';
 
 export const addressSchema = z
   .string()
@@ -839,6 +840,156 @@ export const appRouter = createTRPCRouter({
 
       return totalCasts;
     }),
+
+  leaderboard: baseProcedure.query(async () => {
+    const scoreETH = ({
+      earned,
+      paid,
+      NFTheld,
+    }: {
+      earned: number;
+      paid: number;
+      NFTheld: number;
+    }) => {
+      return earned * 1000 + paid * 1000 + NFTheld * 10;
+    };
+
+    const scoreDegen = ({
+      earned,
+      paid,
+      NFTheld,
+    }: {
+      earned: number;
+      paid: number;
+      NFTheld: number;
+    }) => {
+      return earned / 500 + paid / 500 + NFTheld * 10;
+    };
+
+    const ignoreAddresses = [
+      '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
+      '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
+      '0xbed82560c39c133a3d64516ecda82c71b72f3cd7',
+    ];
+
+    const fetchTop = (
+      chainId: number,
+      orderCol: 'paid' | 'earned' | 'nfts',
+      take = 30
+    ) =>
+      prisma.leaderboard.findMany({
+        where: {
+          AND: [
+            { chain_id: chainId },
+            { address: { not: { in: ignoreAddresses } } },
+          ],
+        },
+        orderBy: { [orderCol]: 'desc' },
+        take,
+      });
+
+    const buildLeaderboard = async (chainId: number) => {
+      const [byPaid, byEarned, byNfts] = await Promise.all([
+        fetchTop(chainId, 'paid'),
+        fetchTop(chainId, 'earned'),
+        fetchTop(chainId, 'nfts'),
+      ]);
+
+      const uniq = new Map<string, Leaderboard>();
+      [...byPaid, ...byEarned, ...byNfts].forEach((row) =>
+        uniq.set(row.address.toLowerCase(), row)
+      );
+
+      return Array.from(uniq.values());
+    };
+
+    const [leaderboardBase, leaderboardDegen, leaderboardArbitrum] =
+      await Promise.all([
+        buildLeaderboard(8453),
+        buildLeaderboard(666666666),
+        buildLeaderboard(42161),
+      ]);
+
+    const leaderBoard = new Map<
+      string,
+      {
+        degen: number | undefined;
+        base: number | undefined;
+        arbitrum: number | undefined;
+        total: number;
+      }
+    >();
+
+    [...leaderboardBase, ...leaderboardDegen, ...leaderboardArbitrum].forEach(
+      (user) => {
+        const initialScore = leaderBoard.get(user.address.toLowerCase());
+
+        const chainScores: {
+          base: number | undefined;
+          degen: number | undefined;
+          arbitrum: number | undefined;
+        } = {
+          base:
+            initialScore?.base ??
+            (user.chain_id === 8453
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : initialScore?.base),
+          degen:
+            initialScore?.degen ??
+            (user.chain_id === 666666666
+              ? scoreDegen({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : initialScore?.degen),
+          arbitrum:
+            initialScore?.arbitrum ??
+            (user.chain_id === 42161
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : initialScore?.arbitrum),
+        };
+
+        const newScore = {
+          ...chainScores,
+          total:
+            ((chainScores.base ?? 0) +
+              (chainScores.degen ?? 0) +
+              (chainScores.arbitrum ?? 0)) /
+            3,
+        };
+
+        leaderBoard.set(user.address.toLowerCase(), newScore);
+      }
+    );
+
+    return Array.from(leaderBoard.entries())
+      .map(
+        ([address, scores]) =>
+          [
+            address,
+            {
+              base: Math.round(scores.base ?? 0),
+              degen: Math.round(scores.degen ?? 0),
+              arbitrum: Math.round(scores.arbitrum ?? 0),
+              total: Math.round(scores.total ?? 0),
+            },
+          ] as [
+            string,
+            { base: number; degen: number; arbitrum: number; total: number }
+          ]
+      )
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 10);
+  }),
 });
 
 export function checkIsAdmin(address?: string) {
