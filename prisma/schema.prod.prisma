@@ -107,3 +107,14 @@ model Transactions {
   @@id([tx, index, chain_id])
   @@schema("{schema}")
 }
+
+model Leaderboard {
+  address  String
+  chain_id Int
+  earned   Int    @default(0)
+  paid     Int    @default(0)
+  nfts     Int    @default(0)
+
+  @@id([address, chain_id])
+  @@schema("{schema}")
+}
