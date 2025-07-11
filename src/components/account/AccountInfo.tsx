@@ -146,7 +146,10 @@ export default function AccountInfo({ address }: { address: string }) {
               </div>
             )}
             {currentSection === 'bounties' && (
-              <BountyList bounties={accountActivities.data?.bounties ?? []} />
+              <BountyList
+                bounties={accountActivities.data?.bounties ?? []}
+                showStatusEmoji={true}
+              />
             )}
             {currentSection === 'claims' && (
               <div className='lg:px-20 px-8'>
