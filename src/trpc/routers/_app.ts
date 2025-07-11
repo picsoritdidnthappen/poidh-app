@@ -334,6 +334,7 @@ export const appRouter = createTRPCRouter({
             amount: true,
             is_multiplayer: true,
             in_progress: true,
+            is_canceled: true,
             claims: {
               take: 1,
             },
@@ -350,6 +351,7 @@ export const appRouter = createTRPCRouter({
         isMultiplayer: bounty.is_multiplayer || false,
         inProgress: bounty.in_progress || false,
         hasClaims: bounty.claims.length > 0,
+        isCanceled: bounty.is_canceled || false,
       }));
 
       const claims = (

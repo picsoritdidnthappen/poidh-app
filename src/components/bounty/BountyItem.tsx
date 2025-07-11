@@ -14,9 +14,17 @@ interface Bounty {
   amount: string;
   network: string;
   isMultiplayer: boolean;
+  inProgress?: boolean;
+  isCanceled?: boolean;
 }
 
-export default function BountyItem({ bounty }: { bounty: Bounty }) {
+export default function BountyItem({
+  bounty,
+  showStatusEmoji = false,
+}: {
+  bounty: Bounty;
+  showStatusEmoji?: boolean;
+}) {
   const chain = useGetChain();
   const [price, setPrice] = useState<number>(0);
   const amount = formatEther(BigInt(bounty.amount)).toString();
@@ -25,12 +33,23 @@ export default function BountyItem({ bounty }: { bounty: Bounty }) {
     fetchPrice({ currency: chain.currency }).then(setPrice);
   }, [chain.currency]);
 
+  const getStatusEmoji = () => {
+    if (bounty.isCanceled) return '❌';
+    if (bounty.inProgress === false) return '✅';
+    return '💰';
+  };
+
   return (
     <>
       <Link href={`/${chain.slug}/bounty/${bounty.id}`}>
         <div className='relative p-[2px] h-fit rounded-xl'>
           <div className='p-5 flex flex-col justify-between relative z-20 h-full lg:col-span-4'>
             <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px] bg-whiteblue'></div>
+            {showStatusEmoji && (
+              <div className='absolute top-4 right-4 z-30 text-xl'>
+                {getStatusEmoji()}
+              </div>
+            )}
             <h3 className='normal-case text-nowrap overflow-ellipsis overflow-hidden'>
               {bounty.title}
             </h3>

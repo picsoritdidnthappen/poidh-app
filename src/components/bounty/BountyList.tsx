@@ -13,9 +13,16 @@ type Bounty = {
   isMultiplayer: boolean;
   inProgress: boolean;
   hasClaims: boolean;
+  isCanceled: boolean;
 };
 
-export default function BountyList({ bounties }: { bounties: Bounty[] }) {
+export default function BountyList({
+  bounties,
+  showStatusEmoji = false,
+}: {
+  bounties: Bounty[];
+  showStatusEmoji?: boolean;
+}) {
   return (
     <>
       <motion.div
@@ -57,7 +64,10 @@ export default function BountyList({ bounties }: { bounties: Bounty[] }) {
                 description: bounty.description,
                 amount: bounty.amount,
                 isMultiplayer: bounty.isMultiplayer,
+                inProgress: bounty.inProgress,
+                isCanceled: bounty.isCanceled,
               }}
+              showStatusEmoji={showStatusEmoji}
             />
           </motion.div>
         ))}
