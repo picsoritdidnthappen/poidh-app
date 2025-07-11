@@ -49,10 +49,12 @@ export default function BountyHistory({
                 <div className='flex items-center gap-1 min-w-[200px]'>
                   {transaction.address !== '0x00' && (
                     <>
-                      <CopyAddressButton
-                        address={transaction.address}
-                        size={12}
-                      />
+                      <span className='mr-1'>
+                        <CopyAddressButton
+                          address={transaction.address}
+                          size={12}
+                        />
+                      </span>
                       <DisplayAddress
                         chain={chain}
                         address={transaction.address}
