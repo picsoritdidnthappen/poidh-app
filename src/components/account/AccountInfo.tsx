@@ -104,7 +104,7 @@ export default function AccountInfo({ address }: { address: string }) {
 
             <div className='mt-3 lg:mt-0 lg:ml-6 p-2 bg-white/5 rounded-lg backdrop-blur-sm text-center'>
               <div className='text-xs text-gray-300'>poidh score</div>
-              <div className="text-4xl font-bold mt-1 text-poidhRed font-['PixeloidSans'] ">
+              <div className="text-4xl font-bold mt-1 text-poidhRed font-['PixeloidSans'] [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]">
                 {accountStats.isLoading ? '…' : accountStats.data?.poidhScore}
               </div>
             </div>
