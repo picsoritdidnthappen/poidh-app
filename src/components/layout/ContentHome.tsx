@@ -138,6 +138,7 @@ export default function ContentHome() {
                   amount: bounty.amount,
                   isMultiplayer: bounty.is_multiplayer || false,
                   inProgress: bounty.in_progress || false,
+                  isCanceled: bounty.is_canceled || false,
                   hasClaims: bounty.claims.length > 0,
                   network: chain.slug,
                 }))
