@@ -58,10 +58,12 @@ export default function BountyMultiplayer({
               >
                 <div className='flex flex-col sm:flex-row sm:items-center w-full gap-2 sm:gap-4'>
                   <div className='flex items-center gap-1 min-w-[200px]'>
-                    <CopyAddressButton
-                      address={participant.user_address}
-                      size={12}
-                    />
+                    <span className='mr-1'>
+                      <CopyAddressButton
+                        address={participant.user_address}
+                        size={12}
+                      />
+                    </span>
                     <DisplayAddress
                       chain={chain}
                       address={participant.user_address}

@@ -32,7 +32,7 @@ export default function DisplayAddress({
           style={{
             width: pfpSize ?? 20,
             height: pfpSize ?? 20,
-            marginRight: pfpSize ? 8 : 2,
+            marginRight: pfpSize ? 8 : 7,
           }}
           className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
         >
