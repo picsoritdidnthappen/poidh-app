@@ -841,6 +841,24 @@ export const appRouter = createTRPCRouter({
       return totalCasts;
     }),
 
+  farcasterUser: baseProcedure
+    .input(z.object({ address: z.string() }))
+    .query(async ({ input }) => {
+      const { data } = await axios.get(
+        'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
+        {
+          headers: {
+            'x-api-key': serverEnv.NEYNAR_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          params: {
+            addresses: [input.address],
+          },
+        }
+      );
+      return data;
+    }),
+
   leaderboard: baseProcedure.query(async () => {
     const scoreETH = ({
       earned,

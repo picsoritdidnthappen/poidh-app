@@ -47,7 +47,11 @@ export default function AccountInfo({ address }: { address: string }) {
                 <div className='text-sm text-gray-300 mb-1'>user</div>
                 <div className='flex items-center gap-2'>
                   <span className='text-xl sm:text-2xl md:text-3xl font-medium'>
-                    <DisplayAddress chain={chain} address={address} />
+                    <DisplayAddress
+                      chain={chain}
+                      address={address}
+                      pfpSize={26}
+                    />
                   </span>
                   <CopyAddressButton address={address} size={20} />
                   <FarcasterLink
