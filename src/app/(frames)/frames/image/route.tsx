@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
       return new ImageResponse(
         <BountyErrorCard message='Missing bounty data.' />,
         {
-          width: 570,
-          height: 320,
+          width: 600,
+          height: 400,
         }
       );
     }
@@ -28,8 +28,8 @@ export async function GET(req: NextRequest) {
     return new ImageResponse(
       <BountyPreviewCard bountyData={bountyFrameData} />,
       {
-        width: 570,
-        height: 320,
+        width: 600,
+        height: 400,
         fonts: [
           {
             name: 'GeistMono',
@@ -51,8 +51,8 @@ export async function GET(req: NextRequest) {
         />
       ),
       {
-        width: 570,
-        height: 320,
+        width: 600,
+        height: 400,
       }
     );
   }
