@@ -156,7 +156,7 @@ export default function BountyPreviewCard({
         <div
           style={{
             width: '20%',
-            height: '38px',
+            height: '42px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-start',
@@ -164,8 +164,8 @@ export default function BountyPreviewCard({
         >
           <img
             src='https://poidh.xyz/Logo_poidh.svg'
-            width={76}
-            height={38}
+            width={84}
+            height={42}
             alt='Logo'
             style={{
               objectFit: 'contain',
@@ -174,8 +174,8 @@ export default function BountyPreviewCard({
         </div>
         <div
           style={{
-            width: '42px',
-            height: '42px',
+            width: '48px',
+            height: '48px',
             borderRadius: '50%',
             backgroundColor: 'rgba(255,255,255,0.2)',
             display: 'flex',
@@ -184,7 +184,7 @@ export default function BountyPreviewCard({
             border: '2px solid rgba(255,255,255,0.3)',
           }}
         >
-          {getChainIcon(bountyData.chainName, 28)}
+          {getChainIcon(bountyData.chainName, 32)}
         </div>
       </div>
     </div>
