@@ -44,7 +44,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   } catch (error) {
-    console.error('Error fetching Farcaster user:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

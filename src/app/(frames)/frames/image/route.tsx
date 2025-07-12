@@ -1,98 +1,42 @@
 // app/api/frame/route.tsx
-import BountyCard from '@/components/frame/claims/Bounty';
+import BountyPreviewCard, {
+  BountyPreviewData,
+} from '@/components/frame/claims/BountyPreviewCard';
 import BountyErrorCard from '@/components/frame/claims/Error';
 import { ImageResponse, NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
-type UserInfo = {
-  address?: string;
-  ens?: string | null;
-  degen_name?: string | null;
-};
-
-type ClaimResponse = {
-  id: number;
-  title: string;
-  description: string;
-  url: string;
-  owner: string;
-  issuer: UserInfo;
-  is_accepted: boolean | null;
-};
-
-type ParticipantResponse = {
-  address: string;
-  amount: string;
-  user: {
-    ens: string | null;
-    degen_name: string | null;
-  } | null;
-};
-
-type BountyResponse = {
-  bounty: {
-    id: number;
-    chain_id: number;
-    title: string;
-    description: string;
-    amount: string;
-    issuer: UserInfo;
-    status: {
-      in_progress: boolean | null;
-      is_joined_bounty: boolean | null;
-      is_canceled: boolean | null;
-      is_multiplayer: boolean | null;
-      is_voting: boolean | null;
-    };
-    deadline: number | null;
-    participants: ParticipantResponse[];
-    claims: ClaimResponse[];
-  };
-};
-
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const chainName = searchParams.get('chainName');
-    const bountyId = searchParams.get('bountyId');
-
-    if (!chainName || !bountyId) {
+    const bountyFrameDataEncoded = searchParams.get('bountyFrameData');
+    if (!bountyFrameDataEncoded) {
       return new ImageResponse(
-        <BountyErrorCard message='Missing chain name or bounty ID' />,
+        <BountyErrorCard message='Missing bounty data.' />,
         {
           width: 570,
           height: 320,
         }
       );
     }
-
-    // Direct API call to fetch bounty data
-    const response = await fetch(
-      `https://poidh.xyz/api/bounties/${chainName}/${bountyId}`,
-      {
-        headers: {
-          Accept: 'application/json',
-        },
-        cache: 'no-store',
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-
-    const bountyData = (await response.json()) as BountyResponse;
-
-    if (!bountyData || !bountyData.bounty) {
-      throw new Error('Invalid bounty data received');
-    }
+    const bountyFrameData = JSON.parse(
+      decodeURIComponent(bountyFrameDataEncoded)
+    ) as BountyPreviewData;
+    const fontData = await loadFont();
 
     return new ImageResponse(
-      <BountyCard bounty={bountyData.bounty} chainName={chainName} />,
+      <BountyPreviewCard bountyData={bountyFrameData} />,
       {
         width: 570,
         height: 320,
+        fonts: [
+          {
+            name: 'GeistMono',
+            data: fontData,
+            style: 'normal',
+          },
+        ],
       }
     );
   } catch (error) {
@@ -112,4 +56,12 @@ export async function GET(req: NextRequest) {
       }
     );
   }
+}
+
+async function loadFont(): Promise<ArrayBuffer> {
+  const fontUrl = new URL(
+    '../../../../../public/fonts/GeistMono-Regular.ttf',
+    import.meta.url
+  );
+  return fetch(fontUrl).then((r) => r.arrayBuffer());
 }
