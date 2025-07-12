@@ -334,6 +334,7 @@ export const appRouter = createTRPCRouter({
             amount: true,
             is_multiplayer: true,
             in_progress: true,
+            is_canceled: true,
             claims: {
               take: 1,
             },
@@ -350,6 +351,7 @@ export const appRouter = createTRPCRouter({
         isMultiplayer: bounty.is_multiplayer || false,
         inProgress: bounty.in_progress || false,
         hasClaims: bounty.claims.length > 0,
+        isCanceled: bounty.is_canceled || false,
       }));
 
       const claims = (
@@ -808,7 +810,6 @@ export const appRouter = createTRPCRouter({
             );
             return data.conversation.cast;
           } catch (error) {
-            console.error('Error fetching conversation:', error);
             return null;
           }
         }
@@ -844,19 +845,23 @@ export const appRouter = createTRPCRouter({
   farcasterUser: baseProcedure
     .input(z.object({ address: z.string() }))
     .query(async ({ input }) => {
-      const { data } = await axios.get(
-        'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
-        {
-          headers: {
-            'x-api-key': serverEnv.NEYNAR_API_KEY,
-            'Content-Type': 'application/json',
-          },
-          params: {
-            addresses: [input.address],
-          },
-        }
-      );
-      return data;
+      try {
+        const { data } = await axios.get(
+          'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
+          {
+            headers: {
+              'x-api-key': serverEnv.NEYNAR_API_KEY,
+              'Content-Type': 'application/json',
+            },
+            params: {
+              addresses: [input.address],
+            },
+          }
+        );
+        return data;
+      } catch (error) {
+        return null;
+      }
     }),
 
   leaderboard: baseProcedure.query(async () => {
