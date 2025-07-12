@@ -35,12 +35,14 @@ export function formatAmount({
   amount,
   price,
   currency,
+  precision,
 }: {
   amount: string;
   price: string;
   currency: Currency;
+  precision?: number;
 }) {
-  const numAmount = parseFloat(amount);
+  let numAmount = parseFloat(amount);
   const numPrice = parseFloat(price);
   const numAmountUSD = numAmount * numPrice;
 
@@ -52,6 +54,9 @@ export function formatAmount({
     return `<0.001 ${currency}`;
   }
 
+  if (precision) {
+    numAmount = Number(numAmount.toFixed(precision));
+  }
   return `${numAmount} ${currency} (${numAmountUSD.toFixed(2)} usd)`;
 }
 

@@ -1,21 +1,24 @@
 import { chains } from '@/utils/config';
 import { generateDynamicOGUrl } from '@/utils/og';
-import { Netname } from '@/utils/types';
+import { Currency, Netname } from '@/utils/types';
 import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
 import { createCallerFactory } from '@/trpc/init';
 import { appRouter } from '@/trpc/routers/_app';
 import { fetchPrice } from '@/utils/utils';
+import { formatEther } from 'viem';
+import serverEnv from '@/utils/serverEnv';
+import { BountyPreviewData } from '@/components/frame/claims/BountyPreviewCard';
 
-const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
 const APP_ICON_URL =
-  `${process.env.NEXT_PUBLIC_URL}/icon.png` || 'https://poidh.xyz/icon.png';
+  `${process.env.NEXT_PUBLIC_APP_URL}/icon.png` || 'https://poidh.xyz/icon.png';
 const APP_SPLASH_URL =
-  `${process.env.NEXT_PUBLIC_URL}/Logo_poidh.svg` ||
+  `${process.env.NEXT_PUBLIC_APP_URL}/Logo_poidh.svg` ||
   'https://poidh.xyz/Logo_poidh.svg';
 const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
 const APP_OG_IMAGE_URL =
-  `${process.env.NEXT_PUBLIC_URL}/images/poidh-preview-hero-v2.png` ||
+  `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png` ||
   `https://poidh.xyz/images/poidh-preview-hero-v2.png`;
 const APP_BUTTON_TEXT = 'launch poidh';
 const APP_NAME = 'poidh';
@@ -25,77 +28,82 @@ export const generateMetadataForBountyFrame = async ({
 }: {
   params: { id: string; netname: Netname };
 }): Promise<Metadata> => {
-  const frame = {
-    version: 'next',
-    imageUrl: `https://poidh.xyz/frames/image?chainName=${params?.netname}&bountyId=${params?.id}`,
-    button: {
-      title: 'view bounty',
-      action: {
-        type: 'launch_frame',
-        name: 'poidh',
-        url: `${APP_URL}/${params?.netname}/bounty/${params?.id}`,
-        splashImageUrl: APP_SPLASH_URL,
-        iconUrl: APP_ICON_URL,
-        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
-      },
-    },
-  };
-
-  const id = params.id;
+  const createCaller = createCallerFactory(appRouter);
+  const trpcCaller = createCaller({});
   const chain = chains[params.netname as keyof typeof chains];
-
-  const defaultMetadata = {
-    title: "poidh - pics or it didn't happen",
-    description:
-      "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-    openGraph: {
-      title: "poidh - pics or it didn't happen",
-      description:
-        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-      siteName: 'POIDH',
-      images: [
-        `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png`,
-      ],
-      type: 'website',
-      locale: 'en_US',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: "poidh - pics or it didn't happen",
-      description:
-        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-      images: [
-        `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png`,
-      ],
-    },
-    other: {
-      'fc:frame': JSON.stringify(frame),
-    },
-  };
-
-  if (id === 'null') {
-    return defaultMetadata;
-  }
-
-  const bounty = await prisma.bounties.findUnique({
-    where: {
-      id_chain_id: {
-        id: Number(id),
-        chain_id: chain.id,
-      },
-    },
+  const id = Number(params.id);
+  const price: number | undefined = await safeFetchPrice({
+    currency: chain.currency,
   });
 
-  if (!bounty) {
-    return defaultMetadata;
+  let bounty = null;
+  if (!Number.isNaN(id)) {
+    bounty = await prisma.bounties.findUnique({
+      where: {
+        id_chain_id: {
+          id: id,
+          chain_id: chain.id,
+        },
+      },
+      include: {
+        participations: {
+          select: {
+            amount: true,
+            user_address: true,
+          },
+        },
+      },
+    });
   }
 
-  let price: number | undefined;
-  try {
-    price = await fetchPrice({ currency: chain.currency });
-  } catch (error) {
-    console.error('Error fetching price:', error);
+  if (!bounty) {
+    const frame = buildFrame({ bountyFrameData: null, params });
+
+    return {
+      title: "poidh - pics or it didn't happen",
+      description:
+        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+      openGraph: {
+        title: "poidh - pics or it didn't happen",
+        description:
+          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+        siteName: 'POIDH',
+        images: [
+          `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png`,
+        ],
+        type: 'website',
+        locale: 'en_US',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: "poidh - pics or it didn't happen",
+        description:
+          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
+        images: [
+          `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png`,
+        ],
+      },
+      other: {
+        'fc:frame': JSON.stringify(frame),
+      },
+    } satisfies Metadata;
   }
+
+  const farcasterUsers = await getFarcasterParticipants(
+    bounty?.participations,
+    trpcCaller
+  );
+
+  const bountyFrameData = {
+    title: bounty?.title,
+    amount: bounty?.amount,
+    chainName: chain.slug,
+    currency: chain.currency,
+    currencyRate: price,
+    participants: farcasterUsers,
+  } as BountyPreviewData;
+
+  const frame = buildFrame({ bountyFrameData, params });
 
   const ogImageUrl = generateDynamicOGUrl({
     type: 'bounty',
@@ -297,3 +305,86 @@ export const generateMetadataForAccountPage = async ({
     };
   }
 };
+
+async function safeFetchPrice({
+  currency,
+}: {
+  currency: Currency;
+}): Promise<number | undefined> {
+  try {
+    return await fetchPrice({ currency });
+  } catch (error) {
+    console.error('Error fetching price:', error);
+    return undefined;
+  }
+}
+
+async function getFarcasterParticipants(
+  participations: { amount: string; user_address: string }[],
+  trpcCaller: any
+) {
+  if (!participations?.length) return [] as const;
+
+  const sorted = [...participations]
+    .sort(
+      (a, b) =>
+        Number(formatEther(BigInt(b.amount))) -
+        Number(formatEther(BigInt(a.amount)))
+    )
+    .slice(0, 5);
+
+  const results: {
+    address: string;
+    farcasterName: string | null;
+    pfpUrl: string | null;
+  }[] = [];
+
+  for (const participation of sorted) {
+    try {
+      const farcasterUser = await trpcCaller.farcasterUser({
+        address: participation.user_address,
+      });
+      results.push({
+        address: participation.user_address,
+        farcasterName:
+          farcasterUser[participation.user_address][0]?.username ?? null,
+        pfpUrl: farcasterUser[participation.user_address][0]?.pfp_url ?? null,
+      });
+    } catch {
+      results.push({
+        address: participation.user_address,
+        farcasterName: null,
+        pfpUrl: null,
+      });
+    }
+  }
+
+  return results;
+}
+
+function buildFrame({
+  bountyFrameData,
+  params,
+}: {
+  bountyFrameData: BountyPreviewData | null;
+  params: { id: string; netname: Netname };
+}) {
+  const bountyFrameDataEncoded = bountyFrameData
+    ? encodeURIComponent(JSON.stringify(bountyFrameData))
+    : '';
+  return {
+    version: 'next',
+    imageUrl: `${serverEnv.NEXT_PUBLIC_APP_URL}/frames/image?bountyFrameData=${bountyFrameDataEncoded}`,
+    button: {
+      title: 'view bounty',
+      action: {
+        type: 'launch_frame',
+        name: 'poidh',
+        url: `${APP_URL}/${params.netname}/bounty/${params.id}`,
+        splashImageUrl: APP_SPLASH_URL,
+        iconUrl: APP_ICON_URL,
+        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+      },
+    },
+  };
+}

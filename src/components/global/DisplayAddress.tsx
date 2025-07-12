@@ -27,7 +27,7 @@ export default function DisplayAddress({
 
   return (
     <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-      {farcasterUser.data && farcasterUser.data[address][0].pfp_url && (
+      {farcasterUser?.data && farcasterUser?.data[address][0]?.pfp_url && (
         <div
           style={{
             width: pfpSize ?? 20,
@@ -54,8 +54,8 @@ export default function DisplayAddress({
       >
         {farcasterUser.isLoading
           ? formatWalletAddress(address)
-          : farcasterUser.data
-          ? farcasterUser.data[address][0].username
+          : farcasterUser?.data
+          ? farcasterUser?.data[address][0]?.username
           : walletDisplayName.isLoading
           ? formatWalletAddress(address)
           : walletDisplayName.data
