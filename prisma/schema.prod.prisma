@@ -1,0 +1,120 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public", "{schema}"]
+}
+
+model Bounties {
+  id               Int
+  chain_id         Int
+  title            String
+  description      String
+  amount           String
+  amount_sort      Float
+  issuer           String
+  in_progress      Boolean? @default(true)
+  is_joined_bounty Boolean? @default(false)
+  is_canceled      Boolean? @default(false)
+  is_multiplayer   Boolean?
+  is_voting        Boolean? @default(false)
+  deadline         Int?
+
+  claims         Claims[]
+  participations ParticipationsBounties[]
+  issuerUser     Users?                   @relation(fields: [issuer], references: [address])
+  ban            Ban[]
+  transactions   Transactions[]
+
+  @@id([id, chain_id])
+  @@schema("{schema}")
+}
+
+model Claims {
+  id          Int
+  chain_id    Int
+  title       String
+  description String
+  url         String
+  issuer      String
+  is_accepted Boolean?
+  bounty_id   Int
+  owner       String
+
+  bounty     Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  issuerUser Users?    @relation(fields: [issuer], references: [address])
+  ban        Ban[]
+
+  @@id([id, chain_id])
+  @@schema("{schema}")
+}
+
+model ParticipationsBounties {
+  user_address String
+  bounty_id    Int
+  chain_id     Int
+  amount       String
+
+  bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  user   Users?    @relation(fields: [user_address], references: [address])
+
+  @@id([user_address, bounty_id, chain_id])
+  @@schema("{schema}")
+}
+
+model Users {
+  address   String
+  twitter   String?
+  farcaster String?
+
+  participations ParticipationsBounties[]
+  claims         Claims[]
+  bounties       Bounties[]
+
+  @@id([address])
+  @@schema("{schema}")
+}
+
+model Ban {
+  id        Int      @id @default(autoincrement())
+  chain_id  Int
+  bounty_id Int?
+  claim_id  Int?
+  banned_at DateTime @default(now())
+  banned_by String
+
+  bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  claim  Claims?   @relation(fields: [claim_id, chain_id], references: [id, chain_id])
+
+  @@schema("public")
+}
+
+model Transactions {
+  tx        String
+  index     Int
+  bounty_id Int
+  chain_id  Int
+  address   String
+  action    String
+  timestamp Decimal @db.Decimal(78, 0)
+
+  bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+
+  @@id([tx, index, chain_id])
+  @@schema("{schema}")
+}
+
+model Leaderboard {
+  address  String
+  chain_id Int
+  earned   Int    @default(0)
+  paid     Int    @default(0)
+  nfts     Int    @default(0)
+
+  @@id([address, chain_id])
+  @@schema("{schema}")
+}
