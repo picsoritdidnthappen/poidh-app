@@ -42,6 +42,7 @@ export default function BountyPreviewCard({
         height: '100%',
         padding: '16px',
         paddingBottom: '12px',
+        paddingTop: '36px',
         display: 'flex',
         flexDirection: 'column',
         background:
@@ -55,16 +56,16 @@ export default function BountyPreviewCard({
           fontSize: '34px',
           fontWeight: 700,
           margin: 0,
-          marginBottom: '20px',
+          marginBottom: '14px',
           maxWidth: '500px',
           lineHeight: 1.2,
           wordWrap: 'break-word',
           overflow: 'hidden',
           display: '-webkit-box',
-          WebkitLineClamp: 2,
+          WebkitLineClamp: 3,
           WebkitBoxOrient: 'vertical',
           textOverflow: 'ellipsis',
-          minHeight: '82px',
+          minHeight: '76px',
         }}
       >
         {bountyData.title}
@@ -83,9 +84,9 @@ export default function BountyPreviewCard({
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              rowGap: '4px',
+              rowGap: '6px',
               fontSize: '22px',
-              maxHeight: '62px',
+              maxHeight: '128px',
               columnGap: '20px',
               overflow: 'hidden',
             }}
@@ -97,7 +98,8 @@ export default function BountyPreviewCard({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  marginBottom: '4px',
+                  marginBottom: '6px',
+                  lineHeight: 1.4,
                   maxWidth: '200px',
                   whiteSpace: 'nowrap',
                 }}
@@ -108,12 +110,12 @@ export default function BountyPreviewCard({
                     `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`
                   }
                   alt={p.farcasterName ?? p.address}
-                  width={26}
-                  height={26}
+                  width={32}
+                  height={32}
                   style={{
                     borderRadius: '50%',
                     marginRight: '6px',
-                    marginLeft: p.pfpUrl ? 0 : '10px',
+                    marginLeft: 0,
                     objectFit: 'cover',
                     flexShrink: 0,
                   }}
