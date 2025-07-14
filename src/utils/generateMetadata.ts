@@ -330,7 +330,7 @@ async function getFarcasterParticipants(
         Number(formatEther(BigInt(b.amount))) -
         Number(formatEther(BigInt(a.amount)))
     )
-    .slice(0, 7); // limit number of participants to 7
+    .slice(0, 5); // limit number of participants to 5
 
   const results: {
     address: string;
