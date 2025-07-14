@@ -95,10 +95,9 @@ export const generateMetadataForBountyFrame = async ({
   );
 
   const bountyFrameData = {
-    title: bounty?.title,
+    title: bounty?.title.slice(0, 100),
     amount: bounty?.amount,
-    chainName: chain.slug,
-    currency: chain.currency,
+    chainId: chain.id,
     currencyRate: price,
     participants: farcasterUsers,
   } as BountyPreviewData;
@@ -331,7 +330,7 @@ async function getFarcasterParticipants(
         Number(formatEther(BigInt(b.amount))) -
         Number(formatEther(BigInt(a.amount)))
     )
-    .slice(0, 8); // limit number of participants to 8
+    .slice(0, 5); // limit number of participants to 5
 
   const results: {
     address: string;

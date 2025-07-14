@@ -1,15 +1,15 @@
 import React from 'react';
 import { formatAmount } from '@/utils/utils';
-import { Currency } from '@/utils/types';
 import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
 import { formatEther } from 'viem';
+import { ChainId } from '@/utils/types';
+import { getChainById } from '@/utils/config';
 
 export type BountyPreviewData = {
   title: string;
   amount: string;
-  chainName: string;
+  chainId: ChainId;
   currencyRate: number;
-  currency: Currency;
   participants: {
     address: string;
     farcasterName: string | null;
@@ -35,6 +35,8 @@ export default function BountyPreviewCard({
 }: {
   bountyData: BountyPreviewData;
 }) {
+  const chain = getChainById({ chainId: bountyData.chainId });
+
   return (
     <div
       style={{
@@ -142,7 +144,7 @@ export default function BountyPreviewCard({
         {formatAmount({
           amount: formatEther(BigInt(bountyData.amount)),
           price: bountyData.currencyRate.toString(),
-          currency: bountyData.currency,
+          currency: chain.currency,
           precision: 4,
         })}
       </div>
@@ -186,7 +188,7 @@ export default function BountyPreviewCard({
             border: '2px solid rgba(255,255,255,0.3)',
           }}
         >
-          {getChainIcon(bountyData.chainName, 32)}
+          {getChainIcon(chain.slug, 32)}
         </div>
       </div>
     </div>
