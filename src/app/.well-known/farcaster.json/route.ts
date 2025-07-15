@@ -28,7 +28,7 @@ export async function GET() {
       webhookUrl: "https://poidh.xyz/api/webhook",
       subtitle: "incentivize things",
       description: "create, share, and approve bounties on Farcaster",
-      primaryCategory: "productivity",
+      primaryCategory: "social",
       tags: ["bounties", "tasks", "incentives", "blockchain"],
       tagline: "incentivize things",
       ogTitle: "poidh",
