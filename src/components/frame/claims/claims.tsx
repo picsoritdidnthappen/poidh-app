@@ -254,7 +254,6 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
       if (a.is_accepted && !b.is_accepted) return -1;
       if (!a.is_accepted && b.is_accepted) return 1;
       return b.id - a.id;
-      P;
     });
   }, [bounty?.claims]);
 

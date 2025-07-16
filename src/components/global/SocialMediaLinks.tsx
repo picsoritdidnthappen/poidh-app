@@ -46,7 +46,7 @@ export default function SocialMediaLinks({ address }: { address: string }) {
           href={`https://x.com/${xUsername}`}
           target='_blank'
           rel='noopener noreferrer'
-          className={`inline-block`}
+          className='inline-block'
           aria-label={`Visit ${xUsername}'s X profile`}
         >
           <TwitterXIcon width={17} height={20} />
