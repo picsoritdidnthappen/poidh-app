@@ -3,6 +3,7 @@ import { trpc } from '@/trpc/client';
 import { Currency } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
+import TextWithLinks from '@/components/global/TextWithLinks';
 import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -157,7 +158,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
               >
                 <div className='pr-3'>
                   <p className='text-xs sm:text-sm text-white/90 break-words whitespace-pre-line'>
-                    {claim.description}
+                    <TextWithLinks>{claim.description}</TextWithLinks>
                   </p>
                 </div>
               </div>
