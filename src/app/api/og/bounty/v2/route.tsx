@@ -1,7 +1,7 @@
 // app/api/frame/route.tsx
 import BountyPreviewCard, {
   BountyPreviewData,
-} from '@/components/frame/claims/BountyPreviewCard';
+} from '@/components/og/BountyPreviewCard';
 import BountyErrorCard from '@/components/frame/claims/Error';
 import { ImageResponse, NextRequest } from 'next/server';
 
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 
 async function loadFont(): Promise<ArrayBuffer> {
   const fontUrl = new URL(
-    '../../../../../public/fonts/GeistMono-Regular.ttf',
+    '../../../../../../public/fonts/GeistMono-Regular.ttf',
     import.meta.url
   );
   return fetch(fontUrl).then((r) => r.arrayBuffer());

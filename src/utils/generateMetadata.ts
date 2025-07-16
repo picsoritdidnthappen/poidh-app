@@ -8,7 +8,7 @@ import { appRouter } from '@/trpc/routers/_app';
 import { fetchPrice } from '@/utils/utils';
 import { formatEther } from 'viem';
 import serverEnv from '@/utils/serverEnv';
-import { BountyPreviewData } from '@/components/frame/claims/BountyPreviewCard';
+import { BountyPreviewData } from '@/components/og/BountyPreviewCard';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
 const APP_ICON_URL =
@@ -373,7 +373,7 @@ function buildFrame({
     : '';
   return {
     version: 'next',
-    imageUrl: `${serverEnv.NEXT_PUBLIC_APP_URL}/frames/image?bountyFrameData=${bountyFrameDataEncoded}`,
+    imageUrl: `${serverEnv.NEXT_PUBLIC_APP_URL}/api/og/bounty/v2?bountyFrameData=${bountyFrameDataEncoded}`,
     button: {
       title: 'view bounty',
       action: {
