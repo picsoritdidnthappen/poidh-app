@@ -27,9 +27,8 @@ import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
-import FarcasterIcon from '@/components/global/FarcasterIcon';
-import XLink from '@/components/global/TwitterXLink';
 import { ShareIcon } from '@/components/global/Icons';
+import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 
 export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const chain = useGetChain();
@@ -193,10 +192,7 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
               <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
-              <div className='flex items-center gap-2'>
-                <FarcasterIcon address={bounty.data.issuer} />
-                <XLink address={bounty.data.issuer} />
-              </div>
+              <SocialMediaLinks address={bounty.data.issuer} />
             </div>
           </div>
           {isAdmin.data && (

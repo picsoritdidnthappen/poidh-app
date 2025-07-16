@@ -9,10 +9,8 @@ import JoinBounty from '@/components/frame/claims/FormJoinBounty';
 import ButtonCTA from '@/components/global/ButtonCTA';
 import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
-import FarcasterIcon from '@/components/global/FarcasterIcon';
-import XLink from '@/components/global/TwitterXLink';
+import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 
-// Types
 interface ChainInfo {
   symbol: string;
   isEVM: boolean;
@@ -80,7 +78,6 @@ interface ChainInfo {
   name: string;
 }
 
-// Chain configuration
 const CHAIN_INFO: Record<ChainId, ChainInfo> = {
   8453: {
     symbol: 'ETH',
@@ -99,7 +96,6 @@ const CHAIN_INFO: Record<ChainId, ChainInfo> = {
   },
 };
 
-// Amount formatting utility
 const formatAmount = (amount: string, chainId: ChainId): string => {
   try {
     if (!amount) return '0';
@@ -142,9 +138,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
   const [showClaimForm, setShowClaimForm] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
 
-  // Get the chain ID as a number
   const numericChainId = useMemo(() => {
-    // Convert from string to number safely
     if (typeof chainId === 'string') {
       const chainMap: Record<string, number> = {
         base: 8453,
@@ -156,12 +150,11 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
     return Number(chainId) || 0;
   }, [chainId]);
 
-  // Fetch claims using TRPC (automatically filters out banned claims)
   const { data: claimsData } = trpc.bountyClaims.useQuery(
     {
       bountyId: Number(bountyId),
       chainId: numericChainId,
-      limit: 100, // Use a higher limit to get all claims
+      limit: 100,
     },
     {
       enabled: !!bountyId && numericChainId > 0,
@@ -191,9 +184,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
       }
       const data: BountyResponse = await response.json();
 
-      // If we have TRPC claims data, transform and use it to replace the API claims
       if (claimsData?.items) {
-        // Transform TRPC claims to match the Claim type
         const transformedClaims: Claim[] = claimsData.items.map((claim) => ({
           id: claim.id,
           chain_id: numericChainId,
@@ -205,7 +196,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
           },
           is_accepted: claim.is_accepted,
           bounty_id: claim.bounty_id,
-          owner: '', // Default value for owner if not provided by TRPC
+          owner: '',
         }));
 
         setBounty({
@@ -213,20 +204,16 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
           claims: transformedClaims,
         });
 
-        // Fetch images for all claims
         transformedClaims.forEach((claim) => {
           void fetchImageUrl(claim.url, claim.id);
         });
       } else {
-        // If no TRPC data, use the API data
         setBounty(data.bounty);
 
-        // Sort claims by ID in descending order (latest first)
         const sortedClaims = [...data.bounty.claims].sort(
           (a, b) => b.id - a.id
         );
 
-        // Fetch images for all claims
         sortedClaims.forEach((claim) => {
           void fetchImageUrl(claim.url, claim.id);
         });
@@ -253,23 +240,20 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
     ]);
   };
 
-  // Check if there's an accepted claim
   const hasAcceptedClaim = bounty?.claims.some((claim) => claim.is_accepted);
-
   const showCreateClaimButton = isConnected && !hasAcceptedClaim;
 
   const isOpen = bounty?.status.is_multiplayer;
   const isVoting = bounty?.status.is_voting;
   const utils = trpc.useUtils();
 
-  // Sort claims to show accepted ones first, then by ID (latest first)
   const sortedClaims = useMemo(() => {
     if (!bounty?.claims) return [];
 
     return [...bounty.claims].sort((a, b) => {
       if (a.is_accepted && !b.is_accepted) return -1;
       if (!a.is_accepted && b.is_accepted) return 1;
-      return b.id - a.id; // Sort by id in descending order within acceptance groups
+      return b.id - a.id;
     });
   }, [bounty?.claims]);
 
@@ -307,7 +291,6 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
             -6
           )}`}
         </p>
-        {/* Participants Section */}
         {isOpen && (
           <div className=''>
             <button
@@ -346,7 +329,6 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
           <span className='underline'>{bounty.claims.length}</span>
         </p>
 
-        {/* Action Buttons Container */}
         <div className='flex flex-row gap-4 items-center justify-center'>
           {showCreateClaimButton && (
             <>
@@ -442,10 +424,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                 </div>
                 <div className='flex flex-row items-center justify-between'>
                   <span>claim id: {claim.id}</span>
-                  <div className='flex flex-row items-center gap-2'>
-                    <FarcasterIcon address={claim.issuer.address} />
-                    <XLink address={claim.issuer.address} />
-                  </div>
+                  <SocialMediaLinks address={claim.issuer.address} />
                 </div>
               </div>
             </div>

@@ -12,8 +12,7 @@ import SubmitVotingConfirm from '../bounty/SubmitVotingConfirm';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
-import FarcasterIcon from '@/components/global/FarcasterIcon';
-import XLink from '@/components/global/TwitterXLink';
+import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 
 export default function ClaimItem({
   id,
@@ -250,10 +249,7 @@ export default function ClaimItem({
           </div>
           <div className='flex flex-row items-center justify-between'>
             <span>claim id: {id}</span>
-            <div className='flex flex-row items-center gap-2'>
-              <FarcasterIcon address={issuer} />
-              <XLink address={issuer} />
-            </div>
+            <SocialMediaLinks address={issuer} />
           </div>
         </div>
       </div>

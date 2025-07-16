@@ -9,8 +9,7 @@ import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import FarcasterLink from '@/components/global/FarcasterIcon';
-import XLink from '@/components/global/TwitterXLink';
+import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 
@@ -54,11 +53,7 @@ export default function AccountInfo({ address }: { address: string }) {
                     />
                   </span>
                   <CopyAddressButton address={address} size={20} />
-                  <FarcasterLink
-                    address={address}
-                    className='text-gray-400 hover:text-gray-200 transition-colors'
-                  />
-                  <XLink address={address} />
+                  <SocialMediaLinks address={address} />
                 </div>
               </div>
 
