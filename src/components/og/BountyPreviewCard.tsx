@@ -102,7 +102,6 @@ export default function BountyPreviewCard({
                   alignItems: 'center',
                   marginBottom: '6px',
                   lineHeight: 1.4,
-                  maxWidth: '200px',
                   whiteSpace: 'nowrap',
                 }}
               >
