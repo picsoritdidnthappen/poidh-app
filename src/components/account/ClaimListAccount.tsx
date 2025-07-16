@@ -5,8 +5,7 @@ import { Claim } from '@/utils/types';
 import { useGetChain } from '@/hooks/useGetChain';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
-import FarcasterIcon from '@/components/global/FarcasterIcon';
-import XLink from '@/components/global/TwitterXLink';
+import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   return (
@@ -70,10 +69,7 @@ function ClaimItem({ claim }: { claim: Claim }) {
         </div>
         <div className='flex flex-row items-center justify-between'>
           <span>claim id: {claim?.id}</span>
-          <div className='flex flex-row items-center gap-2'>
-            <FarcasterIcon address={claim.issuer} />
-            <XLink address={claim.issuer} />
-          </div>
+          <SocialMediaLinks address={claim.issuer} />
         </div>
       </div>
     </div>
