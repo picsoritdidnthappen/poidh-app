@@ -101,6 +101,7 @@ export const appRouter = createTRPCRouter({
           ban: {
             none: {},
           },
+          is_canceled: false,
           ...(input.status === 'open'
             ? {
                 in_progress: true,
@@ -324,7 +325,6 @@ export const appRouter = createTRPCRouter({
             ban: {
               none: {},
             },
-            is_canceled: false,
           },
           select: {
             id: true,
