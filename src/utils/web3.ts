@@ -87,3 +87,44 @@ export function calcId({
 export function formatWalletAddress(address: string): string {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
+
+export async function hasUserVotedOnBounty({
+  chainName,
+  bountyId,
+  userAddress,
+}: {
+  chainName: 'degen' | 'arbitrum' | 'base';
+  bountyId: string;
+  userAddress: string;
+}): Promise<boolean> {
+  try {
+    const chain = chains[chainName];
+
+    // Try to simulate the voting call to see if it would throw AlreadyVoted error
+    await chain.provider.simulateContract({
+      abi: ABI,
+      address: chain.contracts.mainContract as `0x${string}`,
+      functionName: 'voteClaim',
+      args: [BigInt(bountyId), true], // Vote value doesn't matter for simulation
+      account: userAddress as `0x${string}`,
+    });
+
+    // If no error is thrown, user hasn't voted yet
+    return false;
+  } catch (error: unknown) {
+    // If AlreadyVoted error is thrown, user has already voted
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const shortMessage = (error as { shortMessage?: string })?.shortMessage;
+
+    if (
+      errorMessage?.includes('AlreadyVoted') ||
+      shortMessage?.includes('AlreadyVoted')
+    ) {
+      return true;
+    }
+
+    // For other errors (like insufficient funds, not a contributor, etc.),
+    // we assume the user hasn't voted but can't vote for other reasons
+    return false;
+  }
+}

@@ -1,10 +1,10 @@
 import { PieChart } from 'react-minimal-pie-chart';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { toast } from 'react-toastify';
 import { formatEther } from 'viem';
 
 import { useGetChain } from '@/hooks/useGetChain';
-import { bountyVotingTracker } from '@/utils/web3';
+import { bountyVotingTracker, hasUserVotedOnBounty } from '@/utils/web3';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -37,13 +37,27 @@ export default function Voting({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
 
-  // State to track if user has already voted
-  const [hasUserVoted, setHasUserVoted] = useState(false);
-
   const voting = useQuery({
     queryKey: ['bountyVotingTracker', { id: bountyId, chainName: chain.slug }],
     queryFn: () => bountyVotingTracker({ id: bountyId, chainName: chain.slug }),
   });
+
+  // Query to check if user has already voted
+  const userVotingStatus = useQuery({
+    queryKey: [
+      'hasUserVoted',
+      { bountyId, chainName: chain.slug, userAddress: account.address },
+    ],
+    queryFn: () =>
+      hasUserVotedOnBounty({
+        chainName: chain.slug,
+        bountyId,
+        userAddress: account.address as string,
+      }),
+    enabled: !!account.address && !!bountyId,
+  });
+
+  const hasUserVoted = userVotingStatus.data ?? false;
 
   const bounty = trpc.bounty.useQuery({
     id: Number(bountyId),
@@ -61,11 +75,6 @@ export default function Voting({
   );
   const isVotingInProgress =
     parseInt(voting.data?.deadline ?? '0') * 1000 > Date.now();
-
-  // Reset voting state when account or bounty changes
-  useEffect(() => {
-    setHasUserVoted(false);
-  }, [account.address, bountyId]);
 
   const voteMutation = useMutation({
     mutationFn: async ({
@@ -95,15 +104,17 @@ export default function Voting({
     },
     onSuccess: () => {
       toast.success('Voted successfully');
-      setHasUserVoted(true); // Mark that user has voted
+      userVotingStatus.refetch(); // Refetch voting status
     },
     onError: (error) => {
       // Check if the error is due to already voting
-      if (error.message.includes('AlreadyVoted')) {
-        setHasUserVoted(true);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('AlreadyVoted')) {
+        userVotingStatus.refetch(); // Refetch to update status
         toast.info('You have already voted on this claim');
       } else {
-        toast.error('Failed to vote: ' + error.message);
+        toast.error('Failed to vote: ' + errorMessage);
       }
     },
     onSettled: () => {
@@ -223,7 +234,8 @@ export default function Voting({
           <div className='flex flex-row gap-x-5 '>
             {isVotingInProgress
               ? isBountyContributor &&
-                !hasUserVoted && (
+                !hasUserVoted &&
+                !userVotingStatus.isLoading && (
                   <div>
                     <div className='mt-3'>what is your vote?</div>
                     <div className='flex flex-row gap-x-5 mt-2'>
@@ -280,6 +292,14 @@ export default function Voting({
                 You have already cast your vote for this claim.
               </div>
             )}
+            {/* Show loading state when checking voting status */}
+            {isVotingInProgress &&
+              isBountyContributor &&
+              userVotingStatus.isLoading && (
+                <div className='mt-3 text-gray-300'>
+                  Checking voting status...
+                </div>
+              )}
           </div>
 
           {!isAcceptedBounty && (
