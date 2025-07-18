@@ -1,5 +1,5 @@
 import { PieChart } from 'react-minimal-pie-chart';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { formatEther } from 'viem';
 
@@ -36,6 +36,10 @@ export default function Voting({
   const switctChain = useSwitchChain();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
+
+  // State to track if user has already voted
+  const [hasUserVoted, setHasUserVoted] = useState(false);
+
   const voting = useQuery({
     queryKey: ['bountyVotingTracker', { id: bountyId, chainName: chain.slug }],
     queryFn: () => bountyVotingTracker({ id: bountyId, chainName: chain.slug }),
@@ -52,11 +56,16 @@ export default function Voting({
   });
 
   const isBountyContributor = bountyContibutors.data?.some(
-    (contributor) =>
-      contributor.user_address.toLowerCase() == account.address?.toLowerCase()
+    (contributor: { user_address: string }) =>
+      contributor.user_address.toLowerCase() === account.address?.toLowerCase()
   );
   const isVotingInProgress =
     parseInt(voting.data?.deadline ?? '0') * 1000 > Date.now();
+
+  // Reset voting state when account or bounty changes
+  useEffect(() => {
+    setHasUserVoted(false);
+  }, [account.address, bountyId]);
 
   const voteMutation = useMutation({
     mutationFn: async ({
@@ -86,9 +95,16 @@ export default function Voting({
     },
     onSuccess: () => {
       toast.success('Voted successfully');
+      setHasUserVoted(true); // Mark that user has voted
     },
     onError: (error) => {
-      toast.error('Failed to vote: ' + error.message);
+      // Check if the error is due to already voting
+      if (error.message.includes('AlreadyVoted')) {
+        setHasUserVoted(true);
+        toast.info('You have already voted on this claim');
+      } else {
+        toast.error('Failed to vote: ' + error.message);
+      }
     },
     onSettled: () => {
       setLoading({ isLoading: false, status: '' });
@@ -206,7 +222,8 @@ export default function Voting({
           </div>
           <div className='flex flex-row gap-x-5 '>
             {isVotingInProgress
-              ? isBountyContributor && (
+              ? isBountyContributor &&
+                !hasUserVoted && (
                   <div>
                     <div className='mt-3'>what is your vote?</div>
                     <div className='flex flex-row gap-x-5 mt-2'>
@@ -257,6 +274,12 @@ export default function Voting({
                     resolve vote
                   </button>
                 )}
+            {/* Show message when user has already voted */}
+            {isVotingInProgress && isBountyContributor && hasUserVoted && (
+              <div className='mt-3 text-gray-300'>
+                You have already cast your vote for this claim.
+              </div>
+            )}
           </div>
 
           {!isAcceptedBounty && (
