@@ -34,7 +34,7 @@ export default function SocialMediaLinks({ address }: { address: string }) {
         aria-label={`Visit ${farcasterUsername}'s Warpcast profile`}
       >
         <Image
-          src='/images/farcaster_arch.webp'
+          src='/images/farcaster_arch_v2.svg'
           alt='Warpcast'
           width={17}
           height={20}
