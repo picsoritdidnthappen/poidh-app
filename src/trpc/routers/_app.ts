@@ -32,6 +32,30 @@ export const bytesSchema = z
   .regex(/^(0x)?([a-fA-F0-9]{2})*$/)
   .transform((v) => (v.startsWith('0x') ? v : '0x' + v) as `0x${string}`);
 
+function scoreETH({
+  earned,
+  paid,
+  NFTheld,
+}: {
+  earned: number;
+  paid: number;
+  NFTheld: number;
+}) {
+  return earned * 1000 + paid * 1000 + NFTheld * 10;
+}
+
+function scoreDegen({
+  earned,
+  paid,
+  NFTheld,
+}: {
+  earned: number;
+  paid: number;
+  NFTheld: number;
+}) {
+  return earned / 500 + paid / 500 + NFTheld * 10;
+}
+
 export const appRouter = createTRPCRouter({
   bounty: baseProcedure
     .input(z.object({ id: z.number(), chainId: z.number() }))
@@ -754,16 +778,30 @@ export const appRouter = createTRPCRouter({
         (claim) => claim.is_accepted
       ).length;
 
-      const improvedPoidhScore =
-        0.5 * result.totalEarn.amountUSD +
-        0.3 * result.totalPaid.amountUSD +
-        0.1 * result.amountInContract.amountUSD +
-        5 * NFTsCount +
-        10 * acceptedClaimsCount;
+      const totalEarnedCrypto = Number(totalEarn);
+      const totalPaidCrypto = Number(totalPaid);
+      const poidhNFTheld = NFTsCount;
+
+      let poidhScore: number;
+      if (chain.id === 666666666) {
+        // Degen chainId
+        poidhScore = scoreDegen({
+          earned: totalEarnedCrypto,
+          paid: totalPaidCrypto,
+          NFTheld: poidhNFTheld,
+        });
+      } else {
+        // Base and Arbitrum
+        poidhScore = scoreETH({
+          earned: totalEarnedCrypto,
+          paid: totalPaidCrypto,
+          NFTheld: poidhNFTheld,
+        });
+      }
 
       return {
         ...result,
-        poidhScore: Math.round(improvedPoidhScore),
+        poidhScore: Math.round(poidhScore),
         acceptedClaimsCount,
       };
     }),
