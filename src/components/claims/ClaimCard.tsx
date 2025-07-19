@@ -24,6 +24,7 @@ export type ClaimCardProps = {
       address: string;
       scorePoidh: number;
       completedClaims: number;
+      totalClaims: number;
       earnedAmount: number;
     };
     bountyId: string;
@@ -185,7 +186,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
                   <div className='bg-blur-white rounded p-1.5 sm:p-2'>
                     <div className='h-6 flex items-center justify-center'>
-                      {claim.issuer.completedClaims}
+                      {claim.issuer.totalClaims}
                     </div>
                     <div className='text-white/80 mt-1'>Claims</div>
                   </div>
