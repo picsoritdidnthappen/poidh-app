@@ -11,6 +11,7 @@ import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { BanIcon, CloseIcon, ZoomInIcon, ZoomOutIcon } from '../global/Icons';
 import Link from 'next/link';
 import { formatWalletAddress } from '@/utils/web3';
+import TextWithLinks from '@/components/global/TextWithLinks';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -24,6 +25,7 @@ export type ClaimCardProps = {
       address: string;
       scorePoidh: number;
       completedClaims: number;
+      totalClaims: number;
       earnedAmount: number;
     };
     bountyId: string;
@@ -157,7 +159,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
               >
                 <div className='pr-3'>
                   <p className='text-xs sm:text-sm text-white/90 break-words whitespace-pre-line'>
-                    {claim.description}
+                    <TextWithLinks>{claim.description}</TextWithLinks>
                   </p>
                 </div>
               </div>
@@ -185,7 +187,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
                   <div className='bg-blur-white rounded p-1.5 sm:p-2'>
                     <div className='h-6 flex items-center justify-center'>
-                      {claim.issuer.completedClaims}
+                      {claim.issuer.totalClaims}
                     </div>
                     <div className='text-white/80 mt-1'>Claims</div>
                   </div>

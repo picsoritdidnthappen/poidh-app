@@ -10,6 +10,7 @@ import ButtonCTA from '@/components/global/ButtonCTA';
 import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
+import TextWithLinks from '@/components/global/TextWithLinks';
 
 interface ChainInfo {
   symbol: string;
@@ -394,7 +395,7 @@ const Claims: React.FC<ClaimsProps> = ({ bountyId, chainId }) => {
                     {claim.title}
                   </p>
                   <p className='text-sm md:text-base normal-case w-full h-16 md:h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words'>
-                    {claim.description}
+                    <TextWithLinks>{claim.description}</TextWithLinks>
                   </p>
                 </div>
                 <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
