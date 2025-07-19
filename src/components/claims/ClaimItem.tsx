@@ -13,6 +13,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
+import TextWithLinks from '@/components/global/TextWithLinks';
 
 export default function ClaimItem({
   id,
@@ -241,7 +242,7 @@ export default function ClaimItem({
               {title}
             </p>
             <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words'>
-              {description}
+              <TextWithLinks>{description}</TextWithLinks>
             </p>
           </div>
           <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
