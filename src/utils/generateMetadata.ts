@@ -89,17 +89,12 @@ export const generateMetadataForBountyFrame = async ({
     } satisfies Metadata;
   }
 
-  const farcasterUsers = await getFarcasterParticipants(
-    bounty?.participations,
-    trpcCaller
-  );
-
   const bountyFrameData = {
     title: bounty?.title.slice(0, 100),
     amount: bounty?.amount,
     chainId: chain.id,
     currencyRate: price,
-    participants: farcasterUsers,
+    participants: getSortedParticipants(bounty?.participations),
   } as BountyPreviewData;
 
   const frame = buildFrame({ bountyFrameData, params });
@@ -318,47 +313,19 @@ async function safeFetchPrice({
   }
 }
 
-async function getFarcasterParticipants(
-  participations: { amount: string; user_address: string }[],
-  trpcCaller: any
-) {
-  if (!participations?.length) return [] as const;
+function getSortedParticipants(
+  participations: { amount: string; user_address: string }[]
+): string[] {
+  if (!participations?.length) return [];
 
-  const sorted = [...participations]
+  return [...participations]
     .sort(
       (a, b) =>
         Number(formatEther(BigInt(b.amount))) -
         Number(formatEther(BigInt(a.amount)))
     )
-    .slice(0, 3); // limit number of participants to 3
-
-  const results: {
-    address: string;
-    farcasterName: string | null;
-    pfpUrl: string | null;
-  }[] = [];
-
-  for (const participation of sorted) {
-    try {
-      const farcasterUser = await trpcCaller.farcasterUser({
-        address: participation.user_address,
-      });
-      results.push({
-        address: participation.user_address,
-        farcasterName:
-          farcasterUser[participation.user_address][0]?.username ?? null,
-        pfpUrl: farcasterUser[participation.user_address][0]?.pfp_url ?? null,
-      });
-    } catch {
-      results.push({
-        address: participation.user_address,
-        farcasterName: null,
-        pfpUrl: null,
-      });
-    }
-  }
-
-  return results;
+    .slice(0, 7)
+    .map((p) => p.user_address); // limit number of participants to 7
 }
 
 function buildFrame({

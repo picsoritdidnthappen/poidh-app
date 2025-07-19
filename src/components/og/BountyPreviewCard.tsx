@@ -10,11 +10,12 @@ export type BountyPreviewData = {
   amount: string;
   chainId: ChainId;
   currencyRate: number;
-  participants: {
-    address: string;
-    farcasterName: string | null;
-    pfpUrl: string | null;
-  }[];
+  participants: string[];
+};
+
+export type FarcasterUser = {
+  username: string;
+  pfp_url: string;
 };
 
 const getChainIcon = (chain: string, size = 80) => {
@@ -32,8 +33,10 @@ const getChainIcon = (chain: string, size = 80) => {
 
 export default function BountyPreviewCard({
   bountyData,
+  farcasterParticipants,
 }: {
   bountyData: BountyPreviewData;
+  farcasterParticipants: { [address: string]: FarcasterUser[] };
 }) {
   const chain = getChainById({ chainId: bountyData.chainId });
 
@@ -94,9 +97,9 @@ export default function BountyPreviewCard({
             }}
           >
             <span style={{ display: 'flex' }}>contributors:</span>
-            {bountyData.participants.map((p) => (
+            {bountyData.participants.map((p: string) => (
               <span
-                key={p.address}
+                key={p}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -107,10 +110,11 @@ export default function BountyPreviewCard({
               >
                 <img
                   src={
-                    p.pfpUrl ||
+                    (farcasterParticipants[p] &&
+                      farcasterParticipants[p][0]?.pfp_url) ||
                     `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`
                   }
-                  alt={p.farcasterName ?? p.address}
+                  alt={p}
                   width={32}
                   height={32}
                   style={{
@@ -122,7 +126,9 @@ export default function BountyPreviewCard({
                   }}
                 />
                 <span style={{}}>
-                  {p.farcasterName ?? p.address.slice(0, 6)}
+                  {(farcasterParticipants[p] &&
+                    farcasterParticipants[p][0]?.username) ??
+                    p.slice(0, 6)}
                 </span>
               </span>
             ))}
