@@ -1,4 +1,3 @@
-// app/api/frame/route.tsx
 import BountyPreviewCard, {
   BountyPreviewData,
 } from '@/components/og/BountyPreviewCard';
@@ -24,9 +23,17 @@ export async function GET(req: NextRequest) {
       decodeURIComponent(bountyFrameDataEncoded)
     ) as BountyPreviewData;
     const fontData = await loadFont();
+    const farcasterParticipants = await loadFarcasterParticipants(
+      bountyFrameData.participants
+    );
 
     return new ImageResponse(
-      <BountyPreviewCard bountyData={bountyFrameData} />,
+      (
+        <BountyPreviewCard
+          bountyData={bountyFrameData}
+          farcasterParticipants={farcasterParticipants}
+        />
+      ),
       {
         width: 600,
         height: 400,
@@ -64,4 +71,24 @@ async function loadFont(): Promise<ArrayBuffer> {
     import.meta.url
   );
   return fetch(fontUrl).then((r) => r.arrayBuffer());
+}
+
+async function loadFarcasterParticipants(addresses: string[]) {
+  try {
+    const farcasterParticipantsResponse = await fetch(
+      `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${encodeURIComponent(
+        addresses.join(',')
+      )}`,
+      {
+        headers: {
+          'x-api-key': process.env.NEYNAR_API_KEY || '',
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const farcasterParticipants = await farcasterParticipantsResponse.json();
+    return farcasterParticipants;
+  } catch (error) {
+    return {};
+  }
 }
