@@ -45,6 +45,11 @@ export default function ClaimItem({
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
+  const accountActivities = trpc.accountActivities.useQuery({
+    address: issuer,
+    chainId: chain.id,
+  });
+
   const accountStats = trpc.accountInfo.useQuery({
     address: issuer,
     chainId: chain.id,
@@ -171,6 +176,7 @@ export default function ClaimItem({
           currency: chain.currency,
           issuer: {
             completedClaims: accountStats.data?.acceptedClaimsCount ?? 0,
+            totalClaims: accountActivities.data?.claims.length ?? 0,
             address: issuer,
             earnedAmount: accountStats.data?.totalEarn.amountCrypto ?? 0,
             scorePoidh: accountStats.data?.poidhScore ?? 0,
