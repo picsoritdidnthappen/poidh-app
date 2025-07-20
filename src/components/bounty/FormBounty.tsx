@@ -39,7 +39,7 @@ export default function FormBounty({
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
-  const [isSoloBounty, setIsSoloBounty] = useState(true);
+  const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function FormBounty({
       const tx = await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
-        functionName: isSoloBounty ? 'createSoloBounty' : 'createOpenBounty',
+        functionName: isOpenBounty ? 'createOpenBounty' : 'createSoloBounty',
         value: BigInt(parseEther(amount)),
         args: [name, description],
         chainId: chain.id,
@@ -243,14 +243,14 @@ export default function FormBounty({
             completed bounties
           </div>
           <div className='flex items-center justify-start gap-2'>
-            <span>{isSoloBounty ? 'Solo Bounty' : 'Open Bounty'}</span>
+            <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
             <Switch
-              checked={isSoloBounty}
-              onClick={() => setIsSoloBounty(!isSoloBounty)}
+              checked={isOpenBounty}
+              onClick={() => setIsOpenBounty(!isOpenBounty)}
               inputProps={{ 'aria-label': 'controlled' }}
               sx={{
                 '& .MuiSwitch-thumb': {
-                  color: isSoloBounty ? '#F15E5F' : 'default',
+                  color: isOpenBounty ? '#F15E5F' : 'default',
                 },
                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
                   backgroundColor: '#fff',
@@ -261,9 +261,9 @@ export default function FormBounty({
           <div className=' text-xs'>
             <span className='flex gap-2 items-center max-w-md '>
               <InfoIcon width={18} height={18} />
-              {isSoloBounty
-                ? 'you are the sole bounty contributor'
-                : 'users can add additional funds to your bounty'}
+              {isOpenBounty
+                ? 'users can add additional funds to your bounty'
+                : 'you are the sole bounty contributor'}
             </span>
           </div>
         </Box>
