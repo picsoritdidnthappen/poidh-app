@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
     const fontData = await fetch(
       new URL(
-        '../../../../../public/fonts/GeistMono-Regular.ttf',
+        '../../../../../../public/fonts/GeistMono-Regular.ttf',
         import.meta.url
       )
     ).then((res) => res.arrayBuffer());
