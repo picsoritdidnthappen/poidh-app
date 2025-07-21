@@ -25,13 +25,22 @@ export function openGraph({
 
 export function generateDynamicOGUrl({
   type,
+  imageFormat = 'og',
   dataObject,
 }: {
   type: 'bounty' | 'account';
-  dataObject: Record<string, string>;
+  imageFormat?: 'og' | 'preview';
+  dataObject: any;
 }): string {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
-  return `${appUrl}/api/og/${type}?${new URLSearchParams(
-    dataObject
-  ).toString()}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
+
+  if (type === 'bounty') {
+    return `${baseUrl}/api/og/bounty/v2?data=${encodeURIComponent(
+      JSON.stringify(dataObject)
+    )}&imageFormat=${imageFormat}`;
+  } else {
+    return `${baseUrl}/api/og/account?data=${new URLSearchParams(
+      dataObject
+    ).toString()}`;
+  }
 }
