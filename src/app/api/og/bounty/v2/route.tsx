@@ -9,13 +9,15 @@ export const runtime = 'edge';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const bountyFrameDataEncoded = searchParams.get('bountyFrameData');
+    const bountyFrameDataEncoded = searchParams.get('data');
+    const imageFormat = searchParams.get('imageFormat') as 'og' | 'preview';
+
     if (!bountyFrameDataEncoded) {
       return new ImageResponse(
         <BountyErrorCard message='Missing bounty data.' />,
         {
-          width: 600,
-          height: 400,
+          width: imageFormat === 'og' ? 1200 : 600,
+          height: imageFormat === 'og' ? 630 : 400,
         }
       );
     }
@@ -32,11 +34,12 @@ export async function GET(req: NextRequest) {
         <BountyPreviewCard
           bountyData={bountyFrameData}
           farcasterParticipants={farcasterParticipants}
+          imageFormat={imageFormat}
         />
       ),
       {
-        width: 600,
-        height: 400,
+        width: imageFormat === 'og' ? 1200 : 600,
+        height: imageFormat === 'og' ? 630 : 400,
         fonts: [
           {
             name: 'GeistMono',

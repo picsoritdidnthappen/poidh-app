@@ -28,8 +28,6 @@ export const generateMetadataForBountyFrame = async ({
 }: {
   params: { id: string; netname: Netname };
 }): Promise<Metadata> => {
-  const createCaller = createCallerFactory(appRouter);
-  const trpcCaller = createCaller({});
   const chain = chains[params.netname as keyof typeof chains];
   const id = Number(params.id);
   const price: number | undefined = await safeFetchPrice({
@@ -57,7 +55,10 @@ export const generateMetadataForBountyFrame = async ({
   }
 
   if (!bounty) {
-    const frame = buildFrame({ bountyFrameData: null, params });
+    const frame = buildFrame({
+      previewImageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png`,
+      params,
+    });
 
     return {
       title: "poidh - pics or it didn't happen",
@@ -89,27 +90,24 @@ export const generateMetadataForBountyFrame = async ({
     } satisfies Metadata;
   }
 
-  const bountyFrameData = {
+  const bountyDataObject = {
     title: bounty?.title.slice(0, 100),
     amount: bounty?.amount,
     chainId: chain.id,
     currencyRate: price,
     participants: getSortedParticipants(bounty?.participations),
-  } as BountyPreviewData;
-
-  const frame = buildFrame({ bountyFrameData, params });
-
+  };
   const ogImageUrl = generateDynamicOGUrl({
     type: 'bounty',
-    dataObject: {
-      title: bounty.title.slice(0, 150),
-      description: bounty.description.slice(0, 600),
-      chain: chain.slug,
-      amount: bounty.amount?.toString() || '0',
-      currency: chain.currency,
-      price: price ? price.toString() : '',
-    },
+    dataObject: bountyDataObject,
+    imageFormat: 'og',
   });
+  const previewImageUrl = generateDynamicOGUrl({
+    type: 'bounty',
+    dataObject: bountyDataObject,
+    imageFormat: 'preview',
+  });
+  const frame = buildFrame({ previewImageUrl: previewImageUrl, params });
 
   return {
     title: bounty.title,
@@ -324,23 +322,20 @@ function getSortedParticipants(
         Number(formatEther(BigInt(b.amount))) -
         Number(formatEther(BigInt(a.amount)))
     )
-    .slice(0, 7)
-    .map((p) => p.user_address); // limit number of participants to 7
+    .slice(0, 8)
+    .map((p) => p.user_address); // limit number of participants to 8
 }
 
 function buildFrame({
-  bountyFrameData,
+  previewImageUrl,
   params,
 }: {
-  bountyFrameData: BountyPreviewData | null;
+  previewImageUrl: string;
   params: { id: string; netname: Netname };
 }) {
-  const bountyFrameDataEncoded = bountyFrameData
-    ? encodeURIComponent(JSON.stringify(bountyFrameData))
-    : '';
   return {
     version: 'next',
-    imageUrl: `${serverEnv.NEXT_PUBLIC_APP_URL}/api/og/bounty/v2?bountyFrameData=${bountyFrameDataEncoded}`,
+    imageUrl: previewImageUrl,
     button: {
       title: 'view bounty',
       action: {
