@@ -7,7 +7,11 @@ import serverEnv from '@/utils/serverEnv';
 import { TRPCError } from '@trpc/server';
 import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
-import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
+import {
+  fetchPrice,
+  getBanSignatureFirstLine,
+  tryCatchAsync,
+} from '@/utils/utils';
 import { ChainId, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
@@ -805,15 +809,20 @@ export const appRouter = createTRPCRouter({
         acceptedClaimsCount,
       };
     }),
-
+  //TODO: create zod schema for the responses (Neynar API)
   comments: baseProcedure
     .input(z.object({ url: z.string() }))
     .query(async ({ input }) => {
+      const neynarApiKey = serverEnv.NEYNAR_API_KEY;
+      if (!neynarApiKey) {
+        return [];
+      }
+
       const { data } = await axios.get(
         'https://api.neynar.com/v2/farcaster/cast/search',
         {
           headers: {
-            'x-api-key': serverEnv.NEYNAR_API_KEY,
+            'x-api-key': neynarApiKey,
             'Content-Type': 'application/json',
           },
           params: {
@@ -831,7 +840,7 @@ export const appRouter = createTRPCRouter({
       ];
       const conversationPromises = uniqueThreadHashes.map(
         async (threadHash) => {
-          try {
+          const [data, _] = await tryCatchAsync(async () => {
             const { data } = await axios.get(
               'https://api.neynar.com/v2/farcaster/cast/conversation',
               {
@@ -847,9 +856,13 @@ export const appRouter = createTRPCRouter({
               }
             );
             return data.conversation.cast;
-          } catch (error) {
+          });
+
+          if (!data) {
             return null;
           }
+
+          return data;
         }
       );
 
@@ -883,12 +896,18 @@ export const appRouter = createTRPCRouter({
   farcasterUser: baseProcedure
     .input(z.object({ address: z.string() }))
     .query(async ({ input }) => {
-      try {
+      const neynarApiKey = serverEnv.NEYNAR_API_KEY;
+
+      if (!neynarApiKey) {
+        return null;
+      }
+
+      const [data, _] = await tryCatchAsync(async () => {
         const { data } = await axios.get(
           'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
           {
             headers: {
-              'x-api-key': serverEnv.NEYNAR_API_KEY,
+              'x-api-key': neynarApiKey,
               'Content-Type': 'application/json',
             },
             params: {
@@ -897,9 +916,9 @@ export const appRouter = createTRPCRouter({
           }
         );
         return data;
-      } catch (error) {
-        return null;
-      }
+      });
+
+      return data;
     }),
 
   leaderboard: baseProcedure.query(async () => {
