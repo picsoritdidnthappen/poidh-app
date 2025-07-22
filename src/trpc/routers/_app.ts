@@ -1099,7 +1099,24 @@ export const appRouter = createTRPCRouter({
     }
 
     const data = await response.json();
-    return Response.json(data.choices[0].message.content);
+
+    const responseSchema = z.object({
+      title: z.string(),
+      description: z.string(),
+    });
+
+    const parsed = responseSchema.safeParse(
+      JSON.parse(data.choices[0].message.content)
+    );
+
+    if (!parsed.success) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to parse bounty idea',
+      });
+    }
+
+    return parsed.data;
   }),
 });
 
