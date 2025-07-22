@@ -47,8 +47,8 @@ export default function BountyPreviewCard({
       style={{
         width: '100%',
         height: '100%',
-        padding: '16px',
-        paddingBottom: imageFormat === 'preview' ? '12px' : '24px',
+        padding: imageFormat === 'preview' ? '16px' : '36px',
+        paddingBottom: imageFormat === 'preview' ? '12px' : '36px',
         paddingTop: '36px',
         display: 'flex',
         flexDirection: 'column',
@@ -166,7 +166,7 @@ export default function BountyPreviewCard({
       >
         <div
           style={{
-            height: imageFormat === 'preview' ? '42px' : '56px',
+            height: imageFormat === 'preview' ? '42px' : '64px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-start',
@@ -174,8 +174,8 @@ export default function BountyPreviewCard({
         >
           <img
             src='https://poidh.xyz/Logo_poidh.svg'
-            width={imageFormat === 'preview' ? 84 : 112}
-            height={imageFormat === 'preview' ? 42 : 56}
+            width={imageFormat === 'preview' ? 84 : 124}
+            height={imageFormat === 'preview' ? 42 : 64}
             alt='Logo'
             style={{
               objectFit: 'contain',
