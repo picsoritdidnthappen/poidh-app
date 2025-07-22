@@ -1,4 +1,4 @@
-const Logo = () => {
+export default function Logo() {
   return (
     <div className='w-[100px]'>
       <svg
@@ -405,6 +405,4 @@ const Logo = () => {
       </svg>
     </div>
   );
-};
-
-export default Logo;
+}

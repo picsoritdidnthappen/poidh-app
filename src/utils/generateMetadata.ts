@@ -7,8 +7,6 @@ import { createCallerFactory } from '@/trpc/init';
 import { appRouter } from '@/trpc/routers/_app';
 import { fetchPrice } from '@/utils/utils';
 import { formatEther } from 'viem';
-import serverEnv from '@/utils/serverEnv';
-import { BountyPreviewData } from '@/components/og/BountyPreviewCard';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
 const APP_ICON_URL =

@@ -39,7 +39,7 @@ export function generateDynamicOGUrl({
       JSON.stringify(dataObject)
     )}&imageFormat=${imageFormat}`;
   } else {
-    return `${baseUrl}/api/og/account?data=${new URLSearchParams(
+    return `${baseUrl}/api/og/account?${new URLSearchParams(
       dataObject
     ).toString()}`;
   }
