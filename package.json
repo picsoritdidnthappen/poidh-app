@@ -29,7 +29,7 @@
     "@mui/material": "^5.17.1",
     "@mui/x-charts": "^7.28.0",
     "@prisma/client": "^5.22.0",
-    "@rainbow-me/rainbowkit": "^2.2.4",
+    "@rainbow-me/rainbowkit": "^2.2.8",
     "@tanstack/react-query": "^5.72.1",
     "@trpc/client": "11.0.0-rc.592",
     "@trpc/next": "11.0.0-rc.592",
@@ -62,8 +62,8 @@
     "superjson": "^2.2.2",
     "supports-color": "8.1.1",
     "tailwind-merge": "^2.6.0",
-    "viem": "^2.26.2",
-    "wagmi": "^2.14.16",
+    "viem": "^2.33.0",
+    "wagmi": "^2.16.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
