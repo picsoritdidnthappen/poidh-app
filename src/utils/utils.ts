@@ -86,3 +86,24 @@ export function formatUsdShort(value: number): string {
     maximumFractionDigits: 2,
   });
 }
+
+export async function tryCatch<T, Error>(
+  fn: () => T
+): Promise<[T | null, Error | null]> {
+  try {
+    return [fn(), null];
+  } catch (error) {
+    console.error(error);
+    return [null, error as Error];
+  }
+}
+
+export async function tryCatchAsync<T, Error>(
+  fn: () => Promise<T>
+): Promise<[T | null, Error | null]> {
+  try {
+    return [await fn(), null];
+  } catch (error) {
+    return [null, error as Error];
+  }
+}
