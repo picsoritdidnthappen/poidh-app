@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom, createStore } from 'jotai';
 
 type LoadingState = {
   isLoading: boolean;
@@ -18,3 +18,12 @@ export const setLoadingAtom = atom(
     set(loadingAtom, { isLoading: !!isLoading, status });
   }
 );
+
+let storeSingleton: ReturnType<typeof createStore>;
+
+export const getStore = () => {
+  if (!storeSingleton) {
+    storeSingleton = createStore();
+  }
+  return storeSingleton;
+};
