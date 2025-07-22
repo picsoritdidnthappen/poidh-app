@@ -7,7 +7,11 @@ import serverEnv from '@/utils/serverEnv';
 import { TRPCError } from '@trpc/server';
 import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
-import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
+import {
+  fetchPrice,
+  getBanSignatureFirstLine,
+  tryCatchAsync,
+} from '@/utils/utils';
 import { ChainId, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
@@ -805,15 +809,20 @@ export const appRouter = createTRPCRouter({
         acceptedClaimsCount,
       };
     }),
-
+  //TODO: create zod schema for the responses (Neynar API)
   comments: baseProcedure
     .input(z.object({ url: z.string() }))
     .query(async ({ input }) => {
+      const neynarApiKey = serverEnv.NEYNAR_API_KEY;
+      if (!neynarApiKey) {
+        return [];
+      }
+
       const { data } = await axios.get(
         'https://api.neynar.com/v2/farcaster/cast/search',
         {
           headers: {
-            'x-api-key': serverEnv.NEYNAR_API_KEY,
+            'x-api-key': neynarApiKey,
             'Content-Type': 'application/json',
           },
           params: {
@@ -831,7 +840,7 @@ export const appRouter = createTRPCRouter({
       ];
       const conversationPromises = uniqueThreadHashes.map(
         async (threadHash) => {
-          try {
+          const [data, _] = await tryCatchAsync(async () => {
             const { data } = await axios.get(
               'https://api.neynar.com/v2/farcaster/cast/conversation',
               {
@@ -847,9 +856,13 @@ export const appRouter = createTRPCRouter({
               }
             );
             return data.conversation.cast;
-          } catch (error) {
+          });
+
+          if (!data) {
             return null;
           }
+
+          return data;
         }
       );
 
@@ -883,12 +896,18 @@ export const appRouter = createTRPCRouter({
   farcasterUser: baseProcedure
     .input(z.object({ address: z.string() }))
     .query(async ({ input }) => {
-      try {
+      const neynarApiKey = serverEnv.NEYNAR_API_KEY;
+
+      if (!neynarApiKey) {
+        return null;
+      }
+
+      const [data, _] = await tryCatchAsync(async () => {
         const { data } = await axios.get(
           'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
           {
             headers: {
-              'x-api-key': serverEnv.NEYNAR_API_KEY,
+              'x-api-key': neynarApiKey,
               'Content-Type': 'application/json',
             },
             params: {
@@ -897,9 +916,9 @@ export const appRouter = createTRPCRouter({
           }
         );
         return data;
-      } catch (error) {
-        return null;
-      }
+      });
+
+      return data;
     }),
 
   leaderboard: baseProcedure.query(async () => {
@@ -1050,6 +1069,73 @@ export const appRouter = createTRPCRouter({
       )
       .sort((a, b) => b[1].total - a[1].total)
       .slice(0, 10);
+  }),
+
+  generateBounty: baseProcedure.mutation(async () => {
+    const PROMPT = `Generate unique, creative, and fun bounty ideas for the "Pics or It Didn't Happen" (poidh) website. Each bounty should encourage users to engage in amusing, interesting, or surprising activities that can be easily documented with a photo, screenshot, or video.
+               Ensure the ideas are diverse, spanning different themes such as real-life actions, contributions, playful tasks, or simple creative(could be developer) projects.
+               Ideas must remain achievable and enjoyable for users of all skill levels. A user should share result either in video or in photo. Include:
+               Title: A short, catchy description of the bounty (max 50 characters).
+               Description: A clear and engaging explanation of what the user must do to complete the bounty (max 350 characters).
+               Return the ideas in JSON format like this:
+               { 'title': '...', 'description': '...' }.`;
+
+    const OPENAI_API_KEY = serverEnv.OPENAI_API_KEY;
+
+    if (!OPENAI_API_KEY) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Missing OpenAI API key',
+      });
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4.1-mini',
+        messages: [
+          {
+            role: 'system',
+            content: PROMPT,
+          },
+          {
+            role: 'user',
+            content: 'Generate a bounty idea for a person to do.',
+          },
+        ],
+        max_tokens: 100,
+        temperature: 1,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const responseSchema = z.object({
+      title: z.string(),
+      description: z.string(),
+    });
+
+    const parsed = responseSchema.safeParse(
+      JSON.parse(data.choices[0].message.content)
+    );
+
+    if (!parsed.success) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to parse bounty idea',
+      });
+    }
+
+    return parsed.data;
   }),
 });
 
