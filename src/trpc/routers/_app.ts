@@ -8,7 +8,7 @@ import { TRPCError } from '@trpc/server';
 import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
 import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
-import { ChainId, WarpcastCast } from '@/utils/types';
+import { ChainId, Netname, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
 
@@ -20,7 +20,7 @@ export const addressSchema = z
 export const chainNameSchema = z
   .string()
   .regex(/^(degen|arbitrum|base)$/)
-  .transform((v) => v as 'degen' | 'arbitrum' | 'base');
+  .transform((v) => v as Netname);
 
 export const bytes32Schema = z
   .string()

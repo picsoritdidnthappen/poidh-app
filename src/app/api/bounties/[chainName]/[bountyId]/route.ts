@@ -1,4 +1,5 @@
 // app/api/bounties/[chainName]/[bountyId]/route.ts
+import { Netname } from '@/utils/types';
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
@@ -8,8 +9,7 @@ const prisma = new PrismaClient();
 type ChainName = 'base' | 'degen' | 'arbitrum';
 
 // Chain ID mapping with proper typing
-// Chain ID mapping with proper typing
-const CHAIN_IDS: Record<ChainName, number> = {
+const CHAIN_IDS: Record<Netname, number> = {
   base: 8453,
   degen: 666666666,
   arbitrum: 42161,
