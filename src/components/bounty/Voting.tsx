@@ -8,7 +8,7 @@ import { bountyVotingTracker } from '@/utils/web3';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { trpc } from '@/trpc/client';
+import { trpc, trpcClient } from '@/trpc/client';
 import { useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 
@@ -36,6 +36,7 @@ export default function Voting({
   const switctChain = useSwitchChain();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
+  const utils = trpc.useUtils();
 
   // State to track if user has already voted
   const [hasUserVoted, setHasUserVoted] = useState(false);
@@ -116,8 +117,13 @@ export default function Voting({
     mutationFn: async (bountyId: bigint) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
+        setLoading({ isLoading: true, status: 'Switching network...' });
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
+
+      setLoading({ isLoading: true, status: 'Waiting approval' });
+      setPollingChainId(chain.id);
+
       await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
@@ -125,6 +131,28 @@ export default function Voting({
         args: [bountyId],
         chainId: chain.id,
       });
+
+      // Wait for indexing to complete - similar to other mutations
+      for (let i = 0; i < 60; i++) {
+        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
+
+        // Check if bounty status has been updated (no longer voting and not in progress)
+        const updatedBounty = await trpcClient.bounty.query({
+          id: Number(bountyId),
+          chainId: chain.id,
+        });
+
+        if (
+          updatedBounty &&
+          !updatedBounty.is_voting &&
+          !updatedBounty.inProgress
+        ) {
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1_000));
+      }
+
+      throw new Error('Failed to resolve vote - indexing timeout');
     },
     onSuccess: () => {
       toast.success('Vote resolved successfully');
@@ -133,7 +161,17 @@ export default function Voting({
       toast.error('Failed to resolve vote: ' + error.message);
     },
     onSettled: () => {
+      // Refresh all related queries after vote resolution
       voting.refetch();
+      utils.bounty.refetch({ id: Number(bountyId), chainId: chain.id });
+      utils.bountyClaims.refetch({
+        bountyId: Number(bountyId),
+        chainId: chain.id,
+      });
+      utils.bounties.refetch();
+
+      setLoading({ isLoading: false, status: '' });
+      setPollingChainId(null);
     },
   });
 
