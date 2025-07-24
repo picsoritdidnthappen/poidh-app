@@ -34,9 +34,11 @@ const getChainIcon = (chain: string, size = 80) => {
 export default function BountyPreviewCard({
   bountyData,
   farcasterParticipants,
+  imageFormat = 'og',
 }: {
   bountyData: BountyPreviewData;
   farcasterParticipants: { [address: string]: FarcasterUser[] };
+  imageFormat?: 'og' | 'preview';
 }) {
   const chain = getChainById({ chainId: bountyData.chainId });
 
@@ -46,7 +48,7 @@ export default function BountyPreviewCard({
         width: '100%',
         height: '100%',
         padding: '16px',
-        paddingBottom: '12px',
+        paddingBottom: imageFormat === 'preview' ? '12px' : '24px',
         paddingTop: '36px',
         display: 'flex',
         flexDirection: 'column',
@@ -58,11 +60,10 @@ export default function BountyPreviewCard({
     >
       <h3
         style={{
-          fontSize: '34px',
+          fontSize: imageFormat === 'preview' ? '34px' : '52px',
           fontWeight: 700,
           margin: 0,
-          marginBottom: '14px',
-          maxWidth: '500px',
+          marginBottom: imageFormat === 'preview' ? '14px' : '24px',
           lineHeight: 1.2,
           wordWrap: 'break-word',
           overflow: 'hidden',
@@ -77,9 +78,10 @@ export default function BountyPreviewCard({
       </h3>
       <div
         style={{
+          marginTop: imageFormat === 'preview' ? '0px' : '12px',
           display: 'flex',
           flexWrap: 'wrap',
-          rowGap: '4px',
+          rowGap: imageFormat === 'preview' ? '4px' : '12px',
           fontSize: '20px',
           overflow: 'hidden',
         }}
@@ -89,10 +91,10 @@ export default function BountyPreviewCard({
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              rowGap: '6px',
-              fontSize: '22px',
-              maxHeight: '128px',
-              columnGap: '20px',
+              rowGap: imageFormat === 'preview' ? '6px' : '12px',
+              fontSize: imageFormat === 'preview' ? '22px' : '36px',
+              maxHeight: imageFormat === 'preview' ? '128px' : '222px',
+              columnGap: imageFormat === 'preview' ? '20px' : '30px',
               overflow: 'hidden',
             }}
           >
@@ -103,7 +105,7 @@ export default function BountyPreviewCard({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  marginBottom: '6px',
+                  marginBottom: imageFormat === 'preview' ? '6px' : '12px',
                   lineHeight: 1.4,
                   whiteSpace: 'nowrap',
                 }}
@@ -115,17 +117,17 @@ export default function BountyPreviewCard({
                     `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`
                   }
                   alt={p}
-                  width={32}
-                  height={32}
+                  width={imageFormat === 'preview' ? 32 : 52}
+                  height={imageFormat === 'preview' ? 32 : 52}
                   style={{
                     borderRadius: '50%',
-                    marginRight: '6px',
+                    marginRight: imageFormat === 'preview' ? '6px' : '12px',
                     marginLeft: 0,
                     objectFit: 'cover',
                     flexShrink: 0,
                   }}
                 />
-                <span style={{}}>
+                <span>
                   {(farcasterParticipants[p] &&
                     farcasterParticipants[p][0]?.username) ??
                     p.slice(0, 6)}
@@ -138,7 +140,7 @@ export default function BountyPreviewCard({
 
       <div
         style={{
-          fontSize: '30px',
+          fontSize: imageFormat === 'preview' ? '30px' : '44px',
           fontWeight: 600,
           marginTop: 'auto',
           display: 'flex',
@@ -164,8 +166,7 @@ export default function BountyPreviewCard({
       >
         <div
           style={{
-            width: '20%',
-            height: '42px',
+            height: imageFormat === 'preview' ? '42px' : '56px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-start',
@@ -173,8 +174,8 @@ export default function BountyPreviewCard({
         >
           <img
             src='https://poidh.xyz/Logo_poidh.svg'
-            width={84}
-            height={42}
+            width={imageFormat === 'preview' ? 84 : 112}
+            height={imageFormat === 'preview' ? 42 : 56}
             alt='Logo'
             style={{
               objectFit: 'contain',
@@ -183,8 +184,8 @@ export default function BountyPreviewCard({
         </div>
         <div
           style={{
-            width: '48px',
-            height: '48px',
+            width: imageFormat === 'preview' ? '48px' : '72px',
+            height: imageFormat === 'preview' ? '48px' : '72px',
             borderRadius: '50%',
             backgroundColor: 'rgba(255,255,255,0.2)',
             display: 'flex',
@@ -193,7 +194,7 @@ export default function BountyPreviewCard({
             border: '2px solid rgba(255,255,255,0.3)',
           }}
         >
-          {getChainIcon(chain.slug, 32)}
+          {getChainIcon(chain.slug, imageFormat === 'preview' ? 32 : 48)}
         </div>
       </div>
     </div>
