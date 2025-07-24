@@ -229,21 +229,28 @@ export const generateMetadataForAccountPage = async ({
         chain_id: chain.id,
       },
     });
+    const accountDataObject = {
+      address,
+      chain: chain.slug,
+      poidhScore: `${accountStats.poidhScore ?? 0}`,
+      totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
+        chain.currency
+      }`,
+      totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
+        chain.currency
+      }`,
+      nftsCount: `${nftsCount ?? 0}`,
+    };
+
+    frame.imageUrl = generateDynamicOGUrl({
+      type: 'account',
+      dataObject: accountDataObject,
+      imageFormat: 'preview',
+    });
 
     const ogImageUrl = generateDynamicOGUrl({
       type: 'account',
-      dataObject: {
-        address,
-        chain: chain.slug,
-        poidhScore: `${accountStats.poidhScore ?? 0}`,
-        totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
-          chain.currency
-        }`,
-        totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
-          chain.currency
-        }`,
-        nftsCount: `${nftsCount ?? 0}`,
-      },
+      dataObject: accountDataObject,
     });
 
     return {

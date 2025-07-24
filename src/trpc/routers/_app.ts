@@ -12,7 +12,7 @@ import {
   getBanSignatureFirstLine,
   tryCatchAsync,
 } from '@/utils/utils';
-import { ChainId, WarpcastCast } from '@/utils/types';
+import { ChainId, Netname, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
 
