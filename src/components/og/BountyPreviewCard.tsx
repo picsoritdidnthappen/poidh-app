@@ -47,9 +47,9 @@ export default function BountyPreviewCard({
       style={{
         width: '100%',
         height: '100%',
-        padding: imageFormat === 'preview' ? '16px' : '36px',
-        paddingBottom: imageFormat === 'preview' ? '12px' : '36px',
-        paddingTop: '36px',
+        padding: imageFormat === 'preview' ? '16px' : '42px',
+        paddingBottom: imageFormat === 'preview' ? '12px' : '42px',
+        paddingTop: imageFormat === 'preview' ? '36px' : '42px',
         display: 'flex',
         flexDirection: 'column',
         background:
@@ -110,23 +110,35 @@ export default function BountyPreviewCard({
                   whiteSpace: 'nowrap',
                 }}
               >
-                <img
-                  src={
-                    (farcasterParticipants[p] &&
-                      farcasterParticipants[p][0]?.pfp_url) ||
-                    `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`
-                  }
-                  alt={p}
-                  width={imageFormat === 'preview' ? 32 : 52}
-                  height={imageFormat === 'preview' ? 32 : 52}
+                <picture
                   style={{
-                    borderRadius: '50%',
                     marginRight: imageFormat === 'preview' ? '6px' : '12px',
-                    marginLeft: 0,
-                    objectFit: 'cover',
-                    flexShrink: 0,
                   }}
-                />
+                >
+                  <source
+                    srcSet={
+                      (farcasterParticipants[p] &&
+                        farcasterParticipants[p][0]?.pfp_url) ||
+                      `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`
+                    }
+                    type='image/svg+xml'
+                  />
+                  <img
+                    src={
+                      (farcasterParticipants[p] &&
+                        farcasterParticipants[p][0]?.pfp_url) ||
+                      `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`
+                    }
+                    width={imageFormat === 'preview' ? 32 : 52}
+                    height={imageFormat === 'preview' ? 32 : 52}
+                    alt='POIDH Logo'
+                    style={{
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      flexShrink: 0,
+                    }}
+                  />
+                </picture>
                 <span>
                   {(farcasterParticipants[p] &&
                     farcasterParticipants[p][0]?.username) ??
@@ -172,15 +184,21 @@ export default function BountyPreviewCard({
             justifyContent: 'flex-start',
           }}
         >
-          <img
-            src='https://poidh.xyz/Logo_poidh.svg'
-            width={imageFormat === 'preview' ? 84 : 124}
-            height={imageFormat === 'preview' ? 42 : 64}
-            alt='Logo'
-            style={{
-              objectFit: 'contain',
-            }}
-          />
+          <picture>
+            <source
+              srcSet='https://poidh.xyz/Logo_poidh.svg'
+              type='image/svg+xml'
+            />
+            <img
+              src='https://poidh.xyz/Logo_poidh.svg'
+              width={imageFormat === 'preview' ? 84 : 124}
+              height={imageFormat === 'preview' ? 42 : 64}
+              alt='POIDH Logo'
+              style={{
+                objectFit: 'contain',
+              }}
+            />
+          </picture>
         </div>
         <div
           style={{

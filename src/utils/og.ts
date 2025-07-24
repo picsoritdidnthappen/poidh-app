@@ -41,6 +41,6 @@ export function generateDynamicOGUrl({
   } else {
     return `${baseUrl}/api/og/account?${new URLSearchParams(
       dataObject
-    ).toString()}`;
+    ).toString()}&imageFormat=${imageFormat}`;
   }
 }
