@@ -20,13 +20,8 @@ import { InfoIcon } from '@/components/global/Icons';
 import ButtonCTA from '../global/ButtonCTA';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
-import { trpcClient } from '@/trpc/client';
+import { trpc, trpcClient } from '@/trpc/client';
 import { fetchPrice, formatUsdShort } from '@/utils/utils';
-
-type Bounty = {
-  title: string;
-  description: string;
-};
 
 export default function FormBounty({
   open,
@@ -138,19 +133,12 @@ export default function FormBounty({
     },
   });
 
-  const generateBountyMutation = useMutation({
-    mutationFn: async () => {
+  const generateBounty = trpc.generateBounty.useMutation({
+    onMutate: async () => {
       setName('Generating…');
       setDescription('Generating…');
-      const res = await fetch('/api/generateBounty', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      return JSON.parse(await res.json()) as Bounty;
     },
-    onSuccess: (bounty: Bounty) => {
+    onSuccess: (bounty) => {
       setName(bounty.title);
       setDescription(bounty.description);
       toast.success('Bounty generated successfully');
@@ -183,25 +171,21 @@ export default function FormBounty({
     >
       <DialogContent>
         <Box display='flex' flexDirection='column' width='100%'>
-          <span
-            className={cn(generateBountyMutation.isPending && 'animate-pulse')}
-          >
+          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
             title
           </span>
           <input
-            disabled={generateBountyMutation.isPending}
+            disabled={generateBounty.isPending}
             type='text'
             value={name}
             onChange={(e) => setName(e.target.value)}
             className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse'
           />
-          <span
-            className={cn(generateBountyMutation.isPending && 'animate-pulse')}
-          >
+          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
             description
           </span>
           <textarea
-            disabled={generateBountyMutation.isPending}
+            disabled={generateBounty.isPending}
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -297,8 +281,8 @@ export default function FormBounty({
         <span className='mr-2'>need a bounty idea? click the</span>
         <button
           className='cursor-pointer items-center text-center disabled:cursor-not-allowed'
-          onClick={() => generateBountyMutation.mutate()}
-          disabled={generateBountyMutation.isPending}
+          onClick={() => generateBounty.mutate()}
+          disabled={generateBounty.isPending}
         >
           🤖
         </button>

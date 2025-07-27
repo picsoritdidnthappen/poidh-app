@@ -7,8 +7,6 @@ import { createCallerFactory } from '@/trpc/init';
 import { appRouter } from '@/trpc/routers/_app';
 import { fetchPrice } from '@/utils/utils';
 import { formatEther } from 'viem';
-import serverEnv from '@/utils/serverEnv';
-import { BountyPreviewData } from '@/components/og/BountyPreviewCard';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
 const APP_ICON_URL =
@@ -231,21 +229,28 @@ export const generateMetadataForAccountPage = async ({
         chain_id: chain.id,
       },
     });
+    const accountDataObject = {
+      address,
+      chain: chain.slug,
+      poidhScore: `${accountStats.poidhScore ?? 0}`,
+      totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
+        chain.currency
+      }`,
+      totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
+        chain.currency
+      }`,
+      nftsCount: `${nftsCount ?? 0}`,
+    };
+
+    frame.imageUrl = generateDynamicOGUrl({
+      type: 'account',
+      dataObject: accountDataObject,
+      imageFormat: 'preview',
+    });
 
     const ogImageUrl = generateDynamicOGUrl({
       type: 'account',
-      dataObject: {
-        address,
-        chain: chain.slug,
-        poidhScore: `${accountStats.poidhScore ?? 0}`,
-        totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
-          chain.currency
-        }`,
-        totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
-          chain.currency
-        }`,
-        nftsCount: `${nftsCount ?? 0}`,
-      },
+      dataObject: accountDataObject,
     });
 
     return {

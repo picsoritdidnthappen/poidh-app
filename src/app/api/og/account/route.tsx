@@ -11,16 +11,36 @@ const truncateName = (name: string, maxLength = 35) => {
 
 export const runtime = 'edge';
 
-const getChainIcon = (chain: string) => {
+const getChainIcon = (chain: string, size = 48) => {
   switch (chain.toLowerCase()) {
     case 'arbitrum':
-      return <ArbitrumIcon width={90} height={90} />;
+      return <ArbitrumIcon width={size} height={size} />;
     case 'base':
-      return <BaseIcon width={90} height={90} />;
+      return <BaseIcon width={size} height={size} />;
     case 'degen':
-      return <DegenIcon width={90} height={90} />;
+      return <DegenIcon width={size} height={size} />;
     default:
       return null;
+  }
+};
+
+const getProfilePictureUrl = async (
+  pfpUrl: string | null | undefined
+): Promise<string> => {
+  const fallbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`;
+
+  if (!pfpUrl) {
+    return fallbackUrl;
+  }
+
+  try {
+    const response = await fetch(pfpUrl, { method: 'HEAD' });
+    if (response.ok) {
+      return pfpUrl;
+    }
+    return fallbackUrl;
+  } catch (error) {
+    return fallbackUrl;
   }
 };
 
@@ -34,10 +54,7 @@ export async function GET(request: Request) {
   const totalEarn = params.get('totalEarn');
   const totalPaid = params.get('totalPaid');
   const nftsCount = params.get('nftsCount');
-  const degenOrEnsName = await getEnsOrDegenName({
-    chainName: chain as Netname,
-    address: address as string,
-  });
+  const imageFormat = params.get('imageFormat');
 
   if (
     !address ||
@@ -45,22 +62,24 @@ export async function GET(request: Request) {
     !poidhScore ||
     !totalEarn ||
     !totalPaid ||
-    !nftsCount
+    !nftsCount ||
+    !imageFormat
   ) {
     return new Response('Missing or invalid parameters', { status: 400 });
   }
 
   try {
-    const logoData = await fetch(
-      new URL(`https://poidh.xyz/Logo_poidh.svg`)
-    ).then((res) => res.arrayBuffer());
-
+    const degenOrEnsName = await getEnsOrDegenName({
+      chainName: chain as Netname,
+      address: address as string,
+    });
     const fontData = await fetch(
       new URL(
         '../../../../../public/fonts/GeistMono-Regular.ttf',
         import.meta.url
       )
     ).then((res) => res.arrayBuffer());
+    const farcasterProfile = await loadFarcasterProfile(address);
 
     return new ImageResponse(
       (
@@ -70,10 +89,10 @@ export async function GET(request: Request) {
             width: '100%',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-start',
+            justifyContent: 'space-between',
             background:
               'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)',
-            padding: '75px',
+            padding: imageFormat === 'og' ? '42px' : '24px',
             color: 'white',
             fontFamily: '"GeistMono", sans-serif',
           }}
@@ -81,40 +100,16 @@ export async function GET(request: Request) {
           <div
             style={{
               display: 'flex',
-              marginBottom: '30px',
-              marginRight: '15px',
-            }}
-          >
-            <picture>
-              <source
-                srcSet={`data:image/svg+xml;base64,${Buffer.from(
-                  logoData
-                ).toString('base64')}`}
-                type='image/svg+xml'
-              />
-              <img
-                src={`data:image/svg+xml;base64,${Buffer.from(
-                  logoData
-                ).toString('base64')}`}
-                width={150}
-                alt='POIDH Logo'
-              />
-            </picture>
-          </div>
-          <div
-            style={{
-              display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
               width: '100%',
-              marginBottom: '10px',
+              marginTop: '10px',
             }}
           >
-            <h2
+            <div
               style={{
-                margin: 0,
-                fontSize: '58px',
+                fontSize: imageFormat === 'og' ? '48px' : '36px',
                 fontWeight: 600,
                 width: '85%',
                 lineHeight: '1.2',
@@ -123,54 +118,90 @@ export async function GET(request: Request) {
                 gap: '8px',
               }}
             >
-              <span
+              <div
                 style={{
-                  fontSize: '43px',
-                  color: '#ffffff',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '8px',
+                  alignItems: 'center',
                 }}
               >
-                {degenOrEnsName
-                  ? truncateName(degenOrEnsName)
-                  : formatWalletAddress(address)}
-              </span>
-              <span
-                style={{
-                  fontSize: '32px',
-                  color: '#ffffff',
-                  opacity: 0.6,
-                }}
-              >
-                {degenOrEnsName ? formatWalletAddress(address) : null}
-              </span>
-            </h2>
-            <div
-              style={{
-                marginLeft: '20px',
-                flexShrink: 0,
-                display: 'flex',
-                fontSize: '30px',
-              }}
-            >
-              {getChainIcon(chain)}
+                {farcasterProfile?.pfp_url && (
+                  <div
+                    style={{
+                      marginRight: '12px',
+                      display: 'flex',
+                      borderRadius: '50%',
+                      width: imageFormat === 'og' ? 76 : 48,
+                      height: imageFormat === 'og' ? 76 : 48,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <picture>
+                      <source
+                        srcSet={farcasterProfile?.pfp_url}
+                        type='image/svg+xml'
+                      />
+                      <img
+                        src={farcasterProfile?.pfp_url}
+                        width={imageFormat === 'og' ? 76 : 48}
+                        alt='POIDH Logo'
+                        style={{
+                          flexShrink: 0,
+                          display: 'block',
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </picture>
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span
+                    style={{
+                      fontSize: imageFormat === 'og' ? '43px' : '28px',
+                      color: '#ffffff',
+                    }}
+                  >
+                    {farcasterProfile
+                      ? farcasterProfile?.username
+                      : degenOrEnsName
+                      ? truncateName(degenOrEnsName)
+                      : formatWalletAddress(address)}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: imageFormat === 'og' ? '32px' : '24px',
+                      color: '#ffffff',
+                      opacity: 0.6,
+                    }}
+                  >
+                    {farcasterProfile?.username || degenOrEnsName
+                      ? formatWalletAddress(address)
+                      : null}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px',
+              gap: imageFormat === 'og' ? '12px' : '6px',
               width: '100%',
               background: 'rgba(255, 255, 255, 0.1)',
-              padding: '24px',
+              padding: imageFormat === 'og' ? '24px' : '12px',
               borderRadius: '16px',
-              marginTop: '20px',
+              marginTop: imageFormat === 'og' ? '20px' : '12px',
             }}
           >
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: imageFormat === 'og' ? '12px' : '8px',
                 width: '100%',
               }}
             >
@@ -191,16 +222,16 @@ export async function GET(request: Request) {
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '8px',
-                      padding: '16px',
+                      gap: imageFormat === 'og' ? '8px' : '6px',
+                      padding: imageFormat === 'og' ? '16px' : '12px',
                       background: 'rgba(255, 255, 255, 0.05)',
                       borderRadius: '12px',
-                      width: '50%',
+                      width: imageFormat === 'og' ? '50%' : '49%',
                     }}
                   >
                     <div
                       style={{
-                        fontSize: '24px',
+                        fontSize: imageFormat === 'og' ? '24px' : '16px',
                         color: 'rgba(255, 255, 255, 0.7)',
                       }}
                     >
@@ -208,7 +239,7 @@ export async function GET(request: Request) {
                     </div>
                     <div
                       style={{
-                        fontSize: '32px',
+                        fontSize: imageFormat === 'og' ? '32px' : '20px',
                         color: '#ffffff',
                         fontWeight: '600',
                       }}
@@ -239,12 +270,12 @@ export async function GET(request: Request) {
                       padding: '16px',
                       background: 'rgba(255, 255, 255, 0.05)',
                       borderRadius: '12px',
-                      width: '50%',
+                      width: imageFormat === 'og' ? '50%' : '49%',
                     }}
                   >
                     <div
                       style={{
-                        fontSize: '24px',
+                        fontSize: imageFormat === 'og' ? '24px' : '16px',
                         color: 'rgba(255, 255, 255, 0.7)',
                       }}
                     >
@@ -252,7 +283,7 @@ export async function GET(request: Request) {
                     </div>
                     <div
                       style={{
-                        fontSize: '32px',
+                        fontSize: imageFormat === 'og' ? '32px' : '20px',
                         color: '#ffffff',
                         fontWeight: '600',
                       }}
@@ -264,11 +295,55 @@ export async function GET(request: Request) {
               </div>
             </div>
           </div>
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: '8px',
+            }}
+          >
+            <div
+              style={{
+                height: imageFormat === 'og' ? '64px' : '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+              }}
+            >
+              <picture>
+                <source
+                  srcSet='https://poidh.xyz/Logo_poidh.svg'
+                  type='image/svg+xml'
+                />
+                <img
+                  src='https://poidh.xyz/Logo_poidh.svg'
+                  width={imageFormat === 'og' ? 124 : 84}
+                  alt='POIDH Logo'
+                />
+              </picture>
+            </div>
+            <div
+              style={{
+                width: imageFormat === 'og' ? '72px' : '48px',
+                height: imageFormat === 'og' ? '72px' : '48px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                border: '2px solid rgba(255,255,255,0.3)',
+              }}
+            >
+              {getChainIcon(chain, imageFormat === 'og' ? 48 : 36)}
+            </div>
+          </div>
         </div>
       ),
       {
-        width: 1200,
-        height: 630,
+        width: imageFormat === 'og' ? 1200 : 600,
+        height: imageFormat === 'og' ? 630 : 400,
         fonts: [
           {
             name: 'GeistMono',
@@ -281,5 +356,34 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error(error);
     return new Response('Error generating image', { status: 500 });
+  }
+}
+
+async function loadFarcasterProfile(address: string) {
+  try {
+    const farcasterParticipantsResponse = await fetch(
+      `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${encodeURIComponent(
+        address
+      )}`,
+      {
+        headers: {
+          'x-api-key': process.env.NEYNAR_API_KEY || '',
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const farcasterParticipants = await farcasterParticipantsResponse.json();
+    const profile =
+      farcasterParticipants && farcasterParticipants[address]
+        ? farcasterParticipants[address][0]
+        : null;
+
+    if (profile) {
+      profile.pfp_url = await getProfilePictureUrl(profile.pfp_url);
+    }
+
+    return profile;
+  } catch (error) {
+    return null;
   }
 }
