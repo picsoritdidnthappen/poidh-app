@@ -35,7 +35,6 @@ export default function FormClaim({
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const utils = trpc.useUtils();
-  const [uploading, setUploading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -93,7 +92,6 @@ export default function FormClaim({
   useEffect(() => {
     const uploadImage = async () => {
       if (file) {
-        setUploading(true);
         try {
           const cid = await retryUpload(file);
           setImageURI(`${LINK_IPFS}/${cid}`);
@@ -101,7 +99,6 @@ export default function FormClaim({
           console.error('Error uploading file:', error);
           alert('Trouble uploading file');
         }
-        setUploading(false);
       }
     };
 
