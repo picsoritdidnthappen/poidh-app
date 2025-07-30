@@ -1,6 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import React from 'react';
+import React, { useState } from 'react';
 import BountyClaims from '@/components/bounty/BountyClaims';
 import BountyInfo from '@/components/bounty/BountyInfo';
 import NavBarMobile from '@/components/global/NavBarMobile';
@@ -12,6 +12,7 @@ import Breadcrumbs from '@/components/global/Breadcrumbs';
 export default function Bounty({ params }: { params: { id: string } }) {
   const isMobile = useScreenSize();
   const pathname = usePathname();
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   return (
     <>
@@ -19,15 +20,20 @@ export default function Bounty({ params }: { params: { id: string } }) {
         <div className='pt-4'>
           <Breadcrumbs />
         </div>
-        <BountyInfo bountyId={params.id} />
+        <BountyInfo
+          isShareModalOpen={isShareModalOpen}
+          bountyId={params.id}
+          onShareModalStateChange={setIsShareModalOpen}
+        />
         <BountyClaims bountyId={params.id} />
         <CommentsSection url={`https://poidh.xyz${pathname}`} />
       </div>
-      {isMobile ? (
-        <NavBarMobile type='claim' bountyId={params.id} />
-      ) : (
-        <CreateClaim bountyId={params.id} />
-      )}
+      {!isShareModalOpen &&
+        (isMobile ? (
+          <NavBarMobile type='claim' bountyId={params.id} />
+        ) : (
+          <CreateClaim bountyId={params.id} />
+        ))}
       <div className='h-80' />
     </>
   );
