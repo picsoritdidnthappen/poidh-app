@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
+import TextWithLinks from '@/components/global/TextWithLinks';
 
 type NFT = {
   id: string;
@@ -60,7 +61,7 @@ function NftListItem({ NFT }: { NFT: NFT }) {
             {NFT.title}
           </p>
           <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
-            {NFT.description}
+            <TextWithLinks>{NFT.description}</TextWithLinks>
           </p>
         </div>
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
