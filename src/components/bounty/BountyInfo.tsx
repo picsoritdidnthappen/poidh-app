@@ -27,10 +27,19 @@ import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
-import { ShareIcon } from '@/components/global/Icons';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
+import ShareBountyModal from '@/components/global/ShareBountyModal';
+import { ShareIcon } from '@/components/global/Icons';
 
-export default function BountyInfo({ bountyId }: { bountyId: string }) {
+export default function BountyInfo({
+  bountyId,
+  isShareModalOpen,
+  onShareModalStateChange,
+}: {
+  bountyId: string;
+  isShareModalOpen: boolean;
+  onShareModalStateChange?: (modalOpen: boolean) => void;
+}) {
   const chain = useGetChain();
   const account = useAccount();
   const writeContract = useWriteContract({});
@@ -41,12 +50,6 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
   const setLoading = useSetAtom(setLoadingAtom);
 
   const [price, setPrice] = useState<number>(0);
-
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      toast.success('bounty link copied to clipboard');
-    });
-  };
 
   const bounty = trpc.bounty.useQuery(
     {
@@ -261,11 +264,19 @@ export default function BountyInfo({ bountyId }: { bountyId: string }) {
           ))}
         <button
           type='button'
-          onClick={handleShare}
+          onClick={() => onShareModalStateChange?.(true)}
           className='flex items-center gap-1 underline hover:no-underline w-fit'
         >
           share bounty <ShareIcon width={16} height={16} />
         </button>
+        {isShareModalOpen && (
+          <ShareBountyModal
+            onClose={() => {
+              onShareModalStateChange?.(false);
+            }}
+            bountyIssuerAddress={bounty.data.issuer}
+          />
+        )}
       </div>
     </>
   );
