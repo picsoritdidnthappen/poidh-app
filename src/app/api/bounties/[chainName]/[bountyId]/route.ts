@@ -4,20 +4,15 @@ import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-// Define valid chain names as a type
 type ChainName = 'base' | 'degen' | 'arbitrum';
 
-// Chain ID mapping with proper typing
-// Chain ID mapping with proper typing
 const CHAIN_IDS: Record<ChainName, number> = {
   base: 8453,
   degen: 666666666,
   arbitrum: 42161,
 };
 
-// Helper function to validate chain name with proper typing
 function getChainId(chainName: string): number {
-  // Type guard to check if the chain name is valid
   function isValidChainName(name: string): name is ChainName {
     return name.toLowerCase() in CHAIN_IDS;
   }
@@ -33,7 +28,6 @@ function getChainId(chainName: string): number {
   return CHAIN_IDS[chainName.toLowerCase() as ChainName];
 }
 
-// Define types for the response structure
 type UserInfo = {
   address?: string;
   ens?: string | null;
@@ -87,7 +81,6 @@ export async function GET(
   try {
     const { chainName, bountyId } = params;
 
-    // Validate parameters
     if (!chainName || !bountyId) {
       return NextResponse.json(
         { error: 'Invalid parameters' },
@@ -102,7 +95,6 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid bounty ID' }, { status: 400 });
     }
 
-    // Fetch bounty with related data
     const bounty = await prisma.bounties.findUnique({
       where: {
         id_chain_id: {
@@ -141,7 +133,6 @@ export async function GET(
       return NextResponse.json({ error: 'Bounty not found' }, { status: 404 });
     }
 
-    // Format the response with proper typing
     const response: BountyResponse = {
       bounty: {
         id: bounty.id,

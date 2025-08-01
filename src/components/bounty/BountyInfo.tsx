@@ -69,6 +69,16 @@ export default function BountyInfo({
     }
   );
 
+  const bountyExtra = trpc.bountyExtra.useQuery(
+    {
+      bountyId: Number(bountyId),
+      chainId: chain.id,
+    },
+    {
+      enabled: !!bountyId,
+    }
+  );
+
   const signMutation = useMutation({
     mutationFn: async (bountyId: string) => {
       //arbitrum has a problem with message signing, so all confirmations are on base
@@ -218,7 +228,12 @@ export default function BountyInfo({
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          <p className='mt-5 text-lg mb-5 font-bold'>
+          {bountyExtra.data?.location && (
+            <p className='text-white mt-4 mb-2'>
+              📍 {bountyExtra.data.location}
+            </p>
+          )}
+          <p className='mt-2 text-lg mb-5 font-bold'>
             {formatAmount({
               amount: formatEther(BigInt(bounty.data.amount)),
               currency: chain.currency,

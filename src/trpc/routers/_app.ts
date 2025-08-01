@@ -104,6 +104,64 @@ export const appRouter = createTRPCRouter({
       };
     }),
 
+  bountyExtra: baseProcedure
+    .input(z.object({ bountyId: z.number(), chainId: z.number() }))
+    .query(async ({ input }) => {
+      const bountyExtra = await prisma.bountiesExtra.findUnique({
+        where: {
+          bounty_id_chain_id: {
+            bounty_id: input.bountyId,
+            chain_id: input.chainId,
+          },
+        },
+      });
+
+      return bountyExtra ?? null;
+    }),
+
+  saveBountyLocation: baseProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        chainId: z.number(),
+        location: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      console.log('📍 saveBountyLocation mutation called with input:', input);
+
+      try {
+        console.log('📊 Attempting upsert to BountiesExtra table...');
+        const bountyExtra = await prisma.bountiesExtra.upsert({
+          where: {
+            bounty_id_chain_id: {
+              bounty_id: input.bountyId,
+              chain_id: input.chainId,
+            },
+          },
+          update: {
+            location: input.location,
+          },
+          create: {
+            bounty_id: input.bountyId,
+            chain_id: input.chainId,
+            location: input.location,
+          },
+        });
+
+        console.log('✅ BountyExtra upsert successful:', bountyExtra);
+        return bountyExtra;
+      } catch (error) {
+        console.error('❌ BountyExtra upsert failed:', error);
+        console.error('Error details:', {
+          input,
+          error: error instanceof Error ? error.message : error,
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+        throw error;
+      }
+    }),
+
   bounties: baseProcedure
     .input(
       z.object({
