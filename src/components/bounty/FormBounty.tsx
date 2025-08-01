@@ -33,6 +33,7 @@ export default function FormBounty({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
+  const [location, setLocation] = useState('');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
@@ -59,7 +60,12 @@ export default function FormBounty({
   }, [chain.currency]);
 
   const createBountyMutations = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (formData: {
+      name: string;
+      description: string;
+      amount: string;
+      location: string;
+    }) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Swithing network' });
@@ -75,8 +81,8 @@ export default function FormBounty({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: isOpenBounty ? 'createOpenBounty' : 'createSoloBounty',
-        value: BigInt(parseEther(amount)),
-        args: [name, description],
+        value: BigInt(parseEther(formData.amount)),
+        args: [formData.name, formData.description],
         chainId: chain.id,
       });
       setPollingChainId(chain.id);
@@ -90,7 +96,6 @@ export default function FormBounty({
       });
 
       const log = receipt.logs[0];
-
       if (!log) {
         throw new Error('No logs found');
       }
@@ -113,6 +118,13 @@ export default function FormBounty({
         });
 
         if (bounty) {
+          if (formData.location.trim()) {
+            await saveBountyLocation.mutateAsync({
+              bountyId: Number(data.args.id),
+              chainId: pollingChainId ?? chain.id,
+              location: formData.location.trim(),
+            });
+          }
           return data.args.id.toString();
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
@@ -133,6 +145,7 @@ export default function FormBounty({
     },
   });
 
+  const saveBountyLocation = trpc.saveBountyLocation.useMutation();
   const generateBounty = trpc.generateBounty.useMutation({
     onMutate: async () => {
       setName('Generating…');
@@ -155,7 +168,10 @@ export default function FormBounty({
       open={open}
       onClose={() => {
         onClose();
+        setName('');
+        setDescription('');
         setAmount('');
+        setLocation('');
         setUsdPerToken(null);
       }}
       maxWidth='xs'
@@ -226,6 +242,18 @@ export default function FormBounty({
             <InfoIcon width={18} height={18} /> a 2.5% fee is deducted from
             completed bounties
           </div>
+
+          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
+            location
+          </span>
+          <input
+            disabled={generateBounty.isPending}
+            type='text'
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400'
+            placeholder='optional'
+          />
           <div className='flex items-center justify-start gap-2'>
             <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
             <Switch
@@ -260,9 +288,20 @@ export default function FormBounty({
           )}
           onClick={() => {
             if (name && description && amount) {
+              const formData = {
+                name,
+                description,
+                amount,
+                location,
+              };
+
               onClose();
               setUsdPerToken(null);
-              createBountyMutations.mutate();
+              setName('');
+              setDescription('');
+              setAmount('');
+              setLocation('');
+              createBountyMutations.mutate(formData);
             } else {
               toast.error(
                 'Please fill in all fields and check wallet connection.'
