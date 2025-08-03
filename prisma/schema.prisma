@@ -34,7 +34,7 @@ model Bounties {
 model BountiesExtra {
   bounty_id        Int
   chain_id         Int
-  location         String
+  category         String
 
   @@id([bounty_id, chain_id])
 }
