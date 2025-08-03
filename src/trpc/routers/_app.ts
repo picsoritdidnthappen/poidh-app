@@ -119,19 +119,16 @@ export const appRouter = createTRPCRouter({
       return bountyExtra ?? null;
     }),
 
-  saveBountyLocation: baseProcedure
+  saveBountyCategory: baseProcedure
     .input(
       z.object({
         bountyId: z.number(),
         chainId: z.number(),
-        location: z.string(),
+        category: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      console.log('📍 saveBountyLocation mutation called with input:', input);
-
       try {
-        console.log('📊 Attempting upsert to BountiesExtra table...');
         const bountyExtra = await prisma.bountiesExtra.upsert({
           where: {
             bounty_id_chain_id: {
@@ -140,19 +137,17 @@ export const appRouter = createTRPCRouter({
             },
           },
           update: {
-            location: input.location,
+            category: input.category,
           },
           create: {
             bounty_id: input.bountyId,
             chain_id: input.chainId,
-            location: input.location,
+            category: input.category,
           },
         });
 
-        console.log('✅ BountyExtra upsert successful:', bountyExtra);
         return bountyExtra;
       } catch (error) {
-        console.error('❌ BountyExtra upsert failed:', error);
         console.error('Error details:', {
           input,
           error: error instanceof Error ? error.message : error,

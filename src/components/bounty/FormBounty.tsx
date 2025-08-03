@@ -33,7 +33,7 @@ export default function FormBounty({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
-  const [location, setLocation] = useState('');
+  const [category, setCategory] = useState('');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
@@ -64,7 +64,7 @@ export default function FormBounty({
       name: string;
       description: string;
       amount: string;
-      location: string;
+      category: string;
     }) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
@@ -118,11 +118,11 @@ export default function FormBounty({
         });
 
         if (bounty) {
-          if (formData.location.trim()) {
-            await saveBountyLocation.mutateAsync({
+          if (formData.category.trim()) {
+            await saveBountyCategory.mutateAsync({
               bountyId: Number(data.args.id),
               chainId: pollingChainId ?? chain.id,
-              location: formData.location.trim(),
+              category: formData.category.trim(),
             });
           }
           return data.args.id.toString();
@@ -145,7 +145,7 @@ export default function FormBounty({
     },
   });
 
-  const saveBountyLocation = trpc.saveBountyLocation.useMutation();
+  const saveBountyCategory = trpc.saveBountyCategory.useMutation();
   const generateBounty = trpc.generateBounty.useMutation({
     onMutate: async () => {
       setName('Generating…');
@@ -171,7 +171,7 @@ export default function FormBounty({
         setName('');
         setDescription('');
         setAmount('');
-        setLocation('');
+        setCategory('');
         setUsdPerToken(null);
       }}
       maxWidth='xs'
@@ -210,7 +210,7 @@ export default function FormBounty({
           ></textarea>
 
           <span>reward</span>
-          <div className='relative w-full mb-4'>
+          <div className='relative w-full mb-3'>
             <input
               type='number'
               step='any'
@@ -238,19 +238,19 @@ export default function FormBounty({
               </span>
             )}
           </div>
-          <div className='flex text-balance gap-2 text-xs mb-2 items-center'>
+          <div className='flex text-balance gap-2 text-xs mb-4 items-center'>
             <InfoIcon width={18} height={18} /> a 2.5% fee is deducted from
             completed bounties
           </div>
 
           <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            location
+            category
           </span>
           <input
             disabled={generateBounty.isPending}
             type='text'
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
             className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400'
             placeholder='optional'
           />
@@ -292,7 +292,7 @@ export default function FormBounty({
                 name,
                 description,
                 amount,
-                location,
+                category,
               };
 
               onClose();
@@ -300,11 +300,11 @@ export default function FormBounty({
               setName('');
               setDescription('');
               setAmount('');
-              setLocation('');
+              setCategory('');
               createBountyMutations.mutate(formData);
             } else {
               toast.error(
-                'Please fill in all fields and check wallet connection.'
+                'Please fill in all required fields and check wallet connection.'
               );
             }
           }}

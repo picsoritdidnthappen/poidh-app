@@ -228,9 +228,9 @@ export default function BountyInfo({
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          {bountyExtra.data?.location && (
+          {bountyExtra.data?.category && (
             <p className='text-white mt-4 mb-2'>
-              📍 {bountyExtra.data.location}
+              🕹️ {bountyExtra.data.category}
             </p>
           )}
           <p className='mt-2 text-lg mb-5 font-bold'>
