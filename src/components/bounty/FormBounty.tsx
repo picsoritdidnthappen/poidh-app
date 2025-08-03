@@ -250,9 +250,18 @@ export default function FormBounty({
             disabled={generateBounty.isPending}
             type='text'
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value.match(/^\S*/)?.[0] ?? '';
+              setCategory(next);
+            }}
             className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400'
             placeholder='optional'
+            maxLength={30}
+            onKeyDown={(e) => {
+              if (/\s/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
           />
           <div className='flex items-center justify-start gap-2'>
             <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
