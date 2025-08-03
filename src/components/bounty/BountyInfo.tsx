@@ -198,7 +198,7 @@ export default function BountyInfo({
           <p className='mt-5 normal-case break-words'>
             <TextWithLinks>{bounty.data.description}</TextWithLinks>
           </p>
-          <div className='flex flex-row mt-5 normal-case break-all flex-wrap'>
+          <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
               <DisplayAddress chain={chain} address={bounty.data.issuer} />
@@ -229,11 +229,9 @@ export default function BountyInfo({
             </button>
           )}
           {bountyExtra.data?.category && (
-            <p className='text-white mt-4 mb-2'>
-              🕹️ {bountyExtra.data.category}
-            </p>
+            <p className='text-white mb-3'>🕹️ {bountyExtra.data.category}</p>
           )}
-          <p className='mt-2 text-lg mb-5 font-bold'>
+          <p className='text-lg mb-5 mt-1 font-bold'>
             {formatAmount({
               amount: formatEther(BigInt(bounty.data.amount)),
               currency: chain.currency,
