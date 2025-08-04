@@ -16,8 +16,8 @@ export default function ShareBountModal({
   onClose: () => void;
   bountyIssuerAddress: string;
 }) {
-  const farcasterUser = trpc.farcasterUser.useQuery({
-    address: bountyIssuerAddress,
+  const userDataNeynar = trpc.usersDataNeynar.useQuery({
+    addresses: [bountyIssuerAddress],
   });
 
   useEffect(() => {
@@ -51,11 +51,14 @@ export default function ShareBountModal({
   const handleShareX = () => {
     let text =
       'check out this bounty on @poidhxyz 📸\n\n' + window.location.href;
-    if (farcasterUser?.data && farcasterUser?.data[bountyIssuerAddress][0]) {
-      const xUsername = farcasterUser?.data[
+    if (
+      userDataNeynar?.data &&
+      userDataNeynar?.data[bountyIssuerAddress]?.[0]
+    ) {
+      const xUsername = userDataNeynar.data[
         bountyIssuerAddress
-      ][0]?.verified_accounts.find(
-        (account: any) => account.platform === 'x'
+      ][0]?.verified_accounts?.find(
+        (account) => account.platform === 'x'
       )?.username;
       text =
         'check out this bounty from @' +
@@ -73,12 +76,12 @@ export default function ShareBountModal({
   const handleShareFarcaster = () => {
     let text = 'check out this bounty on /poidh 📸\n\n' + window.location.href;
     if (
-      farcasterUser?.data &&
-      farcasterUser?.data[bountyIssuerAddress][0].username
+      userDataNeynar?.data &&
+      userDataNeynar?.data[bountyIssuerAddress][0].username
     ) {
       text =
         'check out this bounty from @' +
-        farcasterUser?.data[bountyIssuerAddress][0].username +
+        userDataNeynar?.data[bountyIssuerAddress][0].username +
         ' on /poidh 📸\n\n' +
         window.location.href;
     }
