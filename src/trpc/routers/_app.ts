@@ -15,6 +15,7 @@ import {
 import { ChainId, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
+import { bulkUsersByAddressResponseSchema } from '@/utils/neynarSchemas';
 
 export const addressSchema = z
   .string()
@@ -946,13 +947,17 @@ export const appRouter = createTRPCRouter({
       return totalCasts;
     }),
 
-  farcasterUser: baseProcedure
-    .input(z.object({ address: z.string() }))
+  usersDataNeynar: baseProcedure
+    .input(z.object({ addresses: z.array(z.string()) }))
     .query(async ({ input }) => {
+      if (input.addresses.length === 0) {
+        return {};
+      }
+
       const neynarApiKey = serverEnv.NEYNAR_API_KEY;
 
       if (!neynarApiKey) {
-        return null;
+        return {};
       }
 
       const [data, _] = await tryCatchAsync(async () => {
@@ -964,14 +969,14 @@ export const appRouter = createTRPCRouter({
               'Content-Type': 'application/json',
             },
             params: {
-              addresses: [input.address],
+              addresses: input.addresses,
             },
           }
         );
-        return data;
+        return bulkUsersByAddressResponseSchema.parse(data);
       });
 
-      return data;
+      return data ?? {};
     }),
 
   leaderboard: baseProcedure.query(async () => {

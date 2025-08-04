@@ -8,21 +8,21 @@ export default function SocialMediaLinks({ address }: { address: string }) {
     null
   );
   const [xUsername, setXUsername] = useState<string | null>(null);
-  const farcasterUser = trpc.farcasterUser.useQuery({ address });
+  const userDataNeynar = trpc.usersDataNeynar.useQuery({
+    addresses: [address],
+  });
 
   useEffect(() => {
-    if (farcasterUser?.data) {
-      if (farcasterUser?.data[address][0]?.username) {
-        setFarcasterUsername(farcasterUser?.data[address][0]?.username);
-      }
-      const xUsername = farcasterUser?.data[address][0]?.verified_accounts.find(
-        (account: any) => account.platform === 'x'
+    if (userDataNeynar?.data) {
+      const userData = userDataNeynar.data[address]?.[0];
+      const xUsername = userData?.verified_accounts?.find(
+        (account) => account.platform === 'x'
       )?.username;
-      if (xUsername) {
-        setXUsername(xUsername);
-      }
+
+      setFarcasterUsername(userData?.username ?? null);
+      setXUsername(xUsername ?? null);
     }
-  }, [farcasterUser, address]);
+  }, [userDataNeynar, address]);
 
   return address && farcasterUsername ? (
     <div className='flex flex-row items-center gap-2'>
