@@ -54,7 +54,7 @@ export default function DisplayAddress({
       >
         {userDataNeynar.isLoading
           ? formatWalletAddress(address)
-          : userDataNeynar?.data
+          : userDataNeynar?.data && Object.keys(userDataNeynar?.data).length > 0
           ? userDataNeynar?.data[address]?.[0]?.username
           : walletDisplayName.isLoading
           ? formatWalletAddress(address)
