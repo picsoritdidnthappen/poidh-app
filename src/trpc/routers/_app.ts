@@ -954,6 +954,7 @@ export const appRouter = createTRPCRouter({
     const ignoreAddresses = [
       '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
       '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
+      '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
       '0xbed82560c39c133a3d64516ecda82c71b72f3cd7',
     ];
 
