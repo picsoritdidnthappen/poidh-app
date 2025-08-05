@@ -275,7 +275,6 @@ export const generateMetadataForAccountPage = async ({
       },
     };
   } catch (error) {
-    console.error('Error generating metadata for account page:', error);
     return {
       title: "poidh - pics or it didn't happen",
       description:
