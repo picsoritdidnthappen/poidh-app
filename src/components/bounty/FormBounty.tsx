@@ -33,6 +33,7 @@ export default function FormBounty({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
@@ -59,7 +60,12 @@ export default function FormBounty({
   }, [chain.currency]);
 
   const createBountyMutations = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (formData: {
+      name: string;
+      description: string;
+      amount: string;
+      category: string;
+    }) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Swithing network' });
@@ -75,8 +81,8 @@ export default function FormBounty({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: isOpenBounty ? 'createOpenBounty' : 'createSoloBounty',
-        value: BigInt(parseEther(amount)),
-        args: [name, description],
+        value: BigInt(parseEther(formData.amount)),
+        args: [formData.name, formData.description],
         chainId: chain.id,
       });
       setPollingChainId(chain.id);
@@ -90,7 +96,6 @@ export default function FormBounty({
       });
 
       const log = receipt.logs[0];
-
       if (!log) {
         throw new Error('No logs found');
       }
@@ -113,6 +118,13 @@ export default function FormBounty({
         });
 
         if (bounty) {
+          if (formData.category.trim()) {
+            await saveBountyCategory.mutateAsync({
+              bountyId: Number(data.args.id),
+              chainId: pollingChainId ?? chain.id,
+              category: formData.category.trim(),
+            });
+          }
           return data.args.id.toString();
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
@@ -133,6 +145,7 @@ export default function FormBounty({
     },
   });
 
+  const saveBountyCategory = trpc.saveBountyCategory.useMutation();
   const generateBounty = trpc.generateBounty.useMutation({
     onMutate: async () => {
       setName('Generating…');
@@ -155,7 +168,10 @@ export default function FormBounty({
       open={open}
       onClose={() => {
         onClose();
+        setName('');
+        setDescription('');
         setAmount('');
+        setCategory('');
         setUsdPerToken(null);
       }}
       maxWidth='xs'
@@ -194,7 +210,7 @@ export default function FormBounty({
           ></textarea>
 
           <span>reward</span>
-          <div className='relative w-full mb-4'>
+          <div className='relative w-full mb-3'>
             <input
               type='number'
               step='any'
@@ -222,10 +238,31 @@ export default function FormBounty({
               </span>
             )}
           </div>
-          <div className='flex text-balance gap-2 text-xs mb-2 items-center'>
+          <div className='flex text-balance gap-2 text-xs mb-4 items-center'>
             <InfoIcon width={18} height={18} /> a 2.5% fee is deducted from
             completed bounties
           </div>
+
+          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
+            category
+          </span>
+          <input
+            disabled={generateBounty.isPending}
+            type='text'
+            value={category}
+            onChange={(e) => {
+              const next = e.target.value.match(/^\S*/)?.[0] ?? '';
+              setCategory(next);
+            }}
+            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400'
+            placeholder='optional'
+            maxLength={30}
+            onKeyDown={(e) => {
+              if (/\s/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+          />
           <div className='flex items-center justify-start gap-2'>
             <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
             <Switch
@@ -260,12 +297,23 @@ export default function FormBounty({
           )}
           onClick={() => {
             if (name && description && amount) {
+              const formData = {
+                name,
+                description,
+                amount,
+                category,
+              };
+
               onClose();
               setUsdPerToken(null);
-              createBountyMutations.mutate();
+              setName('');
+              setDescription('');
+              setAmount('');
+              setCategory('');
+              createBountyMutations.mutate(formData);
             } else {
               toast.error(
-                'Please fill in all fields and check wallet connection.'
+                'Please fill in all required fields and check wallet connection.'
               );
             }
           }}

@@ -15,6 +15,7 @@ import {
 import { ChainId, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
+import { bulkUsersByAddressResponseSchema } from '@/utils/neynarSchemas';
 
 export const addressSchema = z
   .string()
@@ -102,6 +103,59 @@ export const appRouter = createTRPCRouter({
         isBanned: bounty.ban.length > 0,
         isCanceled: bounty.is_canceled,
       };
+    }),
+
+  bountyExtra: baseProcedure
+    .input(z.object({ bountyId: z.number(), chainId: z.number() }))
+    .query(async ({ input }) => {
+      const bountyExtra = await prisma.bountiesExtra.findUnique({
+        where: {
+          bounty_id_chain_id: {
+            bounty_id: input.bountyId,
+            chain_id: input.chainId,
+          },
+        },
+      });
+
+      return bountyExtra ?? null;
+    }),
+
+  saveBountyCategory: baseProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        chainId: z.number(),
+        category: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const bountyExtra = await prisma.bountiesExtra.upsert({
+          where: {
+            bounty_id_chain_id: {
+              bounty_id: input.bountyId,
+              chain_id: input.chainId,
+            },
+          },
+          update: {
+            category: input.category,
+          },
+          create: {
+            bounty_id: input.bountyId,
+            chain_id: input.chainId,
+            category: input.category,
+          },
+        });
+
+        return bountyExtra;
+      } catch (error) {
+        console.error('Error details:', {
+          input,
+          error: error instanceof Error ? error.message : error,
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+        throw error;
+      }
     }),
 
   bounties: baseProcedure
@@ -708,7 +762,7 @@ export const appRouter = createTRPCRouter({
       const chain = getChainById({
         chainId: input.chainId as 666666666 | 42161 | 8453,
       });
-      const bounties = await prisma.bounties.findMany({
+      const bountiesInProgress = await prisma.bounties.findMany({
         where: {
           issuer: input.address.toLowerCase(),
           chain_id: input.chainId,
@@ -716,57 +770,25 @@ export const appRouter = createTRPCRouter({
             none: {},
           },
           is_canceled: false,
+          in_progress: true,
         },
         select: {
           amount: true,
-          in_progress: true,
         },
       });
 
-      const claims = await prisma.claims.findMany({
+      const stats = await prisma.leaderboard.findUnique({
         where: {
-          issuer: input.address.toLowerCase(),
-          chain_id: input.chainId,
-          ban: {
-            none: {},
+          address_chain_id: {
+            address: input.address.toLowerCase(),
+            chain_id: chain.id,
           },
-        },
-        select: {
-          is_accepted: true,
-          bounty: {
-            select: {
-              id: true,
-              amount: true,
-            },
-          },
-        },
-      });
-
-      const NFTsCount = await prisma.claims.count({
-        where: {
-          owner: input.address.toLowerCase(),
-          chain_id: input.chainId,
         },
       });
 
       const amountInContract = formatEther(
-        bounties
-          .filter((bounty) => bounty.in_progress)
+        bountiesInProgress
           .flatMap((bounty) => BigInt(bounty.amount))
-          .reduce((total, amount) => total + amount, BigInt(0))
-      );
-
-      const totalPaid = formatEther(
-        bounties
-          .filter((bounty) => !bounty.in_progress)
-          .flatMap((bounty) => BigInt(bounty.amount))
-          .reduce((total, amount) => total + amount, BigInt(0))
-      );
-
-      const totalEarn = formatEther(
-        claims
-          .filter((claim) => claim.is_accepted && claim.bounty)
-          .flatMap((claim) => BigInt(claim.bounty?.amount ?? 0))
           .reduce((total, amount) => total + amount, BigInt(0))
       );
 
@@ -774,32 +796,34 @@ export const appRouter = createTRPCRouter({
 
       const result = {
         amountInContract: convertAmount({ price, amount: amountInContract }),
-        totalPaid: convertAmount({ price, amount: totalPaid }),
-        totalEarn: convertAmount({ price, amount: totalEarn }),
+        totalPaid: convertAmount({
+          price,
+          amount: stats?.paid.toString() ?? '0',
+        }),
+        totalEarn: convertAmount({
+          price,
+          amount: stats?.earned.toString() ?? '0',
+        }),
       };
 
-      const acceptedClaimsCount = claims.filter(
-        (claim) => claim.is_accepted
-      ).length;
-
-      const totalEarnedCrypto = Number(totalEarn);
-      const totalPaidCrypto = Number(totalPaid);
-      const poidhNFTheld = NFTsCount;
+      const acceptedClaimsCount = await prisma.claims.count({
+        where: { issuer: input.address, is_accepted: true, chain_id: chain.id },
+      });
 
       let poidhScore: number;
       if (chain.id === 666666666) {
         // Degen chainId
         poidhScore = scoreDegen({
-          earned: totalEarnedCrypto,
-          paid: totalPaidCrypto,
-          NFTheld: poidhNFTheld,
+          earned: stats?.earned ?? 0,
+          paid: stats?.paid ?? 0,
+          NFTheld: stats?.nfts ?? 0,
         });
       } else {
         // Base and Arbitrum
         poidhScore = scoreETH({
-          earned: totalEarnedCrypto,
-          paid: totalPaidCrypto,
-          NFTheld: poidhNFTheld,
+          earned: stats?.earned ?? 0,
+          paid: stats?.paid ?? 0,
+          NFTheld: stats?.nfts ?? 0,
         });
       }
 
@@ -809,6 +833,7 @@ export const appRouter = createTRPCRouter({
         acceptedClaimsCount,
       };
     }),
+
   //TODO: create zod schema for the responses (Neynar API)
   comments: baseProcedure
     .input(z.object({ url: z.string() }))
@@ -893,13 +918,17 @@ export const appRouter = createTRPCRouter({
       return totalCasts;
     }),
 
-  farcasterUser: baseProcedure
-    .input(z.object({ address: z.string() }))
+  usersDataNeynar: baseProcedure
+    .input(z.object({ addresses: z.array(z.string()) }))
     .query(async ({ input }) => {
+      if (input.addresses.length === 0) {
+        return {};
+      }
+
       const neynarApiKey = serverEnv.NEYNAR_API_KEY;
 
       if (!neynarApiKey) {
-        return null;
+        return {};
       }
 
       const [data, _] = await tryCatchAsync(async () => {
@@ -911,45 +940,22 @@ export const appRouter = createTRPCRouter({
               'Content-Type': 'application/json',
             },
             params: {
-              addresses: [input.address],
+              addresses: input.addresses,
             },
           }
         );
-        return data;
+        return bulkUsersByAddressResponseSchema.parse(data);
       });
 
-      return data;
+      return data ?? {};
     }),
 
   leaderboard: baseProcedure.query(async () => {
-    const scoreETH = ({
-      earned,
-      paid,
-      NFTheld,
-    }: {
-      earned: number;
-      paid: number;
-      NFTheld: number;
-    }) => {
-      return earned * 1000 + paid * 1000 + NFTheld * 10;
-    };
-
-    const scoreDegen = ({
-      earned,
-      paid,
-      NFTheld,
-    }: {
-      earned: number;
-      paid: number;
-      NFTheld: number;
-    }) => {
-      return earned / 500 + paid / 500 + NFTheld * 10;
-    };
-
     const ignoreAddresses = [
       '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
       '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
       '0xbed82560c39c133a3d64516ecda82c71b72f3cd7',
+      '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
     ];
 
     const fetchTop = (
@@ -1041,10 +1047,9 @@ export const appRouter = createTRPCRouter({
         const newScore = {
           ...chainScores,
           total:
-            ((chainScores.base ?? 0) +
-              (chainScores.degen ?? 0) +
-              (chainScores.arbitrum ?? 0)) /
-            3,
+            (chainScores.base ?? 0) +
+            (chainScores.degen ?? 0) +
+            (chainScores.arbitrum ?? 0),
         };
 
         leaderBoard.set(user.address.toLowerCase(), newScore);

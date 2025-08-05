@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi';
 import ClaimForm from '@/components/frame/claims/Claimform';
 import JoinBounty from '@/components/frame/claims/FormJoinBounty';
 import ButtonCTA from '@/components/global/ButtonCTA';
-import { Netname } from '@/utils/types';
+import { ChainId, Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
@@ -17,8 +17,6 @@ interface ChainInfo {
   isEVM: boolean;
   name: string;
 }
-
-type ChainId = 8453 | 42161 | 666666666;
 
 interface User {
   address: string;

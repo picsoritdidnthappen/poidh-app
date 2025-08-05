@@ -275,7 +275,6 @@ export const generateMetadataForAccountPage = async ({
       },
     };
   } catch (error) {
-    console.error('Error generating metadata for account page:', error);
     return {
       title: "poidh - pics or it didn't happen",
       description:
@@ -302,6 +301,49 @@ export const generateMetadataForAccountPage = async ({
     };
   }
 };
+export const generateMetadataForLeaderboardPage =
+  async (): Promise<Metadata> => {
+    const frame = {
+      version: 'next',
+      imageUrl: APP_OG_IMAGE_URL,
+      button: {
+        title: 'view leaderboard',
+        action: {
+          type: 'launch_frame',
+          name: 'poidh leaderboard',
+          url: `${APP_URL}/leaderboard`,
+          splashImageUrl: APP_SPLASH_URL,
+          iconUrl: APP_ICON_URL,
+          splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+        },
+      },
+    };
+
+    return {
+      title: "poidh leaderboard - pics or it didn't happen",
+      description:
+        "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains",
+      openGraph: {
+        title: "poidh leaderboard - pics or it didn't happen",
+        description:
+          "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains",
+        siteName: 'POIDH',
+        images: [APP_OG_IMAGE_URL],
+        type: 'website',
+        locale: 'en_US',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: "poidh leaderboard - pics or it didn't happen",
+        description:
+          "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains",
+        images: [APP_OG_IMAGE_URL],
+      },
+      other: {
+        'fc:frame': JSON.stringify(frame),
+      },
+    } satisfies Metadata;
+  };
 
 async function safeFetchPrice({
   currency,

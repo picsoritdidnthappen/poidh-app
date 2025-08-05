@@ -14,7 +14,9 @@ export default function DisplayAddress({
   address: string;
   pfpSize?: number;
 }) {
-  const farcasterUser = trpc.farcasterUser.useQuery({ address });
+  const userDataNeynar = trpc.usersDataNeynar.useQuery({
+    addresses: [address],
+  });
 
   const walletDisplayName = useQuery({
     queryKey: ['getWalletDisplayName', address, chain?.slug],
@@ -27,7 +29,7 @@ export default function DisplayAddress({
 
   return (
     <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-      {farcasterUser?.data && farcasterUser?.data[address][0]?.pfp_url && (
+      {userDataNeynar?.data && userDataNeynar?.data[address]?.[0]?.pfp_url && (
         <div
           style={{
             width: pfpSize ?? 20,
@@ -37,10 +39,8 @@ export default function DisplayAddress({
           className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
         >
           <Image
-            src={
-              farcasterUser.data[address][0]?.pfp_url || '/images/avatar.png'
-            }
-            alt={farcasterUser.data[address][0]?.display_name}
+            src={userDataNeynar.data[address][0].pfp_url}
+            alt={userDataNeynar.data[address][0]?.display_name ?? 'User'}
             width={pfpSize ?? 20}
             height={pfpSize ?? 20}
             unoptimized
@@ -52,10 +52,10 @@ export default function DisplayAddress({
         href={`/${chain?.slug}/account/${address}`}
         className='hover:text-gray-200 truncate overflow-ellipsis m-0 p-0 max-w-full'
       >
-        {farcasterUser.isLoading
+        {userDataNeynar.isLoading
           ? formatWalletAddress(address)
-          : farcasterUser?.data
-          ? farcasterUser?.data[address][0]?.username
+          : userDataNeynar?.data && Object.keys(userDataNeynar?.data).length > 0
+          ? userDataNeynar?.data[address]?.[0]?.username
           : walletDisplayName.isLoading
           ? formatWalletAddress(address)
           : walletDisplayName.data

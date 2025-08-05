@@ -1,7 +1,6 @@
-export const metadata = {
-  title: 'Dashboard - POIDH',
-  description: 'Your POIDH dashboard overview',
-};
+import { generateMetadataForLeaderboardPage } from '@/utils/generateMetadata';
+
+export const generateMetadata = generateMetadataForLeaderboardPage;
 
 export default function DashboardLayout({
   children,

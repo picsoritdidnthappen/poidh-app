@@ -31,6 +31,14 @@ model Bounties {
   @@id([id, chain_id])
 }
 
+model BountiesExtra {
+  bounty_id Int
+  chain_id  Int
+  category  String
+
+  @@id([bounty_id, chain_id])
+}
+
 model Claims {
   id          Int
   chain_id    Int
@@ -102,9 +110,9 @@ model Transactions {
 model Leaderboard {
   address  String
   chain_id Int
-  earned   Int    @default(0)
-  paid     Int    @default(0)
-  nfts     Int    @default(0)
+  earned   Float  @default(0)
+  paid     Float  @default(0)
+  nfts     Float  @default(0)
 
   @@id([address, chain_id])
 }
