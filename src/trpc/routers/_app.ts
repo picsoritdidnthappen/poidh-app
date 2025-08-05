@@ -955,7 +955,7 @@ export const appRouter = createTRPCRouter({
       '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
       '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
       '0xbed82560c39c133a3d64516ecda82c71b72f3cd7',
-      '0x7C7F6cb2dab9De9b242eEec29d2F61bD7d9750E0',
+      '0x7c7f6cb2dab9de9b242eeec29d2f61bd7d9750e0',
       '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
     ];
 
