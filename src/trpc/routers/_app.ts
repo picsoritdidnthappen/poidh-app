@@ -762,7 +762,7 @@ export const appRouter = createTRPCRouter({
       const chain = getChainById({
         chainId: input.chainId as 666666666 | 42161 | 8453,
       });
-      const bounties = await prisma.bounties.findMany({
+      const bountiesInProgress = await prisma.bounties.findMany({
         where: {
           issuer: input.address.toLowerCase(),
           chain_id: input.chainId,
@@ -770,57 +770,25 @@ export const appRouter = createTRPCRouter({
             none: {},
           },
           is_canceled: false,
+          in_progress: true,
         },
         select: {
           amount: true,
-          in_progress: true,
         },
       });
 
-      const claims = await prisma.claims.findMany({
+      const stats = await prisma.leaderboard.findUnique({
         where: {
-          issuer: input.address.toLowerCase(),
-          chain_id: input.chainId,
-          ban: {
-            none: {},
+          address_chain_id: {
+            address: input.address.toLowerCase(),
+            chain_id: chain.id,
           },
-        },
-        select: {
-          is_accepted: true,
-          bounty: {
-            select: {
-              id: true,
-              amount: true,
-            },
-          },
-        },
-      });
-
-      const NFTsCount = await prisma.claims.count({
-        where: {
-          owner: input.address.toLowerCase(),
-          chain_id: input.chainId,
         },
       });
 
       const amountInContract = formatEther(
-        bounties
-          .filter((bounty) => bounty.in_progress)
+        bountiesInProgress
           .flatMap((bounty) => BigInt(bounty.amount))
-          .reduce((total, amount) => total + amount, BigInt(0))
-      );
-
-      const totalPaid = formatEther(
-        bounties
-          .filter((bounty) => !bounty.in_progress)
-          .flatMap((bounty) => BigInt(bounty.amount))
-          .reduce((total, amount) => total + amount, BigInt(0))
-      );
-
-      const totalEarn = formatEther(
-        claims
-          .filter((claim) => claim.is_accepted && claim.bounty)
-          .flatMap((claim) => BigInt(claim.bounty?.amount ?? 0))
           .reduce((total, amount) => total + amount, BigInt(0))
       );
 
@@ -828,32 +796,34 @@ export const appRouter = createTRPCRouter({
 
       const result = {
         amountInContract: convertAmount({ price, amount: amountInContract }),
-        totalPaid: convertAmount({ price, amount: totalPaid }),
-        totalEarn: convertAmount({ price, amount: totalEarn }),
+        totalPaid: convertAmount({
+          price,
+          amount: stats?.paid.toString() ?? '0',
+        }),
+        totalEarn: convertAmount({
+          price,
+          amount: stats?.earned.toString() ?? '0',
+        }),
       };
 
-      const acceptedClaimsCount = claims.filter(
-        (claim) => claim.is_accepted
-      ).length;
-
-      const totalEarnedCrypto = Number(totalEarn);
-      const totalPaidCrypto = Number(totalPaid);
-      const poidhNFTheld = NFTsCount;
+      const acceptedClaimsCount = await prisma.claims.count({
+        where: { issuer: input.address, is_accepted: true, chain_id: chain.id },
+      });
 
       let poidhScore: number;
       if (chain.id === 666666666) {
         // Degen chainId
         poidhScore = scoreDegen({
-          earned: totalEarnedCrypto,
-          paid: totalPaidCrypto,
-          NFTheld: poidhNFTheld,
+          earned: stats?.earned ?? 0,
+          paid: stats?.paid ?? 0,
+          NFTheld: stats?.nfts ?? 0,
         });
       } else {
         // Base and Arbitrum
         poidhScore = scoreETH({
-          earned: totalEarnedCrypto,
-          paid: totalPaidCrypto,
-          NFTheld: poidhNFTheld,
+          earned: stats?.earned ?? 0,
+          paid: stats?.paid ?? 0,
+          NFTheld: stats?.nfts ?? 0,
         });
       }
 
@@ -863,6 +833,7 @@ export const appRouter = createTRPCRouter({
         acceptedClaimsCount,
       };
     }),
+
   //TODO: create zod schema for the responses (Neynar API)
   comments: baseProcedure
     .input(z.object({ url: z.string() }))
@@ -980,30 +951,6 @@ export const appRouter = createTRPCRouter({
     }),
 
   leaderboard: baseProcedure.query(async () => {
-    const scoreETH = ({
-      earned,
-      paid,
-      NFTheld,
-    }: {
-      earned: number;
-      paid: number;
-      NFTheld: number;
-    }) => {
-      return earned * 1000 + paid * 1000 + NFTheld * 10;
-    };
-
-    const scoreDegen = ({
-      earned,
-      paid,
-      NFTheld,
-    }: {
-      earned: number;
-      paid: number;
-      NFTheld: number;
-    }) => {
-      return earned / 500 + paid / 500 + NFTheld * 10;
-    };
-
     const ignoreAddresses = [
       '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
       '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
@@ -1099,10 +1046,9 @@ export const appRouter = createTRPCRouter({
         const newScore = {
           ...chainScores,
           total:
-            ((chainScores.base ?? 0) +
-              (chainScores.degen ?? 0) +
-              (chainScores.arbitrum ?? 0)) /
-            3,
+            (chainScores.base ?? 0) +
+            (chainScores.degen ?? 0) +
+            (chainScores.arbitrum ?? 0),
         };
 
         leaderBoard.set(user.address.toLowerCase(), newScore);
