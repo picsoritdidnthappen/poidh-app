@@ -37,7 +37,7 @@ export default function HighScoresPage() {
     <div className='min-h-screen bg-gradient-to-b from-[#2a81d5] via-[#70aae2] to-[#6fa9e1] p-6 text-white font-mono'>
       <div className='max-w-7xl mx-auto'>
         <header className='text-center mb-10'>
-          <h1 className='text-5xl'>poidh high scores</h1>
+          <h1 className='text-5xl font-mono'>poidh high scores</h1>
         </header>
 
         <main className='w-full'>
