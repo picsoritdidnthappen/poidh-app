@@ -15,6 +15,7 @@ type DetailedClaim = {
   chainId: ChainId;
   bountyTitle: string;
   bountyAmount: string;
+  isMultiplayer: boolean;
 } & Claim;
 
 const Home = () => {
@@ -34,13 +35,9 @@ const Home = () => {
           fund a bounty 💰
         </h3>
         <p className='text-lg mb-8'></p>
-        <h3 className='font-mono text-xl mb-6 tracking-wide'>
-          share it 📢
-        </h3>
+        <h3 className='font-mono text-xl mb-6 tracking-wide'>share it 📢</h3>
         <p className='text-lg mb-8'></p>
-        <h3 className='font-mono text-xl mb-6 tracking-wide'>
-          approve it 🤝
-        </h3>
+        <h3 className='font-mono text-xl mb-6 tracking-wide'>approve it 🤝</h3>
 
         <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
           click the 🕹️ to get started
@@ -74,6 +71,7 @@ const Home = () => {
                     claim={claim}
                     bountyTitle={claim.bountyTitle}
                     bountyAmount={claim.bountyAmount}
+                    isMultiplayer={claim.isMultiplayer}
                   />
                 ))}
             </div>
