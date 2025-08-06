@@ -274,10 +274,11 @@ export const appRouter = createTRPCRouter({
           c.is_accepted AS "accepted",
           c.bounty_id AS "bountyId",
           b.title AS "bountyTitle",
-          b.amount AS "bountyAmount"
+          b.amount AS "bountyAmount",
+          b.is_multiplayer AS "isMultiplayer"
         FROM "Claims" c
         JOIN (
-            SELECT id, chain_id, title, amount
+            SELECT id, chain_id, title, amount, is_multiplayer
             FROM "Bounties"
             WHERE in_progress IS FALSE
               AND is_canceled IS FALSE
