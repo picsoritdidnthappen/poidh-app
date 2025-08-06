@@ -7,15 +7,18 @@ import CopyAddressButton from '../global/CopyAddressButton';
 import { fetchPrice, formatAmount } from '@/utils/utils';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
+import { UsersRoundIcon } from '@/components/global/Icons';
 
 export default function PastBountyCard({
   claim,
   bountyTitle,
   bountyAmount,
+  isMultiplayer,
 }: {
   claim: Claim;
   bountyTitle: string;
   bountyAmount: string;
+  isMultiplayer: boolean;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [price, setPrice] = useState<number>(0);
@@ -88,13 +91,16 @@ export default function PastBountyCard({
             <p className='text-nowrap overflow-ellipsis overflow-hidden text-xl mb-3 normal-case'>
               {bountyTitle}
             </p>
-            <span className='text-md'>
-              {formatAmount({
-                amount: formatEther(BigInt(bountyAmount)),
-                currency: chain.currency,
-                price: price.toString(),
-              })}
-            </span>
+            <div className='flex items-center'>
+              <span className='text-md mr-3'>
+                {formatAmount({
+                  amount: formatEther(BigInt(bountyAmount)),
+                  currency: chain.currency,
+                  price: price.toString(),
+                })}
+              </span>
+              {isMultiplayer && <UsersRoundIcon size={20} />}
+            </div>
           </div>
         </div>
       )}

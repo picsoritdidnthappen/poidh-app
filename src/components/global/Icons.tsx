@@ -24,18 +24,12 @@ export function InfoIcon({
   );
 }
 
-export function UsersRoundIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function UsersRoundIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       fill='none'
       stroke='currentColor'
@@ -369,13 +363,7 @@ export function SortIcon({
   );
 }
 
-export function BanIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function BanIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -383,8 +371,8 @@ export function BanIcon({
       viewBox='0 0 24 24'
       fill='none'
       stroke='currentColor'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
     >
       <path
         strokeLinecap='round'
