@@ -20,13 +20,17 @@ export default function ShareBountModal({
   const [isMobileMiniApp, setIsMobileMiniApp] = useState(false);
 
   useEffect(() => {
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod|Tablet|Mobile|CriOS/i.test(
-      navigator.userAgent
-    );
-    const isMiniApp = sdk.isInMiniApp();
-    if (isMobile && isMiniApp) {
-      setIsMobileMiniApp(true);
-    }
+    const checkMobileMiniApp = async () => {
+      const isMobile =
+        /Mobi|Android|iPhone|iPad|iPod|Tablet|Mobile|CriOS/i.test(
+          navigator.userAgent
+        );
+      const isMiniApp = await sdk.isInMiniApp();
+      if (isMobile && isMiniApp) {
+        setIsMobileMiniApp(true);
+      }
+    };
+    checkMobileMiniApp();
   }, []);
 
   const userDataNeynar = trpc.usersDataNeynar.useQuery({
