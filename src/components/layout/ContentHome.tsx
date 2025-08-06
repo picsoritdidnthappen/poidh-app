@@ -156,7 +156,6 @@ export default function ContentHome() {
                       const claim = bounty.claims.filter(
                         (claim) => claim.is_accepted
                       )[0];
-                      if (!claim) return null;
                       return (
                         <PastBountyCard
                           key={`${claim.id}-${claim.chain_id}`}

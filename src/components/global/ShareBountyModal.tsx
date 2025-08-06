@@ -60,11 +60,13 @@ export default function ShareBountModal({
       ][0]?.verified_accounts?.find(
         (account) => account.platform === 'x'
       )?.username;
-      text =
-        'check out this bounty from @' +
-        xUsername +
-        ' on @poidhxyz 📸\n\n' +
-        window.location.href;
+      if (xUsername) {
+        text =
+          'check out this bounty from @' +
+          xUsername +
+          ' on @poidhxyz 📸\n\n' +
+          window.location.href;
+      }
     }
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,

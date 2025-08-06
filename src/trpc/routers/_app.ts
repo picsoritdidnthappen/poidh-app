@@ -217,6 +217,7 @@ export const appRouter = createTRPCRouter({
                 none: {},
               },
             },
+            orderBy: { is_accepted: 'desc' },
           },
         },
         orderBy: sortById
