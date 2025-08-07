@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   TwitterXIcon,
   FarcasterIcon,
@@ -8,7 +8,6 @@ import {
 } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
 import { trpc } from '@/trpc/client';
-import sdk from '@farcaster/frame-sdk';
 
 export default function ShareBountModal({
   bountyIssuerAddress,
@@ -17,22 +16,6 @@ export default function ShareBountModal({
   onClose: () => void;
   bountyIssuerAddress: string;
 }) {
-  const [isMobileMiniApp, setIsMobileMiniApp] = useState(false);
-
-  useEffect(() => {
-    const checkMobileMiniApp = async () => {
-      const isMobile =
-        /Mobi|Android|iPhone|iPad|iPod|Tablet|Mobile|CriOS/i.test(
-          navigator.userAgent
-        );
-      const isMiniApp = await sdk.isInMiniApp();
-      if (isMobile && isMiniApp) {
-        setIsMobileMiniApp(true);
-      }
-    };
-    checkMobileMiniApp();
-  }, []);
-
   const userDataNeynar = trpc.usersDataNeynar.useQuery({
     addresses: [bountyIssuerAddress],
   });
@@ -85,17 +68,10 @@ export default function ShareBountModal({
           window.location.href;
       }
     }
-
-    if (isMobileMiniApp) {
-      window.location.assign(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`
-      );
-    } else {
-      window.open(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
-        '_blank'
-      );
-    }
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+      '_blank'
+    );
     onClose();
   };
 
@@ -103,7 +79,7 @@ export default function ShareBountModal({
     let text = 'check out this bounty on /poidh 📸\n\n' + window.location.href;
     if (
       userDataNeynar?.data &&
-      userDataNeynar?.data?.[bountyIssuerAddress]?.[0]?.username
+      userDataNeynar?.data[bountyIssuerAddress][0].username
     ) {
       text =
         'check out this bounty from @' +
@@ -111,17 +87,10 @@ export default function ShareBountModal({
         ' on /poidh 📸\n\n' +
         window.location.href;
     }
-
-    if (isMobileMiniApp) {
-      window.location.assign(
-        `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
-      );
-    } else {
-      window.open(
-        `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`,
-        '_blank'
-      );
-    }
+    window.open(
+      `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`,
+      '_blank'
+    );
     onClose();
   };
 
