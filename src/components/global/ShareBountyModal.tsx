@@ -8,6 +8,7 @@ import {
 } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
 import { trpc } from '@/trpc/client';
+import sdk from '@farcaster/miniapp-sdk';
 
 export default function ShareBountModal({
   bountyIssuerAddress,
@@ -75,22 +76,21 @@ export default function ShareBountModal({
     onClose();
   };
 
-  const handleShareFarcaster = () => {
-    let text = 'check out this bounty on /poidh 📸\n\n' + window.location.href;
+  const handleShareFarcaster = async () => {
+    let text = 'check out this bounty on /poidh 📸\n\n';
     if (
       userDataNeynar?.data &&
-      userDataNeynar?.data[bountyIssuerAddress][0].username
+      userDataNeynar?.data[bountyIssuerAddress]?.[0]?.username
     ) {
       text =
         'check out this bounty from @' +
         userDataNeynar?.data[bountyIssuerAddress][0].username +
-        ' on /poidh 📸\n\n' +
-        window.location.href;
+        ' on /poidh 📸\n\n';
     }
-    window.open(
-      `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`,
-      '_blank'
-    );
+    const url =
+      `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}` +
+      `&embeds[]=${encodeURIComponent(window.location.href)}`;
+    window.open(url, '_blank');
     onClose();
   };
 
