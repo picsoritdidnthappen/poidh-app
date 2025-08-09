@@ -1076,7 +1076,7 @@ export const appRouter = createTRPCRouter({
           ]
       )
       .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 10);
+      .slice(0, 100);
   }),
 
   generateBounty: baseProcedure.mutation(async () => {
@@ -1145,6 +1145,22 @@ export const appRouter = createTRPCRouter({
 
     return parsed.data;
   }),
+
+  categories: baseProcedure
+    .input(
+      z.object({
+        contains: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      return prisma.bountiesExtra.groupBy({
+        by: ['category'],
+        where: { category: { contains: input.contains } },
+        _count: {
+          category: true,
+        },
+      });
+    }),
 });
 
 export function checkIsAdmin(address?: string) {
