@@ -10,7 +10,6 @@ const handleRequest = frames(async (ctx) => {
   const { searchParams } = new URL(ctx.url);
   const chainId = searchParams.get('chainId');
   const bountyId = searchParams.get('bountyId');
-  console.log(chainId, bountyId);
 
   if (!chainId || !bountyId) {
     const returnMsg = 'No chain id provided';
