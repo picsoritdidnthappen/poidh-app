@@ -1076,7 +1076,7 @@ export const appRouter = createTRPCRouter({
           ]
       )
       .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 10);
+      .slice(0, 100);
   }),
 
   generateBounty: baseProcedure.mutation(async () => {
