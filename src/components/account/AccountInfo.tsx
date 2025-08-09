@@ -60,7 +60,11 @@ export default function AccountInfo({ address }: { address: string }) {
               <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-2 max-w-[1400px] mx-auto'>
                 <StatCard
                   title='completed bounties'
-                  value={accountActivities.data?.NFTs.length ?? 0}
+                  value={
+                    accountActivities.data?.bounties?.filter(
+                      (bounty) => !bounty.inProgress && !bounty.isCanceled
+                    ).length ?? 0
+                  }
                 />
                 <StatCard
                   title='total paid'
