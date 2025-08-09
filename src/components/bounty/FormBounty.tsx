@@ -37,6 +37,15 @@ export default function FormBounty({
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
+  const [isCategoryFocused, setIsCategoryFocused] = useState(false);
+
+  const { data: categories } = trpc.categories.useQuery(
+    { contains: category },
+    {
+      enabled: !!category,
+      staleTime: 30_000,
+    }
+  );
 
   useEffect(() => {
     if (amount) {
@@ -246,23 +255,49 @@ export default function FormBounty({
           <span className={cn(generateBounty.isPending && 'animate-pulse')}>
             category
           </span>
-          <input
-            disabled={generateBounty.isPending}
-            type='text'
-            value={category}
-            onChange={(e) => {
-              const next = e.target.value.match(/^\S*/)?.[0] ?? '';
-              setCategory(next);
-            }}
-            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400'
-            placeholder='optional'
-            maxLength={30}
-            onKeyDown={(e) => {
-              if (/\s/.test(e.key)) {
-                e.preventDefault();
-              }
-            }}
-          />
+          <div className='relative mb-4'>
+            <input
+              disabled={generateBounty.isPending}
+              type='text'
+              value={category}
+              onChange={(e) => {
+                const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
+                setCategory(next);
+              }}
+              onFocus={() => setIsCategoryFocused(true)}
+              onBlur={() => setIsCategoryFocused(false)}
+              className='border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full'
+              placeholder='optional'
+              maxLength={30}
+              onKeyDown={(e) => {
+                if (/\s/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
+            {isCategoryFocused &&
+              category &&
+              categories &&
+              categories.length > 0 && (
+                <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
+                  {categories.map((c) => (
+                    <li
+                      key={c.category}
+                      className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setCategory(c.category);
+                      }}
+                    >
+                      {c.category.length > 20
+                        ? `${c.category.slice(0, 20)}…`
+                        : c.category}{' '}
+                      ({c._count.category})
+                    </li>
+                  ))}
+                </ul>
+              )}
+          </div>
           <div className='flex items-center justify-start gap-2'>
             <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
             <Switch
