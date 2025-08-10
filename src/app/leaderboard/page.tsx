@@ -8,6 +8,7 @@ import { TwitterXIcon } from '@/components/global/Icons';
 import { inferRouterOutputs } from '@trpc/server';
 import { AppRouter } from '@/trpc/routers/_app';
 import { useAccount } from 'wagmi';
+import Link from 'next/link';
 
 function ResolvedAddressCell({ address }: { address: string }) {
   const ensOrDegenName = useDegenOrEnsName(address);
@@ -19,6 +20,29 @@ function ResolvedAddressCell({ address }: { address: string }) {
     <span className='relative'>
       {formatUserNames(ensOrDegenName ?? address)}
     </span>
+  );
+}
+
+function ScoreCell({
+  chain,
+  address,
+  score,
+  className = '',
+  children,
+}: {
+  chain: 'arbitrum' | 'base' | 'degen';
+  address: string;
+  score: number;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={`/${chain}/account/${address}`}
+      className={`hover:bg-white/10 hover:text-[#F15E5F] transition-all cursor-pointer block w-full h-full ${className}`}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -141,17 +165,38 @@ export default function HighScoresPage() {
                       </div>
                     )}
                   </div>
-                  <div className='flex justify-between md:col-span-2 md:justify-center md:border-l border-white/30 md:text-center md:items-center'>
-                    <span className='text-base md:hidden'>arbitrum</span>
-                    <span>{userRankData?.data?.[1]?.arbitrum ?? 0}</span>
+                  <div className='md:col-span-2 md:border-l border-white/30'>
+                    <ScoreCell
+                      chain='arbitrum'
+                      address={account.address}
+                      score={userRankData?.data?.[1]?.arbitrum ?? 0}
+                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                    >
+                      <span className='text-base md:hidden'>arbitrum</span>
+                      <span>{userRankData?.data?.[1]?.arbitrum ?? 0}</span>
+                    </ScoreCell>
                   </div>
-                  <div className='flex justify-between md:col-span-2 md:justify-center md:border-l border-white/30 md:text-center md:items-center'>
-                    <span className='text-base md:hidden'>base</span>
-                    <span>{userRankData?.data?.[1]?.base ?? 0}</span>
+                  <div className='md:col-span-2 md:border-l border-white/30'>
+                    <ScoreCell
+                      chain='base'
+                      address={account.address}
+                      score={userRankData?.data?.[1]?.base ?? 0}
+                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                    >
+                      <span className='text-base md:hidden'>base</span>
+                      <span>{userRankData?.data?.[1]?.base ?? 0}</span>
+                    </ScoreCell>
                   </div>
-                  <div className='flex justify-between md:col-span-2 md:justify-center md:border-l border-white/30 md:text-center md:items-center'>
-                    <span className='text-base md:hidden'>degen</span>
-                    <span>{userRankData?.data?.[1]?.degen ?? 0}</span>
+                  <div className='md:col-span-2 md:border-l border-white/30'>
+                    <ScoreCell
+                      chain='degen'
+                      address={account.address}
+                      score={userRankData?.data?.[1]?.degen ?? 0}
+                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                    >
+                      <span className='text-base md:hidden'>degen</span>
+                      <span>{userRankData?.data?.[1]?.degen ?? 0}</span>
+                    </ScoreCell>
                   </div>
                   <div className='flex md:items-center justify-between text-[#F15E5F] md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
                     <span className='text-base md:hidden'>total</span>
@@ -229,17 +274,38 @@ export default function HighScoresPage() {
                       </div>
                     )}
                   </div>
-                  <div className='flex justify-between md:col-span-2 md:justify-center md:border-l border-white/30 md:text-center md:items-center'>
-                    <span className='text-base md:hidden'>arbitrum</span>
-                    <span>{scores.arbitrum}</span>
+                  <div className='md:col-span-2 md:border-l border-white/30'>
+                    <ScoreCell
+                      chain='arbitrum'
+                      address={address}
+                      score={scores.arbitrum}
+                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                    >
+                      <span className='text-base md:hidden'>arbitrum</span>
+                      <span>{scores.arbitrum}</span>
+                    </ScoreCell>
                   </div>
-                  <div className='flex justify-between md:col-span-2 md:justify-center md:border-l border-white/30 md:text-center md:items-center'>
-                    <span className='text-base md:hidden'>base</span>
-                    <span>{scores.base}</span>
+                  <div className='md:col-span-2 md:border-l border-white/30'>
+                    <ScoreCell
+                      chain='base'
+                      address={address}
+                      score={scores.base}
+                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                    >
+                      <span className='text-base md:hidden'>base</span>
+                      <span>{scores.base}</span>
+                    </ScoreCell>
                   </div>
-                  <div className='flex justify-between md:col-span-2 md:justify-center md:border-l border-white/30 md:text-center md:items-center'>
-                    <span className='text-base md:hidden'>degen</span>
-                    <span>{scores.degen}</span>
+                  <div className='md:col-span-2 md:border-l border-white/30'>
+                    <ScoreCell
+                      chain='degen'
+                      address={address}
+                      score={scores.degen}
+                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                    >
+                      <span className='text-base md:hidden'>degen</span>
+                      <span>{scores.degen}</span>
+                    </ScoreCell>
                   </div>
                   <div className='flex md:items-center justify-between text-[#F15E5F] md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
                     <span className='text-base md:hidden'>total</span>
@@ -369,21 +435,42 @@ function LeaderboardCardMobile({
         )}
       </div>
       <div className='flex flex-col gap-2'>
-        <div className='flex items-center text-white text-lg border-b border-white/20 p-2'>
-          <div className='flex-1 flex items-center justify-between px-2 py-1'>
-            <span className='w-20'>arbitrum</span>
-            <span className='w-14 text-right'>{scores.arbitrum}</span>
+        <div className='flex items-center text-white text-lg border-b border-white/20'>
+          <div className='flex-1'>
+            <ScoreCell
+              chain='arbitrum'
+              address={address}
+              score={scores.arbitrum}
+              className='flex items-center justify-between px-4 py-3'
+            >
+              <span className='w-20'>arbitrum</span>
+              <span className='w-14 text-right'>{scores.arbitrum}</span>
+            </ScoreCell>
           </div>
           <div className='h-6 border-r border-white/30 mx-4' />
-          <div className='flex-1 flex items-center justify-between px-2'>
-            <span className='w-12'>base</span>
-            <span className='w-14 text-right'>{scores.base}</span>
+          <div className='flex-1'>
+            <ScoreCell
+              chain='base'
+              address={address}
+              score={scores.base}
+              className='flex items-center justify-between px-4 py-3'
+            >
+              <span className='w-12'>base</span>
+              <span className='w-14 text-right'>{scores.base}</span>
+            </ScoreCell>
           </div>
         </div>
-        <div className='flex items-center text-white text-lg p-2'>
-          <div className='flex-1 flex items-center justify-between px-2'>
-            <span className='w-20'>degen</span>
-            <span className='w-14 text-right'>{scores.degen}</span>
+        <div className='flex items-center text-white text-lg'>
+          <div className='flex-1'>
+            <ScoreCell
+              chain='degen'
+              address={address}
+              score={scores.degen}
+              className='flex items-center justify-between px-4 py-3'
+            >
+              <span className='w-20'>degen</span>
+              <span className='w-14 text-right'>{scores.degen}</span>
+            </ScoreCell>
           </div>
           <div className='h-6 border-r border-white/30 mx-4' />
           <div className='flex-1 flex items-center justify-between px-2'>
