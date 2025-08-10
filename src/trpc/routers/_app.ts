@@ -952,132 +952,169 @@ export const appRouter = createTRPCRouter({
       return data ?? {};
     }),
 
-  leaderboard: baseProcedure.query(async () => {
-    const ignoreAddresses = [
-      '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
-      '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
-      '0xbed82560c39c133a3d64516ecda82c71b72f3cd7',
-      '0x7c7f6cb2dab9de9b242eeec29d2f61bd7d9750e0',
-      '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
-    ];
+  leaderboard: baseProcedure
+    .input(
+      z
+        .object({
+          userAddress: addressSchema.optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      const ignoreAddresses = [
+        '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
+        '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
+        '0xbed82560c39c133a3d64516ecda82c71b72f3cd7',
+        '0x7c7f6cb2dab9de9b242eeec29d2f61bd7d9750e0',
+        '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
+      ];
 
-    const fetchTop = (
-      chainId: number,
-      orderCol: 'paid' | 'earned' | 'nfts',
-      take = 30
-    ) =>
-      prisma.leaderboard.findMany({
-        where: {
-          AND: [
-            { chain_id: chainId },
-            { address: { not: { in: ignoreAddresses } } },
-          ],
-        },
-        orderBy: { [orderCol]: 'desc' },
-        take,
-      });
+      const fetchTop = (
+        chainId: number,
+        orderCol: 'paid' | 'earned' | 'nfts',
+        take = 30
+      ) =>
+        prisma.leaderboard.findMany({
+          where: {
+            AND: [
+              { chain_id: chainId },
+              { address: { not: { in: ignoreAddresses } } },
+            ],
+          },
+          orderBy: { [orderCol]: 'desc' },
+          take,
+        });
 
-    const buildLeaderboard = async (chainId: number) => {
-      const [byPaid, byEarned, byNfts] = await Promise.all([
-        fetchTop(chainId, 'paid'),
-        fetchTop(chainId, 'earned'),
-        fetchTop(chainId, 'nfts'),
-      ]);
+      const buildLeaderboard = async (chainId: number) => {
+        const [byPaid, byEarned, byNfts] = await Promise.all([
+          fetchTop(chainId, 'paid'),
+          fetchTop(chainId, 'earned'),
+          fetchTop(chainId, 'nfts'),
+        ]);
 
-      const uniq = new Map<string, Leaderboard>();
-      [...byPaid, ...byEarned, ...byNfts].forEach((row) =>
-        uniq.set(row.address.toLowerCase(), row)
+        const uniq = new Map<string, Leaderboard>();
+        [...byPaid, ...byEarned, ...byNfts].forEach((row) =>
+          uniq.set(row.address.toLowerCase(), row)
+        );
+
+        return Array.from(uniq.values());
+      };
+
+      const [leaderboardBase, leaderboardDegen, leaderboardArbitrum] =
+        await Promise.all([
+          buildLeaderboard(8453),
+          buildLeaderboard(666666666),
+          buildLeaderboard(42161),
+        ]);
+
+      const leaderBoard = new Map<
+        string,
+        {
+          degen: number | undefined;
+          base: number | undefined;
+          arbitrum: number | undefined;
+          total: number;
+        }
+      >();
+
+      [...leaderboardBase, ...leaderboardDegen, ...leaderboardArbitrum].forEach(
+        (user) => {
+          const initialScore = leaderBoard.get(user.address.toLowerCase());
+
+          const chainScores: {
+            base: number | undefined;
+            degen: number | undefined;
+            arbitrum: number | undefined;
+          } = {
+            base:
+              initialScore?.base ??
+              (user.chain_id === 8453
+                ? scoreETH({
+                    earned: user.earned,
+                    paid: user.paid,
+                    NFTheld: user.nfts,
+                  })
+                : initialScore?.base),
+            degen:
+              initialScore?.degen ??
+              (user.chain_id === 666666666
+                ? scoreDegen({
+                    earned: user.earned,
+                    paid: user.paid,
+                    NFTheld: user.nfts,
+                  })
+                : initialScore?.degen),
+            arbitrum:
+              initialScore?.arbitrum ??
+              (user.chain_id === 42161
+                ? scoreETH({
+                    earned: user.earned,
+                    paid: user.paid,
+                    NFTheld: user.nfts,
+                  })
+                : initialScore?.arbitrum),
+          };
+
+          const newScore = {
+            ...chainScores,
+            total:
+              (chainScores.base ?? 0) +
+              (chainScores.degen ?? 0) +
+              (chainScores.arbitrum ?? 0),
+          };
+
+          leaderBoard.set(user.address.toLowerCase(), newScore);
+        }
       );
 
-      return Array.from(uniq.values());
-    };
+      const sortedLeaderboard = Array.from(leaderBoard.entries())
+        .map(
+          ([address, scores]) =>
+            [
+              address,
+              {
+                base: Math.round(scores.base ?? 0),
+                degen: Math.round(scores.degen ?? 0),
+                arbitrum: Math.round(scores.arbitrum ?? 0),
+                total: Math.round(scores.total ?? 0),
+              },
+            ] as [
+              string,
+              { base: number; degen: number; arbitrum: number; total: number }
+            ]
+        )
+        .sort((a, b) => b[1].total - a[1].total);
 
-    const [leaderboardBase, leaderboardDegen, leaderboardArbitrum] =
-      await Promise.all([
-        buildLeaderboard(8453),
-        buildLeaderboard(666666666),
-        buildLeaderboard(42161),
-      ]);
+      const top100 = sortedLeaderboard.slice(0, 100);
 
-    const leaderBoard = new Map<
-      string,
-      {
-        degen: number | undefined;
-        base: number | undefined;
-        arbitrum: number | undefined;
-        total: number;
+      // If userAddress is provided, find their rank and data
+      let userData: {
+        rank: number;
+        data: [
+          string,
+          { base: number; degen: number; arbitrum: number; total: number }
+        ];
+      } | null = null;
+
+      if (input?.userAddress) {
+        const userIndex = sortedLeaderboard.findIndex(
+          ([address]) =>
+            address.toLowerCase() === input.userAddress?.toLowerCase()
+        );
+
+        if (userIndex !== -1) {
+          userData = {
+            rank: userIndex + 1,
+            data: sortedLeaderboard[userIndex],
+          };
+        }
       }
-    >();
 
-    [...leaderboardBase, ...leaderboardDegen, ...leaderboardArbitrum].forEach(
-      (user) => {
-        const initialScore = leaderBoard.get(user.address.toLowerCase());
-
-        const chainScores: {
-          base: number | undefined;
-          degen: number | undefined;
-          arbitrum: number | undefined;
-        } = {
-          base:
-            initialScore?.base ??
-            (user.chain_id === 8453
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : initialScore?.base),
-          degen:
-            initialScore?.degen ??
-            (user.chain_id === 666666666
-              ? scoreDegen({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : initialScore?.degen),
-          arbitrum:
-            initialScore?.arbitrum ??
-            (user.chain_id === 42161
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : initialScore?.arbitrum),
-        };
-
-        const newScore = {
-          ...chainScores,
-          total:
-            (chainScores.base ?? 0) +
-            (chainScores.degen ?? 0) +
-            (chainScores.arbitrum ?? 0),
-        };
-
-        leaderBoard.set(user.address.toLowerCase(), newScore);
-      }
-    );
-
-    return Array.from(leaderBoard.entries())
-      .map(
-        ([address, scores]) =>
-          [
-            address,
-            {
-              base: Math.round(scores.base ?? 0),
-              degen: Math.round(scores.degen ?? 0),
-              arbitrum: Math.round(scores.arbitrum ?? 0),
-              total: Math.round(scores.total ?? 0),
-            },
-          ] as [
-            string,
-            { base: number; degen: number; arbitrum: number; total: number }
-          ]
-      )
-      .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 100);
-  }),
+      return {
+        leaderboard: top100,
+        userData,
+      };
+    }),
 
   generateBounty: baseProcedure.mutation(async () => {
     const PROMPT = `Generate unique, creative, and fun bounty ideas for the "Pics or It Didn't Happen" (poidh) website. Each bounty should encourage users to engage in amusing, interesting, or surprising activities that can be easily documented with a photo, screenshot, or video.
