@@ -24,24 +24,27 @@ export default function SlideOverMenu() {
     <div className='flex gap-2 flex-col p-5 text-white'>
       {account.address && (
         <MenuLink href={`/${chain.slug}/account/${account.address}`}>
-          my account
+          my account 👤
         </MenuLink>
       )}
+      <MenuLink href='/leaderboard'>
+        leaderboard 🕹️
+      </MenuLink>
       <MenuLink href='https://paragraph.xyz/@poidh/poidh-beginner-guide'>
-        how it works
+        how it works 💡
       </MenuLink>
       <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app'>
-        github
+        github 🛠️
       </MenuLink>
       <MenuLink href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'>
-        analytics
+        analytics 📊
       </MenuLink>
-      <MenuLink href='https://warpcast.com/poidhbot'>farcaster</MenuLink>
-      <MenuLink href='https://x.com/poidhxyz'>twitter</MenuLink>
+      <MenuLink href='https://warpcast.com/poidhbot'>farcaster 🟪</MenuLink>
+      <MenuLink href='https://x.com/poidhxyz'>twitter 🐦</MenuLink>
       <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'>
-        report bug
+        report bug 🐛
       </MenuLink>
-      <MenuLink href='https://poidh.xyz/terms'>terms</MenuLink>
+      <MenuLink href='https://poidh.xyz/terms'>terms 📜</MenuLink>
     </div>
   );
 }
