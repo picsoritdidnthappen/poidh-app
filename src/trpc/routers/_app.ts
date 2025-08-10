@@ -1155,7 +1155,7 @@ export const appRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return prisma.bountiesExtra.groupBy({
         by: ['category'],
-        where: { category: { contains: input.contains } },
+        where: { category: { contains: input.contains, mode: 'insensitive' } },
         _count: {
           category: true,
         },
