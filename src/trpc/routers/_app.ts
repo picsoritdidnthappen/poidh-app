@@ -1182,6 +1182,22 @@ export const appRouter = createTRPCRouter({
 
     return parsed.data;
   }),
+
+  categories: baseProcedure
+    .input(
+      z.object({
+        contains: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      return prisma.bountiesExtra.groupBy({
+        by: ['category'],
+        where: { category: { contains: input.contains, mode: 'insensitive' } },
+        _count: {
+          category: true,
+        },
+      });
+    }),
 });
 
 export function checkIsAdmin(address?: string) {
