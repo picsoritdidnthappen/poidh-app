@@ -37,7 +37,7 @@ export default function FormBounty({
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
-  const [isCategoryFocused, setIsCategoryFocused] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const { data: categories } = trpc.categories.useQuery(
     { contains: category },
@@ -261,11 +261,14 @@ export default function FormBounty({
               type='text'
               value={category}
               onChange={(e) => {
+                if (!showCategoryDropdown) {
+                  setShowCategoryDropdown(true);
+                }
                 const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
                 setCategory(next);
               }}
-              onFocus={() => setIsCategoryFocused(true)}
-              onBlur={() => setIsCategoryFocused(false)}
+              onFocus={() => setShowCategoryDropdown(true)}
+              onBlur={() => setShowCategoryDropdown(false)}
               className='border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full'
               placeholder='optional'
               maxLength={30}
@@ -275,7 +278,7 @@ export default function FormBounty({
                 }
               }}
             />
-            {isCategoryFocused &&
+            {showCategoryDropdown &&
               category &&
               categories &&
               categories.length > 0 && (
@@ -287,6 +290,7 @@ export default function FormBounty({
                       onMouseDown={(e) => {
                         e.preventDefault();
                         setCategory(c.category);
+                        setShowCategoryDropdown(false);
                       }}
                     >
                       {c.category.length > 20
