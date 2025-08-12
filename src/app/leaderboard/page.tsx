@@ -39,7 +39,7 @@ function ScoreCell({
   return (
     <Link
       href={`/${chain}/account/${address}`}
-      className={`hover:bg-white/10 hover:text-[#F15E5F] transition-all cursor-pointer block w-full h-full ${className}`}
+      className={`hover:bg-white/10 hover:text-poidhRed transition-all cursor-pointer block w-full h-full ${className}`}
     >
       {children}
     </Link>
@@ -79,7 +79,7 @@ export default function HighScoresPage() {
         </header>
 
         <main className='w-full'>
-          <div className='hidden md:grid grid-cols-12 items-center bg-[#F15E5F] rounded-full px-6 py-3 text-lg mb-4'>
+          <div className='hidden md:grid grid-cols-12 items-center bg-poidhRed rounded-full px-6 py-3 text-lg mb-4'>
             <div className='col-span-1 text-center'>rank</div>
             <div className='col-span-4 text-center pl-4'>address</div>
             <div className='col-span-2 text-center'>arbitrum</div>
@@ -97,11 +97,11 @@ export default function HighScoresPage() {
                     flex flex-col bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-3
                     md:grid md:grid-cols-12 md:rounded-full md:px-4 md:py-2
                     transition-transform hover:shadow-xl hover:bg-white/30
-                    ring-2 ring-[#F15E5F]/50
+                    ring-2 ring-poidhRed/50
                   '
                 >
                   <div className='flex items-center gap-3 mb-2 md:mb-0 md:col-span-1 md:gap-0 md:justify-center'>
-                    <div className='flex items-center justify-center bg-[#F15E5F] text-white rounded-full mr-2 w-20 h-10 md:mr-0'>
+                    <div className='flex items-center justify-center bg-poidhRed text-white rounded-full mr-2 w-20 h-10 md:mr-0'>
                       You
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export default function HighScoresPage() {
                       <span>{userRankData?.data?.[1]?.degen ?? 0}</span>
                     </ScoreCell>
                   </div>
-                  <div className='flex md:items-center justify-between text-[#F15E5F] md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
+                  <div className='flex md:items-center justify-between text-poidhRed md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
                     <span className='text-base md:hidden'>total</span>
                     <span>{userRankData?.data?.[1]?.total ?? 0}</span>
                   </div>
@@ -307,7 +307,7 @@ export default function HighScoresPage() {
                       <span>{scores.degen}</span>
                     </ScoreCell>
                   </div>
-                  <div className='flex md:items-center justify-between text-[#F15E5F] md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
+                  <div className='flex md:items-center justify-between text-poidhRed md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
                     <span className='text-base md:hidden'>total</span>
                     <span>{scores.total}</span>
                   </div>
@@ -372,7 +372,7 @@ function LeaderboardCardMobile({
     <div
       className={`rounded-2xl border mb-4 ${
         isCurrentUser
-          ? 'border-[#F15E5F] bg-[#F15E5F]/10'
+          ? 'border-poidhRed bg-poidhRed/10'
           : 'border-white/20 bg-white/10'
       }`}
     >
@@ -380,7 +380,7 @@ function LeaderboardCardMobile({
         <div
           className={`py-1 px-6 flex items-center justify-center rounded-full border text-xl ${
             isCurrentUser
-              ? 'bg-[#F15E5F] text-white border-[#F15E5F]'
+              ? 'bg-poidhRed text-white border-poidhRed'
               : 'bg-white/20 border-white/60 text-white'
           }`}
         >
@@ -474,8 +474,8 @@ function LeaderboardCardMobile({
           </div>
           <div className='h-6 border-r border-white/30 mx-4' />
           <div className='flex-1 flex items-center justify-between px-2'>
-            <span className='w-12 text-[#F15E5F]'>total</span>
-            <span className='w-14 text-right text-[#F15E5F]'>
+            <span className='w-12 text-poidhRed'>total</span>
+            <span className='w-14 text-right text-poidhRed'>
               {scores.total}
             </span>
           </div>
