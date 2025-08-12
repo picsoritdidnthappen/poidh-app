@@ -838,7 +838,9 @@ export const appRouter = createTRPCRouter({
 
   //TODO: create zod schema for the responses (Neynar API)
   comments: baseProcedure
-    .input(z.object({ url: z.string() }))
+    .input(
+      z.object({ url: z.string(), limit: z.number().optional().default(20) })
+    )
     .query(async ({ input }) => {
       const neynarApiKey = serverEnv.NEYNAR_API_KEY;
       if (!neynarApiKey) {
@@ -855,55 +857,30 @@ export const appRouter = createTRPCRouter({
           params: {
             q: `"${input.url}"`,
             mode: 'literal',
+            limit: input.limit,
           },
         }
       );
 
-      const casts = data.result.casts ?? [];
+      const casts =
+        data.result.casts?.filter(
+          (cast: { hash: string; thread_hash: string }) =>
+            cast.hash === cast.thread_hash
+        ) ?? [];
       const uniqueThreadHashes = [
         ...new Set(
           casts.map((cast: { thread_hash: string }) => cast.thread_hash)
         ),
       ];
-      const conversationPromises = uniqueThreadHashes.map(
-        async (threadHash) => {
-          const [data, _] = await tryCatchAsync(async () => {
-            const { data } = await axios.get(
-              'https://api.neynar.com/v2/farcaster/cast/conversation',
-              {
-                headers: {
-                  'x-api-key': serverEnv.NEYNAR_API_KEY,
-                  'Content-Type': 'application/json',
-                },
-                params: {
-                  type: 'hash',
-                  identifier: threadHash,
-                  reply_depth: 3,
-                },
-              }
-            );
-            return data.conversation.cast;
-          });
-
-          if (!data) {
-            return null;
-          }
-
-          return data;
-        }
-      );
-
-      const conversationCasts = await Promise.all(conversationPromises);
-
       const flattenCast = (cast: WarpcastCast): WarpcastCast[] => {
         const stack = [cast];
-        const all = [];
+        const all: WarpcastCast[] = [];
 
         while (stack.length) {
           const current = stack.pop()!;
           all.push(current);
 
-          if (current.direct_replies && current.direct_replies.length > 0) {
+          if (current.direct_replies?.length) {
             stack.push(...current.direct_replies);
           }
         }
@@ -911,7 +888,27 @@ export const appRouter = createTRPCRouter({
       };
 
       const totalCasts: WarpcastCast[] = [];
-      for (const conversationCast of conversationCasts) {
+      for (const threadHash of uniqueThreadHashes) {
+        if (totalCasts.length >= 20) break;
+
+        const [conversationCast, _] = await tryCatchAsync(async () => {
+          const { data } = await axios.get(
+            'https://api.neynar.com/v2/farcaster/cast/conversation',
+            {
+              headers: {
+                'x-api-key': serverEnv.NEYNAR_API_KEY,
+                'Content-Type': 'application/json',
+              },
+              params: {
+                type: 'hash',
+                identifier: threadHash,
+                reply_depth: 3,
+              },
+            }
+          );
+          return data.conversation.cast as WarpcastCast;
+        });
+
         if (conversationCast) {
           totalCasts.push(...flattenCast(conversationCast));
         }
@@ -1087,7 +1084,6 @@ export const appRouter = createTRPCRouter({
 
       const top100 = sortedLeaderboard.slice(0, 100);
 
-      // If userAddress is provided, find their rank and data
       let userData: {
         rank: number;
         data: [
