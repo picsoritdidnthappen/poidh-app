@@ -1,10 +1,4 @@
-import {
-  Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Switch,
-} from '@mui/material';
+import { Box, Dialog, DialogContent, Switch } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -326,54 +320,56 @@ export default function FormBounty({
                 : 'you are the sole bounty contributor'}
             </span>
           </div>
+          <div className='mt-6 flex flex-col items-center w-full'>
+            <button
+              className={cn(
+                'flex flex-row items-center justify-center',
+                account.isDisconnected && 'opacity-50 cursor-not-allowed'
+              )}
+              onClick={() => {
+                if (name && description && amount) {
+                  const formData = {
+                    name,
+                    description,
+                    amount,
+                    category,
+                  };
+
+                  onClose();
+                  setUsdPerToken(null);
+                  setName('');
+                  setDescription('');
+                  setAmount('');
+                  setCategory('');
+                  createBountyMutations.mutate(formData);
+                } else {
+                  toast.error(
+                    'Please fill in all required fields and check wallet connection.'
+                  );
+                }
+              }}
+              disabled={account.isDisconnected}
+            >
+              <div className='button'>
+                <GameButton />
+              </div>
+              <ButtonCTA>create bounty</ButtonCTA>
+            </button>
+            <div className='mt-5 w-full flex justify-center items-center flex-row'>
+              <span className='mr-2 whitespace-nowrap'>
+                need a bounty idea? click the
+              </span>
+              <button
+                className='cursor-pointer items-center text-center disabled:cursor-not-allowed'
+                onClick={() => generateBounty.mutate()}
+                disabled={generateBounty.isPending}
+              >
+                🤖
+              </button>
+            </div>
+          </div>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <button
-          className={cn(
-            'flex flex-row items-center justify-center',
-            account.isDisconnected && 'opacity-50 cursor-not-allowed'
-          )}
-          onClick={() => {
-            if (name && description && amount) {
-              const formData = {
-                name,
-                description,
-                amount,
-                category,
-              };
-
-              onClose();
-              setUsdPerToken(null);
-              setName('');
-              setDescription('');
-              setAmount('');
-              setCategory('');
-              createBountyMutations.mutate(formData);
-            } else {
-              toast.error(
-                'Please fill in all required fields and check wallet connection.'
-              );
-            }
-          }}
-          disabled={account.isDisconnected}
-        >
-          <div className='button'>
-            <GameButton />
-          </div>
-          <ButtonCTA>create bounty</ButtonCTA>
-        </button>
-      </DialogActions>
-      <div className='py-4 mt-1 w-full flex justify-center items-center flex-row'>
-        <span className='mr-2'>need a bounty idea? click the</span>
-        <button
-          className='cursor-pointer items-center text-center disabled:cursor-not-allowed'
-          onClick={() => generateBounty.mutate()}
-          disabled={generateBounty.isPending}
-        >
-          🤖
-        </button>
-      </div>
     </Dialog>
   );
 }
