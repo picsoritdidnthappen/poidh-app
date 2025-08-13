@@ -265,7 +265,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                 setIsImageFullscreen(false);
                 setScale(1);
               }}
-              className='absolute top-4 right-4 text-white/80 hover:text-white p-2 bg-blur rounded-lg border border-white/20'
+              className='absolute z-50 top-4 right-4 text-white/80 hover:text-white p-2 bg-blur rounded-lg border border-white/20'
             >
               <CloseIcon width={20} height={20} />
             </button>
