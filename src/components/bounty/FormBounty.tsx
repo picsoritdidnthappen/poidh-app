@@ -171,11 +171,6 @@ export default function FormBounty({
       open={open}
       onClose={() => {
         onClose();
-        setName('');
-        setDescription('');
-        setAmount('');
-        setCategory('');
-        setUsdPerToken(null);
       }}
       maxWidth='xs'
       fullWidth
