@@ -310,7 +310,7 @@ export const generateMetadataForLeaderboardPage =
         title: 'view leaderboard',
         action: {
           type: 'launch_frame',
-          name: 'poidh leaderboard',
+          name: 'poidh',
           url: `${APP_URL}/leaderboard`,
           splashImageUrl: APP_SPLASH_URL,
           iconUrl: APP_ICON_URL,

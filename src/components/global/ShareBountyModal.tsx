@@ -8,7 +8,6 @@ import {
 } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
 import { trpc } from '@/trpc/client';
-import sdk from '@farcaster/miniapp-sdk';
 
 export default function ShareBountModal({
   bountyIssuerAddress,
@@ -17,9 +16,17 @@ export default function ShareBountModal({
   onClose: () => void;
   bountyIssuerAddress: string;
 }) {
-  const userDataNeynar = trpc.usersDataNeynar.useQuery({
-    addresses: [bountyIssuerAddress],
-  });
+  const { data: userDataNeynar, refetch: fetchUserData } =
+    trpc.usersDataNeynar.useQuery(
+      { addresses: [bountyIssuerAddress] },
+      {
+        enabled: false,
+        staleTime: Infinity,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+      }
+    );
 
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -49,16 +56,19 @@ export default function ShareBountModal({
     });
   };
 
-  const handleShareX = () => {
+  const handleShareX = async () => {
     let text =
       'check out this bounty on @poidhxyz 📸\n\n' + window.location.href;
-    if (
-      userDataNeynar?.data &&
-      userDataNeynar?.data[bountyIssuerAddress]?.[0]
-    ) {
-      const xUsername = userDataNeynar.data[
+
+    let neynarData = userDataNeynar;
+    if (!neynarData) {
+      const { data } = await fetchUserData();
+      neynarData = data;
+    }
+    if (neynarData && neynarData[bountyIssuerAddress]?.[0]) {
+      const xUsername = neynarData?.[
         bountyIssuerAddress
-      ][0]?.verified_accounts?.find(
+      ]?.[0]?.verified_accounts?.find(
         (account) => account.platform === 'x'
       )?.username;
       if (xUsername) {
@@ -77,14 +87,17 @@ export default function ShareBountModal({
   };
 
   const handleShareFarcaster = async () => {
-    let text = 'check out this bounty on /poidh 📸\n\n';
-    if (
-      userDataNeynar?.data &&
-      userDataNeynar?.data[bountyIssuerAddress]?.[0]?.username
-    ) {
+    let text = 'check out this bounty on /poidh 📸\n';
+
+    let neynarData = userDataNeynar;
+    if (!neynarData) {
+      const { data } = await fetchUserData();
+      neynarData = data;
+    }
+    if (neynarData && neynarData[bountyIssuerAddress]?.[0]?.username) {
       text =
         'check out this bounty from @' +
-        userDataNeynar?.data[bountyIssuerAddress][0].username +
+        neynarData?.[bountyIssuerAddress]?.[0]?.username +
         ' on /poidh 📸\n\n';
     }
     const url =
