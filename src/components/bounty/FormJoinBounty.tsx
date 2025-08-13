@@ -115,6 +115,7 @@ export default function FormJoinBounty({
         open={open}
         onClose={() => {
           onClose();
+          setUsdPerToken(null);
           setAmount('');
         }}
         maxWidth='xs'
@@ -163,7 +164,7 @@ export default function FormJoinBounty({
           <Button
             variant='outlined'
             className={cn(
-              'w-full rounded-full lowercase bg-[#F15E5F] hover:bg-red-400 text-white font-family-geist',
+              'w-full rounded-full lowercase bg-poidhRed hover:bg-red-400 text-white font-family-geist',
               !amount && 'opacity-50 cursor-not-allowed'
             )}
             disabled={!amount}
