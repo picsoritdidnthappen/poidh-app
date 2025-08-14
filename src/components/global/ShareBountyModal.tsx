@@ -8,6 +8,8 @@ import {
 } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
 import { trpc } from '@/trpc/client';
+import { sdk } from '@farcaster/miniapp-sdk';
+import { useScreenSize } from '@/hooks/useScreenSize';
 
 export default function ShareBountModal({
   bountyIssuerAddress,
@@ -16,6 +18,7 @@ export default function ShareBountModal({
   onClose: () => void;
   bountyIssuerAddress: string;
 }) {
+  const isMobile = useScreenSize();
   const { data: userDataNeynar, refetch: fetchUserData } =
     trpc.usersDataNeynar.useQuery(
       { addresses: [bountyIssuerAddress] },
@@ -100,10 +103,21 @@ export default function ShareBountModal({
         neynarData?.[bountyIssuerAddress]?.[0]?.username +
         ' on /poidh 📸\n\n';
     }
-    const url =
-      `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}` +
-      `&embeds[]=${encodeURIComponent(window.location.href)}`;
-    window.open(url, '_blank');
+
+    const isMiniApp = await sdk.isInMiniApp();
+    if (isMobile && isMiniApp) {
+      await sdk.actions.composeCast({
+        text,
+        embeds: [window.location.href],
+      });
+    } else {
+      window.open(
+        `https://warpcast.com/~/compose?text=${encodeURIComponent(
+          text
+        )}&embeds[]=${encodeURIComponent(window.location.href)}`,
+        '_blank'
+      );
+    }
     onClose();
   };
 
