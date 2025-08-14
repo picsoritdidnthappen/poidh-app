@@ -18,7 +18,7 @@ type DetailedClaim = {
   isMultiplayer: boolean;
 } & Claim;
 
-const Home = () => {
+export default function Home() {
   const isMobile = useScreenSize();
   const completedBountiesCount = trpc.completedBountiesCount.useQuery();
   const randomClaims = trpc.randomAcceptedClaims.useQuery({ limit: 24 });
@@ -81,6 +81,4 @@ const Home = () => {
       {isMobile ? <NavBarMobile type='bounty' /> : <CreateBounty />}
     </>
   );
-};
-
-export default Home;
+}

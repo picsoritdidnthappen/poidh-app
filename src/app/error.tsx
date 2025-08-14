@@ -1,4 +1,4 @@
-'use client'; // Error components must be Client Components
+'use client';
 
 import { WarrningIcon } from '@/components/global/Icons';
 import * as React from 'react';

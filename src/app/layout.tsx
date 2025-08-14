@@ -13,7 +13,6 @@ import { Metadata } from 'next';
 import CryptoWalletMobilePopup from '@/components/global/CryptoWalletMobilePopup';
 import { Provider } from 'jotai';
 
-// Constants for metadata
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
 const APP_DESCRIPTION =

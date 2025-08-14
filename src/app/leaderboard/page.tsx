@@ -90,7 +90,6 @@ export default function HighScoresPage() {
 
           <div className='hidden md:block'>
             <div className='space-y-3'>
-              {/* Show connected user's row first */}
               {account.isConnected && account.address && (
                 <div
                   className='
