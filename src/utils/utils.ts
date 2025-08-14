@@ -50,8 +50,8 @@ export function formatAmount({
     return `0 ${currency}`;
   }
 
-  if (numAmount < 0.001) {
-    return `<0.001 ${currency}`;
+  if (numAmount < 0.00001) {
+    return `<0.00001 ${currency}`;
   }
 
   if (precision) {
