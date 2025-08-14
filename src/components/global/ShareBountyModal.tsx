@@ -101,7 +101,7 @@ export default function ShareBountModal({
       text =
         'check out this bounty from @' +
         neynarData?.[bountyIssuerAddress]?.[0]?.username +
-        ' on /poidh 📸\n\n';
+        ' on /poidh 📸\n';
     }
 
     const isMiniApp = await sdk.isInMiniApp();

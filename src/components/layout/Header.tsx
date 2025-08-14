@@ -21,7 +21,7 @@ import Image from 'next/image';
 import Logo from '../global/Logo';
 import { useAccount } from 'wagmi';
 
-const Header = () => {
+export default function Header() {
   const chain = useGetChain();
   const account = useAccount();
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +47,7 @@ const Header = () => {
         open={isOpen}
         onClose={(cur) => setIsOpen(!cur)}
         PaperProps={{
-          className: 'w-60 bg-[#F15E5F]',
+          className: 'w-60 bg-poidhRed',
         }}
       >
         <SlideOverMenu />
@@ -56,7 +56,7 @@ const Header = () => {
         <div className='flex'>
           <button
             onClick={() => setIsOpen(true)}
-            className='mr-2 hover:text-[#F15E5F]'
+            className='mr-2 hover:text-poidhRed'
           >
             <MenuIcon width={30} height={30} />
           </button>
@@ -131,7 +131,7 @@ const Header = () => {
       </div>
     </>
   );
-};
+}
 
 function ConnectWalletButton() {
   return (
@@ -199,5 +199,3 @@ function ConnectWalletButton() {
     </ConnectButton.Custom>
   );
 }
-
-export default Header;
