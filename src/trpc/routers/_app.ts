@@ -954,6 +954,8 @@ export const appRouter = createTRPCRouter({
       z
         .object({
           userAddress: addressSchema.optional(),
+          limit: z.number().min(1).max(100).default(10),
+          cursor: z.number().nullish(),
         })
         .optional()
     )
@@ -1082,7 +1084,15 @@ export const appRouter = createTRPCRouter({
         )
         .sort((a, b) => b[1].total - a[1].total);
 
-      const top100 = sortedLeaderboard.slice(0, 100);
+      const startIndex = input?.cursor ?? 0;
+      const take = input?.limit ?? 10;
+
+      const paged = sortedLeaderboard.slice(startIndex, startIndex + take);
+
+      let nextCursor: number | undefined = undefined;
+      if (startIndex + take < sortedLeaderboard.length) {
+        nextCursor = startIndex + take;
+      }
 
       let userData: {
         rank: number;
@@ -1107,7 +1117,8 @@ export const appRouter = createTRPCRouter({
       }
 
       return {
-        leaderboard: top100,
+        leaderboard: paged,
+        nextCursor,
         userData,
       };
     }),

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
 import Link from 'next/link';
-import { Chain } from '@/utils/types';
+import { Chain, Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import Image from 'next/image';
 
@@ -71,7 +71,7 @@ export async function getWalletDisplayName({
   chainName,
 }: {
   address: string;
-  chainName: 'arbitrum' | 'base' | 'degen';
+  chainName: Netname;
 }) {
   return (await getEnsOrDegenName({ address, chainName })) || null;
 }
