@@ -1080,8 +1080,7 @@ export const appRouter = createTRPCRouter({
               { base: number; degen: number; arbitrum: number; total: number }
             ]
         )
-        .sort((a, b) => b[1].total - a[1].total)
-        .slice(0, 10);
+        .sort((a, b) => b[1].total - a[1].total);
 
       let userData: {
         rank: number;
@@ -1106,7 +1105,7 @@ export const appRouter = createTRPCRouter({
       }
 
       return {
-        leaderboard: sortedLeaderboard,
+        leaderboard: sortedLeaderboard.slice(0, 10),
         userData,
       };
     }),
