@@ -1091,71 +1091,59 @@ export const appRouter = createTRPCRouter({
       } | null = null;
 
       if (input?.userAddress) {
-        const userIndex = sortedLeaderboard.findIndex(
-          ([address]) =>
-            address.toLowerCase() === input.userAddress?.toLowerCase()
-        );
+        const userRows = await prisma.leaderboard.findMany({
+          where: {
+            address: input.userAddress.toLowerCase(),
+            chain_id: { in: [8453, 666666666, 42161] },
+          },
+        });
 
-        if (userIndex !== -1) {
-          userData = {
-            rank: userIndex + 1,
-            data: sortedLeaderboard[userIndex],
-          };
-        } else {
-          const userRows = await prisma.leaderboard.findMany({
-            where: {
-              address: input.userAddress.toLowerCase(),
-              chain_id: { in: [8453, 666666666, 42161] },
-            },
-          });
+        if (userRows.length > 0) {
+          let baseScore: number | undefined = undefined;
+          let degenScore: number | undefined = undefined;
+          let arbitrumScore: number | undefined = undefined;
 
-          if (userRows.length > 0) {
-            let baseScore: number | undefined = undefined;
-            let degenScore: number | undefined = undefined;
-            let arbitrumScore: number | undefined = undefined;
-
-            for (const row of userRows) {
-              if (row.chain_id === 8453) {
-                baseScore = scoreETH({
-                  earned: row.earned,
-                  paid: row.paid,
-                  NFTheld: row.nfts,
-                });
-              } else if (row.chain_id === 666666666) {
-                degenScore = scoreDegen({
-                  earned: row.earned,
-                  paid: row.paid,
-                  NFTheld: row.nfts,
-                });
-              } else if (row.chain_id === 42161) {
-                arbitrumScore = scoreETH({
-                  earned: row.earned,
-                  paid: row.paid,
-                  NFTheld: row.nfts,
-                });
-              }
+          for (const row of userRows) {
+            if (row.chain_id === 8453) {
+              baseScore = scoreETH({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            } else if (row.chain_id === 666666666) {
+              degenScore = scoreDegen({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            } else if (row.chain_id === 42161) {
+              arbitrumScore = scoreETH({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
             }
-
-            const totalScore =
-              (baseScore ?? 0) + (degenScore ?? 0) + (arbitrumScore ?? 0);
-
-            const rounded = {
-              base: Math.round(baseScore ?? 0),
-              degen: Math.round(degenScore ?? 0),
-              arbitrum: Math.round(arbitrumScore ?? 0),
-              total: Math.round(totalScore),
-            };
-
-            const higherCount = sortedLeaderboard.filter(
-              ([, s]) => s.total > rounded.total
-            ).length;
-            const rank = higherCount + 1;
-
-            userData = {
-              rank,
-              data: [input.userAddress, rounded],
-            };
           }
+
+          const totalScore =
+            (baseScore ?? 0) + (degenScore ?? 0) + (arbitrumScore ?? 0);
+
+          const rounded = {
+            base: Math.round(baseScore ?? 0),
+            degen: Math.round(degenScore ?? 0),
+            arbitrum: Math.round(arbitrumScore ?? 0),
+            total: Math.round(totalScore),
+          };
+
+          const higherCount = sortedLeaderboard.filter(
+            ([, s]) => s.total > rounded.total
+          ).length;
+          const rank = higherCount + 1;
+
+          userData = {
+            rank,
+            data: [input.userAddress, rounded],
+          };
         }
       }
 
