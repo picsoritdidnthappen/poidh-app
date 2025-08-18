@@ -401,7 +401,7 @@ export const appRouter = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      const bounties = (
+      const createdBounties = (
         await prisma.bounties.findMany({
           where: {
             issuer: input.address.toLowerCase(),
@@ -437,6 +437,58 @@ export const appRouter = createTRPCRouter({
         hasClaims: bounty.claims.length > 0,
         isCanceled: bounty.is_canceled || false,
       }));
+
+      const contributedBounties = (
+        await prisma.participationsBounties.findMany({
+          where: {
+            user_address: input.address.toLowerCase(),
+            chain_id: input.chainId,
+          },
+          include: {
+            bounty: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                chain_id: true,
+                amount: true,
+                is_multiplayer: true,
+                in_progress: true,
+                is_canceled: true,
+                claims: { take: 1 },
+              },
+            },
+          },
+        })
+      ).map((p) => {
+        const bounty = p.bounty;
+        if (bounty) {
+          return {
+            id: bounty.id.toString(),
+            title: bounty.title,
+            description: bounty.description,
+            network: bounty.chain_id.toString(),
+            amount: bounty.amount,
+            isMultiplayer: bounty.is_multiplayer || false,
+            inProgress: bounty.in_progress || false,
+            hasClaims: (bounty.claims ?? []).length > 0,
+            isCanceled: bounty.is_canceled || false,
+          };
+        }
+      });
+
+      const mergedBountiesMap = new Map<
+        string,
+        (typeof createdBounties)[number]
+      >();
+      [...createdBounties, ...contributedBounties].forEach((b) => {
+        if (b) {
+          mergedBountiesMap.set(b.id, b);
+        }
+      });
+      const bounties = Array.from(mergedBountiesMap.values()).sort(
+        (a, b) => Number(b.id) - Number(a.id)
+      );
 
       const claims = (
         await prisma.claims.findMany({
