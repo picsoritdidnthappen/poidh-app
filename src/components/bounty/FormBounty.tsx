@@ -57,6 +57,7 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
+  const saveBountyCategory = trpc.saveBountyCategory.useMutation();
 
   useEffect(() => {
     fetchPrice({ currency: chain.currency }).then(setPrice);
@@ -121,22 +122,23 @@ export default function FormBounty({
         });
 
         if (bounty) {
-          if (formData.category.trim()) {
-            await saveBountyCategory.mutateAsync({
-              bountyId: Number(data.args.id),
-              chainId: pollingChainId ?? chain.id,
-              category: formData.category.trim(),
-            });
-          }
-          return data.args.id.toString();
+          return {
+            bountyId: data.args.id.toString(),
+            category: formData.category.trim(),
+          };
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
       }
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: (bountyId) => {
-      setLoading({ isLoading: true, status: 'Indexing…' });
+    onSuccess: ({ bountyId, category }) => {
+      saveBountyCategory.mutate({
+        bountyId: Number(bountyId),
+        chainId: pollingChainId ?? chain.id,
+        category,
+      });
+      setLoading({ isLoading: false, status: '' });
       router.push(`/${chain.slug}/bounty/${bountyId}?indexing=true`);
       toast.success('Bounty created successfully');
     },
@@ -148,7 +150,6 @@ export default function FormBounty({
     },
   });
 
-  const saveBountyCategory = trpc.saveBountyCategory.useMutation();
   const generateBounty = trpc.generateBounty.useMutation({
     onMutate: async () => {
       setName('Generating…');
