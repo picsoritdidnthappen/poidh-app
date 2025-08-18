@@ -7,11 +7,10 @@ import { TRPCProvider } from '@/trpc/client';
 import '@rainbow-me/rainbowkit/styles.css';
 import { WalletProvider } from '@/components/global/WalletProvider';
 import { ToastContainer } from 'react-toastify';
-import { LoadingProvider } from '@/components/global/LoadingProvider';
+import { LoadingLayout } from '@/components/global/LoadingLayout';
 import ClientLayout from '@/app/layout.client';
 import { Metadata } from 'next';
 import CryptoWalletMobilePopup from '@/components/global/CryptoWalletMobilePopup';
-import { Provider } from 'jotai';
 
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
@@ -93,13 +92,11 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <body className='bg-blue-300 text-white'>
         <TRPCProvider>
           <WalletProvider>
-            <LoadingProvider>
-              <Provider>
-                <ClientLayout>{children}</ClientLayout>
-                <ToastContainer />
-                <CryptoWalletMobilePopup />
-              </Provider>
-            </LoadingProvider>
+            <LoadingLayout>
+              <ClientLayout>{children}</ClientLayout>
+              <ToastContainer />
+              <CryptoWalletMobilePopup />
+            </LoadingLayout>
           </WalletProvider>
         </TRPCProvider>
       </body>
