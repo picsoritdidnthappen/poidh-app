@@ -136,6 +136,7 @@ export default function ContentHome() {
                 bounties={bounties.data.pages.flatMap((page) =>
                   page.items.map((bounty) => ({
                     id: bounty.id.toString(),
+                    chainId: bounty.chain_id,
                     title: bounty.title,
                     description: bounty.description,
                     amount: bounty.amount,

@@ -3,9 +3,11 @@ import React from 'react';
 
 import { cn } from '@/utils';
 import BountyItem from './BountyItem';
+import { ChainId } from '@/utils/types';
 
 type Bounty = {
   id: string;
+  chainId: ChainId;
   title: string;
   description: string;
   network: string;
@@ -59,6 +61,7 @@ export default function BountyList({
             <BountyItem
               bounty={{
                 id: bounty.id,
+                chainId: bounty.chainId,
                 title: bounty.title,
                 network: bounty.network,
                 description: bounty.description,

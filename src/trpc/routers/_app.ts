@@ -414,6 +414,7 @@ export const appRouter = createTRPCRouter({
         })
       ).map((bounty) => ({
         id: bounty.id.toString(),
+        chainId: bounty.chain_id,
         title: bounty.title,
         description: bounty.description,
         network: bounty.chain_id.toString(),
@@ -451,6 +452,7 @@ export const appRouter = createTRPCRouter({
         if (bounty) {
           return {
             id: bounty.id.toString(),
+            chainId: bounty.chain_id,
             title: bounty.title,
             description: bounty.description,
             network: bounty.chain_id.toString(),
