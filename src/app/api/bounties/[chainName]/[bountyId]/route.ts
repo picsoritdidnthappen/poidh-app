@@ -1,19 +1,18 @@
 // app/api/bounties/[chainName]/[bountyId]/route.ts
+import { Netname } from '@/utils/types';
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-type ChainName = 'base' | 'degen' | 'arbitrum';
-
-const CHAIN_IDS: Record<ChainName, number> = {
+const CHAIN_IDS: Record<Netname, number> = {
   base: 8453,
   degen: 666666666,
   arbitrum: 42161,
 };
 
 function getChainId(chainName: string): number {
-  function isValidChainName(name: string): name is ChainName {
+  function isValidChainName(name: string): name is Netname {
     return name.toLowerCase() in CHAIN_IDS;
   }
 
@@ -25,7 +24,7 @@ function getChainId(chainName: string): number {
     );
   }
 
-  return CHAIN_IDS[chainName.toLowerCase() as ChainName];
+  return CHAIN_IDS[chainName.toLowerCase() as Netname];
 }
 
 type UserInfo = {

@@ -1,12 +1,13 @@
 import { ABI, DEGENNAMERESABI } from '@/constant';
 import { chains } from '@/utils/config';
 import { mainnetPublicClient, degenPublicClient } from '@/utils/publicClients';
+import { Netname } from '@/utils/types';
 
 export async function getEnsOrDegenName({
   chainName,
   address,
 }: {
-  chainName: 'degen' | 'arbitrum' | 'base';
+  chainName: Netname;
   address: string;
 }) {
   if (chainName === 'arbitrum') {

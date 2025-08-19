@@ -9,18 +9,58 @@ import { inferRouterOutputs } from '@trpc/server';
 import { AppRouter } from '@/trpc/routers/_app';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
+import { Netname } from '@/utils/types';
+
+const formatUserName = (name: string) =>
+  name.length >= 10 ? `${name.slice(0, 6)}…${name.slice(-5)}` : name;
 
 function ResolvedAddressCell({ address }: { address: string }) {
   const ensOrDegenName = useDegenOrEnsName(address);
-
-  const formatUserNames = (name: string) =>
-    `${name.slice(0, 6)}…${name.slice(-5)}`;
-
   return (
     <span className='relative'>
-      {formatUserNames(ensOrDegenName ?? address)}
+      {formatUserName(ensOrDegenName ?? address)}
     </span>
   );
+}
+
+function UserDisplay({
+  userData,
+  address,
+  isLoading = false,
+}: {
+  userData?: inferRouterOutputs<AppRouter>['usersDataNeynar'][string];
+  address: string;
+  isLoading?: boolean;
+}) {
+  const user = userData?.[0];
+
+  if (user) {
+    return (
+      <span className='inline-flex items-center whitespace-nowrap max-w-full'>
+        {user.pfp_url && (
+          <div className='flex-shrink-0 relative overflow-hidden rounded-full mr-2 w-7 h-7'>
+            <Image
+              src={user.pfp_url ?? 'https://poidh.xyz/images/unknown.png'}
+              alt={user.display_name ?? 'User'}
+              width={8}
+              height={8}
+              unoptimized
+              className='w-full h-full object-cover'
+            />
+          </div>
+        )}
+        <span>
+          {user.username.length > 10
+            ? `${user.username.slice(0, 6)}…${user.username.slice(-5)}`
+            : user.username}
+        </span>
+      </span>
+    );
+  }
+
+  if (isLoading) return <>{formatUserName(address)}</>;
+
+  return <ResolvedAddressCell address={address} />;
 }
 
 function ScoreCell({
@@ -30,7 +70,7 @@ function ScoreCell({
   className = '',
   children,
 }: {
-  chain: 'arbitrum' | 'base' | 'degen';
+  chain: Netname;
   address: string;
   score: number;
   className?: string;
@@ -56,11 +96,17 @@ export default function HighScoresPage() {
   const leaderboardData = leaderboardResult.data?.leaderboard;
   const userRankData = leaderboardResult.data?.userData;
 
-  const allAddresses = [
-    ...(leaderboardData?.map(([address]) => address) ?? []),
-    ...(userRankData?.data ? [userRankData.data[0]] : []),
-    ...(account.isConnected && account.address ? [account.address] : []),
-  ];
+  const allAddresses = Array.from(
+    new Set(
+      [
+        ...(leaderboardData?.map(([address]) => address) ?? []),
+        ...(userRankData?.data ? [userRankData.data[0]] : []),
+        ...(account.isConnected && account.address
+          ? [account.address.toLowerCase()]
+          : []),
+      ].filter(Boolean)
+    )
+  );
 
   const usersDataNeynar = trpc.usersDataNeynar.useQuery(
     {
@@ -100,27 +146,38 @@ export default function HighScoresPage() {
                   '
                 >
                   <div className='flex items-center gap-3 mb-2 md:mb-0 md:col-span-1 md:gap-0 md:justify-center'>
-                    <div className='flex items-center justify-center bg-poidhRed text-white rounded-full mr-2 w-20 h-10 md:mr-0'>
+                    <div className='flex items-center justify-center bg-poidhRed text-white rounded-full mr-2 w-20 h-10 md:mr-0 text-lg leading-none'>
                       You
                     </div>
                   </div>
                   <div className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start'>
-                    <ResolvedAddressCell address={account.address} />
+                    <UserDisplay
+                      userData={
+                        usersDataNeynar.data?.[account.address.toLowerCase()]
+                      }
+                      address={account.address.toLowerCase()}
+                      isLoading={usersDataNeynar.isLoading}
+                    />
                   </div>
-                  <div className='flex items-center justify-end md:mr-4'>
+                  <div className='flex items-center justify-end md:mr-3'>
                     {usersDataNeynar.data && (
                       <div className='flex items-center gap-3'>
-                        {usersDataNeynar.data[account.address]?.[0]
-                          ?.username && (
+                        {usersDataNeynar.data[
+                          account.address.toLowerCase()
+                        ]?.[0]?.username && (
                           <a
                             href={`https://warpcast.com/${
-                              usersDataNeynar.data[account.address][0].username
+                              usersDataNeynar.data[
+                                account.address.toLowerCase()
+                              ][0].username
                             }`}
                             target='_blank'
                             rel='noopener noreferrer'
                             className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
                             aria-label={`Visit ${
-                              usersDataNeynar.data[account.address][0].username
+                              usersDataNeynar.data[
+                                account.address.toLowerCase()
+                              ][0].username
                             }'s Warpcast profile`}
                           >
                             <Image
@@ -214,12 +271,16 @@ export default function HighScoresPage() {
                   '
                 >
                   <div className='flex items-center gap-3 mb-2 md:mb-0 md:col-span-1 md:gap-0 md:justify-center'>
-                    <div className='flex items-center justify-center bg-white/20 rounded-full mr-2 w-20 h-10 md:mr-0'>
+                    <div className='flex items-center justify-center bg-white/20 rounded-full mr-2 w-20 h-10 md:mr-0 text-lg leading-none'>
                       {index + 1}
                     </div>
                   </div>
                   <div className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start'>
-                    <ResolvedAddressCell address={address} />
+                    <UserDisplay
+                      userData={usersDataNeynar.data?.[address]}
+                      address={address}
+                      isLoading={usersDataNeynar.isLoading}
+                    />
                   </div>
                   <div className='flex items-center justify-end md:mr-4'>
                     {usersDataNeynar.data && (
@@ -316,7 +377,6 @@ export default function HighScoresPage() {
           </div>
 
           <div className='md:hidden'>
-            {/* Show connected user's row first */}
             {account.isConnected && account.address && (
               <LeaderboardCardMobile
                 key={`user-${account.address}`}
@@ -328,8 +388,9 @@ export default function HighScoresPage() {
                   degen: userRankData?.data?.[1]?.degen ?? 0,
                   total: userRankData?.data?.[1]?.total ?? 0,
                 }}
-                userData={usersDataNeynar.data?.[account.address]}
+                userData={usersDataNeynar.data?.[account.address.toLowerCase()]}
                 isCurrentUser={true}
+                isLoading={usersDataNeynar.isLoading}
               />
             )}
 
@@ -339,7 +400,8 @@ export default function HighScoresPage() {
                 rank={index + 1}
                 address={address}
                 scores={scores}
-                userData={usersDataNeynar.data?.[address]}
+                userData={usersDataNeynar.data?.[address.toLowerCase()]}
+                isLoading={usersDataNeynar.isLoading}
               />
             ))}
           </div>
@@ -355,6 +417,7 @@ function LeaderboardCardMobile({
   scores,
   userData,
   isCurrentUser = false,
+  isLoading = false,
 }: {
   rank: number | string;
   address: string;
@@ -366,6 +429,7 @@ function LeaderboardCardMobile({
   };
   userData?: inferRouterOutputs<AppRouter>['usersDataNeynar'][string];
   isCurrentUser?: boolean;
+  isLoading?: boolean;
 }) {
   return (
     <div
@@ -377,7 +441,7 @@ function LeaderboardCardMobile({
     >
       <div className='flex items-center gap-4 border-b border-white/20 justify-between px-2 py-3'>
         <div
-          className={`py-1 px-6 flex items-center justify-center rounded-full border text-xl ${
+          className={`flex items-center justify-center rounded-full border text-lg leading-none w-16 h-10 ${
             isCurrentUser
               ? 'bg-poidhRed text-white border-poidhRed'
               : 'bg-white/20 border-white/60 text-white'
@@ -386,7 +450,11 @@ function LeaderboardCardMobile({
           {rank}
         </div>
         <div className='text-lg text-white flex-1 flex items-center justify-start'>
-          <ResolvedAddressCell address={address} />
+          <UserDisplay
+            userData={userData}
+            address={address}
+            isLoading={isLoading}
+          />
         </div>
         {userData && (
           <div className='flex items-center gap-2'>

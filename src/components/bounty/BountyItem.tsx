@@ -63,6 +63,7 @@ export default function BountyItem({
                     amount,
                     currency: chain.currency,
                     price: price.toString(),
+                    precision: 5,
                   })}
                 </div>
                 {bounty.isMultiplayer && <UsersRoundIcon />}

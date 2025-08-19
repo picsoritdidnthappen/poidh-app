@@ -401,7 +401,7 @@ export const appRouter = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      const bounties = (
+      const createdBounties = (
         await prisma.bounties.findMany({
           where: {
             issuer: input.address.toLowerCase(),
@@ -437,6 +437,58 @@ export const appRouter = createTRPCRouter({
         hasClaims: bounty.claims.length > 0,
         isCanceled: bounty.is_canceled || false,
       }));
+
+      const contributedBounties = (
+        await prisma.participationsBounties.findMany({
+          where: {
+            user_address: input.address.toLowerCase(),
+            chain_id: input.chainId,
+          },
+          include: {
+            bounty: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                chain_id: true,
+                amount: true,
+                is_multiplayer: true,
+                in_progress: true,
+                is_canceled: true,
+                claims: { take: 1 },
+              },
+            },
+          },
+        })
+      ).map((p) => {
+        const bounty = p.bounty;
+        if (bounty) {
+          return {
+            id: bounty.id.toString(),
+            title: bounty.title,
+            description: bounty.description,
+            network: bounty.chain_id.toString(),
+            amount: bounty.amount,
+            isMultiplayer: bounty.is_multiplayer || false,
+            inProgress: bounty.in_progress || false,
+            hasClaims: (bounty.claims ?? []).length > 0,
+            isCanceled: bounty.is_canceled || false,
+          };
+        }
+      });
+
+      const mergedBountiesMap = new Map<
+        string,
+        (typeof createdBounties)[number]
+      >();
+      [...createdBounties, ...contributedBounties].forEach((b) => {
+        if (b) {
+          mergedBountiesMap.set(b.id, b);
+        }
+      });
+      const bounties = Array.from(mergedBountiesMap.values()).sort(
+        (a, b) => Number(b.id) - Number(a.id)
+      );
 
       const claims = (
         await prisma.claims.findMany({
@@ -1082,8 +1134,6 @@ export const appRouter = createTRPCRouter({
         )
         .sort((a, b) => b[1].total - a[1].total);
 
-      const top100 = sortedLeaderboard.slice(0, 100);
-
       let userData: {
         rank: number;
         data: [
@@ -1093,21 +1143,64 @@ export const appRouter = createTRPCRouter({
       } | null = null;
 
       if (input?.userAddress) {
-        const userIndex = sortedLeaderboard.findIndex(
-          ([address]) =>
-            address.toLowerCase() === input.userAddress?.toLowerCase()
-        );
+        const userRows = await prisma.leaderboard.findMany({
+          where: {
+            address: input.userAddress.toLowerCase(),
+            chain_id: { in: [8453, 666666666, 42161] },
+          },
+        });
 
-        if (userIndex !== -1) {
+        if (userRows.length > 0) {
+          let baseScore: number | undefined = undefined;
+          let degenScore: number | undefined = undefined;
+          let arbitrumScore: number | undefined = undefined;
+
+          for (const row of userRows) {
+            if (row.chain_id === 8453) {
+              baseScore = scoreETH({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            } else if (row.chain_id === 666666666) {
+              degenScore = scoreDegen({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            } else if (row.chain_id === 42161) {
+              arbitrumScore = scoreETH({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            }
+          }
+
+          const totalScore =
+            (baseScore ?? 0) + (degenScore ?? 0) + (arbitrumScore ?? 0);
+
+          const rounded = {
+            base: Math.round(baseScore ?? 0),
+            degen: Math.round(degenScore ?? 0),
+            arbitrum: Math.round(arbitrumScore ?? 0),
+            total: Math.round(totalScore),
+          };
+
+          const higherCount = sortedLeaderboard.filter(
+            ([, s]) => s.total > rounded.total
+          ).length;
+          const rank = higherCount + 1;
+
           userData = {
-            rank: userIndex + 1,
-            data: sortedLeaderboard[userIndex],
+            rank,
+            data: [input.userAddress, rounded],
           };
         }
       }
 
       return {
-        leaderboard: top100,
+        leaderboard: sortedLeaderboard.slice(0, 10),
         userData,
       };
     }),
