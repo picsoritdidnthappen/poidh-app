@@ -1,9 +1,9 @@
 import React from 'react';
 import { formatAmount } from '@/utils/utils';
-import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
 import { formatEther } from 'viem';
 import { ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
+import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 
 export type BountyPreviewData = {
   title: string;
@@ -16,19 +16,6 @@ export type BountyPreviewData = {
 export type FarcasterUser = {
   username: string;
   pfp_url: string;
-};
-
-const getChainIcon = (chain: string, size = 80) => {
-  switch (chain.toLowerCase()) {
-    case 'arbitrum':
-      return <ArbitrumIcon width={size} height={size} />;
-    case 'base':
-      return <BaseIcon width={size} height={size} />;
-    case 'degen':
-      return <DegenIcon width={size} height={size} />;
-    default:
-      return null;
-  }
 };
 
 export default function BountyPreviewCard({
@@ -212,7 +199,10 @@ export default function BountyPreviewCard({
             border: '2px solid rgba(255,255,255,0.3)',
           }}
         >
-          {getChainIcon(chain.slug, imageFormat === 'preview' ? 32 : 48)}
+          <DynamicChainIcon
+            chain={chain.slug}
+            size={imageFormat === 'preview' ? 32 : 48}
+          />
         </div>
       </div>
     </div>
