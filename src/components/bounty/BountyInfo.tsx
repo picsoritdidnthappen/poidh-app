@@ -228,8 +228,8 @@ export default function BountyInfo({
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          {bountyExtra.data?.category && (
-            <p className='text-white mb-3'>🕹️ {bountyExtra.data.category}</p>
+          {bountyExtra.data?.album && (
+            <p className='text-white mb-3'>🕹️ {bountyExtra.data.album}</p>
           )}
           <p className='text-lg mb-5 mt-1 font-bold'>
             {formatAmount({
