@@ -1,8 +1,8 @@
 import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
-import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
 import { ImageResponse } from '@vercel/og';
 import React from 'react';
 import { Netname } from '@/utils/types';
+import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 
 const truncateName = (name: string, maxLength = 35) => {
   if (!name || name.length <= maxLength) return name;
@@ -10,19 +10,6 @@ const truncateName = (name: string, maxLength = 35) => {
 };
 
 export const runtime = 'edge';
-
-const getChainIcon = (chain: string, size = 48) => {
-  switch (chain.toLowerCase()) {
-    case 'arbitrum':
-      return <ArbitrumIcon width={size} height={size} />;
-    case 'base':
-      return <BaseIcon width={size} height={size} />;
-    case 'degen':
-      return <DegenIcon width={size} height={size} />;
-    default:
-      return null;
-  }
-};
 
 const getProfilePictureUrl = async (
   pfpUrl: string | null | undefined
@@ -336,7 +323,10 @@ export async function GET(request: Request) {
                 border: '2px solid rgba(255,255,255,0.3)',
               }}
             >
-              {getChainIcon(chain, imageFormat === 'og' ? 48 : 36)}
+              <DynamicChainIcon
+                chain={chain as Netname}
+                size={imageFormat === 'og' ? 48 : 36}
+              />
             </div>
           </div>
         </div>

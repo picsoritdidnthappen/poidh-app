@@ -1,24 +1,11 @@
-import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
-import { Currency } from '@/utils/types';
+import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import { Currency, Netname } from '@/utils/types';
 import { formatAmount } from '@/utils/utils';
 import { ImageResponse } from '@vercel/og';
 import React from 'react';
 import { formatEther } from 'viem';
 
 export const runtime = 'edge';
-
-const getChainIcon = (chain: string) => {
-  switch (chain.toLowerCase()) {
-    case 'arbitrum':
-      return <ArbitrumIcon width={80} height={80} />;
-    case 'base':
-      return <BaseIcon width={80} height={80} />;
-    case 'degen':
-      return <DegenIcon width={80} height={80} />;
-    default:
-      return null;
-  }
-};
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -122,7 +109,7 @@ export async function GET(request: Request) {
                 fontSize: '30px',
               }}
             >
-              {getChainIcon(chain)}
+              <DynamicChainIcon size={80} chain={chain as Netname} />
             </div>
           </div>
           <p
