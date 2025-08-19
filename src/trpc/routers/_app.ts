@@ -120,42 +120,28 @@ export const appRouter = createTRPCRouter({
       return bountyExtra ?? null;
     }),
 
-  saveBountyCategory: baseProcedure
+  saveBountyAlbum: baseProcedure
     .input(
       z.object({
         bountyId: z.number(),
         chainId: z.number(),
-        category: z.string(),
+        album: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      try {
-        const bountyExtra = await prisma.bountiesExtra.upsert({
-          where: {
-            bounty_id_chain_id: {
-              bounty_id: input.bountyId,
-              chain_id: input.chainId,
-            },
-          },
-          update: {
-            category: input.category,
-          },
-          create: {
+      const bountyExtra = await prisma.bountiesExtra.update({
+        where: {
+          bounty_id_chain_id: {
             bounty_id: input.bountyId,
             chain_id: input.chainId,
-            category: input.category,
           },
-        });
+        },
+        data: {
+          album: input.album,
+        },
+      });
 
-        return bountyExtra;
-      } catch (error) {
-        console.error('Error details:', {
-          input,
-          error: error instanceof Error ? error.message : error,
-          stack: error instanceof Error ? error.stack : undefined,
-        });
-        throw error;
-      }
+      return bountyExtra;
     }),
 
   bounties: baseProcedure
@@ -1272,7 +1258,7 @@ export const appRouter = createTRPCRouter({
     return parsed.data;
   }),
 
-  categories: baseProcedure
+  albums: baseProcedure
     .input(
       z.object({
         contains: z.string(),
@@ -1280,10 +1266,10 @@ export const appRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       return prisma.bountiesExtra.groupBy({
-        by: ['category'],
-        where: { category: { contains: input.contains, mode: 'insensitive' } },
+        by: ['album'],
+        where: { album: { contains: input.contains, mode: 'insensitive' } },
         _count: {
-          category: true,
+          album: true,
         },
       });
     }),

@@ -27,16 +27,16 @@ export default function FormBounty({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
+  const [album, setAlbum] = useState('');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
 
-  const { data: categories } = trpc.categories.useQuery(
-    { contains: category },
+  const { data: albums } = trpc.albums.useQuery(
+    { contains: album },
     {
-      enabled: !!category,
+      enabled: !!album,
       staleTime: 30_000,
     }
   );
@@ -57,7 +57,7 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
-  const saveBountyCategory = trpc.saveBountyCategory.useMutation();
+  const saveBountyAlbum = trpc.saveBountyAlbum.useMutation();
 
   useEffect(() => {
     fetchPrice({ currency: chain.currency }).then(setPrice);
@@ -68,7 +68,7 @@ export default function FormBounty({
       name: string;
       description: string;
       amount: string;
-      category: string;
+      album: string;
     }) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
@@ -124,7 +124,7 @@ export default function FormBounty({
         if (bounty) {
           return {
             bountyId: data.args.id.toString(),
-            category: formData.category.trim(),
+            album: formData.album.trim(),
           };
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
@@ -132,11 +132,11 @@ export default function FormBounty({
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: ({ bountyId, category }) => {
-      saveBountyCategory.mutate({
+    onSuccess: ({ bountyId, album }) => {
+      saveBountyAlbum.mutate({
         bountyId: Number(bountyId),
         chainId: pollingChainId ?? chain.id,
-        category,
+        album,
       });
       setLoading({ isLoading: false, status: '' });
       router.push(`/${chain.slug}/bounty/${bountyId}?indexing=true`);
@@ -243,22 +243,22 @@ export default function FormBounty({
           </div>
 
           <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            category
+            album
           </span>
           <div className='relative mb-4'>
             <input
               disabled={generateBounty.isPending}
               type='text'
-              value={category}
+              value={album}
               onChange={(e) => {
-                if (!showCategoryDropdown) {
-                  setShowCategoryDropdown(true);
+                if (!showAlbumDropdown) {
+                  setShowAlbumDropdown(true);
                 }
                 const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
-                setCategory(next);
+                setAlbum(next);
               }}
-              onFocus={() => setShowCategoryDropdown(true)}
-              onBlur={() => setShowCategoryDropdown(false)}
+              onFocus={() => setShowAlbumDropdown(true)}
+              onBlur={() => setShowAlbumDropdown(false)}
               className='border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full'
               placeholder='optional'
               maxLength={30}
@@ -268,29 +268,24 @@ export default function FormBounty({
                 }
               }}
             />
-            {showCategoryDropdown &&
-              category &&
-              categories &&
-              categories.length > 0 && (
-                <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
-                  {categories.map((c) => (
-                    <li
-                      key={c.category}
-                      className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setCategory(c.category);
-                        setShowCategoryDropdown(false);
-                      }}
-                    >
-                      {c.category.length > 20
-                        ? `${c.category.slice(0, 20)}…`
-                        : c.category}{' '}
-                      ({c._count.category})
-                    </li>
-                  ))}
-                </ul>
-              )}
+            {showAlbumDropdown && album && albums && albums.length > 0 && (
+              <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
+                {albums.map((c) => (
+                  <li
+                    key={c.album}
+                    className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setAlbum(c.album);
+                      setShowAlbumDropdown(false);
+                    }}
+                  >
+                    {c.album.length > 20 ? `${c.album.slice(0, 20)}…` : c.album}{' '}
+                    ({c._count.album})
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div className='flex items-center justify-start gap-2'>
             <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
@@ -328,7 +323,7 @@ export default function FormBounty({
                     name,
                     description,
                     amount,
-                    category,
+                    album,
                   };
 
                   onClose();
@@ -336,7 +331,7 @@ export default function FormBounty({
                   setName('');
                   setDescription('');
                   setAmount('');
-                  setCategory('');
+                  setAlbum('');
                   createBountyMutations.mutate(formData);
                 } else {
                   toast.error(
