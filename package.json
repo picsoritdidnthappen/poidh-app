@@ -17,6 +17,7 @@
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prepare": "husky install",
     "migrate": "tsx scripts/migration.ts",
+    "backfillBountiesAlbums": "tsx scripts/backfillBountiesAlbums.ts",
     "generate": "prisma generate"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "axios": "^1.8.4",
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
+    "csv-parse": "^6.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "framer-motion": "^11.18.2",

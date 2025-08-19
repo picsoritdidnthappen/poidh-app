@@ -129,14 +129,19 @@ export const appRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input }) => {
-      const bountyExtra = await prisma.bountiesExtra.update({
+      const bountyExtra = await prisma.bountiesExtra.upsert({
         where: {
           bounty_id_chain_id: {
             bounty_id: input.bountyId,
             chain_id: input.chainId,
           },
         },
-        data: {
+        create: {
+          bounty_id: input.bountyId,
+          chain_id: input.chainId,
+          album: input.album,
+        },
+        update: {
           album: input.album,
         },
       });
