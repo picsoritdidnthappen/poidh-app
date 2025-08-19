@@ -17,6 +17,7 @@
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prepare": "husky install",
     "migrate": "tsx scripts/migration.ts",
+    "backfillBountiesAlbums": "tsx scripts/backfillBountiesAlbums.ts",
     "generate": "prisma generate"
   },
   "dependencies": {
