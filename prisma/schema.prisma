@@ -34,7 +34,7 @@ model Bounties {
 model BountiesExtra {
   bounty_id Int
   chain_id  Int
-  category  String
+  album     String
 
   @@id([bounty_id, chain_id])
 }
