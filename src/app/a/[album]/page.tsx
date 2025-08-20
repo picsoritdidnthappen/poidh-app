@@ -59,8 +59,8 @@ export default function Album({ params }: { params: { album: string } }) {
       </div>
 
       <div className='pb-20 z-1 mt-7'>
-        {bounties.data &&
-          (display !== 'past' ? (
+        {bounties.data && bounties.data.length > 0 ? (
+          display !== 'past' ? (
             <BountyList
               key={(bounties.data[0]?.id ?? 'empty-list').toString()}
               bounties={bounties.data.map((bounty) => ({
@@ -103,7 +103,17 @@ export default function Album({ params }: { params: { album: string } }) {
                 );
               })}
             </div>
-          ))}
+          )
+        ) : (
+          <div className='container mx-auto p-4 flex items-center justify-center mt-24'>
+            <div className='text-white/60 text-center'>
+              No{' '}
+              {display === 'open' ? 'active' : display === 'past' ? 'past' : ''}{' '}
+              bounties {display === 'progress' ? 'in voting' : ''} found in this
+              album
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
