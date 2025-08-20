@@ -241,6 +241,91 @@ export const appRouter = createTRPCRouter({
       };
     }),
 
+  bountiesByAlbum: baseProcedure
+    .input(
+      z.object({
+        album: z.string(),
+        status: z.enum(['open', 'progress', 'past']),
+      })
+    )
+    .query(async ({ input }) => {
+      const extras = await prisma.bountiesExtra.findMany({
+        where: { album: input.album },
+        select: { bounty_id: true, chain_id: true },
+      });
+
+      if (extras.length === 0) {
+        return [];
+      }
+
+      const orFilters = extras.map((e) => ({
+        id: e.bounty_id,
+        chain_id: e.chain_id,
+      }));
+
+      const items = await prisma.bounties.findMany({
+        where: {
+          OR: orFilters,
+          ban: {
+            none: {},
+          },
+          is_canceled: false,
+          ...(input.status === 'open'
+            ? {
+                in_progress: true,
+                is_voting: false,
+              }
+            : {}),
+          ...(input.status === 'progress'
+            ? {
+                in_progress: true,
+                is_voting: true,
+              }
+            : {}),
+          ...(input.status === 'past'
+            ? {
+                in_progress: false,
+                is_canceled: false,
+              }
+            : {}),
+        },
+        include: {
+          claims: {
+            take: 1,
+            where: {
+              ban: {
+                none: {},
+              },
+            },
+            orderBy: { is_accepted: 'desc' },
+          },
+          transactions: {
+            take: 1,
+            orderBy: { timestamp: 'desc' },
+            select: { timestamp: true },
+          },
+        },
+        orderBy: { id: 'desc' },
+      });
+
+      const getTsNumber = (b: {
+        transactions?: { timestamp?: unknown }[];
+      }): number => {
+        const ts = b.transactions?.[0]?.timestamp;
+        if (ts === undefined || ts === null) return 0;
+        return Number(String(ts)) || 0;
+      };
+
+      items.sort((a, b) => {
+        const at = getTsNumber(a);
+        const bt = getTsNumber(b);
+        if (bt === at) return b.id - a.id;
+        return bt - at;
+      });
+
+      return items;
+    }),
+
   completedBountiesCount: baseProcedure.query(async () => {
     return await prisma.claims.count({
       where: {
@@ -419,7 +504,7 @@ export const appRouter = createTRPCRouter({
         })
       ).map((bounty) => ({
         id: bounty.id.toString(),
-        chainId: bounty.chain_id,
+        chainId: bounty.chain_id as ChainId,
         title: bounty.title,
         description: bounty.description,
         network: bounty.chain_id.toString(),
@@ -457,7 +542,7 @@ export const appRouter = createTRPCRouter({
         if (bounty) {
           return {
             id: bounty.id.toString(),
-            chainId: bounty.chain_id,
+            chainId: bounty.chain_id as ChainId,
             title: bounty.title,
             description: bounty.description,
             network: bounty.chain_id.toString(),
@@ -922,7 +1007,8 @@ export const appRouter = createTRPCRouter({
         const all: WarpcastCast[] = [];
 
         while (stack.length) {
-          const current = stack.pop()!;
+          const current = stack.pop();
+          if (!current) continue;
           all.push(current);
 
           if (current.direct_replies?.length) {
@@ -936,7 +1022,7 @@ export const appRouter = createTRPCRouter({
       for (const threadHash of uniqueThreadHashes) {
         if (totalCasts.length >= 20) break;
 
-        const [conversationCast, _] = await tryCatchAsync(async () => {
+        const [conversationCast] = await tryCatchAsync(async () => {
           const { data } = await axios.get(
             'https://api.neynar.com/v2/farcaster/cast/conversation',
             {
@@ -975,7 +1061,7 @@ export const appRouter = createTRPCRouter({
         return {};
       }
 
-      const [data, _] = await tryCatchAsync(async () => {
+      const [data] = await tryCatchAsync(async () => {
         const { data } = await axios.get(
           'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
           {

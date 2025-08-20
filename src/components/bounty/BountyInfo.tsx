@@ -30,6 +30,7 @@ import TextWithLinks from '@/components/global/TextWithLinks';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import ShareBountyModal from '@/components/global/ShareBountyModal';
 import { ShareIcon } from '@/components/global/Icons';
+import Link from 'next/link';
 
 export default function BountyInfo({
   bountyId,
@@ -229,7 +230,15 @@ export default function BountyInfo({
             </button>
           )}
           {bountyExtra.data?.album && (
-            <p className='text-white mb-3'>🕹️ {bountyExtra.data.album}</p>
+            <p className='text-white mb-3'>
+              🕹️{' '}
+              <Link
+                href={`${window.location.origin}/a/${bountyExtra.data.album}`}
+                className='underline hover:opacity-80 cursor-pointer'
+              >
+                {bountyExtra.data.album}
+              </Link>
+            </p>
           )}
           <p className='text-lg mb-5 mt-1 font-bold'>
             {formatAmount({
