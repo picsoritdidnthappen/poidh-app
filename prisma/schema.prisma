@@ -15,6 +15,7 @@ model Bounties {
   amount           String
   amount_sort      Float
   issuer           String
+  created_at       Decimal  @db.Decimal(78, 0)
   in_progress      Boolean? @default(true)
   is_joined_bounty Boolean? @default(false)
   is_canceled      Boolean? @default(false)
