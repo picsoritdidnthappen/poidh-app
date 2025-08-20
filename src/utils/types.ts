@@ -63,3 +63,7 @@ export interface WarpcastCast {
   };
   direct_replies: WarpcastCast[];
 }
+
+export type BountyDisplayType = 'open' | 'progress' | 'past';
+
+export type BountySortType = 'value' | 'id';

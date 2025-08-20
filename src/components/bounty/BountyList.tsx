@@ -21,9 +21,11 @@ type Bounty = {
 export default function BountyList({
   bounties,
   showStatusEmoji = false,
+  showChainIcon = false,
 }: {
   bounties: Bounty[];
   showStatusEmoji?: boolean;
+  showChainIcon?: boolean;
 }) {
   return (
     <>
@@ -71,6 +73,7 @@ export default function BountyList({
                 isCanceled: bounty.isCanceled,
               }}
               showStatusEmoji={showStatusEmoji}
+              showChainIcon={showChainIcon}
             />
           </motion.div>
         ))}
