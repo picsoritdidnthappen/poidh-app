@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { useGetChain } from '@/hooks/useGetChain';
-import { ChainId } from '@/utils/types';
+import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
 import { FormControl, MenuItem, Select } from '@mui/material';
@@ -12,12 +12,9 @@ import { SortIcon } from '@/components/global/Icons';
 import BountyList from '../bounty/BountyList';
 import PastBountyCard from '../bounty/PastBountyCard';
 
-type DisplayType = 'open' | 'progress' | 'past';
-type SortType = 'value' | 'id';
-
 export default function ContentHome() {
-  const [display, setDisplay] = useState<DisplayType>('open');
-  const [sortType, setSortType] = useState<SortType>('value');
+  const [display, setDisplay] = useState<BountyDisplayType>('open');
+  const [sortType, setSortType] = useState<BountySortType>('value');
   const chain = useGetChain();
 
   const bounties = trpc.bounties.useInfiniteQuery(
@@ -104,7 +101,7 @@ export default function ContentHome() {
                 },
               }}
               renderValue={() => <SortIcon width={18} height={18} />}
-              onChange={(e) => setSortType(e.target.value as SortType)}
+              onChange={(e) => setSortType(e.target.value as BountySortType)}
             >
               <MenuItem value='value' className='color-white'>
                 by value
@@ -136,6 +133,7 @@ export default function ContentHome() {
                 bounties={bounties.data.pages.flatMap((page) =>
                   page.items.map((bounty) => ({
                     id: bounty.id.toString(),
+                    chainId: bounty.chain_id as ChainId,
                     title: bounty.title,
                     description: bounty.description,
                     amount: bounty.amount,

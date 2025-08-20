@@ -3,9 +3,11 @@ import React from 'react';
 
 import { cn } from '@/utils';
 import BountyItem from './BountyItem';
+import { ChainId } from '@/utils/types';
 
 type Bounty = {
   id: string;
+  chainId: ChainId;
   title: string;
   description: string;
   network: string;
@@ -19,9 +21,11 @@ type Bounty = {
 export default function BountyList({
   bounties,
   showStatusEmoji = false,
+  showChainIcon = false,
 }: {
   bounties: Bounty[];
   showStatusEmoji?: boolean;
+  showChainIcon?: boolean;
 }) {
   return (
     <>
@@ -59,6 +63,7 @@ export default function BountyList({
             <BountyItem
               bounty={{
                 id: bounty.id,
+                chainId: bounty.chainId,
                 title: bounty.title,
                 network: bounty.network,
                 description: bounty.description,
@@ -68,6 +73,7 @@ export default function BountyList({
                 isCanceled: bounty.isCanceled,
               }}
               showStatusEmoji={showStatusEmoji}
+              showChainIcon={showChainIcon}
             />
           </motion.div>
         ))}
