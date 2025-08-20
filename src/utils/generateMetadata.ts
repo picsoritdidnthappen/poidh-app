@@ -301,6 +301,7 @@ export const generateMetadataForAccountPage = async ({
     };
   }
 };
+
 export const generateMetadataForLeaderboardPage =
   async (): Promise<Metadata> => {
     const frame = {
@@ -344,6 +345,48 @@ export const generateMetadataForLeaderboardPage =
       },
     } satisfies Metadata;
   };
+
+export const generateMetadataForAlbumPage = async ({
+  params,
+}: {
+  params: { album: string };
+}): Promise<Metadata> => {
+  const title = `${params.album} bounties on poidh`;
+  const description = `view ${params.album} bounties on poidh - see all current bounties, view all past bounties, or create a new bounty within the ${params.album} album`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'POIDH',
+      images: [APP_OG_IMAGE_URL],
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title,
+          action: {
+            type: 'launch_frame',
+            name: 'view album',
+            url: `${APP_URL}/a/${params.album}`,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+          },
+        },
+      }),
+    },
+  };
+};
 
 async function safeFetchPrice({
   currency,
