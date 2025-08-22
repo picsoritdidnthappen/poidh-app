@@ -22,7 +22,7 @@ export async function GET() {
       name: "poidh",
       iconUrl: "https://poidh.xyz/icon.png",
       splashImageUrl: "https://poidh.xyz/splash.png",
-      splashBackgroundColor: "#2a81d5",
+      splashBackgroundColor: "#6fa9e1",
       homeUrl: "https://poidh.xyz/",
       heroImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
       webhookUrl: "https://poidh.xyz/api/webhook",
