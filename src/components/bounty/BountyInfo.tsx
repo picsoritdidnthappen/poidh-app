@@ -231,7 +231,7 @@ export default function BountyInfo({
           )}
           {bountyExtra.data?.album && (
             <p className='text-white mb-3'>
-              🕹️{' '}
+              📸{' '}
               <Link
                 href={`${window.location.origin}/a/${bountyExtra.data.album}`}
                 className='underline hover:opacity-80 cursor-pointer'
