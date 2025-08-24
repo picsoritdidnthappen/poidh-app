@@ -20,7 +20,7 @@ export default function Album({ params }: { params: { album: string } }) {
   return (
     <div>
       <div className='container mx-auto text-center my-6 mt-8'>
-        <h1 className='font-GeistMono-Regular text-2xl md:text-4xl text-white lowercase mt-8'>
+        <h1 className='font-mono text-4xl mb-8'>
           {album} bounties
         </h1>
       </div>
