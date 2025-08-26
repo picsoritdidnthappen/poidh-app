@@ -35,6 +35,9 @@ export async function GET() {
       ogDescription: "incentivize tasks with bounties on Farcaster",
       ogImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
     },
+    baseBuilder: {
+      allowedAddresses: "0x1B18f76e65fC875da2469710282A2E20F1e521e0",
+    },  
   };
 
   return NextResponse.json(config);
