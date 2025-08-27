@@ -360,10 +360,7 @@ export const generateMetadataForAlbumPage = ({
     other: {
       'fc:frame': JSON.stringify({
         version: 'next',
-        imageUrl: [
-          `https:/poidh.xyz/api/og/album?album=${params.album}&imageFormat=preview`,
-          APP_OG_IMAGE_URL,
-        ],
+        imageUrl: `https:/poidh.xyz/api/og/album?album=${params.album}&imageFormat=preview`,
         button: {
           title,
           action: {
