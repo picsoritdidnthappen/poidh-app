@@ -348,7 +348,7 @@ export const generateMetadataForAlbumPage = ({
       description,
       siteName: 'POIDH',
       images: [
-        `https:/poigh.xyz/api/og/album?album=${params.album}&imageFormat=og`,
+        `https:/poidh.xyz/api/og/album?album=${params.album}&imageFormat=og`,
         APP_OG_IMAGE_URL,
       ],
       type: 'website',
