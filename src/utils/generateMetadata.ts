@@ -348,7 +348,7 @@ export const generateMetadataForAlbumPage = ({
       description,
       siteName: 'POIDH',
       images: [
-        `https:/poidh.xyz/api/og/album?album=${params.album}&imageFormat=og`,
+        `https://poidh.xyz/api/og/album?album=${params.album}&imageFormat=og`,
         APP_OG_IMAGE_URL,
       ],
       type: 'website',
@@ -360,7 +360,7 @@ export const generateMetadataForAlbumPage = ({
     other: {
       'fc:frame': JSON.stringify({
         version: 'next',
-        imageUrl: `https:/poidh.xyz/api/og/album?album=${params.album}&imageFormat=preview`,
+        imageUrl: `https://poidh.xyz/api/og/album?album=${params.album}&imageFormat=preview`,
         button: {
           title,
           action: {
