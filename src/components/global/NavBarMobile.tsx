@@ -8,9 +8,13 @@ import FormClaim from '../claims/FormClaim';
 export default function NavBarMobile({
   type,
   bountyId,
+  prefilledAlbum,
+  showChainSelector = false,
 }: {
   type: 'claim' | 'bounty';
   bountyId?: string;
+  prefilledAlbum?: string;
+  showChainSelector?: boolean;
 }) {
   const [showForm, setShowForm] = useState(false);
   const account = useAccount();
@@ -56,7 +60,12 @@ export default function NavBarMobile({
       </nav>
 
       {type === 'bounty' ? (
-        <FormBounty open={showForm} onClose={() => setShowForm(false)} />
+        <FormBounty
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          prefilledAlbum={prefilledAlbum}
+          showChainSelector={showChainSelector}
+        />
       ) : (
         bountyId && (
           <FormClaim
