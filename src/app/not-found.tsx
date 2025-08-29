@@ -11,7 +11,7 @@ export default function NotFound() {
     <main>
       <section className='bg-white'>
         <div className='layout flex min-h-screen flex-col items-center justify-center text-center text-black'>
-          <WarrningIcon width={100} height={100} />
+          <WarrningIcon size={100} />
           <h1 className='mt-8 text-4xl md:text-6xl'>Page Not Found</h1>
           <a href='/'>Back to home</a>
         </div>

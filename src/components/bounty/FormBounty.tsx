@@ -275,7 +275,7 @@ export default function FormBounty({
                 >
                   <DynamicChainIcon chain={currentChain.slug} size={20} />
                   <span className='ml-1 color-white'>
-                    <ExpandMoreIcon width={12} height={12} />
+                    <ExpandMoreIcon size={12} />
                   </span>
                 </Button>
                 <Menu
@@ -336,8 +336,8 @@ export default function FormBounty({
             )}
           </div>
           <div className='flex text-balance gap-2 text-xs mb-4 items-center'>
-            <InfoIcon width={18} height={18} /> a 2.5% fee is deducted from
-            completed bounties
+            <InfoIcon size={18} /> a 2.5% fee is deducted from completed
+            bounties
           </div>
 
           <span className={cn(generateBounty.isPending && 'animate-pulse')}>
@@ -403,7 +403,7 @@ export default function FormBounty({
           </div>
           <div className=' text-xs'>
             <span className='flex gap-2 items-center max-w-md '>
-              <InfoIcon width={18} height={18} />
+              <InfoIcon size={18} />
               {isOpenBounty
                 ? 'users can add additional funds to your bounty'
                 : 'you are the sole bounty contributor'}

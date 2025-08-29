@@ -16,7 +16,7 @@ export default function JoinBounty({ bountyId }: { bountyId: string }) {
       <div className='w-fit cursor-pointer'>
         <div onClick={() => setShowForm(true)}>
           <ButtonCTA>
-            add funds <PlusIcon width={15} height={15} />
+            add funds <PlusIcon size={15} />
           </ButtonCTA>
         </div>
       </div>

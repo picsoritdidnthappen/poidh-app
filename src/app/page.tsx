@@ -43,7 +43,7 @@ export default function Home() {
           click the 🕹️ to get started
         </h3>
         <div className='mt-5 mb-6'>
-          <NetworkSelector height={96} width={96} />
+          <NetworkSelector size={96} />
         </div>
         {randomClaims && !randomClaims.error && (
           <>

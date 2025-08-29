@@ -100,7 +100,7 @@ export default function ContentHome() {
                   },
                 },
               }}
-              renderValue={() => <SortIcon width={18} height={18} />}
+              renderValue={() => <SortIcon size={18} />}
               onChange={(e) => setSortType(e.target.value as BountySortType)}
             >
               <MenuItem value='value' className='color-white'>

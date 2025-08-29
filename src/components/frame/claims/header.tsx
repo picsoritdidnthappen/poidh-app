@@ -51,8 +51,7 @@ const Header: React.FC<HeaderProps> = ({ chainId }) => {
             {networks
               .find(({ name }) => name === chainId.toLowerCase())
               ?.Icon({
-                width: 24,
-                height: 24,
+                size: 24,
               })}
           </div>
         )}
