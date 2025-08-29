@@ -1,5 +1,13 @@
-import { Box, Dialog, DialogContent, Switch } from '@mui/material';
-import { useEffect, useState } from 'react';
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  Switch,
+  Button,
+  Menu,
+  MenuItem,
+} from '@mui/material';
+import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 
 import { useGetChain } from '@/hooks/useGetChain';
@@ -10,28 +18,40 @@ import { decodeEventLog, parseEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { cn } from '@/utils';
 import GameButton from '@/components/global/GameButton';
-import { InfoIcon } from '@/components/global/Icons';
+import { ExpandMoreIcon, InfoIcon } from '@/components/global/Icons';
 import ButtonCTA from '../global/ButtonCTA';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { fetchPrice, formatUsdShort } from '@/utils/utils';
+import { Chain, Netname } from '@/utils/types';
+import { chains } from '@/utils/config';
+import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 
 export default function FormBounty({
   open,
   onClose,
+  prefilledAlbum,
+  showChainSelector = false,
 }: {
   open: boolean;
   onClose: () => void;
+  prefilledAlbum?: string;
+  showChainSelector?: boolean;
 }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
-  const [album, setAlbum] = useState('');
+  const [album, setAlbum] = useState(prefilledAlbum || '');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [price, setPrice] = useState<number>(0);
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
+  const chain = useGetChain();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const usdRef = useRef<HTMLSpanElement | null>(null);
 
   const { data: albums } = trpc.albums.useQuery(
     { contains: album },
@@ -49,7 +69,7 @@ export default function FormBounty({
       }
     }
   }, [price, amount]);
-  const chain = useGetChain();
+
   const writeContract = useWriteContract({});
   const account = useAccount();
   const switctChain = useSwitchChain();
@@ -58,10 +78,11 @@ export default function FormBounty({
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
   const saveBountyAlbum = trpc.saveBountyAlbum.useMutation();
+  const [currentChain, setCurrentChain] = useState<Chain>(chain);
 
   useEffect(() => {
-    fetchPrice({ currency: chain.currency }).then(setPrice);
-  }, [chain.currency]);
+    fetchPrice({ currency: currentChain.currency }).then(setPrice);
+  }, [currentChain, currentChain.currency]);
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
@@ -71,9 +92,9 @@ export default function FormBounty({
       album: string;
     }) => {
       const chainId = await account.connector?.getChainId();
-      if (chain.id !== chainId) {
+      if (currentChain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Swithing network' });
-        await switctChain.switchChainAsync({ chainId: chain.id });
+        await switctChain.switchChainAsync({ chainId: currentChain.id });
       }
 
       setLoading({
@@ -83,19 +104,19 @@ export default function FormBounty({
 
       const tx = await writeContract.writeContractAsync({
         abi,
-        address: chain.contracts.mainContract as `0x${string}`,
+        address: currentChain.contracts.mainContract as `0x${string}`,
         functionName: isOpenBounty ? 'createOpenBounty' : 'createSoloBounty',
         value: BigInt(parseEther(formData.amount)),
         args: [formData.name, formData.description],
-        chainId: chain.id,
+        chainId: currentChain.id,
       });
-      setPollingChainId(chain.id);
+      setPollingChainId(currentChain.id);
 
       setLoading({
         isLoading: true,
         status: 'Waiting for receipt',
       });
-      const receipt = await chain.provider.waitForTransactionReceipt({
+      const receipt = await currentChain.provider.waitForTransactionReceipt({
         hash: tx,
       });
 
@@ -118,7 +139,7 @@ export default function FormBounty({
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const bounty = await trpcClient.isBountyCreated.query({
           id: Number(data.args.id),
-          chainId: pollingChainId ?? chain.id,
+          chainId: pollingChainId ?? currentChain.id,
         });
 
         if (bounty) {
@@ -135,11 +156,11 @@ export default function FormBounty({
     onSuccess: ({ bountyId, album }) => {
       saveBountyAlbum.mutate({
         bountyId: Number(bountyId),
-        chainId: pollingChainId ?? chain.id,
+        chainId: pollingChainId ?? currentChain.id,
         album,
       });
       setLoading({ isLoading: false, status: '' });
-      router.push(`/${chain.slug}/bounty/${bountyId}?indexing=true`);
+      router.push(`/${currentChain.slug}/bounty/${bountyId}?indexing=true`);
       toast.success('Bounty created successfully');
     },
     onError: (error) => {
@@ -149,6 +170,14 @@ export default function FormBounty({
       setLoading({ isLoading: false, status: '' });
     },
   });
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const generateBounty = trpc.generateBounty.useMutation({
     onMutate: async () => {
@@ -211,11 +240,12 @@ export default function FormBounty({
           <span>reward</span>
           <div className='relative w-full mb-3'>
             <input
+              ref={inputRef}
               type='number'
               step='any'
-              placeholder={`amount in ${chain.currency}`}
+              placeholder={`amount in ${currentChain.currency}`}
               value={amount}
-              maxLength={16}
+              maxLength={15}
               onChange={(e) => {
                 const raw = e.target.value;
                 const integerPart = raw.split(/[.,]/)[0];
@@ -229,10 +259,78 @@ export default function FormBounty({
                   setUsdPerToken(null);
                 }
               }}
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md placeholder:text-slate-400 w-full pr-28 overflow-hidden whitespace-nowrap text-ellipsis'
+              className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full overflow-hidden whitespace-nowrap text-ellipsis transition-colors duration-150 placeholder:text-slate-400 ${
+                amount && showChainSelector ? 'pr-40' : 'pr-28'
+              }`}
             />
+            {showChainSelector && (
+              <>
+                <Button
+                  id='basic-button'
+                  aria-controls={menuOpen ? 'basic-menu' : undefined}
+                  aria-haspopup='true'
+                  aria-expanded={menuOpen ? 'true' : undefined}
+                  onClick={handleClick}
+                  className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/30 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
+                >
+                  <DynamicChainIcon chain={currentChain.slug} size={20} />
+                  <span className='ml-1 color-white'>
+                    <ExpandMoreIcon width={12} height={12} />
+                  </span>
+                </Button>
+                <Menu
+                  id='basic-menu'
+                  anchorEl={anchorEl}
+                  open={menuOpen}
+                  onClose={handleClose}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                  sx={{
+                    '& .MuiPaper-root': {
+                      backdropFilter: 'blur(8px)',
+                      background:
+                        'linear-gradient(to top, rgba(209, 236, 255, 0.2) 10%, rgba(209, 236, 255, 0.1) 30%, rgba(209, 236, 255, 0.05) 50%)',
+                      color: '#FFF',
+                      marginTop: '0.25rem',
+                      fontFamily: 'GeistMono-Regular',
+                      fontSize: '0.875rem',
+                      transform: 'translateX(-12px)',
+                    },
+                    '& .MuiMenuItem-root': {
+                      fontFamily: 'GeistMono-Regular',
+                      fontSize: '0.875rem',
+                    },
+                    '& .MuiList-root': {
+                      gap: '1.25rem',
+                    },
+                  }}
+                >
+                  {Object.entries(chains).map(([netname, ch]) => (
+                    <MenuItem
+                      key={netname}
+                      className={cn('mx-1')}
+                      onClick={() => {
+                        setCurrentChain(ch);
+                        handleClose();
+                      }}
+                    >
+                      <DynamicChainIcon chain={netname as Netname} size={18} />
+                      <p className='ml-4'>{netname}</p>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            )}
             {usdPerToken !== null && (
-              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
+              <span
+                ref={usdRef}
+                className={`absolute top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md ${
+                  showChainSelector ? 'right-16' : 'right-4'
+                }`}
+              >
                 (${formatUsdShort(usdPerToken)})
               </span>
             )}
