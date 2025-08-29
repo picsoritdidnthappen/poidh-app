@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BountyErrorCard = ({ message }: { message?: string }) => {
+export default function BountyErrorCard({ message }: { message?: string }) {
   return (
     <div
       tw='w-full h-full p-6 flex flex-col items-center justify-center'
@@ -9,12 +9,10 @@ const BountyErrorCard = ({ message }: { message?: string }) => {
           'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)',
       }}
     >
-      {/* POIDH Text */}
       <div tw='w-full text-center flex items-center justify-center'>
         <span tw='text-red-500 font-bold text-xl'>poidh</span>
       </div>
 
-      {/* Error Content */}
       <div
         style={{ gap: '8px', flexDirection: 'column' }}
         tw='flex flex-col items-center justify-start text-white'
@@ -31,6 +29,4 @@ const BountyErrorCard = ({ message }: { message?: string }) => {
       </div>
     </div>
   );
-};
-
-export default BountyErrorCard;
+}
