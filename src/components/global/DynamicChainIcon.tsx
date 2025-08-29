@@ -10,11 +10,11 @@ export default function DynamicChainIcon({
 }) {
   switch (chain.toLowerCase()) {
     case 'arbitrum':
-      return <ArbitrumIcon width={size} height={size} />;
+      return <ArbitrumIcon size={size} />;
     case 'base':
-      return <BaseIcon width={size} height={size} />;
+      return <BaseIcon size={size} />;
     case 'degen':
-      return <DegenIcon width={size} height={size} />;
+      return <DegenIcon size={size} />;
     default:
       return null;
   }

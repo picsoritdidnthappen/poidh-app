@@ -1,5 +1,3 @@
-'use client';
-
 export default function Terms() {
   return (
     <main className='min-h-screen bg-poidhBlue/10 py-16 px-4'>

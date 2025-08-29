@@ -9,13 +9,7 @@ const networks = [
   { href: '/degen', Icon: DegenIcon, label: 'degen bounties' },
 ];
 
-export function NetworkSelector({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function NetworkSelector({ size = 24 }: { size?: number }) {
   return (
     <div className='flex flex-col md:flex-row gap-6 items-center md:items-start justify-center mx-auto'>
       {networks.map(({ href, Icon, label }) => (
@@ -25,7 +19,7 @@ export function NetworkSelector({
           className='flex flex-col items-center group md:w-36'
         >
           <span className='border-[#D1ECFF] border rounded-full backdrop-blur-sm bg-white/30 p-3 hover:bg-white/20 transition-colors'>
-            <Icon width={width} height={height} />
+            <Icon size={size} />
           </span>
           <h3 className='font-mono text-lg md:text-base mt-3 underline group-hover:no-underline whitespace-nowrap'>
             {label}

@@ -1,7 +1,7 @@
 import BountyPreviewCard, {
   BountyPreviewData,
 } from '@/components/og/BountyPreviewCard';
-import BountyErrorCard from '@/components/frame/claims/Error';
+import BountyErrorCard from '@/components/og/BountyErrorCard';
 import { ImageResponse, NextRequest } from 'next/server';
 
 export const runtime = 'edge';

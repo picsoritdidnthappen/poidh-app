@@ -130,13 +130,13 @@ export default function ShareBountModal({
     },
     {
       name: 'Farcaster',
-      icon: <FarcasterIcon width={24} height={24} />,
+      icon: <FarcasterIcon size={24} />,
       handler: handleShareFarcaster,
       description: 'Share on Farcaster',
     },
     {
       name: 'Copy Link',
-      icon: <CopyIcon width={24} height={24} />,
+      icon: <CopyIcon size={24} />,
       handler: handleCopyLink,
       description: 'Copy link to clipboard',
     },

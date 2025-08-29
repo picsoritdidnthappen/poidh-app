@@ -110,7 +110,7 @@ function Comment({ comment }: { comment: WarpcastCast }) {
           />
         </div>
         <div className='absolute bottom-0 right-0 bg-[#9064d4] rounded-md p-[0.8px]'>
-          <FarcasterIcon width={12} height={12} />
+          <FarcasterIcon size={12} />
         </div>
       </div>
       <div className='flex-1 min-w-0'>

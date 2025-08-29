@@ -289,7 +289,7 @@ export default function BountyInfo({
           onClick={() => onShareModalStateChange?.(true)}
           className='flex items-center gap-1 underline hover:no-underline w-fit'
         >
-          share bounty <ShareIcon width={16} height={16} />
+          share bounty <ShareIcon size={16} />
         </button>
         {isShareModalOpen && (
           <ShareBountyModal

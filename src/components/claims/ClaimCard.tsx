@@ -247,7 +247,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                   onClick={handleZoomOut}
                   className='text-white/80 hover:text-white p-2 transition-colors'
                 >
-                  <ZoomOutIcon width={20} height={20} />
+                  <ZoomOutIcon size={20} />
                 </button>
                 <div className='px-3 text-white/90 text-sm border-l border-r border-white/20'>
                   {Math.round(scale * 100)}%
@@ -256,7 +256,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                   onClick={handleZoomIn}
                   className='text-white/80 hover:text-white p-2 transition-colors'
                 >
-                  <ZoomInIcon width={20} height={20} />
+                  <ZoomInIcon size={20} />
                 </button>
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
               }}
               className='absolute z-50 top-4 right-4 text-white/80 hover:text-white p-2 bg-blur rounded-lg border border-white/20'
             >
-              <CloseIcon width={20} height={20} />
+              <CloseIcon size={20} />
             </button>
             {claim.imageUrl && (
               <Image

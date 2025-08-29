@@ -23,11 +23,7 @@ export default function CopyAddressButton({
       }}
       className='cursor-pointer hover:text-gray-200 shrink-0'
     >
-      {isCopied ? (
-        <CopyDoneIcon width={size} height={size} />
-      ) : (
-        <CopyIcon width={size} height={size} />
-      )}
+      {isCopied ? <CopyDoneIcon size={size} /> : <CopyIcon size={size} />}
     </div>
   );
 }
