@@ -1364,7 +1364,77 @@ export const appRouter = createTRPCRouter({
         _count: {
           album: true,
         },
+        orderBy: {
+          _count: {
+            album: 'desc',
+          },
+        },
       });
+    }),
+
+  bountiesByKeyword: baseProcedure
+    .input(
+      z.object({
+        keyword: z.string(),
+        limit: z.number().min(1).max(100).default(15),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      const q = input.keyword.trim();
+
+      const items = await prisma.bounties.findMany({
+        where: {
+          is_canceled: false,
+          ban: { none: {} },
+          ...(q === ''
+            ? {
+                in_progress: true,
+                is_voting: false,
+              }
+            : {
+                OR: [
+                  { title: { contains: q, mode: 'insensitive' } },
+                  { description: { contains: q, mode: 'insensitive' } },
+                ],
+              }),
+          ...(input.cursor ? { created_at: { lt: input.cursor } } : {}),
+        },
+        include: {
+          claims: {
+            take: 1,
+            where: {
+              ban: {
+                none: {},
+              },
+            },
+          },
+        },
+        orderBy: { created_at: 'desc' },
+        take: input.limit,
+      });
+
+      let nextCursor: string | undefined = undefined;
+      if (items.length === input.limit) {
+        nextCursor = items[items.length - 1].created_at.toString();
+      }
+
+      return {
+        items: items.map((bounty) => ({
+          id: bounty.id.toString(),
+          chainId: bounty.chain_id as ChainId,
+          title: bounty.title,
+          description: bounty.description,
+          amount: bounty.amount,
+          network: bounty.chain_id.toString(),
+          isMultiplayer: bounty.is_multiplayer || false,
+          inProgress: bounty.in_progress || false,
+          hasClaims: bounty.claims.length > 0,
+          isCanceled: bounty.is_canceled || false,
+          claims: bounty.claims,
+        })),
+        nextCursor,
+      };
     }),
 });
 

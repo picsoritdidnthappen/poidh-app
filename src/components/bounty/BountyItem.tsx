@@ -15,7 +15,6 @@ interface Bounty {
   title: string;
   description: string;
   amount: string;
-  network: string;
   isMultiplayer: boolean;
   inProgress?: boolean;
   isCanceled?: boolean;
