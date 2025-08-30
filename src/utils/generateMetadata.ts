@@ -377,6 +377,45 @@ export const generateMetadataForAlbumPage = ({
   };
 };
 
+export const generateMetadaForExplorePage = (): Metadata => {
+  const title = 'explore poidh bounties and albums';
+  const description =
+    'search poidh bounties and albums by keyword - from silly meme contests to robust public goods funding, poidh has content across a diverse range of topics';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'POIDH',
+      images: [APP_OG_IMAGE_URL],
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title,
+          action: {
+            type: 'launch_frame',
+            name: 'explore poidh bounties and albums',
+            url: `${APP_URL}/explore`,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+          },
+        },
+      }),
+    },
+  };
+};
+
 async function safeFetchPrice({
   currency,
 }: {

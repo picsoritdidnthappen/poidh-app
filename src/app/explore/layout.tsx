@@ -1,3 +1,7 @@
+import { generateMetadaForExplorePage } from '@/utils/generateMetadata';
+
+export const generateMetadata = generateMetadaForExplorePage;
+
 export default function ExploreLayout({
   children,
 }: {
