@@ -10,7 +10,6 @@ type Bounty = {
   chainId: ChainId;
   title: string;
   description: string;
-  network: string;
   amount: string;
   isMultiplayer: boolean;
   inProgress: boolean;
@@ -73,7 +72,6 @@ export default function BountyList({
                 id: bounty.id,
                 chainId: bounty.chainId,
                 title: bounty.title,
-                network: bounty.network,
                 description: bounty.description,
                 amount: bounty.amount,
                 isMultiplayer: bounty.isMultiplayer,
