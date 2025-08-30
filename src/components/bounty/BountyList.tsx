@@ -27,6 +27,14 @@ export default function BountyList({
   showStatusEmoji?: boolean;
   showChainIcon?: boolean;
 }) {
+  if (!bounties || bounties.length === 0) {
+    return (
+      <div className='text-center py-20 text-white/60'>
+        no bounties available
+      </div>
+    );
+  }
+
   return (
     <>
       <motion.div

@@ -9,6 +9,12 @@ import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
+  if (!claims || claims.length === 0) {
+    return (
+      <div className='text-center py-20 text-white/60'>no claims available</div>
+    );
+  }
+
   return (
     <div className='container mx-auto px-0  pb-12 pt-5 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 '>
       {claims.map((claim) => (
