@@ -18,6 +18,11 @@ export default function AlbumList({ keyword = '' }: { keyword?: string }) {
     isFetching,
   } = trpc.albums.useQuery({ contains: debouncedKeyword });
 
+  // temprorary code for debugging
+  useEffect(() => {
+    console.log('albums:', albums);
+  }, [albums]);
+
   return (
     <div className='w-full max-w-sm mx-auto'>
       {!albums && !isLoading ? (

@@ -320,7 +320,7 @@ export const generateMetadataForLeaderboardPage = (): Metadata => {
           title: 'view leaderboard',
           action: {
             type: 'launch_frame',
-            name: 'poidh',
+            name: APP_NAME,
             url: `${APP_URL}/leaderboard`,
             splashImageUrl: APP_SPLASH_URL,
             iconUrl: APP_ICON_URL,
@@ -401,10 +401,10 @@ export const generateMetadaForExplorePage = (): Metadata => {
         version: 'next',
         imageUrl: APP_OG_IMAGE_URL,
         button: {
-          title,
+          title: 'explore poidh',
           action: {
             type: 'launch_frame',
-            name: 'explore poidh',
+            name: APP_NAME,
             url: `${APP_URL}/explore`,
             splashImageUrl: APP_SPLASH_URL,
             iconUrl: APP_ICON_URL,
