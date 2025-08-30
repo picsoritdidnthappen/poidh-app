@@ -404,7 +404,7 @@ export const generateMetadaForExplorePage = (): Metadata => {
           title,
           action: {
             type: 'launch_frame',
-            name: 'explore poidh bounties and albums',
+            name: 'explore poidh',
             url: `${APP_URL}/explore`,
             splashImageUrl: APP_SPLASH_URL,
             iconUrl: APP_ICON_URL,
@@ -413,7 +413,7 @@ export const generateMetadaForExplorePage = (): Metadata => {
         },
       }),
     },
-  };
+  } satisfies Metadata;
 };
 
 async function safeFetchPrice({
