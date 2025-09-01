@@ -495,11 +495,11 @@ export const appRouter = createTRPCRouter({
             is_multiplayer: true,
             in_progress: true,
             is_canceled: true,
+            created_at: true,
             claims: {
               take: 1,
             },
           },
-
           orderBy: { id: 'desc' },
         })
       ).map((bounty) => ({
@@ -512,6 +512,7 @@ export const appRouter = createTRPCRouter({
         isMultiplayer: bounty.is_multiplayer || false,
         inProgress: bounty.in_progress || false,
         hasClaims: bounty.claims.length > 0,
+        createdAt: bounty.created_at,
         isCanceled: bounty.is_canceled || false,
       }));
 
@@ -532,6 +533,7 @@ export const appRouter = createTRPCRouter({
                 is_multiplayer: true,
                 in_progress: true,
                 is_canceled: true,
+                created_at: true,
                 claims: { take: 1 },
               },
             },
@@ -551,6 +553,7 @@ export const appRouter = createTRPCRouter({
             inProgress: bounty.in_progress || false,
             hasClaims: (bounty.claims ?? []).length > 0,
             isCanceled: bounty.is_canceled || false,
+            createdAt: bounty.created_at,
           };
         }
       });
@@ -564,9 +567,17 @@ export const appRouter = createTRPCRouter({
           mergedBountiesMap.set(b.id, b);
         }
       });
-      const bounties = Array.from(mergedBountiesMap.values()).sort(
-        (a, b) => Number(b.id) - Number(a.id)
-      );
+      const bounties = Array.from(mergedBountiesMap.values()).sort((a, b) => {
+        if (a.isCanceled !== b.isCanceled) {
+          return a.isCanceled ? 1 : -1;
+        }
+
+        if (a.inProgress !== b.inProgress) {
+          return a.inProgress ? -1 : 1;
+        }
+
+        return Number(b.createdAt) - Number(a.createdAt);
+      });
 
       const claims = (
         await prisma.claims.findMany({
