@@ -115,6 +115,7 @@ export default function FormJoinBounty({
         open={open}
         onClose={() => {
           onClose();
+          setUsdPerToken(null);
           setAmount('');
         }}
         maxWidth='xs'
