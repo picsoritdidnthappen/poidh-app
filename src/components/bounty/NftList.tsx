@@ -17,7 +17,9 @@ type NFT = {
 
 export default function NftList({ NFTs }: { NFTs: NFT[] }) {
   if (NFTs.length === 0) {
-    return <div className='text-center py-20'>no NFT details available.</div>;
+    return (
+      <div className='text-center py-20 text-white/60'>no NFTs available</div>
+    );
   }
 
   return (

@@ -3,16 +3,18 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { formatEther } from 'viem';
 
-import { useGetChain } from '@/hooks/useGetChain';
 import { UsersRoundIcon } from '@/components/global/Icons';
 import { fetchPrice, formatAmount } from '@/utils/utils';
+import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import { ChainId } from '@/utils/types';
+import { getChainById } from '@/utils/config';
 
 interface Bounty {
   id: string;
+  chainId: ChainId;
   title: string;
   description: string;
   amount: string;
-  network: string;
   isMultiplayer: boolean;
   inProgress?: boolean;
   isCanceled?: boolean;
@@ -21,11 +23,13 @@ interface Bounty {
 export default function BountyItem({
   bounty,
   showStatusEmoji = false,
+  showChainIcon = false,
 }: {
   bounty: Bounty;
   showStatusEmoji?: boolean;
+  showChainIcon?: boolean;
 }) {
-  const chain = useGetChain();
+  const chain = getChainById({ chainId: bounty.chainId });
   const [price, setPrice] = useState<number>(0);
   const amount = formatEther(BigInt(bounty.amount)).toString();
 
@@ -56,7 +60,11 @@ export default function BountyItem({
             <p className='my-5 normal-case w-full h-28 overflow-y-auto overflow-hidden overflow-ellipsis'>
               {bounty.description}
             </p>
-            <div className='flex items-end justify-between mt-5'>
+            <div
+              className={`flex items-end justify-between ${
+                !showChainIcon ? 'mt-5' : 'mt-1'
+              }`}
+            >
               <div className='flex gap-2 items-center'>
                 <div>
                   {formatAmount({
@@ -68,6 +76,11 @@ export default function BountyItem({
                 </div>
                 {bounty.isMultiplayer && <UsersRoundIcon />}
               </div>
+              {showChainIcon && (
+                <div className='w-[42px] h-[42px] rounded-full bg-[rgba(255,255,255,0.2)] flex justify-center items-center border-[2px] border-[rgba(255,255,255,0.3)]'>
+                  <DynamicChainIcon chain={chain.slug} size={30} />
+                </div>
+              )}
             </div>
           </div>
           <div className='z-10 bg-gradient rounded-[8px] h-full w-full absolute top-0 right-0 bottom-0 left-0'></div>

@@ -34,7 +34,7 @@ export default function BountyHistory({
             showHistory ? 'rotate-180' : ''
           )}
         >
-          <ExpandMoreIcon width={16} height={16} />
+          <ExpandMoreIcon size={16} />
         </span>
       </button>
 

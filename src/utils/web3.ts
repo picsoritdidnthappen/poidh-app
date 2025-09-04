@@ -39,7 +39,7 @@ export async function bountyCurrentVotingClaim({
   chainName,
   id,
 }: {
-  chainName: 'degen' | 'arbitrum' | 'base';
+  chainName: Netname;
   id: string;
 }) {
   const chain = chains[chainName];
@@ -57,7 +57,7 @@ export async function bountyVotingTracker({
   chainName,
   id,
 }: {
-  chainName: 'degen' | 'arbitrum' | 'base';
+  chainName: Netname;
   id: string;
 }) {
   const chain = chains[chainName];

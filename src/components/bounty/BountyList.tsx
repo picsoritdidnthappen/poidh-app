@@ -3,12 +3,13 @@ import React from 'react';
 
 import { cn } from '@/utils';
 import BountyItem from './BountyItem';
+import { ChainId } from '@/utils/types';
 
 type Bounty = {
   id: string;
+  chainId: ChainId;
   title: string;
   description: string;
-  network: string;
   amount: string;
   isMultiplayer: boolean;
   inProgress: boolean;
@@ -19,10 +20,20 @@ type Bounty = {
 export default function BountyList({
   bounties,
   showStatusEmoji = false,
+  showChainIcon = false,
 }: {
   bounties: Bounty[];
   showStatusEmoji?: boolean;
+  showChainIcon?: boolean;
 }) {
+  if (!bounties || bounties.length === 0) {
+    return (
+      <div className='text-center py-20 text-white/60'>
+        no bounties available
+      </div>
+    );
+  }
+
   return (
     <>
       <motion.div
@@ -59,8 +70,8 @@ export default function BountyList({
             <BountyItem
               bounty={{
                 id: bounty.id,
+                chainId: bounty.chainId,
                 title: bounty.title,
-                network: bounty.network,
                 description: bounty.description,
                 amount: bounty.amount,
                 isMultiplayer: bounty.isMultiplayer,
@@ -68,6 +79,7 @@ export default function BountyList({
                 isCanceled: bounty.isCanceled,
               }}
               showStatusEmoji={showStatusEmoji}
+              showChainIcon={showChainIcon}
             />
           </motion.div>
         ))}

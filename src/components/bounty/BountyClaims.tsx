@@ -83,7 +83,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
           onClick={handleScrollToComments}
           className='flex items-center px-2 py-1 rounded-md cursor-pointer hover:bg-white/20 transition-colors'
         >
-          <CommentsIcon width={24} height={24} />
+          <CommentsIcon size={24} />
         </div>
       </div>
       {claims.data && (

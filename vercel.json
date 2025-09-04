@@ -17,24 +17,6 @@
           "value": "public, max-age=300, s-maxage=300"
         }
       ]
-    },
-    {
-      "source": "/api/trpc/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=60, s-maxage=60"
-        }
-      ]
-    },
-    {
-      "source": "/api/bounties/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=30, s-maxage=30"
-        }
-      ]
     }
   ]
 }

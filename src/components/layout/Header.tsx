@@ -58,7 +58,7 @@ export default function Header() {
             onClick={() => setIsOpen(true)}
             className='mr-2 hover:text-poidhRed'
           >
-            <MenuIcon width={30} height={30} />
+            <MenuIcon size={30} />
           </button>
           <Link href='/'>
             <Logo />
@@ -76,8 +76,7 @@ export default function Header() {
             {networks
               .find(({ name }) => name === chain.slug)
               ?.Icon({
-                width: 24,
-                height: 24,
+                size: 24,
               })}{' '}
             <ExpandMoreIcon />
           </Button>
@@ -114,7 +113,7 @@ export default function Header() {
                 className={cn('mx-1')}
                 onClick={() => router.push(href)}
               >
-                <Icon width={24} height={24} /> <p className='ml-4'>{name}</p>
+                <Icon size={24} /> <p className='ml-4'>{name}</p>
               </MenuItem>
             ))}
           </Menu>
@@ -180,7 +179,7 @@ function ConnectWalletButton() {
                         />
                       ) : (
                         <>
-                          <WalletIcon width={33} height={33} />
+                          <WalletIcon size={33} />
                           <div className='absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full md:hidden' />
                         </>
                       )}
@@ -188,7 +187,7 @@ function ConnectWalletButton() {
                     <span className='hidden md:block'>
                       {account.ensName || account.displayName}
                     </span>
-                    <ExpandMoreIcon height={12} width={12} />
+                    <ExpandMoreIcon size={12} />
                   </button>
                 </div>
               );

@@ -120,42 +120,33 @@ export const appRouter = createTRPCRouter({
       return bountyExtra ?? null;
     }),
 
-  saveBountyCategory: baseProcedure
+  saveBountyAlbum: baseProcedure
     .input(
       z.object({
         bountyId: z.number(),
         chainId: z.number(),
-        category: z.string(),
+        album: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      try {
-        const bountyExtra = await prisma.bountiesExtra.upsert({
-          where: {
-            bounty_id_chain_id: {
-              bounty_id: input.bountyId,
-              chain_id: input.chainId,
-            },
-          },
-          update: {
-            category: input.category,
-          },
-          create: {
+      const bountyExtra = await prisma.bountiesExtra.upsert({
+        where: {
+          bounty_id_chain_id: {
             bounty_id: input.bountyId,
             chain_id: input.chainId,
-            category: input.category,
           },
-        });
+        },
+        create: {
+          bounty_id: input.bountyId,
+          chain_id: input.chainId,
+          album: input.album,
+        },
+        update: {
+          album: input.album,
+        },
+      });
 
-        return bountyExtra;
-      } catch (error) {
-        console.error('Error details:', {
-          input,
-          error: error instanceof Error ? error.message : error,
-          stack: error instanceof Error ? error.stack : undefined,
-        });
-        throw error;
-      }
+      return bountyExtra;
     }),
 
   bounties: baseProcedure
@@ -248,6 +239,91 @@ export const appRouter = createTRPCRouter({
         items,
         nextCursor,
       };
+    }),
+
+  bountiesByAlbum: baseProcedure
+    .input(
+      z.object({
+        album: z.string(),
+        status: z.enum(['open', 'progress', 'past']),
+      })
+    )
+    .query(async ({ input }) => {
+      const extras = await prisma.bountiesExtra.findMany({
+        where: { album: input.album },
+        select: { bounty_id: true, chain_id: true },
+      });
+
+      if (extras.length === 0) {
+        return [];
+      }
+
+      const orFilters = extras.map((e) => ({
+        id: e.bounty_id,
+        chain_id: e.chain_id,
+      }));
+
+      const items = await prisma.bounties.findMany({
+        where: {
+          OR: orFilters,
+          ban: {
+            none: {},
+          },
+          is_canceled: false,
+          ...(input.status === 'open'
+            ? {
+                in_progress: true,
+                is_voting: false,
+              }
+            : {}),
+          ...(input.status === 'progress'
+            ? {
+                in_progress: true,
+                is_voting: true,
+              }
+            : {}),
+          ...(input.status === 'past'
+            ? {
+                in_progress: false,
+                is_canceled: false,
+              }
+            : {}),
+        },
+        include: {
+          claims: {
+            take: 1,
+            where: {
+              ban: {
+                none: {},
+              },
+            },
+            orderBy: { is_accepted: 'desc' },
+          },
+          transactions: {
+            take: 1,
+            orderBy: { timestamp: 'desc' },
+            select: { timestamp: true },
+          },
+        },
+        orderBy: { id: 'desc' },
+      });
+
+      const getTsNumber = (b: {
+        transactions?: { timestamp?: unknown }[];
+      }): number => {
+        const ts = b.transactions?.[0]?.timestamp;
+        if (ts === undefined || ts === null) return 0;
+        return Number(String(ts)) || 0;
+      };
+
+      items.sort((a, b) => {
+        const at = getTsNumber(a);
+        const bt = getTsNumber(b);
+        if (bt === at) return b.id - a.id;
+        return bt - at;
+      });
+
+      return items;
     }),
 
   completedBountiesCount: baseProcedure.query(async () => {
@@ -419,15 +495,16 @@ export const appRouter = createTRPCRouter({
             is_multiplayer: true,
             in_progress: true,
             is_canceled: true,
+            created_at: true,
             claims: {
               take: 1,
             },
           },
-
           orderBy: { id: 'desc' },
         })
       ).map((bounty) => ({
         id: bounty.id.toString(),
+        chainId: bounty.chain_id as ChainId,
         title: bounty.title,
         description: bounty.description,
         network: bounty.chain_id.toString(),
@@ -435,6 +512,7 @@ export const appRouter = createTRPCRouter({
         isMultiplayer: bounty.is_multiplayer || false,
         inProgress: bounty.in_progress || false,
         hasClaims: bounty.claims.length > 0,
+        createdAt: bounty.created_at,
         isCanceled: bounty.is_canceled || false,
       }));
 
@@ -455,6 +533,7 @@ export const appRouter = createTRPCRouter({
                 is_multiplayer: true,
                 in_progress: true,
                 is_canceled: true,
+                created_at: true,
                 claims: { take: 1 },
               },
             },
@@ -465,6 +544,7 @@ export const appRouter = createTRPCRouter({
         if (bounty) {
           return {
             id: bounty.id.toString(),
+            chainId: bounty.chain_id as ChainId,
             title: bounty.title,
             description: bounty.description,
             network: bounty.chain_id.toString(),
@@ -473,6 +553,7 @@ export const appRouter = createTRPCRouter({
             inProgress: bounty.in_progress || false,
             hasClaims: (bounty.claims ?? []).length > 0,
             isCanceled: bounty.is_canceled || false,
+            createdAt: bounty.created_at,
           };
         }
       });
@@ -486,9 +567,17 @@ export const appRouter = createTRPCRouter({
           mergedBountiesMap.set(b.id, b);
         }
       });
-      const bounties = Array.from(mergedBountiesMap.values()).sort(
-        (a, b) => Number(b.id) - Number(a.id)
-      );
+      const bounties = Array.from(mergedBountiesMap.values()).sort((a, b) => {
+        if (a.isCanceled !== b.isCanceled) {
+          return a.isCanceled ? 1 : -1;
+        }
+
+        if (a.inProgress !== b.inProgress) {
+          return a.inProgress ? -1 : 1;
+        }
+
+        return Number(b.createdAt) - Number(a.createdAt);
+      });
 
       const claims = (
         await prisma.claims.findMany({
@@ -929,7 +1018,8 @@ export const appRouter = createTRPCRouter({
         const all: WarpcastCast[] = [];
 
         while (stack.length) {
-          const current = stack.pop()!;
+          const current = stack.pop();
+          if (!current) continue;
           all.push(current);
 
           if (current.direct_replies?.length) {
@@ -943,7 +1033,7 @@ export const appRouter = createTRPCRouter({
       for (const threadHash of uniqueThreadHashes) {
         if (totalCasts.length >= 20) break;
 
-        const [conversationCast, _] = await tryCatchAsync(async () => {
+        const [conversationCast] = await tryCatchAsync(async () => {
           const { data } = await axios.get(
             'https://api.neynar.com/v2/farcaster/cast/conversation',
             {
@@ -982,7 +1072,7 @@ export const appRouter = createTRPCRouter({
         return {};
       }
 
-      const [data, _] = await tryCatchAsync(async () => {
+      const [data] = await tryCatchAsync(async () => {
         const { data } = await axios.get(
           'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
           {
@@ -1272,7 +1362,7 @@ export const appRouter = createTRPCRouter({
     return parsed.data;
   }),
 
-  categories: baseProcedure
+  albums: baseProcedure
     .input(
       z.object({
         contains: z.string(),
@@ -1280,12 +1370,82 @@ export const appRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       return prisma.bountiesExtra.groupBy({
-        by: ['category'],
-        where: { category: { contains: input.contains, mode: 'insensitive' } },
+        by: ['album'],
+        where: { album: { contains: input.contains, mode: 'insensitive' } },
         _count: {
-          category: true,
+          album: true,
+        },
+        orderBy: {
+          _count: {
+            album: 'desc',
+          },
         },
       });
+    }),
+
+  bountiesByKeyword: baseProcedure
+    .input(
+      z.object({
+        keyword: z.string(),
+        limit: z.number().min(1).max(100).default(15),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      const q = input.keyword.trim();
+
+      const items = await prisma.bounties.findMany({
+        where: {
+          is_canceled: false,
+          ban: { none: {} },
+          ...(q === ''
+            ? {
+                in_progress: true,
+                is_voting: false,
+              }
+            : {
+                OR: [
+                  { title: { contains: q, mode: 'insensitive' } },
+                  { description: { contains: q, mode: 'insensitive' } },
+                ],
+              }),
+          ...(input.cursor ? { created_at: { lt: input.cursor } } : {}),
+        },
+        include: {
+          claims: {
+            take: 1,
+            where: {
+              ban: {
+                none: {},
+              },
+            },
+          },
+        },
+        orderBy: { created_at: 'desc' },
+        take: input.limit,
+      });
+
+      let nextCursor: string | undefined = undefined;
+      if (items.length === input.limit) {
+        nextCursor = items[items.length - 1].created_at.toString();
+      }
+
+      return {
+        items: items.map((bounty) => ({
+          id: bounty.id.toString(),
+          chainId: bounty.chain_id as ChainId,
+          title: bounty.title,
+          description: bounty.description,
+          amount: bounty.amount,
+          network: bounty.chain_id.toString(),
+          isMultiplayer: bounty.is_multiplayer || false,
+          inProgress: bounty.in_progress || false,
+          hasClaims: bounty.claims.length > 0,
+          isCanceled: bounty.is_canceled || false,
+          claims: bounty.claims,
+        })),
+        nextCursor,
+      };
     }),
 });
 

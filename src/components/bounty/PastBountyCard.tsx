@@ -8,6 +8,7 @@ import { fetchPrice, formatAmount } from '@/utils/utils';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { UsersRoundIcon } from '@/components/global/Icons';
+import Link from 'next/link';
 
 export default function PastBountyCard({
   claim,
@@ -42,11 +43,9 @@ export default function PastBountyCard({
   return (
     <>
       {claim && (
-        <div
+        <Link
+          href={`/${chain?.slug}/bounty/${claim.bountyId}`}
           className='lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl cursor-pointer'
-          onClick={() => {
-            window.location.href = `/${chain?.slug}/bounty/${claim.bountyId}`;
-          }}
         >
           <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
             <div>
@@ -102,7 +101,7 @@ export default function PastBountyCard({
               {isMultiplayer && <UsersRoundIcon size={20} />}
             </div>
           </div>
-        </div>
+        </Link>
       )}
     </>
   );

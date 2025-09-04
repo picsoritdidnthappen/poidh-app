@@ -30,6 +30,7 @@ import TextWithLinks from '@/components/global/TextWithLinks';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import ShareBountyModal from '@/components/global/ShareBountyModal';
 import { ShareIcon } from '@/components/global/Icons';
+import Link from 'next/link';
 
 export default function BountyInfo({
   bountyId,
@@ -228,8 +229,16 @@ export default function BountyInfo({
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          {bountyExtra.data?.category && (
-            <p className='text-white mb-3'>🕹️ {bountyExtra.data.category}</p>
+          {bountyExtra.data?.album && (
+            <p className='text-white mb-3'>
+              📸{' '}
+              <Link
+                href={`${window.location.origin}/a/${bountyExtra.data.album}`}
+                className='underline hover:opacity-80 cursor-pointer'
+              >
+                {bountyExtra.data.album}
+              </Link>
+            </p>
           )}
           <p className='text-lg mb-5 mt-1 font-bold'>
             {formatAmount({
@@ -280,7 +289,7 @@ export default function BountyInfo({
           onClick={() => onShareModalStateChange?.(true)}
           className='flex items-center gap-1 underline hover:no-underline w-fit'
         >
-          share bounty <ShareIcon width={16} height={16} />
+          share bounty <ShareIcon size={16} />
         </button>
         {isShareModalOpen && (
           <ShareBountyModal

@@ -1,16 +1,10 @@
-export function InfoIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function InfoIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
@@ -45,19 +39,13 @@ export function UsersRoundIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-export function ExpandMoreIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function ExpandMoreIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
@@ -72,13 +60,7 @@ export function ExpandMoreIcon({
   );
 }
 
-export function CopyIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function CopyIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -86,8 +68,8 @@ export function CopyIcon({
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
     >
       <path
         strokeLinecap='round'
@@ -98,13 +80,7 @@ export function CopyIcon({
   );
 }
 
-export function CopyDoneIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function CopyDoneIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -112,8 +88,8 @@ export function CopyDoneIcon({
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
     >
       <path
         strokeLinecap='round'
@@ -124,13 +100,7 @@ export function CopyDoneIcon({
   );
 }
 
-export function ArbitrumIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function ArbitrumIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -138,8 +108,8 @@ export function ArbitrumIcon({
       id='Layer_1'
       x='0px'
       y='0px'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 2500 2500'
       xmlSpace='preserve'
     >
@@ -198,11 +168,11 @@ export function ArbitrumIcon({
   );
 }
 
-export function DegenIcon({ width = 24, height = 24 }) {
+export function DegenIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 789 668'
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
@@ -223,11 +193,11 @@ export function DegenIcon({ width = 24, height = 24 }) {
   );
 }
 
-export function BaseIcon({ width = 24, height = 24 }) {
+export function BaseIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 111 111'
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
@@ -241,21 +211,19 @@ export function BaseIcon({ width = 24, height = 24 }) {
 }
 
 export function WarrningIcon({
-  width = 24,
-  height = 24,
+  size = 24,
   className = '',
   color = 'red',
 }: {
-  width?: number;
-  height?: number;
+  size?: number;
   className?: string;
   color?: string;
 }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       fill='none'
       viewBox='0 0 24 24'
       strokeWidth='1.5'
@@ -271,13 +239,13 @@ export function WarrningIcon({
   );
 }
 
-export function MenuIcon({ width = 24, height = 24 }) {
+export function MenuIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
@@ -291,13 +259,13 @@ export function MenuIcon({ width = 24, height = 24 }) {
   );
 }
 
-export function WalletIcon({ width = 24, height = 24 }) {
+export function WalletIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
@@ -311,17 +279,11 @@ export function WalletIcon({ width = 24, height = 24 }) {
   );
 }
 
-export function CloseIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function CloseIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 14 14'
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
@@ -337,13 +299,7 @@ export function CloseIcon({
   );
 }
 
-export function SortIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function SortIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -351,8 +307,8 @@ export function SortIcon({
       viewBox='0 0 24 22'
       strokeWidth={1.5}
       stroke='#fff'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
     >
       <path
         strokeLinecap='round'
@@ -384,13 +340,7 @@ export function BanIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-export function ZoomInIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function ZoomInIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -398,8 +348,8 @@ export function ZoomInIcon({
       fill='none'
       viewBox='0 0 24 24'
       stroke='currentColor'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
     >
       <path
         strokeLinecap='round'
@@ -411,13 +361,7 @@ export function ZoomInIcon({
   );
 }
 
-export function ZoomOutIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function ZoomOutIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -425,40 +369,14 @@ export function ZoomOutIcon({
       fill='none'
       viewBox='0 0 24 24'
       stroke='currentColor'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
     >
       <path
         strokeLinecap='round'
         strokeLinejoin='round'
         strokeWidth={2}
         d='M18 12H6'
-      />
-    </svg>
-  );
-}
-
-export function AddIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
-  return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      fill='none'
-      viewBox='0 0 24 24'
-      strokeWidth={1.5}
-      stroke='currentColor'
-      width={width}
-      height={height}
-    >
-      <path
-        strokeLinecap='round'
-        strokeLinejoin='round'
-        d='M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
       />
     </svg>
   );
@@ -484,17 +402,11 @@ export function TwitterXIcon({
   );
 }
 
-export function FarcasterIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function FarcasterIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       viewBox='0 0 1000 1000'
       fill='currentColor'
       xmlns='http://www.w3.org/2000/svg'
@@ -515,17 +427,11 @@ export function FarcasterIcon({
   );
 }
 
-export function CommentsIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function CommentsIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       xmlns='http://www.w3.org/2000/svg'
       viewBox='0 0 24 24'
       fill='#fff'
@@ -537,17 +443,11 @@ export function CommentsIcon({
   );
 }
 
-export function HeartIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function HeartIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
       viewBox='0 0 24 24'
@@ -564,17 +464,11 @@ export function HeartIcon({
   );
 }
 
-export function LookupIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function LookupIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
       viewBox='0 0 24 24'
@@ -591,21 +485,15 @@ export function LookupIcon({
   );
 }
 
-export function UserIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function UserIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       viewBox='0 0 24 24'
       fill='currentColor'
       className='size-6'
-      width={width}
-      height={height}
+      width={size}
+      height={size}
     >
       <path
         fillRule='evenodd'
@@ -616,17 +504,11 @@ export function UserIcon({
   );
 }
 
-export function ShareIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function ShareIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
       viewBox='0 0 24 24'
@@ -643,17 +525,11 @@ export function ShareIcon({
   );
 }
 
-export function PlusIcon({
-  width = 24,
-  height = 24,
-}: {
-  width?: number;
-  height?: number;
-}) {
+export function PlusIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={width}
-      height={height}
+      width={size}
+      height={size}
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
       viewBox='0 0 24 24'
@@ -665,6 +541,28 @@ export function PlusIcon({
         strokeLinecap='round'
         strokeLinejoin='round'
         d='M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+      />
+    </svg>
+  );
+}
+
+export function MagnifyingGlassIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth={2}
+      className='h-4 w-4 text-white'
+      width={size}
+      height={size}
+    >
+      <circle cx='11' cy='11' r='6' />
+      <path
+        d='M21 21l-4.35-4.35'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
     </svg>
   );

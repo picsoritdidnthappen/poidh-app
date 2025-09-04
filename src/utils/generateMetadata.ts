@@ -75,12 +75,6 @@ export const generateMetadataForBountyFrame = async ({
       },
       twitter: {
         card: 'summary_large_image',
-        title: "poidh - pics or it didn't happen",
-        description:
-          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-        images: [
-          `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png`,
-        ],
       },
       other: {
         'fc:frame': JSON.stringify(frame),
@@ -120,9 +114,6 @@ export const generateMetadataForBountyFrame = async ({
     },
     twitter: {
       card: 'summary_large_image',
-      title: bounty.title,
-      description: bounty.description,
-      images: [ogImageUrl],
     },
     other: {
       'fc:frame': JSON.stringify(frame),
@@ -301,49 +292,129 @@ export const generateMetadataForAccountPage = async ({
     };
   }
 };
-export const generateMetadataForLeaderboardPage =
-  async (): Promise<Metadata> => {
-    const frame = {
-      version: 'next',
-      imageUrl: APP_OG_IMAGE_URL,
-      button: {
-        title: 'view leaderboard',
-        action: {
-          type: 'launch_frame',
-          name: 'poidh',
-          url: `${APP_URL}/leaderboard`,
-          splashImageUrl: APP_SPLASH_URL,
-          iconUrl: APP_ICON_URL,
-          splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
-        },
-      },
-    };
 
-    return {
-      title: "poidh leaderboard - pics or it didn't happen",
-      description:
-        "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains",
-      openGraph: {
-        title: "poidh leaderboard - pics or it didn't happen",
-        description:
-          "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains",
-        siteName: 'POIDH',
-        images: [APP_OG_IMAGE_URL],
-        type: 'website',
-        locale: 'en_US',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: "poidh leaderboard - pics or it didn't happen",
-        description:
-          "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains",
-        images: [APP_OG_IMAGE_URL],
-      },
-      other: {
-        'fc:frame': JSON.stringify(frame),
-      },
-    } satisfies Metadata;
+export const generateMetadataForLeaderboardPage = (): Metadata => {
+  const title = "poidh leaderboard - pics or it didn't happen";
+  const description =
+    "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'POIDH',
+      images: [APP_OG_IMAGE_URL],
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title: 'view leaderboard',
+          action: {
+            type: 'launch_frame',
+            name: APP_NAME,
+            url: `${APP_URL}/leaderboard`,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+          },
+        },
+      }),
+    },
+  } satisfies Metadata;
+};
+
+export const generateMetadataForAlbumPage = ({
+  params,
+}: {
+  params: { album: string };
+}): Metadata => {
+  const title = `${params.album} bounties on poidh`;
+  const description = `view ${params.album} bounties on poidh - see all current bounties, view all past bounties, or create a new bounty within the ${params.album} album`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'POIDH',
+      images: [
+        `https://poidh.xyz/api/og/album?album=${params.album}&imageFormat=og`,
+        APP_OG_IMAGE_URL,
+      ],
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: `https://poidh.xyz/api/og/album?album=${params.album}&imageFormat=preview`,
+        button: {
+          title,
+          action: {
+            type: 'launch_frame',
+            name: 'view album',
+            url: `${APP_URL}/a/${params.album}`,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+          },
+        },
+      }),
+    },
   };
+};
+
+export const generateMetadaForExplorePage = (): Metadata => {
+  const title = 'explore poidh bounties and albums';
+  const description =
+    'search poidh bounties and albums by keyword - from silly meme contests to robust public goods funding, poidh has content across a diverse range of topics';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'POIDH',
+      images: [APP_OG_IMAGE_URL],
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title: 'explore poidh',
+          action: {
+            type: 'launch_frame',
+            name: APP_NAME,
+            url: `${APP_URL}/explore`,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+          },
+        },
+      }),
+    },
+  } satisfies Metadata;
+};
 
 async function safeFetchPrice({
   currency,

@@ -22,7 +22,7 @@ export async function GET() {
       name: "poidh",
       iconUrl: "https://poidh.xyz/icon.png",
       splashImageUrl: "https://poidh.xyz/splash.png",
-      splashBackgroundColor: "#2a81d5",
+      splashBackgroundColor: "#6fa9e1",
       homeUrl: "https://poidh.xyz/",
       heroImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
       webhookUrl: "https://poidh.xyz/api/webhook",
@@ -35,6 +35,9 @@ export async function GET() {
       ogDescription: "incentivize tasks with bounties on Farcaster",
       ogImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
     },
+    baseBuilder: {
+      allowedAddresses: ["0x1B18f76e65fC875da2469710282A2E20F1e521e0"]
+    },  
   };
 
   return NextResponse.json(config);
