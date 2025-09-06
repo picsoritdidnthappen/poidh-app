@@ -80,7 +80,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const RootLayout = async ({ children }: { children: React.ReactNode }) => {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const headersList = headers();
   const referer = headersList.get('referer');
   const url = referer ? String(referer) : '';
@@ -108,6 +112,4 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}
