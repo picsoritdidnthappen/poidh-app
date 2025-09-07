@@ -28,7 +28,7 @@ export default function ClientLayout({
       try {
         await miniAppSdk.actions.addMiniApp();
       } catch (err: any) {
-        if (err?.name === 'RejectedByUser') {
+        if (err?.name === 'AddMiniApp.RejectedByUser') {
           localStorage.setItem(REJECT_KEY, '1');
         }
       }
