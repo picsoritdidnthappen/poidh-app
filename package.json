@@ -63,7 +63,6 @@
     "react-minimal-pie-chart": "^9.1.0",
     "react-toastify": "^10.0.6",
     "superjson": "^2.2.2",
-    "supports-color": "8.1.1",
     "tailwind-merge": "^2.6.0",
     "viem": "^2.33.0",
     "wagmi": "^2.16.0",
