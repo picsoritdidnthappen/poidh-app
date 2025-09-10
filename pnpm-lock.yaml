@@ -68,9 +68,6 @@ importers:
       axios:
         specifier: ^1.8.4
         version: 1.8.4
-      browser-image-compression:
-        specifier: ^2.0.2
-        version: 2.0.2
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
