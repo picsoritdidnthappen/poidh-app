@@ -12,17 +12,23 @@ import CreateBounty from '@/components/bounty/CreateBounty';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import { SortIcon } from '@/components/global/Icons';
+import InfiniteScroll from 'react-infinite-scroller';
 
 export default function Home() {
   const [display, setDisplay] = useState<BountyDisplayType>('open');
   const [sortType, setSortType] = useState<BountySortType>('value');
   const isMobile = useScreenSize();
 
-  const bounties = trpc.allBounties.useQuery({
-    status: display,
-    sortType: sortType,
-    limit: 50,
-  });
+  const bounties = trpc.allBounties.useInfiniteQuery(
+    {
+      status: display,
+      sortType: sortType,
+      limit: 50,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
 
   return (
     <>
@@ -117,63 +123,85 @@ export default function Home() {
         </div>
 
         <div className='pb-20 z-1 mt-7'>
-          {bounties.data && bounties.data.items.length > 0 ? (
-            display !== 'past' ? (
-              <BountyList
-                key={(bounties.data.items[0]?.id ?? 'empty-list').toString()}
-                bounties={bounties.data.items.map((bounty: any) => ({
-                  id: bounty.id.toString(),
-                  chainId: bounty.chain_id as ChainId,
-                  network: getChainById({ chainId: bounty.chain_id as ChainId })
-                    .name,
-                  title: bounty.title,
-                  description: bounty.description,
-                  amount: bounty.amount,
-                  isMultiplayer: bounty.is_multiplayer || false,
-                  inProgress: bounty.in_progress || false,
-                  isCanceled: bounty.is_canceled || false,
-                  hasClaims: bounty.claims.length > 0,
-                }))}
-                showChainIcon={true}
-              />
-            ) : (
-              <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
-                {bounties.data.items.map((bounty: any) => {
-                  const claim = bounty.claims.find((c: any) => c.is_accepted);
-                  if (!claim) return null;
-                  return (
-                    <PastBountyCard
-                      key={`${claim.id}-${claim.chain_id}`}
-                      claim={{
-                        id: claim.id.toString(),
-                        title: claim.title,
-                        description: claim.description,
-                        url: claim.url ?? '',
-                        issuer: claim.issuer,
-                        bountyId: claim.bounty_id.toString(),
-                        chainId: claim.chain_id as ChainId,
-                        accepted: true,
-                      }}
-                      bountyTitle={bounty.title}
-                      bountyAmount={bounty.amount}
-                      isMultiplayer={bounty.is_multiplayer || false}
-                    />
-                  );
-                })}
-              </div>
-            )
-          ) : (
-            <div className='container mx-auto p-4 flex items-center justify-center mt-24'>
-              <div className='text-white/60 text-center'>
-                No{' '}
-                {display === 'open'
-                  ? 'active'
-                  : display === 'past'
-                  ? 'past'
-                  : ''}{' '}
-                bounties {display === 'progress' ? 'in voting' : ''} found
-              </div>
-            </div>
+          {bounties.data && (
+            <InfiniteScroll
+              loadMore={async () => await bounties.fetchNextPage()}
+              hasMore={bounties.hasNextPage && !bounties.isFetchingNextPage}
+              loader={
+                <div key='loader' className='animate-pulse text-center mt-8'>
+                  Loading more...
+                </div>
+              }
+              threshold={300}
+            >
+              {bounties.data.pages.length > 0 ? (
+                display !== 'past' ? (
+                  <BountyList
+                    key={(
+                      bounties.data.pages[0]?.items[0]?.id ?? 'empty-list'
+                    ).toString()}
+                    bounties={bounties.data.pages
+                      .flatMap((page) => page.items)
+                      .map((bounty: any) => ({
+                        id: bounty.id.toString(),
+                        chainId: bounty.chain_id as ChainId,
+                        network: getChainById({
+                          chainId: bounty.chain_id as ChainId,
+                        }).name,
+                        title: bounty.title,
+                        description: bounty.description,
+                        amount: bounty.amount,
+                        isMultiplayer: bounty.is_multiplayer || false,
+                        inProgress: bounty.in_progress || false,
+                        isCanceled: bounty.is_canceled || false,
+                        hasClaims: bounty.claims.length > 0,
+                      }))}
+                    showChainIcon={true}
+                  />
+                ) : (
+                  <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
+                    {bounties.data.pages
+                      .flatMap((page) => page.items)
+                      .map((bounty: any) => {
+                        const claim = bounty.claims.find(
+                          (c: any) => c.is_accepted
+                        );
+                        if (!claim) return null;
+                        return (
+                          <PastBountyCard
+                            key={`${claim.id}-${claim.chain_id}`}
+                            claim={{
+                              id: claim.id.toString(),
+                              title: claim.title,
+                              description: claim.description,
+                              url: claim.url ?? '',
+                              issuer: claim.issuer,
+                              bountyId: claim.bounty_id.toString(),
+                              chainId: claim.chain_id as ChainId,
+                              accepted: true,
+                            }}
+                            bountyTitle={bounty.title}
+                            bountyAmount={bounty.amount}
+                            isMultiplayer={bounty.is_multiplayer || false}
+                          />
+                        );
+                      })}
+                  </div>
+                )
+              ) : (
+                <div className='container mx-auto p-4 flex items-center justify-center mt-24'>
+                  <div className='text-white/60 text-center'>
+                    No{' '}
+                    {display === 'open'
+                      ? 'active'
+                      : display === 'past'
+                      ? 'past'
+                      : ''}{' '}
+                    bounties {display === 'progress' ? 'in voting' : ''} found
+                  </div>
+                </div>
+              )}
+            </InfiniteScroll>
           )}
         </div>
       </div>

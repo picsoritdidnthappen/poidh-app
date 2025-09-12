@@ -257,10 +257,11 @@ export const appRouter = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      const sortById = input.sortType === 'id';
       const sortByValue = input.sortType === 'value';
+
       const items = await prisma.bounties.findMany({
         where: {
+          chain_id: { in: Object.values(chains).map((chain) => chain.id) },
           ban: {
             none: {},
           },
@@ -283,12 +284,6 @@ export const appRouter = createTRPCRouter({
                 is_canceled: false,
               }
             : {}),
-          ...(input.cursor
-            ? sortById
-              ? { id: { lt: input.cursor.id } }
-              : { amount_sort: { lte: input.cursor.amount_sort } }
-            : {}),
-          ...(input.cursor && !sortById && { id: { notIn: input.cursor.ids } }),
         },
         include: {
           claims: {
@@ -301,35 +296,68 @@ export const appRouter = createTRPCRouter({
             orderBy: { is_accepted: 'desc' },
           },
         },
-        orderBy: sortById
-          ? { id: 'desc' }
-          : sortByValue
-          ? { amount_sort: 'desc' }
-          : {},
-        take: input.limit,
+        orderBy: { id: 'desc' },
       });
+
+      if (sortByValue) {
+        const [ethPrice, degenPrice] = await Promise.all([
+          fetchPrice({ currency: 'eth' }),
+          fetchPrice({ currency: 'degen' }),
+        ]);
+
+        items.sort((a: any, b: any) => {
+          const amountA = parseFloat(a.amount);
+          const amountB = parseFloat(b.amount);
+
+          let usdValueA = 0;
+          let usdValueB = 0;
+
+          if (a.chain_id === chains.degen.id) {
+            usdValueA = amountA * degenPrice;
+          } else if (
+            a.chain_id === chains.base.id ||
+            a.chain_id === chains.arbitrum.id
+          ) {
+            usdValueA = amountA * ethPrice;
+          }
+
+          if (b.chain_id === chains.degen.id) {
+            usdValueB = amountB * degenPrice;
+          } else if (
+            b.chain_id === chains.base.id ||
+            b.chain_id === chains.arbitrum.id
+          ) {
+            usdValueB = amountB * ethPrice;
+          }
+
+          if (usdValueB === usdValueA) return b.id - a.id;
+          return usdValueB - usdValueA;
+        });
+      }
+
+      const finalItems = items.slice(0, input.limit);
 
       let nextCursor:
         | {
-            id: (typeof items)[number]['id'];
-            amount_sort: (typeof items)[number]['amount_sort'];
-            ids: (typeof items)[number]['id'][];
+            id: (typeof finalItems)[number]['id'];
+            amount_sort: (typeof finalItems)[number]['amount_sort'];
+            ids: (typeof finalItems)[number]['id'][];
           }
         | undefined = undefined;
 
-      if (items.length === input.limit) {
+      if (finalItems.length === input.limit) {
         nextCursor = {
-          id: items[items.length - 1].id,
-          amount_sort: items[items.length - 1].amount_sort,
+          id: finalItems[finalItems.length - 1].id,
+          amount_sort: finalItems[finalItems.length - 1].amount_sort,
           ids: [
             ...(input.cursor?.ids ?? []),
-            ...items.map((item: { id: any }) => item.id),
+            ...finalItems.map((item: { id: any }) => item.id),
           ],
         };
       }
 
       return {
-        items,
+        items: finalItems,
         nextCursor,
       };
     }),
