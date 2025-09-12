@@ -296,7 +296,7 @@ export const generateMetadataForAccountPage = async ({
 export const generateMetadataForLeaderboardPage = (): Metadata => {
   const title = "poidh leaderboard - pics or it didn't happen";
   const description =
-    "View the top performers on poidh - see who's leading in bounty completions and earnings across all chains";
+    "view the top performers on poidh - see who's leading in bounty completions and earnings across all chains";
 
   return {
     title,
@@ -378,7 +378,7 @@ export const generateMetadataForAlbumPage = ({
 };
 
 export const generateMetadaForExplorePage = (): Metadata => {
-  const title = 'explore poidh bounties and albums';
+  const title = 'explore poidh bounties & albums';
   const description =
     'search poidh bounties and albums by keyword - from silly meme contests to robust public goods funding, poidh has content across a diverse range of topics';
 

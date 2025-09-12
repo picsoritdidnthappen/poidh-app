@@ -11,7 +11,6 @@ import { LoadingLayout } from '@/components/global/LoadingLayout';
 import ClientLayout from '@/app/layout.client';
 import { Metadata } from 'next';
 import CryptoWalletMobilePopup from '@/components/global/CryptoWalletMobilePopup';
-import { sdk } from '@farcaster/miniapp-sdk';
 
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
@@ -80,15 +79,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const RootLayout = async ({ children }: { children: React.ReactNode }) => {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const headersList = headers();
   const referer = headersList.get('referer');
   const url = referer ? String(referer) : '';
-
-  const isMiniApp = await sdk.isInMiniApp();
-  if (isMiniApp) {
-    await sdk.actions.addMiniApp();
-  }
 
   return (
     <html lang='en'>
@@ -108,6 +106,4 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}

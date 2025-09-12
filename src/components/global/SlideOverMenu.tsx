@@ -30,6 +30,9 @@ export default function SlideOverMenu() {
       <MenuLink href='/leaderboard'>
         leaderboard 🕹️
       </MenuLink>
+      <MenuLink href='/explore'>
+        explore 🔎
+      </MenuLink>
       <MenuLink href='https://paragraph.xyz/@poidh/poidh-beginner-guide'>
         how it works 💡
       </MenuLink>
