@@ -241,6 +241,121 @@ export const appRouter = createTRPCRouter({
       };
     }),
 
+  fetchPrice: baseProcedure
+    .input(
+      z.object({
+        currency: z.enum(['eth', 'degen']),
+      })
+    )
+    .query(async ({ input }) => {
+      const rate = await prisma.price.findFirst({
+        take: 1,
+        orderBy: { id: 'desc' },
+      });
+
+      if (!rate) {
+        const response = await fetch(
+          `https://api.coinbase.com/v2/exchange-rates?currency=${input.currency}`
+        );
+        const body = await response.json();
+        return Number(body.data.rates.USD);
+      }
+
+      return input.currency === 'degen'
+        ? Number(rate.degen_usd)
+        : Number(rate.eth_usd);
+    }),
+
+  allBounties: baseProcedure
+    .input(
+      z.object({
+        status: z.enum(['open', 'progress', 'past']),
+        limit: z.number().min(1).max(100).default(10),
+        cursor: z
+          .object({
+            id: z.number(),
+            amount_sort: z.number(),
+            ids: z.array(z.number()),
+          })
+          .nullish(),
+        sortType: z.enum(['value', 'id']).default('id'),
+      })
+    )
+    .query(async ({ input }) => {
+      const sortById = input.sortType === 'id';
+      const sortByValue = input.sortType === 'value';
+      const items = await prisma.bounties.findMany({
+        where: {
+          ban: {
+            none: {},
+          },
+          is_canceled: false,
+          ...(input.status === 'open'
+            ? {
+                in_progress: true,
+                is_voting: false,
+              }
+            : {}),
+          ...(input.status === 'progress'
+            ? {
+                in_progress: true,
+                is_voting: true,
+              }
+            : {}),
+          ...(input.status === 'past'
+            ? {
+                in_progress: false,
+                is_canceled: false,
+              }
+            : {}),
+          ...(input.cursor
+            ? sortById
+              ? { id: { lt: input.cursor.id } }
+              : { amount_sort: { lte: input.cursor.amount_sort } }
+            : {}),
+          ...(input.cursor && !sortById && { id: { notIn: input.cursor.ids } }),
+        },
+        include: {
+          claims: {
+            take: 1,
+            where: {
+              ban: {
+                none: {},
+              },
+            },
+            orderBy: { is_accepted: 'desc' },
+          },
+        },
+        orderBy: sortById
+          ? { id: 'desc' }
+          : sortByValue
+          ? { amount_sort: 'desc' }
+          : {},
+        take: input.limit,
+      });
+
+      let nextCursor:
+        | {
+            id: (typeof items)[number]['id'];
+            amount_sort: (typeof items)[number]['amount_sort'];
+            ids: (typeof items)[number]['id'][];
+          }
+        | undefined = undefined;
+
+      if (items.length === input.limit) {
+        nextCursor = {
+          id: items[items.length - 1].id,
+          amount_sort: items[items.length - 1].amount_sort,
+          ids: [...(input.cursor?.ids ?? []), ...items.map((item) => item.id)],
+        };
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
+
   bountiesByAlbum: baseProcedure
     .input(
       z.object({
