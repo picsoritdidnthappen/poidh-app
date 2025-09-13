@@ -1,8 +1,7 @@
 import abi from '@/constant/abi/abi';
 import { useGetChain } from '@/hooks/useGetChain';
-import { fetchPrice, formatUsdShort } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther } from 'viem';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
@@ -18,6 +17,7 @@ import { cn } from '@/utils';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom, pollingChainIdAtom } from '@/store/loading';
+import { formatUsdShort } from '@/utils/utils';
 
 export default function FormJoinBounty({
   bountyId,
@@ -30,7 +30,6 @@ export default function FormJoinBounty({
 }) {
   const [amount, setAmount] = useState<string>('');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
-  const [price, setPrice] = useState<number>(0);
   const utils = trpc.useUtils();
 
   const account = useAccount();
@@ -40,6 +39,9 @@ export default function FormJoinBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
+
+  const price =
+    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const bountyMutation = useMutation({
     mutationFn: async (bountyId: bigint) => {
@@ -90,10 +92,6 @@ export default function FormJoinBounty({
       setLoading({ isLoading: false, status: '' });
     },
   });
-
-  useEffect(() => {
-    fetchPrice({ currency: chain.currency }).then(setPrice);
-  }, [chain.currency]);
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const raw = event.target.value;

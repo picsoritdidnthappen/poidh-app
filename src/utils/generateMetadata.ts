@@ -425,7 +425,7 @@ async function safeFetchPrice({
     return await fetchPrice({ currency });
   } catch (error) {
     console.error('Error fetching price:', error);
-    return undefined;
+    return;
   }
 }
 

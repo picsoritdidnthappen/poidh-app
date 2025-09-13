@@ -4,11 +4,12 @@ import { formatEther } from 'viem';
 import { getChainById } from '@/utils/config';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
-import { fetchPrice, formatAmount } from '@/utils/utils';
+import { formatAmount } from '@/utils/utils';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { UsersRoundIcon } from '@/components/global/Icons';
 import Link from 'next/link';
+import { trpc } from '@/trpc/client';
 
 export default function PastBountyCard({
   claim,
@@ -22,19 +23,17 @@ export default function PastBountyCard({
   isMultiplayer: boolean;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [price, setPrice] = useState<number>(0);
 
   const chain = getChainById({ chainId: claim.chainId as ChainId });
+
+  const price =
+    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const fetchImageUrl = async (url: string) => {
     const response = await fetch(url);
     const data = await response.json();
     setImageUrl(data.image);
   };
-
-  useEffect(() => {
-    fetchPrice({ currency: chain.currency }).then(setPrice);
-  }, [chain.currency]);
 
   useEffect(() => {
     fetchImageUrl(claim?.url);

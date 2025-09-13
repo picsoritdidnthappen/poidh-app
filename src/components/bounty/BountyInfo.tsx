@@ -14,11 +14,7 @@ import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { cn } from '@/utils';
-import {
-  fetchPrice,
-  formatAmount,
-  getBanSignatureFirstLine,
-} from '@/utils/utils';
+import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import BountyHistory from './BountyHistory';
@@ -50,7 +46,8 @@ export default function BountyInfo({
   const { signMessageAsync } = useSignMessage();
   const setLoading = useSetAtom(setLoadingAtom);
 
-  const [price, setPrice] = useState<number>(0);
+  const price =
+    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const bounty = trpc.bounty.useQuery(
     {
@@ -174,10 +171,6 @@ export default function BountyInfo({
       participant.user_address.toLocaleLowerCase() ===
       account.address?.toLocaleLowerCase()
   );
-
-  useEffect(() => {
-    fetchPrice({ currency: chain.currency }).then(setPrice);
-  }, [chain.currency]);
 
   const canWithdraw =
     account.address?.toLocaleLowerCase() !==
