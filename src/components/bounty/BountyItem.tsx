@@ -1,13 +1,14 @@
 'use client';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { formatEther } from 'viem';
 
 import { UsersRoundIcon } from '@/components/global/Icons';
-import { fetchPrice, formatAmount } from '@/utils/utils';
+import { formatAmount } from '@/utils/utils';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
+import { trpc } from '@/trpc/client';
 
 interface Bounty {
   id: string;
@@ -30,12 +31,9 @@ export default function BountyItem({
   showChainIcon?: boolean;
 }) {
   const chain = getChainById({ chainId: bounty.chainId });
-  const [price, setPrice] = useState<number>(0);
+  const price =
+    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
   const amount = formatEther(BigInt(bounty.amount)).toString();
-
-  useEffect(() => {
-    fetchPrice({ currency: chain.currency }).then(setPrice);
-  }, [chain.currency]);
 
   const getStatusEmoji = () => {
     if (bounty.isCanceled) return '❌';
