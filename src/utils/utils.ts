@@ -55,7 +55,13 @@ export function formatAmount({
   }
 
   if (currency === 'degen' && numAmount >= 1_000) {
-    numAmount = Number(numAmount.toFixed(0));
+    if (numAmount >= 10_000) {
+      return `${formatAmountShort(
+        numAmount
+      )} ${currency} (${numAmountUSD.toFixed(2)} usd)`;
+    } else {
+      numAmount = Number(numAmount.toFixed(0));
+    }
   }
 
   if (precision) {
