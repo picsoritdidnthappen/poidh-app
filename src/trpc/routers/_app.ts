@@ -273,16 +273,15 @@ export const appRouter = createTRPCRouter({
         limit: z.number().min(1).max(100).default(10),
         cursor: z
           .object({
-            id: z.number(),
+            created_at: z.coerce.number(),
             amount_sort: z.number(),
-            ids: z.array(z.number()),
           })
           .nullish(),
-        sortType: z.enum(['value', 'id']).default('id'),
+        sortType: z.enum(['value', 'date']).default('date'),
       })
     )
     .query(async ({ input }) => {
-      const sortById = input.sortType === 'id';
+      const sortByDate = input.sortType === 'date';
       const sortByValue = input.sortType === 'value';
       const items = await prisma.bounties.findMany({
         where: {
@@ -309,11 +308,10 @@ export const appRouter = createTRPCRouter({
               }
             : {}),
           ...(input.cursor
-            ? sortById
-              ? { id: { lt: input.cursor.id } }
+            ? sortByDate
+              ? { created_at: { lt: input.cursor.created_at } }
               : { amount_sort: { lte: input.cursor.amount_sort } }
             : {}),
-          ...(input.cursor && !sortById && { id: { notIn: input.cursor.ids } }),
         },
         include: {
           claims: {
@@ -326,8 +324,8 @@ export const appRouter = createTRPCRouter({
             orderBy: { is_accepted: 'desc' },
           },
         },
-        orderBy: sortById
-          ? { id: 'desc' }
+        orderBy: sortByDate
+          ? { created_at: 'desc' }
           : sortByValue
           ? { amount_sort: 'desc' }
           : {},
@@ -336,17 +334,24 @@ export const appRouter = createTRPCRouter({
 
       let nextCursor:
         | {
-            id: (typeof items)[number]['id'];
-            amount_sort: (typeof items)[number]['amount_sort'];
-            ids: (typeof items)[number]['id'][];
+            created_at: number;
+            amount_sort: number;
           }
         | undefined = undefined;
 
       if (items.length === input.limit) {
+        const last = items[items.length - 1];
+
+        const toNum = (v: unknown) =>
+          typeof v === 'number'
+            ? v
+            : v && typeof (v as any).toNumber === 'function'
+            ? (v as any).toNumber()
+            : Number(v);
+
         nextCursor = {
-          id: items[items.length - 1].id,
-          amount_sort: items[items.length - 1].amount_sort,
-          ids: [...(input.cursor?.ids ?? []), ...items.map((item) => item.id)],
+          created_at: toNum(last.created_at),
+          amount_sort: toNum(last.amount_sort),
         };
       }
 
