@@ -6,7 +6,7 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import * as React from 'react';
 import { trpc } from '@/trpc/client';
 import 'react-toastify/dist/ReactToastify.css';
-import { BountyDisplayType, ChainId } from '@/utils/types';
+import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
 import { useState } from 'react';
 import { cn } from '@/utils';
 import { useGetChain } from '@/hooks/useGetChain';
@@ -16,12 +16,10 @@ import { SortIcon } from '@/components/global/Icons';
 import BountyList from '@/components/bounty/BountyList';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
 
-type SortType = 'value' | 'date';
-
 export default function Home() {
   const isMobile = useScreenSize();
   const [display, setDisplay] = useState<BountyDisplayType>('open');
-  const [sortType, setSortType] = useState<SortType>('value');
+  const [sortType, setSortType] = useState<BountySortType>('value');
   const chain = useGetChain();
 
   const bounties = trpc.allBounties.useInfiniteQuery(
@@ -114,7 +112,7 @@ export default function Home() {
                   },
                 }}
                 renderValue={() => <SortIcon size={18} />}
-                onChange={(e) => setSortType(e.target.value as SortType)}
+                onChange={(e) => setSortType(e.target.value as BountySortType)}
               >
                 <MenuItem value='value' className='color-white'>
                   by value
