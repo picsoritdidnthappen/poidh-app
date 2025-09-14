@@ -17,7 +17,7 @@ import { cn } from '@/utils';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom, pollingChainIdAtom } from '@/store/loading';
-import { formatUsdShort } from '@/utils/utils';
+import { formatAmountShort } from '@/utils/utils';
 
 export default function FormJoinBounty({
   bountyId,
@@ -152,7 +152,7 @@ export default function FormJoinBounty({
               />
               {usdPerToken !== null && (
                 <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
-                  (${formatUsdShort(usdPerToken)})
+                  (${formatAmountShort(usdPerToken)})
                 </span>
               )}
             </div>

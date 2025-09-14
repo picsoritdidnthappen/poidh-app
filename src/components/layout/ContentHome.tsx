@@ -106,8 +106,7 @@ export default function ContentHome() {
               <MenuItem value='value' className='color-white'>
                 by value
               </MenuItem>
-              {/* id == date */}
-              <MenuItem value='id' className='color-white'>
+              <MenuItem value='date' className='color-white'>
                 by date
               </MenuItem>
             </Select>

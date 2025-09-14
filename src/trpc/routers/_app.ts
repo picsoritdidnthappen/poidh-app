@@ -12,7 +12,7 @@ import {
   getBanSignatureFirstLine,
   tryCatchAsync,
 } from '@/utils/utils';
-import { ChainId, WarpcastCast } from '@/utils/types';
+import { ChainId, Netname, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
 import { bulkUsersByAddressResponseSchema } from '@/utils/neynarSchemas';
@@ -162,11 +162,11 @@ export const appRouter = createTRPCRouter({
             ids: z.array(z.number()),
           })
           .nullish(),
-        sortType: z.enum(['value', 'id']).default('id'),
+        sortType: z.enum(['value', 'date']).default('date'),
       })
     )
     .query(async ({ input }) => {
-      const sortById = input.sortType === 'id';
+      const sortById = input.sortType === 'date';
       const sortByValue = input.sortType === 'value';
       const items = await prisma.bounties.findMany({
         where: {

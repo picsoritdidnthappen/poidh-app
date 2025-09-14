@@ -23,7 +23,7 @@ import ButtonCTA from '../global/ButtonCTA';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
-import { fetchPrice, formatUsdShort } from '@/utils/utils';
+import { formatAmountShort } from '@/utils/utils';
 import { Chain, Netname } from '@/utils/types';
 import { chains } from '@/utils/config';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
@@ -328,7 +328,7 @@ export default function FormBounty({
                   showChainSelector ? 'right-16' : 'right-4'
                 }`}
               >
-                (${formatUsdShort(usdPerToken)})
+                (${formatAmountShort(usdPerToken)})
               </span>
             )}
           </div>
