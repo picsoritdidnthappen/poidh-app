@@ -191,7 +191,11 @@ export default function Home() {
           )}
         </div>
       </div>
-      {isMobile ? <NavBarMobile type='bounty' /> : <CreateBounty />}
+      {isMobile ? (
+        <NavBarMobile type='bounty' showChainSelector={true} />
+      ) : (
+        <CreateBounty showChainSelector={true} />
+      )}
     </>
   );
 }
