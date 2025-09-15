@@ -49,8 +49,9 @@ export default function FormBounty({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
   const chain = useGetChain();
+  const [currentChain, setCurrentChain] = useState<Chain>(chain);
   const price =
-    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
+    trpc.fetchPrice.useQuery({ currency: currentChain.currency }).data ?? 0;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const usdRef = useRef<HTMLSpanElement | null>(null);
 
@@ -79,7 +80,6 @@ export default function FormBounty({
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
   const saveBountyAlbum = trpc.saveBountyAlbum.useMutation();
-  const [currentChain, setCurrentChain] = useState<Chain>(chain);
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
