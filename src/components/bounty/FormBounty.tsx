@@ -90,7 +90,7 @@ export default function FormBounty({
     }) => {
       const chainId = await account.connector?.getChainId();
       if (currentChain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Swithing network' });
+        setLoading({ isLoading: true, status: 'Switching network' });
         await switctChain.switchChainAsync({ chainId: currentChain.id });
       }
 
