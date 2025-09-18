@@ -77,7 +77,7 @@ function ScoreCell({
 }) {
   return (
     <Link
-      href={`/${chain}/account/${address}`}
+      href={`/account/${address}`}
       className={`hover:bg-white/10 hover:text-poidhRed transition-all cursor-pointer block w-full h-full ${className}`}
     >
       {children}

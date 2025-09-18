@@ -119,7 +119,7 @@ export default function Header() {
           </Menu>
           {account.address && (
             <Link
-              href={`/${chain.slug}/account/${account.address}`}
+              href={`/account/${account.address}`}
               className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
             >
               <UserIcon />

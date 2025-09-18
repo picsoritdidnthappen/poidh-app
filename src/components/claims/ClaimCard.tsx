@@ -170,7 +170,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                     Issuer
                   </span>
                   <Link
-                    href={`/${chain.slug}/account/${claim.issuer.address}`}
+                    href={`/account/${claim.issuer.address}`}
                     className='text-xs sm:text-sm text-white/90 max-w-[15ch] overflow-hidden overflow-ellipsis hover:text-gray-200'
                   >
                     {formatWalletAddress(claim.issuer.address)}
