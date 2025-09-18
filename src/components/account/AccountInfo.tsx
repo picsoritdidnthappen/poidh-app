@@ -10,14 +10,20 @@ import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
+import { formatAmountShort } from '@/utils/utils';
+import InfiniteScroll from 'react-infinite-scroller';
+import { ChainId } from '@/utils/types';
 
 type Section = 'nfts' | 'bounties' | 'claims';
+const PAGE_SIZE = 9;
 
 function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className='bg-white/5 rounded-md p-2.5 backdrop-blur-sm'>
-      <div className='text-xs text-gray-300'>{title}</div>
-      <div className='text-sm font-medium mt-0.5'>{value}</div>
+    <div className='bg-white/5 rounded p-1.5 backdrop-blur-sm'>
+      <div className='text-[10px] text-gray-300 leading-none'>{title}</div>
+      <div className='text-xs sm:text-sm font-medium mt-0.5 leading-tight'>
+        {value}
+      </div>
     </div>
   );
 }
@@ -26,14 +32,38 @@ export default function AccountInfo({ address }: { address: string }) {
   const chain = useGetChain();
   const [currentSection, setCurrentSection] = useState<Section>('nfts');
 
-  const accountActivities = trpc.accountActivities.useQuery(
-    { address, chainId: chain.id },
+  const accountActivitiesCount = trpc.accountActivitiesCount.useQuery(
+    { address },
     { enabled: !!address }
   );
 
-  const accountStats = trpc.accountInfo.useQuery(
-    { address, chainId: chain.id },
+  const accountStatsSplit = trpc.accountInfoSplit.useQuery(
+    { address },
     { enabled: !!address }
+  );
+
+  const nfts = trpc.accountNFTs.useInfiniteQuery(
+    { address, limit: PAGE_SIZE },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !!address && currentSection === 'nfts',
+    }
+  );
+
+  const claims = trpc.accountClaims.useInfiniteQuery(
+    { address, limit: PAGE_SIZE },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !!address && currentSection === 'claims',
+    }
+  );
+
+  const bounties = trpc.accountBounties.useInfiniteQuery(
+    { address, limit: PAGE_SIZE },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !!address && currentSection === 'bounties',
+    }
   );
 
   return (
@@ -57,46 +87,74 @@ export default function AccountInfo({ address }: { address: string }) {
                 </div>
               </div>
 
-              <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-2 max-w-[1400px] mx-auto'>
+              <div className='grid grid-cols-3 gap-1.5 sm:gap-2 mx-auto'>
                 <StatCard
                   title='completed bounties'
-                  value={
-                    accountActivities.data?.bounties?.filter(
-                      (bounty) => !bounty.inProgress && !bounty.isCanceled
-                    ).length ?? 0
-                  }
-                />
-                <StatCard
-                  title='total paid'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.totalPaid.amountCrypto
-                  )} ${chain.currency}`}
+                  value={accountActivitiesCount.data?.completedBounties ?? 0}
                 />
                 <StatCard
                   title='active bounties'
                   value={
-                    accountActivities.data?.bounties
-                      ? accountActivities.data?.bounties.filter(
-                          (bounty) => bounty.inProgress === true
-                        ).length
+                    accountActivitiesCount.data?.bounties
+                      ? accountActivitiesCount.data?.bounties
                       : 0
                   }
                 />
                 <StatCard
-                  title='total in contract'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.amountInContract.amountCrypto
-                  )} ${chain.currency}`}
-                />
-                <StatCard
                   title='completed claims'
-                  value={accountStats.data?.acceptedClaimsCount ?? 0}
+                  value={accountActivitiesCount.data?.completedClaims ?? 0}
                 />
                 <StatCard
-                  title='total earned'
+                  title='eth paid'
                   value={`${formatCryptoValue(
-                    accountStats.data?.totalEarn.amountCrypto
-                  )} ${chain.currency}`}
+                    accountStatsSplit.data?.eth.totalPaid.amountCrypto
+                  )} eth`}
+                />
+                <StatCard
+                  title='eth in contract'
+                  value={`${formatCryptoValue(
+                    accountStatsSplit.data?.eth.amountInContract.amountCrypto
+                  )} eth`}
+                />
+                <StatCard
+                  title='eth earned'
+                  value={`${formatCryptoValue(
+                    accountStatsSplit.data?.eth.totalEarn.amountCrypto
+                  )} eth`}
+                />
+                <StatCard
+                  title='degen paid'
+                  value={`${formatAmountShort(
+                    Number(
+                      formatCryptoValue(
+                        accountStatsSplit.data?.degen.totalPaid.amountCrypto,
+                        0
+                      )
+                    )
+                  )} dgn`}
+                />
+                <StatCard
+                  title='degen in contract'
+                  value={`${formatAmountShort(
+                    Number(
+                      formatCryptoValue(
+                        accountStatsSplit.data?.degen.amountInContract
+                          .amountCrypto,
+                        0
+                      )
+                    )
+                  )} dgn`}
+                />
+                <StatCard
+                  title='degen earned'
+                  value={`${formatAmountShort(
+                    Number(
+                      formatCryptoValue(
+                        accountStatsSplit.data?.degen.totalEarn.amountCrypto,
+                        0
+                      )
+                    )
+                  )} dgn`}
                 />
               </div>
             </div>
@@ -104,7 +162,11 @@ export default function AccountInfo({ address }: { address: string }) {
             <div className='mt-3 lg:mt-0 lg:ml-6 p-2 bg-white/5 rounded-lg backdrop-blur-sm text-center'>
               <div className='text-xs text-gray-300'>poidh score</div>
               <div className="text-4xl font-bold mt-1 text-poidhRed font-['PixeloidSans'] [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]">
-                {accountStats.isLoading ? '…' : accountStats.data?.poidhScore}
+                {accountStatsSplit.isLoading
+                  ? '…'
+                  : accountStatsSplit.data
+                  ? accountStatsSplit.data?.poidhScore
+                  : '0'}
               </div>
             </div>
           </div>
@@ -125,19 +187,19 @@ export default function AccountInfo({ address }: { address: string }) {
                 onClick={() => setCurrentSection('nfts')}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
-                NFTs({accountActivities.data?.NFTs.length ?? 0})
+                NFTs({accountActivitiesCount.data?.nfts ?? 0})
               </button>
               <button
                 onClick={() => setCurrentSection('bounties')}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
-                bounties ({accountActivities.data?.bounties.length ?? 0})
+                bounties ({accountActivitiesCount.data?.bounties ?? 0})
               </button>
               <button
                 onClick={() => setCurrentSection('claims')}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
-                claims ({accountActivities.data?.claims.length ?? 0})
+                claims ({accountActivitiesCount.data?.claims ?? 0})
               </button>
             </div>
           </div>
@@ -145,20 +207,101 @@ export default function AccountInfo({ address }: { address: string }) {
           <div>
             {currentSection === 'nfts' && (
               <div className='lg:px-20 px-8'>
-                <NftList NFTs={accountActivities.data?.NFTs ?? []} />
+                {nfts.data && (
+                  <InfiniteScroll
+                    loadMore={async () => await nfts.fetchNextPage()}
+                    hasMore={nfts.hasNextPage && !nfts.isFetchingNextPage}
+                    loader={
+                      <div key='loader' className='animate-pulse text-center'>
+                        Loading more...
+                      </div>
+                    }
+                    threshold={300}
+                  >
+                    <NftList
+                      key={nfts.data.pages[0]?.items[0]?.id || 'empty-nfts'}
+                      NFTs={nfts.data.pages.flatMap((page) =>
+                        page.items.map((NFT) => ({
+                          id: NFT.id.toString(),
+                          url: NFT.url,
+                          title: NFT.title,
+                          description: NFT.description,
+                          bountyId: NFT.bounty?.id?.toString() ?? '',
+                          issuer: NFT.issuer,
+                        }))
+                      )}
+                    />
+                  </InfiniteScroll>
+                )}
               </div>
             )}
             {currentSection === 'bounties' && (
-              <BountyList
-                bounties={accountActivities.data?.bounties ?? []}
-                showStatusEmoji={true}
-              />
+              <div className=''>
+                {bounties.data && (
+                  <InfiniteScroll
+                    loadMore={async () => await bounties.fetchNextPage()}
+                    hasMore={
+                      bounties.hasNextPage && !bounties.isFetchingNextPage
+                    }
+                    loader={
+                      <div key='loader' className='animate-pulse text-center'>
+                        Loading more...
+                      </div>
+                    }
+                    threshold={300}
+                  >
+                    <BountyList
+                      key={
+                        bounties.data.pages[0]?.items[0]?.id || 'empty-bounties'
+                      }
+                      bounties={bounties.data.pages.flatMap((page) =>
+                        page.items.map((bounty) => ({
+                          id: bounty.id.toString(),
+                          chainId: bounty.chain_id as ChainId,
+                          title: bounty.title,
+                          description: bounty.description,
+                          amount: bounty.amount,
+                          isMultiplayer: bounty.is_multiplayer || false,
+                          inProgress: bounty.in_progress || false,
+                          isCanceled: bounty.is_canceled || false,
+                          hasClaims: (bounty.claims ?? []).length > 0,
+                        }))
+                      )}
+                      showStatusEmoji={true}
+                    />
+                  </InfiniteScroll>
+                )}
+              </div>
             )}
             {currentSection === 'claims' && (
               <div className='lg:px-20 px-8'>
-                <ClaimsListAccount
-                  claims={accountActivities.data?.claims ?? []}
-                />
+                {claims.data && (
+                  <InfiniteScroll
+                    loadMore={async () => await claims.fetchNextPage()}
+                    hasMore={claims.hasNextPage && !claims.isFetchingNextPage}
+                    loader={
+                      <div key='loader' className='animate-pulse text-center'>
+                        Loading more...
+                      </div>
+                    }
+                    threshold={300}
+                  >
+                    <ClaimsListAccount
+                      key={claims.data.pages[0]?.items[0]?.id || 'empty-claims'}
+                      claims={claims.data.pages.flatMap((page) =>
+                        page.items.map((c) => ({
+                          id: c.id.toString(),
+                          title: c.title,
+                          description: c.description,
+                          url: c.url,
+                          issuer: c.issuer,
+                          bountyId: c.bounty?.id?.toString() ?? '',
+                          accepted: c.is_accepted || false,
+                        }))
+                      )}
+                    />
+                  </InfiniteScroll>
+                )}
               </div>
             )}
           </div>
@@ -168,14 +311,7 @@ export default function AccountInfo({ address }: { address: string }) {
   );
 }
 
-function formatCryptoValue(value: number | undefined) {
-  if (value === undefined) return '0';
-  const strValue = value.toString();
-  if (strValue.includes('.')) {
-    const [, decimal] = strValue.split('.');
-    if (decimal.length > 5) {
-      return Number(value).toFixed(5);
-    }
-  }
-  return strValue;
+function formatCryptoValue(value: number | undefined, precision = 4): number {
+  if (value === undefined) return 0;
+  return Number(Number(value).toFixed(precision));
 }

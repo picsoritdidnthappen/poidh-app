@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-const appUrl = process.env.NEXT_PUBLIC_URL ?? 'https://poidh.xyz';
 const header =
   process.env.NEXT_PUBLIC_HEADER ??
   'eyJmaWQiOjIyMTAsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg5MmQxODFiMDI5ZGI0MDQ3ODA5OTg4ODJBMjM0NjEzQzA3MjQwMzBkIn0';
@@ -18,26 +17,26 @@ export async function GET() {
       signature,
     },
     frame: {
-      version: "1", // subject to change
-      name: "poidh",
-      iconUrl: "https://poidh.xyz/icon.png",
-      splashImageUrl: "https://poidh.xyz/splash.png",
-      splashBackgroundColor: "#6fa9e1",
-      homeUrl: "https://poidh.xyz/",
-      heroImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
-      webhookUrl: "https://poidh.xyz/api/webhook",
-      subtitle: "incentivize things",
-      description: "create, share, and approve bounties on Farcaster",
-      primaryCategory: "social",
-      tags: ["bounties", "tasks", "incentives", "blockchain"],
-      tagline: "incentivize things",
-      ogTitle: "poidh",
-      ogDescription: "incentivize tasks with bounties on Farcaster",
-      ogImageUrl: "https://poidh.xyz/images/poidh-preview-hero-v2.png",
+      version: '1', // subject to change
+      name: 'poidh',
+      iconUrl: 'https://poidh.xyz/icon.png',
+      splashImageUrl: 'https://poidh.xyz/splash.png',
+      splashBackgroundColor: '#6fa9e1',
+      homeUrl: 'https://poidh.xyz/',
+      heroImageUrl: 'https://poidh.xyz/images/poidh-preview-hero-v2.png',
+      webhookUrl: 'https://poidh.xyz/api/webhook',
+      subtitle: 'incentivize things',
+      description: 'create, share, and approve bounties on Farcaster',
+      primaryCategory: 'social',
+      tags: ['bounties', 'tasks', 'incentives', 'blockchain'],
+      tagline: 'incentivize things',
+      ogTitle: 'poidh',
+      ogDescription: 'incentivize tasks with bounties on Farcaster',
+      ogImageUrl: 'https://poidh.xyz/images/poidh-preview-hero-v2.png',
     },
     baseBuilder: {
-      allowedAddresses: ["0x1B18f76e65fC875da2469710282A2E20F1e521e0"]
-    },  
+      allowedAddresses: ['0x1B18f76e65fC875da2469710282A2E20F1e521e0'],
+    },
   };
 
   return NextResponse.json(config);

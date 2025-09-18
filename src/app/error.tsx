@@ -1,7 +1,6 @@
 'use client';
 
 import { WarrningIcon } from '@/components/global/Icons';
-import * as React from 'react';
 
 export default function Error({
   error,

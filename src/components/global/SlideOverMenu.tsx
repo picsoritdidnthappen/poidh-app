@@ -1,7 +1,4 @@
 import Link from 'next/link';
-import React from 'react';
-
-import { useGetChain } from '@/hooks/useGetChain';
 import { useAccount } from 'wagmi';
 
 const MenuLink = ({
@@ -17,22 +14,17 @@ const MenuLink = ({
 );
 
 export default function SlideOverMenu() {
-  const chain = useGetChain();
   const account = useAccount();
 
   return (
     <div className='flex gap-2 flex-col p-5 text-white'>
       {account.address && (
-        <MenuLink href={`/${chain.slug}/account/${account.address}`}>
+        <MenuLink href={`/account/${account.address}`}>
           my account 👤
         </MenuLink>
       )}
-      <MenuLink href='/leaderboard'>
-        leaderboard 🕹️
-      </MenuLink>
-      <MenuLink href='/explore'>
-        explore 🔎
-      </MenuLink>
+      <MenuLink href='/leaderboard'>leaderboard 🕹️</MenuLink>
+      <MenuLink href='/explore'>explore 🔎</MenuLink>
       <MenuLink href='https://paragraph.xyz/@poidh/poidh-beginner-guide'>
         how it works 💡
       </MenuLink>

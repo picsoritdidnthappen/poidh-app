@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import ContentHome from '@/components/layout/ContentHome';
 import NavBarMobile from '@/components/global/NavBarMobile';
 import { useScreenSize } from '@/hooks/useScreenSize';

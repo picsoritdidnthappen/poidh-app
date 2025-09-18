@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { trpc } from '@/trpc/client';
 import useDegenOrEnsName from '@/hooks/useDegenOrEnsName';
 import Image from 'next/image';
@@ -78,7 +77,7 @@ function ScoreCell({
 }) {
   return (
     <Link
-      href={`/${chain}/account/${address}`}
+      href={`/account/${address}`}
       className={`hover:bg-white/10 hover:text-poidhRed transition-all cursor-pointer block w-full h-full ${className}`}
     >
       {children}
@@ -181,7 +180,7 @@ export default function HighScoresPage() {
                             }'s Warpcast profile`}
                           >
                             <Image
-                              src='/images/farcaster_arch_v2.svg'
+                              src='/images/farcaster_arch.svg'
                               alt='Warpcast'
                               width={16}
                               height={18}
@@ -294,7 +293,7 @@ export default function HighScoresPage() {
                             aria-label={`Visit ${usersDataNeynar.data[address][0].username}'s Warpcast profile`}
                           >
                             <Image
-                              src='/images/farcaster_arch_v2.svg'
+                              src='/images/farcaster_arch.svg'
                               alt='Warpcast'
                               width={16}
                               height={18}
@@ -467,7 +466,7 @@ function LeaderboardCardMobile({
                 aria-label={`Visit ${userData[0].username}'s Warpcast profile`}
               >
                 <Image
-                  src='/images/farcaster_arch_v2.svg'
+                  src='/images/farcaster_arch.svg'
                   alt='Warpcast'
                   width={14}
                   height={16}

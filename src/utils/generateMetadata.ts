@@ -186,12 +186,11 @@ export const generateMetadataForNetnameFrame = async ({
 export const generateMetadataForAccountPage = async ({
   params,
 }: {
-  params: { address: string; netname: Netname };
+  params: { address: string };
 }): Promise<Metadata> => {
   const createCaller = createCallerFactory(appRouter);
   const trpcCaller = createCaller({});
   const address = params.address;
-  const chain = chains[params.netname as keyof typeof chains];
 
   const frame = {
     version: 'next',
@@ -201,7 +200,7 @@ export const generateMetadataForAccountPage = async ({
       action: {
         type: 'launch_frame',
         name: 'view profile',
-        url: `${APP_URL}/${params?.netname}/account/${params?.address}`,
+        url: `${APP_URL}/account/${params?.address}`,
         splashImageUrl: APP_SPLASH_URL,
         iconUrl: APP_ICON_URL,
         splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
@@ -210,26 +209,18 @@ export const generateMetadataForAccountPage = async ({
   };
 
   try {
-    const accountStats = await trpcCaller.accountInfo({
-      address,
-      chainId: chain.id,
-    });
+    const split = await trpcCaller.accountInfoSplit({ address });
     const nftsCount = await prisma.claims.count({
       where: {
         owner: address.toLowerCase(),
-        chain_id: chain.id,
       },
     });
     const accountDataObject = {
       address,
-      chain: chain.slug,
-      poidhScore: `${accountStats.poidhScore ?? 0}`,
-      totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
-        chain.currency
-      }`,
-      totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
-        chain.currency
-      }`,
+      chain: 'base',
+      poidhScore: '0',
+      totalEarn: `${(split.eth.totalEarn.amountCrypto ?? 0).toString()} eth`,
+      totalPaid: `${(split.eth.totalPaid.amountCrypto ?? 0).toString()} eth`,
       nftsCount: `${nftsCount ?? 0}`,
     };
 

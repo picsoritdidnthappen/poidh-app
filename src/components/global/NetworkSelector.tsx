@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import React from 'react';
-
 import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
 
 const networks = [

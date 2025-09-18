@@ -48,7 +48,6 @@ export default function ClaimItem({
 
   const accountActivities = trpc.accountActivities.useQuery({
     address: issuer,
-    chainId: chain.id,
   });
 
   const accountStats = trpc.accountInfo.useQuery({

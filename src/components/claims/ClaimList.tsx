@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Voting from '@/components/bounty/Voting';
 import { Claim } from '@/utils/types';
 import ClaimItem from './ClaimItem';
