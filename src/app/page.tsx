@@ -3,7 +3,6 @@
 import NavBarMobile from '@/components/global/NavBarMobile';
 import CreateBounty from '@/components/bounty/CreateBounty';
 import { useScreenSize } from '@/hooks/useScreenSize';
-import * as React from 'react';
 import { trpc } from '@/trpc/client';
 import 'react-toastify/dist/ReactToastify.css';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';

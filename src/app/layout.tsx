@@ -1,8 +1,6 @@
 import '@/styles/globals.css';
-import '@/styles/colors.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { headers } from 'next/headers';
-import React from 'react';
 import { TRPCProvider } from '@/trpc/client';
 import '@rainbow-me/rainbowkit/styles.css';
 import { WalletProvider } from '@/components/global/WalletProvider';

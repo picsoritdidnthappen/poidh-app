@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion';
-import React from 'react';
-
 import { cn } from '@/utils';
 import BountyItem from './BountyItem';
 import { ChainId } from '@/utils/types';

@@ -2,7 +2,6 @@ import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { Currency, Netname } from '@/utils/types';
 import { formatAmount } from '@/utils/utils';
 import { ImageResponse } from '@vercel/og';
-import React from 'react';
 import { formatEther } from 'viem';
 
 export const runtime = 'edge';

@@ -1,4 +1,3 @@
-import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import clsx, { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { Currency } from './types';
@@ -18,18 +17,6 @@ export function getBanSignatureFirstLine({
 }) {
   return `Ban ${type} id: ${id} chainId: ${chainId}\n`;
 }
-
-export const fetchBounty = async (
-  chainName: string | null,
-  bountyId: string | null
-): Promise<BountyResponse> => {
-  const response = await fetch(
-    `https://poidh.xyz/api/bounties/${chainName}/${bountyId}`
-  );
-  const data = await response.json();
-
-  return data as BountyResponse;
-};
 
 export function formatAmount({
   amount,

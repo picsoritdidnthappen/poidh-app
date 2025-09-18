@@ -1,5 +1,4 @@
 import * as React from 'react';
-import '@/styles/colors.css';
 import { generateMetadataForBountyFrame } from '@/utils/generateMetadata';
 
 export const generateMetadata = generateMetadataForBountyFrame;

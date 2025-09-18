@@ -1,6 +1,5 @@
 'use client';
 import Link from 'next/link';
-import React from 'react';
 import { formatEther } from 'viem';
 
 import { UsersRoundIcon } from '@/components/global/Icons';

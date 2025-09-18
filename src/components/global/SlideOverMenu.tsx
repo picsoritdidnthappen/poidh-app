@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import React from 'react';
-
 import { useGetChain } from '@/hooks/useGetChain';
 import { useAccount } from 'wagmi';
 
@@ -27,12 +25,8 @@ export default function SlideOverMenu() {
           my account 👤
         </MenuLink>
       )}
-      <MenuLink href='/leaderboard'>
-        leaderboard 🕹️
-      </MenuLink>
-      <MenuLink href='/explore'>
-        explore 🔎
-      </MenuLink>
+      <MenuLink href='/leaderboard'>leaderboard 🕹️</MenuLink>
+      <MenuLink href='/explore'>explore 🔎</MenuLink>
       <MenuLink href='https://paragraph.xyz/@poidh/poidh-beginner-guide'>
         how it works 💡
       </MenuLink>

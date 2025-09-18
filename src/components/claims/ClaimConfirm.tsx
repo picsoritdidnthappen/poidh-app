@@ -1,19 +1,17 @@
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import Image from 'next/image';
 
-interface ClaimConfirmProps {
-  isOpen: boolean;
-  onClose: () => void;
-  imageUrl: string;
-  onConfirm: () => void;
-}
-
 export default function ClaimConfirm({
   isOpen,
   onClose,
   imageUrl,
   onConfirm,
-}: ClaimConfirmProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  imageUrl: string;
+  onConfirm: () => void;
+}) {
   return (
     <>
       <Dialog open={isOpen} onClose={onClose} className='relative z-50'>

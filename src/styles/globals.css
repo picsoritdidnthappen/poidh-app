@@ -56,10 +56,6 @@
     src: url('/fonts/PixeloidSans-Regular.ttf') format('truetype');
   }
 
-  .cursor-newtab {
-    cursor: url('/images/new-tab.png') 10 10, pointer;
-  }
-
   /* #region  /**=========== Typography =========== */
   .h0 {
     @apply font-primary text-3xl font-bold md:text-5xl;
@@ -101,7 +97,6 @@
     @apply border-gray-200 hover:border-gray-200/0;
   }
 
-  /* Class to adjust with sticky footer */
   .min-h-main {
     @apply min-h-[calc(100vh-56px)];
   }
@@ -159,20 +154,6 @@ body {
   background: linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5);
 }
 
-.wallet:hover + .wallet-address {
-  opacity: 1;
-}
-
-.wallet-address {
-  opacity: 0;
-  transition: opacity 300ms ease-in-out;
-}
-
-.wallet-address:hover {
-  opacity: 1;
-  transition: opacity 300ms ease-in-out;
-}
-
 .aspect-w-1 {
   width: 100%;
 }
@@ -196,7 +177,7 @@ button {
 
 .bountyItem.pendingClaims .bg-gradient {
   background: linear-gradient(to right, #2582d9, #f15e5f);
-  transition: all 0.3s ease; /* Add transition property */
+  transition: all 0.3s ease;
 }
 
 .bountyItem.pendingClaims:hover .bg-gradient {
