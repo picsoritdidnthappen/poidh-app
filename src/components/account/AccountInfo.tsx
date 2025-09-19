@@ -125,34 +125,28 @@ export default function AccountInfo({ address }: { address: string }) {
                 <StatCard
                   title='degen paid'
                   value={`${formatAmountShort(
-                    Number(
-                      formatCryptoValue(
-                        accountStatsSplit.data?.degen.totalPaid.amountCrypto,
-                        0
-                      )
+                    formatCryptoValue(
+                      accountStatsSplit.data?.degen.totalPaid.amountCrypto,
+                      2
                     )
                   )} dgn`}
                 />
                 <StatCard
                   title='degen in contract'
                   value={`${formatAmountShort(
-                    Number(
-                      formatCryptoValue(
-                        accountStatsSplit.data?.degen.amountInContract
-                          .amountCrypto,
-                        0
-                      )
+                    formatCryptoValue(
+                      accountStatsSplit.data?.degen.amountInContract
+                        .amountCrypto,
+                      2
                     )
                   )} dgn`}
                 />
                 <StatCard
                   title='degen earned'
                   value={`${formatAmountShort(
-                    Number(
-                      formatCryptoValue(
-                        accountStatsSplit.data?.degen.totalEarn.amountCrypto,
-                        0
-                      )
+                    formatCryptoValue(
+                      accountStatsSplit.data?.degen.totalEarn.amountCrypto,
+                      2
                     )
                   )} dgn`}
                 />
