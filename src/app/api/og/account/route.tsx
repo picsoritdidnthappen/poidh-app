@@ -1,7 +1,5 @@
 import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
 import { ImageResponse } from '@vercel/og';
-import { Netname } from '@/utils/types';
-import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 
 const truncateName = (name: string, maxLength = 35) => {
   if (!name || name.length <= maxLength) return name;
@@ -35,33 +33,35 @@ export async function GET(request: Request) {
   const params = url.searchParams;
 
   const address = params.get('address');
-  const chain = params.get('chain');
   const poidhScore = params.get('poidhScore');
-  const totalEarn = params.get('totalEarn');
-  const totalPaid = params.get('totalPaid');
-  const nftsCount = params.get('nftsCount');
   const imageFormat = params.get('imageFormat');
+  const totalBounties = params.get('totalBounties');
+  const totalClaims = params.get('totalClaims');
 
   if (
     !address ||
-    !chain ||
     !poidhScore ||
-    !totalEarn ||
-    !totalPaid ||
-    !nftsCount ||
-    !imageFormat
+    !imageFormat ||
+    !totalClaims ||
+    !totalBounties
   ) {
     return new Response('Missing or invalid parameters', { status: 400 });
   }
 
   try {
     const degenOrEnsName = await getEnsOrDegenName({
-      chainName: chain as Netname,
+      chainName: 'base',
       address: address as string,
     });
     const fontData = await fetch(
       new URL(
         '../../../../../public/fonts/GeistMono-Regular.ttf',
+        import.meta.url
+      )
+    ).then((res) => res.arrayBuffer());
+    const pixeloidFontData = await fetch(
+      new URL(
+        '../../../../../public/fonts/PixeloidSans-Regular.ttf',
         import.meta.url
       )
     ).then((res) => res.arrayBuffer());
@@ -200,8 +200,8 @@ export async function GET(request: Request) {
                 }}
               >
                 {[
-                  { label: 'nfts', value: nftsCount },
-                  { label: 'poidh score', value: poidhScore },
+                  { label: 'total bounties', value: totalBounties ?? '—' },
+                  { label: 'total claims', value: totalClaims ?? '—' },
                 ].map(({ label, value }) => (
                   <div
                     key={label}
@@ -243,41 +243,45 @@ export async function GET(request: Request) {
                   width: '100%',
                 }}
               >
-                {[
-                  { label: 'total earned', value: totalEarn },
-                  { label: 'total paid', value: totalPaid },
-                ].map(({ label, value }) => (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    gap: imageFormat === 'og' ? '12px' : '8px',
+                    padding: imageFormat === 'og' ? '16px' : '12px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '12px',
+                    width: '100%',
+                  }}
+                >
                   <div
-                    key={label}
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      padding: '16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      borderRadius: '12px',
-                      width: imageFormat === 'og' ? '50%' : '49%',
+                      fontSize: imageFormat === 'og' ? '28px' : '18px',
+                      color: 'rgba(255, 255, 255, 0.7)',
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: imageFormat === 'og' ? '24px' : '16px',
-                        color: 'rgba(255, 255, 255, 0.7)',
-                      }}
-                    >
-                      {label}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: imageFormat === 'og' ? '32px' : '20px',
-                        color: '#ffffff',
-                        fontWeight: '600',
-                      }}
-                    >
-                      {value}
-                    </div>
+                    poidh score
                   </div>
-                ))}
+                  <div
+                    style={{
+                      fontSize: imageFormat === 'og' ? '84px' : '48px',
+                      color: '#ff6f6f',
+                      fontWeight: 700,
+                      lineHeight: 1,
+                      letterSpacing: '2px',
+                      fontFamily: '"PixeloidSans", "GeistMono", sans-serif',
+                      textShadow:
+                        imageFormat === 'og'
+                          ? '-2px -2px 0 #ffffff, 2px -2px 0 #ffffff, -2px 2px 0 #ffffff, 2px 2px 0 #ffffff, 0 -2px 0 #ffffff, -2px 0 0 #ffffff, 2px 0 0 #ffffff, 0 2px 0 #ffffff'
+                          : '-1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff, 0 -1px 0 #ffffff, -1px 0 0 #ffffff, 1px 0 0 #ffffff, 0 1px 0 #ffffff',
+                    }}
+                  >
+                    {poidhScore}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -310,23 +314,6 @@ export async function GET(request: Request) {
                 />
               </picture>
             </div>
-            <div
-              style={{
-                width: imageFormat === 'og' ? '72px' : '48px',
-                height: imageFormat === 'og' ? '72px' : '48px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                border: '2px solid rgba(255,255,255,0.3)',
-              }}
-            >
-              <DynamicChainIcon
-                chain={chain as Netname}
-                size={imageFormat === 'og' ? 48 : 36}
-              />
-            </div>
           </div>
         </div>
       ),
@@ -337,6 +324,11 @@ export async function GET(request: Request) {
           {
             name: 'GeistMono',
             data: fontData,
+            style: 'normal',
+          },
+          {
+            name: 'PixeloidSans',
+            data: pixeloidFontData,
             style: 'normal',
           },
         ],

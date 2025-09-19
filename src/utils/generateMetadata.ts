@@ -210,18 +210,15 @@ export const generateMetadataForAccountPage = async ({
 
   try {
     const split = await trpcCaller.accountInfoSplit({ address });
-    const nftsCount = await prisma.claims.count({
-      where: {
-        owner: address.toLowerCase(),
-      },
+    const accountActivitiesCount = await trpcCaller.accountActivitiesCount({
+      address,
     });
     const accountDataObject = {
       address,
       chain: 'base',
-      poidhScore: '0',
-      totalEarn: `${(split.eth.totalEarn.amountCrypto ?? 0).toString()} eth`,
-      totalPaid: `${(split.eth.totalPaid.amountCrypto ?? 0).toString()} eth`,
-      nftsCount: `${nftsCount ?? 0}`,
+      poidhScore: split.poidhScore,
+      totalBounties: accountActivitiesCount.bounties,
+      totalClaims: accountActivitiesCount.claims,
     };
 
     frame.imageUrl = generateDynamicOGUrl({
@@ -248,9 +245,6 @@ export const generateMetadataForAccountPage = async ({
       },
       twitter: {
         card: 'summary_large_image',
-        title: `Account ${address}`,
-        description: `Account ${address} details`,
-        images: [ogImageUrl],
       },
       other: {
         'fc:frame': JSON.stringify(frame),
@@ -272,10 +266,6 @@ export const generateMetadataForAccountPage = async ({
       },
       twitter: {
         card: 'summary_large_image',
-        title: "poidh - pics or it didn't happen",
-        description:
-          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-        images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
       },
       other: {
         'fc:frame': JSON.stringify(frame),
