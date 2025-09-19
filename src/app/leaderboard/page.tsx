@@ -149,7 +149,10 @@ export default function HighScoresPage() {
                       You
                     </div>
                   </div>
-                  <div className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start'>
+                  <Link
+                    href={`/account/${account.address}`}
+                    className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
+                  >
                     <UserDisplay
                       userData={
                         usersDataNeynar.data?.[account.address.toLowerCase()]
@@ -157,7 +160,7 @@ export default function HighScoresPage() {
                       address={account.address.toLowerCase()}
                       isLoading={usersDataNeynar.isLoading}
                     />
-                  </div>
+                  </Link>
                   <div className='flex items-center justify-end md:mr-3'>
                     {usersDataNeynar.data && (
                       <div className='flex items-center gap-3'>
@@ -274,13 +277,16 @@ export default function HighScoresPage() {
                       {index + 1}
                     </div>
                   </div>
-                  <div className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start'>
+                  <Link
+                    href={`/account/${address}`}
+                    className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
+                  >
                     <UserDisplay
                       userData={usersDataNeynar.data?.[address]}
                       address={address}
                       isLoading={usersDataNeynar.isLoading}
                     />
-                  </div>
+                  </Link>
                   <div className='flex items-center justify-end md:mr-4'>
                     {usersDataNeynar.data && (
                       <div className='flex items-center gap-3'>
@@ -448,13 +454,16 @@ function LeaderboardCardMobile({
         >
           {rank}
         </div>
-        <div className='text-lg text-white flex-1 flex items-center justify-start'>
+        <Link
+          href={`/account/${address}`}
+          className='text-lg text-white flex-1 flex items-center justify-start'
+        >
           <UserDisplay
             userData={userData}
             address={address}
             isLoading={isLoading}
           />
-        </div>
+        </Link>
         {userData && (
           <div className='flex items-center gap-2'>
             {userData[0]?.username && (
