@@ -44,7 +44,7 @@ export default function Explore() {
               className='h-8 w-8 bg-poidhRed rounded-full flex items-center justify-center border border-[#E6EEF3] shadow-sm'
               aria-label='search'
             >
-              <MagnifyingGlassIcon />
+              <MagnifyingGlassIcon size={16} />
             </button>
           </div>
         </div>

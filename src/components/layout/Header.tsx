@@ -6,7 +6,7 @@ import SlideOverMenu from '@/components/global/SlideOverMenu';
 import {
   ExpandMoreIcon,
   MenuIcon,
-  MagnifyingGlassIcon2,
+  MagnifyingGlassIcon,
   UserIcon,
   WalletIcon,
 } from '@/components/global/Icons';
@@ -49,7 +49,7 @@ export default function Header() {
             className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
             aria-label='Explore'
           >
-            <MagnifyingGlassIcon2 />
+            <MagnifyingGlassIcon />
           </Link>
           {account.address && (
             <Link

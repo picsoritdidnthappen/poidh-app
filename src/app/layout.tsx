@@ -9,6 +9,7 @@ import { LoadingLayout } from '@/components/global/LoadingLayout';
 import ClientLayout from '@/app/layout.client';
 import { Metadata } from 'next';
 import CryptoWalletMobilePopup from '@/components/global/CryptoWalletMobilePopup';
+import { Analytics } from '@vercel/analytics/next';
 
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
@@ -101,6 +102,7 @@ export default function RootLayout({
             </LoadingLayout>
           </WalletProvider>
         </TRPCProvider>
+        <Analytics />
       </body>
     </html>
   );
