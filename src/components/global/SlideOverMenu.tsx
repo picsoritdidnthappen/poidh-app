@@ -35,6 +35,7 @@ export default function SlideOverMenu() {
         analytics 📊
       </MenuLink>
       <MenuLink href='https://warpcast.com/poidhbot'>farcaster 🟪</MenuLink>
+      <MenuLink href='https://www.tiktok.com/@poidhxyz'>tiktok 📹</MenuLink>
       <MenuLink href='https://x.com/poidhxyz'>twitter 🐦</MenuLink>
       <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'>
         report bug 🐛
