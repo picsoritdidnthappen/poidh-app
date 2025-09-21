@@ -22,7 +22,7 @@ import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
-import ShareBountyModal from '@/components/global/ShareBountyModal';
+import ShareBountyModal from '@/components/bounty/ShareBountyModal';
 import { ShareIcon } from '@/components/global/Icons';
 import Link from 'next/link';
 
