@@ -1,19 +1,17 @@
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import Image from 'next/image';
 
-interface SubmitVotingConfirmProps {
-  isOpen: boolean;
-  onClose: () => void;
-  imageUrl: string;
-  onConfirm: () => void;
-}
-
 export default function SubmitVotingConfirm({
   isOpen,
   onClose,
   imageUrl,
   onConfirm,
-}: SubmitVotingConfirmProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  imageUrl: string;
+  onConfirm: () => void;
+}) {
   return (
     <>
       <Dialog open={isOpen} onClose={onClose} className='relative z-50'>

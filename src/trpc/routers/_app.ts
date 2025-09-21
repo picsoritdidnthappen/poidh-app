@@ -275,6 +275,7 @@ export const appRouter = createTRPCRouter({
           .object({
             created_at: z.coerce.number(),
             amount_sort: z.number(),
+            dates: z.array(z.number()),
           })
           .nullish(),
         sortType: z.enum(['value', 'date']).default('date'),
@@ -312,6 +313,7 @@ export const appRouter = createTRPCRouter({
               ? { created_at: { lt: input.cursor.created_at } }
               : { amount_sort: { lte: input.cursor.amount_sort } }
             : {}),
+          ...(input.cursor && !sortByDate && { created_at: { notIn: input.cursor.dates } }),
         },
         include: {
           claims: {
@@ -336,6 +338,7 @@ export const appRouter = createTRPCRouter({
         | {
             created_at: number;
             amount_sort: number;
+            dates: number[];
           }
         | undefined = undefined;
 
@@ -352,6 +355,7 @@ export const appRouter = createTRPCRouter({
         nextCursor = {
           created_at: toNum(last.created_at),
           amount_sort: toNum(last.amount_sort),
+          dates: [...(input.cursor?.dates ?? []), ...items.map((item) => Number(item.created_at))],
         };
       }
 
