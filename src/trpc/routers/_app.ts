@@ -784,6 +784,7 @@ export const appRouter = createTRPCRouter({
         },
         select: {
           id: true,
+          chain_id: true,
           url: true,
           title: true,
           description: true,
@@ -832,6 +833,7 @@ export const appRouter = createTRPCRouter({
         },
         select: {
           id: true,
+          chain_id: true,
           title: true,
           description: true,
           is_accepted: true,

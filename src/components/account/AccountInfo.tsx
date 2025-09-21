@@ -10,9 +10,11 @@ import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
+import { ShareIcon2 } from '@/components/global/Icons';
 import { formatAmountShort } from '@/utils/utils';
 import InfiniteScroll from 'react-infinite-scroller';
 import { ChainId } from '@/utils/types';
+import ShareAccountModal from '@/components/account/ShareAccountModal';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 const PAGE_SIZE = 9;
@@ -31,6 +33,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 export default function AccountInfo({ address }: { address: string }) {
   const chain = useGetChain();
   const [currentSection, setCurrentSection] = useState<Section>('nfts');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const accountActivitiesCount = trpc.accountActivitiesCount.useQuery(
     { address },
@@ -74,7 +77,7 @@ export default function AccountInfo({ address }: { address: string }) {
             <div className='space-y-4 flex-grow'>
               <div className='border-b border-white/20 pb-3'>
                 <div className='text-sm text-gray-300 mb-1'>user</div>
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-2 overflow-visible'>
                   <span className='text-xl sm:text-2xl md:text-3xl font-medium'>
                     <DisplayAddress
                       chain={chain}
@@ -84,6 +87,17 @@ export default function AccountInfo({ address }: { address: string }) {
                   </span>
                   <CopyAddressButton address={address} size={20} />
                   <SocialMediaLinks address={address} />
+                  <button
+                    type='button'
+                    aria-label='Share profile'
+                    title='Share profile'
+                    className='cursor-pointer hover:text-gray-200 cursor-pointer'
+                    onClick={() => {
+                      setIsShareModalOpen(true);
+                    }}
+                  >
+                    <ShareIcon2 size={20} />
+                  </button>
                 </div>
               </div>
 
@@ -216,6 +230,7 @@ export default function AccountInfo({ address }: { address: string }) {
                       key={nfts.data.pages[0]?.items[0]?.id || 'empty-nfts'}
                       NFTs={nfts.data.pages.flatMap((page) =>
                         page.items.map((NFT) => ({
+                          chainId: NFT.chain_id as ChainId,
                           id: NFT.id.toString(),
                           url: NFT.url,
                           title: NFT.title,
@@ -285,6 +300,7 @@ export default function AccountInfo({ address }: { address: string }) {
                       claims={claims.data.pages.flatMap((page) =>
                         page.items.map((c) => ({
                           id: c.id.toString(),
+                          chainId: c.chain_id as ChainId,
                           title: c.title,
                           description: c.description,
                           url: c.url,
@@ -299,6 +315,12 @@ export default function AccountInfo({ address }: { address: string }) {
               </div>
             )}
           </div>
+          {isShareModalOpen && (
+            <ShareAccountModal
+              address={address}
+              onClose={() => setIsShareModalOpen(false)}
+            />
+          )}
         </div>
       )}
     </>

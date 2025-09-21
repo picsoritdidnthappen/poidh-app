@@ -1,13 +1,15 @@
-import { useGetChain } from '@/hooks/useGetChain';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
+import { getChainById } from '@/utils/config';
+import { ChainId } from '@/utils/types';
 
 type NFT = {
   id: string;
+  chainId: ChainId;
   title: string;
   description: string;
   url: string;
@@ -35,7 +37,7 @@ export default function NftList({ NFTs }: { NFTs: NFT[] }) {
 
 function NftListItem({ NFT }: { NFT: NFT }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const chain = useGetChain();
+  const chain = getChainById({ chainId: NFT.chainId });
 
   const fetchImageUrl = async (url: string) => {
     const response = await fetch(url);
