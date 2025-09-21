@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-
 import { useGetChain } from '@/hooks/useGetChain';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';

@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
-import { Claim } from '@/utils/types';
-import { useGetChain } from '@/hooks/useGetChain';
+import { ChainId, Claim } from '@/utils/types';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
+import { getChainById } from '@/utils/config';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   if (!claims || claims.length === 0) {
@@ -27,7 +27,7 @@ export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
 }
 
 function ClaimItem({ claim }: { claim: Claim }) {
-  const chain = useGetChain();
+  const chain = getChainById({ chainId: claim.chainId as ChainId });
   const [imageUrl, setImageUrl] = useState('');
 
   const fetchImageUrl = async (url: string) => {
