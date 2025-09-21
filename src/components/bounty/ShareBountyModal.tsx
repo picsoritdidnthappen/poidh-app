@@ -1,6 +1,10 @@
 'use client';
 
-import { TwitterXIcon, FarcasterIcon, CopyIcon } from '@/components/global/Icons';
+import {
+  TwitterXIcon,
+  FarcasterIcon,
+  CopyIcon,
+} from '@/components/global/Icons';
 import { trpc } from '@/trpc/client';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { useScreenSize } from '@/hooks/useScreenSize';
@@ -111,7 +115,12 @@ export default function ShareBountyModal({
     <ShareModal
       title='Share this bounty'
       onClose={onClose}
-      options={shareOptions.map((o) => ({ name: o.name, icon: o.icon, onClick: o.handler, description: o.description }))}
+      options={shareOptions.map((o) => ({
+        name: o.name,
+        icon: o.icon,
+        onClick: o.handler,
+        description: o.description,
+      }))}
       footerText='Help spread the word about this bounty!'
     />
   );

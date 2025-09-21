@@ -6,6 +6,8 @@ import {
   CopyIcon,
 } from '@/components/global/Icons';
 import { useAccount } from 'wagmi';
+import { sdk } from '@farcaster/miniapp-sdk';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import ShareModal from '@/components/global/ShareModal';
 import { copyToClipboard, shareToFarcaster, shareToX } from '@/utils/share';
 
@@ -17,6 +19,7 @@ export default function ShareAccountModal({
   onClose: () => void;
 }) {
   const account = useAccount();
+  const isMobile = useScreenSize();
 
   const isConnectectedUser =
     address.toLowerCase() === account.address?.toLowerCase();
@@ -27,9 +30,10 @@ export default function ShareAccountModal({
   };
 
   const handleShareX = async () => {
-    const text = `check out ${
-      isConnectectedUser ? 'my' : 'this'
-    } account on @poidhxyz 📸\n`;
+    const text =
+      `check out ${
+        isConnectectedUser ? 'my' : 'this'
+      } account on @poidhxyz 📸\n\n` + window.location.href;
     shareToX(text);
     onClose();
   };
@@ -38,7 +42,16 @@ export default function ShareAccountModal({
     const text = `check out ${
       isConnectectedUser ? 'my' : 'this'
     } account on /poidh 📸\n`;
-    shareToFarcaster(text, window.location.href);
+
+    const isMiniApp = await sdk.isInMiniApp();
+    if (isMobile && isMiniApp) {
+      await sdk.actions.composeCast({
+        text,
+        embeds: [window.location.href],
+      });
+    } else {
+      shareToFarcaster(text, window.location.href);
+    }
     onClose();
   };
 
