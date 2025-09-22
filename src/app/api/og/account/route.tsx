@@ -354,10 +354,9 @@ async function loadFarcasterProfile(address: string) {
       }
     );
     const farcasterParticipants = await farcasterParticipantsResponse.json();
-    const profile =
-      farcasterParticipants && farcasterParticipants[address]
-        ? farcasterParticipants[address][0]
-        : null;
+    const profile = farcasterParticipants?.[address.toLowerCase()]?.[0]
+      ? farcasterParticipants?.[address.toLowerCase()]?.[0]
+      : null;
 
     if (profile) {
       profile.pfp_url = await getProfilePictureUrl(profile.pfp_url);
