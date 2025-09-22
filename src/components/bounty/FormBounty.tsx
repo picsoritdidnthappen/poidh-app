@@ -350,7 +350,7 @@ export default function FormBounty({
                   setShowAlbumDropdown(true);
                 }
                 const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
-                setAlbum(next);
+                setAlbum(next.toLowerCase());
               }}
               onFocus={() => setShowAlbumDropdown(true)}
               onBlur={() => setShowAlbumDropdown(false)}

@@ -313,7 +313,8 @@ export const appRouter = createTRPCRouter({
               ? { created_at: { lt: input.cursor.created_at } }
               : { amount_sort: { lte: input.cursor.amount_sort } }
             : {}),
-          ...(input.cursor && !sortByDate && { created_at: { notIn: input.cursor.dates } }),
+          ...(input.cursor &&
+            !sortByDate && { created_at: { notIn: input.cursor.dates } }),
         },
         include: {
           claims: {
@@ -355,7 +356,10 @@ export const appRouter = createTRPCRouter({
         nextCursor = {
           created_at: toNum(last.created_at),
           amount_sort: toNum(last.amount_sort),
-          dates: [...(input.cursor?.dates ?? []), ...items.map((item) => Number(item.created_at))],
+          dates: [
+            ...(input.cursor?.dates ?? []),
+            ...items.map((item) => Number(item.created_at)),
+          ],
         };
       }
 
@@ -374,7 +378,7 @@ export const appRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       const extras = await prisma.bountiesExtra.findMany({
-        where: { album: input.album },
+        where: { album: { equals: input.album, mode: 'insensitive' } },
         select: { bounty_id: true, chain_id: true },
       });
 

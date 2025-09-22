@@ -33,7 +33,7 @@ export default function Explore() {
           <input
             type='text'
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
             className='w-full h-11 pl-5 pr-12 rounded-full bg-transparent border border-white placeholder:text-slate-200 shadow-sm'
             placeholder='search by keyword'
             maxLength={120}
