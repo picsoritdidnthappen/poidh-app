@@ -21,7 +21,7 @@ const APP_OG_IMAGE_URL =
 const APP_BUTTON_TEXT = 'launch poidh';
 const APP_NAME = 'poidh';
 
-export const generateMetadataForBountyFrame = async ({
+export const generateMetadataForBounty = async ({
   params,
 }: {
   params: { id: string; netname: Netname };
@@ -172,9 +172,6 @@ export const generateMetadataForNetnameFrame = async ({
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
-      description:
-        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
       images: [APP_OG_IMAGE_URL],
     },
     other: {
