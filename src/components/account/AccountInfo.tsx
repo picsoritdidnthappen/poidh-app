@@ -32,7 +32,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 
 export default function AccountInfo({ address }: { address: string }) {
   const chain = useGetChain();
-  const [currentSection, setCurrentSection] = useState<Section>('nfts');
+  const [currentSection, setCurrentSection] = useState<Section>('bounties');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const accountActivitiesCount = trpc.accountActivitiesCount.useQuery(
