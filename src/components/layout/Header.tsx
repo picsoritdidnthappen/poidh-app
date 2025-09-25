@@ -29,7 +29,7 @@ export default function Header() {
           className: 'w-60 bg-poidhRed',
         }}
       >
-        <SlideOverMenu />
+        <SlideOverMenu onClose={() => setIsOpen(false)} />
       </Drawer>
       <div className='flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
         <div className='flex'>

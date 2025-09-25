@@ -4,43 +4,84 @@ import { useAccount } from 'wagmi';
 const MenuLink = ({
   href,
   children,
+  onClick,
 }: {
   href: string;
   children: React.ReactNode;
+  onClick?: () => void;
 }) => (
-  <Link href={href} className='hover:text-gray-300'>
+  <Link href={href} className='hover:text-gray-300' onClick={onClick}>
     {children}
   </Link>
 );
 
-export default function SlideOverMenu() {
+export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
   const account = useAccount();
+
+  const handleCloseWithDelay = () => {
+    setTimeout(() => {
+      onClose();
+    }, 500);
+  };
 
   return (
     <div className='flex gap-2 flex-col p-5 text-white'>
       {account.address && (
-        <MenuLink href={`/account/${account.address}`}>
+        <MenuLink
+          href={`/account/${account.address}`}
+          onClick={handleCloseWithDelay}
+        >
           my account 👤
         </MenuLink>
       )}
-      <MenuLink href='/leaderboard'>leaderboard 🕹️</MenuLink>
-      <MenuLink href='/explore'>explore 🔎</MenuLink>
-      <MenuLink href='https://paragraph.xyz/@poidh/poidh-beginner-guide'>
+      <MenuLink href='/leaderboard' onClick={handleCloseWithDelay}>
+        leaderboard 🕹️
+      </MenuLink>
+      <MenuLink href='/explore' onClick={handleCloseWithDelay}>
+        explore 🔎
+      </MenuLink>
+      <MenuLink
+        href='https://paragraph.xyz/@poidh/poidh-beginner-guide'
+        onClick={handleCloseWithDelay}
+      >
         how it works 💡
       </MenuLink>
-      <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app'>
+      <MenuLink
+        href='https://github.com/picsoritdidnthappen/poidh-app'
+        onClick={handleCloseWithDelay}
+      >
         github 🛠️
       </MenuLink>
-      <MenuLink href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'>
+      <MenuLink
+        href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'
+        onClick={handleCloseWithDelay}
+      >
         analytics 📊
       </MenuLink>
-      <MenuLink href='https://warpcast.com/poidhbot'>farcaster 🟪</MenuLink>
-      <MenuLink href='https://www.tiktok.com/@poidhxyz'>tiktok 📹</MenuLink>
-      <MenuLink href='https://x.com/poidhxyz'>twitter 🐦</MenuLink>
-      <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'>
+      <MenuLink
+        href='https://warpcast.com/poidhbot'
+        onClick={handleCloseWithDelay}
+      >
+        farcaster 🟪
+      </MenuLink>
+      <MenuLink
+        href='https://www.tiktok.com/@poidhxyz'
+        onClick={handleCloseWithDelay}
+      >
+        tiktok 📹
+      </MenuLink>
+      <MenuLink href='https://x.com/poidhxyz' onClick={handleCloseWithDelay}>
+        twitter 🐦
+      </MenuLink>
+      <MenuLink
+        href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'
+        onClick={handleCloseWithDelay}
+      >
         report bug 🐛
       </MenuLink>
-      <MenuLink href='https://poidh.xyz/terms'>terms 📜</MenuLink>
+      <MenuLink href='https://poidh.xyz/terms' onClick={handleCloseWithDelay}>
+        terms 📜
+      </MenuLink>
     </div>
   );
 }
