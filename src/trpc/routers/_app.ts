@@ -1,7 +1,5 @@
 import { z } from 'zod';
-
 import prisma from 'prisma/prisma';
-
 import { baseProcedure, createTRPCRouter } from '../init';
 import serverEnv from '@/utils/serverEnv';
 import { TRPCError } from '@trpc/server';
@@ -15,7 +13,11 @@ import {
 import { ChainId, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
-import { bulkUsersByAddressResponseSchema } from '@/utils/neynarSchemas';
+import { NeynarAPIClient, Configuration } from "@neynar/nodejs-sdk";
+
+const config = new Configuration({
+  apiKey: process.env.NEYNAR_API_KEY || '',
+});
 
 export const addressSchema = z
   .string()
@@ -1660,29 +1662,10 @@ export const appRouter = createTRPCRouter({
         return {};
       }
 
-      const neynarApiKey = serverEnv.NEYNAR_API_KEY;
-
-      if (!neynarApiKey) {
-        return {};
-      }
-
-      const [data] = await tryCatchAsync(async () => {
-        const { data } = await axios.get(
-          'https://api.neynar.com/v2/farcaster/user/bulk-by-address',
-          {
-            headers: {
-              'x-api-key': neynarApiKey,
-              'Content-Type': 'application/json',
-            },
-            params: {
-              addresses: input.addresses,
-            },
-          }
-        );
-        return bulkUsersByAddressResponseSchema.parse(data);
-      });
-
-      return data ?? {};
+      const client = new NeynarAPIClient(config);
+      const users = await client.fetchBulkUsersByEthOrSolAddress({addresses: input.addresses});
+      
+      return users;
     }),
 
   leaderboard: baseProcedure
@@ -1690,10 +1673,16 @@ export const appRouter = createTRPCRouter({
       z
         .object({
           userAddress: addressSchema.optional(),
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(10).default(10),
         })
         .optional()
     )
     .query(async ({ input }) => {
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 10;
+      const maxUsers = 100;
+      const offset = (page - 1) * limit;
       const ignoreAddresses = [
         '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
         '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
@@ -1883,9 +1872,25 @@ export const appRouter = createTRPCRouter({
         }
       }
 
+      const limitedLeaderboard = sortedLeaderboard.slice(0, maxUsers);
+      const paginatedLeaderboard = limitedLeaderboard.slice(
+        offset,
+        offset + limit
+      );
+
+      const totalUsers = Math.min(sortedLeaderboard.length, maxUsers);
+      const totalPages = Math.ceil(totalUsers / limit);
+
       return {
-        leaderboard: sortedLeaderboard.slice(0, 10),
+        leaderboard: paginatedLeaderboard,
         userData,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalUsers,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
       };
     }),
 
