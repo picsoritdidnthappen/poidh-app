@@ -13,23 +13,32 @@ export async function getEnsOrDegenName({
   if (chainName === 'arbitrum') {
     return null;
   }
-  const ensName = await mainnetPublicClient.getEnsName({
-    address: address as `0x${string}`,
-  });
 
-  if (ensName) {
-    return ensName;
+  try {
+    const ensName = await mainnetPublicClient.getEnsName({
+      address: address as `0x${string}`,
+    });
+
+    if (ensName) {
+      return ensName;
+    }
+  } catch (error) {
+    console.warn('Failed to resolve ENS name:', error);
   }
 
-  const degenName = await degenPublicClient.readContract({
-    abi: DEGENNAMERESABI,
-    address: '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
-    functionName: 'defaultNames',
-    args: [address as `0x${string}`],
-  });
+  try {
+    const degenName = await degenPublicClient.readContract({
+      abi: DEGENNAMERESABI,
+      address: '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
+      functionName: 'defaultNames',
+      args: [address as `0x${string}`],
+    });
 
-  if (degenName) {
-    return `${degenName}.degen`;
+    if (degenName) {
+      return `${degenName}.degen`;
+    }
+  } catch (error) {
+    console.warn('Failed to resolve Degen name:', error);
   }
 
   return null;
