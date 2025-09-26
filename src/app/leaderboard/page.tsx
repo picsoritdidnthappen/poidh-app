@@ -90,6 +90,11 @@ export default function HighScoresPage() {
   const account = useAccount();
   const [currentPage, setCurrentPage] = useState(1);
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const leaderboardResult = trpc.leaderboard.useQuery({
     userAddress: account.address,
     page: currentPage,
@@ -439,7 +444,7 @@ export default function HighScoresPage() {
           {paginationData && paginationData.totalPages > 1 && (
             <div className='flex justify-center items-center gap-2 mt-8 px-4'>
               <button
-                onClick={() => setCurrentPage(currentPage - 1)}
+                onClick={() => handlePageChange(currentPage - 1)}
                 disabled={
                   !paginationData.hasPreviousPage || leaderboardResult.isLoading
                 }
@@ -466,7 +471,7 @@ export default function HighScoresPage() {
                     return (
                       <button
                         key={pageNum}
-                        onClick={() => setCurrentPage(pageNum)}
+                        onClick={() => handlePageChange(pageNum)}
                         disabled={leaderboardResult.isLoading}
                         className={`w-12 h-12 md:w-10 md:h-10 rounded-lg font-mono transition-all text-sm md:text-base touch-manipulation ${
                           pageNum === currentPage
@@ -484,7 +489,7 @@ export default function HighScoresPage() {
               </div>
 
               <button
-                onClick={() => setCurrentPage(currentPage + 1)}
+                onClick={() => handlePageChange(currentPage + 1)}
                 disabled={
                   !paginationData.hasNextPage || leaderboardResult.isLoading
                 }
