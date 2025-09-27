@@ -1,3 +1,4 @@
+import { trpc } from '@/trpc/client';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 
@@ -17,6 +18,8 @@ const MenuLink = ({
 
 export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
   const account = useAccount();
+
+  const trendingAlbums = trpc.trendingAlbums.useQuery({});
 
   const handleCloseWithDelay = () => {
     setTimeout(() => {
@@ -40,6 +43,29 @@ export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
       <MenuLink href='/explore' onClick={handleCloseWithDelay}>
         explore 🔎
       </MenuLink>
+
+      <span className='ml-4 my-1.5 text-sm'>
+        trending 📈
+      </span>
+
+      {trendingAlbums.data && trendingAlbums.data.length > 0 && (
+        <>
+          {trendingAlbums.data.map((album) => (
+            <Link
+              key={album.name}
+              href={`/a/${encodeURIComponent(album.name)}`}
+              className='hover:text-gray-300 ml-4 text-sm'
+              onClick={handleCloseWithDelay}
+            >
+              {album.name.length > 15
+                ? `${album.name.slice(0, 15)}…`
+                : album.name}{' '}
+              ({album.count})
+            </Link>
+          ))}
+        </>
+      )}
+
       <MenuLink
         href='https://paragraph.xyz/@poidh/poidh-beginner-guide'
         onClick={handleCloseWithDelay}

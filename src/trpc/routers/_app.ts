@@ -13,7 +13,7 @@ import {
 import { ChainId, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
-import { NeynarAPIClient, Configuration } from "@neynar/nodejs-sdk";
+import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
 
 const config = new Configuration({
   apiKey: process.env.NEYNAR_API_KEY || '',
@@ -1663,8 +1663,10 @@ export const appRouter = createTRPCRouter({
       }
 
       const client = new NeynarAPIClient(config);
-      const users = await client.fetchBulkUsersByEthOrSolAddress({addresses: input.addresses});
-      
+      const users = await client.fetchBulkUsersByEthOrSolAddress({
+        addresses: input.addresses,
+      });
+
       return users;
     }),
 
@@ -2045,6 +2047,42 @@ export const appRouter = createTRPCRouter({
         })),
         nextCursor,
       };
+    }),
+
+  trendingAlbums: baseProcedure
+    .input(
+      z.object({
+        limit: z.number().default(10).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const result = await prisma.$queryRaw<
+        Array<{
+          album: string;
+          count: bigint;
+          latest_timestamp: string;
+        }>
+      >`
+        SELECT 
+          be.album,
+          COUNT(be.album)::bigint as count,
+          MAX(b.created_at)::text as latest_timestamp
+        FROM "BountiesExtra" be
+        INNER JOIN "Bounties" b ON be.bounty_id = b.id AND be.chain_id = b.chain_id
+        LEFT JOIN "Ban" ban ON b.id = ban.bounty_id AND b.chain_id = ban.chain_id
+        WHERE b.is_canceled = false 
+          AND ban.id IS NULL
+        GROUP BY be.album
+        ORDER BY MAX(b.created_at) DESC
+        LIMIT ${input.limit || 10}
+      `;
+
+      console.log('resulte')
+      console.log(result)
+      return result.map((album) => ({
+        name: album.album,
+        count: Number(album.count),
+      }));
     }),
 });
 
