@@ -2064,7 +2064,7 @@ export const appRouter = createTRPCRouter({
         }>
       >`
         SELECT 
-          be.album,
+          MIN(be.album) as album,
           COUNT(be.album)::bigint as count,
           MAX(b.created_at)::text as latest_timestamp
         FROM "BountiesExtra" be
@@ -2072,13 +2072,13 @@ export const appRouter = createTRPCRouter({
         LEFT JOIN "Ban" ban ON b.id = ban.bounty_id AND b.chain_id = ban.chain_id
         WHERE b.is_canceled = false 
           AND ban.id IS NULL
-        GROUP BY be.album
+          AND be.album IS NOT NULL
+          AND TRIM(be.album) != ''
+        GROUP BY LOWER(be.album)
         ORDER BY MAX(b.created_at) DESC
         LIMIT ${input.limit || 10}
       `;
 
-      console.log('resulte')
-      console.log(result)
       return result.map((album) => ({
         name: album.album,
         count: Number(album.count),
