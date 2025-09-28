@@ -1,5 +1,7 @@
+import { ExpandMoreIcon } from '@/components/global/Icons';
 import { trpc } from '@/trpc/client';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 const MenuLink = ({
@@ -18,6 +20,7 @@ const MenuLink = ({
 
 export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
   const account = useAccount();
+  const [isResourcesExpanded, setIsResourcesExpanded] = useState(false);
 
   const trendingAlbums = trpc.trendingAlbums.useQuery({});
 
@@ -44,9 +47,7 @@ export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
         explore 🔎
       </MenuLink>
 
-      <span className='ml-4 my-1.5 text-sm'>
-        trending 📈
-      </span>
+      <span className='ml-4 my-1.5 text-sm'>trending 📈</span>
 
       {trendingAlbums.data && trendingAlbums.data.length > 0 && (
         <>
@@ -66,45 +67,66 @@ export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
         </>
       )}
 
-      <MenuLink
-        href='https://paragraph.xyz/@poidh/poidh-beginner-guide'
-        onClick={handleCloseWithDelay}
+      <button
+        className='flex items-center gap-2 hover:text-gray-300 transition-colors'
+        onClick={() => setIsResourcesExpanded(!isResourcesExpanded)}
       >
-        how it works 💡
-      </MenuLink>
-      <MenuLink
-        href='https://github.com/picsoritdidnthappen/poidh-app'
-        onClick={handleCloseWithDelay}
-      >
-        github 🛠️
-      </MenuLink>
-      <MenuLink
-        href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'
-        onClick={handleCloseWithDelay}
-      >
-        analytics 📊
-      </MenuLink>
-      <MenuLink
-        href='https://warpcast.com/poidhbot'
-        onClick={handleCloseWithDelay}
-      >
-        farcaster 🟪
-      </MenuLink>
-      <MenuLink
-        href='https://www.tiktok.com/@poidhxyz'
-        onClick={handleCloseWithDelay}
-      >
-        tiktok 📹
-      </MenuLink>
-      <MenuLink href='https://x.com/poidhxyz' onClick={handleCloseWithDelay}>
-        twitter 🐦
-      </MenuLink>
-      <MenuLink
-        href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'
-        onClick={handleCloseWithDelay}
-      >
-        report bug 🐛
-      </MenuLink>
+        links 🔗
+        <span
+          className={`h-4 w-4 transition-transform duration-200 ${
+            isResourcesExpanded ? 'rotate-180' : ''
+          }`}
+        >
+          <ExpandMoreIcon size={16} />
+        </span>
+      </button>
+
+      {isResourcesExpanded && (
+        <div className='ml-4 flex flex-col gap-2'>
+          <MenuLink
+            href='https://paragraph.xyz/@poidh/poidh-beginner-guide'
+            onClick={handleCloseWithDelay}
+          >
+            how it works 💡
+          </MenuLink>
+          <MenuLink
+            href='https://github.com/picsoritdidnthappen/poidh-app'
+            onClick={handleCloseWithDelay}
+          >
+            github 🛠️
+          </MenuLink>
+          <MenuLink
+            href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'
+            onClick={handleCloseWithDelay}
+          >
+            analytics 📊
+          </MenuLink>
+          <MenuLink
+            href='https://warpcast.com/poidhbot'
+            onClick={handleCloseWithDelay}
+          >
+            farcaster 🟪
+          </MenuLink>
+          <MenuLink
+            href='https://x.com/poidhxyz'
+            onClick={handleCloseWithDelay}
+          >
+            twitter 🐦
+          </MenuLink>
+          <MenuLink
+            href='https://www.tiktok.com/@poidhxyz'
+            onClick={handleCloseWithDelay}
+          >
+            tiktok 📹
+          </MenuLink>
+          <MenuLink
+            href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'
+            onClick={handleCloseWithDelay}
+          >
+            report bug 🐛
+          </MenuLink>
+        </div>
+      )}
       <MenuLink href='https://poidh.xyz/terms' onClick={handleCloseWithDelay}>
         terms 📜
       </MenuLink>
