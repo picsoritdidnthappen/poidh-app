@@ -2072,6 +2072,8 @@ export const appRouter = createTRPCRouter({
         LEFT JOIN "Ban" ban ON b.id = ban.bounty_id AND b.chain_id = ban.chain_id
         WHERE b.is_canceled = false 
           AND ban.id IS NULL
+          AND b.in_progress = true
+          AND b.is_voting = false
           AND be.album IS NOT NULL
           AND TRIM(be.album) != ''
         GROUP BY LOWER(be.album)
