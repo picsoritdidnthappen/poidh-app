@@ -187,7 +187,7 @@ export default function BountyInfo({
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
           </p>
-          <p className='mt-5 normal-case break-words'>
+          <p className='mt-5 normal-case break-words whitespace-pre-wrap'>
             <TextWithLinks>{bounty.data.description}</TextWithLinks>
           </p>
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
