@@ -1970,18 +1970,28 @@ export const appRouter = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      return prisma.bountiesExtra.groupBy({
-        by: ['album'],
-        where: { album: { contains: input.contains, mode: 'insensitive' } },
+      const result = await prisma.$queryRaw<
+        Array<{
+          album: string;
+          _count: bigint;
+        }>
+      >`
+        SELECT 
+          LOWER(TRIM(album)) as album,
+          COUNT(*)::bigint as _count
+        FROM "BountiesExtra"
+        WHERE TRIM(LOWER(album)) LIKE ${`%${input.contains.toLowerCase()}%`}
+          AND album IS NOT NULL
+        GROUP BY LOWER(TRIM(album))
+        ORDER BY COUNT(*) DESC
+      `;
+
+      return result.map((item) => ({
+        album: item.album,
         _count: {
-          album: true,
+          album: Number(item._count),
         },
-        orderBy: {
-          _count: {
-            album: 'desc',
-          },
-        },
-      });
+      }));
     }),
 
   bountiesByKeyword: baseProcedure
