@@ -33,7 +33,7 @@ export default function Explore() {
           <input
             type='text'
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
             className='w-full h-11 pl-5 pr-12 rounded-full bg-transparent border border-white placeholder:text-slate-200 shadow-sm'
             placeholder='search by keyword'
             maxLength={120}
@@ -41,14 +41,10 @@ export default function Explore() {
           <div className='absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-2'>
             <button
               type='button'
-              onClick={() => {
-                // eslint-disable-next-line no-console
-                console.log('search', search);
-              }}
               className='h-8 w-8 bg-poidhRed rounded-full flex items-center justify-center border border-[#E6EEF3] shadow-sm'
               aria-label='search'
             >
-              <MagnifyingGlassIcon />
+              <MagnifyingGlassIcon size={16} />
             </button>
           </div>
         </div>

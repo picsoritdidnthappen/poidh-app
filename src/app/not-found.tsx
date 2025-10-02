@@ -1,6 +1,5 @@
 import { WarrningIcon } from '@/components/global/Icons';
 import { Metadata } from 'next';
-import * as React from 'react';
 
 export const metadata: Metadata = {
   title: 'Not Found',

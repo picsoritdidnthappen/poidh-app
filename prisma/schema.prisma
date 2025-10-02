@@ -117,3 +117,10 @@ model Leaderboard {
 
   @@id([address, chain_id])
 }
+
+model Price {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  degen_usd  Decimal?
+  eth_usd    Decimal?
+}

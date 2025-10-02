@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { trpc } from '@/trpc/client';
 import useDegenOrEnsName from '@/hooks/useDegenOrEnsName';
 import Image from 'next/image';
@@ -10,6 +9,7 @@ import { AppRouter } from '@/trpc/routers/_app';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { Netname } from '@/utils/types';
+import { useState, useMemo } from 'react';
 
 const formatUserName = (name: string) =>
   name.length >= 10 ? `${name.slice(0, 6)}…${name.slice(-5)}` : name;
@@ -78,7 +78,7 @@ function ScoreCell({
 }) {
   return (
     <Link
-      href={`/${chain}/account/${address}`}
+      href={`/account/${address}`}
       className={`hover:bg-white/10 hover:text-poidhRed transition-all cursor-pointer block w-full h-full ${className}`}
     >
       {children}
@@ -88,25 +88,43 @@ function ScoreCell({
 
 export default function HighScoresPage() {
   const account = useAccount();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const leaderboardResult = trpc.leaderboard.useQuery({
     userAddress: account.address,
+    page: currentPage,
+    limit: 10,
   });
 
   const leaderboardData = leaderboardResult.data?.leaderboard;
   const userRankData = leaderboardResult.data?.userData;
+  const paginationData = leaderboardResult.data?.pagination;
 
-  const allAddresses = Array.from(
-    new Set(
-      [
-        ...(leaderboardData?.map(([address]) => address) ?? []),
-        ...(userRankData?.data ? [userRankData.data[0]] : []),
-        ...(account.isConnected && account.address
-          ? [account.address.toLowerCase()]
-          : []),
-      ].filter(Boolean)
-    )
-  );
+  const allAddresses = useMemo(() => {
+    const addresses = Array.from(
+      new Set(
+        [
+          ...(leaderboardData?.map(([address]) => address) ?? []),
+          ...(userRankData?.data ? [userRankData.data[0]] : []),
+          ...(account.isConnected && account.address
+            ? [account.address.toLowerCase()]
+            : []),
+        ].filter(Boolean)
+      )
+    );
+    return addresses;
+  }, [
+    leaderboardData,
+    userRankData,
+    account.isConnected,
+    account.address,
+    currentPage,
+  ]);
 
   const usersDataNeynar = trpc.usersDataNeynar.useQuery(
     {
@@ -114,6 +132,11 @@ export default function HighScoresPage() {
     },
     {
       enabled: !!allAddresses.length,
+      refetchOnMount: true,
+      refetchOnWindowFocus: false,
+      staleTime: 0,
+      retry: 2,
+      retryDelay: 1000,
     }
   );
 
@@ -150,7 +173,10 @@ export default function HighScoresPage() {
                       You
                     </div>
                   </div>
-                  <div className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start'>
+                  <Link
+                    href={`/account/${account.address}`}
+                    className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
+                  >
                     <UserDisplay
                       userData={
                         usersDataNeynar.data?.[account.address.toLowerCase()]
@@ -158,7 +184,7 @@ export default function HighScoresPage() {
                       address={account.address.toLowerCase()}
                       isLoading={usersDataNeynar.isLoading}
                     />
-                  </div>
+                  </Link>
                   <div className='flex items-center justify-end md:mr-3'>
                     {usersDataNeynar.data && (
                       <div className='flex items-center gap-3'>
@@ -181,7 +207,7 @@ export default function HighScoresPage() {
                             }'s Warpcast profile`}
                           >
                             <Image
-                              src='/images/farcaster_arch_v2.svg'
+                              src='/images/farcaster_arch.svg'
                               alt='Warpcast'
                               width={16}
                               height={18}
@@ -261,118 +287,124 @@ export default function HighScoresPage() {
                 </div>
               )}
 
-              {leaderboardData?.map(([address, scores], index) => (
-                <div
-                  key={address}
-                  className='
+              {leaderboardData?.map(([address, scores], index) => {
+                const rank = (currentPage - 1) * 10 + index + 1;
+                return (
+                  <div
+                    key={address}
+                    className='
                     flex flex-col bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-3
                     md:grid md:grid-cols-12 md:rounded-full md:px-4 md:py-2
                     transition-transform hover:shadow-xl hover:bg-white/30
                   '
-                >
-                  <div className='flex items-center gap-3 mb-2 md:mb-0 md:col-span-1 md:gap-0 md:justify-center'>
-                    <div className='flex items-center justify-center bg-white/20 rounded-full mr-2 w-20 h-10 md:mr-0 text-lg leading-none'>
-                      {index + 1}
+                  >
+                    <div className='flex items-center gap-3 mb-2 md:mb-0 md:col-span-1 md:gap-0 md:justify-center'>
+                      <div className='flex items-center justify-center bg-white/20 rounded-full mr-2 w-20 h-10 md:mr-0 text-lg leading-none'>
+                        {rank}
+                      </div>
+                    </div>
+                    <Link
+                      href={`/account/${address}`}
+                      className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
+                    >
+                      <UserDisplay
+                        userData={usersDataNeynar.data?.[address]}
+                        address={address}
+                        isLoading={usersDataNeynar.isLoading}
+                      />
+                    </Link>
+                    <div className='flex items-center justify-end md:mr-4'>
+                      {usersDataNeynar.data && (
+                        <div className='flex items-center gap-3'>
+                          {usersDataNeynar.data[address]?.[0]?.username && (
+                            <a
+                              href={`https://warpcast.com/${usersDataNeynar.data[address][0].username}`}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
+                              aria-label={`Visit ${usersDataNeynar.data[address][0].username}'s Warpcast profile`}
+                            >
+                              <Image
+                                src='/images/farcaster_arch.svg'
+                                alt='Warpcast'
+                                width={16}
+                                height={18}
+                                className='transition-all duration-200 group-hover:opacity-100 opacity-80'
+                              />
+                            </a>
+                          )}
+                          {usersDataNeynar.data[
+                            address
+                          ]?.[0]?.verified_accounts?.find(
+                            (account) => account.platform === 'x'
+                          )?.username && (
+                            <a
+                              href={`https://x.com/${
+                                usersDataNeynar.data[
+                                  address
+                                ][0].verified_accounts.find(
+                                  (account) => account.platform === 'x'
+                                )?.username
+                              }`}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
+                              aria-label={`Visit ${
+                                usersDataNeynar.data[
+                                  address
+                                ][0].verified_accounts.find(
+                                  (account) => account.platform === 'x'
+                                )?.username
+                              }'s X profile`}
+                            >
+                              <div className='text-gray-300 group-hover:text-white transition-colors duration-200'>
+                                <TwitterXIcon width={16} height={18} />
+                              </div>
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className='md:col-span-2 md:border-l border-white/30'>
+                      <ScoreCell
+                        chain='arbitrum'
+                        address={address}
+                        score={scores.arbitrum}
+                        className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                      >
+                        <span className='text-base md:hidden'>arbitrum</span>
+                        <span>{scores.arbitrum}</span>
+                      </ScoreCell>
+                    </div>
+                    <div className='md:col-span-2 md:border-l border-white/30'>
+                      <ScoreCell
+                        chain='base'
+                        address={address}
+                        score={scores.base}
+                        className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                      >
+                        <span className='text-base md:hidden'>base</span>
+                        <span>{scores.base}</span>
+                      </ScoreCell>
+                    </div>
+                    <div className='md:col-span-2 md:border-l border-white/30'>
+                      <ScoreCell
+                        chain='degen'
+                        address={address}
+                        score={scores.degen}
+                        className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                      >
+                        <span className='text-base md:hidden'>degen</span>
+                        <span>{scores.degen}</span>
+                      </ScoreCell>
+                    </div>
+                    <div className='flex md:items-center justify-between text-poidhRed md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
+                      <span className='text-base md:hidden'>total</span>
+                      <span>{scores.total}</span>
                     </div>
                   </div>
-                  <div className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start'>
-                    <UserDisplay
-                      userData={usersDataNeynar.data?.[address]}
-                      address={address}
-                      isLoading={usersDataNeynar.isLoading}
-                    />
-                  </div>
-                  <div className='flex items-center justify-end md:mr-4'>
-                    {usersDataNeynar.data && (
-                      <div className='flex items-center gap-3'>
-                        {usersDataNeynar.data[address]?.[0]?.username && (
-                          <a
-                            href={`https://warpcast.com/${usersDataNeynar.data[address][0].username}`}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                            aria-label={`Visit ${usersDataNeynar.data[address][0].username}'s Warpcast profile`}
-                          >
-                            <Image
-                              src='/images/farcaster_arch_v2.svg'
-                              alt='Warpcast'
-                              width={16}
-                              height={18}
-                              className='transition-all duration-200 group-hover:opacity-100 opacity-80'
-                            />
-                          </a>
-                        )}
-                        {usersDataNeynar.data[
-                          address
-                        ]?.[0]?.verified_accounts?.find(
-                          (account) => account.platform === 'x'
-                        )?.username && (
-                          <a
-                            href={`https://x.com/${
-                              usersDataNeynar.data[
-                                address
-                              ][0].verified_accounts.find(
-                                (account) => account.platform === 'x'
-                              )?.username
-                            }`}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                            aria-label={`Visit ${
-                              usersDataNeynar.data[
-                                address
-                              ][0].verified_accounts.find(
-                                (account) => account.platform === 'x'
-                              )?.username
-                            }'s X profile`}
-                          >
-                            <div className='text-gray-300 group-hover:text-white transition-colors duration-200'>
-                              <TwitterXIcon width={16} height={18} />
-                            </div>
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className='md:col-span-2 md:border-l border-white/30'>
-                    <ScoreCell
-                      chain='arbitrum'
-                      address={address}
-                      score={scores.arbitrum}
-                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
-                    >
-                      <span className='text-base md:hidden'>arbitrum</span>
-                      <span>{scores.arbitrum}</span>
-                    </ScoreCell>
-                  </div>
-                  <div className='md:col-span-2 md:border-l border-white/30'>
-                    <ScoreCell
-                      chain='base'
-                      address={address}
-                      score={scores.base}
-                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
-                    >
-                      <span className='text-base md:hidden'>base</span>
-                      <span>{scores.base}</span>
-                    </ScoreCell>
-                  </div>
-                  <div className='md:col-span-2 md:border-l border-white/30'>
-                    <ScoreCell
-                      chain='degen'
-                      address={address}
-                      score={scores.degen}
-                      className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
-                    >
-                      <span className='text-base md:hidden'>degen</span>
-                      <span>{scores.degen}</span>
-                    </ScoreCell>
-                  </div>
-                  <div className='flex md:items-center justify-between text-poidhRed md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
-                    <span className='text-base md:hidden'>total</span>
-                    <span>{scores.total}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -394,17 +426,84 @@ export default function HighScoresPage() {
               />
             )}
 
-            {leaderboardData?.map(([address, scores], index) => (
-              <LeaderboardCardMobile
-                key={address}
-                rank={index + 1}
-                address={address}
-                scores={scores}
-                userData={usersDataNeynar.data?.[address.toLowerCase()]}
-                isLoading={usersDataNeynar.isLoading}
-              />
-            ))}
+            {leaderboardData?.map(([address, scores], index) => {
+              const rank = (currentPage - 1) * 10 + index + 1;
+              return (
+                <LeaderboardCardMobile
+                  key={address}
+                  rank={rank}
+                  address={address}
+                  scores={scores}
+                  userData={usersDataNeynar.data?.[address.toLowerCase()]}
+                  isLoading={usersDataNeynar.isLoading}
+                />
+              );
+            })}
           </div>
+
+          {paginationData && paginationData.totalPages > 1 && (
+            <div className='flex justify-center items-center gap-2 mt-8 px-4'>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={
+                  !paginationData.hasPreviousPage || leaderboardResult.isLoading
+                }
+                className={`px-3 md:px-4 py-3 md:py-2 rounded-lg font-mono transition-all text-sm md:text-base touch-manipulation ${
+                  paginationData.hasPreviousPage && !leaderboardResult.isLoading
+                    ? 'bg-white/20 hover:bg-white/30 active:bg-white/40 text-white cursor-pointer'
+                    : 'bg-white/10 text-white/50 cursor-not-allowed'
+                }`}
+              >
+                <span className='hidden md:inline'>← Previous</span>
+                <span className='md:hidden'>←</span>
+              </button>
+
+              <div className='flex items-center gap-1 justify-center'>
+                {[...Array(Math.min(paginationData.totalPages, 5))].map(
+                  (_, i) => {
+                    const pageNum =
+                      Math.max(
+                        1,
+                        Math.min(paginationData.totalPages - 4, currentPage - 2)
+                      ) + i;
+                    if (pageNum > paginationData.totalPages) return null;
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        disabled={leaderboardResult.isLoading}
+                        className={`w-12 h-12 md:w-10 md:h-10 rounded-lg font-mono transition-all text-sm md:text-base touch-manipulation ${
+                          pageNum === currentPage
+                            ? 'bg-poidhRed text-white shadow-lg'
+                            : leaderboardResult.isLoading
+                            ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                            : 'bg-white/20 hover:bg-white/30 active:bg-white/40 text-white cursor-pointer'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                )}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  !paginationData.hasNextPage || leaderboardResult.isLoading
+                }
+                className={`px-3 md:px-4 py-3 md:py-2 rounded-lg font-mono transition-all text-sm md:text-base touch-manipulation ${
+                  paginationData.hasNextPage && !leaderboardResult.isLoading
+                    ? 'bg-white/20 hover:bg-white/30 active:bg-white/40 text-white cursor-pointer'
+                    : 'bg-white/10 text-white/50 cursor-not-allowed'
+                }`}
+              >
+                <span className='hidden md:inline'>Next →</span>
+                <span className='md:hidden'>→</span>
+              </button>
+            </div>
+          )}
         </main>
       </div>
     </div>
@@ -449,13 +548,16 @@ function LeaderboardCardMobile({
         >
           {rank}
         </div>
-        <div className='text-lg text-white flex-1 flex items-center justify-start'>
+        <Link
+          href={`/account/${address}`}
+          className='text-lg text-white flex-1 flex items-center justify-start'
+        >
           <UserDisplay
             userData={userData}
             address={address}
             isLoading={isLoading}
           />
-        </div>
+        </Link>
         {userData && (
           <div className='flex items-center gap-2'>
             {userData[0]?.username && (
@@ -467,7 +569,7 @@ function LeaderboardCardMobile({
                 aria-label={`Visit ${userData[0].username}'s Warpcast profile`}
               >
                 <Image
-                  src='/images/farcaster_arch_v2.svg'
+                  src='/images/farcaster_arch.svg'
                   alt='Warpcast'
                   width={14}
                   height={16}

@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-
 import { useGetChain } from '@/hooks/useGetChain';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -14,11 +12,7 @@ import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { cn } from '@/utils';
-import {
-  fetchPrice,
-  formatAmount,
-  getBanSignatureFirstLine,
-} from '@/utils/utils';
+import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import BountyHistory from './BountyHistory';
@@ -28,7 +22,7 @@ import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
-import ShareBountyModal from '@/components/global/ShareBountyModal';
+import ShareBountyModal from '@/components/bounty/ShareBountyModal';
 import { ShareIcon } from '@/components/global/Icons';
 import Link from 'next/link';
 
@@ -50,7 +44,8 @@ export default function BountyInfo({
   const { signMessageAsync } = useSignMessage();
   const setLoading = useSetAtom(setLoadingAtom);
 
-  const [price, setPrice] = useState<number>(0);
+  const price =
+    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const bounty = trpc.bounty.useQuery(
     {
@@ -175,10 +170,6 @@ export default function BountyInfo({
       account.address?.toLocaleLowerCase()
   );
 
-  useEffect(() => {
-    fetchPrice({ currency: chain.currency }).then(setPrice);
-  }, [chain.currency]);
-
   const canWithdraw =
     account.address?.toLocaleLowerCase() !==
       bounty.data?.issuer.toLocaleLowerCase() &&
@@ -196,7 +187,7 @@ export default function BountyInfo({
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
           </p>
-          <p className='mt-5 normal-case break-words'>
+          <p className='mt-5 normal-case break-words whitespace-pre-wrap'>
             <TextWithLinks>{bounty.data.description}</TextWithLinks>
           </p>
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>

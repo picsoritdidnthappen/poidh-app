@@ -1,45 +1,24 @@
 'use client';
-import Link from 'next/link';
-import React, { useState } from 'react';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import Link from 'next/link';
+import { useState } from 'react';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
 import {
-  ArbitrumIcon,
-  BaseIcon,
-  DegenIcon,
   ExpandMoreIcon,
   MenuIcon,
+  MagnifyingGlassIcon,
   UserIcon,
   WalletIcon,
 } from '@/components/global/Icons';
-import { Button, Drawer, Menu, MenuItem } from '@mui/material';
+import { Drawer } from '@mui/material';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { cn } from '@/utils';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Logo from '../global/Logo';
 import { useAccount } from 'wagmi';
 
 export default function Header() {
-  const chain = useGetChain();
   const account = useAccount();
   const [isOpen, setIsOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const router = useRouter();
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const networks = [
-    { href: '/arbitrum', Icon: ArbitrumIcon, name: 'arbitrum' },
-    { href: '/base', Icon: BaseIcon, name: 'base' },
-    { href: '/degen', Icon: DegenIcon, name: 'degen' },
-  ];
 
   return (
     <>
@@ -50,7 +29,7 @@ export default function Header() {
           className: 'w-60 bg-poidhRed',
         }}
       >
-        <SlideOverMenu />
+        <SlideOverMenu onClose={() => setIsOpen(false)} />
       </Drawer>
       <div className='flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
         <div className='flex'>
@@ -65,61 +44,16 @@ export default function Header() {
           </Link>
         </div>
         <div className='flex items-center'>
-          <Button
-            id='basic-button'
-            aria-controls={open ? 'basic-menu' : undefined}
-            aria-haspopup='true'
-            aria-expanded={open ? 'true' : undefined}
-            onClick={handleClick}
-            className='border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+          <Link
+            href='/explore'
+            className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+            aria-label='Explore'
           >
-            {networks
-              .find(({ name }) => name === chain.slug)
-              ?.Icon({
-                size: 24,
-              })}{' '}
-            <ExpandMoreIcon />
-          </Button>
-          <Menu
-            id='basic-menu'
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-            }}
-            sx={{
-              '& .MuiPaper-root': {
-                backdropFilter: 'blur(8px)',
-                background:
-                  'linear-gradient(to top, rgba(209, 236, 255, 0.2) 10%, rgba(209, 236, 255, 0.1) 30%, rgba(209, 236, 255, 0.05) 50%)',
-                color: '#FFF',
-                marginTop: '0.25rem',
-                fontFamily: 'GeistMono-Regular',
-                fontSize: '0.875rem',
-              },
-              '& .MuiMenuItem-root': {
-                fontFamily: 'GeistMono-Regular',
-                fontSize: '0.875rem',
-              },
-              '& .MuiList-root': {
-                gap: '1.25rem',
-              },
-            }}
-          >
-            {networks.map(({ href, Icon, name }) => (
-              <MenuItem
-                key={href}
-                className={cn('mx-1')}
-                onClick={() => router.push(href)}
-              >
-                <Icon size={24} /> <p className='ml-4'>{name}</p>
-              </MenuItem>
-            ))}
-          </Menu>
+            <MagnifyingGlassIcon />
+          </Link>
           {account.address && (
             <Link
-              href={`/${chain.slug}/account/${account.address}`}
+              href={`/account/${account.address}`}
               className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
             >
               <UserIcon />

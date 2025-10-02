@@ -21,7 +21,7 @@ const APP_OG_IMAGE_URL =
 const APP_BUTTON_TEXT = 'launch poidh';
 const APP_NAME = 'poidh';
 
-export const generateMetadataForBountyFrame = async ({
+export const generateMetadataForBounty = async ({
   params,
 }: {
   params: { id: string; netname: Netname };
@@ -172,9 +172,6 @@ export const generateMetadataForNetnameFrame = async ({
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
-      description:
-        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
       images: [APP_OG_IMAGE_URL],
     },
     other: {
@@ -186,12 +183,11 @@ export const generateMetadataForNetnameFrame = async ({
 export const generateMetadataForAccountPage = async ({
   params,
 }: {
-  params: { address: string; netname: Netname };
+  params: { address: string };
 }): Promise<Metadata> => {
   const createCaller = createCallerFactory(appRouter);
   const trpcCaller = createCaller({});
   const address = params.address;
-  const chain = chains[params.netname as keyof typeof chains];
 
   const frame = {
     version: 'next',
@@ -201,7 +197,7 @@ export const generateMetadataForAccountPage = async ({
       action: {
         type: 'launch_frame',
         name: 'view profile',
-        url: `${APP_URL}/${params?.netname}/account/${params?.address}`,
+        url: `${APP_URL}/account/${params?.address}`,
         splashImageUrl: APP_SPLASH_URL,
         iconUrl: APP_ICON_URL,
         splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
@@ -210,27 +206,16 @@ export const generateMetadataForAccountPage = async ({
   };
 
   try {
-    const accountStats = await trpcCaller.accountInfo({
+    const split = await trpcCaller.accountInfoSplit({ address });
+    const accountActivitiesCount = await trpcCaller.accountActivitiesCount({
       address,
-      chainId: chain.id,
-    });
-    const nftsCount = await prisma.claims.count({
-      where: {
-        owner: address.toLowerCase(),
-        chain_id: chain.id,
-      },
     });
     const accountDataObject = {
       address,
-      chain: chain.slug,
-      poidhScore: `${accountStats.poidhScore ?? 0}`,
-      totalEarn: `${accountStats.totalEarn.amountCrypto ?? 0} ${
-        chain.currency
-      }`,
-      totalPaid: `${accountStats.totalPaid.amountCrypto ?? 0} ${
-        chain.currency
-      }`,
-      nftsCount: `${nftsCount ?? 0}`,
+      chain: 'base',
+      poidhScore: split.poidhScore,
+      totalBounties: accountActivitiesCount.bounties,
+      totalClaims: accountActivitiesCount.claims,
     };
 
     frame.imageUrl = generateDynamicOGUrl({
@@ -257,9 +242,6 @@ export const generateMetadataForAccountPage = async ({
       },
       twitter: {
         card: 'summary_large_image',
-        title: `Account ${address}`,
-        description: `Account ${address} details`,
-        images: [ogImageUrl],
       },
       other: {
         'fc:frame': JSON.stringify(frame),
@@ -281,10 +263,6 @@ export const generateMetadataForAccountPage = async ({
       },
       twitter: {
         card: 'summary_large_image',
-        title: "poidh - pics or it didn't happen",
-        description:
-          "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-        images: [`https://poidh.xyz/images/poidh-preview-hero-v2.png`],
       },
       other: {
         'fc:frame': JSON.stringify(frame),
@@ -425,7 +403,7 @@ async function safeFetchPrice({
     return await fetchPrice({ currency });
   } catch (error) {
     console.error('Error fetching price:', error);
-    return undefined;
+    return;
   }
 }
 

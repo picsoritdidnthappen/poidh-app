@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatAmount } from '@/utils/utils';
 import { formatEther } from 'viem';
 import { ChainId } from '@/utils/types';

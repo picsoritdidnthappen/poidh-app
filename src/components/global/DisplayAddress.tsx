@@ -49,7 +49,7 @@ export default function DisplayAddress({
         </div>
       )}
       <Link
-        href={`/${chain?.slug}/account/${address}`}
+        href={`/account/${address}`}
         className='hover:text-gray-200 truncate overflow-ellipsis m-0 p-0 max-w-full'
       >
         {userDataNeynar.isLoading

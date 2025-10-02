@@ -1,4 +1,3 @@
-import { BountyResponse } from '@/app/api/bounties/[chainName]/[bountyId]/route';
 import clsx, { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { Currency } from './types';
@@ -18,18 +17,6 @@ export function getBanSignatureFirstLine({
 }) {
   return `Ban ${type} id: ${id} chainId: ${chainId}\n`;
 }
-
-export const fetchBounty = async (
-  chainName: string | null,
-  bountyId: string | null
-): Promise<BountyResponse> => {
-  const response = await fetch(
-    `https://poidh.xyz/api/bounties/${chainName}/${bountyId}`
-  );
-  const data = await response.json();
-
-  return data as BountyResponse;
-};
 
 export function formatAmount({
   amount,
@@ -54,6 +41,16 @@ export function formatAmount({
     return `<0.00001 ${currency}`;
   }
 
+  if (currency === 'degen' && numAmount >= 1_000) {
+    if (numAmount >= 10_000) {
+      return `${formatAmountShort(
+        numAmount
+      )} ${currency} (${numAmountUSD.toFixed(2)} usd)`;
+    } else {
+      numAmount = Number(numAmount.toFixed(0));
+    }
+  }
+
   if (precision) {
     numAmount = Number(numAmount.toFixed(precision));
   }
@@ -68,7 +65,7 @@ export async function fetchPrice({ currency }: { currency: Currency }) {
   return Number(body.data.rates.USD);
 }
 
-export function formatUsdShort(value: number): string {
+export function formatAmountShort(value: number): string {
   const abs = Math.abs(value);
   if (abs >= 1_000_000_000_000_000_000_000)
     return (value / 1_000_000_000_000_000_000_000).toFixed(2) + 'Sx';
@@ -82,7 +79,7 @@ export function formatUsdShort(value: number): string {
   if (abs >= 1_000_000) return (value / 1_000_000).toFixed(2) + 'M';
   if (abs >= 1_000) return (value / 1_000).toFixed(2) + 'K';
   return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
 }

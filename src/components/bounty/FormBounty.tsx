@@ -23,7 +23,7 @@ import ButtonCTA from '../global/ButtonCTA';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
-import { fetchPrice, formatUsdShort } from '@/utils/utils';
+import { formatAmountShort } from '@/utils/utils';
 import { Chain, Netname } from '@/utils/types';
 import { chains } from '@/utils/config';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
@@ -45,11 +45,13 @@ export default function FormBounty({
   const [album, setAlbum] = useState(prefilledAlbum || '');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
-  const [price, setPrice] = useState<number>(0);
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
   const chain = useGetChain();
+  const [currentChain, setCurrentChain] = useState<Chain>(chain);
+  const price =
+    trpc.fetchPrice.useQuery({ currency: currentChain.currency }).data ?? 0;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const usdRef = useRef<HTMLSpanElement | null>(null);
 
@@ -78,11 +80,6 @@ export default function FormBounty({
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
   const saveBountyAlbum = trpc.saveBountyAlbum.useMutation();
-  const [currentChain, setCurrentChain] = useState<Chain>(chain);
-
-  useEffect(() => {
-    fetchPrice({ currency: currentChain.currency }).then(setPrice);
-  }, [currentChain, currentChain.currency]);
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
@@ -93,7 +90,7 @@ export default function FormBounty({
     }) => {
       const chainId = await account.connector?.getChainId();
       if (currentChain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Swithing network' });
+        setLoading({ isLoading: true, status: 'Switching network' });
         await switctChain.switchChainAsync({ chainId: currentChain.id });
       }
 
@@ -331,7 +328,7 @@ export default function FormBounty({
                   showChainSelector ? 'right-16' : 'right-4'
                 }`}
               >
-                (${formatUsdShort(usdPerToken)})
+                (${formatAmountShort(usdPerToken)})
               </span>
             )}
           </div>
@@ -353,7 +350,7 @@ export default function FormBounty({
                   setShowAlbumDropdown(true);
                 }
                 const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
-                setAlbum(next);
+                setAlbum(next.toLowerCase());
               }}
               onFocus={() => setShowAlbumDropdown(true)}
               onBlur={() => setShowAlbumDropdown(false)}

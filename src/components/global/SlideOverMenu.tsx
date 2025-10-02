@@ -1,53 +1,135 @@
+import { ExpandMoreIcon } from '@/components/global/Icons';
+import { trpc } from '@/trpc/client';
 import Link from 'next/link';
-import React from 'react';
-
-import { useGetChain } from '@/hooks/useGetChain';
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 const MenuLink = ({
   href,
   children,
+  onClick,
 }: {
   href: string;
   children: React.ReactNode;
+  onClick?: () => void;
 }) => (
-  <Link href={href} className='hover:text-gray-300'>
+  <Link href={href} className='hover:text-gray-300' onClick={onClick}>
     {children}
   </Link>
 );
 
-export default function SlideOverMenu() {
-  const chain = useGetChain();
+export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
   const account = useAccount();
+  const [isResourcesExpanded, setIsResourcesExpanded] = useState(false);
+
+  const trendingAlbums = trpc.trendingAlbums.useQuery({});
+
+  const handleCloseWithDelay = () => {
+    setTimeout(() => {
+      onClose();
+    }, 500);
+  };
 
   return (
     <div className='flex gap-2 flex-col p-5 text-white'>
       {account.address && (
-        <MenuLink href={`/${chain.slug}/account/${account.address}`}>
+        <MenuLink
+          href={`/account/${account.address}`}
+          onClick={handleCloseWithDelay}
+        >
           my account 👤
         </MenuLink>
       )}
-      <MenuLink href='/leaderboard'>
+      <MenuLink href='/leaderboard' onClick={handleCloseWithDelay}>
         leaderboard 🕹️
       </MenuLink>
-      <MenuLink href='/explore'>
+      <MenuLink href='/explore' onClick={handleCloseWithDelay}>
         explore 🔎
       </MenuLink>
-      <MenuLink href='https://paragraph.xyz/@poidh/poidh-beginner-guide'>
-        how it works 💡
+
+      <span className='ml-4 my-1.5 text-sm'>trending 📈</span>
+
+      {trendingAlbums.data && trendingAlbums.data.length > 0 && (
+        <>
+          {trendingAlbums.data.map((album) => (
+            <Link
+              key={album.name}
+              href={`/a/${encodeURIComponent(album.name)}`}
+              className='hover:text-gray-300 ml-4 text-sm'
+              onClick={handleCloseWithDelay}
+            >
+              {album.name.length > 15
+                ? `${album.name.slice(0, 15)}…`
+                : album.name}{' '}
+              ({album.count})
+            </Link>
+          ))}
+        </>
+      )}
+
+      <button
+        className='flex items-center gap-2 hover:text-gray-300 transition-colors'
+        onClick={() => setIsResourcesExpanded(!isResourcesExpanded)}
+      >
+        links 🔗
+        <span
+          className={`h-4 w-4 transition-transform duration-200 ${
+            isResourcesExpanded ? 'rotate-180' : ''
+          }`}
+        >
+          <ExpandMoreIcon size={16} />
+        </span>
+      </button>
+
+      {isResourcesExpanded && (
+        <div className='ml-4 flex flex-col gap-2'>
+          <MenuLink
+            href='https://paragraph.xyz/@poidh/poidh-beginner-guide'
+            onClick={handleCloseWithDelay}
+          >
+            how it works 💡
+          </MenuLink>
+          <MenuLink
+            href='https://github.com/picsoritdidnthappen/poidh-app'
+            onClick={handleCloseWithDelay}
+          >
+            github 🛠️
+          </MenuLink>
+          <MenuLink
+            href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'
+            onClick={handleCloseWithDelay}
+          >
+            analytics 📊
+          </MenuLink>
+          <MenuLink
+            href='https://warpcast.com/poidhbot'
+            onClick={handleCloseWithDelay}
+          >
+            farcaster 🟪
+          </MenuLink>
+          <MenuLink
+            href='https://x.com/poidhxyz'
+            onClick={handleCloseWithDelay}
+          >
+            twitter 🐦
+          </MenuLink>
+          <MenuLink
+            href='https://www.tiktok.com/@poidhxyz'
+            onClick={handleCloseWithDelay}
+          >
+            tiktok 📹
+          </MenuLink>
+          <MenuLink
+            href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'
+            onClick={handleCloseWithDelay}
+          >
+            report bug 🐛
+          </MenuLink>
+        </div>
+      )}
+      <MenuLink href='https://poidh.xyz/terms' onClick={handleCloseWithDelay}>
+        terms 📜
       </MenuLink>
-      <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app'>
-        github 🛠️
-      </MenuLink>
-      <MenuLink href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'>
-        analytics 📊
-      </MenuLink>
-      <MenuLink href='https://warpcast.com/poidhbot'>farcaster 🟪</MenuLink>
-      <MenuLink href='https://x.com/poidhxyz'>twitter 🐦</MenuLink>
-      <MenuLink href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'>
-        report bug 🐛
-      </MenuLink>
-      <MenuLink href='https://poidh.xyz/terms'>terms 📜</MenuLink>
     </div>
   );
 }

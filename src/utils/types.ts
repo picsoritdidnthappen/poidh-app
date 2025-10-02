@@ -66,4 +66,4 @@ export interface WarpcastCast {
 
 export type BountyDisplayType = 'open' | 'progress' | 'past';
 
-export type BountySortType = 'value' | 'id';
+export type BountySortType = 'value' | 'date';

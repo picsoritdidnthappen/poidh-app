@@ -1,8 +1,7 @@
 import * as React from 'react';
-import '@/styles/colors.css';
-import { generateMetadataForBountyFrame } from '@/utils/generateMetadata';
+import { generateMetadataForBounty } from '@/utils/generateMetadata';
 
-export const generateMetadata = generateMetadataForBountyFrame;
+export const generateMetadata = generateMetadataForBounty;
 
 export default function BountyLayout({
   children,

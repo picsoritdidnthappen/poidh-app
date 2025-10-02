@@ -1,5 +1,4 @@
 import { ImageResponse } from '@vercel/og';
-import React from 'react';
 
 export const runtime = 'edge';
 
@@ -58,7 +57,7 @@ export async function GET(request: Request) {
               whiteSpace: 'nowrap',
             }}
           >
-            {album}
+            {album.toLowerCase()}
           </h2>
         </div>
         <div

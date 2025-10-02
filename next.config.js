@@ -48,6 +48,25 @@ const nextConfig = {
 
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: '/base/account/:address',
+        destination: '/account/:address',
+        permanent: true,
+      },
+      {
+        source: '/arbitrum/account/:address',
+        destination: '/account/:address',
+        permanent: true,
+      },
+      {
+        source: '/degen/account/:address',
+        destination: '/account/:address',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

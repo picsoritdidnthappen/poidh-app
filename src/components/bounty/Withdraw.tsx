@@ -4,7 +4,6 @@ import { setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';
 import { useSetAtom, useAtomValue } from 'jotai';
-import React from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { pollingChainIdAtom } from '@/store/loading';
@@ -23,7 +22,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
     mutationFn: async (bountyId: bigint) => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Swithing network' });
+        setLoading({ isLoading: true, status: 'Switching network' });
         await switctChain.switchChainAsync({ chainId: chain.id });
       }
 
