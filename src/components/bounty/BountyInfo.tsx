@@ -23,17 +23,22 @@ import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import ShareBountyModal from '@/components/bounty/ShareBountyModal';
-import { ShareIcon } from '@/components/global/Icons';
+import { ShareIcon, QuestionIcon } from '@/components/global/Icons';
 import Link from 'next/link';
+import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 
 export default function BountyInfo({
   bountyId,
   isShareModalOpen,
+  isHowItWorksModalOpen,
   onShareModalStateChange,
+  onHowItWorksModalStateChange,
 }: {
   bountyId: string;
   isShareModalOpen: boolean;
+  isHowItWorksModalOpen: boolean;
   onShareModalStateChange?: (modalOpen: boolean) => void;
+  onHowItWorksModalStateChange?: (modalOpen: boolean) => void;
 }) {
   const chain = useGetChain();
   const account = useAccount();
@@ -267,20 +272,29 @@ export default function BountyInfo({
           return { ...transaction, timestamp: Number(transaction.timestamp) };
         })}
       />
-      <div className='flex items-center gap-4 my-8'>
-        {bounty.data.is_multiplayer &&
-          bounty.data.inProgress &&
-          (canWithdraw ? (
-            <Withdraw bountyId={bountyId} />
-          ) : (
-            !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
-          ))}
+      <div className='flex flex-wrap items-center gap-4 my-8'>
+        <div className='flex items-center gap-4'>
+          {bounty.data.is_multiplayer &&
+            bounty.data.inProgress &&
+            (canWithdraw ? (
+              <Withdraw bountyId={bountyId} />
+            ) : (
+              !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
+            ))}
+          <button
+            type='button'
+            onClick={() => onShareModalStateChange?.(true)}
+            className='flex items-center gap-1 underline hover:no-underline w-fit'
+          >
+            share bounty <ShareIcon size={16} />
+          </button>
+        </div>
         <button
           type='button'
-          onClick={() => onShareModalStateChange?.(true)}
-          className='flex items-center gap-1 underline hover:no-underline w-fit'
+          onClick={() => onHowItWorksModalStateChange?.(true)}
+          className='flex items-center gap-1 underline hover:no-underline w-fit ml-4'
         >
-          share bounty <ShareIcon size={16} />
+          how it works <QuestionIcon size={22} />
         </button>
         {isShareModalOpen && (
           <ShareBountyModal
@@ -288,6 +302,11 @@ export default function BountyInfo({
               onShareModalStateChange?.(false);
             }}
             bountyIssuerAddress={bounty.data.issuer}
+          />
+        )}
+        {isHowItWorksModalOpen && (
+          <HowItWorksModal
+            onClose={() => onHowItWorksModalStateChange?.(false)}
           />
         )}
       </div>
