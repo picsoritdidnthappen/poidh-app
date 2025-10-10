@@ -13,6 +13,7 @@ export default function Bounty({ params }: { params: { id: string } }) {
   const isMobile = useScreenSize();
   const pathname = usePathname();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
 
   return (
     <>
@@ -22,13 +23,16 @@ export default function Bounty({ params }: { params: { id: string } }) {
         </div>
         <BountyInfo
           isShareModalOpen={isShareModalOpen}
+          isHowItWorksModalOpen={isHowItWorksModalOpen}
           bountyId={params.id}
           onShareModalStateChange={setIsShareModalOpen}
+          onHowItWorksModalStateChange={setIsHowItWorksModalOpen}
         />
         <BountyClaims bountyId={params.id} />
         <CommentsSection url={`https://poidh.xyz${pathname}`} />
       </div>
       {!isShareModalOpen &&
+        !isHowItWorksModalOpen &&
         (isMobile ? (
           <NavBarMobile type='claim' bountyId={params.id} />
         ) : (
