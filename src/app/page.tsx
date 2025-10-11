@@ -164,7 +164,7 @@ export default function Home() {
                         const claim = bounty.claims.filter(
                           (claim) => claim.is_accepted
                         )[0];
-                        return (
+                        return claim ? (
                           <PastBountyCard
                             key={`${claim.id}-${claim.chain_id}`}
                             claim={{
@@ -181,7 +181,7 @@ export default function Home() {
                             bountyAmount={bounty.amount}
                             isMultiplayer={bounty.is_multiplayer || false}
                           />
-                        );
+                        ) : null;
                       })
                   )}
                 </div>
