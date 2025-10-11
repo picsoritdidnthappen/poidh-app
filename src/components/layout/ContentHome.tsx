@@ -1,7 +1,6 @@
 'use-client';
 
 import { useState } from 'react';
-
 import { useGetChain } from '@/hooks/useGetChain';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
 import { trpc } from '@/trpc/client';
@@ -153,7 +152,7 @@ export default function ContentHome() {
                       const claim = bounty.claims.filter(
                         (claim) => claim.is_accepted
                       )[0];
-                      return (
+                      return claim ? (
                         <PastBountyCard
                           key={`${claim.id}-${claim.chain_id}`}
                           claim={{
@@ -170,7 +169,7 @@ export default function ContentHome() {
                           bountyAmount={bounty.amount}
                           isMultiplayer={bounty.is_multiplayer || false}
                         />
-                      );
+                      ) : null;
                     })
                 )}
               </div>
