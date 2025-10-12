@@ -253,3 +253,7 @@ button {
 .Toastify__close-button > svg {
   fill: white !important;
 }
+
+body.how-it-works-modal-open .how-it-works-hidden {
+  display: none !important;
+}

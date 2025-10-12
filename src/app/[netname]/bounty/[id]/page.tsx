@@ -1,6 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import BountyClaims from '@/components/bounty/BountyClaims';
 import BountyInfo from '@/components/bounty/BountyInfo';
 import NavBarMobile from '@/components/global/NavBarMobile';

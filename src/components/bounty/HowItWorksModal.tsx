@@ -1,9 +1,20 @@
+import Link from 'next/link';
+import { useEffect } from 'react';
+
 export default function HowItWorksModal({ onClose }: { onClose: () => void }) {
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
+
+  useEffect(() => {
+    document.body.classList.add('how-it-works-modal-open');
+
+    return () => {
+      document.body.classList.remove('how-it-works-modal-open');
+    };
+  }, []);
 
   return (
     <div
@@ -74,6 +85,19 @@ export default function HowItWorksModal({ onClose }: { onClose: () => void }) {
               vote "yes", the payout is confirmed. Payments are instant and
               transparent. However, poidh does take a 2.5% fee on completed
               bounties.
+            </p>
+          </div>
+          <div className='pb-6 pt-0'>
+            <p className='text-white/80 leading-relaxed'>
+              still need help?{' '}
+              <Link
+                href='https://paragraph.com/@poidh/poidh-beginner-guide'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-white hover:text-white/80 underline transition-colors'
+              >
+                check out our beginner's guide
+              </Link>
             </p>
           </div>
         </div>
