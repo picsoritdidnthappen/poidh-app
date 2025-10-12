@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGetChain } from '@/hooks/useGetChain';
 import { trpc, trpcClient } from '@/trpc/client';
