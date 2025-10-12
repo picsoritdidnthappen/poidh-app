@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import GameButton from '@/components/global/GameButton';
 import { useGetChain } from '@/hooks/useGetChain';

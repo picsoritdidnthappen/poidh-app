@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
 import BountyList from '@/components/bounty/BountyList';
