@@ -1,5 +1,5 @@
 import GameButton, { PlainGameButton } from '@/components/global/GameButton';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount } from 'wagmi';
 import FormBounty from '../bounty/FormBounty';
@@ -21,7 +21,7 @@ export default function NavBarMobile({
   return (
     <>
       <nav
-        className='fixed bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8 z-50'
+        className='fixed bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8 z-50 how-it-works-hidden'
         onClick={(e) => {
           e.stopPropagation();
           if (account.address) {

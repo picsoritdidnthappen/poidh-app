@@ -289,27 +289,29 @@ export default function BountyInfo({
             share bounty <ShareIcon size={16} />
           </button>
         </div>
+      </div>
+      <div className='my-6'>
         <button
           type='button'
           onClick={() => onHowItWorksModalStateChange?.(true)}
-          className='flex items-center gap-1 underline hover:no-underline w-fit ml-4'
+          className='flex items-center gap-1 underline hover:no-underline w-fit'
         >
           how it works <QuestionIcon size={22} />
         </button>
-        {isShareModalOpen && (
-          <ShareBountyModal
-            onClose={() => {
-              onShareModalStateChange?.(false);
-            }}
-            bountyIssuerAddress={bounty.data.issuer}
-          />
-        )}
-        {isHowItWorksModalOpen && (
-          <HowItWorksModal
-            onClose={() => onHowItWorksModalStateChange?.(false)}
-          />
-        )}
       </div>
+      {isShareModalOpen && (
+        <ShareBountyModal
+          onClose={() => {
+            onShareModalStateChange?.(false);
+          }}
+          bountyIssuerAddress={bounty.data.issuer}
+        />
+      )}
+      {isHowItWorksModalOpen && (
+        <HowItWorksModal
+          onClose={() => onHowItWorksModalStateChange?.(false)}
+        />
+      )}
     </>
   );
 }

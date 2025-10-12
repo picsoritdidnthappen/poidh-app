@@ -23,7 +23,7 @@ export default function CreateClaim({ bountyId }: { bountyId: string }) {
   }
 
   return (
-    <div className='fixed bottom-8 z-40 w-full flex justify-center items-center'>
+    <div className='fixed bottom-8 z-40 w-full flex justify-center items-center how-it-works-hidden'>
       {!showForm && (
         <div
           className='absolute button -bottom-3 flex cursor-pointer flex-col items-center justify-center'

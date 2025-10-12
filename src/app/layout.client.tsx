@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import sdk from '@farcaster/frame-sdk';
 import { sdk as miniAppSdk } from '@farcaster/miniapp-sdk';
