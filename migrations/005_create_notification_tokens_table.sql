@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS :schema."NotificationTokens" (
+    id SERIAL PRIMARY KEY,
+    fid INTEGER UNIQUE NOT NULL,
+    token TEXT UNIQUE NOT NULL,
+    url TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
