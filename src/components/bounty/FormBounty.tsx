@@ -140,9 +140,13 @@ export default function FormBounty({
         });
 
         if (bounty) {
+          const usd = Number(formData.amount) * price;
           return {
             bountyId: data.args.id.toString(),
             album: formData.album.trim(),
+            bountyTitle: formData.name,
+            bountyUsd: usd,
+            creatorAddress: account.address ?? '',
           };
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
@@ -150,7 +154,13 @@ export default function FormBounty({
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: ({ bountyId, album }) => {
+    onSuccess: async ({
+      bountyId,
+      album,
+      bountyTitle,
+      bountyUsd,
+      creatorAddress,
+    }) => {
       saveBountyAlbum.mutate({
         bountyId: Number(bountyId),
         chainId: pollingChainId ?? currentChain.id,
@@ -159,6 +169,24 @@ export default function FormBounty({
       setLoading({ isLoading: false, status: '' });
       router.push(`/${currentChain.slug}/bounty/${bountyId}?indexing=true`);
       toast.success('Bounty created successfully');
+
+      try {
+        if (bountyUsd && bountyUsd >= 100) {
+          await fetch('/api/notifications/send', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              bountyId: Number(bountyId),
+              chainSlug: currentChain.slug,
+              bountyTitle,
+              bountyUsd,
+              creatorAddress,
+            }),
+          });
+        }
+      } catch (e) {
+        console.error('failed to send bounty notifications', e);
+      }
     },
     onError: (error) => {
       toast.error('Failed to create bounty: ' + error.message);
