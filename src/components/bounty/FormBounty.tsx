@@ -165,7 +165,7 @@ export default function FormBounty({
       toast.success('Bounty created successfully');
 
       try {
-        if (bountyUsd && bountyUsd >= 100) {
+        if (bountyUsd && bountyUsd >= 25) {
           await fetch('/api/send-bounty-notification', {
             method: 'POST',
             headers: {
