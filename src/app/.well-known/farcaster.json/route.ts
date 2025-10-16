@@ -24,7 +24,7 @@ export async function GET() {
       splashBackgroundColor: '#6fa9e1',
       homeUrl: 'https://poidh.xyz/',
       heroImageUrl: 'https://poidh.xyz/images/poidh-preview-hero-v2.png',
-      webhookUrl: 'https://poidh.xyz/api/webhook',
+      webhookUrl: `https://api.neynar.com/f/app/${process.env.NEYNAR_CLIENT_ID}/event`,
       subtitle: 'incentivize things',
       description: 'create, share, and approve bounties on Farcaster',
       primaryCategory: 'social',

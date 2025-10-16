@@ -26,7 +26,6 @@
     "@farcaster/frame-node": "^0.0.30",
     "@farcaster/frame-sdk": "^0.0.60",
     "@farcaster/frame-wagmi-connector": "^0.0.16",
-    "@farcaster/miniapp-node": "^0.1.10",
     "@farcaster/miniapp-sdk": "^0.1.8",
     "@headlessui/react": "^2.2.1",
     "@mui/material": "^5.17.1",
