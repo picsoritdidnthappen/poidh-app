@@ -124,14 +124,3 @@ model Price {
   degen_usd  Decimal?
   eth_usd    Decimal?
 }
-
-model NotificationTokens {
-  id           Int      @id @default(autoincrement())
-  token        String   @unique
-  fid          Int   @unique
-  url          String   
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  @@index([fid])
-}

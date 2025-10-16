@@ -154,13 +154,7 @@ export default function FormBounty({
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: async ({
-      bountyId,
-      album,
-      bountyTitle,
-      bountyUsd,
-      creatorAddress,
-    }) => {
+    onSuccess: async ({ bountyId, album, bountyUsd }) => {
       saveBountyAlbum.mutate({
         bountyId: Number(bountyId),
         chainId: pollingChainId ?? currentChain.id,
@@ -172,15 +166,17 @@ export default function FormBounty({
 
       try {
         if (bountyUsd && bountyUsd >= 100) {
-          await fetch('/api/notifications/send', {
+          await fetch('/api/send-bounty-notification', {
             method: 'POST',
-            headers: { 'content-type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
-              bountyId: Number(bountyId),
-              chainSlug: currentChain.slug,
-              bountyTitle,
               bountyUsd,
-              creatorAddress,
+              bountyTitle: name,
+              chainSlug: currentChain.slug,
+              bountyId,
+              creatorAddress: account.address,
             }),
           });
         }

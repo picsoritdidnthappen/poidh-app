@@ -25,6 +25,7 @@ const envSchema = z.object({
   ARBITRUM_RPC_URL: z.string(),
   BASE_RPC_URL: z.string(),
   NEYNAR_API_KEY: z.string().optional(),
+  NEYNAR_CLIENT_ID: z.string(),
   OPENAI_API_KEY: z.string().optional(),
 });
 
