@@ -178,18 +178,12 @@ export default function FormBounty({
 
       try {
         if (bountyUsd && bountyUsd >= 100) {
-          await fetch('/api/notifications/high-bounty', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              bountyUsd,
-              bountyTitle,
-              chainSlug: currentChain.slug,
-              bountyId,
-              creatorAddress: account.address,
-            }),
+          await trpcClient.notifyFarcasterOfHighBounty.mutate({
+            bountyUsd,
+            bountyTitle,
+            chainSlug: currentChain.slug,
+            bountyId,
+            creatorAddress: account.address!,
           });
         }
       } catch (e) {
