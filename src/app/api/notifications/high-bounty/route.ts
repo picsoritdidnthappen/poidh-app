@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
 import env from '@/utils/serverEnv';
-import { getEnsOrDegenName } from '@/utils/web3';
+import { getCreatorDisplayName } from '@/utils/notifications';
 
 const neynarConfig = new Configuration({
   apiKey: env.NEYNAR_API_KEY || '',
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     const creatorName = await getCreatorDisplayName(creatorAddress, chainSlug);
     const notification = {
-      title: `💰 NEW $${bountyUsd.toFixed(2)} BOUNTY 💰`,
+      title: `💰 NEW $${bountyUsd.toFixed(0)} BOUNTY 💰`,
       body: `${bountyTitle}${creatorName ? ` from ${creatorName}` : ''}`,
       target_url: `https://poidh.xyz/${chainSlug}/bounty/${bountyId}`,
     };
@@ -64,38 +64,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-async function getCreatorDisplayName(
-  address: string,
-  chainSlug: string
-): Promise<string> {
-  try {
-    const client = new NeynarAPIClient(neynarConfig);
-    const users = await client.fetchBulkUsersByEthOrSolAddress({
-      addresses: [address],
-    });
-
-    const farcasterUser = users?.[address.toLowerCase()]?.[0];
-    if (farcasterUser?.username) {
-      return `@${farcasterUser.username}`;
-    }
-  } catch (error) {
-    console.warn('Failed to fetch Farcaster user:', error);
-  }
-
-  try {
-    const ensOrDegenName = await getEnsOrDegenName({
-      chainName: chainSlug as any,
-      address,
-    });
-
-    if (ensOrDegenName) {
-      return ensOrDegenName;
-    }
-  } catch (error) {
-    console.warn('Failed to fetch ENS/Degen name:', error);
-  }
-
-  return `${address.slice(0, 7)}`;
 }

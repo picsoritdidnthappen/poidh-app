@@ -178,7 +178,7 @@ export default function FormBounty({
 
       try {
         if (bountyUsd && bountyUsd >= 100) {
-          await fetch('/api/send-bounty-notification', {
+          await fetch('/api/notifications/high-bounty', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
