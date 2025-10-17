@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (bountyUsd < 25) {
+    if (bountyUsd < 100) {
       return new NextResponse(null, { status: 200 });
     }
 
