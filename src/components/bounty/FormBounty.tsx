@@ -166,7 +166,7 @@ export default function FormBounty({
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: async ({ bountyId, album, bountyUsd }) => {
+    onSuccess: async ({ bountyId, album, bountyUsd, bountyTitle }) => {
       saveBountyAlbum.mutate({
         bountyId: Number(bountyId),
         chainId: pollingChainId ?? currentChain.id,
@@ -185,7 +185,7 @@ export default function FormBounty({
             },
             body: JSON.stringify({
               bountyUsd,
-              bountyTitle: name,
+              bountyTitle,
               chainSlug: currentChain.slug,
               bountyId,
               creatorAddress: account.address,

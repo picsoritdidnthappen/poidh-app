@@ -1662,12 +1662,16 @@ export const appRouter = createTRPCRouter({
         return {};
       }
 
-      const client = new NeynarAPIClient(config);
-      const users = await client.fetchBulkUsersByEthOrSolAddress({
-        addresses: input.addresses,
-      });
+      try {
+        const client = new NeynarAPIClient(config);
+        const users = await client.fetchBulkUsersByEthOrSolAddress({
+          addresses: input.addresses,
+        });
 
-      return users;
+        return users;
+      } catch (error) {
+        return {};
+      }
     }),
 
   leaderboard: baseProcedure

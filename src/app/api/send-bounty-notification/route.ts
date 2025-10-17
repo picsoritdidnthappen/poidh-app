@@ -26,8 +26,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const bountyUsdNum = Number(bountyUsd);
-    if (isNaN(bountyUsdNum) || bountyUsdNum < 100) {
+    if (bountyUsd < 25) {
       return new NextResponse(null, { status: 200 });
     }
 
@@ -40,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     const creatorName = await getCreatorDisplayName(creatorAddress, chainSlug);
     const notification = {
-      title: `💰 NEW $${bountyUsdNum} BOUNTY 💰`,
+      title: `💰 NEW $${bountyUsd.toFixed(2)} BOUNTY 💰`,
       body: `${bountyTitle}${creatorName ? ` from ${creatorName}` : ''}`,
       target_url: `https://poidh.xyz/${chainSlug}/bounty/${bountyId}`,
     };
@@ -71,14 +70,18 @@ async function getCreatorDisplayName(
   address: string,
   chainSlug: string
 ): Promise<string> {
-  const client = new NeynarAPIClient(neynarConfig);
-  const users = await client.fetchBulkUsersByEthOrSolAddress({
-    addresses: [address],
-  });
+  try {
+    const client = new NeynarAPIClient(neynarConfig);
+    const users = await client.fetchBulkUsersByEthOrSolAddress({
+      addresses: [address],
+    });
 
-  const farcasterUser = users?.[address.toLowerCase()]?.[0];
-  if (farcasterUser?.username) {
-    return `@${farcasterUser.username}`;
+    const farcasterUser = users?.[address.toLowerCase()]?.[0];
+    if (farcasterUser?.username) {
+      return `@${farcasterUser.username}`;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch Farcaster user:', error);
   }
 
   try {
