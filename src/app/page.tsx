@@ -37,7 +37,7 @@ export default function Home() {
       <div className='flex flex-col items-center text-center p-6 pt-8 md:pt-24 lg:pt-32'>
         <h1 className='font-mono text-4xl mb-8'>poidh</h1>
         <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
-          you can just incentivize things
+          social bounties
         </h3>
       </div>
       <div>
