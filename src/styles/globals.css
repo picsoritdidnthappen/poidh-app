@@ -291,3 +291,17 @@ textarea.resize-y::-webkit-scrollbar-thumb {
     pointer-events: none;
   }
 }
+
+@keyframes turnstile {
+  0% {
+    transform: translateY(-100%) rotateX(-90deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+}
