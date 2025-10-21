@@ -47,26 +47,28 @@ export default function Home() {
     <>
       <div className='flex flex-col items-center text-center p-6 pt-8 md:pt-24 lg:pt-32'>
         <h1 className='font-mono text-4xl mb-8'>poidh</h1>
-        <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide flex flex-wrap items-center justify-center gap-x-2'>
-          <span>social bounties for</span>
-          <Link
-            href={`/a/${ALBUMS[currentAlbumIndex].slug}`}
-            className='inline-block no-underline overflow-hidden h-[1.2em] relative'
-            style={{
-              textDecoration: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            <span
-              key={currentAlbumIndex}
-              className='block'
+        <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
+          <span className='flex flex-wrap md:flex-nowrap items-baseline justify-center gap-x-2.5'>
+            <span>social bounties for</span>
+            <Link
+              href={`/a/${ALBUMS[currentAlbumIndex].slug}`}
+              className='inline-block no-underline overflow-hidden h-[1.2em] relative w-full md:w-auto text-center md:text-left'
               style={{
-                animation: 'turnstile 0.6s ease-in-out',
+                textDecoration: 'none',
+                cursor: 'pointer',
               }}
             >
-              {ALBUMS[currentAlbumIndex].name}
-            </span>
-          </Link>
+              <span
+                key={currentAlbumIndex}
+                className='block'
+                style={{
+                  animation: 'turnstile 0.6s ease-in-out',
+                }}
+              >
+                {ALBUMS[currentAlbumIndex].name}
+              </span>
+            </Link>
+          </span>
         </h3>
       </div>
       <div>
