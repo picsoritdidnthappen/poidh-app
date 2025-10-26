@@ -90,7 +90,7 @@ export default function ClaimSuccessModal({
   };
 
   const handleShareFarcaster = async () => {
-    let bountyIssuerUsername = await getAddressDisplayName(
+    const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       chain.slug
     );
@@ -107,6 +107,7 @@ export default function ClaimSuccessModal({
     }
   };
 
+  if (!open) return;
 
   return (
     <div
