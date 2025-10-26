@@ -1,22 +1,15 @@
-import { Configuration, NeynarAPIClient } from '@neynar/nodejs-sdk';
-import env from '@/utils/serverEnv';
 import { getEnsOrDegenName } from '@/utils/web3';
+import { Netname } from '@/utils/types';
+import { trpc } from '@/trpc/client';
 
-const neynarConfig = new Configuration({
-  apiKey: env.NEYNAR_API_KEY || '',
-});
-
-export async function getCreatorDisplayName(
+export async function getAddressDisplayName(
   address: string,
-  chainSlug: string
+  chainSlug: Netname
 ): Promise<string> {
   try {
-    const client = new NeynarAPIClient(neynarConfig);
-    const users = await client.fetchBulkUsersByEthOrSolAddress({
-      addresses: [address],
-    });
+    const users = await trpc.usersDataNeynar.useQuery({ addresses: [address] });
 
-    const farcasterUser = users?.[address.toLowerCase()]?.[0];
+    const farcasterUser = users.data?.[address.toLowerCase()]?.[0];
     if (farcasterUser?.username) {
       return `@${farcasterUser.username}`;
     }

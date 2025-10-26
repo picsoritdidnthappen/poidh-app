@@ -17,6 +17,7 @@ import GameButton from '@/components/global/GameButton';
 import ButtonCTA from '@/components/global/ButtonCTA';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import ClaimConfirm from '@/components/claims/ClaimConfirm';
+import ClaimSuccessModal from '@/components/claims/ClaimSuccessModal';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -36,6 +37,7 @@ export default function FormClaim({
   const [file, setFile] = useState<File | null>(null);
   const utils = trpc.useUtils();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
@@ -175,6 +177,7 @@ export default function FormClaim({
     onSuccess: () => {
       setLoading({ isLoading: false });
       toast.success('Claim created successfully');
+      setShowSuccess(true);
     },
     onError: (error) => {
       setLoading({ isLoading: false });
@@ -197,6 +200,20 @@ export default function FormClaim({
         onClose={() => setShowConfirm(false)}
         imageUrl={preview}
         onConfirm={() => createClaimMutations.mutate(BigInt(bountyId))}
+      />
+      <ClaimSuccessModal
+        open={showSuccess}
+        onClose={() => {
+          setShowSuccess(false);
+          setName('');
+          setDescription('');
+          setImageURI('');
+          setPreview('');
+        }}
+        claimImage={imageURI}
+        claimTitle={name}
+        bountyId={bountyId}
+        claimIssuer={account.address!}
       />
       <Dialog
         open={open}
