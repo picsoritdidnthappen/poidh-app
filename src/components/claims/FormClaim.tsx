@@ -21,6 +21,11 @@ import ClaimSuccessModal from '@/components/claims/ClaimSuccessModal';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
+type SuccessPayload = {
+  claimImage: string;
+  claimTitle: string;
+};
+
 export default function FormClaim({
   bountyId,
   open,
@@ -35,9 +40,12 @@ export default function FormClaim({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const utils = trpc.useUtils();
+  const [successPayload, setSuccessPayload] = useState<SuccessPayload | null>(
+    null
+  );
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
@@ -176,6 +184,10 @@ export default function FormClaim({
     },
     onSuccess: () => {
       setLoading({ isLoading: false });
+      setSuccessPayload({
+        claimImage: imageURI,
+        claimTitle: name,
+      });
       toast.success('Claim created successfully');
       setShowSuccess(true);
     },
@@ -190,6 +202,7 @@ export default function FormClaim({
       setDescription('');
       setImageURI('');
       setPreview('');
+      setFile(null);
     },
   });
 
@@ -205,13 +218,10 @@ export default function FormClaim({
         open={showSuccess}
         onClose={() => {
           setShowSuccess(false);
-          setName('');
-          setDescription('');
-          setImageURI('');
-          setPreview('');
+          setSuccessPayload(null);
         }}
-        claimImage={imageURI}
-        claimTitle={name}
+        claimImage={successPayload?.claimImage ?? ''}
+        claimTitle={successPayload?.claimTitle ?? ''}
         bountyId={bountyId}
         claimIssuer={account.address!}
       />
