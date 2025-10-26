@@ -8,9 +8,45 @@ import { shareToFarcaster, shareToX } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import { useGetChain } from '@/hooks/useGetChain';
-import { getAddressDisplayName } from '@/utils/notifications';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { getEnsOrDegenName } from '@/utils/web3';
+
+async function getAddressDisplayName(
+  address: string,
+  platform: 'farcaster' | 'twitter',
+  usersDataNeynar?: Record<string, any[]>
+): Promise<string> {
+  const userData = usersDataNeynar?.[address.toLowerCase()]?.[0];
+
+  if (platform === 'farcaster') {
+    if (userData?.username) {
+      return `@${userData.username}`;
+    }
+  } else if (platform === 'twitter') {
+    const xUsername = userData?.verified_accounts?.find(
+      (account: any) => account.platform === 'x'
+    )?.username;
+    if (xUsername) {
+      return `@${xUsername}`;
+    }
+  }
+
+  try {
+    const ensOrDegenName = await getEnsOrDegenName({
+      chainName: 'base',
+      address,
+    });
+
+    if (ensOrDegenName) {
+      return ensOrDegenName;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch ENS/Degen name:', error);
+  }
+
+  return `${address.slice(0, 7)}`;
+}
 
 export default function ClaimSuccessModal({
   open,
@@ -70,20 +106,12 @@ export default function ClaimSuccessModal({
     return () => document.removeEventListener('mousedown', handleDocClick);
   }, [shareOpen]);
 
-  const handleShareTwitter = () => {
-    let bountyIssuerUsername = bounty.data?.issuer
-      ? bounty.data?.issuer.slice(0, 7)
-      : '';
-    if (bounty.data?.issuer && usersDataNeynar?.[bounty.data?.issuer]?.[0]) {
-      const xUsername = usersDataNeynar?.[
-        bounty.data?.issuer
-      ]?.[0]?.verified_accounts?.find(
-        (account) => account.platform === 'x'
-      )?.username;
-      if (xUsername) {
-        bountyIssuerUsername = `@${xUsername}`;
-      }
-    }
+  const handleShareTwitter = async () => {
+    const bountyIssuerUsername = await getAddressDisplayName(
+      bounty.data?.issuer ?? '',
+      'twitter',
+      usersDataNeynar
+    );
 
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
     shareToX(text);
@@ -92,7 +120,8 @@ export default function ClaimSuccessModal({
   const handleShareFarcaster = async () => {
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
-      chain.slug
+      'farcaster',
+      usersDataNeynar
     );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
 

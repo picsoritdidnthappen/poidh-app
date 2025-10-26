@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
 import Link from 'next/link';
-import { Chain, Netname } from '@/utils/types';
+import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import Image from 'next/image';
 

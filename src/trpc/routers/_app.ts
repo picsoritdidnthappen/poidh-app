@@ -14,7 +14,7 @@ import { ChainId, Netname, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
 import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
-import { getAddressDisplayName } from '@/utils/notifications';
+import { getCreatorDisplayName } from '@/utils/notifications';
 
 const config = new Configuration({
   apiKey: process.env.NEYNAR_API_KEY || '',
@@ -2118,7 +2118,7 @@ export const appRouter = createTRPCRouter({
 
       if (bountyUsd < 100 || !process.env.NEYNAR_API_KEY) return;
 
-      const creatorName = await getAddressDisplayName(
+      const creatorName = await getCreatorDisplayName(
         creatorAddress,
         chainSlug as Netname
       );
