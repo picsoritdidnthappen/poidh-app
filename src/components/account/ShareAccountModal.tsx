@@ -30,10 +30,9 @@ export default function ShareAccountModal({
   };
 
   const handleShareX = async () => {
-    const text =
-      `check out ${
-        isConnectectedUser ? 'my' : 'this'
-      } account on @poidhxyz 📸\n\n` + window.location.href;
+    const text = `check out ${
+      isConnectectedUser ? 'my' : 'this'
+    } account on @poidhxyz 📸`;
     shareToX(text);
     onClose();
   };
@@ -50,7 +49,7 @@ export default function ShareAccountModal({
         embeds: [window.location.href],
       });
     } else {
-      shareToFarcaster(text, window.location.href);
+      shareToFarcaster(text);
     }
     onClose();
   };

@@ -72,7 +72,7 @@ export default function PastBountyCard({
                     className='flex flex-row items-center w-full justify-end overflow-hidden'
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <DisplayAddress chain={chain} address={claim.issuer} />
+                    <DisplayAddress chainName={chain.slug} address={claim.issuer} />
                     <div className='ml-2'>
                       <CopyAddressButton address={claim.issuer} />
                     </div>

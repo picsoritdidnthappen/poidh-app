@@ -10,11 +10,11 @@ import {
   getBanSignatureFirstLine,
   tryCatchAsync,
 } from '@/utils/utils';
-import { ChainId, WarpcastCast } from '@/utils/types';
+import { ChainId, Netname, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
 import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
-import { getCreatorDisplayName } from '@/utils/notifications';
+import { getAddressDisplayName } from '@/utils/notifications';
 
 const config = new Configuration({
   apiKey: process.env.NEYNAR_API_KEY || '',
@@ -2118,9 +2118,9 @@ export const appRouter = createTRPCRouter({
 
       if (bountyUsd < 100 || !process.env.NEYNAR_API_KEY) return;
 
-      const creatorName = await getCreatorDisplayName(
+      const creatorName = await getAddressDisplayName(
         creatorAddress,
-        chainSlug
+        chainSlug as Netname
       );
       const client = new NeynarAPIClient(
         new Configuration({ apiKey: process.env.NEYNAR_API_KEY! })

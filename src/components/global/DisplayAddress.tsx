@@ -6,12 +6,12 @@ import { trpc } from '@/trpc/client';
 import Image from 'next/image';
 
 export default function DisplayAddress({
-  chain,
   address,
+  chainName = 'base',
   pfpSize,
 }: {
-  chain: Chain;
   address: string;
+  chainName?: Netname;
   pfpSize?: number;
 }) {
   const userDataNeynar = trpc.usersDataNeynar.useQuery({
@@ -19,11 +19,11 @@ export default function DisplayAddress({
   });
 
   const walletDisplayName = useQuery({
-    queryKey: ['getWalletDisplayName', address, chain?.slug],
+    queryKey: ['getWalletDisplayName', address, chainName],
     queryFn: () =>
       getWalletDisplayName({
-        address: address,
-        chainName: chain.slug,
+        address,
+        chainName,
       }),
   });
 
