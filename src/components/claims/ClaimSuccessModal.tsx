@@ -175,7 +175,7 @@ export default function ClaimSuccessModal({
                 ref={dropdownRef}
                 role='menu'
                 aria-label='share menu'
-                className='absolute left-0 top-[calc(100%+8px)] lg:top-auto lg:bottom-[calc(100%+8px)] z-40 p-2 rounded-xl shadow-lg min-w-[200px] ring-1 ring-white/5 bg-gradient-to-br from-[#4aa0ff]/80 via-[#3fb0e9]/70 to-[#2f8fd9]/60 backdrop-blur-md border border-white/10'
+                className='absolute left-0 bottom-[calc(100%+2px)] z-40 p-2 rounded-xl shadow-lg min-w-[200px] ring-1 ring-white/5 bg-gradient-to-br from-[#4aa0ff]/80 via-[#3fb0e9]/70 to-[#2f8fd9]/60 backdrop-blur-md border border-white/10'
               >
                 <div className='flex flex-col font-mono text-sm text-white'>
                   <button
