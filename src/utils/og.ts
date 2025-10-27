@@ -10,7 +10,7 @@ export function generateDynamicOGUrl({
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
 
   if (type === 'bounty') {
-    return `${baseUrl}/api/og/bounty/v2?data=${encodeURIComponent(
+    return `${baseUrl}/api/og/bounty?data=${encodeURIComponent(
       JSON.stringify(dataObject)
     )}&imageFormat=${imageFormat}`;
   } else {

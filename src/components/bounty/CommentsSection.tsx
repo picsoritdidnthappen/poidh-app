@@ -37,7 +37,7 @@ export default function CommentsSection({ url }: { url: string }) {
   const topLevelComments = commentsByParent['root'] || [];
 
   return (
-    <div id='comments-section' className='w-full pt-20'>
+    <div id='comments-section' className='w-full pt-8'>
       <span className='text-xl font-bold text-left my-2 sm:my-4 lowercase'>
         Comments
       </span>
@@ -53,7 +53,7 @@ export default function CommentsSection({ url }: { url: string }) {
           ))
         ) : (
           <div className='py-4 text-white/60 text-sm text-center mt-12'>
-            Comments will appear here.
+            Comments will appear here
           </div>
         )}
       </div>
