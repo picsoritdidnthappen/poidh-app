@@ -58,8 +58,12 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
     }
   );
 
-  if (!claims) {
-    return <div className=''>No claims</div>;
+  if (claims.isLoading) {
+    return (
+      <div className='flex items-center justify-center min-h-[15vh] mt-10 text-center text-sm text-[#D1ECFF]'>
+        Loading claims...
+      </div>
+    );
   }
 
   const handleScrollToComments = () => {
@@ -86,7 +90,16 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
           <CommentsIcon size={24} />
         </div>
       </div>
-      {claims.data && (
+      {!claims.isLoading &&
+      (!claims.data ||
+        claims.data?.pages.reduce(
+          (acc, p) => acc + (p.items?.length || 0),
+          0
+        ) === 0) ? (
+        <div className='flex items-center justify-center min-h-[15vh] mt-10 text-center text-sm text-[#D1ECFF]'>
+          no claims yet. be the first to make a claim
+        </div>
+      ) : (
         <InfiniteScroll
           loadMore={async () =>
             infiniteEnabled && (await claims.fetchNextPage())
@@ -102,7 +115,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
           threshold={300}
         >
           <ClaimList
-            key={claims.data.pages[0]?.items[0]?.id || 'empty-list'}
+            key={claims.data?.pages?.[0]?.items?.[0]?.id ?? 'empty-list'}
             bountyId={bountyId}
             votingClaim={
               votingClaim
@@ -115,15 +128,17 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
                   }
                 : null
             }
-            claims={claims.data.pages.flatMap((page) => {
-              return page.items.map((item) => ({
-                ...item,
-                accepted: item.is_accepted || false,
-                id: item.id.toString(),
-                issuer: item.issuer,
-                bountyId: item.bounty_id.toString(),
-              }));
-            })}
+            claims={
+              claims.data?.pages.flatMap((page) => {
+                return (page.items || []).map((item) => ({
+                  ...item,
+                  accepted: item.is_accepted || false,
+                  id: item.id.toString(),
+                  issuer: item.issuer,
+                  bountyId: item.bounty_id.toString(),
+                }));
+              }) ?? []
+            }
           />
         </InfiniteScroll>
       )}
