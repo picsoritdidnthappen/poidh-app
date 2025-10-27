@@ -97,7 +97,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
           0
         ) === 0) ? (
         <div className='flex items-center justify-center min-h-[15vh] mt-10 text-center text-sm text-[#D1ECFF]'>
-          no claims yet. be the first to make a claim
+          no claims yet. submit yours first!
         </div>
       ) : (
         <InfiniteScroll
