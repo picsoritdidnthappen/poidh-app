@@ -10,11 +10,11 @@ export function generateDynamicOGUrl({
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
 
   if (type === 'bounty') {
-    return `${baseUrl}/api/og/bounty?data=${encodeURIComponent(
+    return `${baseUrl}/api/og/${type}?data=${encodeURIComponent(
       JSON.stringify(dataObject)
     )}&imageFormat=${imageFormat}`;
   } else {
-    return `${baseUrl}/api/og/account?${new URLSearchParams(
+    return `${baseUrl}/api/og/${type}?${new URLSearchParams(
       dataObject
     ).toString()}&imageFormat=${imageFormat}`;
   }
