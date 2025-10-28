@@ -27,6 +27,7 @@ import { formatAmountShort } from '@/utils/utils';
 import { Chain, Netname } from '@/utils/types';
 import { chains } from '@/utils/config';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import { useScreenSize } from '@/hooks/useScreenSize';
 
 export default function FormBounty({
   open,
@@ -54,6 +55,8 @@ export default function FormBounty({
     trpc.fetchPrice.useQuery({ currency: currentChain.currency }).data ?? 0;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const usdRef = useRef<HTMLSpanElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const isMobile = useScreenSize();
 
   const { data: albums } = trpc.albums.useQuery(
     { contains: album },
@@ -62,6 +65,15 @@ export default function FormBounty({
       staleTime: 30_000,
     }
   );
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea && isMobile) {
+      textarea.style.height = 'auto';
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, 60), 320);
+      textarea.style.height = `${newHeight}px`;
+    }
+  }, [description]);
 
   useEffect(() => {
     if (amount) {
@@ -140,9 +152,13 @@ export default function FormBounty({
         });
 
         if (bounty) {
+          const usd = Number(formData.amount) * price;
           return {
             bountyId: data.args.id.toString(),
             album: formData.album.trim(),
+            bountyTitle: formData.name,
+            bountyUsd: usd,
+            creatorAddress: account.address ?? '',
           };
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
@@ -150,7 +166,7 @@ export default function FormBounty({
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: ({ bountyId, album }) => {
+    onSuccess: async ({ bountyId, album, bountyUsd, bountyTitle }) => {
       saveBountyAlbum.mutate({
         bountyId: Number(bountyId),
         chainId: pollingChainId ?? currentChain.id,
@@ -159,6 +175,20 @@ export default function FormBounty({
       setLoading({ isLoading: false, status: '' });
       router.push(`/${currentChain.slug}/bounty/${bountyId}?indexing=true`);
       toast.success('Bounty created successfully');
+
+      try {
+        if (bountyUsd && bountyUsd >= 100) {
+          await trpcClient.notifyFarcasterOfHighBounty.mutate({
+            bountyUsd,
+            bountyTitle,
+            chainSlug: currentChain.slug,
+            bountyId,
+            creatorAddress: account.address!,
+          });
+        }
+      } catch (e) {
+        console.error('failed to send bounty notifications', e);
+      }
     },
     onError: (error) => {
       toast.error('Failed to create bounty: ' + error.message);
@@ -226,12 +256,15 @@ export default function FormBounty({
             description
           </span>
           <textarea
+            ref={textareaRef}
             disabled={generateBounty.isPending}
-            rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className='border py-2 px-2 rounded-md mb-4 max-h-80 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400'
+            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y min-h-[60px] max-h-80 overflow-y-auto touch-manipulation'
             placeholder='pro tip: be detailed and add a deadline'
+            style={{
+              resize: 'vertical',
+            }}
           ></textarea>
 
           <span>reward</span>

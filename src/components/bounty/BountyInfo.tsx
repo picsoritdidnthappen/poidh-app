@@ -23,17 +23,22 @@ import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import ShareBountyModal from '@/components/bounty/ShareBountyModal';
-import { ShareIcon } from '@/components/global/Icons';
+import { ShareIcon, QuestionIcon } from '@/components/global/Icons';
 import Link from 'next/link';
+import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 
 export default function BountyInfo({
   bountyId,
   isShareModalOpen,
+  isHowItWorksModalOpen,
   onShareModalStateChange,
+  onHowItWorksModalStateChange,
 }: {
   bountyId: string;
   isShareModalOpen: boolean;
+  isHowItWorksModalOpen: boolean;
   onShareModalStateChange?: (modalOpen: boolean) => void;
+  onHowItWorksModalStateChange?: (modalOpen: boolean) => void;
 }) {
   const chain = useGetChain();
   const account = useAccount();
@@ -193,7 +198,7 @@ export default function BountyInfo({
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
-              <DisplayAddress chain={chain} address={bounty.data.issuer} />
+              <DisplayAddress chainName={chain.slug} address={bounty.data.issuer} />
               <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
@@ -267,30 +272,46 @@ export default function BountyInfo({
           return { ...transaction, timestamp: Number(transaction.timestamp) };
         })}
       />
-      <div className='flex items-center gap-4 my-8'>
-        {bounty.data.is_multiplayer &&
-          bounty.data.inProgress &&
-          (canWithdraw ? (
-            <Withdraw bountyId={bountyId} />
-          ) : (
-            !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
-          ))}
+      <div className='flex flex-wrap items-center gap-4 my-8'>
+        <div className='flex items-center gap-4'>
+          {bounty.data.is_multiplayer &&
+            bounty.data.inProgress &&
+            (canWithdraw ? (
+              <Withdraw bountyId={bountyId} />
+            ) : (
+              !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
+            ))}
+          <button
+            type='button'
+            onClick={() => onShareModalStateChange?.(true)}
+            className='flex items-center gap-1 underline hover:no-underline w-fit'
+          >
+            share bounty <ShareIcon size={16} />
+          </button>
+        </div>
+      </div>
+      <div className='my-6'>
         <button
           type='button'
-          onClick={() => onShareModalStateChange?.(true)}
+          onClick={() => onHowItWorksModalStateChange?.(true)}
           className='flex items-center gap-1 underline hover:no-underline w-fit'
         >
-          share bounty <ShareIcon size={16} />
+          how it works <QuestionIcon size={22} />
         </button>
-        {isShareModalOpen && (
-          <ShareBountyModal
-            onClose={() => {
-              onShareModalStateChange?.(false);
-            }}
-            bountyIssuerAddress={bounty.data.issuer}
-          />
-        )}
       </div>
+      {isShareModalOpen && (
+        <ShareBountyModal
+          onClose={() => {
+            onShareModalStateChange?.(false);
+          }}
+          bountyIssuerAddress={bounty.data.issuer}
+        />
+      )}
+      {isHowItWorksModalOpen && (
+        <HowItWorksModal
+          onClose={() => onHowItWorksModalStateChange?.(false)}
+        />
+      )}
     </>
   );
 }

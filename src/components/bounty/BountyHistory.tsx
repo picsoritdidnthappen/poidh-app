@@ -56,7 +56,7 @@ export default function BountyHistory({
                         />
                       </span>
                       <DisplayAddress
-                        chain={chain}
+                        chainName={chain.slug}
                         address={transaction.address}
                       />
                     </>

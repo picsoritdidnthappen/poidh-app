@@ -18,7 +18,13 @@ const MenuLink = ({
   </Link>
 );
 
-export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
+export default function SlideOverMenu({
+  onClose,
+  onOpenHowItWorks,
+}: {
+  onClose: () => void;
+  onOpenHowItWorks: () => void;
+}) {
   const account = useAccount();
   const [isResourcesExpanded, setIsResourcesExpanded] = useState(false);
 
@@ -68,6 +74,13 @@ export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
       )}
 
       <button
+        onClick={onOpenHowItWorks}
+        className='hover:text-gray-300 text-left'
+      >
+        how it works 💡
+      </button>
+
+      <button
         className='flex items-center gap-2 hover:text-gray-300 transition-colors'
         onClick={() => setIsResourcesExpanded(!isResourcesExpanded)}
       >
@@ -83,12 +96,6 @@ export default function SlideOverMenu({ onClose }: { onClose: () => void }) {
 
       {isResourcesExpanded && (
         <div className='ml-4 flex flex-col gap-2'>
-          <MenuLink
-            href='https://paragraph.xyz/@poidh/poidh-beginner-guide'
-            onClick={handleCloseWithDelay}
-          >
-            how it works 💡
-          </MenuLink>
           <MenuLink
             href='https://github.com/picsoritdidnthappen/poidh-app'
             onClick={handleCloseWithDelay}

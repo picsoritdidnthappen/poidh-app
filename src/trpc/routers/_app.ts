@@ -10,10 +10,11 @@ import {
   getBanSignatureFirstLine,
   tryCatchAsync,
 } from '@/utils/utils';
-import { ChainId, WarpcastCast } from '@/utils/types';
+import { ChainId, Netname, WarpcastCast } from '@/utils/types';
 import axios from 'axios';
 import { Leaderboard } from '@prisma/client';
 import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
+import { getCreatorDisplayName } from '@/utils/notifications';
 
 const config = new Configuration({
   apiKey: process.env.NEYNAR_API_KEY || '',
@@ -1662,12 +1663,16 @@ export const appRouter = createTRPCRouter({
         return {};
       }
 
-      const client = new NeynarAPIClient(config);
-      const users = await client.fetchBulkUsersByEthOrSolAddress({
-        addresses: input.addresses,
-      });
+      try {
+        const client = new NeynarAPIClient(config);
+        const users = await client.fetchBulkUsersByEthOrSolAddress({
+          addresses: input.addresses,
+        });
 
-      return users;
+        return users;
+      } catch (error) {
+        return {};
+      }
     }),
 
   leaderboard: baseProcedure
@@ -2095,6 +2100,39 @@ export const appRouter = createTRPCRouter({
         name: album.album,
         count: Number(album.count),
       }));
+    }),
+
+  notifyFarcasterOfHighBounty: baseProcedure
+    .input(
+      z.object({
+        bountyUsd: z.number().min(0),
+        bountyTitle: z.string().min(1),
+        chainSlug: z.string().min(1),
+        bountyId: z.string().min(1),
+        creatorAddress: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { bountyUsd, bountyTitle, chainSlug, bountyId, creatorAddress } =
+        input;
+
+      if (bountyUsd < 100 || !process.env.NEYNAR_API_KEY) return;
+
+      const creatorName = await getCreatorDisplayName(
+        creatorAddress,
+        chainSlug as Netname
+      );
+      const client = new NeynarAPIClient(
+        new Configuration({ apiKey: process.env.NEYNAR_API_KEY! })
+      );
+      await client.publishFrameNotifications({
+        notification: {
+          title: `💰 NEW $${bountyUsd.toFixed(0)} BOUNTY 💰`,
+          body: `${bountyTitle}${creatorName ? ` from ${creatorName}` : ''}`,
+          target_url: `https://poidh.xyz/${chainSlug}/bounty/${bountyId}`,
+        },
+        targetFids: [],
+      });
     }),
 });
 

@@ -65,7 +65,7 @@ export default function BountyMultiplayer({
                       />
                     </span>
                     <DisplayAddress
-                      chain={chain}
+                      chainName={chain.slug}
                       address={participant.user_address}
                     />
                   </div>

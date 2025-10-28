@@ -40,18 +40,14 @@ export default function ShareBountyModal({
       const { data } = await fetchUserData();
       neynarData = data;
     }
-    if (neynarData && neynarData[bountyIssuerAddress]?.[0]) {
+    if (neynarData?.[bountyIssuerAddress]?.[0]) {
       const xUsername = neynarData?.[
         bountyIssuerAddress
       ]?.[0]?.verified_accounts?.find(
         (account) => account.platform === 'x'
       )?.username;
       if (xUsername) {
-        text =
-          'check out this bounty from @' +
-          xUsername +
-          ' on @poidhxyz 📸\n\n' +
-          window.location.href;
+        text = 'check out this bounty from @' + xUsername + ' on @poidhxyz 📸';
       }
     }
     shareToX(text);
@@ -66,7 +62,7 @@ export default function ShareBountyModal({
       const { data } = await fetchUserData();
       neynarData = data;
     }
-    if (neynarData && neynarData[bountyIssuerAddress]?.[0]?.username) {
+    if (neynarData?.[bountyIssuerAddress]?.[0]?.username) {
       text =
         'check out this bounty from @' +
         neynarData?.[bountyIssuerAddress]?.[0]?.username +
@@ -80,7 +76,7 @@ export default function ShareBountyModal({
         embeds: [window.location.href],
       });
     } else {
-      shareToFarcaster(text, window.location.href);
+      shareToFarcaster(text);
     }
     onClose();
   };

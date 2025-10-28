@@ -6,7 +6,7 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import { trpc } from '@/trpc/client';
 import 'react-toastify/dist/ReactToastify.css';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/utils';
 import { useGetChain } from '@/hooks/useGetChain';
 import { FormControl, MenuItem, Select } from '@mui/material';
@@ -14,12 +14,23 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { SortIcon } from '@/components/global/Icons';
 import BountyList from '@/components/bounty/BountyList';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
+import Link from 'next/link';
+import { ALBUMS } from '@/utils/constants';
 
 export default function Home() {
   const isMobile = useScreenSize();
   const [display, setDisplay] = useState<BountyDisplayType>('open');
   const [sortType, setSortType] = useState<BountySortType>('value');
   const chain = useGetChain();
+  const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentAlbumIndex((prevIndex) => (prevIndex + 1) % ALBUMS.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const bounties = trpc.allBounties.useInfiniteQuery(
     {
@@ -37,7 +48,27 @@ export default function Home() {
       <div className='flex flex-col items-center text-center p-6 pt-8 md:pt-24 lg:pt-32'>
         <h1 className='font-mono text-4xl mb-8'>poidh</h1>
         <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
-          you can just incentivize things
+          <span className='flex flex-wrap md:flex-nowrap items-baseline justify-center gap-x-2.5'>
+            <span>social bounties for</span>
+            <Link
+              href={`/a/${ALBUMS[currentAlbumIndex].slug}`}
+              className='inline-block no-underline overflow-hidden h-[1.2em] relative w-full md:w-auto text-center md:text-left'
+              style={{
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <span
+                key={currentAlbumIndex}
+                className='block'
+                style={{
+                  animation: 'turnstile 0.6s ease-in-out',
+                }}
+              >
+                {ALBUMS[currentAlbumIndex].name}
+              </span>
+            </Link>
+          </span>
         </h3>
       </div>
       <div>
@@ -164,7 +195,7 @@ export default function Home() {
                         const claim = bounty.claims.filter(
                           (claim) => claim.is_accepted
                         )[0];
-                        return (
+                        return claim ? (
                           <PastBountyCard
                             key={`${claim.id}-${claim.chain_id}`}
                             claim={{
@@ -181,7 +212,7 @@ export default function Home() {
                             bountyAmount={bounty.amount}
                             isMultiplayer={bounty.is_multiplayer || false}
                           />
-                        );
+                        ) : null;
                       })
                   )}
                 </div>

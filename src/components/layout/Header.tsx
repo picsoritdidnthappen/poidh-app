@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
+import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import {
   ExpandMoreIcon,
   MenuIcon,
@@ -19,6 +20,7 @@ import { useAccount } from 'wagmi';
 export default function Header() {
   const account = useAccount();
   const [isOpen, setIsOpen] = useState(false);
+  const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
 
   return (
     <>
@@ -29,7 +31,13 @@ export default function Header() {
           className: 'w-60 bg-poidhRed',
         }}
       >
-        <SlideOverMenu onClose={() => setIsOpen(false)} />
+        <SlideOverMenu
+          onClose={() => setIsOpen(false)}
+          onOpenHowItWorks={() => {
+            setIsHowItWorksModalOpen(true);
+            setIsOpen(false);
+          }}
+        />
       </Drawer>
       <div className='flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
         <div className='flex'>
@@ -62,6 +70,9 @@ export default function Header() {
           <ConnectWalletButton />
         </div>
       </div>
+      {isHowItWorksModalOpen && (
+        <HowItWorksModal onClose={() => setIsHowItWorksModalOpen(false)} />
+      )}
     </>
   );
 }

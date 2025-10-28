@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
@@ -71,7 +71,7 @@ function NftListItem({ NFT }: { NFT: NFT }) {
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
           <span className=''>issuer&nbsp;</span>
           <div className='flex flex-row  items-center w-full justify-end overflow-hidden'>
-            <DisplayAddress chain={chain} address={NFT.issuer} />
+            <DisplayAddress chainName={chain.slug} address={NFT.issuer} />
             <div className='ml-2'>
               <CopyAddressButton address={NFT.issuer} />
             </div>

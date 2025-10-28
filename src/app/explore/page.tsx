@@ -4,7 +4,7 @@ import AlbumList from '@/components/albums/AlbumList';
 import { MagnifyingGlassIcon } from '@/components/global/Icons';
 import { cn } from '@/utils';
 import { trpc } from '@/trpc/client';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import BountyList from '@/components/bounty/BountyList';
 

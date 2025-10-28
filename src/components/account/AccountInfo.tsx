@@ -80,7 +80,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 <div className='flex items-center gap-2 overflow-visible'>
                   <span className='text-xl sm:text-2xl md:text-3xl font-medium'>
                     <DisplayAddress
-                      chain={chain}
+                      chainName={chain.slug}
                       address={address}
                       pfpSize={26}
                     />

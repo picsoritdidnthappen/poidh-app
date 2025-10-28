@@ -1,9 +1,9 @@
 import GameButton, { PlainGameButton } from '@/components/global/GameButton';
-import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import FormBounty from '../bounty/FormBounty';
 import FormClaim from '../claims/FormClaim';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 export default function NavBarMobile({
   type,
@@ -18,17 +18,19 @@ export default function NavBarMobile({
 }) {
   const [showForm, setShowForm] = useState(false);
   const account = useAccount();
+  const { openConnectModal } = useConnectModal();
+
   return (
     <>
       <nav
-        className='fixed bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8 z-50'
+        className='fixed bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8 z-50 how-it-works-hidden'
         onClick={(e) => {
           e.stopPropagation();
           if (account.address) {
             setShowForm(true);
             return;
           }
-          toast.error('Please connect your wallet');
+          openConnectModal?.();
         }}
       >
         <div

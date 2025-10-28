@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
 import Link from 'next/link';
-import { Chain, Netname } from '@/utils/types';
+import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import Image from 'next/image';
 
 export default function DisplayAddress({
-  chain,
   address,
+  chainName = 'base',
   pfpSize,
 }: {
-  chain: Chain;
   address: string;
+  chainName?: Netname;
   pfpSize?: number;
 }) {
   const userDataNeynar = trpc.usersDataNeynar.useQuery({
@@ -19,11 +19,11 @@ export default function DisplayAddress({
   });
 
   const walletDisplayName = useQuery({
-    queryKey: ['getWalletDisplayName', address, chain?.slug],
+    queryKey: ['getWalletDisplayName', address, chainName],
     queryFn: () =>
       getWalletDisplayName({
-        address: address,
-        chainName: chain.slug,
+        address,
+        chainName,
       }),
   });
 

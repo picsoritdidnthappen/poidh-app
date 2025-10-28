@@ -253,3 +253,55 @@ button {
 .Toastify__close-button > svg {
   fill: white !important;
 }
+
+body.how-it-works-modal-open .how-it-works-hidden {
+  display: none !important;
+}
+
+textarea.resize-y {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+textarea.resize-y::-webkit-scrollbar {
+  width: 8px;
+}
+
+textarea.resize-y::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea.resize-y::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  textarea.resize-y {
+    padding-bottom: 24px;
+  }
+
+  textarea.resize-y::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    pointer-events: none;
+  }
+}
+
+@keyframes turnstile {
+  0% {
+    transform: translateY(-100%) rotateX(-90deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+}
