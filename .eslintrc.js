@@ -27,6 +27,7 @@ module.exports = {
 
     '@typescript-eslint/no-unused-vars': 'warn',
     'unused-imports/no-unused-imports': 'warn',
+    'no-empty': ['error', { allowEmptyCatch: true }],
   },
   globals: {
     React: true,

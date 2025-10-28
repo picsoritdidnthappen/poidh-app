@@ -8,9 +8,8 @@ import { shareToFarcaster, shareToX } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import { useGetChain } from '@/hooks/useGetChain';
-import { sdk } from '@farcaster/miniapp-sdk';
-import { useScreenSize } from '@/hooks/useScreenSize';
 import { getEnsOrDegenName } from '@/utils/web3';
+import { uploadFile } from '@/utils/pinata';
 
 async function getAddressDisplayName(
   address: string,
@@ -65,8 +64,8 @@ export default function ClaimSuccessModal({
 }) {
   const router = useRouter();
   const chain = useGetChain();
-  const isMobile = useScreenSize();
   const [shareOpen, setShareOpen] = useState(false);
+  const [isGeneratingCard, setIsGeneratingCard] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,10 +80,12 @@ export default function ClaimSuccessModal({
   );
   const { data: usersDataNeynar } = trpc.usersDataNeynar.useQuery(
     {
-      addresses: bounty.data?.issuer ? [bounty.data?.issuer] : [],
+      addresses: bounty.data?.issuer
+        ? [bounty.data?.issuer, claimIssuer]
+        : [claimIssuer],
     },
     {
-      enabled: !!open && !!bounty.data?.issuer,
+      enabled: !!open && !!bounty.data && !!claimIssuer,
     }
   );
 
@@ -123,16 +124,48 @@ export default function ClaimSuccessModal({
       'farcaster',
       usersDataNeynar
     );
+    const claimIssuerUsername = await getAddressDisplayName(
+      claimIssuer ?? '',
+      'farcaster',
+      usersDataNeynar
+    );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
 
-    const isMiniApp = await sdk.isInMiniApp();
-    if (isMobile && isMiniApp) {
-      await sdk.actions.composeCast({
-        text,
-        embeds: [window.location.href, claimImage],
-      });
-    } else {
-      shareToFarcaster(text, claimImage);
+    setIsGeneratingCard(true);
+    try {
+      const cardUrl = new URL(
+        '/api/generate-claim-card',
+        window.location.origin
+      );
+      cardUrl.searchParams.set('image', claimImage);
+      cardUrl.searchParams.set('title', claimTitle.slice(0, 30));
+      cardUrl.searchParams.set('issuer', claimIssuerUsername);
+
+      const claimIssuerPfp =
+        usersDataNeynar?.[claimIssuer.toLowerCase() ?? '']?.[0]?.pfp_url;
+      if (claimIssuerPfp) {
+        cardUrl.searchParams.set('pfp', claimIssuerPfp);
+      }
+
+      const response = await fetch(cardUrl.toString());
+      if (!response.ok) {
+        throw new Error('Failed to generate claim card');
+      }
+
+      const imageBlob = await response.blob();
+      const uploadResult = await uploadFile(imageBlob);
+
+      if (!uploadResult?.IpfsHash) {
+        throw new Error('Failed to upload to Pinata');
+      }
+      const cardImageUrl = `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`;
+
+      await shareToFarcaster(text, cardImageUrl);
+    } catch (error) {
+      console.error('Error sharing to Farcaster:', error);
+      await shareToFarcaster(text, claimImage);
+    } finally {
+      setIsGeneratingCard(false);
     }
   };
 
@@ -209,14 +242,17 @@ export default function ClaimSuccessModal({
                 <div className='flex flex-col font-mono text-sm text-white'>
                   <button
                     onClick={handleShareFarcaster}
-                    className='w-full text-left px-4 py-2 rounded-md hover:bg-white/5 flex items-center gap-3 text-white'
+                    disabled={isGeneratingCard}
+                    className='w-full text-left px-4 py-2 rounded-md hover:bg-white/5 flex items-center gap-3 text-white disabled:opacity-50 disabled:cursor-not-allowed'
                   >
                     <img
                       src='/images/farcaster_arch.svg'
                       alt='farcaster'
                       className='w-5 h-5 filter brightness-200'
                     />
-                    <span>farcaster</span>
+                    <span>
+                      {isGeneratingCard ? 'generating...' : 'farcaster'}
+                    </span>
                   </button>
                   <button
                     onClick={handleShareTwitter}

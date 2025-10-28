@@ -6,8 +6,6 @@ import {
   CopyIcon,
 } from '@/components/global/Icons';
 import { trpc } from '@/trpc/client';
-import { sdk } from '@farcaster/miniapp-sdk';
-import { useScreenSize } from '@/hooks/useScreenSize';
 import ShareModal from '@/components/global/ShareModal';
 import { copyToClipboard, shareToFarcaster, shareToX } from '@/utils/share';
 
@@ -18,7 +16,6 @@ export default function ShareBountyModal({
   onClose: () => void;
   bountyIssuerAddress: string;
 }) {
-  const isMobile = useScreenSize();
   const { data: userDataNeynar, refetch: fetchUserData } =
     trpc.usersDataNeynar.useQuery(
       { addresses: [bountyIssuerAddress] },
@@ -69,15 +66,7 @@ export default function ShareBountyModal({
         ' on /poidh 📸\n';
     }
 
-    const isMiniApp = await sdk.isInMiniApp();
-    if (isMobile && isMiniApp) {
-      await sdk.actions.composeCast({
-        text,
-        embeds: [window.location.href],
-      });
-    } else {
-      shareToFarcaster(text);
-    }
+    await shareToFarcaster(text);
     onClose();
   };
 
