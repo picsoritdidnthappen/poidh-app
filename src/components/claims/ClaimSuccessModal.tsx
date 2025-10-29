@@ -204,7 +204,7 @@ export default function ClaimSuccessModal({
             <div className='font-semibold text-lg'>{claimTitle}</div>
             <div className='mt-2 opacity-90 flex items-center gap-2'>
               <span>issuer:</span>
-              <DisplayAddress address={claimIssuer} />
+              <DisplayAddress address={claimIssuer.toLowerCase()} />
             </div>
           </div>
         </div>
