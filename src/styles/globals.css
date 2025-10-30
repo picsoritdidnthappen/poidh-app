@@ -224,6 +224,25 @@ button {
   font-family: 'GeistMono-Regular';
 }
 
+.font-family-pixeloid {
+  font-family: 'PixeloidSans';
+}
+
+@keyframes bounce-emoji {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.bounce-emoji {
+  display: inline-block;
+  animation: bounce-emoji 1s ease-in-out infinite;
+}
+
 .bountyItem.pendingClaims > div > div.borderBox {
   border: 1px solid #cf5d5d;
 }
