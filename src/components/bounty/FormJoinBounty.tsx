@@ -5,19 +5,13 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther } from 'viem';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Typography,
-} from '@mui/material';
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { cn } from '@/utils';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom, pollingChainIdAtom } from '@/store/loading';
 import { formatAmountShort } from '@/utils/utils';
+import JoinBountySuccessModal from './JoinBountySuccessModal';
 
 export default function FormJoinBounty({
   bountyId,
@@ -30,6 +24,7 @@ export default function FormJoinBounty({
 }) {
   const [amount, setAmount] = useState<string>('');
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const utils = trpc.useUtils();
 
   const account = useAccount();
@@ -80,15 +75,14 @@ export default function FormJoinBounty({
       throw new Error('Failed to join bounty');
     },
     onSuccess: () => {
-      toast.success('Bounty joined successfully');
+      setShowSuccess(true);
     },
     onError: (error) => {
       toast.error('Failed to join bounty: ' + error.message);
+      setAmount('');
     },
     onSettled: () => {
-      utils.participations.refetch();
       setPollingChainId(null);
-      setAmount('');
       setLoading({ isLoading: false, status: '' });
     },
   });
@@ -116,69 +110,60 @@ export default function FormJoinBounty({
           setUsdPerToken(null);
           setAmount('');
         }}
-        maxWidth='xs'
-        fullWidth
-        PaperProps={{
-          className: 'bg-poidhBlue/80',
-          style: {
-            borderRadius: '10px',
-            color: 'white',
-            border: '1px solid #D1ECFF',
-          },
-        }}
+        className='relative z-50'
       >
-        <DialogContent>
-          <Box
-            display='flex'
-            flexDirection='column'
-            alignItems='left'
-            width='100%'
-          >
-            <Typography
-              variant='subtitle1'
-              gutterBottom
-              className='font-family-geist'
-            >
-              Reward
-            </Typography>
-            <div className='relative w-full mb-4'>
-              <input
-                type='number'
-                step='any'
-                value={amount}
-                onChange={handleAmountChange}
-                placeholder={`amount in ${chain.currency}`}
-                className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full pr-28 placeholder:text-slate-400 overflow-hidden whitespace-nowrap text-ellipsis'
-              />
-              {usdPerToken !== null && (
-                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
-                  (${formatAmountShort(usdPerToken)})
-                </span>
-              )}
+        <div className='fixed inset-0 bg-black/30 flex items-center justify-center p-4'>
+          <DialogPanel className='w-full max-w-xs rounded-lg p-6 bg-poidhBlue/90 border border-[#D1ECFF] text-white'>
+            <div className='flex flex-col items-start w-full'>
+              <DialogTitle className='text-base mb-2 font-family-geist'>
+                Reward
+              </DialogTitle>
+              <div className='relative w-full mb-6'>
+                <input
+                  type='number'
+                  step='any'
+                  value={amount}
+                  onChange={handleAmountChange}
+                  placeholder={`amount in ${chain.currency}`}
+                  className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full pr-28 placeholder:text-slate-400 overflow-hidden whitespace-nowrap text-ellipsis'
+                />
+                {usdPerToken !== null && (
+                  <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
+                    (${formatAmountShort(usdPerToken)})
+                  </span>
+                )}
+              </div>
             </div>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant='outlined'
-            className={cn(
-              'w-full rounded-full lowercase bg-poidhRed hover:bg-red-400 text-white font-family-geist',
-              !amount && 'opacity-50 cursor-not-allowed'
-            )}
-            disabled={!amount}
-            onClick={() => {
-              if (account.address) {
-                onClose();
-                bountyMutation.mutate(BigInt(bountyId));
-              } else {
-                toast.error('Please connect wallet to continue');
-              }
-            }}
-          >
-            add funds
-          </Button>
-        </DialogActions>
+            <button
+              className={cn(
+                'w-full rounded-full lowercase bg-poidhRed hover:bg-red-400 text-white font-family-geist py-2 px-4 border border-transparent transition-colors',
+                !amount && 'opacity-50 cursor-not-allowed'
+              )}
+              disabled={!amount}
+              onClick={() => {
+                if (account.address) {
+                  onClose();
+                  bountyMutation.mutate(BigInt(bountyId));
+                } else {
+                  toast.error('Please connect wallet to continue');
+                }
+              }}
+            >
+              add funds
+            </button>
+          </DialogPanel>
+        </div>
       </Dialog>
+      <JoinBountySuccessModal
+        open={showSuccess}
+        onClose={() => {
+          setShowSuccess(false);
+          setAmount('');
+          utils.participations.refetch();
+        }}
+        joinedAmount={amount}
+        bountyId={bountyId}
+      />
     </>
   );
 }
