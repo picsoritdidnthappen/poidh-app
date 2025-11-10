@@ -2146,8 +2146,18 @@ export const appRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const txs = await prisma.transactions.findMany({
         include: {
-          bounty: { select: { id: true, chain_id: true, title: true } },
-          claim: { select: { id: true, chain_id: true, title: true, url: true  } }
+          bounty: {
+            select: { id: true, chain_id: true, title: true, issuer: true },
+          },
+          claim: {
+            select: {
+              id: true,
+              chain_id: true,
+              title: true,
+              url: true,
+              issuer: true,
+            },
+          },
         },
         where: {
           action: { not: 'bounty canceled' },
@@ -2156,11 +2166,10 @@ export const appRouter = createTRPCRouter({
               none: {},
             },
           },
-          claim: {
-            ban: {
-              none: {},
-            },
-          },
+          OR: [
+            { claim_id: { equals: null } },
+            { claim: { is: { ban: { none: {} } } } },
+          ],
           ...(input.address
             ? {
                 address: input.address.toLowerCase(),
