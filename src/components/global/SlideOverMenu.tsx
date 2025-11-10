@@ -46,6 +46,9 @@ export default function SlideOverMenu({
           my account 👤
         </MenuLink>
       )}
+      <MenuLink href='/feed' onClick={handleCloseWithDelay}>
+        feed ⚡
+      </MenuLink>
       <MenuLink href='/leaderboard' onClick={handleCloseWithDelay}>
         leaderboard 🕹️
       </MenuLink>
