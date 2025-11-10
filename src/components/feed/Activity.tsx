@@ -73,6 +73,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
     if (action === 'bounty created') {
       return <div>a new bounty has been created 💰</div>;
     }
+
     if (action === 'claim created') {
       return (
         <div>
@@ -106,23 +107,23 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       );
     }
 
-    if (action.startsWith('+')) {
-      return (
-        <div>
-          added {bountyPrice} to{' '}
-          {activity.bounty?.title ? (
-            <strong>{activity.bounty.title}</strong>
-          ) : (
-            'this bounty'
-          )}
-        </div>
-      );
-    }
+    if (action[0] === '+' || action[0] === '-') {
+      const isAdd = action[0] === '+';
+      const verb = isAdd ? 'added' : 'removed';
+      const prep = isAdd ? 'to' : 'from';
+      const amountRaw = action.slice(1).trim();
 
-    if (action.startsWith('-')) {
+      const contribution = priceData?.data
+        ? formatAmount({
+            amount: amountRaw,
+            currency: chain.currency,
+            price: String(priceData.data),
+          })
+        : `${amountRaw} ${chain.currency}`;
+
       return (
         <div>
-          removed {bountyPrice} from{' '}
+          {verb} {contribution} {prep}{' '}
           {activity.bounty?.title ? (
             <strong>{activity.bounty.title}</strong>
           ) : (
@@ -169,7 +170,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
             <DisplayAddress
               address={
                 activity.action === 'claim accepted'
-                  ? activity.bounty?.issuer!
+                  ? activity.bounty?.issuer ?? ''
                   : activity?.address
                   ? activity.address
                   : ''
