@@ -16,7 +16,7 @@ export default function ClaimImageEmbed({
   chainId: ChainId;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const chain = getChainById({ chainId });
 
   const claim = trpc.claim.useQuery({
@@ -25,9 +25,11 @@ export default function ClaimImageEmbed({
   });
 
   const fetchImageUrl = async (url: string) => {
+    setIsLoading(true);
     const response = await fetch(url);
     const data = await response.json();
     setImageUrl(data.image);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -51,10 +53,13 @@ export default function ClaimImageEmbed({
                 unoptimized
                 onError={(e) => {
                   console.error('Image failed to load:', imageUrl, e);
-                  setImageError(true);
                   setImageUrl(null);
                 }}
               />
+            </div>
+          ) : isLoading ? (
+            <div className='w-full h-36 bg-white/10 rounded-lg border border-white/20 flex items-center justify-center'>
+              <div className='text-white/60 text-sm'>Loading image...</div>
             </div>
           ) : (
             <div className='w-full h-36 bg-white/10 rounded-lg border border-white/20 flex items-center justify-center'>

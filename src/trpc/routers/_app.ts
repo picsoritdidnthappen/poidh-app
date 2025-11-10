@@ -2147,9 +2147,20 @@ export const appRouter = createTRPCRouter({
       const txs = await prisma.transactions.findMany({
         include: {
           bounty: { select: { id: true, chain_id: true, title: true } },
+          claim: { select: { id: true, chain_id: true, title: true, url: true  } }
         },
         where: {
           action: { not: 'bounty canceled' },
+          bounty: {
+            ban: {
+              none: {},
+            },
+          },
+          claim: {
+            ban: {
+              none: {},
+            },
+          },
           ...(input.address
             ? {
                 address: input.address.toLowerCase(),

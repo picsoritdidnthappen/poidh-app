@@ -54,6 +54,7 @@ model Claims {
   bounty     Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
   issuerUser Users?    @relation(fields: [issuer], references: [address])
   ban        Ban[]
+  transactions   Transactions[]
 
   @@id([id, chain_id])
 }
@@ -105,6 +106,7 @@ model Transactions {
   timestamp Decimal @db.Decimal(78, 0)
 
   bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  claim Claims? @relation(fields: [claim_id, chain_id], references: [id, chain_id])
 
   @@id([tx, index, chain_id])
 }
