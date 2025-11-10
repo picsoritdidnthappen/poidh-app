@@ -5,14 +5,20 @@ import { getChainById } from '@/utils/config';
 import { trpc } from '@/trpc/client';
 import { formatAmount } from '@/utils/utils';
 import { formatEther } from 'viem';
-import { ChainId } from '@/utils/types';
+import { ChainId, Claim } from '@/utils/types';
 
 type ActivityTx = {
   tx: string;
   index?: number;
-  bounty?: { id: number; chain_id: number; title: string } | null;
+  bounty?: {
+    id: number;
+    chain_id: number;
+    title: string;
+    issuer: string;
+  } | null;
+  claim?: Claim | null;
   bounty_id: number;
-  claim_id: number;
+  claim_id?: number;
   chain_id: ChainId;
   address: string;
   action: string;
@@ -65,7 +71,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
     const action = activity.action || '';
 
     if (action === 'bounty created') {
-      return <div>a new bounty has been created</div>;
+      return <div>a new bounty has been created 💰</div>;
     }
     if (action === 'claim created') {
       return (
@@ -92,6 +98,19 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
         <div>
           a claim has been accepted for{' '}
           {activity.bounty?.title ? (
+            <strong>{activity.bounty.title + ' 🏆'}</strong>
+          ) : (
+            'this bounty 🏆'
+          )}
+        </div>
+      );
+    }
+
+    if (action.startsWith('+')) {
+      return (
+        <div>
+          added {bountyPrice} to{' '}
+          {activity.bounty?.title ? (
             <strong>{activity.bounty.title}</strong>
           ) : (
             'this bounty'
@@ -100,23 +119,24 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       );
     }
 
-    if (action.startsWith('+')) {
-      return <div>added funds ({action})</div>;
-    }
-
     if (action.startsWith('-')) {
-      return <div>removed funds ({action})</div>;
-    }
-
-    if (action.includes('submitted for vote')) {
       return (
         <div>
-          a claim has been nominated for vote on{' '}
+          removed {bountyPrice} from{' '}
           {activity.bounty?.title ? (
             <strong>{activity.bounty.title}</strong>
           ) : (
             'this bounty'
           )}
+        </div>
+      );
+    }
+
+    if (action.includes('submitted for vote')) {
+      return (
+        <div>
+          a claim has been nominated for vote, contributors have 48 hours to
+          confirm
         </div>
       );
     }
@@ -146,7 +166,16 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       <div className='px-4 py-3 sm:px-6 sm:py-4  bg-[#7fb7ee]'>
         <div className='flex items-start justify-between gap-4'>
           <div className='flex items-center gap-3'>
-            <DisplayAddress address={activity.address ?? ''} pfpSize={36} />
+            <DisplayAddress
+              address={
+                activity.action === 'claim accepted'
+                  ? activity.bounty?.issuer!
+                  : activity?.address
+                  ? activity.address
+                  : ''
+              }
+              pfpSize={36}
+            />
           </div>
 
           <div className='text-xs sm:text-sm text-white/60 whitespace-nowrap ml-auto text-right'>
@@ -162,12 +191,14 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
         </div>
       </div>
 
-      {activity.claim_id ? (
-        <ClaimImageEmbed
-          claimId={activity.claim_id}
-          bountyId={bountyId}
-          chainId={chainId as ChainId}
-        />
+      {activity.claim ? (
+        <div className='border-t border-white/6'>
+          <ClaimImageEmbed
+            claim={activity.claim}
+            bountyId={bountyId}
+            chainId={chainId as ChainId}
+          />
+        </div>
       ) : (
         <div className='border-t border-white/6 px-4 pb-4 pt-2'>
           {bountyId && chain && (

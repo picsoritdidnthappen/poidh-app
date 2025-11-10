@@ -3,26 +3,21 @@ import Image from 'next/image';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import { useState, useEffect } from 'react';
 import { getChainById } from '@/utils/config';
-import { ChainId } from '@/utils/types';
-import { trpc } from '@/trpc/client';
+import { ChainId, Claim } from '@/utils/types';
 
 export default function ClaimImageEmbed({
-  claimId,
+  claim,
   bountyId,
   chainId,
 }: {
-  claimId: number;
+  claim: Claim;
   bountyId: number;
   chainId: ChainId;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [imageError, setImageError] = useState<boolean>(false);
   const chain = getChainById({ chainId });
-
-  const claim = trpc.claim.useQuery({
-    claimId,
-    chainId,
-  });
 
   const fetchImageUrl = async (url: string) => {
     setIsLoading(true);
@@ -33,10 +28,12 @@ export default function ClaimImageEmbed({
   };
 
   useEffect(() => {
-    if (claim.data && claim.data.url) {
-      fetchImageUrl(claim.data.url);
+    if (claim?.url) {
+      fetchImageUrl(claim.url);
     }
-  }, [claim.data?.url]);
+  }, [claim?.url]);
+
+  if (!claim) return null;
 
   return (
     <div className='p-3'>
@@ -46,7 +43,7 @@ export default function ClaimImageEmbed({
             <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
               <Image
                 src={imageUrl}
-                alt={claim.data?.title || 'claim image'}
+                alt={claim.title || 'claim image'}
                 fill
                 className='object-cover'
                 sizes='(max-width: 768px) 100vw, 600px'
@@ -54,6 +51,7 @@ export default function ClaimImageEmbed({
                 onError={(e) => {
                   console.error('Image failed to load:', imageUrl, e);
                   setImageUrl(null);
+                  setImageError(true);
                 }}
               />
             </div>
@@ -63,18 +61,20 @@ export default function ClaimImageEmbed({
             </div>
           ) : (
             <div className='w-full h-36 bg-white/10 rounded-lg border border-white/20 flex items-center justify-center'>
-              <div className='text-white/60 text-sm'>Error loading image</div>
+              <div className='text-white/60 text-sm'>
+                {imageError ? 'error loading image' : 'no image'}
+              </div>
             </div>
           )}
           <div className='mt-3'>
             <h3 className='text-white text-lg font-bold'>
-              {claim.data?.title || '???'}
+              {claim.title || '???'}
             </h3>
           </div>
           <div className='mt-2 text-white/80 text-sm flex items-center gap-1'>
             <span>issuer:</span>
             <DisplayAddress
-              address={claim.data?.issuer || '???'}
+              address={claim.issuer || '???'}
               showPfpIfExists={true}
               pfpSize={16}
             />

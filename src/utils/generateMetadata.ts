@@ -355,6 +355,45 @@ export const generateMetadataForAlbumPage = ({
   };
 };
 
+export const generateMetadaForFeedPage = (): Metadata => {
+  const title = 'poidh feed - view activity as it happens';
+  const description =
+    'view the complete poidh activity feed - see new bounties, new claims, and winner announcements as they happen';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'POIDH',
+      images: [APP_OG_IMAGE_URL],
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title: 'view the feed',
+          action: {
+            type: 'launch_frame',
+            name: APP_NAME,
+            url: `${APP_URL}/feed`,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+          },
+        },
+      }),
+    },
+  } satisfies Metadata;
+};
+
 export const generateMetadaForExplorePage = (): Metadata => {
   const title = 'explore poidh bounties & albums';
   const description =
