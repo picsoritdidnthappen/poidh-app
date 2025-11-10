@@ -2134,6 +2134,43 @@ export const appRouter = createTRPCRouter({
         targetFids: [],
       });
     }),
+
+  activities: baseProcedure
+    .input(
+      z.object({
+        address: z.string().optional(),
+        limit: z.number().min(1).max(200).default(10),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      const txs = await prisma.transactions.findMany({
+        include: {
+          bounty: { select: { id: true, chain_id: true, title: true } },
+        },
+        where: {
+          action: { not: 'bounty canceled' },
+          ...(input.address
+            ? {
+                address: input.address.toLowerCase(),
+              }
+            : {}),
+          ...(input.cursor ? { timestamp: { lt: input.cursor } } : {}),
+        },
+        orderBy: { timestamp: 'desc' },
+        take: input.limit,
+      });
+
+      let nextCursor: string | undefined = undefined;
+      if (txs.length === input.limit) {
+        nextCursor = txs[txs.length - 1].timestamp.toString();
+      }
+
+      return {
+        items: txs,
+        nextCursor,
+      };
+    }),
 });
 
 export function checkIsAdmin(address?: string) {
