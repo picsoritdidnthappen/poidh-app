@@ -37,7 +37,7 @@ export default function FormClaim({
 }) {
   const [preview, setPreview] = useState<string>('');
   const [imageURI, setImageURI] = useState<string>('');
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [successPayload, setSuccessPayload] = useState<SuccessPayload | null>(
@@ -125,7 +125,7 @@ export default function FormClaim({
       }
 
       setLoading({ isLoading: true, status: 'Uploading metadata...' });
-      const metadata = buildMetadata(imageURI, name, description);
+      const metadata = buildMetadata(imageURI, title, description);
       const metadataResponse = await uploadMetadata(metadata);
       const uri = `${LINK_IPFS}/${metadataResponse.IpfsHash}`;
 
@@ -135,7 +135,7 @@ export default function FormClaim({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'createClaim',
-        args: [bountyId, name, uri, description],
+        args: [bountyId, title, uri, description],
       });
 
       setLoading({ isLoading: true, status: 'Waiting for receipt...' });
@@ -186,7 +186,7 @@ export default function FormClaim({
       setLoading({ isLoading: false });
       setSuccessPayload({
         claimImage: imageURI,
-        claimTitle: name,
+        claimTitle: title,
       });
       toast.success('Claim created successfully');
       setShowSuccess(true);
@@ -198,7 +198,7 @@ export default function FormClaim({
     onSettled: () => {
       utils.bountyClaims.refetch();
       setPollingChainId(null);
-      setName('');
+      setTitle('');
       setDescription('');
       setImageURI('');
       setPreview('');
@@ -265,8 +265,8 @@ export default function FormClaim({
             <span>title</span>
             <input
               type='text'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
             />
             <span>description</span>
@@ -285,7 +285,7 @@ export default function FormClaim({
               account.isDisconnected && 'opacity-50 cursor-not-allowed'
             )}
             onClick={() => {
-              if (name && description) {
+              if (title && description && imageURI) {
                 onClose();
                 setShowConfirm(true);
               } else {
