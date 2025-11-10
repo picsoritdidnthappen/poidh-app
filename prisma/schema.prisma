@@ -98,6 +98,7 @@ model Transactions {
   tx        String
   index     Int
   bounty_id Int
+  claim_id Int?
   chain_id  Int
   address   String
   action    String
