@@ -8,10 +8,12 @@ import Image from 'next/image';
 export default function DisplayAddress({
   address,
   chainName = 'base',
+  showPfpIfExists = true,
   pfpSize,
 }: {
   address: string;
   chainName?: Netname;
+  showPfpIfExists?: boolean;
   pfpSize?: number;
 }) {
   const userDataNeynar = trpc.usersDataNeynar.useQuery({
@@ -29,7 +31,7 @@ export default function DisplayAddress({
 
   return (
     <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-      {userDataNeynar?.data && userDataNeynar?.data[address]?.[0]?.pfp_url && (
+      {showPfpIfExists && userDataNeynar?.data && userDataNeynar?.data[address]?.[0]?.pfp_url && (
         <div
           style={{
             width: pfpSize ?? 20,

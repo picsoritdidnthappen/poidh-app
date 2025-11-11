@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 import { sdk } from '@farcaster/miniapp-sdk';
+import { getEnsOrDegenName } from '@/utils/web3';
 
 export function shareToX(text: string) {
   const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -37,4 +38,40 @@ export function copyToClipboard(successMessage: string) {
   navigator.clipboard.writeText(window.location.href).then(() => {
     toast.success(successMessage);
   });
+}
+
+export async function getAddressDisplayName(
+  address: string,
+  platform: 'farcaster' | 'twitter',
+  usersDataNeynar?: Record<string, any[]>
+): Promise<string> {
+  const userData = usersDataNeynar?.[address.toLowerCase()]?.[0];
+
+  if (platform === 'farcaster') {
+    if (userData?.username) {
+      return `@${userData.username}`;
+    }
+  } else if (platform === 'twitter') {
+    const xUsername = userData?.verified_accounts?.find(
+      (account: any) => account.platform === 'x'
+    )?.username;
+    if (xUsername) {
+      return `@${xUsername}`;
+    }
+  }
+
+  try {
+    const ensOrDegenName = await getEnsOrDegenName({
+      chainName: 'base',
+      address,
+    });
+
+    if (ensOrDegenName) {
+      return ensOrDegenName;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch ENS/Degen name:', error);
+  }
+
+  return `${address.slice(0, 7)}`;
 }

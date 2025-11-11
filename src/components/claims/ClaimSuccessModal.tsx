@@ -4,48 +4,15 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { TwitterXIcon } from '@/components/global/Icons';
-import { shareToFarcaster, shareToX } from '@/utils/share';
+import {
+  getAddressDisplayName,
+  shareToFarcaster,
+  shareToX,
+} from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import { useGetChain } from '@/hooks/useGetChain';
-import { getEnsOrDegenName } from '@/utils/web3';
 import { uploadFile } from '@/utils/pinata';
-
-async function getAddressDisplayName(
-  address: string,
-  platform: 'farcaster' | 'twitter',
-  usersDataNeynar?: Record<string, any[]>
-): Promise<string> {
-  const userData = usersDataNeynar?.[address.toLowerCase()]?.[0];
-
-  if (platform === 'farcaster') {
-    if (userData?.username) {
-      return `@${userData.username}`;
-    }
-  } else if (platform === 'twitter') {
-    const xUsername = userData?.verified_accounts?.find(
-      (account: any) => account.platform === 'x'
-    )?.username;
-    if (xUsername) {
-      return `@${xUsername}`;
-    }
-  }
-
-  try {
-    const ensOrDegenName = await getEnsOrDegenName({
-      chainName: 'base',
-      address,
-    });
-
-    if (ensOrDegenName) {
-      return ensOrDegenName;
-    }
-  } catch (error) {
-    console.warn('Failed to fetch ENS/Degen name:', error);
-  }
-
-  return `${address.slice(0, 7)}`;
-}
 
 export default function ClaimSuccessModal({
   open,
@@ -204,7 +171,7 @@ export default function ClaimSuccessModal({
             <div className='font-semibold text-lg'>{claimTitle}</div>
             <div className='mt-2 opacity-90 flex items-center gap-2'>
               <span>issuer:</span>
-              <DisplayAddress address={claimIssuer} />
+              <DisplayAddress address={claimIssuer.toLowerCase()} />
             </div>
           </div>
         </div>
