@@ -1,5 +1,4 @@
 'use client';
-import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import BountyClaims from '@/components/bounty/BountyClaims';
 import BountyInfo from '@/components/bounty/BountyInfo';
@@ -11,7 +10,6 @@ import Breadcrumbs from '@/components/global/Breadcrumbs';
 
 export default function Bounty({ params }: { params: { id: string } }) {
   const isMobile = useScreenSize();
-  const pathname = usePathname();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
 
@@ -29,7 +27,7 @@ export default function Bounty({ params }: { params: { id: string } }) {
           onHowItWorksModalStateChange={setIsHowItWorksModalOpen}
         />
         <BountyClaims bountyId={params.id} />
-        <CommentsSection url={`https://poidh.xyz${pathname}`} />
+        <CommentsSection />
       </div>
       {!isShareModalOpen &&
         !isHowItWorksModalOpen &&
