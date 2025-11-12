@@ -40,6 +40,12 @@ export default function Voting({
   // State to track if user has already voted
   const [hasUserVoted, setHasUserVoted] = useState(false);
 
+  // Create a stable storage key per chain/account/bounty for vote persistence
+  const voteStorageKey = React.useMemo(() => {
+    const addr = account.address?.toLowerCase() || 'noaddr';
+    return `poidh:voted:${chain.id}:${bountyId}:${addr}`;
+  }, [account.address, bountyId, chain.id]);
+
   const voting = useQuery({
     queryKey: ['bountyVotingTracker', { id: bountyId, chainName: chain.slug }],
     queryFn: () => bountyVotingTracker({ id: bountyId, chainName: chain.slug }),
@@ -62,10 +68,18 @@ export default function Voting({
   const isVotingInProgress =
     parseInt(voting.data?.deadline ?? '0') * 1000 > Date.now();
 
-  // Reset voting state when account or bounty changes
+  // Initialize voting state from localStorage when relevant deps change
   useEffect(() => {
-    setHasUserVoted(false);
-  }, [account.address, bountyId]);
+    try {
+      const stored =
+        typeof window !== 'undefined'
+          ? localStorage.getItem(voteStorageKey)
+          : null;
+      setHasUserVoted(stored === '1');
+    } catch {
+      setHasUserVoted(false);
+    }
+  }, [voteStorageKey]);
 
   const voteMutation = useMutation({
     mutationFn: async ({
@@ -96,11 +110,19 @@ export default function Voting({
     onSuccess: () => {
       toast.success('Voted successfully');
       setHasUserVoted(true); // Mark that user has voted
+      try {
+        if (typeof window !== 'undefined')
+          localStorage.setItem(voteStorageKey, '1');
+      } catch {}
     },
     onError: (error) => {
       // Check if the error is due to already voting
       if (error.message.includes('AlreadyVoted')) {
         setHasUserVoted(true);
+        try {
+          if (typeof window !== 'undefined')
+            localStorage.setItem(voteStorageKey, '1');
+        } catch {}
         toast.info('You have already voted on this claim');
       } else {
         toast.error('Failed to vote: ' + error.message);
@@ -276,9 +298,7 @@ export default function Voting({
                 )}
             {/* Show message when user has already voted */}
             {isVotingInProgress && isBountyContributor && hasUserVoted && (
-              <div className='mt-3 text-gray-300'>
-                You have already cast your vote for this claim.
-              </div>
+              <div className='mt-3 text-gray-300'>thank you for your vote!</div>
             )}
           </div>
 
