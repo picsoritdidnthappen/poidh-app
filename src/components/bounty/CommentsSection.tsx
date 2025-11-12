@@ -8,9 +8,12 @@ import {
 import { WarpcastCast } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
+import { usePathname } from 'next/navigation';
 
-export default function CommentsSection({ url }: { url: string }) {
-  const data = trpc.comments.useQuery({ url });
+export default function CommentsSection() {
+  const pathname = usePathname();
+
+  const data = trpc.comments.useQuery({ url: `https://poidh.xyz/${pathname}` });
 
   const validComments =
     data.data?.filter(
