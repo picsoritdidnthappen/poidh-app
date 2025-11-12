@@ -224,7 +224,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                     </span>
                   )}
                 </div>
-                <div className='text-xs text-white/60'>Open</div>
+                <div className='text-xs text-white/60 hover:text-poidhRed'>Open</div>
               </Link>
             </div>
           )}

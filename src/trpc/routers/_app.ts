@@ -2191,6 +2191,25 @@ export const appRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+
+  userHasVoted: baseProcedure
+    .input(
+      z.object({
+        address: addressSchema,
+        bountyId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const tx = await prisma.transactions.findFirst({
+        where: {
+          address: input.address.toLowerCase(),
+          action: 'voted',
+          bounty_id: input.bountyId,
+        },
+      });
+
+      return !!tx;
+    }),
 });
 
 export function checkIsAdmin(address?: string) {
