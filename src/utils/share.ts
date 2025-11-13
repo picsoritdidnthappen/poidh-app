@@ -2,36 +2,40 @@ import { toast } from 'react-toastify';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { getEnsOrDegenName } from '@/utils/web3';
 
-export function shareToX(text: string) {
-  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-    `${text}\n\n${window.location.href}`
+export function shareToX(text: string, url?: string) {
+  const composeUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+    `${text}\n\n${url ?? window.location.href}`
   )}`;
-  window.open(url, '_blank');
+  window.open(composeUrl, '_blank');
 }
 
-export async function shareToFarcaster(text: string, embedImage?: string) {
+export async function shareToFarcaster(
+  text: string,
+  url?: string,
+  embedImage?: string
+) {
   const isMiniApp = await sdk.isInMiniApp();
   const isMobile = window.innerWidth < 768;
   if (isMobile && isMiniApp) {
     if (embedImage) {
       await sdk.actions.composeCast({
         text,
-        embeds: [window.location.href, embedImage] as [string, string],
+        embeds: [url ?? window.location.href, embedImage] as [string, string],
       });
     } else {
       await sdk.actions.composeCast({
         text,
-        embeds: [window.location.href] as [string],
+        embeds: [url ?? window.location.href] as [string],
       });
     }
     return;
   }
-  const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+  const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
     text
   )}&embeds[]=${encodeURIComponent(window.location.href)}${
     embedImage ? `&embeds[]=${encodeURIComponent(embedImage)}` : ''
   }`;
-  window.open(url, '_blank');
+  window.open(composeUrl, '_blank');
 }
 
 export function copyToClipboard(successMessage: string) {

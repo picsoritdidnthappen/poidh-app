@@ -173,7 +173,9 @@ export default function FormBounty({
         album,
       });
       setLoading({ isLoading: false, status: '' });
-      router.push(`/${currentChain.slug}/bounty/${bountyId}?indexing=true`);
+      router.push(
+        `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
+      );
       toast.success('Bounty created successfully');
 
       try {
