@@ -47,7 +47,7 @@ export default function SlideOverMenu({
         </MenuLink>
       )}
       <MenuLink href='/feed' onClick={handleCloseWithDelay}>
-        feed ⚡
+        feed 🖼️
       </MenuLink>
       <MenuLink href='/leaderboard' onClick={handleCloseWithDelay}>
         leaderboard 🕹️
@@ -112,6 +112,12 @@ export default function SlideOverMenu({
             analytics 📊
           </MenuLink>
           <MenuLink
+            href='https://words.poidh.xyz'
+            onClick={handleCloseWithDelay}
+          >
+            blog 📝
+          </MenuLink>
+          <MenuLink
             href='https://warpcast.com/poidhbot'
             onClick={handleCloseWithDelay}
           >
@@ -128,6 +134,12 @@ export default function SlideOverMenu({
             onClick={handleCloseWithDelay}
           >
             tiktok 📹
+          </MenuLink>
+          <MenuLink
+            href='https://www.instagram.com/poidhxyz'
+            onClick={handleCloseWithDelay}
+          >
+            instagram 📸
           </MenuLink>
           <MenuLink
             href='https://github.com/picsoritdidnthappen/poidh-app/issues/new'
