@@ -115,7 +115,7 @@ export default function SlideOverMenu({
             href='https://words.poidh.xyz'
             onClick={handleCloseWithDelay}
           >
-            blog 📜
+            blog 📝
           </MenuLink>
           <MenuLink
             href='https://warpcast.com/poidhbot'
