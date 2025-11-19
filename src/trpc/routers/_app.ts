@@ -662,7 +662,14 @@ export const appRouter = createTRPCRouter({
                 in_progress: true,
                 is_canceled: true,
                 created_at: true,
-                claims: { take: 1 },
+                claims: {
+                  take: 1,
+                  where: {
+                    ban: {
+                      none: {},
+                    },
+                  },
+                },
               },
             },
           },
@@ -972,7 +979,14 @@ export const appRouter = createTRPCRouter({
               in_progress: true,
               is_canceled: true,
               created_at: true,
-              claims: { take: 1 },
+              claims: {
+                take: 1,
+                where: {
+                  ban: {
+                    none: {},
+                  },
+                },
+              },
             },
             orderBy: { id: 'desc' },
           })
@@ -1008,7 +1022,14 @@ export const appRouter = createTRPCRouter({
                   in_progress: true,
                   is_canceled: true,
                   created_at: true,
-                  claims: { take: 1 },
+                  claims: {
+                    take: 1,
+                    where: {
+                      ban: {
+                        none: {},
+                      },
+                    },
+                  },
                 },
               },
             },
