@@ -127,160 +127,187 @@ export default function Voting({
   });
 
   return (
-    <div className='col-span-12 lg:col-span-3 p-5 lg:p-0 '>
+    <div className='w-full mt-5'>
       {voting.data ? (
-        <div>
-          <div className='text-center'>
-            {isAcceptedBounty ? 'Voting closed' : 'Voting in progress'}
-          </div>
-          <div className='flex items-center mb-5'>
-            <PieChart
-              data={[
-                {
-                  value: Number(formatEther(BigInt(voting.data.yes || 0))),
-                  title: 'Yes',
-                  color: '#2A81D5',
-                },
-                {
-                  value: Number(formatEther(BigInt(voting.data.no || 0))),
-                  title: 'No',
-                  color: '#F15E5F',
-                },
-                {
-                  value: bounty.data
-                    ? Number(formatEther(BigInt(bounty.data.amount || 0))) -
-                      Number(formatEther(BigInt(voting.data.yes || 0))) -
-                      Number(formatEther(BigInt(voting.data.no || 0)))
-                    : 0,
-                  title: 'Abstain',
-                  color: '#5A5A5A',
-                },
-              ]}
-              labelPosition={50}
-              radius={35}
-              label={({ dataEntry, x, y, dx, dy }) => {
-                return !dataEntry.value ? (
-                  ''
-                ) : (
-                  <text
-                    x={x}
-                    y={y}
-                    dx={dx}
-                    dy={dy}
-                    textAnchor='middle'
-                    dominantBaseline='central'
-                    fill='#FFF'
-                    style={{ fontSize: '3.5px', pointerEvents: 'none' }}
-                  >
-                    <tspan
+        <div className='bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 p-6 backdrop-blur-md shadow-2xl'>
+          <div className='space-y-2'>
+            <div className='text-center'>
+              <h3 className='text-lg font-semibold font-family-pixeloid bg-gradient-to-r text-poidhRed bg-clip-text [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]'>
+                {isAcceptedBounty ? 'Voting closed' : 'Voting in progress'}
+              </h3>
+            </div>
+
+            <div className='flex justify-center'>
+              <PieChart
+                data={[
+                  {
+                    value: Number(formatEther(BigInt(voting.data.yes || 0))),
+                    title: 'Yes',
+                    color: '#2A81D5',
+                  },
+                  {
+                    value: Number(formatEther(BigInt(voting.data.no || 0))),
+                    title: 'No',
+                    color: '#F15E5F',
+                  },
+                  {
+                    value: bounty.data
+                      ? Number(formatEther(BigInt(bounty.data.amount || 0))) -
+                        Number(formatEther(BigInt(voting.data.yes || 0))) -
+                        Number(formatEther(BigInt(voting.data.no || 0)))
+                      : 0,
+                    title: 'Abstain',
+                    color: '#5A5A5A',
+                  },
+                ]}
+                labelPosition={50}
+                radius={40}
+                label={({ dataEntry, x, y, dx, dy }) => {
+                  return !dataEntry.value ? (
+                    ''
+                  ) : (
+                    <text
                       x={x}
                       y={y}
-                      dx={dataEntry.percentage === 100 ? 0 : dx}
-                      dy={dataEntry.percentage === 100 ? 0 : dy}
+                      dx={dx}
+                      dy={dy}
+                      textAnchor='middle'
+                      dominantBaseline='central'
+                      fill='#FFF'
+                      style={{
+                        fontSize: '4px',
+                        fontWeight: 600,
+                        pointerEvents: 'none',
+                      }}
                     >
-                      {Math.round(dataEntry.percentage)}%
-                    </tspan>
-                    <tspan
-                      x={x}
-                      y={y + 3}
-                      dx={dataEntry.percentage === 100 ? 0 : dx}
-                      dy={dataEntry.percentage === 100 ? 0 : dy}
-                    >
-                      {dataEntry.title}
-                    </tspan>
-                  </text>
-                );
-              }}
-              labelStyle={() => ({
-                fontSize: '3px',
-                fontWeight: 'bold',
-              })}
-              animate
-            />
-          </div>
-
-          <div>
-            {`Yes votes: ${formatEther(BigInt(voting.data.yes || 0))} ${
-              chain.currency
-            }`}
-          </div>
-          <div>
-            {`No votes: ${formatEther(BigInt(voting.data.no || 0))} ${
-              chain.currency
-            }`}
-          </div>
-          <div className='flex flex-row gap-x-5 '>
-            {isVotingInProgress
-              ? isBountyContributor &&
-                !userHasVoted.data && (
-                  <div>
-                    <div className='mt-3'>what is your vote?</div>
-                    <div className='flex flex-row gap-x-5 mt-2'>
-                      <button
-                        className='border border-white rounded-full px-5 py-1 flex items-center justify-center backdrop-blur-sm bg-[#D1ECFF]/20 min-w-[80px] text-center'
-                        onClick={() => {
-                          if (account.address) {
-                            voteMutation.mutate({
-                              vote: true,
-                              bountyId: BigInt(bountyId),
-                            });
-                          } else {
-                            toast.error('Please connect wallet to continue');
-                          }
-                        }}
+                      <tspan
+                        x={x}
+                        y={y}
+                        dx={dataEntry.percentage === 100 ? 0 : dx}
+                        dy={dataEntry.percentage === 100 ? 0 : dy}
                       >
-                        yes
-                      </button>
-                      <button
-                        className='border border-white rounded-full px-5 py-1 flex items-center justify-center backdrop-blur-sm bg-[#D1ECFF]/20 min-w-[80px] text-center'
-                        onClick={() => {
-                          if (account.address) {
-                            voteMutation.mutate({
-                              vote: false,
-                              bountyId: BigInt(bountyId),
-                            });
-                          } else {
-                            toast.error('Please connect wallet to continue');
-                          }
-                        }}
+                        {Math.round(dataEntry.percentage)}%
+                      </tspan>
+                      <tspan
+                        x={x}
+                        y={y + 3.5}
+                        dx={dataEntry.percentage === 100 ? 0 : dx}
+                        dy={dataEntry.percentage === 100 ? 0 : dy}
                       >
-                        no
-                      </button>
-                    </div>
-                  </div>
-                )
-              : !isAcceptedBounty && (
-                  <button
-                    className='border mt-5 border-white rounded-full px-5 py-2 flex justify-between items-center backdrop-blur-sm bg-[#D1ECFF]/20 w-fit'
-                    onClick={() => {
-                      if (account.address) {
-                        resolveVoteMutation.mutate(BigInt(bountyId));
-                      } else {
-                        toast.error('Please connect wallet to continue');
-                      }
-                    }}
-                  >
-                    resolve vote
-                  </button>
-                )}
-            {isVotingInProgress && isBountyContributor && userHasVoted.data && (
-              <div className='mt-3 text-white/60'>
-                thank you for your vote!
-              </div>
-            )} 
-          </div>
-
-          {!isAcceptedBounty && (
-            <div className='mt-5 '>
-              Deadline:{' '}
-              {formatDeadline(
-                new Date(parseInt(voting.data.deadline ?? '0') * 1000)
-              )}
+                        {dataEntry.title}
+                      </tspan>
+                    </text>
+                  );
+                }}
+                labelStyle={() => ({
+                  fontSize: '4px',
+                  fontWeight: 'bold',
+                })}
+                animate
+              />
             </div>
-          )}
+
+            <div className='space-y-2 bg-white/5 rounded-lg p-3 border border-white/10'>
+              <div className='flex items-center justify-between'>
+                <span className='text-sm text-white/70'>Yes votes</span>
+                <span className='font-semibold'>
+                  {formatEther(BigInt(voting.data.yes || 0))} {chain.currency}
+                </span>
+              </div>
+              <div className='flex items-center justify-between'>
+                <span className='text-sm text-white/70'>No votes</span>
+                <span className='font-semibold'>
+                  {formatEther(BigInt(voting.data.no || 0))} {chain.currency}
+                </span>
+              </div>
+            </div>
+
+            {isVotingInProgress &&
+              isBountyContributor &&
+              !userHasVoted.data && (
+                <div className='space-y-3'>
+                  <p className='text-center text-sm font-medium text-white/80'>
+                    What is your vote?
+                  </p>
+                  <div className='flex gap-3'>
+                    <button
+                      className='flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-blue-400/20 bg-gradient-to-r from-blue-500/70 to-blue-600/70 text-white hover:from-blue-500/85 hover:to-blue-600/85 hover:border-blue-400 active:scale-95 shadow-lg hover:shadow-blue-500/20'
+                      onClick={() => {
+                        if (account.address) {
+                          voteMutation.mutate({
+                            vote: true,
+                            bountyId: BigInt(bountyId),
+                          });
+                        } else {
+                          toast.error('Please connect wallet to continue');
+                        }
+                      }}
+                      disabled={voteMutation.isPending}
+                    >
+                      {voteMutation.isPending ? 'Voting...' : 'Yes'}
+                    </button>
+                    <button
+                      className='flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-red-400/50 bg-gradient-to-r from-red-500/70 to-red-600/70 text-white hover:from-red-500/85 hover:to-red-600/85 hover:border-red-400 active:scale-95 shadow-lg hover:shadow-red-500/20'
+                      onClick={() => {
+                        if (account.address) {
+                          voteMutation.mutate({
+                            vote: false,
+                            bountyId: BigInt(bountyId),
+                          });
+                        } else {
+                          toast.error('Please connect wallet to continue');
+                        }
+                      }}
+                      disabled={voteMutation.isPending}
+                    >
+                      {voteMutation.isPending ? 'Voting...' : 'No'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            {isVotingInProgress && isBountyContributor && userHasVoted.data && (
+              <div className='p-4 rounded-lg border text-center'>
+                <p className='text-sm font-medium'>
+                  ✓ Thank you for your vote!
+                </p>
+              </div>
+            )}
+
+            {!isVotingInProgress && !isAcceptedBounty && (
+              <button
+                className='w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-orange-600/20 text-amber-300 hover:from-amber-500/40 hover:to-orange-600/40 hover:border-amber-400 active:scale-95 shadow-lg hover:shadow-amber-500/20'
+                onClick={() => {
+                  if (account.address) {
+                    resolveVoteMutation.mutate(BigInt(bountyId));
+                  } else {
+                    toast.error('Please connect wallet to continue');
+                  }
+                }}
+                disabled={resolveVoteMutation.isPending}
+              >
+                {resolveVoteMutation.isPending
+                  ? 'Resolving...'
+                  : 'Resolve vote'}
+              </button>
+            )}
+
+            {!isAcceptedBounty && (
+              <div className='text-center text-xs text-white/60 bg-white/5 rounded-lg p-3 border border-white/10'>
+                <p className='font-medium text-white/80'>Deadline</p>
+                <p className='mt-1'>
+                  {formatDeadline(
+                    new Date(parseInt(voting.data.deadline ?? '0') * 1000)
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
-        <div className='animate-pulse text-center'>Loading voting data...</div>
+        <div className='flex items-center justify-center h-40 animate-pulse bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 backdrop-blur-md'>
+          <p className='text-sm text-white/50'>Loading voting data...</p>
+        </div>
       )}
     </div>
   );
