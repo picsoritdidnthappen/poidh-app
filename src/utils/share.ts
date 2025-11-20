@@ -30,11 +30,15 @@ export async function shareToFarcaster(
     }
     return;
   }
+
+  const embeds = embedImage
+    ? [window.location.href, embedImage]
+    : [window.location.href];
   const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
     text
-  )}&embeds[]=${encodeURIComponent(window.location.href)}${
-    embedImage ? `&embeds[]=${encodeURIComponent(embedImage)}` : ''
-  }`;
+  )}${embeds
+    .map((embed) => `&embeds[]=${encodeURIComponent(embed)}`)
+    .join('')}`;
   window.open(composeUrl, '_blank');
 }
 
