@@ -276,7 +276,7 @@ export default function Voting({
 
             {!isVotingInProgress && !isAcceptedBounty && (
               <button
-                className='w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-orange-600/20 text-amber-300 hover:from-amber-500/40 hover:to-orange-600/40 hover:border-amber-400 active:scale-95 shadow-lg hover:shadow-amber-500/20'
+                className='w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-blue-400/20 bg-gradient-to-r from-blue-500/70 to-blue-600/70 text-white hover:from-blue-500/85 hover:to-blue-600/85 hover:border-blue-400 active:scale-95 shadow-lg hover:shadow-blue-500/20'
                 onClick={() => {
                   if (account.address) {
                     resolveVoteMutation.mutate(BigInt(bountyId));
