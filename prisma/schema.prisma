@@ -28,6 +28,7 @@ model Bounties {
   issuerUser     Users?                   @relation(fields: [issuer], references: [address])
   ban            Ban[]
   transactions   Transactions[]
+  comments       Comments[]
 
   @@id([id, chain_id])
 }
@@ -51,10 +52,10 @@ model Claims {
   bounty_id   Int
   owner       String
 
-  bounty     Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
-  issuerUser Users?    @relation(fields: [issuer], references: [address])
-  ban        Ban[]
-  transactions   Transactions[]
+  bounty       Bounties?      @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  issuerUser   Users?         @relation(fields: [issuer], references: [address])
+  ban          Ban[]
+  transactions Transactions[]
 
   @@id([id, chain_id])
 }
@@ -79,6 +80,7 @@ model Users {
   participations ParticipationsBounties[]
   claims         Claims[]
   bounties       Bounties[]
+  comments       Comments[]
 
   @@id([address])
 }
@@ -99,14 +101,14 @@ model Transactions {
   tx        String
   index     Int
   bounty_id Int
-  claim_id Int?
+  claim_id  Int?
   chain_id  Int
   address   String
   action    String
   timestamp Decimal @db.Decimal(78, 0)
 
   bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
-  claim Claims? @relation(fields: [claim_id, chain_id], references: [id, chain_id])
+  claim  Claims?  @relation(fields: [claim_id, chain_id], references: [id, chain_id])
 
   @@id([tx, index, chain_id])
 }
@@ -126,4 +128,28 @@ model Price {
   created_at DateTime @default(now())
   degen_usd  Decimal?
   eth_usd    Decimal?
+}
+
+model Comments {
+  id           Int       @id @default(autoincrement())
+  bounty_id    Int
+  chain_id     Int
+  parent_id    Int?
+  user_address String
+  body         String
+  upvotes      Int       @default(0)
+  downvotes    Int       @default(0)
+  created_at   DateTime  @default(now()) @map("createdAt")
+  deleted_at   DateTime? @map("deletedAt")
+
+  bounty  Bounties   @relation(fields: [chain_id, bounty_id], references: [chain_id, id], onDelete: NoAction)
+  author  Users      @relation(fields: [user_address], references: [address], onDelete: NoAction)
+  parent  Comments?  @relation("CommentToParent", fields: [parent_id], references: [id], onDelete: NoAction)
+  replies Comments[] @relation("CommentToParent")
+
+  @@index([bounty_id])
+  @@index([chain_id])
+  @@index([parent_id])
+  @@index([user_address])
+  @@map("Comments")
 }
