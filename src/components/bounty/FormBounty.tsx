@@ -166,7 +166,7 @@ export default function FormBounty({
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: async ({ bountyId, album, bountyUsd, bountyTitle }) => {
+    onSuccess: async ({ bountyId, album }) => {
       saveBountyAlbum.mutate({
         bountyId: Number(bountyId),
         chainId: pollingChainId ?? currentChain.id,
@@ -177,20 +177,6 @@ export default function FormBounty({
         `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
       );
       toast.success('Bounty created successfully');
-
-      try {
-        if (bountyUsd && bountyUsd >= 100) {
-          await trpcClient.notifyFarcasterOfHighBounty.mutate({
-            bountyUsd,
-            bountyTitle,
-            chainSlug: currentChain.slug,
-            bountyId,
-            creatorAddress: account.address!,
-          });
-        }
-      } catch (e) {
-        console.error('failed to send bounty notifications', e);
-      }
     },
     onError: (error) => {
       toast.error('Failed to create bounty: ' + error.message);
