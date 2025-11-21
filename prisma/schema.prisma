@@ -4,6 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // We are using Prisma 5, but the latest Prisma LSP targets version 7
+  // You can safely ignore this warning, or upgrade to Prisma 7 :)
   url      = env("DATABASE_URL")
 }
 
