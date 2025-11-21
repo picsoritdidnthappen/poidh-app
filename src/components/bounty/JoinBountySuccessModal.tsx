@@ -190,7 +190,12 @@ export default function JoinBountySuccessModal({
 
             <div className='bg-poidhBlue/80 px-6 pb-2 rounded-lg'>
               <p className='font-family-pixeloid text-4xl text-poidhRed/95 font-semibold [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]'>
-                {computePoidhPoints(Number(joinedAmount), chain.currency)}
+                {computePoidhPoints(Number(joinedAmount), chain.currency) > 0.01
+                  ? computePoidhPoints(
+                      Number(joinedAmount),
+                      chain.currency
+                    ).toFixed(2)
+                  : '<0.01'}
               </p>
             </div>
           </div>

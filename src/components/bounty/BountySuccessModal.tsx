@@ -157,7 +157,12 @@ export default function BountySuccessModal({
                   ? computePoidhPoints(
                       Number(formatEther(BigInt(bounty.data.amount))),
                       chain.currency
-                    )
+                    ) > 0.01
+                    ? computePoidhPoints(
+                        Number(formatEther(BigInt(bounty.data.amount))),
+                        chain.currency
+                      ).toFixed(2)
+                    : '<0.01'
                   : 0}
               </p>
             </div>
