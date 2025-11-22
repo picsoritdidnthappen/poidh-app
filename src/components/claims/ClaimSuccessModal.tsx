@@ -144,25 +144,9 @@ export default function ClaimSuccessModal({
       onClick={onClose}
     >
       <div
-        className='relative w-[calc(100vw-2rem)] sm:w-[520px] max-w-[520px] bg-poidhBlue/90 rounded-xl p-6 border border-[#D1ECFF]'
+        className='w-[calc(100vw-2rem)] sm:w-[520px] max-w-[520px] bg-poidhBlue/90 rounded-xl p-6 border border-[#D1ECFF]'
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className='absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors text-white'
-          aria-label='Close'
-        >
-          <svg
-            width='20'
-            height='20'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-          >
-            <path d='M18 6L6 18M6 6l12 12' />
-          </svg>
-        </button>
         <h3 className='font-mono text-xl text-white font-bold text-center'>
           congratulations! your claim has been submitted:
         </h3>
