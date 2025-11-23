@@ -26,7 +26,6 @@ const envSchema = z.object({
   BASE_RPC_URL: z.string(),
   NEYNAR_API_KEY: z.string().optional(),
   NEYNAR_CLIENT_ID: z.string(),
-  OPENAI_API_KEY: z.string().optional(),
 });
 
 export default envSchema.parse(process.env);

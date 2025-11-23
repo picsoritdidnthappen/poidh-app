@@ -144,7 +144,7 @@ export default function ClaimSuccessModal({
       onClick={onClose}
     >
       <div
-        className='relative w-[calc(100vw-2rem)] sm:w-[520px] max-w-[520px] bg-poidhBlue/90 rounded-xl p-6 border border-[#D1ECFF]'
+        className='w-[calc(100vw-2rem)] sm:w-[520px] max-w-[520px] bg-poidhBlue/90 rounded-xl p-6 border border-[#D1ECFF]'
         onClick={(e) => e.stopPropagation()}
       >
         <button
