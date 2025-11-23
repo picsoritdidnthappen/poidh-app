@@ -167,7 +167,7 @@ export default function ClaimSuccessModal({
             <line x1='6' y1='6' x2='18' y2='18'></line>
           </svg>
         </button>
-        <h3 className='font-mono text-xl text-white font-bold text-center'>
+        <h3 className='font-mono text-xl text-white font-bold text-center mt-8'>
           congratulations! your claim has been submitted:
         </h3>
 
