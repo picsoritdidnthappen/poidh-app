@@ -18,8 +18,7 @@ import { decodeEventLog, parseEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { cn } from '@/utils';
 import GameButton from '@/components/global/GameButton';
-import { ExpandMoreIcon, InfoIcon } from '@/components/global/Icons';
-import ButtonCTA from '../global/ButtonCTA';
+import { ExpandMoreIcon, InfoIcon, CloseIcon } from '@/components/global/Icons';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -194,23 +193,6 @@ export default function FormBounty({
     setAnchorEl(null);
   };
 
-  const generateBounty = trpc.generateBounty.useMutation({
-    onMutate: async () => {
-      setName('Generating…');
-      setDescription('Generating…');
-    },
-    onSuccess: (bounty) => {
-      setName(bounty.title);
-      setDescription(bounty.description);
-      toast.success('Bounty generated successfully');
-    },
-    onError: (error) => {
-      setName('');
-      setDescription('');
-      toast.error('Failed to generate bounty: ' + error.message);
-    },
-  });
-
   return (
     <Dialog
       open={open}
@@ -228,24 +210,46 @@ export default function FormBounty({
         },
       }}
     >
-      <DialogContent>
+      <DialogContent sx={{ position: 'relative', p: 3 }}>
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            right: 10,
+            top: 8,
+            background: 'none',
+            border: 'none',
+            color: 'white',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '6px',
+            transition: 'background-color 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+              'rgba(255, 255, 255, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+              'transparent';
+          }}
+        >
+          <CloseIcon size={12} />
+        </button>
         <Box display='flex' flexDirection='column' width='100%'>
-          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            title
-          </span>
+          <span>title</span>
           <input
-            disabled={generateBounty.isPending}
             type='text'
             value={name}
             onChange={(e) => setName(e.target.value)}
             className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse'
           />
-          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            description
-          </span>
+          <span>description</span>
           <textarea
             ref={textareaRef}
-            disabled={generateBounty.isPending}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y min-h-[60px] max-h-80 overflow-y-auto touch-manipulation'
@@ -358,12 +362,9 @@ export default function FormBounty({
             bounties
           </div>
 
-          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            album
-          </span>
+          <span>album</span>
           <div className='relative mb-4'>
             <input
-              disabled={generateBounty.isPending}
               type='text'
               value={album}
               onChange={(e) => {
@@ -459,21 +460,9 @@ export default function FormBounty({
             >
               <div className='button'>
                 <GameButton />
+                <p className='text-center mt-1'>create claim</p>
               </div>
-              <ButtonCTA>create bounty</ButtonCTA>
             </button>
-            <div className='mt-5 w-full flex justify-center items-center flex-row'>
-              <span className='mr-2 whitespace-nowrap'>
-                need a bounty idea? click the
-              </span>
-              <button
-                className='cursor-pointer items-center text-center disabled:cursor-not-allowed'
-                onClick={() => generateBounty.mutate()}
-                disabled={generateBounty.isPending}
-              >
-                🤖
-              </button>
-            </div>
           </div>
         </Box>
       </DialogContent>
