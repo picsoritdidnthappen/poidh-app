@@ -460,7 +460,7 @@ export default function FormBounty({
             >
               <div className='button'>
                 <GameButton />
-                <p className='text-center mt-1'>create claim</p>
+                <p className='text-center mt-1'>create bounty</p>
               </div>
             </button>
           </div>
