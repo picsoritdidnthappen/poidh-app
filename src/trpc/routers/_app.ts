@@ -5,15 +5,14 @@ import serverEnv from '@/utils/serverEnv';
 import { TRPCError } from '@trpc/server';
 import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
-import {
-  fetchPrice,
-  getBanSignatureFirstLine,
-  tryCatchAsync,
-} from '@/utils/utils';
-import { ChainId, WarpcastCast } from '@/utils/types';
-import axios from 'axios';
-import { Leaderboard } from '@prisma/client';
+import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
+import { ChainId } from '@/utils/types';
+import { Comments, Leaderboard } from '@prisma/client';
 import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
+
+type CommentNode = Comments & {
+  replies: CommentNode[];
+};
 
 const config = new Configuration({
   apiKey: serverEnv.NEYNAR_API_KEY || '',
@@ -1594,86 +1593,30 @@ export const appRouter = createTRPCRouter({
       };
     }),
 
-  //TODO: create zod schema for the responses (Neynar API)
   comments: baseProcedure
     .input(
-      z.object({ url: z.string(), limit: z.number().optional().default(20) })
+      z.object({
+        bountyId: z.number(),
+        chainId: z.union([
+          z.literal(8453),
+          z.literal(666666666),
+          z.literal(42161),
+        ]),
+      })
     )
     .query(async ({ input }) => {
-      const neynarApiKey = serverEnv.NEYNAR_API_KEY;
-      if (!neynarApiKey) {
-        return [];
-      }
+      const { chainId: chain_id, bountyId: bounty_id } = input;
 
-      const { data } = await axios.get(
-        'https://api.neynar.com/v2/farcaster/cast/search',
-        {
-          headers: {
-            'x-api-key': neynarApiKey,
-            'Content-Type': 'application/json',
-          },
-          params: {
-            q: `"${input.url}"`,
-            mode: 'literal',
-            limit: input.limit,
-          },
-        }
-      );
+      const comments = await prisma.comments.findMany({
+        where: {
+          AND: [{ bounty_id }, { chain_id }],
+        },
+        orderBy: {
+          created_at: 'asc',
+        },
+      });
 
-      const casts =
-        data.result.casts?.filter(
-          (cast: { hash: string; thread_hash: string }) =>
-            cast.hash === cast.thread_hash
-        ) ?? [];
-      const uniqueThreadHashes = [
-        ...new Set(
-          casts.map((cast: { thread_hash: string }) => cast.thread_hash)
-        ),
-      ];
-      const flattenCast = (cast: WarpcastCast): WarpcastCast[] => {
-        const stack = [cast];
-        const all: WarpcastCast[] = [];
-
-        while (stack.length) {
-          const current = stack.pop();
-          if (!current) continue;
-          all.push(current);
-
-          if (current.direct_replies?.length) {
-            stack.push(...current.direct_replies);
-          }
-        }
-        return all;
-      };
-
-      const totalCasts: WarpcastCast[] = [];
-      for (const threadHash of uniqueThreadHashes) {
-        if (totalCasts.length >= 20) break;
-
-        const [conversationCast] = await tryCatchAsync(async () => {
-          const { data } = await axios.get(
-            'https://api.neynar.com/v2/farcaster/cast/conversation',
-            {
-              headers: {
-                'x-api-key': serverEnv.NEYNAR_API_KEY,
-                'Content-Type': 'application/json',
-              },
-              params: {
-                type: 'hash',
-                identifier: threadHash,
-                reply_depth: 3,
-              },
-            }
-          );
-          return data.conversation.cast as WarpcastCast;
-        });
-
-        if (conversationCast) {
-          totalCasts.push(...flattenCast(conversationCast));
-        }
-      }
-
-      return totalCasts;
+      return buildCommentTree(comments);
     }),
 
   usersDataNeynar: baseProcedure
@@ -2001,7 +1944,7 @@ export const appRouter = createTRPCRouter({
           _count: bigint;
         }>
       >`
-        SELECT 
+        SELECT
           LOWER(TRIM(album)) as album,
           COUNT(*)::bigint as _count
         FROM "BountiesExtra"
@@ -2098,14 +2041,14 @@ export const appRouter = createTRPCRouter({
           latest_timestamp: string;
         }>
       >`
-        SELECT 
+        SELECT
           MIN(be.album) as album,
           COUNT(be.album)::bigint as count,
           MAX(b.created_at)::text as latest_timestamp
         FROM "BountiesExtra" be
         INNER JOIN "Bounties" b ON be.bounty_id = b.id AND be.chain_id = b.chain_id
         LEFT JOIN "Ban" ban ON b.id = ban.bounty_id AND b.chain_id = ban.chain_id
-        WHERE b.is_canceled = false 
+        WHERE b.is_canceled = false
           AND ban.id IS NULL
           AND b.in_progress = true
           AND b.is_voting = false
@@ -2231,6 +2174,30 @@ function convertAmount({ amount, price }: { amount: string; price: number }) {
     amountCrypto: Number(amount),
     amountUSD: price * Number(amount),
   };
+}
+
+function buildCommentTree(comments: Comments[]) {
+  const byId = new Map<number, CommentNode>();
+  const roots: CommentNode[] = [];
+
+  for (const c of comments) {
+    byId.set(c.id, { ...c, replies: [] });
+  }
+
+  for (const node of byId.values()) {
+    if (node.parent_id == null) {
+      roots.push(node);
+    } else {
+      const parent = byId.get(node.parent_id);
+      if (parent) {
+        parent.replies.push(node);
+      } else {
+        roots.push(node);
+      }
+    }
+  }
+
+  return roots;
 }
 
 export type AppRouter = typeof appRouter;
