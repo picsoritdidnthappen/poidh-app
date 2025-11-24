@@ -215,7 +215,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                 className='flex items-center justify-between gap-4'
               >
                 <div className='flex flex-col'>
-                  <span className='font-mono text-m mb-3'>
+                  <span className='font-mono text-m mb-3 break-all'>
                     {activity.bounty?.title ?? 'view bounty'}
                   </span>
                   {bountyData.data?.amount && priceData.data && chain && (
@@ -224,7 +224,9 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                     </span>
                   )}
                 </div>
-                <div className='text-xs text-white/60 hover:text-poidhRed'>Open</div>
+                <div className='text-xs text-white/60 hover:text-poidhRed'>
+                  Open
+                </div>
               </Link>
             </div>
           )}
