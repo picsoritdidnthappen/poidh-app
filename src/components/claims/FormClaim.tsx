@@ -10,11 +10,10 @@ import abi from '@/constant/abi/abi';
 import Image from 'next/image';
 import { useMutation } from '@tanstack/react-query';
 
-import { Dialog, DialogContent, DialogActions, Box } from '@mui/material';
+import { Dialog, DialogContent, Box } from '@mui/material';
 import { decodeEventLog } from 'viem';
 import { trpc, trpcClient } from '@/trpc/client';
 import GameButton from '@/components/global/GameButton';
-import ButtonCTA from '@/components/global/ButtonCTA';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import ClaimConfirm from '@/components/claims/ClaimConfirm';
 import ClaimSuccessModal from '@/components/claims/ClaimSuccessModal';
@@ -230,17 +229,18 @@ export default function FormClaim({
         onClose={onClose}
         maxWidth='xs'
         PaperProps={{
-          className: 'bg-poidhBlue/80 relative',
+          className: 'bg-poidhBlue/80 relative flex flex-col',
           style: {
             borderRadius: '10px',
             color: 'white',
             border: '1px solid #D1ECFF',
+            maxHeight: '90vh',
           },
         }}
       >
         <button
           onClick={onClose}
-          className='absolute top-4 right-4 text-white hover:opacity-70 transition-opacity'
+          className='absolute top-4 right-4 text-white hover:opacity-70 transition-opacity z-10'
           aria-label='Close'
         >
           <svg
@@ -258,7 +258,7 @@ export default function FormClaim({
             <line x1='6' y1='6' x2='18' y2='18'></line>
           </svg>
         </button>
-        <DialogContent className='pt-8'>
+        <DialogContent className='pt-8 overflow-y-auto flex-1'>
           <div
             {...getRootProps()}
             className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full justify-center cursor-pointer mt-4'
@@ -281,7 +281,7 @@ export default function FormClaim({
               />
             )}
           </div>
-          <Box mt={2} mb={-3}>
+          <Box mt={2}>
             <span>title</span>
             <input
               type='text'
@@ -297,11 +297,9 @@ export default function FormClaim({
               className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
             ></textarea>
           </Box>
-        </DialogContent>
-        <DialogActions className='pb-6'>
           <button
             className={cn(
-              'flex flex-col items-center justify-center w-full',
+              'flex flex-col items-center justify-center w-full mt-2',
               account.isDisconnected && 'opacity-50 cursor-not-allowed'
             )}
             onClick={() => {
@@ -320,7 +318,7 @@ export default function FormClaim({
               <p className='text-center mt-1'>create claim</p>
             </div>
           </button>
-        </DialogActions>
+        </DialogContent>
       </Dialog>
     </>
   );
