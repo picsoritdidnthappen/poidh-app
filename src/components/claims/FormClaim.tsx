@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useGetChain } from '@/hooks/useGetChain';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
@@ -44,6 +45,7 @@ export default function FormClaim({
   );
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -53,6 +55,16 @@ export default function FormClaim({
   const writeContract = useWriteContract({});
   const chain = useGetChain();
   const switchChain = useSwitchChain();
+  const isMobile = useScreenSize();
+
+  const handleDescriptionFocus = () => {
+    if (isMobile && descriptionRef.current) {
+      descriptionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -291,9 +303,11 @@ export default function FormClaim({
             />
             <span>description</span>
             <textarea
+              ref={descriptionRef}
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              onFocus={handleDescriptionFocus}
               className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
             ></textarea>
           </Box>
