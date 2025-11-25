@@ -45,6 +45,7 @@ export default function FormClaim({
   );
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
@@ -56,15 +57,6 @@ export default function FormClaim({
   const chain = useGetChain();
   const switchChain = useSwitchChain();
   const isMobile = useScreenSize();
-
-  const handleDescriptionFocus = () => {
-    if (isMobile && descriptionRef.current) {
-      descriptionRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
-  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -296,9 +288,18 @@ export default function FormClaim({
           <Box mt={2}>
             <span>title</span>
             <input
+              ref={titleRef}
               type='text'
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              onFocus={() => {
+                if (isMobile && titleRef.current) {
+                  titleRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                  });
+                }
+              }}
               className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
             />
             <span>description</span>
@@ -307,7 +308,14 @@ export default function FormClaim({
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              onFocus={handleDescriptionFocus}
+              onFocus={() => {
+                if (isMobile && descriptionRef.current) {
+                  descriptionRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                  });
+                }
+              }}
               className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
             ></textarea>
           </Box>
