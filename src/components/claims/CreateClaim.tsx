@@ -18,9 +18,7 @@ export default function CreateClaim({ bountyId }: { bountyId: string }) {
     chainId: chain.id,
   });
 
-  const hasAcceptedClaim = bounty.data?.claims?.some(claim => claim.is_accepted === true);
-  
-  if (!bounty.data?.inProgress || hasAcceptedClaim) {
+  if (!bounty.data?.inProgress) {
     return null;
   }
 
