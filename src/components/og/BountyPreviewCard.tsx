@@ -186,23 +186,10 @@ export default function BountyPreviewCard({
             />
           </picture>
         </div>
-        <div
-          style={{
-            width: imageFormat === 'preview' ? '48px' : '72px',
-            height: imageFormat === 'preview' ? '48px' : '72px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            border: '2px solid rgba(255,255,255,0.3)',
-          }}
-        >
-          <DynamicChainIcon
-            chain={chain.slug}
-            size={imageFormat === 'preview' ? 32 : 48}
-          />
-        </div>
+        <DynamicChainIcon
+          chain={chain.slug}
+          size={imageFormat === 'preview' ? 32 : 48}
+        />
       </div>
     </div>
   );

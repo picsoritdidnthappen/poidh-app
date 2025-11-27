@@ -295,7 +295,10 @@ export default function FormBounty({
                   onClick={handleClick}
                   className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/30 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
                 >
-                  <DynamicChainIcon chain={currentChain.slug} size={20} />
+                  <DynamicChainIcon
+                    chain={currentChain.slug}
+                    size={currentChain.slug === 'base' ? 15 : 20}
+                  />
                   <span className='ml-1 color-white'>
                     <ExpandMoreIcon size={12} />
                   </span>
@@ -339,7 +342,10 @@ export default function FormBounty({
                         handleClose();
                       }}
                     >
-                      <DynamicChainIcon chain={netname as Netname} size={18} />
+                      <DynamicChainIcon
+                        chain={netname as Netname}
+                        size={netname === 'base' ? 14 : 18}
+                      />
                       <p className='ml-4'>{netname}</p>
                     </MenuItem>
                   ))}
