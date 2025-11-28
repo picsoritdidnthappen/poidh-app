@@ -18,6 +18,7 @@ import GameButton from '@/components/global/GameButton';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import ClaimConfirm from '@/components/claims/ClaimConfirm';
 import ClaimSuccessModal from '@/components/claims/ClaimSuccessModal';
+import { ImageIcon } from '@/components/global/Icons';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -244,7 +245,7 @@ export default function FormClaim({
       >
         <button
           onClick={onClose}
-          className='absolute top-4 right-4 text-white hover:opacity-70 transition-opacity z-10'
+          className='absolute top-2 right-2 text-white hover:opacity-70 transition-opacity z-10'
           aria-label='Close'
         >
           <svg
@@ -265,23 +266,57 @@ export default function FormClaim({
         <DialogContent className='pt-8 overflow-y-auto flex-1'>
           <div
             {...getRootProps()}
-            className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full justify-center cursor-pointer mt-4'
+            className={cn(
+              'flex items-center flex-col text-center text-white rounded-3xl border-2 border-dashed p-8 w-full justify-center cursor-pointer transition-all duration-200',
+              isDragActive
+                ? 'border-white bg-white/10 scale-105'
+                : 'border-[#D1ECFF] hover:border-white hover:bg-white/5'
+            )}
           >
             <input {...getInputProps()} />
             {isDragActive ? (
-              <p>Drop the image here...</p>
+              <div className='flex flex-col items-center gap-2'>
+                <ImageIcon />
+                <p className='text-sm font-medium'>Drop the image here...</p>
+              </div>
             ) : (
-              <p>
-                {imageURI
-                  ? 'Image uploaded'
-                  : 'Drag & drop or click to upload an image'}
-              </p>
+              <div className='flex flex-col items-center gap-3'>
+                {!imageURI && (
+                  <svg
+                    className='w-8 h-8 opacity-75'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={1.5}
+                      d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                    />
+                  </svg>
+                )}
+                <div>
+                  <p className='text-sm font-medium'>
+                    {imageURI
+                      ? '✓ Image uploaded'
+                      : 'Drag & drop or click to upload'}
+                  </p>
+                  {!imageURI && (
+                    <p className='text-xs opacity-70 mt-1'>
+                      PNG, JPG, GIF, WebP, HEIC
+                    </p>
+                  )}
+                </div>
+              </div>
             )}
             {preview && (
               <Image
                 src={preview}
                 alt='Preview'
-                className='w-full max-w-[300px] h-auto max-h-[300px] mt-2 rounded-md object-contain'
+                width={280}
+                height={280}
+                className='w-full max-w-xs h-auto rounded-2xl object-contain mt-4 border border-white/20'
               />
             )}
           </div>
