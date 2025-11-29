@@ -214,9 +214,9 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                 href={`/${chain.slug}/bounty/${bountyId}`}
                 className='flex items-center justify-between gap-4'
               >
-                <div className='flex flex-col'>
-                  <span className='font-mono text-m mb-3 break-all'>
-                    {activity.bounty?.title ?? 'view bounty'}
+                <div className='flex flex-col flex-1 min-w-0'>
+                  <span className='font-mono text-m mb-3 break-words'>
+                    {activity.bounty?.title ?? '???'}
                   </span>
                   {bountyData.data?.amount && priceData.data && chain && (
                     <span className='font-mono text-s text-white/70 mt-1'>
@@ -224,7 +224,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                     </span>
                   )}
                 </div>
-                <div className='text-xs text-white/60 hover:text-poidhRed'>
+                <div className='text-xs text-white/60 hover:text-poidhRed shrink-0'>
                   Open
                 </div>
               </Link>
