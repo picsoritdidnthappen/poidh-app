@@ -6,13 +6,9 @@ import { TRPCError } from '@trpc/server';
 import { formatEther, getAddress } from 'viem';
 import { chains, getChainById } from '@/utils/config';
 import { fetchPrice, getBanSignatureFirstLine } from '@/utils/utils';
-import { ChainId } from '@/utils/types';
+import { ChainId, CommentNode } from '@/utils/types';
 import { Comments, Leaderboard } from '@prisma/client';
 import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
-
-type CommentNode = Comments & {
-  replies: CommentNode[];
-};
 
 const config = new Configuration({
   apiKey: serverEnv.NEYNAR_API_KEY || '',
@@ -1616,7 +1612,7 @@ export const appRouter = createTRPCRouter({
         },
       });
 
-      return buildCommentTree(comments);
+      return comments;
     }),
 
   usersDataNeynar: baseProcedure
@@ -2174,30 +2170,6 @@ function convertAmount({ amount, price }: { amount: string; price: number }) {
     amountCrypto: Number(amount),
     amountUSD: price * Number(amount),
   };
-}
-
-function buildCommentTree(comments: Comments[]) {
-  const byId = new Map<number, CommentNode>();
-  const roots: CommentNode[] = [];
-
-  for (const c of comments) {
-    byId.set(c.id, { ...c, replies: [] });
-  }
-
-  for (const node of byId.values()) {
-    if (node.parent_id == null) {
-      roots.push(node);
-    } else {
-      const parent = byId.get(node.parent_id);
-      if (parent) {
-        parent.replies.push(node);
-      } else {
-        roots.push(node);
-      }
-    }
-  }
-
-  return roots;
 }
 
 export type AppRouter = typeof appRouter;

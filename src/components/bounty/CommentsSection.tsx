@@ -1,43 +1,49 @@
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import {
-  HeartIcon,
-  LookupIcon,
-  FarcasterIcon,
-} from '@/components/global/Icons';
-import { WarpcastCast } from '@/utils/types';
+import { LookupIcon, FarcasterIcon } from '@/components/global/Icons';
+import { ChainId } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
-import { usePathname } from 'next/navigation';
+import { Comments as CommentType } from '@prisma/client';
 
-export default function CommentsSection() {
-  const pathname = usePathname();
+type CommentsSectionProps = {
+  chainId: ChainId;
+  bountyId: number;
+};
 
-  const data = trpc.comments.useQuery({ url: `https://poidh.xyz/${pathname}` });
+export default function CommentsSection(props: CommentsSectionProps) {
+  const commentsQuery = trpc.comments.useQuery({ ...props });
 
-  const validComments =
-    data.data?.filter(
-      (comment) =>
-        comment?.hash &&
-        comment?.author?.pfp_url &&
-        comment?.author?.display_name &&
-        comment?.text &&
-        comment?.timestamp
-    ) || [];
-
-  const commentsByParent = validComments.reduce(
-    (acc: { [key: string]: WarpcastCast[] }, comment) => {
-      const parentHash = comment.parent_hash || 'root';
-      if (!acc[parentHash]) {
-        acc[parentHash] = [];
+  const commentsByParent = (commentsQuery.data ?? []).reduce(
+    (acc: { [key: string]: CommentType[] }, comment) => {
+      const parrentId = comment.parent_id || 'root';
+      if (!acc[parrentId]) {
+        acc[parrentId] = [];
       }
-      acc[parentHash].push(comment);
+      acc[parrentId].push(comment);
       return acc;
     },
     {}
   );
 
-  const topLevelComments = commentsByParent['root'] || [];
+  function sorting(a: CommentType, b: CommentType) {
+    const aUp = a.upvotes ?? 0;
+    const bUp = b.upvotes ?? 0;
+    const aDown = a.downvotes ?? 0;
+    const bDown = b.downvotes ?? 0;
+
+    const upDiff = bUp - aUp;
+    if (upDiff !== 0) return upDiff;
+
+    const downDiff = aDown - bDown;
+    if (downDiff !== 0) return downDiff;
+
+    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return bTime - aTime;
+  }
+
+  const topLevelComments = (commentsByParent['root'] || []).sort(sorting);
 
   return (
     <div id='comments-section' className='w-full pt-8'>
@@ -48,9 +54,9 @@ export default function CommentsSection() {
         {topLevelComments.length > 0 ? (
           topLevelComments.map((comment) => (
             <CommentThread
-              key={comment.hash}
+              key={comment.id}
               comment={comment}
-              replies={commentsByParent[comment.hash] || []}
+              replies={(commentsByParent[comment.id] || []).sort(sorting)}
               commentsByParent={commentsByParent}
             />
           ))
@@ -70,9 +76,9 @@ function CommentThread({
   commentsByParent,
   level = 0,
 }: {
-  comment: WarpcastCast;
-  replies: WarpcastCast[];
-  commentsByParent: { [key: string]: WarpcastCast[] };
+  comment: CommentType;
+  replies: CommentType[];
+  commentsByParent: { [key: string]: CommentType[] };
   level?: number;
 }) {
   return (
@@ -84,9 +90,9 @@ function CommentThread({
       <Comment comment={comment} />
       {replies.map((reply) => (
         <CommentThread
-          key={reply.hash}
+          key={reply.id}
           comment={reply}
-          replies={commentsByParent[reply.hash] || []}
+          replies={commentsByParent[reply.id] || []}
           commentsByParent={commentsByParent}
           level={level + 1}
         />
@@ -95,17 +101,21 @@ function CommentThread({
   );
 }
 
-function Comment({ comment }: { comment: WarpcastCast }) {
-  const timestamp = comment.timestamp ? new Date(comment.timestamp) : null;
+function Comment({ comment }: { comment: CommentType }) {
+  const timestamp = comment.created_at ? new Date(comment.created_at) : null;
   const isValidDate = timestamp && !isNaN(timestamp.getTime());
+
+  const upvotes = comment.upvotes ?? 0;
+  const downvotes = comment.downvotes ?? 0;
+  const score = upvotes - downvotes;
 
   return (
     <div className='flex space-x-2 sm:space-x-3 p-2 sm:p-4 rounded-lg text-[#fff]'>
       <div className='flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 relative'>
         <div className='w-full h-full overflow-hidden rounded-full'>
           <Image
-            src={comment.author?.pfp_url || '/images/avatar.png'}
-            alt={comment.author?.display_name}
+            src={'/images/avatar.png'}
+            alt={comment.user_address}
             width={40}
             height={40}
             unoptimized
@@ -116,10 +126,11 @@ function Comment({ comment }: { comment: WarpcastCast }) {
           <FarcasterIcon size={12} />
         </div>
       </div>
+
       <div className='flex-1 min-w-0'>
         <div className='flex items-center space-x-2 flex-wrap'>
           <span className='font-bold text-sm sm:text-base'>
-            {comment.author?.display_name}
+            {comment.user_address}
           </span>
           <span className='text-xs sm:text-sm text-white/60'>
             {isValidDate
@@ -127,21 +138,39 @@ function Comment({ comment }: { comment: WarpcastCast }) {
               : 'Invalid date'}
           </span>
         </div>
+
         <p className='mt-1 sm:mt-2 whitespace-pre-line text-sm sm:text-base break-words'>
-          <TextWithLinks>{comment.text}</TextWithLinks>
+          <TextWithLinks>{comment.body}</TextWithLinks>
         </p>
+
+        {/* Reddit-style vote row */}
         <div className='mt-1 sm:mt-2 flex items-center space-x-4'>
-          <button className='flex items-center space-x-1 cursor-default'>
-            <HeartIcon />
-            <span className='text-xs sm:text-sm text-white/60'>
-              {comment.reactions?.likes_count}
+          {/* Upvotes */}
+          <div className='flex items-center space-x-1'>
+            <span className='text-green-400 text-xs sm:text-sm font-semibold'>
+              ↑ {upvotes}
             </span>
-          </button>
+          </div>
+
+          {/* Downvotes */}
+          <div className='flex items-center space-x-1'>
+            <span className='text-red-400 text-xs sm:text-sm font-semibold'>
+              ↓ {downvotes}
+            </span>
+          </div>
+
+          {/* Score (optional, can hide if you want) */}
+          <div className='flex items-center space-x-1'>
+            <span className='text-xs sm:text-sm text-white/60'>
+              score: {score}
+            </span>
+          </div>
+
           <a
-            href={`https://warpcast.com/${comment.author?.username}/${comment.hash}`}
+            href={`https://warpcast.com`}
             target='_blank'
             rel='noopener noreferrer'
-            className='flex items-center space-x-1 hover:text-gray-400 cursor-pointer'
+            className='flex items-center space-x-1 hover:text-gray-400 cursor-pointer ml-4'
           >
             <LookupIcon />
           </a>

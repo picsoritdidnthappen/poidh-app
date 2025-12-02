@@ -1,3 +1,5 @@
+import { Comments } from '@prisma/client';
+
 export type Currency = 'eth' | 'degen';
 
 export type Netname = 'degen' | 'base' | 'arbitrum';
