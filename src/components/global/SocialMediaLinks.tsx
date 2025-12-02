@@ -8,7 +8,7 @@ export default function SocialMediaLinks({ address }: { address: string }) {
     null
   );
   const [xUsername, setXUsername] = useState<string | null>(null);
-  const userDataNeynar = trpc.usersDataNeynar.useQuery({
+  const userDataNeynar = trpc.neynar.usersData.useQuery({
     addresses: [address],
   });
 

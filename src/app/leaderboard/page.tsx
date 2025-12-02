@@ -5,11 +5,14 @@ import useDegenOrEnsName from '@/hooks/useDegenOrEnsName';
 import Image from 'next/image';
 import { TwitterXIcon } from '@/components/global/Icons';
 import { inferRouterOutputs } from '@trpc/server';
-import { AppRouter } from '@/trpc/routers/_app';
+import { AppRouter } from '@/trpc/trpc';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { Netname } from '@/utils/types';
 import { useState, useMemo } from 'react';
+
+type UserDataNeynar =
+  inferRouterOutputs<AppRouter>['neynar']['usersData'][string];
 
 const formatUserName = (name: string) =>
   name.length >= 10 ? `${name.slice(0, 6)}…${name.slice(-5)}` : name;
@@ -28,7 +31,7 @@ function UserDisplay({
   address,
   isLoading = false,
 }: {
-  userData?: inferRouterOutputs<AppRouter>['usersDataNeynar'][string];
+  userData?: inferRouterOutputs<AppRouter>['neynar']['usersData'][string];
   address: string;
   isLoading?: boolean;
 }) {
@@ -95,7 +98,7 @@ export default function HighScoresPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const leaderboardResult = trpc.leaderboard.useQuery({
+  const leaderboardResult = trpc.leaderboard.fetch.useQuery({
     userAddress: account.address,
     page: currentPage,
     limit: 10,
@@ -118,15 +121,9 @@ export default function HighScoresPage() {
       )
     );
     return addresses;
-  }, [
-    leaderboardData,
-    userRankData,
-    account.isConnected,
-    account.address,
-    currentPage,
-  ]);
+  }, [leaderboardData, userRankData, account.isConnected, account.address]);
 
-  const usersDataNeynar = trpc.usersDataNeynar.useQuery(
+  const usersDataNeynar = trpc.neynar.usersData.useQuery(
     {
       addresses: allAddresses,
     },
@@ -526,7 +523,7 @@ function LeaderboardCardMobile({
     arbitrum: number;
     total: number;
   };
-  userData?: inferRouterOutputs<AppRouter>['usersDataNeynar'][string];
+  userData?: UserDataNeynar;
   isCurrentUser?: boolean;
   isLoading?: boolean;
 }) {

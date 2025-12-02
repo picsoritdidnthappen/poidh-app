@@ -13,7 +13,7 @@ export default function CreateClaim({ bountyId }: { bountyId: string }) {
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
 
-  const bounty = trpc.bounty.useQuery({
+  const bounty = trpc.bounties.fetch.useQuery({
     id: Number(bountyId),
     chainId: chain.id,
   });

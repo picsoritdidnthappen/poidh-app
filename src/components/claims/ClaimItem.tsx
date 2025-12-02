@@ -46,16 +46,16 @@ export default function ClaimItem({
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
-  const accountActivities = trpc.accountActivities.useQuery({
+  const accountActivities = trpc.accounts.activitiesCount.useQuery({
     address: issuer,
   });
 
-  const accountStats = trpc.accountInfo.useQuery({
+  const accountStats = trpc.accounts.statsByChain.useQuery({
     address: issuer,
     chainId: chain.id,
   });
 
-  const bounty = trpc.bounty.useQuery(
+  const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
       chainId: chain.id,
@@ -102,7 +102,7 @@ export default function ClaimItem({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const accepted = await trpcClient.isAcceptedClaim.query({
+        const accepted = await trpcClient.claims.isAccepted.query({
           id: Number(claimId),
           chainId: pollingChainId ?? chain.id,
         });
@@ -124,7 +124,7 @@ export default function ClaimItem({
       toast.error('Failed to accept claim:' + error.message);
     },
     onSettled: () => {
-      utils.bountyClaims.refetch();
+      utils.bounties.claims.refetch();
       setLoading({ isLoading: false, status: '' });
     },
   });
@@ -176,7 +176,7 @@ export default function ClaimItem({
           currency: chain.currency,
           issuer: {
             completedClaims: accountStats.data?.acceptedClaimsCount ?? 0,
-            totalClaims: accountActivities.data?.claims.length ?? 0,
+            totalClaims: accountActivities.data?.claims ?? 0,
             address: issuer,
             earnedAmount: accountStats.data?.totalEarn.amountCrypto ?? 0,
             scorePoidh: accountStats.data?.poidhScore ?? 0,

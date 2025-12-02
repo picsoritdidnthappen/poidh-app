@@ -16,7 +16,7 @@ export default function Album({ params }: { params: { album: string } }) {
   const [display, setDisplay] = useState<BountyDisplayType>('open');
   const isMobile = useScreenSize();
 
-  const bounties = trpc.bountiesByAlbum.useQuery({
+  const bounties = trpc.bounties.fetchByAlbum.useQuery({
     album: album.toLowerCase(),
     status: display,
   });

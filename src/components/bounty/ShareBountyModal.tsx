@@ -17,7 +17,7 @@ export default function ShareBountyModal({
   bountyIssuerAddress: string;
 }) {
   const { data: userDataNeynar, refetch: fetchUserData } =
-    trpc.usersDataNeynar.useQuery(
+    trpc.neynar.usersData.useQuery(
       { addresses: [bountyIssuerAddress] },
       {
         enabled: false,

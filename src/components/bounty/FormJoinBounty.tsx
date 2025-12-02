@@ -36,7 +36,7 @@ export default function FormJoinBounty({
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const price =
-    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
+    trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const bountyMutation = useMutation({
     mutationFn: async (bountyId: bigint) => {
@@ -61,7 +61,7 @@ export default function FormJoinBounty({
         if (!account.address) {
           throw new Error('No wallet address found');
         }
-        const participant = await trpcClient.isJoinedBounty.query({
+        const participant = await trpcClient.bounties.isJoined.query({
           bountyId: Number(bountyId),
           chainId: pollingChainId ?? chain.id,
           participantAddress: account.address,
@@ -159,7 +159,7 @@ export default function FormJoinBounty({
         onClose={() => {
           setShowSuccess(false);
           setAmount('');
-          utils.participations.refetch();
+          utils.bounties.participations.refetch();
         }}
         joinedAmount={amount}
         bountyId={bountyId}

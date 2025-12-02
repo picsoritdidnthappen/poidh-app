@@ -41,7 +41,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
         if (!account.address) {
           throw new Error('Wallet not connected');
         }
-        const participant = await trpcClient.isWithdrawBounty.query({
+        const participant = await trpcClient.bounties.isWithdraw.query({
           bountyId: Number(bountyId),
           chainId: pollingChainId ?? chain.id,
           participantAddress: account.address,
@@ -61,7 +61,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
       toast.error('Failed to withdraw bounty:' + error.message);
     },
     onSettled: () => {
-      utils.participations.refetch();
+      utils.bounties.participations.refetch();
       setLoading({ isLoading: false, status: '' });
       setPollingChainId(null);
     },

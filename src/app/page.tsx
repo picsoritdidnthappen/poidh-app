@@ -32,7 +32,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const bounties = trpc.allBounties.useInfiniteQuery(
+  const bounties = trpc.bounties.fetchAll.useInfiniteQuery(
     {
       status: display,
       limit: 6,

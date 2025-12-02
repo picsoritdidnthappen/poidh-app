@@ -29,7 +29,7 @@ export default function JoinBountySuccessModal({
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const bounty = trpc.bounty.useQuery(
+  const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
       chainId: chain.id,
@@ -39,7 +39,7 @@ export default function JoinBountySuccessModal({
     }
   );
 
-  const { data: usersDataNeynar } = trpc.usersDataNeynar.useQuery(
+  const { data: usersDataNeynar } = trpc.neynar.usersData.useQuery(
     {
       addresses: bounty.data?.issuer ? [bounty.data.issuer] : [],
     },

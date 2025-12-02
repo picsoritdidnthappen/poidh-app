@@ -41,17 +41,18 @@ export default function Voting({
     queryFn: () => bountyVotingTracker({ id: bountyId, chainName: chain.slug }),
   });
 
-  const bounty = trpc.bounty.useQuery({
+  const bounty = trpc.bounties.fetch.useQuery({
     id: Number(bountyId),
     chainId: chain.id,
   });
 
-  const userHasVoted = trpc.userHasVoted.useQuery({
+  const userHasVoted = trpc.accounts.hasVoted.useQuery({
     address: account.address ?? '',
     bountyId: Number(bountyId),
+    chainId: chain.id,
   });
 
-  const bountyContibutors = trpc.participations.useQuery({
+  const bountyContibutors = trpc.bounties.participations.useQuery({
     chainId: chain.id,
     bountyId: Number(bountyId),
   });

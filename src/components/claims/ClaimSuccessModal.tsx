@@ -36,7 +36,7 @@ export default function ClaimSuccessModal({
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const bounty = trpc.bounty.useQuery(
+  const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
       chainId: chain.id,
@@ -45,7 +45,7 @@ export default function ClaimSuccessModal({
       enabled: !!open && !!bountyId,
     }
   );
-  const { data: usersDataNeynar } = trpc.usersDataNeynar.useQuery(
+  const { data: usersDataNeynar } = trpc.neynar.usersData.useQuery(
     {
       addresses: bounty.data?.issuer
         ? [bounty.data?.issuer, claimIssuer]

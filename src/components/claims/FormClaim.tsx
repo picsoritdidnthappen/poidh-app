@@ -169,7 +169,7 @@ export default function FormClaim({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const claim = await trpcClient.isClaimCreated.query({
+        const claim = await trpcClient.claims.isCreated.query({
           id: Number(claimId),
           chainId: pollingChainId ?? chain.id,
         });
@@ -196,7 +196,7 @@ export default function FormClaim({
       toast.error('Failed to create claim: ' + error.message);
     },
     onSettled: () => {
-      utils.bountyClaims.refetch();
+      utils.bounties.claims.refetch();
       setPollingChainId(null);
       setTitle('');
       setDescription('');

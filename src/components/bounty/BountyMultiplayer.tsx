@@ -17,7 +17,7 @@ export default function BountyMultiplayer({
 }) {
   const [showParticipants, setShowParticipants] = useState(false);
 
-  const participants = trpc.participations.useQuery(
+  const participants = trpc.bounties.participations.useQuery(
     {
       bountyId: Number(bountyId),
       chainId: chain.id,

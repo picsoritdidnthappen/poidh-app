@@ -26,7 +26,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
     fetchCurrentVotingClaim();
   }, [bountyId, chain]);
 
-  const claims = trpc.bountyClaims.useInfiniteQuery(
+  const claims = trpc.bounties.claims.useInfiniteQuery(
     {
       bountyId: Number(bountyId),
       chainId: chain.id,
@@ -38,7 +38,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
     }
   );
 
-  const bountyClaimsCount = trpc.bountyClaimsCount.useQuery(
+  const bountyClaimsCount = trpc.bounties.claimsCount.useQuery(
     {
       bountyId: Number(bountyId),
       chainId: chain.id,
@@ -48,7 +48,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
     }
   );
 
-  const { data: votingClaim } = trpc.claim.useQuery(
+  const { data: votingClaim } = trpc.claims.fetch.useQuery(
     {
       claimId: Number(votingClaimId),
       chainId: chain.id,

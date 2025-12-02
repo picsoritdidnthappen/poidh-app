@@ -27,7 +27,7 @@ export default function PastBountyCard({
   const chain = getChainById({ chainId: claim.chainId as ChainId });
 
   const price =
-    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
+    trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const fetchImageUrl = async (url: string) => {
     const response = await fetch(url);
@@ -72,7 +72,10 @@ export default function PastBountyCard({
                     className='flex flex-row items-center w-full justify-end overflow-hidden'
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <DisplayAddress chainName={chain.slug} address={claim.issuer} />
+                    <DisplayAddress
+                      chainName={chain.slug}
+                      address={claim.issuer}
+                    />
                     <div className='ml-2'>
                       <CopyAddressButton address={claim.issuer} />
                     </div>

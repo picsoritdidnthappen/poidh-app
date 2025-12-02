@@ -40,9 +40,9 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const switctChain = useSwitchChain();
   const { signMessageAsync } = useSignMessage();
 
-  const banClaimMutation = trpc.banClaim.useMutation({});
-  const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
-  const isIssuer = trpc.isIssuer.useQuery({
+  const banClaimMutation = trpc.admin.banClaim.useMutation({});
+  const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
+  const isIssuer = trpc.bounties.isIssuer.useQuery({
     address: account.address,
     chainId: chain.id,
     bountyId: Number(claim.bountyId),
@@ -108,7 +108,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       toast.error('Failed to ban claim: ' + error.message);
     },
     onSettled: () => {
-      utils.bountyClaims.refetch();
+      utils.bounties.claims.refetch();
     },
   });
 

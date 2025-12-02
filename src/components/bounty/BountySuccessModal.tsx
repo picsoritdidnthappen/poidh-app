@@ -24,7 +24,7 @@ export default function BountySuccessModal({
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const bounty = trpc.bounty.useQuery({
+  const bounty = trpc.bounties.fetch.useQuery({
     id: Number(bountyId),
     chainId: chain.id,
   });

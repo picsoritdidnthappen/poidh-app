@@ -52,13 +52,14 @@ export default function FormBounty({
   const chain = useGetChain();
   const [currentChain, setCurrentChain] = useState<Chain>(chain);
   const price =
-    trpc.fetchPrice.useQuery({ currency: currentChain.currency }).data ?? 0;
+    trpc.web3.fetchPrice.useQuery({ currency: currentChain.currency }).data ??
+    0;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const usdRef = useRef<HTMLSpanElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const isMobile = useScreenSize();
 
-  const { data: albums } = trpc.albums.useQuery(
+  const { data: albums } = trpc.albums.fetch.useQuery(
     { contains: album },
     {
       enabled: !!album,
@@ -91,7 +92,7 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
-  const saveBountyAlbum = trpc.saveBountyAlbum.useMutation();
+  const saveBountyAlbum = trpc.bounties.addToAlbum.useMutation();
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
@@ -146,7 +147,7 @@ export default function FormBounty({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const bounty = await trpcClient.isBountyCreated.query({
+        const bounty = await trpcClient.bounties.isCreated.query({
           id: Number(data.args.id),
           chainId: pollingChainId ?? currentChain.id,
         });
@@ -194,7 +195,7 @@ export default function FormBounty({
     setAnchorEl(null);
   };
 
-  const generateBounty = trpc.generateBounty.useMutation({
+  const generateBounty = trpc.bounties.generateWithAI.useMutation({
     onMutate: async () => {
       setName('Generating…');
       setDescription('Generating…');

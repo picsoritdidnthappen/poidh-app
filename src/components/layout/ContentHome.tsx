@@ -16,7 +16,7 @@ export default function ContentHome() {
   const [sortType, setSortType] = useState<BountySortType>('value');
   const chain = useGetChain();
 
-  const bounties = trpc.bounties.useInfiniteQuery(
+  const bounties = trpc.bounties.fetchByChain.useInfiniteQuery(
     {
       chainId: chain.id,
       status: display,

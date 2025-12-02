@@ -12,7 +12,7 @@ type CommentsSectionProps = {
 };
 
 export default function CommentsSection(props: CommentsSectionProps) {
-  const commentsQuery = trpc.comments.useQuery({ ...props });
+  const commentsQuery = trpc.comments.fetch.useQuery({ ...props });
 
   const commentsByParent = (commentsQuery.data ?? []).reduce(
     (acc: { [key: string]: CommentType[] }, comment) => {

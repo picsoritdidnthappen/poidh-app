@@ -31,7 +31,7 @@ export default function BountyItem({
 }) {
   const chain = getChainById({ chainId: bounty.chainId });
   const price =
-    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
+    trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
   const amount = formatEther(BigInt(bounty.amount)).toString();
 
   const getStatusEmoji = () => {

@@ -30,12 +30,12 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
   const chainId = activity.bounty?.chain_id ?? activity.chain_id;
   const chain = getChainById({ chainId: chainId as ChainId });
 
-  const bountyData = trpc.bounty.useQuery(
+  const bountyData = trpc.bounties.fetch.useQuery(
     { id: bountyId ?? 0, chainId: chainId ?? 0 },
     { enabled: Boolean(bountyId && chainId) }
   );
 
-  const priceData = trpc.fetchPrice.useQuery(
+  const priceData = trpc.web3.fetchPrice.useQuery(
     { currency: chain?.currency ?? 'eth' },
     { enabled: Boolean(chain?.currency) }
   );
@@ -224,7 +224,9 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                     </span>
                   )}
                 </div>
-                <div className='text-xs text-white/60 hover:text-poidhRed'>Open</div>
+                <div className='text-xs text-white/60 hover:text-poidhRed'>
+                  Open
+                </div>
               </Link>
             </div>
           )}

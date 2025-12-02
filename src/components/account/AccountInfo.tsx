@@ -35,17 +35,17 @@ export default function AccountInfo({ address }: { address: string }) {
   const [currentSection, setCurrentSection] = useState<Section>('bounties');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  const accountActivitiesCount = trpc.accountActivitiesCount.useQuery(
+  const accountActivitiesCount = trpc.accounts.activitiesCount.useQuery(
     { address },
     { enabled: !!address }
   );
 
-  const accountStatsSplit = trpc.accountInfoSplit.useQuery(
+  const accountStatsSplit = trpc.accounts.stats.useQuery(
     { address },
     { enabled: !!address }
   );
 
-  const nfts = trpc.accountNFTs.useInfiniteQuery(
+  const nfts = trpc.accounts.nfts.useInfiniteQuery(
     { address, limit: PAGE_SIZE },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -53,7 +53,7 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
-  const claims = trpc.accountClaims.useInfiniteQuery(
+  const claims = trpc.accounts.claims.useInfiniteQuery(
     { address, limit: PAGE_SIZE },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -61,7 +61,7 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
-  const bounties = trpc.accountBounties.useInfiniteQuery(
+  const bounties = trpc.accounts.bounties.useInfiniteQuery(
     { address, limit: PAGE_SIZE },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -91,7 +91,7 @@ export default function AccountInfo({ address }: { address: string }) {
                     type='button'
                     aria-label='Share profile'
                     title='Share profile'
-                    className='cursor-pointer hover:text-gray-200 cursor-pointer'
+                    className='cursor-pointer hover:text-gray-200'
                     onClick={() => {
                       setIsShareModalOpen(true);
                     }}
