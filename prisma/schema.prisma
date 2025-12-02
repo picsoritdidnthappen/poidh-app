@@ -141,8 +141,8 @@ model Comments {
   body         String
   upvotes      Int       @default(0)
   downvotes    Int       @default(0)
-  created_at   DateTime  @default(now()) @map("createdAt")
-  deleted_at   DateTime? @map("deletedAt")
+  created_at   DateTime  @default(now())
+  deleted_at   DateTime?
 
   bounty  Bounties   @relation(fields: [chain_id, bounty_id], references: [chain_id, id], onDelete: NoAction)
   author  Users      @relation(fields: [user_address], references: [address], onDelete: NoAction)
@@ -153,5 +153,4 @@ model Comments {
   @@index([chain_id])
   @@index([parent_id])
   @@index([user_address])
-  @@map("Comments")
 }
