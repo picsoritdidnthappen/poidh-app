@@ -239,16 +239,19 @@ export default function FormBounty({
         }}
       >
         {isMobile ? (
-          <div className='flex items-center justify-between w-full sticky top-0py-2 z-10'>
+          <div
+            className='flex items-center justify-between w-full sticky'
+            style={{
+              paddingTop: 'calc(env(safe-area-inset-top, 0px))',
+            }}
+          >
             <div style={{ width: '40px' }} />{' '}
             <button
               onClick={onClose}
               style={{
-                background: 'none',
-                border: 'none',
                 color: 'white',
                 cursor: 'pointer',
-                padding: '8px',
+                padding: '4px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -274,8 +277,6 @@ export default function FormBounty({
               position: 'absolute',
               right: 10,
               top: 8,
-              background: 'none',
-              border: 'none',
               color: 'white',
               cursor: 'pointer',
               padding: '8px',
