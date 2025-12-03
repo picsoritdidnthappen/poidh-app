@@ -18,6 +18,10 @@ export function getBanSignatureFirstLine({
   return `Ban ${type} id: ${id} chainId: ${chainId}\n`;
 }
 
+export function getCommentSignatureFirstLine({ address }: { address: string }) {
+  return `${address} wants to create a comment. Comment content: \n`;
+}
+
 export function formatAmount({
   amount,
   price,
