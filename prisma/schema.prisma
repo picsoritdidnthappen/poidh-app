@@ -75,14 +75,27 @@ model ParticipationsBounties {
 }
 
 model Users {
-  address   String
-  twitter   String?
-  farcaster String?
+  address String
 
   participations ParticipationsBounties[]
   claims         Claims[]
   bounties       Bounties[]
   comments       Comments[]
+  usersExtras    UsersExtra[]
+
+  @@id([address])
+}
+
+model UsersExtra {
+  address       String
+  pfp_url       String?
+  ens           String?
+  degenName     String?
+  farcaster_tag String?
+  twitter_tag   String?
+  last_updated  DateTime? @default(now())
+
+  user Users @relation(fields: [address], references: [address])
 
   @@id([address])
 }
