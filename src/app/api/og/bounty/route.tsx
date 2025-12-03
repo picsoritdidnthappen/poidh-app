@@ -3,36 +3,40 @@ import BountyPreviewCard, {
 } from '@/components/og/BountyPreviewCard';
 import BountyErrorCard from '@/components/og/BountyErrorCard';
 import { ImageResponse, NextRequest } from 'next/server';
+import { ChainId } from '@/utils/types';
 
 export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const bountyFrameDataEncoded = searchParams.get('data');
     const imageFormat = searchParams.get('imageFormat') as 'og' | 'preview';
+    const title = searchParams.get('title');
+    const amount = searchParams.get('amount');
+    const chainId = searchParams.get('chainId');
+    const currencyRate = searchParams.get('currencyRate');
+    const participants = searchParams.get('participants');
 
-    if (!bountyFrameDataEncoded) {
-      return new ImageResponse(
-        <BountyErrorCard message='Missing bounty data.' />,
-        {
-          width: imageFormat === 'og' ? 1200 : 600,
-          height: imageFormat === 'og' ? 630 : 400,
-        }
-      );
+    if (!title || !amount || !currencyRate || !chainId || !participants) {
+      return new Response('Missing or invalid parameters', { status: 400 });
     }
-    const bountyFrameData = JSON.parse(
-      decodeURIComponent(bountyFrameDataEncoded)
-    ) as BountyPreviewData;
+
+    const bountyPreviewData = {
+      title,
+      amount,
+      chainId: Number(chainId) as ChainId,
+      currencyRate: Number(currencyRate),
+      participants: participants.split(','),
+    } as BountyPreviewData;
     const fontData = await loadFont();
     const farcasterParticipants = await loadFarcasterParticipants(
-      bountyFrameData.participants
+      bountyPreviewData.participants
     );
 
     return new ImageResponse(
       (
         <BountyPreviewCard
-          bountyData={bountyFrameData}
+          bountyData={bountyPreviewData}
           farcasterParticipants={farcasterParticipants}
           imageFormat={imageFormat}
         />
