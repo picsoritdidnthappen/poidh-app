@@ -69,10 +69,10 @@ export default function FormBounty({
     const textarea = textareaRef.current;
     if (textarea && isMobile) {
       textarea.style.height = 'auto';
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, 60), 320);
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, 120), 200);
       textarea.style.height = `${newHeight}px`;
     }
-  }, [description]);
+  }, [description, isMobile]);
 
   useEffect(() => {
     if (amount) {
@@ -199,67 +199,136 @@ export default function FormBounty({
       onClose={() => {
         onClose();
       }}
-      maxWidth='xs'
+      maxWidth={isMobile ? false : 'xs'}
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         className: 'bg-poidhBlue/90',
         style: {
-          borderRadius: '30px',
+          borderRadius: isMobile ? '0px' : '30px',
           color: 'white',
           border: '1px solid #D1ECFF',
+          ...(isMobile && {
+            margin: 0,
+            maxHeight: '100vh',
+            height: '100vh',
+          }),
         },
       }}
+      sx={
+        isMobile
+          ? {
+              '& .MuiDialog-paper': {
+                transform: open ? 'translateY(0)' : 'translateY(100%)',
+                transition: 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+              },
+            }
+          : {}
+      }
     >
-      <DialogContent sx={{ position: 'relative', p: 3 }}>
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            right: 10,
-            top: 8,
-            background: 'none',
-            border: 'none',
-            color: 'white',
-            cursor: 'pointer',
-            padding: '8px',
+      <DialogContent
+        sx={{
+          position: 'relative',
+          p: isMobile ? 2 : 3,
+          ...(isMobile && {
+            height: '100vh',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '6px',
-            transition: 'background-color 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-              'rgba(255, 255, 255, 0.15)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-              'transparent';
-          }}
+            flexDirection: 'column',
+            overflowY: 'auto',
+          }),
+        }}
+      >
+        {isMobile ? (
+          <div className='flex items-center justify-between w-full sticky top-0py-2 z-10'>
+            <div style={{ width: '40px' }} />{' '}
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '6px',
+                transition: 'background-color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  'rgba(255, 255, 255, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  'transparent';
+              }}
+            >
+              <CloseIcon size={16} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              right: 10,
+              top: 8,
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'rgba(255, 255, 255, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'transparent';
+            }}
+          >
+            <CloseIcon size={12} />
+          </button>
+        )}
+        <Box
+          display='flex'
+          flexDirection='column'
+          width='100%'
+          sx={{ flex: 1 }}
         >
-          <CloseIcon size={12} />
-        </button>
-        <Box display='flex' flexDirection='column' width='100%'>
-          <span>title</span>
+          <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
           <input
             type='text'
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse'
+            className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse ${
+              isMobile ? 'text-base py-3' : ''
+            }`}
           />
-          <span>description</span>
+          <span className={isMobile ? 'text-base mb-2' : ''}>description</span>
           <textarea
             ref={textareaRef}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y min-h-[60px] max-h-80 overflow-y-auto touch-manipulation'
+            className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
+              isMobile
+                ? 'min-h-[120px] max-h-[200px] text-base py-3'
+                : 'min-h-[60px] max-h-80'
+            } overflow-y-auto`}
             placeholder='pro tip: be detailed and add a deadline'
             style={{
               resize: 'vertical',
             }}
           ></textarea>
 
-          <span>reward</span>
+          <span className={isMobile ? 'text-base mb-2' : ''}>reward</span>
           <div className='relative w-full mb-3'>
             <input
               ref={inputRef}
@@ -283,7 +352,7 @@ export default function FormBounty({
               }}
               className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full overflow-hidden whitespace-nowrap text-ellipsis transition-colors duration-150 placeholder:text-slate-400 ${
                 amount && showChainSelector ? 'pr-40' : 'pr-28'
-              }`}
+              } ${isMobile ? ' text-base py-3' : ''}`}
             />
             {showChainSelector && (
               <>
@@ -293,7 +362,7 @@ export default function FormBounty({
                   aria-haspopup='true'
                   aria-expanded={menuOpen ? 'true' : undefined}
                   onClick={handleClick}
-                  className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/30 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
+                  className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/10 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
                 >
                   <DynamicChainIcon
                     chain={currentChain.slug}
@@ -355,7 +424,7 @@ export default function FormBounty({
             {usdPerToken !== null && (
               <span
                 ref={usdRef}
-                className={`absolute top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md ${
+                className={`absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md ${
                   showChainSelector ? 'right-16' : 'right-4'
                 }`}
               >
@@ -368,7 +437,7 @@ export default function FormBounty({
             bounties
           </div>
 
-          <span>album</span>
+          <span className={isMobile ? 'text-base mb-2' : ''}>album</span>
           <div className='relative mb-4'>
             <input
               type='text'
@@ -382,7 +451,9 @@ export default function FormBounty({
               }}
               onFocus={() => setShowAlbumDropdown(true)}
               onBlur={() => setShowAlbumDropdown(false)}
-              className='border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full'
+              className={`border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full ${
+                isMobile ? 'text-base py-3' : ''
+              }`}
               placeholder='optional'
               maxLength={30}
               onKeyDown={(e) => {
