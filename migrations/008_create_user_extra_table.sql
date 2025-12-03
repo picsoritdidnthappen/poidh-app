@@ -8,11 +8,5 @@ CREATE TABLE IF NOT EXISTS :schema."UsersExtra" (
     last_updated   TIMESTAMP(3) NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "UsersExtra_pkey"
-        PRIMARY KEY ("address"),
-
-    CONSTRAINT "UsersExtra_address_fkey"
-        FOREIGN KEY ("address")
-        REFERENCES :schema."Users"("address")
-        ON DELETE NO ACTION
-        ON UPDATE NO ACTION
+        PRIMARY KEY ("address")
 );

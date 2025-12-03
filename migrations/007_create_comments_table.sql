@@ -16,12 +16,6 @@ CREATE TABLE IF NOT EXISTS :schema."Comments" (
         ON DELETE NO ACTION
         ON UPDATE NO ACTION,
 
-    CONSTRAINT "Comments_user_address_fkey"
-        FOREIGN KEY ("user_address")
-        REFERENCES :schema."Users"("address")
-        ON DELETE NO ACTION
-        ON UPDATE NO ACTION,
-
     CONSTRAINT "Comments_parent_id_fkey"
         FOREIGN KEY ("parent_id")
         REFERENCES :schema."Comments"("id")
@@ -34,6 +28,3 @@ CREATE INDEX IF NOT EXISTS "Comments_bounty_id_idx"
 
 CREATE INDEX IF NOT EXISTS "Comments_parent_id_idx"
   ON :schema."Comments"("parent_id");
-
-CREATE INDEX IF NOT EXISTS "Comments_user_address_idx"
-  ON :schema."Comments"("user_address");

@@ -158,7 +158,7 @@ model Comments {
   deleted_at   DateTime?
 
   bounty  Bounties   @relation(fields: [chain_id, bounty_id], references: [chain_id, id], onDelete: NoAction)
-  author  Users      @relation(fields: [user_address], references: [address], onDelete: NoAction)
+  author  Users?     @relation(fields: [user_address], references: [address], onDelete: NoAction)
   parent  Comments?  @relation("CommentToParent", fields: [parent_id], references: [id], onDelete: NoAction)
   replies Comments[] @relation("CommentToParent")
 
