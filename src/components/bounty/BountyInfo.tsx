@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
 import {
@@ -40,7 +40,7 @@ export default function BountyInfo({
   onShareModalStateChange?: (modalOpen: boolean) => void;
   onHowItWorksModalStateChange?: (modalOpen: boolean) => void;
 }) {
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const account = useAccount();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();

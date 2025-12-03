@@ -1,4 +1,4 @@
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
 import { Currency } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
@@ -36,7 +36,7 @@ export type ClaimCardProps = {
 export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const account = useAccount();
   const utils = trpc.useUtils();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const switctChain = useSwitchChain();
   const { signMessageAsync } = useSignMessage();
 

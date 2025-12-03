@@ -9,7 +9,7 @@ import CommentsSection from '@/components/bounty/CommentsSection';
 import Breadcrumbs from '@/components/global/Breadcrumbs';
 import BountySuccessModal from '@/components/bounty/BountySuccessModal';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { ChainId } from '@/utils/types';
 
 export default function Bounty({
@@ -23,7 +23,7 @@ export default function Bounty({
   const { showSuccessCreationModal } = searchParams;
 
   const isMobile = useScreenSize();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
   const [isSuccessCreationModalOpen, setIsSuccessCreationModalOpen] = useState(

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
@@ -31,7 +31,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 }
 
 export default function AccountInfo({ address }: { address: string }) {
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [currentSection, setCurrentSection] = useState<Section>('bounties');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 

@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
@@ -52,7 +52,7 @@ export default function FormClaim({
 
   const account = useAccount();
   const writeContract = useWriteContract({});
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const switchChain = useSwitchChain();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {

@@ -11,7 +11,7 @@ import {
 } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { uploadFile } from '@/utils/pinata';
 
 export default function ClaimSuccessModal({
@@ -30,7 +30,7 @@ export default function ClaimSuccessModal({
   claimIssuer: string;
 }) {
   const router = useRouter();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [shareOpen, setShareOpen] = useState(false);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);

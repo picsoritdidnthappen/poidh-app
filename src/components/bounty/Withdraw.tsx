@@ -1,5 +1,5 @@
 import abi from '@/constant/abi/abi';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';
@@ -9,7 +9,7 @@ import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { pollingChainIdAtom } from '@/store/loading';
 
 export default function Withdraw({ bountyId }: { bountyId: string }) {
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const account = useAccount();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();

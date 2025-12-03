@@ -3,7 +3,7 @@ import { ExpandMoreIcon } from '@/components/global/Icons';
 import { cn } from '@/utils';
 import CopyAddressButton from '../global/CopyAddressButton';
 import DisplayAddress from '../global/DisplayAddress';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import Link from 'next/link';
 
 type Transactions = {
@@ -19,7 +19,7 @@ export default function BountyHistory({
   transactions: Transactions[];
 }) {
   const [showHistory, setShowHistory] = useState(false);
-  const chain = useGetChain();
+  const chain = useChainInfo();
 
   return (
     <div className='max-w-3xl border border-white/20 rounded-lg backdrop-blur-sm bg-[#D1ECFF]/10 mt-5'>

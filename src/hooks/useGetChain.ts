@@ -8,7 +8,7 @@ const chainPathName = {
   arbitrum: '/arbitrum',
 };
 
-export const useGetChain = (): Chain => {
+export const useChainInfo = (): Chain => {
   const pathname = usePathname();
 
   for (const [key, value] of Object.entries(chainPathName)) {

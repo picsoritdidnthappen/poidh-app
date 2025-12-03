@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
@@ -36,7 +36,7 @@ export default function ClaimItem({
 }) {
   const account = useAccount();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
   const utils = trpc.useUtils();

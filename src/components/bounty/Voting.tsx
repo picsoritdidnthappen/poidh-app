@@ -2,7 +2,7 @@ import { PieChart } from 'react-minimal-pie-chart';
 import { toast } from 'react-toastify';
 import { formatEther } from 'viem';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { bountyVotingTracker } from '@/utils/web3';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
@@ -30,7 +30,7 @@ export default function Voting({
   isAcceptedBounty: boolean;
 }) {
   const account = useAccount();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
   const setLoading = useSetAtom(setLoadingAtom);

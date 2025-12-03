@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { Currency } from '@/utils/types';
 import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
@@ -24,7 +24,7 @@ export default function JoinBountySuccessModal({
   bountyId?: string;
 }) {
   const account = useAccount();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [shareOpen, setShareOpen] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);

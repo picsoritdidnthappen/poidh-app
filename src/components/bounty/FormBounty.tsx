@@ -10,7 +10,7 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -49,7 +49,7 @@ export default function FormBounty({
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [currentChain, setCurrentChain] = useState<Chain>(chain);
   const price =
     trpc.web3.fetchPrice.useQuery({ currency: currentChain.currency }).data ??

@@ -1,5 +1,5 @@
 import abi from '@/constant/abi/abi';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -29,7 +29,7 @@ export default function FormJoinBounty({
 
   const account = useAccount();
   const writeContract = useWriteContract({});
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const switchChain = useSwitchChain();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);

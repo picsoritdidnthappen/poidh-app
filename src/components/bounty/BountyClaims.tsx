@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { trpc } from '@/trpc/client';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import InfiniteScroll from 'react-infinite-scroller';
 import { bountyCurrentVotingClaim } from '@/utils/web3';
 import ClaimList from '../claims/ClaimList';
@@ -10,7 +10,7 @@ import { CommentsIcon } from '@/components/global/Icons';
 const PAGE_SIZE = 9;
 
 export default function BountyClaims({ bountyId }: { bountyId: string }) {
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [votingClaimId, setVotingClaimId] = useState<number | null>(null);
   const [infiniteEnabled, setInfiniteEnabled] = useState(true);
 
