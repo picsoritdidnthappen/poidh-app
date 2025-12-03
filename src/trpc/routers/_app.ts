@@ -92,6 +92,9 @@ export const appRouter = createTRPCRouter({
               action: true,
               timestamp: true,
             },
+            orderBy: {
+              timestamp: 'desc'
+            },
           },
         },
       });
