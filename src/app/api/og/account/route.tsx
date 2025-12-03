@@ -28,15 +28,14 @@ const getProfilePictureUrl = async (
   }
 };
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const params = url.searchParams;
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
 
-  const address = params.get('address');
-  const poidhScore = params.get('poidhScore');
-  const imageFormat = params.get('imageFormat');
-  const totalBounties = params.get('totalBounties');
-  const totalClaims = params.get('totalClaims');
+  const address = searchParams.get('address');
+  const poidhScore = searchParams.get('poidhScore');
+  const imageFormat = searchParams.get('imageFormat');
+  const totalBounties = searchParams.get('totalBounties');
+  const totalClaims = searchParams.get('totalClaims');
 
   if (
     !address ||
