@@ -125,12 +125,14 @@ export default function ClaimSuccessModal({
       if (!uploadResult?.IpfsHash) {
         throw new Error('Failed to upload to Pinata');
       }
-      const cardImageUrl = `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`;
 
-      await shareToFarcaster(text, cardImageUrl);
+      await shareToFarcaster({
+        text,
+        embedImage: `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`,
+      });
     } catch (error) {
       console.error('Error sharing to Farcaster:', error);
-      await shareToFarcaster(text, claimImage);
+      await shareToFarcaster({ text, embedImage: claimImage });
     } finally {
       setIsGeneratingCard(false);
     }

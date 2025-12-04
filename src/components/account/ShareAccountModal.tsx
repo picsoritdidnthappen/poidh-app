@@ -38,7 +38,7 @@ export default function ShareAccountModal({
     const text = `check out ${
       isConnectectedUser ? 'my' : 'this'
     } account on /poidh 📸\n`;
-    await shareToFarcaster(text);
+    await shareToFarcaster({ text });
     onClose();
   };
 
