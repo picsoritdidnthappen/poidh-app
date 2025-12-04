@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import FormJoinBounty from './FormJoinBounty';
 import ButtonCTA from '../global/ButtonCTA';
 import { PlusIcon } from '@/components/global/Icons';

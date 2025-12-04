@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChainId, Claim } from '@/utils/types';
 import { formatEther } from 'viem';
 import { getChainById } from '@/utils/config';
@@ -72,7 +72,10 @@ export default function PastBountyCard({
                     className='flex flex-row items-center w-full justify-end overflow-hidden'
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <DisplayAddress chainName={chain.slug} address={claim.issuer} />
+                    <DisplayAddress
+                      chainName={chain.slug}
+                      address={claim.issuer}
+                    />
                     <div className='ml-2'>
                       <CopyAddressButton address={claim.issuer} />
                     </div>
