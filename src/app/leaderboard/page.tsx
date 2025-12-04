@@ -5,7 +5,7 @@ import useDegenOrEnsName from '@/hooks/useDegenOrEnsName';
 import Image from 'next/image';
 import { TwitterXIcon } from '@/components/global/Icons';
 import { inferRouterOutputs } from '@trpc/server';
-import { AppRouter } from '@/trpc/trpc';
+import { type AppRouter } from '@/trpc/trpc';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';

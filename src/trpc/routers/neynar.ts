@@ -22,11 +22,14 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
   // users don't change their name/PFP very often, and this can save us money long-term
   const sevenDays = 7 * 24 * 60 * 60 * 1000;
   const sevenDaysAgo = new Date(Date.now() - sevenDays);
+  const normalizedAddresses = addresses.map((address) =>
+    address.toLocaleLowerCase()
+  );
 
   const users = await prisma.usersExtra.findMany({
     where: {
       address: {
-        in: addresses,
+        in: normalizedAddresses,
       },
     },
   });
@@ -38,7 +41,9 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
     .filter((user) => user.last_updated < sevenDaysAgo)
     .map((user) => user.address);
 
-  const missingAddresses = addresses.filter((a) => !existingAddresses.has(a));
+  const missingAddresses = normalizedAddresses.filter(
+    (a) => !existingAddresses.has(a)
+  );
 
   const fetchFromNeynar = [...new Set([...usersToUpdate, ...missingAddresses])];
 

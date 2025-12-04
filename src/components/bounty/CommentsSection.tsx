@@ -6,8 +6,11 @@ import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { ChainId } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
-import { Comments as CommentType } from '@prisma/client';
 import { getCommentSignatureFirstLine, tryCatchAsync } from '@/utils/utils';
+import { inferRouterOutputs } from '@trpc/server';
+import { type AppRouter } from '@/trpc/trpc';
+
+type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
 
 type CommentFormProps = {
   value: string;
@@ -341,7 +344,7 @@ function Comment({
       <div className='flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 relative'>
         <div className='w-full h-full overflow-hidden rounded-full'>
           <Image
-            src={'/images/avatar.png'}
+            src={comment.author?.pfp_url ?? '/images/avatar.png'}
             alt={comment.user_address}
             width={40}
             height={40}
@@ -354,7 +357,7 @@ function Comment({
       <div className='flex-1 min-w-0'>
         <div className='flex items-center space-x-2 flex-wrap'>
           <span className='font-bold text-sm sm:text-base'>
-            {comment.user_address}
+            {comment.author?.farcaster_tag ?? comment.user_address}
           </span>
           <span className='text-xs sm:text-sm text-white/60'>
             {isValidDate

@@ -5,6 +5,7 @@ import { addressSchema, bytesSchema } from '../serverTypes';
 import { getCommentSignatureFirstLine } from '@/utils/utils';
 import { TRPCError } from '@trpc/server';
 import { chains } from '@/utils/config';
+import { getUsersDataOrFetchItFromNeynar } from './neynar';
 
 const COMMENTS_USER_LIMIT = {
   global: 20,
@@ -126,6 +127,15 @@ export const commentsRouter = {
         where: {
           AND: [{ bounty_id }, { chain_id }],
         },
+        include: {
+          author: {
+            select: {
+              usersExtras: {
+                take: 1,
+              },
+            },
+          },
+        },
         orderBy: {
           // Older comments usually have more likes,
           // so this is a small optimization
@@ -133,13 +143,18 @@ export const commentsRouter = {
         },
       });
 
-      return comments;
+      return comments.map((comment) => ({
+        ...comment,
+        author: comment.author?.usersExtras?.[0],
+      }));
     }),
 
   comment: baseProcedure
     .input(
       z.object({
-        address: addressSchema,
+        address: addressSchema.transform((address) =>
+          address.toLocaleLowerCase()
+        ),
         bountyId: z.number(),
         chainId: z.union([
           z.literal(8453),
@@ -154,6 +169,7 @@ export const commentsRouter = {
     )
     .use(verifyComment)
     .mutation(async ({ input }) => {
+      await getUsersDataOrFetchItFromNeynar([input.address]);
       await prisma.comments.create({
         data: {
           body: input.text,
