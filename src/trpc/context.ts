@@ -1,6 +1,6 @@
-import type { CreateNextContextOptions } from '@trpc/server/adapters/next';
+import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 
-export const createContext = async (opts: CreateNextContextOptions) => {
+export const createContext = async (_opts: FetchCreateContextFnOptions) => {
   return {};
 };
 
