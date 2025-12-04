@@ -268,12 +268,7 @@ export default function FormClaim({
         }
       >
         {isMobile ? (
-          <div
-            className='flex items-center justify-between w-full sticky'
-            // style={{
-            //   paddingTop: 'calc(env(safe-area-inset-top, 0px))',
-            // }}
-          >
+          <div className='flex items-center justify-between w-full sticky'>
             <div style={{ width: '40px' }} />{' '}
             <button
               onClick={onClose}
@@ -284,7 +279,6 @@ export default function FormClaim({
                 marginRight: '6px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
                 transition: 'background-color 0.2s ease',
               }}
             >
@@ -324,6 +318,7 @@ export default function FormClaim({
             position: 'relative',
             p: isMobile ? 2 : 3,
             pt: isMobile ? 1 : 3,
+            mt: isMobile ? 0 : 1,
             ...(isMobile && {
               height: '100%',
               maxHeight: '100%',

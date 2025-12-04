@@ -66,7 +66,7 @@ export default function ShareBountyModal({
         ' on /poidh 📸\n';
     }
 
-    await shareToFarcaster(text);
+    await shareToFarcaster({ text });
     onClose();
   };
 
