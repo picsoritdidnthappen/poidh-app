@@ -106,6 +106,11 @@ export const commentsRouter = {
               },
             },
           },
+          reactions: {
+            select: {
+              type: true,
+            },
+          },
         },
         orderBy: {
           // Older comments usually have more likes,
@@ -114,8 +119,11 @@ export const commentsRouter = {
         },
       });
 
-      return comments.map((comment) => ({
+      return comments.map(({ reactions, ...comment }) => ({
         ...comment,
+        upvotes: reactions.map((reaction) => reaction.type === 'upvote').length,
+        downvotes: reactions.map((reaction) => reaction.type === 'downvote')
+          .length,
         author: comment.author?.usersExtras?.[0],
       }));
     }),

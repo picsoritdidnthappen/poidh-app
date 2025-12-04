@@ -330,8 +330,6 @@ function Comment({
   const timestamp = comment.created_at ? new Date(comment.created_at) : null;
   const isValidDate = timestamp && !isNaN(timestamp.getTime());
 
-  const upvotes = comment.upvotes ?? 0;
-  const downvotes = comment.downvotes ?? 0;
   const signaturePrefix = getCommentSignatureFirstLine({
     address: comment.user_address,
   });
@@ -373,13 +371,13 @@ function Comment({
         <div className='mt-1 sm:mt-2 flex items-center space-x-4'>
           <div className='flex items-center space-x-1'>
             <span className='text-green-400 text-xs sm:text-sm font-semibold'>
-              ↑ {upvotes}
+              ↑ {comment.upvotes}
             </span>
           </div>
 
           <div className='flex items-center space-x-1'>
             <span className='text-red-400 text-xs sm:text-sm font-semibold'>
-              ↓ {downvotes}
+              ↓ {comment.downvotes}
             </span>
           </div>
 

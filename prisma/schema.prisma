@@ -82,6 +82,7 @@ model Users {
   bounties       Bounties[]
   comments       Comments[]
   usersExtras    UsersExtra[]
+  reactions      Reactions[]
 
   @@id([address])
 }
@@ -171,8 +172,10 @@ model Reactions {
   id         Int      @id @default(autoincrement())
   comment_id Int
   type       Reaction
+  address    String
 
   comment Comments @relation(fields: [comment_id], references: [id])
+  user    Users    @relation(fields: [address], references: [address])
 }
 
 enum Reaction {

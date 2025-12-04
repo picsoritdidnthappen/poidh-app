@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS :schema."Reactions" (
     id          SERIAL          PRIMARY KEY,
     comment_id  INTEGER         NOT NULL,
     type        :schema."Reaction" NOT NULL,
+    address     TEXT,
 
     CONSTRAINT "Reactions_comment_id_fkey"
         FOREIGN KEY ("comment_id")
