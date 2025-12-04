@@ -9,7 +9,7 @@ export default function DisplayAddress({
   address,
   chainName = 'base',
   showPfpIfExists = true,
-  pfpSize,
+  pfpSize = 20,
 }: {
   address: string;
   chainName?: Netname;
@@ -31,25 +31,27 @@ export default function DisplayAddress({
 
   return (
     <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-      {showPfpIfExists && userDataNeynar?.data && userDataNeynar?.data[address]?.[0]?.pfp_url && (
-        <div
-          style={{
-            width: pfpSize ?? 20,
-            height: pfpSize ?? 20,
-            marginRight: pfpSize ? 8 : 7,
-          }}
-          className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
-        >
-          <Image
-            src={userDataNeynar.data[address][0].pfp_url}
-            alt={userDataNeynar.data[address][0]?.display_name ?? 'User'}
-            width={pfpSize ?? 20}
-            height={pfpSize ?? 20}
-            unoptimized
-            className='w-full h-full object-cover'
-          />
-        </div>
-      )}
+      {showPfpIfExists &&
+        userDataNeynar?.data &&
+        userDataNeynar?.data[address]?.[0]?.pfp_url && (
+          <div
+            style={{
+              width: pfpSize,
+              height: pfpSize,
+              marginRight: 8,
+            }}
+            className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
+          >
+            <Image
+              src={userDataNeynar.data[address][0].pfp_url}
+              alt={userDataNeynar.data[address][0]?.display_name ?? 'User'}
+              width={pfpSize}
+              height={pfpSize}
+              unoptimized
+              className='w-full h-full object-cover'
+            />
+          </div>
+        )}
       <Link
         href={`/account/${address}`}
         className='hover:text-gray-200 truncate overflow-ellipsis m-0 p-0 max-w-full'
