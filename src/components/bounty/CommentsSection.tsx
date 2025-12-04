@@ -15,6 +15,7 @@ import {
 import { inferRouterOutputs } from '@trpc/server';
 import { type AppRouter } from '@/trpc/trpc';
 import { getChainById } from '@/utils/config';
+import { formatWalletAddress } from '@/utils/web3';
 
 type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
 
@@ -189,8 +190,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
       return;
     }
 
-    const message =
-      getCommentSignatureFirstLine({ address }) + body;
+    const message = getCommentSignatureFirstLine({ address }) + body;
 
     const signature = await signMessageAsync({ message }).catch(() => null);
 
@@ -210,10 +210,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     });
   }
 
-  async function rateComment(
-    commentId: number,
-    type: 'upvote' | 'downvote'
-  ) {
+  async function rateComment(commentId: number, type: 'upvote' | 'downvote') {
     if (rateMutation.isPending) {
       return;
     }
@@ -498,7 +495,8 @@ function Comment({
       <div className='flex-1 min-w-0'>
         <div className='flex items-center space-x-2 flex-wrap'>
           <span className='font-bold text-sm sm:text-base'>
-            {comment.author?.farcaster_tag ?? comment.user_address}
+            {comment.author?.farcaster_tag ??
+              formatWalletAddress(comment.user_address)}
           </span>
           <span className='text-xs sm:text-sm text-white/60'>
             {isValidDate
