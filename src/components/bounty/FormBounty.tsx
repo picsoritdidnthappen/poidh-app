@@ -207,7 +207,7 @@ export default function FormBounty({
         sx: {
           borderRadius: isMobile ? '0px' : '30px',
           color: 'white',
-          border: '1px solid #D1ECFF',
+          border: isMobile ? 'none' : '1px solid #D1ECFF',
           ...(isMobile && {
             m: 0,
             height: '100vh',
@@ -244,12 +244,7 @@ export default function FormBounty({
         }}
       >
         {isMobile ? (
-          <div
-            className='flex items-center justify-between w-full sticky'
-            style={{
-              paddingTop: 'calc(env(safe-area-inset-top, 0px))',
-            }}
-          >
+          <div className='flex items-center justify-between w-full sticky'>
             <div style={{ width: '40px' }} />{' '}
             <button
               onClick={onClose}
@@ -259,7 +254,6 @@ export default function FormBounty({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '6px',
                 transition: 'background-color 0.2s ease',
               }}
             >
