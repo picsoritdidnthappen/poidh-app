@@ -18,7 +18,7 @@ import GameButton from '@/components/global/GameButton';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import ClaimConfirm from '@/components/claims/ClaimConfirm';
 import ClaimSuccessModal from '@/components/claims/ClaimSuccessModal';
-import { ImageIcon } from '@/components/global/Icons';
+import { ImageIcon, CloseIcon } from '@/components/global/Icons';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -232,38 +232,107 @@ export default function FormClaim({
       <Dialog
         open={open}
         onClose={onClose}
-        maxWidth='xs'
+        maxWidth={isMobile ? false : 'xs'}
+        fullWidth
+        fullScreen={isMobile}
         PaperProps={{
-          className: 'bg-poidhBlue/80 relative flex flex-col',
-          style: {
-            borderRadius: '10px',
+          className: 'bg-poidhBlue/90 relative flex flex-col',
+          sx: {
+            borderRadius: isMobile ? '0px' : '30px',
             color: 'white',
-            border: '1px solid #D1ECFF',
-            maxHeight: '90vh',
+            border: isMobile ? 'none' : '1px solid #D1ECFF',
+            ...(isMobile
+              ? {
+                  m: 0,
+                  height: '100vh',
+                  maxHeight: '100vh',
+                  '@supports (height: 100dvh)': {
+                    height: '100dvh',
+                    maxHeight: '100dvh',
+                  },
+                }
+              : {
+                  maxHeight: '90vh',
+                }),
           },
         }}
+        sx={
+          isMobile
+            ? {
+                '& .MuiDialog-paper': {
+                  transform: open ? 'translateY(0)' : 'translateY(100%)',
+                  transition: 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                },
+              }
+            : {}
+        }
       >
-        <button
-          onClick={onClose}
-          className='absolute top-2 right-2 text-white hover:opacity-70 transition-opacity z-10'
-          aria-label='Close'
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
+        {isMobile ? (
+          <div
+            className='flex items-center justify-between w-full sticky'
+            // style={{
+            //   paddingTop: 'calc(env(safe-area-inset-top, 0px))',
+            // }}
           >
-            <line x1='18' y1='6' x2='6' y2='18'></line>
-            <line x1='6' y1='6' x2='18' y2='18'></line>
-          </svg>
-        </button>
-        <DialogContent className='pt-8 overflow-y-auto flex-1'>
+            <div style={{ width: '40px' }} />{' '}
+            <button
+              onClick={onClose}
+              style={{
+                color: 'white',
+                padding: '6px',
+                marginTop: '6px',
+                marginRight: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s ease',
+              }}
+            >
+              <CloseIcon size={14} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              right: 10,
+              top: 8,
+              color: 'white',
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'rgba(255, 255, 255, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'transparent';
+            }}
+          >
+            <CloseIcon size={12} />
+          </button>
+        )}
+        <DialogContent
+          sx={{
+            position: 'relative',
+            p: isMobile ? 2 : 3,
+            pt: isMobile ? 1 : 3,
+            ...(isMobile && {
+              height: '100%',
+              maxHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+            }),
+          }}
+        >
           <div
             {...getRootProps()}
             className={cn(
@@ -321,7 +390,7 @@ export default function FormClaim({
             )}
           </div>
           <Box mt={2}>
-            <span>title</span>
+            <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
             <input
               ref={titleRef}
               type='text'
@@ -335,9 +404,13 @@ export default function FormClaim({
                   });
                 }
               }}
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+              className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
+                isMobile ? 'text-base py-3' : ''
+              }`}
             />
-            <span>description</span>
+            <span className={isMobile ? 'text-base mb-2' : ''}>
+              description
+            </span>
             <textarea
               ref={descriptionRef}
               rows={3}
@@ -351,7 +424,9 @@ export default function FormClaim({
                   });
                 }
               }}
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+              className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
+                isMobile ? 'text-base py-3 min-h-[120px]' : ''
+              }`}
             ></textarea>
           </Box>
           <button
