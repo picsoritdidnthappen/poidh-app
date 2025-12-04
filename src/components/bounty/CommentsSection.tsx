@@ -7,7 +7,7 @@ import { ChainId } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
 import { Comments as CommentType } from '@prisma/client';
-import { getCommentSignatureFirstLine } from '@/utils/utils';
+import { getCommentSignatureFirstLine, tryCatchAsync } from '@/utils/utils';
 
 type CommentFormProps = {
   value: string;
@@ -137,18 +137,28 @@ export default function CommentsSection(props: CommentsSectionProps) {
     }
 
     const chainId = await account.connector?.getChainId();
-    if (chainId !== 8453 && switchChain?.switchChainAsync) {
-      try {
-        await switchChain.switchChainAsync({ chainId: 8453 });
-      } catch (error) {
-        toast.error('Switch to Base network to comment');
+    if (chainId !== 8453) {
+      if (switchChain?.switchChainAsync) {
+        const [_, error] = await tryCatchAsync(
+          async () => await switchChain.switchChainAsync({ chainId: 8453 })
+        );
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+      } else {
+        toast.error(
+          'Something went wrong! Switch to Base network or connect/reconnect your wallet to comment'
+        );
         return;
       }
     }
 
     const message =
       getCommentSignatureFirstLine({ address: account.address }) + body;
+
     const signature = await signMessageAsync({ message }).catch(() => null);
+
     if (!signature) {
       toast.error('Failed to sign message');
       return;
@@ -159,7 +169,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
       bountyId: props.bountyId,
       chainId: props.chainId,
       signature,
-      text: message,
+      signatureText: message,
+      text: body,
       parrentId: parentId,
     });
   }

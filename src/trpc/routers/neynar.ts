@@ -1,11 +1,7 @@
 import { baseProcedure } from '../init';
 import { z } from 'zod';
-import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
-import serverEnv from '@/utils/serverEnv';
-
-const config = new Configuration({
-  apiKey: serverEnv.NEYNAR_API_KEY || '',
-});
+import { tryCatchAsync } from '@/utils/utils';
+import neynarClient from 'neynar';
 
 export const neynarRouter = {
   usersData: baseProcedure
@@ -15,15 +11,18 @@ export const neynarRouter = {
         return {};
       }
 
-      try {
-        const client = new NeynarAPIClient(config);
-        const users = await client.fetchBulkUsersByEthOrSolAddress({
-          addresses: input.addresses,
-        });
+      const [users, error] = await tryCatchAsync(
+        async () =>
+          await neynarClient.fetchBulkUsersByEthOrSolAddress({
+            addresses: input.addresses,
+          })
+      );
 
-        return users;
-      } catch (error) {
+      if (error) {
+        console.error(error.message);
         return {};
       }
+
+      return users;
     }),
 };
