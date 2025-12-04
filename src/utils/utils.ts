@@ -13,7 +13,7 @@ export function getBanSignatureFirstLine({
 }: {
   id: number;
   chainId: number;
-  type: 'claim' | 'bounty';
+  type: 'claim' | 'bounty' | 'comment';
 }) {
   return `Ban ${type} id: ${id} chainId: ${chainId}\n`;
 }

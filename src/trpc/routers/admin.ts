@@ -137,6 +137,71 @@ export const adminRouter = {
         },
       });
     }),
+
+  banComment: baseProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        chainId: z.number(),
+        address: addressSchema,
+        signature: bytesSchema,
+        chainName: chainNameSchema,
+        message: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const expectedMessage = getBanSignatureFirstLine({
+        id: input.id,
+        chainId: input.chainId,
+        type: 'comment',
+      });
+
+      if (!input.message.startsWith(expectedMessage)) {
+        throw new TRPCError({
+          code: 'UNPROCESSABLE_CONTENT',
+          message: 'Invalid message',
+        });
+      }
+
+      const isAdmin = checkIsAdmin(input.address);
+      const chain = chains['base'];
+
+      if (!isAdmin) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Not authorized to perform this action',
+        });
+      }
+
+      const isValid = await chain.provider.verifyMessage({
+        address: input.address,
+        message: input.message,
+        signature: input.signature,
+      });
+
+      if (!isValid) {
+        throw new TRPCError({
+          code: 'UNPROCESSABLE_CONTENT',
+          message: 'Signature is invalid',
+        });
+      }
+
+      const comment = await prisma.comments.findFirst({
+        where: { id: input.id, chain_id: input.chainId },
+      });
+
+      if (!comment) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Comment not found',
+        });
+      }
+
+      await prisma.comments.updateMany({
+        where: { OR: [{ id: input.id }, { parent_id: input.id }] },
+        data: { deleted_at: new Date() },
+      });
+    }),
 };
 
 function checkIsAdmin(address?: string) {

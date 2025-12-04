@@ -161,7 +161,7 @@ export const commentsRouter = {
 
       const comments = await prisma.comments.findMany({
         where: {
-          AND: [{ bounty_id }, { chain_id }],
+          AND: [{ bounty_id }, { chain_id }, { deleted_at: null }],
         },
         include: {
           author: {

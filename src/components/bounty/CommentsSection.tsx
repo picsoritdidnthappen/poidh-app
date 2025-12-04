@@ -7,12 +7,14 @@ import { ChainId } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
 import {
+  getBanSignatureFirstLine,
   getCommentSignatureFirstLine,
   getReactionSignatureMessage,
   tryCatchAsync,
 } from '@/utils/utils';
 import { inferRouterOutputs } from '@trpc/server';
 import { type AppRouter } from '@/trpc/trpc';
+import { getChainById } from '@/utils/config';
 
 type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
 
@@ -77,6 +79,7 @@ type CommentsSectionProps = {
 };
 
 export default function CommentsSection(props: CommentsSectionProps) {
+  const chain = getChainById({ chainId: props.chainId });
   const commentsQuery = trpc.comments.fetch.useQuery({ ...props });
   const [newComment, setNewComment] = useState('');
 
@@ -85,6 +88,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
   const account = useAccount();
   const { signMessageAsync } = useSignMessage();
   const switchChain = useSwitchChain();
+  const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
 
   const commentMutation = trpc.comments.comment.useMutation({
     onSuccess: () => {
@@ -102,6 +106,14 @@ export default function CommentsSection(props: CommentsSectionProps) {
       commentsQuery.refetch();
     },
     onError: (error) => toast.error(`Failed to rate comment: ${error.message}`),
+  });
+
+  const banCommentMutation = trpc.admin.banComment.useMutation({
+    onSuccess: () => {
+      commentsQuery.refetch();
+      toast.success('Comment banned');
+    },
+    onError: (error) => toast.error(`Failed to ban comment: ${error.message}`),
   });
 
   const commentsByParent = (commentsQuery.data ?? []).reduce(
@@ -238,6 +250,44 @@ export default function CommentsSection(props: CommentsSectionProps) {
     await submitComment(newComment);
   }
 
+  async function handleBanComment(comment: CommentType) {
+    if (banCommentMutation.isPending) {
+      return;
+    }
+
+    if (!isAdmin.data) {
+      toast.error('Only admins can ban comments');
+      return;
+    }
+
+    const address = await ensureWalletOnBase();
+    if (!address) {
+      return;
+    }
+
+    const message =
+      getBanSignatureFirstLine({
+        id: comment.id,
+        chainId: props.chainId,
+        type: 'comment',
+      }) + comment.body;
+
+    const signature = await signMessageAsync({ message }).catch(() => null);
+    if (!signature) {
+      toast.error('Failed to sign message');
+      return;
+    }
+
+    await banCommentMutation.mutateAsync({
+      id: comment.id,
+      chainId: props.chainId,
+      address,
+      chainName: chain.slug,
+      message,
+      signature,
+    });
+  }
+
   function handleReplyToggle(commentId: number | null) {
     if (commentId === null || commentId === activeReplyId) {
       setActiveReplyId(null);
@@ -289,6 +339,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
                 onSubmitComment={submitComment}
                 onRateComment={rateComment}
                 isRating={rateMutation.isPending}
+                onBanComment={handleBanComment}
+                canBan={!!isAdmin.data}
+                isBanning={banCommentMutation.isPending}
               />
             ))
           ) : (
@@ -314,6 +367,9 @@ function CommentThread({
   onSubmitComment,
   onRateComment,
   isRating,
+  onBanComment,
+  canBan,
+  isBanning,
 }: {
   comment: CommentType;
   replies: CommentType[];
@@ -329,6 +385,9 @@ function CommentThread({
     type: 'upvote' | 'downvote'
   ) => Promise<void>;
   isRating: boolean;
+  onBanComment: (comment: CommentType) => Promise<void>;
+  canBan: boolean;
+  isBanning: boolean;
 }) {
   const isReplyingHere = activeReplyId === comment.id;
 
@@ -344,6 +403,9 @@ function CommentThread({
         isReplying={isReplyingHere}
         onRate={(type) => onRateComment(comment.id, type)}
         isRateLoading={isRating}
+        onBan={() => onBanComment(comment)}
+        canBan={canBan}
+        isBanLoading={isBanning}
       />
 
       {isReplyingHere && (
@@ -380,6 +442,9 @@ function CommentThread({
           onSubmitComment={onSubmitComment}
           onRateComment={onRateComment}
           isRating={isRating}
+          onBanComment={onBanComment}
+          canBan={canBan}
+          isBanning={isBanning}
         />
       ))}
     </div>
@@ -392,12 +457,18 @@ function Comment({
   isReplying,
   onRate,
   isRateLoading,
+  onBan,
+  isBanLoading,
+  canBan,
 }: {
   comment: CommentType;
   onReplyClick?: () => void;
   isReplying?: boolean;
   onRate?: (type: 'upvote' | 'downvote') => void;
   isRateLoading?: boolean;
+  onBan?: () => void;
+  isBanLoading?: boolean;
+  canBan?: boolean;
 }) {
   const timestamp = comment.created_at ? new Date(comment.created_at) : null;
   const isValidDate = timestamp && !isNaN(timestamp.getTime());
@@ -460,6 +531,17 @@ function Comment({
             <span className='text-red-400'>↓</span>
             <span>{comment.downvotes ?? 0}</span>
           </button>
+
+          {canBan ? (
+            <button
+              type='button'
+              onClick={onBan}
+              disabled={!onBan || isBanLoading}
+              className='text-xs sm:text-sm font-semibold text-red-300 hover:text-red-200 transition disabled:opacity-60 disabled:cursor-not-allowed'
+            >
+              {isBanLoading ? 'Banning...' : 'Ban'}
+            </button>
+          ) : null}
 
           <button
             type='button'
