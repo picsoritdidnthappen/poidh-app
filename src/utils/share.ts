@@ -9,31 +9,34 @@ export function shareToX(text: string, url?: string) {
   window.open(composeUrl, '_blank');
 }
 
-export async function shareToFarcaster(
-  text: string,
-  url?: string,
-  embedImage?: string
-) {
+export async function shareToFarcaster({
+  text,
+  url,
+  embedImage,
+}: {
+  text: string;
+  url?: string;
+  embedImage?: string;
+}) {
   const isMiniApp = await sdk.isInMiniApp();
   const isMobile = window.innerWidth < 768;
   if (isMobile && isMiniApp) {
+    let embeds;
     if (embedImage) {
-      await sdk.actions.composeCast({
-        text,
-        embeds: [url ?? window.location.href, embedImage] as [string, string],
-      });
+      embeds = [url ?? window.location.href, embedImage] as [string, string];
     } else {
-      await sdk.actions.composeCast({
-        text,
-        embeds: [url ?? window.location.href] as [string],
-      });
+      embeds = [url ?? window.location.href] as [string];
     }
+    await sdk.actions.composeCast({
+      text,
+      embeds,
+    });
     return;
   }
 
   const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
     text
-  )}&embeds[]=${encodeURIComponent(window.location.href)}${
+  )}&embeds[]=${encodeURIComponent(url ?? window.location.href)}${
     embedImage ? `&embeds[]=${encodeURIComponent(embedImage)}` : ''
   }`;
   window.open(composeUrl, '_blank');

@@ -9,9 +9,8 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { BanIcon, CloseIcon, ZoomInIcon, ZoomOutIcon } from '../global/Icons';
-import Link from 'next/link';
-import { formatWalletAddress } from '@/utils/web3';
 import TextWithLinks from '@/components/global/TextWithLinks';
+import DisplayAddress from '@/components/global/DisplayAddress';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -165,40 +164,15 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
               </div>
 
               <div className='bg-blur rounded-lg p-2 sm:p-3 space-y-2'>
-                <div className='flex justify-between items-center'>
-                  <span className='font-semibold text-xs sm:text-sm text-white'>
-                    Issuer
-                  </span>
-                  <Link
-                    href={`/account/${claim.issuer.address}`}
-                    className='text-xs sm:text-sm text-white/90 max-w-[15ch] overflow-hidden overflow-ellipsis hover:text-gray-200'
-                  >
-                    {formatWalletAddress(claim.issuer.address)}
-                  </Link>
+                <div className='flex justify-between items-center text-xs sm:text-sm'>
+                  <span className='text-white'>issuer</span>
+                  <DisplayAddress address={claim.issuer.address} pfpSize={18} />
                 </div>
 
-                <div className='grid grid-cols-3 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs'>
-                  <div className='bg-blur-white rounded p-1.5 sm:p-2'>
-                    <div className='h-6 flex items-center justify-center'>
-                      {formatNumber(claim.issuer.scorePoidh)}
-                    </div>
-                    <div className='text-white/80 mt-1'>Score</div>
-                  </div>
-
-                  <div className='bg-blur-white rounded p-1.5 sm:p-2'>
-                    <div className='h-6 flex items-center justify-center'>
-                      {claim.issuer.totalClaims}
-                    </div>
-                    <div className='text-white/80 mt-1'>Claims</div>
-                  </div>
-
-                  <div className='bg-blur-white rounded p-1.5 sm:p-2'>
-                    <div className='h-6 flex items-center justify-center'>
-                      {formatNumber(claim.issuer.earnedAmount)}
-                    </div>
-                    <div className='text-white/80 mt-1'>
-                      Earned ({claim.currency})
-                    </div>
+                <div className='bg-blur-white rounded p-1.5 sm:p-2 text-center text-[10px] sm:text-xs'>
+                  <div className='text-white/80'>poidh score</div>
+                  <div className='text-3xl sm:text-3xl flex items-center justify-center font-family-pixeloid bg-gradient-to-r text-poidhRed bg-clip-text [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]'>
+                    {formatNumber(claim.issuer.scorePoidh)}
                   </div>
                 </div>
               </div>
