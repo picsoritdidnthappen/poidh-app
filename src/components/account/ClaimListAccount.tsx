@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ChainId, Claim } from '@/utils/types';
 import DisplayAddress from '../global/DisplayAddress';

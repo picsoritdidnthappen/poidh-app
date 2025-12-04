@@ -204,14 +204,18 @@ export default function FormBounty({
       fullScreen={isMobile}
       PaperProps={{
         className: 'bg-poidhBlue/90',
-        style: {
+        sx: {
           borderRadius: isMobile ? '0px' : '30px',
           color: 'white',
-          border: '1px solid #D1ECFF',
+          border: isMobile ? 'none' : '1px solid #D1ECFF',
           ...(isMobile && {
-            margin: 0,
-            maxHeight: '100vh',
+            m: 0,
             height: '100vh',
+            maxHeight: '100vh',
+            '@supports (height: 100dvh)': {
+              height: '100dvh',
+              maxHeight: '100dvh',
+            },
           }),
         },
       }}
@@ -231,7 +235,8 @@ export default function FormBounty({
           position: 'relative',
           p: isMobile ? 2 : 3,
           ...(isMobile && {
-            height: '100vh',
+            height: '100%',
+            maxHeight: '100%',
             display: 'flex',
             flexDirection: 'column',
             overflowY: 'auto',
@@ -239,32 +244,20 @@ export default function FormBounty({
         }}
       >
         {isMobile ? (
-          <div className='flex items-center justify-between w-full sticky top-0py-2 z-10'>
+          <div className='flex items-center justify-between w-full sticky'>
             <div style={{ width: '40px' }} />{' '}
             <button
               onClick={onClose}
               style={{
-                background: 'none',
-                border: 'none',
                 color: 'white',
-                cursor: 'pointer',
-                padding: '8px',
+                padding: '4px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '6px',
                 transition: 'background-color 0.2s ease',
               }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'rgba(255, 255, 255, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'transparent';
-              }}
             >
-              <CloseIcon size={16} />
+              <CloseIcon size={14} />
             </button>
           </div>
         ) : (
@@ -274,8 +267,6 @@ export default function FormBounty({
               position: 'absolute',
               right: 10,
               top: 8,
-              background: 'none',
-              border: 'none',
               color: 'white',
               cursor: 'pointer',
               padding: '8px',
@@ -497,7 +488,7 @@ export default function FormBounty({
               }}
             />
           </div>
-          <div className=' text-xs'>
+          <div className='text-xs'>
             <span className='flex gap-2 items-center max-w-md '>
               <InfoIcon size={18} />
               {isOpenBounty

@@ -50,6 +50,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "poidh - pics or it didn't happen - crypto bounties",
     description: APP_DESCRIPTION,
+    viewport: {
+      width: 'device-width',
+      initialScale: 1,
+      maximumScale: 1,
+      userScalable: false,
+      viewportFit: 'cover',
+    },
     openGraph: {
       type: 'website',
       url: APP_URL,
