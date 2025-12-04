@@ -127,6 +127,8 @@ export const commentsRouter = {
           AND: [{ bounty_id }, { chain_id }],
         },
         orderBy: {
+          // Older comments usually have more likes,
+          // so this is a small optimization
           created_at: 'asc',
         },
       });
