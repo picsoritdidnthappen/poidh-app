@@ -212,11 +212,10 @@ export default function FormBounty({
             margin: 0,
             maxHeight: '100vh',
             height: '100vh',
-            minHeight: '100vh',
-            width: '100%',
-            maxWidth: 'none',
-            transform: 'none',
-            borderRadius: '0px',
+            '@supports (height: 100dvh)': {
+              height: '100dvh',
+              maxHeight: '100dvh',
+            },
           }),
         },
       }}
@@ -236,15 +235,11 @@ export default function FormBounty({
           position: 'relative',
           p: isMobile ? 2 : 3,
           ...(isMobile && {
-            height: '100vh',
-            minHeight: '100vh',
-            maxHeight: '100vh',
+            height: '100%',
+            maxHeight: '100%',
             display: 'flex',
             flexDirection: 'column',
             overflowY: 'auto',
-            overscrollBehaviorY: 'contain',
-            paddingTop: 'max(env(safe-area-inset-top, 0px), 16px)',
-            paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
           }),
         }}
       >
@@ -252,9 +247,7 @@ export default function FormBounty({
           <div
             className='flex items-center justify-between w-full sticky'
             style={{
-              paddingTop: 'max(env(safe-area-inset-top, 0px), 12px)',
-              paddingBottom: '4px',
-              marginTop: 'calc(-1 * max(env(safe-area-inset-top, 0px), 16px))',
+              paddingTop: 'calc(env(safe-area-inset-top, 0px))',
             }}
           >
             <div style={{ width: '40px' }} />{' '}
@@ -279,7 +272,7 @@ export default function FormBounty({
                   'transparent';
               }}
             >
-              <CloseIcon size={16} />
+              <CloseIcon size={14} />
             </button>
           </div>
         ) : (
