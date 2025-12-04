@@ -15,7 +15,9 @@ import {
 import { inferRouterOutputs } from '@trpc/server';
 import { type AppRouter } from '@/trpc/trpc';
 import { getChainById } from '@/utils/config';
+import { FarcasterIcon, TwitterXIcon } from '@/components/global/Icons';
 import { formatWalletAddress } from '@/utils/web3';
+import { FARCASTER_URL, TWITTER_URL } from '../global/SocialMediaLinks';
 
 type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
 
@@ -498,6 +500,30 @@ function Comment({
             {comment.author?.farcaster_tag ??
               formatWalletAddress(comment.user_address)}
           </span>
+          <div className='flex items-center gap-2'>
+            {comment.author?.farcaster_tag ? (
+              <a
+                href={`${FARCASTER_URL}/${comment.author.farcaster_tag}`}
+                target='_blank'
+                rel='noreferrer'
+                className='text-white/70 hover:text-white transition'
+                aria-label='Farcaster profile'
+              >
+                <FarcasterIcon size={14} />
+              </a>
+            ) : null}
+            {comment.author?.twitter_tag ? (
+              <a
+                href={`${TWITTER_URL}/${comment.author.twitter_tag}`}
+                target='_blank'
+                rel='noreferrer'
+                className='text-white/70 hover:text-white transition'
+                aria-label='X profile'
+              >
+                <TwitterXIcon width={14} height={14} />
+              </a>
+            ) : null}
+          </div>
           <span className='text-xs sm:text-sm text-white/60'>
             {isValidDate
               ? formatDistanceToNow(timestamp, { addSuffix: true })
