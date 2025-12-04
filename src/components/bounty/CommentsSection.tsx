@@ -6,7 +6,11 @@ import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { ChainId } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
-import { getCommentSignatureFirstLine, tryCatchAsync } from '@/utils/utils';
+import {
+  getCommentSignatureFirstLine,
+  getReactionSignatureMessage,
+  tryCatchAsync,
+} from '@/utils/utils';
 import { inferRouterOutputs } from '@trpc/server';
 import { type AppRouter } from '@/trpc/trpc';
 
@@ -93,6 +97,13 @@ export default function CommentsSection(props: CommentsSectionProps) {
     onError: (error) => toast.error(`Failed to post comment: ${error.message}`),
   });
 
+  const rateMutation = trpc.comments.rate.useMutation({
+    onSuccess: () => {
+      commentsQuery.refetch();
+    },
+    onError: (error) => toast.error(`Failed to rate comment: ${error.message}`),
+  });
+
   const commentsByParent = (commentsQuery.data ?? []).reduce(
     (acc: { [key: string]: CommentType[] }, comment) => {
       const parrentId = comment.parent_id || 'root';
@@ -124,19 +135,10 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   const topLevelComments = (commentsByParent['root'] || []).sort(sorting);
 
-  async function submitComment(body: string, parentId?: number) {
-    if (commentMutation.isPending) {
-      return;
-    }
-
-    if (!body.trim()) {
-      toast.error('Comment cannot be empty');
-      return;
-    }
-
+  async function ensureWalletOnBase() {
     if (!account.address) {
-      toast.error('Connect your wallet to comment');
-      return;
+      toast.error('Connect your wallet to continue');
+      return null;
     }
 
     const chainId = await account.connector?.getChainId();
@@ -147,18 +149,36 @@ export default function CommentsSection(props: CommentsSectionProps) {
         );
         if (error) {
           toast.error(error.message);
-          return;
+          return null;
         }
       } else {
         toast.error(
-          'Something went wrong! Switch to Base network or connect/reconnect your wallet to comment'
+          'Something went wrong! Switch to Base network or connect/reconnect your wallet to continue'
         );
-        return;
+        return null;
       }
     }
 
+    return account.address;
+  }
+
+  async function submitComment(body: string, parentId?: number) {
+    if (commentMutation.isPending) {
+      return;
+    }
+
+    if (!body.trim()) {
+      toast.error('Comment cannot be empty');
+      return;
+    }
+
+    const address = await ensureWalletOnBase();
+    if (!address) {
+      return;
+    }
+
     const message =
-      getCommentSignatureFirstLine({ address: account.address }) + body;
+      getCommentSignatureFirstLine({ address }) + body;
 
     const signature = await signMessageAsync({ message }).catch(() => null);
 
@@ -168,13 +188,48 @@ export default function CommentsSection(props: CommentsSectionProps) {
     }
 
     await commentMutation.mutateAsync({
-      address: account.address,
+      address,
       bountyId: props.bountyId,
       chainId: props.chainId,
       signature,
       signatureText: message,
       text: body,
       parrentId: parentId,
+    });
+  }
+
+  async function rateComment(
+    commentId: number,
+    type: 'upvote' | 'downvote'
+  ) {
+    if (rateMutation.isPending) {
+      return;
+    }
+
+    const address = await ensureWalletOnBase();
+    if (!address) {
+      return;
+    }
+
+    const message = getReactionSignatureMessage({
+      address,
+      commentId,
+      type,
+    });
+
+    const signature = await signMessageAsync({ message }).catch(() => null);
+    if (!signature) {
+      toast.error('Failed to sign message');
+      return;
+    }
+
+    await rateMutation.mutateAsync({
+      address,
+      chainId: props.chainId,
+      commentId,
+      signature,
+      signatureText: message,
+      type,
     });
   }
 
@@ -232,6 +287,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
                 replyString={replyDraft}
                 setReply={setReplyDraft}
                 onSubmitComment={submitComment}
+                onRateComment={rateComment}
+                isRating={rateMutation.isPending}
               />
             ))
           ) : (
@@ -255,6 +312,8 @@ function CommentThread({
   replyString,
   setReply,
   onSubmitComment,
+  onRateComment,
+  isRating,
 }: {
   comment: CommentType;
   replies: CommentType[];
@@ -265,6 +324,11 @@ function CommentThread({
   replyString: string;
   setReply: (value: string) => void;
   onSubmitComment: (body: string, parentId?: number) => Promise<void>;
+  onRateComment: (
+    commentId: number,
+    type: 'upvote' | 'downvote'
+  ) => Promise<void>;
+  isRating: boolean;
 }) {
   const isReplyingHere = activeReplyId === comment.id;
 
@@ -278,6 +342,8 @@ function CommentThread({
         comment={comment}
         onReplyClick={() => onReply(comment.id)}
         isReplying={isReplyingHere}
+        onRate={(type) => onRateComment(comment.id, type)}
+        isRateLoading={isRating}
       />
 
       {isReplyingHere && (
@@ -312,6 +378,8 @@ function CommentThread({
           replyString={replyString}
           setReply={setReply}
           onSubmitComment={onSubmitComment}
+          onRateComment={onRateComment}
+          isRating={isRating}
         />
       ))}
     </div>
@@ -322,10 +390,14 @@ function Comment({
   comment,
   onReplyClick,
   isReplying,
+  onRate,
+  isRateLoading,
 }: {
   comment: CommentType;
   onReplyClick?: () => void;
   isReplying?: boolean;
+  onRate?: (type: 'upvote' | 'downvote') => void;
+  isRateLoading?: boolean;
 }) {
   const timestamp = comment.created_at ? new Date(comment.created_at) : null;
   const isValidDate = timestamp && !isNaN(timestamp.getTime());
@@ -369,17 +441,25 @@ function Comment({
         </p>
 
         <div className='mt-1 sm:mt-2 flex items-center space-x-4'>
-          <div className='flex items-center space-x-1'>
-            <span className='text-green-400 text-xs sm:text-sm font-semibold'>
-              ↑ {comment.upvotes}
-            </span>
-          </div>
+          <button
+            type='button'
+            onClick={() => onRate?.('upvote')}
+            disabled={!onRate || isRateLoading}
+            className='flex items-center space-x-1 text-xs sm:text-sm font-semibold text-white hover:text-white/70 transition disabled:opacity-60 disabled:cursor-not-allowed'
+          >
+            <span className='text-green-400'>↑</span>
+            <span>{comment.upvotes ?? 0}</span>
+          </button>
 
-          <div className='flex items-center space-x-1'>
-            <span className='text-red-400 text-xs sm:text-sm font-semibold'>
-              ↓ {comment.downvotes}
-            </span>
-          </div>
+          <button
+            type='button'
+            onClick={() => onRate?.('downvote')}
+            disabled={!onRate || isRateLoading}
+            className='flex items-center space-x-1 text-xs sm:text-sm font-semibold text-white hover:text-white/70 transition disabled:opacity-60 disabled:cursor-not-allowed'
+          >
+            <span className='text-red-400'>↓</span>
+            <span>{comment.downvotes ?? 0}</span>
+          </button>
 
           <button
             type='button'

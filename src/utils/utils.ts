@@ -22,6 +22,18 @@ export function getCommentSignatureFirstLine({ address }: { address: string }) {
   return `${address} wants to create a comment. Comment content: \n`;
 }
 
+export function getReactionSignatureMessage({
+  address,
+  commentId,
+  type,
+}: {
+  address: string;
+  commentId: number;
+  type: 'upvote' | 'downvote';
+}) {
+  return `${address.toLocaleLowerCase()} wants to ${type} comment ${commentId}`;
+}
+
 export function formatAmount({
   amount,
   price,

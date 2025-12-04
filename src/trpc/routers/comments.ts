@@ -2,7 +2,10 @@ import { z } from 'zod';
 import { baseProcedure, middleware } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema, bytesSchema } from '../serverTypes';
-import { getCommentSignatureFirstLine } from '@/utils/utils';
+import {
+  getCommentSignatureFirstLine,
+  getReactionSignatureMessage,
+} from '@/utils/utils';
 import { TRPCError } from '@trpc/server';
 import { chains } from '@/utils/config';
 import { getUsersDataOrFetchItFromNeynar } from './neynar';
@@ -79,6 +82,68 @@ const verifyComment = middleware(async (opts) => {
   return next();
 });
 
+const verifyReaction = middleware(async (opts) => {
+  const schema = z.object({
+    address: addressSchema,
+    chainId: z.union([z.literal(8453), z.literal(666666666), z.literal(42161)]),
+    commentId: z.number(),
+    signature: bytesSchema,
+    signatureText: z.string(),
+    type: z.union([z.literal('upvote'), z.literal('downvote')]),
+  });
+
+  const { input, next } = opts;
+
+  const parsedInput = schema.safeParse(input);
+
+  if (parsedInput.error) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'Invalid input! Check zod schema. \n',
+    });
+  }
+
+  const {
+    address,
+    signature,
+    signatureText: message,
+    commentId,
+    type,
+  } = parsedInput.data;
+
+  const chain = chains['base'];
+  const expectedMessage = getReactionSignatureMessage({
+    address,
+    commentId,
+    type,
+  });
+
+  if (message !== expectedMessage) {
+    throw new TRPCError({
+      code: 'UNPROCESSABLE_CONTENT',
+      message: 'Invalid message',
+    });
+  }
+
+  const isValid = await chain.provider.verifyMessage({
+    address,
+    signature,
+    message,
+  });
+
+  if (!isValid) {
+    throw new TRPCError({
+      code: 'UNPROCESSABLE_CONTENT',
+      message: 'Signature is invalid',
+    });
+  }
+
+  return next({
+    ctx: opts.ctx,
+    input: parsedInput.data,
+  });
+});
+
 export const commentsRouter = {
   fetch: baseProcedure
     .input(
@@ -119,13 +184,26 @@ export const commentsRouter = {
         },
       });
 
-      return comments.map(({ reactions, ...comment }) => ({
-        ...comment,
-        upvotes: reactions.map((reaction) => reaction.type === 'upvote').length,
-        downvotes: reactions.map((reaction) => reaction.type === 'downvote')
-          .length,
-        author: comment.author?.usersExtras?.[0],
-      }));
+      return comments.map(({ reactions, ...comment }) => {
+        const { upvotes, downvotes } = reactions.reduce(
+          (acc, reaction) => {
+            if (reaction.type === 'upvote') {
+              acc.upvotes += 1;
+            } else if (reaction.type === 'downvote') {
+              acc.downvotes += 1;
+            }
+            return acc;
+          },
+          { upvotes: 0, downvotes: 0 }
+        );
+
+        return {
+          ...comment,
+          upvotes,
+          downvotes,
+          author: comment.author?.usersExtras?.[0],
+        };
+      });
     }),
 
   comment: baseProcedure
@@ -160,7 +238,58 @@ export const commentsRouter = {
       });
     }),
 
-  // rate: baseProcedure
+  rate: baseProcedure
+    .input(
+      z.object({
+        address: addressSchema.transform((address) =>
+          address.toLocaleLowerCase()
+        ),
+        chainId: z.union([
+          z.literal(8453),
+          z.literal(666666666),
+          z.literal(42161),
+        ]),
+        commentId: z.number(),
+        signature: bytesSchema,
+        signatureText: z.string(),
+        type: z.union([z.literal('upvote'), z.literal('downvote')]),
+      })
+    )
+    .use(verifyReaction)
+    .mutation(async ({ input }) => {
+      const comment = await prisma.comments.findFirst({
+        where: {
+          AND: [{ id: input.commentId }, { chain_id: input.chainId }],
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!comment) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Comment not found',
+        });
+      }
+
+      await getUsersDataOrFetchItFromNeynar([input.address]);
+      await prisma.$transaction([
+        prisma.reactions.deleteMany({
+          where: {
+            comment_id: input.commentId,
+            address: input.address,
+          },
+        }),
+        prisma.reactions.create({
+          data: {
+            comment_id: input.commentId,
+            address: input.address,
+            type: input.type,
+          },
+        }),
+      ]);
+    }),
 };
 
 async function getUserCommentsCount({
