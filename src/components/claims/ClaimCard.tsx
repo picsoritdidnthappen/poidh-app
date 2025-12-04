@@ -23,9 +23,6 @@ export type ClaimCardProps = {
     issuer: {
       address: string;
       scorePoidh: number;
-      completedClaims: number;
-      totalClaims: number;
-      earnedAmount: number;
     };
     bountyId: string;
   };
