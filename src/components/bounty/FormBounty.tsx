@@ -204,14 +204,14 @@ export default function FormBounty({
       fullScreen={isMobile}
       PaperProps={{
         className: 'bg-poidhBlue/90',
-        style: {
+        sx: {
           borderRadius: isMobile ? '0px' : '30px',
           color: 'white',
           border: '1px solid #D1ECFF',
           ...(isMobile && {
-            margin: 0,
-            maxHeight: '100vh',
+            m: 0,
             height: '100vh',
+            maxHeight: '100vh',
             '@supports (height: 100dvh)': {
               height: '100dvh',
               maxHeight: '100dvh',
@@ -255,21 +255,12 @@ export default function FormBounty({
               onClick={onClose}
               style={{
                 color: 'white',
-                cursor: 'pointer',
                 padding: '4px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '6px',
                 transition: 'background-color 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'rgba(255, 255, 255, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'transparent';
               }}
             >
               <CloseIcon size={14} />
@@ -503,7 +494,7 @@ export default function FormBounty({
               }}
             />
           </div>
-          <div className=' text-xs'>
+          <div className='text-xs'>
             <span className='flex gap-2 items-center max-w-md '>
               <InfoIcon size={18} />
               {isOpenBounty
