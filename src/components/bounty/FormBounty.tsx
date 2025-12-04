@@ -212,6 +212,11 @@ export default function FormBounty({
             margin: 0,
             maxHeight: '100vh',
             height: '100vh',
+            minHeight: '100vh',
+            width: '100%',
+            maxWidth: 'none',
+            transform: 'none',
+            borderRadius: '0px',
           }),
         },
       }}
@@ -232,9 +237,14 @@ export default function FormBounty({
           p: isMobile ? 2 : 3,
           ...(isMobile && {
             height: '100vh',
+            minHeight: '100vh',
+            maxHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
             overflowY: 'auto',
+            overscrollBehaviorY: 'contain',
+            paddingTop: 'max(env(safe-area-inset-top, 0px), 16px)',
+            paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
           }),
         }}
       >
@@ -242,7 +252,9 @@ export default function FormBounty({
           <div
             className='flex items-center justify-between w-full sticky'
             style={{
-              paddingTop: 'calc(env(safe-area-inset-top, 0px))',
+              paddingTop: 'max(env(safe-area-inset-top, 0px), 12px)',
+              paddingBottom: '4px',
+              marginTop: 'calc(-1 * max(env(safe-area-inset-top, 0px), 16px))',
             }}
           >
             <div style={{ width: '40px' }} />{' '}

@@ -79,6 +79,41 @@
   input[type='number'] {
     @apply appearance-none;
   }
+
+  @supports (height: 100dvh) {
+    .mobile-fullscreen {
+      height: 100dvh;
+      min-height: 100dvh;
+    }
+  }
+
+  .mobile-fullscreen {
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  @media screen and (max-width: 768px) {
+    html,
+    body {
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .safe-area-inset {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    input[type='text'],
+    input[type='number'],
+    textarea,
+    select {
+      font-size: 16px;
+      transform: translateZ(0);
+    }
+  }
 }
 
 @layer utilities {
