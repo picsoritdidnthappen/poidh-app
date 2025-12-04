@@ -152,18 +152,30 @@ model Comments {
   parent_id    Int?
   user_address String
   body         String
-  upvotes      Int       @default(0)
-  downvotes    Int       @default(0)
   created_at   DateTime  @default(now())
   deleted_at   DateTime?
 
-  bounty  Bounties   @relation(fields: [chain_id, bounty_id], references: [chain_id, id], onDelete: NoAction)
-  author  Users?     @relation(fields: [user_address], references: [address], onDelete: NoAction)
-  parent  Comments?  @relation("CommentToParent", fields: [parent_id], references: [id], onDelete: NoAction)
-  replies Comments[] @relation("CommentToParent")
+  bounty    Bounties    @relation(fields: [chain_id, bounty_id], references: [chain_id, id], onDelete: NoAction)
+  author    Users?      @relation(fields: [user_address], references: [address], onDelete: NoAction)
+  parent    Comments?   @relation("CommentToParent", fields: [parent_id], references: [id], onDelete: NoAction)
+  replies   Comments[]  @relation("CommentToParent")
+  reactions Reactions[]
 
   @@index([bounty_id])
   @@index([chain_id])
   @@index([parent_id])
   @@index([user_address])
+}
+
+model Reactions {
+  id         Int      @id @default(autoincrement())
+  comment_id Int
+  type       Reaction
+
+  comment Comments @relation(fields: [comment_id], references: [id])
+}
+
+enum Reaction {
+  upvote
+  downvote
 }

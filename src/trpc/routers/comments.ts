@@ -13,35 +13,6 @@ const COMMENTS_USER_LIMIT = {
   timeLimit: 5 * 60 * 1000,
 };
 
-async function getUserCommentsCount({
-  address,
-  bountyId,
-  chainId,
-}: {
-  address: string;
-  bountyId: number;
-  chainId: number;
-}) {
-  const fiveMinutesAgo = new Date(Date.now() - COMMENTS_USER_LIMIT.timeLimit);
-
-  const comments = await prisma.comments.findMany({
-    where: {
-      user_address: address,
-      created_at: {
-        gte: fiveMinutesAgo,
-      },
-    },
-  });
-
-  return {
-    globalCount: comments.length,
-    bountyCount: comments.filter(
-      (comment) =>
-        comment.bounty_id === bountyId && comment.chain_id === chainId
-    ).length,
-  };
-}
-
 const verifyComment = middleware(async (opts) => {
   const schema = z.object({
     address: addressSchema,
@@ -180,4 +151,35 @@ export const commentsRouter = {
         },
       });
     }),
+
+  // rate: baseProcedure
 };
+
+async function getUserCommentsCount({
+  address,
+  bountyId,
+  chainId,
+}: {
+  address: string;
+  bountyId: number;
+  chainId: number;
+}) {
+  const fiveMinutesAgo = new Date(Date.now() - COMMENTS_USER_LIMIT.timeLimit);
+
+  const comments = await prisma.comments.findMany({
+    where: {
+      user_address: address,
+      created_at: {
+        gte: fiveMinutesAgo,
+      },
+    },
+  });
+
+  return {
+    globalCount: comments.length,
+    bountyCount: comments.filter(
+      (comment) =>
+        comment.bounty_id === bountyId && comment.chain_id === chainId
+    ).length,
+  };
+}
