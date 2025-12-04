@@ -45,7 +45,7 @@ export default function ClaimSuccessModal({
       enabled: !!open && !!bountyId,
     }
   );
-  const { data: usersDataNeynar } = trpc.neynar.usersData.useQuery(
+  const usersQuery = trpc.neynar.usersData.useQuery(
     {
       addresses: bounty.data?.issuer
         ? [bounty.data?.issuer, claimIssuer]
@@ -54,6 +54,16 @@ export default function ClaimSuccessModal({
     {
       enabled: !!open && !!bounty.data && !!claimIssuer,
     }
+  );
+
+  const bountyIssuerData = usersQuery.data?.find(
+    (user) =>
+      bounty.data?.issuer.toLocaleLowerCase() ===
+      user.address.toLocaleLowerCase()
+  );
+  const claimIssuerData = usersQuery.data?.find(
+    (user) =>
+      claimIssuer.toLocaleLowerCase() === user.address.toLocaleLowerCase()
   );
 
   useEffect(() => {
@@ -78,7 +88,7 @@ export default function ClaimSuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'twitter',
-      usersDataNeynar
+      bountyIssuerData
     );
 
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
@@ -89,12 +99,12 @@ export default function ClaimSuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'farcaster',
-      usersDataNeynar
+      bountyIssuerData
     );
     const claimIssuerUsername = await getAddressDisplayName(
       claimIssuer ?? '',
       'farcaster',
-      usersDataNeynar
+      bountyIssuerData
     );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
 
@@ -108,8 +118,7 @@ export default function ClaimSuccessModal({
       cardUrl.searchParams.set('title', claimTitle.slice(0, 30));
       cardUrl.searchParams.set('issuer', claimIssuerUsername);
 
-      const claimIssuerPfp =
-        usersDataNeynar?.[claimIssuer.toLowerCase() ?? '']?.[0]?.pfp_url;
+      const claimIssuerPfp = claimIssuerData?.pfp_url;
       if (claimIssuerPfp) {
         cardUrl.searchParams.set('pfp', claimIssuerPfp);
       }

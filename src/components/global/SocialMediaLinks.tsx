@@ -1,57 +1,51 @@
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { trpc } from '@/trpc/client';
 import { TwitterXIcon } from '@/components/global/Icons';
 
+export const FARCASTER_URL = 'https://farcaster.xyz';
+export const TWITTER_URL = 'https://x.com';
+
 export default function SocialMediaLinks({ address }: { address: string }) {
-  const [farcasterUsername, setFarcasterUsername] = useState<string | null>(
-    null
-  );
-  const [xUsername, setXUsername] = useState<string | null>(null);
-  const userDataNeynar = trpc.neynar.usersData.useQuery({
+  const userQuery = trpc.neynar.usersData.useQuery({
     addresses: [address],
   });
 
-  useEffect(() => {
-    if (userDataNeynar?.data) {
-      const userData = userDataNeynar.data[address]?.[0];
-      const xUsername = userData?.verified_accounts?.find(
-        (account) => account.platform === 'x'
-      )?.username;
+  const user = userQuery.data?.[0];
 
-      setFarcasterUsername(userData?.username ?? null);
-      setXUsername(xUsername ?? null);
-    }
-  }, [userDataNeynar, address]);
+  if (!user) {
+    return null;
+  }
 
-  return address && farcasterUsername ? (
+  return (
     <div className='flex flex-row items-center gap-2'>
-      <a
-        href={`https://warpcast.com/${farcasterUsername}`}
-        target='_blank'
-        rel='noopener noreferrer'
-        className='inline-block text-gray-400 hover:text-gray-200 transition-colors'
-        aria-label={`Visit ${farcasterUsername}'s Warpcast profile`}
-      >
-        <Image
-          src='/images/farcaster_arch.svg'
-          alt='Warpcast'
-          width={17}
-          height={20}
-          className='hover:opacity-80 transition-opacity'
-        />
-      </a>
-      {xUsername && (
+      {user.farcaster_tag && (
         <a
-          href={`https://x.com/${xUsername}`}
+          href={`${FARCASTER_URL}/${user.farcaster_tag}`}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='inline-block text-gray-400 hover:text-gray-200 transition-colors'
+          aria-label={`Visit ${user.farcaster_tag}'s Farcaster profile`}
+        >
+          <Image
+            src='/images/farcaster_arch.svg'
+            alt='Warpcast'
+            width={17}
+            height={20}
+            className='hover:opacity-80 transition-opacity'
+          />
+        </a>
+      )}
+      {user.twitter_tag && (
+        <a
+          href={`${TWITTER_URL}/${user.twitter_tag}`}
           target='_blank'
           rel='noopener noreferrer'
           className='inline-block'
-          aria-label={`Visit ${xUsername}'s X profile`}
+          aria-label={`Visit ${user.twitter_tag}'s X profile`}
         >
           <TwitterXIcon width={17} height={20} />
         </a>
       )}
     </div>
-  ) : null;
+  );
 }

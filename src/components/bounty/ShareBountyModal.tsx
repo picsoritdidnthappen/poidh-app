@@ -16,35 +16,29 @@ export default function ShareBountyModal({
   onClose: () => void;
   bountyIssuerAddress: string;
 }) {
-  const { data: userDataNeynar, refetch: fetchUserData } =
-    trpc.neynar.usersData.useQuery(
-      { addresses: [bountyIssuerAddress] },
-      {
-        enabled: false,
-        staleTime: Infinity,
-        refetchOnMount: false,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-      }
-    );
+  const usersQuery = trpc.neynar.usersData.useQuery(
+    { addresses: [bountyIssuerAddress] },
+    {
+      enabled: false,
+      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    }
+  );
+
+  const user = usersQuery.data?.find(
+    (user) =>
+      bountyIssuerAddress.toLocaleLowerCase() ===
+      user.address.toLocaleLowerCase()
+  );
 
   const handleShareX = async () => {
-    let text =
-      'check out this bounty on @poidhxyz 📸\n\n' + window.location.href;
+    let text = `check out this bounty on @poidhxyz 📸\n\n${window.location.href}`;
 
-    let neynarData = userDataNeynar;
-    if (!neynarData) {
-      const { data } = await fetchUserData();
-      neynarData = data;
-    }
-    if (neynarData?.[bountyIssuerAddress]?.[0]) {
-      const xUsername = neynarData?.[
-        bountyIssuerAddress
-      ]?.[0]?.verified_accounts?.find(
-        (account) => account.platform === 'x'
-      )?.username;
-      if (xUsername) {
-        text = 'check out this bounty from @' + xUsername + ' on @poidhxyz 📸';
+    if (user) {
+      if (user?.twitter_tag) {
+        text = `check out this bounty from @${user.twitter_tag} on @poidhxyz 📸 \n`;
       }
     }
     shareToX(text);
@@ -54,16 +48,8 @@ export default function ShareBountyModal({
   const handleShareFarcaster = async () => {
     let text = 'check out this bounty on /poidh 📸\n';
 
-    let neynarData = userDataNeynar;
-    if (!neynarData) {
-      const { data } = await fetchUserData();
-      neynarData = data;
-    }
-    if (neynarData?.[bountyIssuerAddress]?.[0]?.username) {
-      text =
-        'check out this bounty from @' +
-        neynarData?.[bountyIssuerAddress]?.[0]?.username +
-        ' on /poidh 📸\n';
+    if (user?.farcaster_tag) {
+      text = `check out this bounty from @${user.farcaster_tag} on /poidh 📸\n`;
     }
 
     await shareToFarcaster(text);

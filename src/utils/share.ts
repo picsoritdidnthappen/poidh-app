@@ -1,9 +1,19 @@
 import { toast } from 'react-toastify';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { getEnsOrDegenName } from '@/utils/web3';
+import {
+  FARCASTER_URL,
+  TWITTER_URL,
+} from '@/components/global/SocialMediaLinks';
+import { inferRouterOutputs } from '@trpc/server';
+import { type AppRouter } from '@/trpc/trpc';
+import { tryCatchAsync } from './utils';
+
+type UserDataNeynar =
+  inferRouterOutputs<AppRouter>['neynar']['usersData'][number];
 
 export function shareToX(text: string, url?: string) {
-  const composeUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+  const composeUrl = `${TWITTER_URL}/intent/tweet?text=${encodeURIComponent(
     `${text}\n\n${url ?? window.location.href}`
   )}`;
   window.open(composeUrl, '_blank');
@@ -31,7 +41,7 @@ export async function shareToFarcaster(
     return;
   }
 
-  const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+  const composeUrl = `${FARCASTER_URL}/~/compose?text=${encodeURIComponent(
     text
   )}&embeds[]=${encodeURIComponent(window.location.href)}${
     embedImage ? `&embeds[]=${encodeURIComponent(embedImage)}` : ''
@@ -48,35 +58,32 @@ export function copyToClipboard(successMessage: string) {
 export async function getAddressDisplayName(
   address: string,
   platform: 'farcaster' | 'twitter',
-  usersDataNeynar?: Record<string, any[]>
+  user?: UserDataNeynar
 ): Promise<string> {
-  const userData = usersDataNeynar?.[address.toLowerCase()]?.[0];
+  let displayName = `${address.slice(0, 7)}`;
 
   if (platform === 'farcaster') {
-    if (userData?.username) {
-      return `@${userData.username}`;
+    if (user?.farcaster_tag) {
+      displayName = `@${user.farcaster_tag}`;
     }
   } else if (platform === 'twitter') {
-    const xUsername = userData?.verified_accounts?.find(
-      (account: any) => account.platform === 'x'
-    )?.username;
-    if (xUsername) {
-      return `@${xUsername}`;
+    if (user?.twitter_tag) {
+      displayName = `@${user.twitter_tag}`;
     }
   }
 
-  try {
-    const ensOrDegenName = await getEnsOrDegenName({
-      chainName: 'base',
-      address,
-    });
+  const [name, error] = await tryCatchAsync(
+    async () =>
+      await getEnsOrDegenName({
+        chainName: 'base',
+        address,
+      })
+  );
 
-    if (ensOrDegenName) {
-      return ensOrDegenName;
-    }
-  } catch (error) {
+  if (error) {
     console.warn('Failed to fetch ENS/Degen name:', error);
+    return displayName;
   }
 
-  return `${address.slice(0, 7)}`;
+  return name ?? displayName;
 }

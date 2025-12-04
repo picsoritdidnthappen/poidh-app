@@ -39,13 +39,17 @@ export default function JoinBountySuccessModal({
     }
   );
 
-  const { data: usersDataNeynar } = trpc.neynar.usersData.useQuery(
+  const usersQuery = trpc.neynar.usersData.useQuery(
     {
       addresses: bounty.data?.issuer ? [bounty.data.issuer] : [],
     },
     {
       enabled: !!open && !!bounty.data?.issuer,
     }
+  );
+
+  const user = usersQuery.data?.find(
+    (user) => bounty.data?.issuer.toLocaleLowerCase() === user.address
   );
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function JoinBountySuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'twitter',
-      usersDataNeynar
+      user
     );
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
@@ -82,7 +86,7 @@ export default function JoinBountySuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'farcaster',
-      usersDataNeynar
+      user
     );
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;

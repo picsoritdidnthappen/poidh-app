@@ -8,11 +8,14 @@ import { inferRouterOutputs } from '@trpc/server';
 import { AppRouter } from '@/trpc/trpc';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
-import { Netname } from '@/utils/types';
 import { useState, useMemo } from 'react';
+import {
+  FARCASTER_URL,
+  TWITTER_URL,
+} from '@/components/global/SocialMediaLinks';
 
 type UserDataNeynar =
-  inferRouterOutputs<AppRouter>['neynar']['usersData'][string];
+  inferRouterOutputs<AppRouter>['neynar']['usersData'][number];
 
 const formatUserName = (name: string) =>
   name.length >= 10 ? `${name.slice(0, 6)}…${name.slice(-5)}` : name;
@@ -27,55 +30,51 @@ function ResolvedAddressCell({ address }: { address: string }) {
 }
 
 function UserDisplay({
-  userData,
+  user,
   address,
   isLoading = false,
 }: {
-  userData?: inferRouterOutputs<AppRouter>['neynar']['usersData'][string];
+  user?: UserDataNeynar;
   address: string;
   isLoading?: boolean;
 }) {
-  const user = userData?.[0];
-
-  if (user) {
-    return (
-      <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-        {user.pfp_url && (
-          <div className='flex-shrink-0 relative overflow-hidden rounded-full mr-2 w-7 h-7'>
-            <Image
-              src={user.pfp_url ?? 'https://poidh.xyz/images/unknown.png'}
-              alt={user.display_name ?? 'User'}
-              width={8}
-              height={8}
-              unoptimized
-              className='w-full h-full object-cover'
-            />
-          </div>
-        )}
-        <span>
-          {user.username.length > 10
-            ? `${user.username.slice(0, 6)}…${user.username.slice(-5)}`
-            : user.username}
-        </span>
-      </span>
-    );
+  if (isLoading) {
+    return <>{formatUserName(address)}</>;
   }
 
-  if (isLoading) return <>{formatUserName(address)}</>;
+  if (!user) {
+    return <ResolvedAddressCell address={address} />;
+  }
 
-  return <ResolvedAddressCell address={address} />;
+  return (
+    <span className='inline-flex items-center whitespace-nowrap max-w-full'>
+      {user.pfp_url && (
+        <div className='flex-shrink-0 relative overflow-hidden rounded-full mr-2 w-7 h-7'>
+          <Image
+            src={user.pfp_url ?? 'https://poidh.xyz/images/unknown.png'}
+            alt={user.farcaster_tag ?? 'User'}
+            width={8}
+            height={8}
+            unoptimized
+            className='w-full h-full object-cover'
+          />
+        </div>
+      )}
+      <span>
+        {user.farcaster_tag && user.farcaster_tag.length > 10
+          ? `${user.farcaster_tag.slice(0, 6)}…${user.farcaster_tag.slice(-5)}`
+          : user.farcaster_tag}
+      </span>
+    </span>
+  );
 }
 
 function ScoreCell({
-  chain,
   address,
-  score,
   className = '',
   children,
 }: {
-  chain: Netname;
   address: string;
-  score: number;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -123,7 +122,7 @@ export default function HighScoresPage() {
     return addresses;
   }, [leaderboardData, userRankData, account.isConnected, account.address]);
 
-  const usersDataNeynar = trpc.neynar.usersData.useQuery(
+  const usersQuery = trpc.neynar.usersData.useQuery(
     {
       addresses: allAddresses,
     },
@@ -135,6 +134,11 @@ export default function HighScoresPage() {
       retry: 2,
       retryDelay: 1000,
     }
+  );
+
+  const user = usersQuery.data?.find(
+    (user) =>
+      user.address.toLocaleLowerCase() === account.address?.toLocaleLowerCase()
   );
 
   return (
@@ -156,7 +160,7 @@ export default function HighScoresPage() {
 
           <div className='hidden md:block'>
             <div className='space-y-3'>
-              {account.isConnected && account.address && (
+              {user && (
                 <div
                   className='
                     flex flex-col bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-3
@@ -171,37 +175,25 @@ export default function HighScoresPage() {
                     </div>
                   </div>
                   <Link
-                    href={`/account/${account.address}`}
+                    href={`/account/${user.address}`}
                     className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
                   >
                     <UserDisplay
-                      userData={
-                        usersDataNeynar.data?.[account.address.toLowerCase()]
-                      }
-                      address={account.address.toLowerCase()}
-                      isLoading={usersDataNeynar.isLoading}
+                      user={user}
+                      address={user.address.toLowerCase()}
+                      isLoading={usersQuery.isLoading}
                     />
                   </Link>
                   <div className='flex items-center justify-end md:mr-3'>
-                    {usersDataNeynar.data && (
+                    {usersQuery.data && (
                       <div className='flex items-center gap-3'>
-                        {usersDataNeynar.data[
-                          account.address.toLowerCase()
-                        ]?.[0]?.username && (
+                        {user.farcaster_tag && (
                           <a
-                            href={`https://warpcast.com/${
-                              usersDataNeynar.data[
-                                account.address.toLowerCase()
-                              ][0].username
-                            }`}
+                            href={`${FARCASTER_URL}/${user.farcaster_tag}`}
                             target='_blank'
                             rel='noopener noreferrer'
                             className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                            aria-label={`Visit ${
-                              usersDataNeynar.data[
-                                account.address.toLowerCase()
-                              ][0].username
-                            }'s Warpcast profile`}
+                            aria-label={`Visit ${user.farcaster_tag}'s Warpcast profile`}
                           >
                             <Image
                               src='/images/farcaster_arch.svg'
@@ -212,29 +204,13 @@ export default function HighScoresPage() {
                             />
                           </a>
                         )}
-                        {usersDataNeynar.data[
-                          account.address
-                        ]?.[0]?.verified_accounts?.find(
-                          (accountData) => accountData.platform === 'x'
-                        )?.username && (
+                        {user?.twitter_tag && (
                           <a
-                            href={`https://x.com/${
-                              usersDataNeynar.data[
-                                account.address
-                              ]?.[0]?.verified_accounts?.find(
-                                (accountData) => accountData.platform === 'x'
-                              )?.username
-                            }`}
+                            href={`${TWITTER_URL}/${user.twitter_tag}`}
                             target='_blank'
                             rel='noopener noreferrer'
                             className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                            aria-label={`Visit ${
-                              usersDataNeynar.data[
-                                account.address
-                              ]?.[0]?.verified_accounts?.find(
-                                (accountData) => accountData.platform === 'x'
-                              )?.username
-                            }'s X profile`}
+                            aria-label={`Visit ${user.twitter_tag}'s X profile`}
                           >
                             <div className='text-gray-300 group-hover:text-white transition-colors duration-200'>
                               <TwitterXIcon width={16} height={18} />
@@ -246,9 +222,7 @@ export default function HighScoresPage() {
                   </div>
                   <div className='md:col-span-2 md:border-l border-white/30'>
                     <ScoreCell
-                      chain='arbitrum'
-                      address={account.address}
-                      score={userRankData?.data?.[1]?.arbitrum ?? 0}
+                      address={user.address}
                       className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
                     >
                       <span className='text-base md:hidden'>arbitrum</span>
@@ -257,9 +231,7 @@ export default function HighScoresPage() {
                   </div>
                   <div className='md:col-span-2 md:border-l border-white/30'>
                     <ScoreCell
-                      chain='base'
-                      address={account.address}
-                      score={userRankData?.data?.[1]?.base ?? 0}
+                      address={user.address}
                       className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
                     >
                       <span className='text-base md:hidden'>base</span>
@@ -268,9 +240,7 @@ export default function HighScoresPage() {
                   </div>
                   <div className='md:col-span-2 md:border-l border-white/30'>
                     <ScoreCell
-                      chain='degen'
-                      address={account.address}
-                      score={userRankData?.data?.[1]?.degen ?? 0}
+                      address={user.address}
                       className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
                     >
                       <span className='text-base md:hidden'>degen</span>
@@ -286,6 +256,9 @@ export default function HighScoresPage() {
 
               {leaderboardData?.map(([address, scores], index) => {
                 const rank = (currentPage - 1) * 10 + index + 1;
+                const currentUser = usersQuery.data?.find(
+                  (user) => address === user.address
+                );
                 return (
                   <div
                     key={address}
@@ -305,21 +278,21 @@ export default function HighScoresPage() {
                       className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
                     >
                       <UserDisplay
-                        userData={usersDataNeynar.data?.[address]}
+                        user={currentUser}
                         address={address}
-                        isLoading={usersDataNeynar.isLoading}
+                        isLoading={usersQuery.isLoading}
                       />
                     </Link>
                     <div className='flex items-center justify-end md:mr-4'>
-                      {usersDataNeynar.data && (
+                      {currentUser && (
                         <div className='flex items-center gap-3'>
-                          {usersDataNeynar.data[address]?.[0]?.username && (
+                          {currentUser.farcaster_tag && (
                             <a
-                              href={`https://warpcast.com/${usersDataNeynar.data[address][0].username}`}
+                              href={`${FARCASTER_URL}/${currentUser.farcaster_tag}`}
                               target='_blank'
                               rel='noopener noreferrer'
                               className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                              aria-label={`Visit ${usersDataNeynar.data[address][0].username}'s Warpcast profile`}
+                              aria-label={`Visit ${currentUser.farcaster_tag}'s Warpcast profile`}
                             >
                               <Image
                                 src='/images/farcaster_arch.svg'
@@ -330,29 +303,13 @@ export default function HighScoresPage() {
                               />
                             </a>
                           )}
-                          {usersDataNeynar.data[
-                            address
-                          ]?.[0]?.verified_accounts?.find(
-                            (account) => account.platform === 'x'
-                          )?.username && (
+                          {currentUser.twitter_tag && (
                             <a
-                              href={`https://x.com/${
-                                usersDataNeynar.data[
-                                  address
-                                ][0].verified_accounts.find(
-                                  (account) => account.platform === 'x'
-                                )?.username
-                              }`}
+                              href={`${TWITTER_URL}/${currentUser.twitter_tag}`}
                               target='_blank'
                               rel='noopener noreferrer'
                               className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                              aria-label={`Visit ${
-                                usersDataNeynar.data[
-                                  address
-                                ][0].verified_accounts.find(
-                                  (account) => account.platform === 'x'
-                                )?.username
-                              }'s X profile`}
+                              aria-label={`Visit ${currentUser.twitter_tag}'s X profile`}
                             >
                               <div className='text-gray-300 group-hover:text-white transition-colors duration-200'>
                                 <TwitterXIcon width={16} height={18} />
@@ -364,9 +321,7 @@ export default function HighScoresPage() {
                     </div>
                     <div className='md:col-span-2 md:border-l border-white/30'>
                       <ScoreCell
-                        chain='arbitrum'
                         address={address}
-                        score={scores.arbitrum}
                         className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
                       >
                         <span className='text-base md:hidden'>arbitrum</span>
@@ -375,9 +330,7 @@ export default function HighScoresPage() {
                     </div>
                     <div className='md:col-span-2 md:border-l border-white/30'>
                       <ScoreCell
-                        chain='base'
                         address={address}
-                        score={scores.base}
                         className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
                       >
                         <span className='text-base md:hidden'>base</span>
@@ -386,9 +339,7 @@ export default function HighScoresPage() {
                     </div>
                     <div className='md:col-span-2 md:border-l border-white/30'>
                       <ScoreCell
-                        chain='degen'
                         address={address}
-                        score={scores.degen}
                         className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
                       >
                         <span className='text-base md:hidden'>degen</span>
@@ -417,22 +368,26 @@ export default function HighScoresPage() {
                   degen: userRankData?.data?.[1]?.degen ?? 0,
                   total: userRankData?.data?.[1]?.total ?? 0,
                 }}
-                userData={usersDataNeynar.data?.[account.address.toLowerCase()]}
+                user={user}
                 isCurrentUser={true}
-                isLoading={usersDataNeynar.isLoading}
+                isLoading={usersQuery.isLoading}
               />
             )}
 
             {leaderboardData?.map(([address, scores], index) => {
               const rank = (currentPage - 1) * 10 + index + 1;
+              const currentUser = usersQuery.data?.find(
+                (user) => address === user.address
+              );
+
               return (
                 <LeaderboardCardMobile
                   key={address}
                   rank={rank}
                   address={address}
                   scores={scores}
-                  userData={usersDataNeynar.data?.[address.toLowerCase()]}
-                  isLoading={usersDataNeynar.isLoading}
+                  user={currentUser}
+                  isLoading={usersQuery.isLoading}
                 />
               );
             })}
@@ -511,7 +466,7 @@ function LeaderboardCardMobile({
   rank,
   address,
   scores,
-  userData,
+  user,
   isCurrentUser = false,
   isLoading = false,
 }: {
@@ -523,7 +478,7 @@ function LeaderboardCardMobile({
     arbitrum: number;
     total: number;
   };
-  userData?: UserDataNeynar;
+  user?: UserDataNeynar;
   isCurrentUser?: boolean;
   isLoading?: boolean;
 }) {
@@ -549,21 +504,17 @@ function LeaderboardCardMobile({
           href={`/account/${address}`}
           className='text-lg text-white flex-1 flex items-center justify-start'
         >
-          <UserDisplay
-            userData={userData}
-            address={address}
-            isLoading={isLoading}
-          />
+          <UserDisplay user={user} address={address} isLoading={isLoading} />
         </Link>
-        {userData && (
+        {user && (
           <div className='flex items-center gap-2'>
-            {userData[0]?.username && (
+            {user.farcaster_tag && (
               <a
-                href={`https://warpcast.com/${userData[0].username}`}
+                href={`${FARCASTER_URL}/${user.farcaster_tag}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 className='group inline-flex items-center justify-center w-7 h-7 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                aria-label={`Visit ${userData[0].username}'s Warpcast profile`}
+                aria-label={`Visit ${user.farcaster_tag}'s Warpcast profile`}
               >
                 <Image
                   src='/images/farcaster_arch.svg'
@@ -574,23 +525,13 @@ function LeaderboardCardMobile({
                 />
               </a>
             )}
-            {userData[0]?.verified_accounts?.find(
-              (account) => account.platform === 'x'
-            )?.username && (
+            {user.farcaster_tag && (
               <a
-                href={`https://x.com/${
-                  userData[0].verified_accounts.find(
-                    (account) => account.platform === 'x'
-                  )?.username
-                }`}
+                href={`${TWITTER_URL}/${user.twitter_tag}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 className='group inline-flex items-center justify-center w-7 h-7 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                aria-label={`Visit ${
-                  userData[0].verified_accounts.find(
-                    (account) => account.platform === 'x'
-                  )?.username
-                }'s X profile`}
+                aria-label={`Visit ${user.twitter_tag}'s X profile`}
               >
                 <div className='text-gray-300 group-hover:text-white transition-colors duration-200'>
                   <TwitterXIcon width={14} height={16} />
@@ -604,9 +545,7 @@ function LeaderboardCardMobile({
         <div className='flex items-center text-white text-lg border-b border-white/20'>
           <div className='flex-1'>
             <ScoreCell
-              chain='arbitrum'
               address={address}
-              score={scores.arbitrum}
               className='flex items-center justify-between px-4 py-3'
             >
               <span className='w-20'>arbitrum</span>
@@ -616,9 +555,7 @@ function LeaderboardCardMobile({
           <div className='h-6 border-r border-white/30 mx-4' />
           <div className='flex-1'>
             <ScoreCell
-              chain='base'
               address={address}
-              score={scores.base}
               className='flex items-center justify-between px-4 py-3'
             >
               <span className='w-12'>base</span>
@@ -629,9 +566,7 @@ function LeaderboardCardMobile({
         <div className='flex items-center text-white text-lg'>
           <div className='flex-1'>
             <ScoreCell
-              chain='degen'
               address={address}
-              score={scores.degen}
               className='flex items-center justify-between px-4 py-3'
             >
               <span className='w-20'>degen</span>
