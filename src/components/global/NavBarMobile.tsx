@@ -4,6 +4,8 @@ import { useAccount } from 'wagmi';
 import FormBounty from '../bounty/FormBounty';
 import FormClaim from '../claims/FormClaim';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useGetChain } from '@/hooks/useGetChain';
+import { trpc } from '@/trpc/client';
 
 export default function NavBarMobile({
   type,
@@ -19,6 +21,20 @@ export default function NavBarMobile({
   const [showForm, setShowForm] = useState(false);
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
+  const chain = useGetChain();
+
+  const bounty = trpc.bounty.useQuery(
+    {
+      id: Number(bountyId),
+      chainId: chain.id,
+    },
+    {
+      enabled: type === 'claim' && !!bountyId,
+    }
+  );
+  if (type === 'claim' && !bounty.data?.inProgress) {
+    return null;
+  }
 
   return (
     <>

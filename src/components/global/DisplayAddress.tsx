@@ -9,7 +9,7 @@ export default function DisplayAddress({
   address,
   chainName = 'base',
   showPfpIfExists = true,
-  pfpSize,
+  pfpSize = 20,
 }: {
   address: string;
   chainName?: Netname;
@@ -36,17 +36,17 @@ export default function DisplayAddress({
       {showPfpIfExists && user && user.pfp_url && (
         <div
           style={{
-            width: pfpSize ?? 20,
-            height: pfpSize ?? 20,
-            marginRight: pfpSize ? 8 : 7,
+            width: pfpSize,
+            height: pfpSize,
+            marginRight: 8,
           }}
           className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
         >
           <Image
             src={user.pfp_url}
             alt={user?.farcaster_tag ?? 'User'}
-            width={pfpSize ?? 20}
-            height={pfpSize ?? 20}
+            width={pfpSize}
+            height={pfpSize}
             unoptimized
             className='w-full h-full object-cover'
           />

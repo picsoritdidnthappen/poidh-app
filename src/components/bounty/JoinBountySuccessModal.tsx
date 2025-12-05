@@ -91,7 +91,7 @@ export default function JoinBountySuccessModal({
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
     const text = `I just added ${amountText} to ${bountyIssuerUsername}'s /poidh bounty`;
-    await shareToFarcaster(text);
+    await shareToFarcaster({ text });
   };
 
   if (!open) return null;

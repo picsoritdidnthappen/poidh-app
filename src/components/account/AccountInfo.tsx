@@ -23,9 +23,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
     <div className='bg-white/5 rounded p-1.5 backdrop-blur-sm'>
       <div className='text-[10px] text-gray-300 leading-none'>{title}</div>
-      <div className='text-xs sm:text-sm font-medium mt-0.5 leading-tight'>
-        {value}
-      </div>
+      <div className='text-xs sm:text-sm mt-0.5 leading-tight'>{value}</div>
     </div>
   );
 }
@@ -78,7 +76,7 @@ export default function AccountInfo({ address }: { address: string }) {
               <div className='border-b border-white/20 pb-3'>
                 <div className='text-sm text-gray-300 mb-1'>user</div>
                 <div className='flex items-center gap-2 overflow-visible'>
-                  <span className='text-xl sm:text-2xl md:text-3xl font-medium'>
+                  <span className='text-xl sm:text-2xl md:text-3xl'>
                     <DisplayAddress
                       chainName={chain.slug}
                       address={address}
@@ -91,7 +89,7 @@ export default function AccountInfo({ address }: { address: string }) {
                     type='button'
                     aria-label='Share profile'
                     title='Share profile'
-                    className='cursor-pointer hover:text-gray-200'
+                    className='hover:text-gray-200 cursor-pointer'
                     onClick={() => {
                       setIsShareModalOpen(true);
                     }}
@@ -108,11 +106,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 />
                 <StatCard
                   title='active bounties'
-                  value={
-                    accountActivitiesCount.data?.bounties
-                      ? accountActivitiesCount.data?.bounties
-                      : 0
-                  }
+                  value={accountActivitiesCount.data?.bounties ?? 0}
                 />
                 <StatCard
                   title='completed claims'

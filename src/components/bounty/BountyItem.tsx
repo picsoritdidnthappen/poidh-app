@@ -74,9 +74,10 @@ export default function BountyItem({
                 {bounty.isMultiplayer && <UsersRoundIcon />}
               </div>
               {showChainIcon && (
-                <div className='w-[42px] h-[42px] rounded-full bg-[rgba(255,255,255,0.2)] flex justify-center items-center border-[2px] border-[rgba(255,255,255,0.3)]'>
-                  <DynamicChainIcon chain={chain.slug} size={30} />
-                </div>
+                <DynamicChainIcon
+                  chain={chain.slug}
+                  size={chain.slug === 'base' ? 22 : 30}
+                />
               )}
             </div>
           </div>

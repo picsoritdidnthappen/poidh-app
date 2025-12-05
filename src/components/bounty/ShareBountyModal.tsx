@@ -52,7 +52,7 @@ export default function ShareBountyModal({
       text = `check out this bounty from @${user.farcaster_tag} on /poidh 📸\n`;
     }
 
-    await shareToFarcaster(text);
+    await shareToFarcaster({ text });
     onClose();
   };
 

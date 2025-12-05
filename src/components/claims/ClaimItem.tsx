@@ -175,11 +175,8 @@ export default function ClaimItem({
           title,
           currency: chain.currency,
           issuer: {
-            completedClaims: accountStats.data?.acceptedClaimsCount ?? 0,
-            totalClaims: accountActivities.data?.claims ?? 0,
             address: issuer,
-            earnedAmount: accountStats.data?.totalEarn.amountCrypto ?? 0,
-            scorePoidh: accountStats.data?.poidhScore ?? 0,
+            scorePoidh: Number(accountStats.data?.poidhScore) ?? 0,
           },
           bountyId,
         }}

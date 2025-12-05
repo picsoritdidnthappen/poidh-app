@@ -1,23 +1,24 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useChainInfo } from '@/hooks/useGetChain';
+import { useScreenSize } from '@/hooks/useScreenSize';
 import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import Image from 'next/image';
 import { useMutation } from '@tanstack/react-query';
 
-import { Dialog, DialogContent, DialogActions, Box } from '@mui/material';
+import { Dialog, DialogContent, Box } from '@mui/material';
 import { decodeEventLog } from 'viem';
 import { trpc, trpcClient } from '@/trpc/client';
 import GameButton from '@/components/global/GameButton';
-import ButtonCTA from '@/components/global/ButtonCTA';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import ClaimConfirm from '@/components/claims/ClaimConfirm';
 import ClaimSuccessModal from '@/components/claims/ClaimSuccessModal';
+import { ImageIcon, CloseIcon } from '@/components/global/Icons';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -45,6 +46,8 @@ export default function FormClaim({
   );
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -54,6 +57,7 @@ export default function FormClaim({
   const writeContract = useWriteContract({});
   const chain = useChainInfo();
   const switchChain = useSwitchChain();
+  const isMobile = useScreenSize();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -228,80 +232,201 @@ export default function FormClaim({
       <Dialog
         open={open}
         onClose={onClose}
-        maxWidth='xs'
+        maxWidth={isMobile ? false : 'xs'}
+        fullWidth
+        fullScreen={isMobile}
         PaperProps={{
-          className: 'bg-poidhBlue/80 relative',
-          style: {
-            borderRadius: '10px',
+          className: 'bg-poidhBlue/90 relative flex flex-col',
+          sx: {
+            borderRadius: isMobile ? '0px' : '30px',
             color: 'white',
-            border: '1px solid #D1ECFF',
+            border: isMobile ? 'none' : '1px solid #D1ECFF',
+            ...(isMobile
+              ? {
+                  m: 0,
+                  height: '100vh',
+                  maxHeight: '100vh',
+                  '@supports (height: 100dvh)': {
+                    height: '100dvh',
+                    maxHeight: '100dvh',
+                  },
+                }
+              : {
+                  maxHeight: '90vh',
+                }),
           },
         }}
+        sx={
+          isMobile
+            ? {
+                '& .MuiDialog-paper': {
+                  transform: open ? 'translateY(0)' : 'translateY(100%)',
+                  transition: 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                },
+              }
+            : {}
+        }
       >
-        <button
-          onClick={onClose}
-          className='absolute top-4 right-4 text-white hover:opacity-70 transition-opacity'
-          aria-label='Close'
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
+        {isMobile ? (
+          <div className='flex items-center justify-between w-full sticky'>
+            <div style={{ width: '40px' }} />{' '}
+            <button
+              onClick={onClose}
+              style={{
+                color: 'white',
+                padding: '6px',
+                marginTop: '6px',
+                marginRight: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                transition: 'background-color 0.2s ease',
+              }}
+            >
+              <CloseIcon size={14} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              right: 10,
+              top: 8,
+              color: 'white',
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'rgba(255, 255, 255, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'transparent';
+            }}
           >
-            <line x1='18' y1='6' x2='6' y2='18'></line>
-            <line x1='6' y1='6' x2='18' y2='18'></line>
-          </svg>
-        </button>
-        <DialogContent className='pt-8'>
+            <CloseIcon size={12} />
+          </button>
+        )}
+        <DialogContent
+          sx={{
+            position: 'relative',
+            p: isMobile ? 2 : 3,
+            pt: isMobile ? 1 : 3,
+            mt: isMobile ? 0 : 1,
+            ...(isMobile && {
+              height: '100%',
+              maxHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+            }),
+          }}
+        >
           <div
             {...getRootProps()}
-            className='flex items-center flex-col text-left text-white rounded-[30px] border border-[#D1ECFF] border-dashed p-5 w-full justify-center cursor-pointer mt-4'
+            className={cn(
+              'flex items-center flex-col text-center text-white rounded-3xl border-2 border-dashed p-8 w-full justify-center cursor-pointer transition-all duration-200',
+              isDragActive
+                ? 'border-white bg-white/10 scale-105'
+                : 'border-[#D1ECFF] hover:border-white hover:bg-white/5'
+            )}
           >
             <input {...getInputProps()} />
             {isDragActive ? (
-              <p>Drop the image here...</p>
+              <div className='flex flex-col items-center gap-2'>
+                <ImageIcon />
+                <p className='text-sm font-medium'>Drop the image here...</p>
+              </div>
             ) : (
-              <p>
-                {imageURI
-                  ? 'Image uploaded'
-                  : 'Drag & drop or click to upload an image'}
-              </p>
+              <div className='flex flex-col items-center gap-3'>
+                {!imageURI && (
+                  <svg
+                    className='w-8 h-8 opacity-75'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={1.5}
+                      d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                    />
+                  </svg>
+                )}
+                <div>
+                  <p className='text-sm font-medium'>
+                    {imageURI
+                      ? '✓ Image uploaded'
+                      : 'Drag & drop or click to upload'}
+                  </p>
+                  {!imageURI && (
+                    <p className='text-xs opacity-70 mt-1'>
+                      PNG, JPG, GIF, WebP, HEIC
+                    </p>
+                  )}
+                </div>
+              </div>
             )}
             {preview && (
               <Image
                 src={preview}
                 alt='Preview'
-                className='w-full max-w-[300px] h-auto max-h-[300px] mt-2 rounded-md object-contain'
+                width={280}
+                height={280}
+                className='w-full max-w-xs h-auto rounded-2xl object-contain mt-4 border border-white/20'
               />
             )}
           </div>
-          <Box mt={2} mb={-3}>
-            <span>title</span>
+          <Box mt={2}>
+            <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
             <input
+              ref={titleRef}
               type='text'
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+              onFocus={() => {
+                if (isMobile && titleRef.current) {
+                  titleRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                  });
+                }
+              }}
+              className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
+                isMobile ? 'text-base py-3' : ''
+              }`}
             />
-            <span>description</span>
+            <span className={isMobile ? 'text-base mb-2' : ''}>
+              description
+            </span>
             <textarea
+              ref={descriptionRef}
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full'
+              onFocus={() => {
+                if (isMobile && descriptionRef.current) {
+                  descriptionRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                  });
+                }
+              }}
+              className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
+                isMobile ? 'text-base py-3 min-h-[120px]' : ''
+              }`}
             ></textarea>
           </Box>
-        </DialogContent>
-        <DialogActions className='pb-6'>
           <button
             className={cn(
-              'flex flex-col items-center justify-center w-full',
+              'flex flex-col items-center justify-center w-full mt-2',
               account.isDisconnected && 'opacity-50 cursor-not-allowed'
             )}
             onClick={() => {
@@ -320,7 +445,7 @@ export default function FormClaim({
               <p className='text-center mt-1'>create claim</p>
             </div>
           </button>
-        </DialogActions>
+        </DialogContent>
       </Dialog>
     </>
   );

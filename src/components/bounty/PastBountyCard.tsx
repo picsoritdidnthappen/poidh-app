@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChainId, Claim } from '@/utils/types';
 import { formatEther } from 'viem';
 import { getChainById } from '@/utils/config';

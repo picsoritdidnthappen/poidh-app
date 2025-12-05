@@ -133,7 +133,7 @@ export default function Voting({
         <div className='bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 p-6 backdrop-blur-md shadow-2xl'>
           <div className='space-y-2'>
             <div className='text-center'>
-              <h3 className='text-lg font-semibold font-family-pixeloid bg-gradient-to-r text-poidhRed bg-clip-text [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]'>
+              <h3 className='text-lg font-family-pixeloid bg-gradient-to-r text-poidhRed bg-clip-text [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]'>
                 {isAcceptedBounty ? 'Voting closed' : 'Voting in progress'}
               </h3>
             </div>

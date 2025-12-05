@@ -45,9 +45,8 @@ export default function Home() {
 
   return (
     <>
-      <div className='flex flex-col items-center text-center p-6 pt-8 md:pt-24 lg:pt-32'>
-        <h1 className='font-mono text-4xl mb-8'>poidh</h1>
-        <h3 className='font-mono text-2xl mt-8 mb-4 tracking-wide'>
+      <div className='flex flex-col items-center text-center px-6 pt-6 pb-2 lg:pt-14'>
+        <h3 className='font-mono text-2xl mt-4 racking-wide'>
           <span className='flex flex-wrap md:flex-nowrap items-baseline justify-center gap-x-2.5'>
             <span>social bounties for</span>
             <Link
@@ -72,7 +71,7 @@ export default function Home() {
         </h3>
       </div>
       <div>
-        <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:py-12 sm:py-8 w-full items-center px-8'>
+        <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:py-8 sm:py-4 w-full items-center px-8'>
           <div className='hidden md:flex flex-1'></div>
           <div className='w-full md:w-auto flex justify-center'>
             <div
@@ -155,7 +154,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className='pb-20 z-1 mt-7'>
+        <div className='pb-20 z-1 mt-4'>
           {bounties.data && (
             <InfiniteScroll
               loadMore={async () => await bounties.fetchNextPage()}

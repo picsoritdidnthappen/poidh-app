@@ -18,8 +18,7 @@ import { decodeEventLog, parseEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { cn } from '@/utils';
 import GameButton from '@/components/global/GameButton';
-import { ExpandMoreIcon, InfoIcon } from '@/components/global/Icons';
-import ButtonCTA from '../global/ButtonCTA';
+import { ExpandMoreIcon, InfoIcon, CloseIcon } from '@/components/global/Icons';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -71,10 +70,10 @@ export default function FormBounty({
     const textarea = textareaRef.current;
     if (textarea && isMobile) {
       textarea.style.height = 'auto';
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, 60), 320);
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, 120), 200);
       textarea.style.height = `${newHeight}px`;
     }
-  }, [description]);
+  }, [description, isMobile]);
 
   useEffect(() => {
     if (amount) {
@@ -195,68 +194,133 @@ export default function FormBounty({
     setAnchorEl(null);
   };
 
-  const generateBounty = trpc.bounties.generateWithAI.useMutation({
-    onMutate: async () => {
-      setName('Generating…');
-      setDescription('Generating…');
-    },
-    onSuccess: (bounty) => {
-      setName(bounty.title);
-      setDescription(bounty.description);
-      toast.success('Bounty generated successfully');
-    },
-    onError: (error) => {
-      setName('');
-      setDescription('');
-      toast.error('Failed to generate bounty: ' + error.message);
-    },
-  });
-
   return (
     <Dialog
       open={open}
       onClose={() => {
         onClose();
       }}
-      maxWidth='xs'
+      maxWidth={isMobile ? false : 'xs'}
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         className: 'bg-poidhBlue/90',
-        style: {
-          borderRadius: '30px',
+        sx: {
+          borderRadius: isMobile ? '0px' : '30px',
           color: 'white',
-          border: '1px solid #D1ECFF',
+          border: isMobile ? 'none' : '1px solid #D1ECFF',
+          ...(isMobile && {
+            m: 0,
+            height: '100vh',
+            maxHeight: '100vh',
+            '@supports (height: 100dvh)': {
+              height: '100dvh',
+              maxHeight: '100dvh',
+            },
+          }),
         },
       }}
+      sx={
+        isMobile
+          ? {
+              '& .MuiDialog-paper': {
+                transform: open ? 'translateY(0)' : 'translateY(100%)',
+                transition: 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+              },
+            }
+          : {}
+      }
     >
-      <DialogContent>
-        <Box display='flex' flexDirection='column' width='100%'>
-          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            title
-          </span>
+      <DialogContent
+        sx={{
+          position: 'relative',
+          p: isMobile ? 2 : 3,
+          ...(isMobile && {
+            height: '100%',
+            maxHeight: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+          }),
+        }}
+      >
+        {isMobile ? (
+          <div className='flex items-center justify-between w-full sticky'>
+            <div style={{ width: '40px' }} />{' '}
+            <button
+              onClick={onClose}
+              style={{
+                color: 'white',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s ease',
+              }}
+            >
+              <CloseIcon size={14} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              right: 10,
+              top: 8,
+              color: 'white',
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'rgba(255, 255, 255, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'transparent';
+            }}
+          >
+            <CloseIcon size={12} />
+          </button>
+        )}
+        <Box
+          display='flex'
+          flexDirection='column'
+          width='100%'
+          sx={{ flex: 1 }}
+        >
+          <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
           <input
-            disabled={generateBounty.isPending}
             type='text'
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse'
+            className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse ${
+              isMobile ? 'text-base py-3' : ''
+            }`}
           />
-          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            description
-          </span>
+          <span className={isMobile ? 'text-base mb-2' : ''}>description</span>
           <textarea
             ref={textareaRef}
-            disabled={generateBounty.isPending}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className='border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y min-h-[60px] max-h-80 overflow-y-auto touch-manipulation'
+            className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
+              isMobile
+                ? 'min-h-[120px] max-h-[200px] text-base py-3'
+                : 'min-h-[60px] max-h-80'
+            } overflow-y-auto`}
             placeholder='pro tip: be detailed and add a deadline'
             style={{
               resize: 'vertical',
             }}
           ></textarea>
 
-          <span>reward</span>
+          <span className={isMobile ? 'text-base mb-2' : ''}>reward</span>
           <div className='relative w-full mb-3'>
             <input
               ref={inputRef}
@@ -280,7 +344,7 @@ export default function FormBounty({
               }}
               className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full overflow-hidden whitespace-nowrap text-ellipsis transition-colors duration-150 placeholder:text-slate-400 ${
                 amount && showChainSelector ? 'pr-40' : 'pr-28'
-              }`}
+              } ${isMobile ? ' text-base py-3' : ''}`}
             />
             {showChainSelector && (
               <>
@@ -290,9 +354,12 @@ export default function FormBounty({
                   aria-haspopup='true'
                   aria-expanded={menuOpen ? 'true' : undefined}
                   onClick={handleClick}
-                  className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/30 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
+                  className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/10 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
                 >
-                  <DynamicChainIcon chain={currentChain.slug} size={20} />
+                  <DynamicChainIcon
+                    chain={currentChain.slug}
+                    size={currentChain.slug === 'base' ? 15 : 20}
+                  />
                   <span className='ml-1 color-white'>
                     <ExpandMoreIcon size={12} />
                   </span>
@@ -336,7 +403,10 @@ export default function FormBounty({
                         handleClose();
                       }}
                     >
-                      <DynamicChainIcon chain={netname as Netname} size={18} />
+                      <DynamicChainIcon
+                        chain={netname as Netname}
+                        size={netname === 'base' ? 14 : 18}
+                      />
                       <p className='ml-4'>{netname}</p>
                     </MenuItem>
                   ))}
@@ -346,7 +416,7 @@ export default function FormBounty({
             {usdPerToken !== null && (
               <span
                 ref={usdRef}
-                className={`absolute top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md ${
+                className={`absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md ${
                   showChainSelector ? 'right-16' : 'right-4'
                 }`}
               >
@@ -359,12 +429,9 @@ export default function FormBounty({
             bounties
           </div>
 
-          <span className={cn(generateBounty.isPending && 'animate-pulse')}>
-            album
-          </span>
+          <span className={isMobile ? 'text-base mb-2' : ''}>album</span>
           <div className='relative mb-4'>
             <input
-              disabled={generateBounty.isPending}
               type='text'
               value={album}
               onChange={(e) => {
@@ -376,7 +443,9 @@ export default function FormBounty({
               }}
               onFocus={() => setShowAlbumDropdown(true)}
               onBlur={() => setShowAlbumDropdown(false)}
-              className='border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full'
+              className={`border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full ${
+                isMobile ? 'text-base py-3' : ''
+              }`}
               placeholder='optional'
               maxLength={30}
               onKeyDown={(e) => {
@@ -420,7 +489,7 @@ export default function FormBounty({
               }}
             />
           </div>
-          <div className=' text-xs'>
+          <div className='text-xs'>
             <span className='flex gap-2 items-center max-w-md '>
               <InfoIcon size={18} />
               {isOpenBounty
@@ -460,21 +529,9 @@ export default function FormBounty({
             >
               <div className='button'>
                 <GameButton />
+                <p className='text-center mt-1'>create bounty</p>
               </div>
-              <ButtonCTA>create bounty</ButtonCTA>
             </button>
-            <div className='mt-5 w-full flex justify-center items-center flex-row'>
-              <span className='mr-2 whitespace-nowrap'>
-                need a bounty idea? click the
-              </span>
-              <button
-                className='cursor-pointer items-center text-center disabled:cursor-not-allowed'
-                onClick={() => generateBounty.mutate()}
-                disabled={generateBounty.isPending}
-              >
-                🤖
-              </button>
-            </div>
           </div>
         </Box>
       </DialogContent>

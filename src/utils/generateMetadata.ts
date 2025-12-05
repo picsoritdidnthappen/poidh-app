@@ -89,17 +89,14 @@ export const generateMetadataForBounty = async ({
     currencyRate: price,
     participants: getSortedParticipants(bounty?.participations),
   };
-  const ogImageUrl = generateDynamicOGUrl({
-    type: 'bounty',
-    dataObject: bountyDataObject,
-    imageFormat: 'og',
+  const frame = buildFrame({
+    previewImageUrl: generateDynamicOGUrl({
+      type: 'bounty',
+      dataObject: bountyDataObject,
+      imageFormat: 'preview',
+    }),
+    params,
   });
-  const previewImageUrl = generateDynamicOGUrl({
-    type: 'bounty',
-    dataObject: bountyDataObject,
-    imageFormat: 'preview',
-  });
-  const frame = buildFrame({ previewImageUrl: previewImageUrl, params });
 
   return {
     title: bounty.title,
@@ -108,7 +105,12 @@ export const generateMetadataForBounty = async ({
       title: bounty.title,
       description: bounty.description,
       siteName: 'POIDH',
-      images: [ogImageUrl],
+      images: [
+        generateDynamicOGUrl({
+          type: 'bounty',
+          dataObject: bountyDataObject,
+        }),
+      ],
       type: 'website',
       locale: 'en_US',
     },
@@ -224,11 +226,6 @@ export const generateMetadataForAccountPage = async ({
       imageFormat: 'preview',
     });
 
-    const ogImageUrl = generateDynamicOGUrl({
-      type: 'account',
-      dataObject: accountDataObject,
-    });
-
     return {
       title: `Account ${address}`,
       description: `Account ${address} details`,
@@ -236,7 +233,12 @@ export const generateMetadataForAccountPage = async ({
         title: `Account ${address}`,
         description: `Account ${address} details`,
         siteName: 'POIDH',
-        images: [ogImageUrl],
+        images: [
+          generateDynamicOGUrl({
+            type: 'account',
+            dataObject: accountDataObject,
+          }),
+        ],
         type: 'website',
         locale: 'en_US',
       },
