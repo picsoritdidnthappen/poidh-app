@@ -4,7 +4,7 @@ import { Currency, Netname } from '@/utils/types';
 import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
 import { createCallerFactory } from '@/trpc/init';
-import { appRouter } from '@/trpc/routers/_app';
+import { appRouter } from '@/trpc/trpc';
 import { fetchPrice } from '@/utils/utils';
 import { formatEther } from 'viem';
 
@@ -208,8 +208,8 @@ export const generateMetadataForAccountPage = async ({
   };
 
   try {
-    const split = await trpcCaller.accountInfoSplit({ address });
-    const accountActivitiesCount = await trpcCaller.accountActivitiesCount({
+    const split = await trpcCaller.accounts.stats({ address });
+    const accountActivitiesCount = await trpcCaller.accounts.activitiesCount({
       address,
     });
     const accountDataObject = {

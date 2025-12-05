@@ -4,15 +4,15 @@ import ButtonCTA from '../global/ButtonCTA';
 import { PlusIcon } from '@/components/global/Icons';
 import { useAccount } from 'wagmi';
 import { trpc } from '@/trpc/client';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { toast } from 'react-toastify';
 
 export default function JoinBounty({ bountyId }: { bountyId: string }) {
   const [showForm, setShowForm] = useState(false);
   const account = useAccount();
-  const chain = useGetChain();
+  const chain = useChainInfo();
 
-  const bounty = trpc.bounty.useQuery({
+  const bounty = trpc.bounties.fetch.useQuery({
     id: Number(bountyId),
     chainId: chain.id,
   });

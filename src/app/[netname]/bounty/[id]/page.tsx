@@ -9,19 +9,25 @@ import CommentsSection from '@/components/bounty/CommentsSection';
 import Breadcrumbs from '@/components/global/Breadcrumbs';
 import BountySuccessModal from '@/components/bounty/BountySuccessModal';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useChainInfo } from '@/hooks/useGetChain';
+import { ChainId } from '@/utils/types';
 
 export default function Bounty({
   params,
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { showSuccessCreationModal?: boolean };
+  searchParams: { showSuccessCreationModal?: string };
 }) {
+  const { id: bountyId } = params;
+  const { showSuccessCreationModal } = searchParams;
+
   const isMobile = useScreenSize();
+  const chain = useChainInfo();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
   const [isSuccessCreationModalOpen, setIsSuccessCreationModalOpen] = useState(
-    !!searchParams?.showSuccessCreationModal
+    Boolean(showSuccessCreationModal)
   );
   const currentSearchParams = useSearchParams();
   const pathname = usePathname();
@@ -56,7 +62,10 @@ export default function Bounty({
           onHowItWorksModalStateChange={setIsHowItWorksModalOpen}
         />
         <BountyClaims bountyId={params.id} />
-        <CommentsSection />
+        <CommentsSection
+          chainId={chain.id as ChainId}
+          bountyId={Number(bountyId)}
+        />
       </div>
       {!isShareModalOpen &&
         !isHowItWorksModalOpen &&

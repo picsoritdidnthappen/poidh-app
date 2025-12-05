@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { Currency } from '@/utils/types';
 import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
@@ -24,12 +24,12 @@ export default function JoinBountySuccessModal({
   bountyId?: string;
 }) {
   const account = useAccount();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [shareOpen, setShareOpen] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const bounty = trpc.bounty.useQuery(
+  const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
       chainId: chain.id,
@@ -39,13 +39,17 @@ export default function JoinBountySuccessModal({
     }
   );
 
-  const { data: usersDataNeynar } = trpc.usersDataNeynar.useQuery(
+  const usersQuery = trpc.neynar.usersData.useQuery(
     {
       addresses: bounty.data?.issuer ? [bounty.data.issuer] : [],
     },
     {
       enabled: !!open && !!bounty.data?.issuer,
     }
+  );
+
+  const user = usersQuery.data?.find(
+    (user) => bounty.data?.issuer.toLocaleLowerCase() === user.address
   );
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function JoinBountySuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'twitter',
-      usersDataNeynar
+      user
     );
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
@@ -82,7 +86,7 @@ export default function JoinBountySuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'farcaster',
-      usersDataNeynar
+      user
     );
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;

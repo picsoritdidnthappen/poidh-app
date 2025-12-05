@@ -12,7 +12,7 @@ export default function Explore() {
   const [search, setSearch] = useState<string>('');
   const [display, setDisplay] = useState<'bounties' | 'albums'>('albums');
 
-  const bounties = trpc.bountiesByKeyword.useInfiniteQuery(
+  const bounties = trpc.bounties.fetchByKeyword.useInfiniteQuery(
     {
       keyword: search,
       limit: 15,

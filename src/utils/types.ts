@@ -34,7 +34,7 @@ export type Claim = {
   accepted: boolean;
 };
 
-export interface WarpcastCast {
+export type WarpcastCast = {
   object: 'cast';
   hash: string;
   parent_hash: string | null;
@@ -62,7 +62,7 @@ export interface WarpcastCast {
     count: number;
   };
   direct_replies: WarpcastCast[];
-}
+};
 
 export type BountyDisplayType = 'open' | 'progress' | 'past';
 

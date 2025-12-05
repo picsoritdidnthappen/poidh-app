@@ -1,7 +1,7 @@
 'use-client';
 
 import { useState } from 'react';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
@@ -14,9 +14,9 @@ import PastBountyCard from '../bounty/PastBountyCard';
 export default function ContentHome() {
   const [display, setDisplay] = useState<BountyDisplayType>('open');
   const [sortType, setSortType] = useState<BountySortType>('value');
-  const chain = useGetChain();
+  const chain = useChainInfo();
 
-  const bounties = trpc.bounties.useInfiniteQuery(
+  const bounties = trpc.bounties.fetchByChain.useInfiniteQuery(
     {
       chainId: chain.id,
       status: display,

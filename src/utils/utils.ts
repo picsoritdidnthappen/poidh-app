@@ -13,9 +13,25 @@ export function getBanSignatureFirstLine({
 }: {
   id: number;
   chainId: number;
-  type: 'claim' | 'bounty';
+  type: 'claim' | 'bounty' | 'comment';
 }) {
   return `Ban ${type} id: ${id} chainId: ${chainId}\n`;
+}
+
+export function getCommentSignatureFirstLine({ address }: { address: string }) {
+  return `${address} wants to create a comment. Comment content: \n`;
+}
+
+export function getReactionSignatureMessage({
+  address,
+  commentId,
+  type,
+}: {
+  address: string;
+  commentId: number;
+  type: 'upvote' | 'downvote';
+}) {
+  return `${address.toLocaleLowerCase()} wants to ${type} comment ${commentId}`;
 }
 
 export function formatAmount({
@@ -84,23 +100,23 @@ export function formatAmountShort(value: number): string {
   });
 }
 
-export async function tryCatch<T, Error>(
-  fn: () => T
-): Promise<[T | null, Error | null]> {
+export function tryCatch<T, E = Error>(fn: () => T): [T, null] | [null, E] {
   try {
-    return [fn(), null];
+    const result = fn();
+    return [result, null];
   } catch (error) {
     console.error(error);
-    return [null, error as Error];
+    return [null, error as E];
   }
 }
 
-export async function tryCatchAsync<T, Error>(
+export async function tryCatchAsync<T, E = Error>(
   fn: () => Promise<T>
-): Promise<[T | null, Error | null]> {
+): Promise<[T, null] | [null, E]> {
   try {
-    return [await fn(), null];
+    const result = await fn();
+    return [result, null];
   } catch (error) {
-    return [null, error as Error];
+    return [null, error as E];
   }
 }

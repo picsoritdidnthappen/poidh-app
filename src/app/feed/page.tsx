@@ -13,7 +13,7 @@ export default function Feed() {
   const [address, setAddress] = useState<string | undefined>(undefined);
   const account = useAccount();
 
-  const activities = trpc.activities.useInfiniteQuery(
+  const activities = trpc.accounts.activities.useInfiniteQuery(
     {
       address,
     },
@@ -93,13 +93,13 @@ export default function Feed() {
       <div className='py-4 container mx-auto px-4 sm:px-6'>
         <div className='w-full max-w-5xl mx-auto backdrop-blur-md rounded-xl p-4 sm:p-6'>
           <div className='flex flex-col items-center'>
-            {display === 'you' && !account.address? (
+            {display === 'you' && !account.address ? (
               <div className='text-white/60 text-center py-8'>
                 Please connect your wallet to see your activities
               </div>
-            ) : (!activities.isLoading &&
-            (!activities.data?.pages?.length ||
-              activities.data.pages[0]?.items?.length === 0)) ? (
+            ) : !activities.isLoading &&
+              (!activities.data?.pages?.length ||
+                activities.data.pages[0]?.items?.length === 0) ? (
               <div className='text-white/60'>No recent activity</div>
             ) : activities.data && activities.data.pages.length > 0 ? (
               <div className='w-full'>

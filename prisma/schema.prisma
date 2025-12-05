@@ -4,6 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // We are using Prisma 5, but the latest Prisma LSP targets version 7
+  // You can safely ignore this warning, or upgrade to Prisma 7 :)
   url      = env("DATABASE_URL")
 }
 
@@ -28,6 +30,7 @@ model Bounties {
   issuerUser     Users?                   @relation(fields: [issuer], references: [address])
   ban            Ban[]
   transactions   Transactions[]
+  comments       Comments[]
 
   @@id([id, chain_id])
 }
@@ -51,10 +54,10 @@ model Claims {
   bounty_id   Int
   owner       String
 
-  bounty     Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
-  issuerUser Users?    @relation(fields: [issuer], references: [address])
-  ban        Ban[]
-  transactions   Transactions[]
+  bounty       Bounties?      @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  issuerUser   Users?         @relation(fields: [issuer], references: [address])
+  ban          Ban[]
+  transactions Transactions[]
 
   @@id([id, chain_id])
 }
@@ -72,13 +75,28 @@ model ParticipationsBounties {
 }
 
 model Users {
-  address   String
-  twitter   String?
-  farcaster String?
+  address String
 
   participations ParticipationsBounties[]
   claims         Claims[]
   bounties       Bounties[]
+  comments       Comments[]
+  usersExtras    UsersExtra[]
+  reactions      Reactions[]
+
+  @@id([address])
+}
+
+model UsersExtra {
+  address       String
+  pfp_url       String?
+  ens           String?
+  degen_name    String?
+  farcaster_tag String?
+  twitter_tag   String?
+  last_updated  DateTime @default(now())
+
+  user Users @relation(fields: [address], references: [address])
 
   @@id([address])
 }
@@ -99,14 +117,14 @@ model Transactions {
   tx        String
   index     Int
   bounty_id Int
-  claim_id Int?
+  claim_id  Int?
   chain_id  Int
   address   String
   action    String
   timestamp Decimal @db.Decimal(78, 0)
 
   bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
-  claim Claims? @relation(fields: [claim_id, chain_id], references: [id, chain_id])
+  claim  Claims?  @relation(fields: [claim_id, chain_id], references: [id, chain_id])
 
   @@id([tx, index, chain_id])
 }
@@ -126,4 +144,41 @@ model Price {
   created_at DateTime @default(now())
   degen_usd  Decimal?
   eth_usd    Decimal?
+}
+
+model Comments {
+  id           Int       @id @default(autoincrement())
+  bounty_id    Int
+  chain_id     Int
+  parent_id    Int?
+  user_address String
+  body         String
+  created_at   DateTime  @default(now())
+  deleted_at   DateTime?
+
+  bounty    Bounties    @relation(fields: [chain_id, bounty_id], references: [chain_id, id], onDelete: NoAction)
+  author    Users?      @relation(fields: [user_address], references: [address], onDelete: NoAction)
+  parent    Comments?   @relation("CommentToParent", fields: [parent_id], references: [id], onDelete: NoAction)
+  replies   Comments[]  @relation("CommentToParent")
+  reactions Reactions[]
+
+  @@index([bounty_id])
+  @@index([chain_id])
+  @@index([parent_id])
+  @@index([user_address])
+}
+
+model Reactions {
+  id         Int      @id @default(autoincrement())
+  comment_id Int
+  type       Reaction
+  address    String
+
+  comment Comments @relation(fields: [comment_id], references: [id])
+  user    Users    @relation(fields: [address], references: [address])
+}
+
+enum Reaction {
+  upvote
+  downvote
 }

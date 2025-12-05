@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
 import {
@@ -40,19 +40,19 @@ export default function BountyInfo({
   onShareModalStateChange?: (modalOpen: boolean) => void;
   onHowItWorksModalStateChange?: (modalOpen: boolean) => void;
 }) {
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const account = useAccount();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
-  const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
-  const banBountyMutation = trpc.banBounty.useMutation({});
+  const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
+  const banBountyMutation = trpc.admin.banBounty.useMutation({});
   const { signMessageAsync } = useSignMessage();
   const setLoading = useSetAtom(setLoadingAtom);
 
   const price =
-    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
+    trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
-  const bounty = trpc.bounty.useQuery(
+  const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
       chainId: chain.id,
@@ -60,7 +60,7 @@ export default function BountyInfo({
     { enabled: !!bountyId }
   );
 
-  const participants = trpc.participations.useQuery(
+  const participants = trpc.bounties.participations.useQuery(
     {
       bountyId: Number(bountyId),
       chainId: chain.id,
@@ -70,7 +70,7 @@ export default function BountyInfo({
     }
   );
 
-  const bountyExtra = trpc.bountyExtra.useQuery(
+  const bountyExtra = trpc.bounties.extra.useQuery(
     {
       bountyId: Number(bountyId),
       chainId: chain.id,
@@ -145,7 +145,7 @@ export default function BountyInfo({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const canceled = await trpcClient.isBountyCanceled.query({
+        const canceled = await trpcClient.bounties.isCanceled.query({
           id: Number(bountyId),
           chainId: chain.id,
         });
@@ -198,7 +198,10 @@ export default function BountyInfo({
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
-              <DisplayAddress chainName={chain.slug} address={bounty.data.issuer} />
+              <DisplayAddress
+                chainName={chain.slug}
+                address={bounty.data.issuer}
+              />
               <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>
