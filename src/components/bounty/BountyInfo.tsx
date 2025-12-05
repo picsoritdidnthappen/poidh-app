@@ -23,7 +23,7 @@ import { setLoadingAtom } from '@/store/loading';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import ShareBountyModal from '@/components/bounty/ShareBountyModal';
-import { ShareIcon, QuestionIcon } from '@/components/global/Icons';
+import { ArrowIcon, QuestionIcon } from '@/components/global/Icons';
 import Link from 'next/link';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 
@@ -187,7 +187,7 @@ export default function BountyInfo({
 
   return (
     <>
-      <div className='flex pt-8 flex-col justify-between lg:flex-row'>
+      <div className='flex pt-6 flex-col justify-between lg:flex-row'>
         <div className='flex flex-col  lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
@@ -289,7 +289,7 @@ export default function BountyInfo({
             onClick={() => onShareModalStateChange?.(true)}
             className='flex items-center gap-1 underline hover:no-underline w-fit'
           >
-            share bounty <ShareIcon size={16} />
+            share bounty <ArrowIcon size={16} />
           </button>
         </div>
       </div>
