@@ -65,6 +65,21 @@ const nextConfig = {
         destination: '/account/:address',
         permanent: true,
       },
+      {
+        source: '/degen',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/base',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/arbitrum',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
 };

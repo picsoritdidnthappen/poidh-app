@@ -1,12 +1,13 @@
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import { createTRPCContext } from '@/trpc/init';
-import { appRouter } from '@/trpc/routers/_app';
+import { appRouter } from '@/trpc/trpc';
+import { createContext } from '@/trpc/context';
+
 const handler = (req: Request) =>
   fetchRequestHandler({
     endpoint: '/api/trpc',
     req,
     router: appRouter,
-    createContext: createTRPCContext,
+    createContext,
     onError: ({ req, error, ...trpc }) => {
       // Referer is useful for debugging, usually it's the page that made tRPC request
       const referrer = req.headers.get('referer');

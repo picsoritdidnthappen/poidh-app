@@ -16,7 +16,7 @@ export default function DisplayAddress({
   showPfpIfExists?: boolean;
   pfpSize?: number;
 }) {
-  const userDataNeynar = trpc.usersDataNeynar.useQuery({
+  const userQuery = trpc.neynar.usersData.useQuery({
     addresses: [address],
   });
 
@@ -29,37 +29,37 @@ export default function DisplayAddress({
       }),
   });
 
+  const user = userQuery.data?.[0];
+
   return (
     <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-      {showPfpIfExists &&
-        userDataNeynar?.data &&
-        userDataNeynar?.data[address]?.[0]?.pfp_url && (
-          <div
-            style={{
-              width: pfpSize,
-              height: pfpSize,
-              marginRight: 8,
-            }}
-            className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
-          >
-            <Image
-              src={userDataNeynar.data[address][0].pfp_url}
-              alt={userDataNeynar.data[address][0]?.display_name ?? 'User'}
-              width={pfpSize}
-              height={pfpSize}
-              unoptimized
-              className='w-full h-full object-cover'
-            />
-          </div>
-        )}
+      {showPfpIfExists && user && user.pfp_url && (
+        <div
+          style={{
+            width: pfpSize,
+            height: pfpSize,
+            marginRight: 8,
+          }}
+          className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
+        >
+          <Image
+            src={user.pfp_url}
+            alt={user?.farcaster_tag ?? 'User'}
+            width={pfpSize}
+            height={pfpSize}
+            unoptimized
+            className='w-full h-full object-cover'
+          />
+        </div>
+      )}
       <Link
         href={`/account/${address}`}
         className='hover:text-gray-200 truncate overflow-ellipsis m-0 p-0 max-w-full'
       >
-        {userDataNeynar.isLoading
+        {userQuery.isLoading
           ? formatWalletAddress(address)
-          : userDataNeynar?.data && Object.keys(userDataNeynar?.data).length > 0
-          ? userDataNeynar?.data[address]?.[0]?.username
+          : user && Object.keys(user).length > 0
+          ? user.farcaster_tag
           : walletDisplayName.isLoading
           ? formatWalletAddress(address)
           : walletDisplayName.data

@@ -1,10 +1,10 @@
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { getEnsOrDegenName } from '@/utils/web3';
 import { useEffect, useState } from 'react';
 
 export default function useDegenOrEnsName(addr: string) {
   const [result, setResult] = useState<string | null>(null);
-  const chain = useGetChain();
+  const chain = useChainInfo();
 
   useEffect(() => {
     const cb = async () => {

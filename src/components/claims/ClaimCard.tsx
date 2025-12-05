@@ -1,4 +1,4 @@
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
 import { Currency } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
@@ -32,13 +32,13 @@ export type ClaimCardProps = {
 export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const account = useAccount();
   const utils = trpc.useUtils();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const switctChain = useSwitchChain();
   const { signMessageAsync } = useSignMessage();
 
-  const banClaimMutation = trpc.banClaim.useMutation({});
-  const isAdmin = trpc.isAdmin.useQuery({ address: account.address });
-  const isIssuer = trpc.isIssuer.useQuery({
+  const banClaimMutation = trpc.admin.banClaim.useMutation({});
+  const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
+  const isIssuer = trpc.bounties.isIssuer.useQuery({
     address: account.address,
     chainId: chain.id,
     bountyId: Number(claim.bountyId),
@@ -104,7 +104,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       toast.error('Failed to ban claim: ' + error.message);
     },
     onSettled: () => {
-      utils.bountyClaims.refetch();
+      utils.bounties.claims.refetch();
     },
   });
 

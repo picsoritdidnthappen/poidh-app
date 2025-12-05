@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
 import { TwitterXIcon } from '@/components/global/Icons';
 import { shareToFarcaster, shareToX } from '@/utils/share';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
 import { formatEther } from 'viem';
 
@@ -19,12 +19,12 @@ export default function BountySuccessModal({
   onClose: () => void;
 }) {
   const account = useAccount();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [shareOpen, setShareOpen] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const bounty = trpc.bounty.useQuery({
+  const bounty = trpc.bounties.fetch.useQuery({
     id: Number(bountyId),
     chainId: chain.id,
   });

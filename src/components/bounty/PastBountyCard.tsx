@@ -27,7 +27,7 @@ export default function PastBountyCard({
   const chain = getChainById({ chainId: claim.chainId as ChainId });
 
   const price =
-    trpc.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
+    trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const fetchImageUrl = async (url: string) => {
     const response = await fetch(url);

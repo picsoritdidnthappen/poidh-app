@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
 import { cn } from '@/utils';
@@ -29,21 +29,23 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 }
 
 export default function AccountInfo({ address }: { address: string }) {
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [currentSection, setCurrentSection] = useState<Section>('bounties');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const accountActivitiesCount = trpc.accountActivitiesCount.useQuery(
+  const accountActivitiesCount = trpc.accounts.activitiesCount.useQuery(
     { address },
     { enabled: !!address }
   );
 
-  const accountStatsSplit = trpc.accountInfoSplit.useQuery(
+  const accountStats = trpc.accounts.stats.useQuery(
     { address },
     { enabled: !!address }
   );
 
-  const nfts = trpc.accountNFTs.useInfiniteQuery(
+  const nfts = trpc.accounts.nfts.useInfiniteQuery(
     { address, limit: PAGE_SIZE },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -51,7 +53,7 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
-  const claims = trpc.accountClaims.useInfiniteQuery(
+  const claims = trpc.accounts.claims.useInfiniteQuery(
     { address, limit: PAGE_SIZE },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -59,13 +61,38 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
-  const bounties = trpc.accountBounties.useInfiniteQuery(
+  const bounties = trpc.accounts.bounties.useInfiniteQuery(
     { address, limit: PAGE_SIZE },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!address && currentSection === 'bounties',
     }
   );
+
+  // Update slider position when section changes or on resize
+  const updateSliderPosition = useCallback(() => {
+    const activeIndex = ['nfts', 'bounties', 'claims'].indexOf(currentSection);
+    const activeTab = tabRefs.current[activeIndex];
+
+    if (activeTab) {
+      const container = activeTab.parentElement;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        const left = tabRect.left - containerRect.left;
+        const width = tabRect.width;
+        setSliderStyle({ left, width });
+      }
+    }
+  }, [currentSection]);
+
+  useEffect(() => {
+    updateSliderPosition();
+
+    // Update on window resize
+    window.addEventListener('resize', updateSliderPosition);
+    return () => window.removeEventListener('resize', updateSliderPosition);
+  }, [currentSection, updateSliderPosition]);
 
   return (
     <>
@@ -115,26 +142,26 @@ export default function AccountInfo({ address }: { address: string }) {
                 <StatCard
                   title='eth paid'
                   value={`${formatCryptoValue(
-                    accountStatsSplit.data?.eth.totalPaid.amountCrypto
+                    accountStats.data?.eth.totalPaid.amountCrypto
                   )} eth`}
                 />
                 <StatCard
                   title='eth in contract'
                   value={`${formatCryptoValue(
-                    accountStatsSplit.data?.eth.amountInContract.amountCrypto
+                    accountStats.data?.eth.amountInContract.amountCrypto
                   )} eth`}
                 />
                 <StatCard
                   title='eth earned'
                   value={`${formatCryptoValue(
-                    accountStatsSplit.data?.eth.totalEarn.amountCrypto
+                    accountStats.data?.eth.totalEarn.amountCrypto
                   )} eth`}
                 />
                 <StatCard
                   title='degen paid'
                   value={`${formatAmountShort(
                     formatCryptoValue(
-                      accountStatsSplit.data?.degen.totalPaid.amountCrypto,
+                      accountStats.data?.degen.totalPaid.amountCrypto,
                       2
                     )
                   )} dgn`}
@@ -143,8 +170,7 @@ export default function AccountInfo({ address }: { address: string }) {
                   title='degen in contract'
                   value={`${formatAmountShort(
                     formatCryptoValue(
-                      accountStatsSplit.data?.degen.amountInContract
-                        .amountCrypto,
+                      accountStats.data?.degen.amountInContract.amountCrypto,
                       2
                     )
                   )} dgn`}
@@ -153,7 +179,7 @@ export default function AccountInfo({ address }: { address: string }) {
                   title='degen earned'
                   value={`${formatAmountShort(
                     formatCryptoValue(
-                      accountStatsSplit.data?.degen.totalEarn.amountCrypto,
+                      accountStats.data?.degen.totalEarn.amountCrypto,
                       2
                     )
                   )} dgn`}
@@ -164,10 +190,10 @@ export default function AccountInfo({ address }: { address: string }) {
             <div className='mt-3 lg:mt-0 lg:ml-6 p-2 bg-white/5 rounded-lg backdrop-blur-sm text-center'>
               <div className='text-xs text-gray-300'>poidh score</div>
               <div className="text-4xl font-bold mt-1 text-poidhRed font-['PixeloidSans'] [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]">
-                {accountStatsSplit.isLoading
+                {accountStats.isLoading
                   ? '…'
-                  : accountStatsSplit.data
-                  ? accountStatsSplit.data?.poidhScore
+                  : accountStats.data
+                  ? accountStats.data?.poidhScore
                   : '0'}
               </div>
             </div>
@@ -176,30 +202,34 @@ export default function AccountInfo({ address }: { address: string }) {
           <div className='flex flex-row overflow-x-scroll items-center pb-3 border-b border-white justify-center gap-x-5 w-full px-3'>
             <div
               id='btn-container'
-              className={cn(
-                'flex flex-nowrap border border-white rounded-full transition-all bg-gradient-to-r h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs',
-                currentSection == 'nfts' && 'from-red-500 to-40%',
-                currentSection == 'bounties' &&
-                  'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
-                currentSection == 'claims' &&
-                  'from-transparent from-60% to-red-500'
-              )}
+              className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent'
             >
+              {/* Slider indicator */}
+              <div
+                className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
+                style={{
+                  left: `${sliderStyle.left}px`,
+                  width: `${sliderStyle.width}px`,
+                }}
+              />
               <button
+                ref={(el) => (tabRefs.current[0] = el)}
                 onClick={() => setCurrentSection('nfts')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 NFTs({accountActivitiesCount.data?.nfts ?? 0})
               </button>
               <button
+                ref={(el) => (tabRefs.current[1] = el)}
                 onClick={() => setCurrentSection('bounties')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 bounties ({accountActivitiesCount.data?.bounties ?? 0})
               </button>
               <button
+                ref={(el) => (tabRefs.current[2] = el)}
                 onClick={() => setCurrentSection('claims')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 claims ({accountActivitiesCount.data?.claims ?? 0})
               </button>

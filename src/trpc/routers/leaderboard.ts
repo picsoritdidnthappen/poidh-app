@@ -1,0 +1,234 @@
+import prisma from 'prisma/prisma';
+import { baseProcedure } from '../init';
+import { z } from 'zod';
+import { addressSchema } from '../serverTypes';
+import { Leaderboard } from '@prisma/client';
+import { scoreDegen, scoreETH } from './accounts';
+
+export const leaderboardRouter = {
+  fetch: baseProcedure
+    .input(
+      z
+        .object({
+          userAddress: addressSchema.optional(),
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(10).default(10),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 10;
+      const maxUsers = 100;
+      const offset = (page - 1) * limit;
+      const ignoreAddresses = [
+        '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
+        '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
+        '0xbed82560c39c133a3d64516ecda82c71b72f3cd7',
+        '0x7c7f6cb2dab9de9b242eeec29d2f61bd7d9750e0',
+        '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
+      ];
+
+      const fetchTop = (
+        chainId: number,
+        orderCol: 'paid' | 'earned' | 'nfts',
+        take = 30
+      ) =>
+        prisma.leaderboard.findMany({
+          where: {
+            AND: [
+              { chain_id: chainId },
+              { address: { not: { in: ignoreAddresses } } },
+            ],
+          },
+          orderBy: { [orderCol]: 'desc' },
+          take,
+        });
+
+      const buildLeaderboard = async (chainId: number) => {
+        const [byPaid, byEarned, byNfts] = await Promise.all([
+          fetchTop(chainId, 'paid'),
+          fetchTop(chainId, 'earned'),
+          fetchTop(chainId, 'nfts'),
+        ]);
+
+        const uniq = new Map<string, Leaderboard>();
+        [...byPaid, ...byEarned, ...byNfts].forEach((row) =>
+          uniq.set(row.address.toLowerCase(), row)
+        );
+
+        return Array.from(uniq.values());
+      };
+
+      const [leaderboardBase, leaderboardDegen, leaderboardArbitrum] =
+        await Promise.all([
+          buildLeaderboard(8453),
+          buildLeaderboard(666666666),
+          buildLeaderboard(42161),
+        ]);
+
+      const leaderBoard = new Map<
+        string,
+        {
+          degen: number | undefined;
+          base: number | undefined;
+          arbitrum: number | undefined;
+          total: number;
+        }
+      >();
+
+      [...leaderboardBase, ...leaderboardDegen, ...leaderboardArbitrum].forEach(
+        (user) => {
+          const initialScore = leaderBoard.get(user.address.toLowerCase());
+
+          const chainScores: {
+            base: number | undefined;
+            degen: number | undefined;
+            arbitrum: number | undefined;
+          } = {
+            base:
+              initialScore?.base ??
+              (user.chain_id === 8453
+                ? scoreETH({
+                    earned: user.earned,
+                    paid: user.paid,
+                    NFTheld: user.nfts,
+                  })
+                : initialScore?.base),
+            degen:
+              initialScore?.degen ??
+              (user.chain_id === 666666666
+                ? scoreDegen({
+                    earned: user.earned,
+                    paid: user.paid,
+                    NFTheld: user.nfts,
+                  })
+                : initialScore?.degen),
+            arbitrum:
+              initialScore?.arbitrum ??
+              (user.chain_id === 42161
+                ? scoreETH({
+                    earned: user.earned,
+                    paid: user.paid,
+                    NFTheld: user.nfts,
+                  })
+                : initialScore?.arbitrum),
+          };
+
+          const newScore = {
+            ...chainScores,
+            total:
+              (chainScores.base ?? 0) +
+              (chainScores.degen ?? 0) +
+              (chainScores.arbitrum ?? 0),
+          };
+
+          leaderBoard.set(user.address.toLowerCase(), newScore);
+        }
+      );
+
+      const sortedLeaderboard = Array.from(leaderBoard.entries())
+        .map(
+          ([address, scores]) =>
+            [
+              address,
+              {
+                base: Math.round(scores.base ?? 0),
+                degen: Math.round(scores.degen ?? 0),
+                arbitrum: Math.round(scores.arbitrum ?? 0),
+                total: Math.round(scores.total ?? 0),
+              },
+            ] as [
+              string,
+              { base: number; degen: number; arbitrum: number; total: number }
+            ]
+        )
+        .sort((a, b) => b[1].total - a[1].total);
+
+      let userData: {
+        rank: number;
+        data: [
+          string,
+          { base: number; degen: number; arbitrum: number; total: number }
+        ];
+      } | null = null;
+
+      if (input?.userAddress) {
+        const userRows = await prisma.leaderboard.findMany({
+          where: {
+            address: input.userAddress.toLowerCase(),
+            chain_id: { in: [8453, 666666666, 42161] },
+          },
+        });
+
+        if (userRows.length > 0) {
+          let baseScore: number | undefined = undefined;
+          let degenScore: number | undefined = undefined;
+          let arbitrumScore: number | undefined = undefined;
+
+          for (const row of userRows) {
+            if (row.chain_id === 8453) {
+              baseScore = scoreETH({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            } else if (row.chain_id === 666666666) {
+              degenScore = scoreDegen({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            } else if (row.chain_id === 42161) {
+              arbitrumScore = scoreETH({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
+            }
+          }
+
+          const totalScore =
+            (baseScore ?? 0) + (degenScore ?? 0) + (arbitrumScore ?? 0);
+
+          const rounded = {
+            base: Math.round(baseScore ?? 0),
+            degen: Math.round(degenScore ?? 0),
+            arbitrum: Math.round(arbitrumScore ?? 0),
+            total: Math.round(totalScore),
+          };
+
+          const higherCount = sortedLeaderboard.filter(
+            ([, s]) => s.total > rounded.total
+          ).length;
+          const rank = higherCount + 1;
+
+          userData = {
+            rank,
+            data: [input.userAddress, rounded],
+          };
+        }
+      }
+
+      const limitedLeaderboard = sortedLeaderboard.slice(0, maxUsers);
+      const paginatedLeaderboard = limitedLeaderboard.slice(
+        offset,
+        offset + limit
+      );
+
+      const totalUsers = Math.min(sortedLeaderboard.length, maxUsers);
+      const totalPages = Math.ceil(totalUsers / limit);
+
+      return {
+        leaderboard: paginatedLeaderboard,
+        userData,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalUsers,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      };
+    }),
+};

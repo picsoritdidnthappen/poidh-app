@@ -11,7 +11,7 @@ import {
 } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { uploadFile } from '@/utils/pinata';
 
 export default function ClaimSuccessModal({
@@ -30,13 +30,13 @@ export default function ClaimSuccessModal({
   claimIssuer: string;
 }) {
   const router = useRouter();
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [shareOpen, setShareOpen] = useState(false);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const bounty = trpc.bounty.useQuery(
+  const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
       chainId: chain.id,
@@ -45,7 +45,7 @@ export default function ClaimSuccessModal({
       enabled: !!open && !!bountyId,
     }
   );
-  const { data: usersDataNeynar } = trpc.usersDataNeynar.useQuery(
+  const usersQuery = trpc.neynar.usersData.useQuery(
     {
       addresses: bounty.data?.issuer
         ? [bounty.data?.issuer, claimIssuer]
@@ -54,6 +54,16 @@ export default function ClaimSuccessModal({
     {
       enabled: !!open && !!bounty.data && !!claimIssuer,
     }
+  );
+
+  const bountyIssuerData = usersQuery.data?.find(
+    (user) =>
+      bounty.data?.issuer.toLocaleLowerCase() ===
+      user.address.toLocaleLowerCase()
+  );
+  const claimIssuerData = usersQuery.data?.find(
+    (user) =>
+      claimIssuer.toLocaleLowerCase() === user.address.toLocaleLowerCase()
   );
 
   useEffect(() => {
@@ -78,7 +88,7 @@ export default function ClaimSuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'twitter',
-      usersDataNeynar
+      bountyIssuerData
     );
 
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
@@ -89,12 +99,12 @@ export default function ClaimSuccessModal({
     const bountyIssuerUsername = await getAddressDisplayName(
       bounty.data?.issuer ?? '',
       'farcaster',
-      usersDataNeynar
+      bountyIssuerData
     );
     const claimIssuerUsername = await getAddressDisplayName(
       claimIssuer ?? '',
       'farcaster',
-      usersDataNeynar
+      bountyIssuerData
     );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
 
@@ -108,8 +118,7 @@ export default function ClaimSuccessModal({
       cardUrl.searchParams.set('title', claimTitle.slice(0, 30));
       cardUrl.searchParams.set('issuer', claimIssuerUsername);
 
-      const claimIssuerPfp =
-        usersDataNeynar?.[claimIssuer.toLowerCase() ?? '']?.[0]?.pfp_url;
+      const claimIssuerPfp = claimIssuerData?.pfp_url;
       if (claimIssuerPfp) {
         cardUrl.searchParams.set('pfp', claimIssuerPfp);
       }
