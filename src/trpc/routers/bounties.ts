@@ -2,20 +2,10 @@ import { z } from 'zod';
 import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
-import serverEnv from '@/utils/serverEnv';
 import { TRPCError } from '@trpc/server';
 import { checkIsIssuer } from './admin';
 import { ChainId } from '@/utils/types';
 import { Decimal } from '@prisma/client/runtime/library';
-
-const OPENAI_API_KEY = serverEnv.OPENAI_API_KEY;
-const PROMPT = `Generate unique, creative, and fun bounty ideas for the "Pics or It Didn't Happen" (poidh) website. Each bounty should encourage users to engage in amusing, interesting, or surprising activities that can be easily documented with a photo, screenshot, or video.
-           Ensure the ideas are diverse, spanning different themes such as real-life actions, contributions, playful tasks, or simple creative(could be developer) projects.
-           Ideas must remain achievable and enjoyable for users of all skill levels. A user should share result either in video or in photo. Include:
-           Title: A short, catchy description of the bounty (max 50 characters).
-           Description: A clear and engaging explanation of what the user must do to complete the bounty (max 350 characters).
-           Return the ideas in JSON format like this:
-           { 'title': '...', 'description': '...' }.`;
 
 export const bountiesRouter = {
   fetch: baseProcedure
@@ -557,66 +547,6 @@ export const bountiesRouter = {
         chainId: input.chainId,
       });
     }),
-
-  generateWithAI: baseProcedure.mutation(async () => {
-    if (!OPENAI_API_KEY) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Missing OpenAI API key',
-      });
-    }
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-mini',
-        messages: [
-          {
-            role: 'system',
-            content: PROMPT,
-          },
-          {
-            role: 'user',
-            content: 'Generate a bounty idea for a person to do.',
-          },
-        ],
-        max_tokens: 100,
-        temperature: 1,
-        response_format: { type: 'json_object' },
-      }),
-    });
-
-    if (!response.ok) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: `OpenAI response: ${response.statusText}`,
-      });
-    }
-
-    const data = await response.json();
-
-    const responseSchema = z.object({
-      title: z.string(),
-      description: z.string(),
-    });
-
-    const parsed = responseSchema.safeParse(
-      JSON.parse(data.choices[0].message.content)
-    );
-
-    if (!parsed.success) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to parse bounty idea',
-      });
-    }
-
-    return parsed.data;
-  }),
 
   fetchByKeyword: baseProcedure
     .input(
