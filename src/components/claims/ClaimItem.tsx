@@ -46,14 +46,7 @@ export default function ClaimItem({
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
-  const accountActivities = trpc.accounts.activitiesCount.useQuery({
-    address: issuer,
-  });
-
-  const accountStats = trpc.accounts.statsByChain.useQuery({
-    address: issuer,
-    chainId: chain.id,
-  });
+  const accountStats = trpc.accounts.stats.useQuery({ address: issuer });
 
   const bounty = trpc.bounties.fetch.useQuery(
     {

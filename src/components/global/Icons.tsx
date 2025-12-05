@@ -504,7 +504,7 @@ export function UserIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-export function ShareIcon({ size = 24 }: { size?: number }) {
+export function ArrowIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       width={size}

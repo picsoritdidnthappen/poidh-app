@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
-import { TRPCError } from '@trpc/server';
 import { checkIsIssuer } from './admin';
 import { ChainId } from '@/utils/types';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -93,98 +92,6 @@ export const bountiesRouter = {
       });
 
       return bountyExtra;
-    }),
-
-  fetchByChain: baseProcedure
-    .input(
-      z.object({
-        chainId: z.number(),
-        status: z.enum(['open', 'progress', 'past']),
-        limit: z.number().min(1).max(100).default(10),
-        cursor: z
-          .object({
-            id: z.number(),
-            amount_sort: z.number(),
-            ids: z.array(z.number()),
-          })
-          .nullish(),
-        sortType: z.enum(['value', 'date']).default('date'),
-      })
-    )
-    .query(async ({ input }) => {
-      const sortById = input.sortType === 'date';
-      const sortByValue = input.sortType === 'value';
-      const items = await prisma.bounties.findMany({
-        where: {
-          chain_id: input.chainId,
-          ban: {
-            none: {},
-          },
-          is_canceled: false,
-          ...(input.status === 'open'
-            ? {
-                in_progress: true,
-                is_voting: false,
-              }
-            : {}),
-          ...(input.status === 'progress'
-            ? {
-                in_progress: true,
-                is_voting: true,
-              }
-            : {}),
-          ...(input.status === 'past'
-            ? {
-                in_progress: false,
-                is_canceled: false,
-              }
-            : {}),
-          ...(input.cursor
-            ? sortById
-              ? { id: { lt: input.cursor.id } }
-              : { amount_sort: { lte: input.cursor.amount_sort } }
-            : {}),
-          ...(input.cursor && !sortById && { id: { notIn: input.cursor.ids } }),
-        },
-        include: {
-          claims: {
-            take: 1,
-            where: {
-              ban: {
-                none: {},
-              },
-            },
-            orderBy: { is_accepted: 'desc' },
-          },
-        },
-        orderBy: sortById
-          ? { id: 'desc' }
-          : sortByValue
-          ? { amount_sort: 'desc' }
-          : {},
-        take: input.limit,
-      });
-
-      let nextCursor:
-        | {
-            id: (typeof items)[number]['id'];
-            amount_sort: (typeof items)[number]['amount_sort'];
-            ids: (typeof items)[number]['id'][];
-          }
-        | undefined = undefined;
-
-      if (items.length === input.limit) {
-        nextCursor = {
-          id: items[items.length - 1].id,
-          amount_sort: items[items.length - 1].amount_sort,
-          ids: [...(input.cursor?.ids ?? []), ...items.map((item) => item.id)],
-        };
-      }
-
-      return {
-        items,
-        nextCursor,
-      };
     }),
 
   fetchAll: baseProcedure

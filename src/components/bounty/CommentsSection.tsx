@@ -18,6 +18,7 @@ import { getChainById } from '@/utils/config';
 import { FarcasterIcon, TwitterXIcon } from '@/components/global/Icons';
 import { formatWalletAddress } from '@/utils/web3';
 import { FARCASTER_URL, TWITTER_URL } from '../global/SocialMediaLinks';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
 
@@ -91,6 +92,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
   const account = useAccount();
   const { signMessageAsync } = useSignMessage();
   const switchChain = useSwitchChain();
+  const { openConnectModal } = useConnectModal();
   const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
 
   const commentMutation = trpc.comments.comment.useMutation({
@@ -152,8 +154,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   async function ensureWalletOnBase() {
     if (!account.address) {
-      toast.error('Connect your wallet to continue');
-      return null;
+      openConnectModal?.();
+      return;
     }
 
     const chainId = await account.connector?.getChainId();

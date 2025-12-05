@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { generateMetadataForBounty } from '@/utils/generateMetadata';
 
 export const generateMetadata = generateMetadataForBounty;
