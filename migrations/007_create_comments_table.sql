@@ -8,12 +8,6 @@ CREATE TABLE IF NOT EXISTS :schema."Comments" (
     created_at     TIMESTAMP(3)   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at     TIMESTAMP(3)   NULL,
 
-    CONSTRAINT "Comments_bounty_chain_fkey"
-        FOREIGN KEY ("chain_id", "bounty_id")
-        REFERENCES :schema."Bounties"("chain_id", "id")
-        ON DELETE NO ACTION
-        ON UPDATE NO ACTION,
-
     CONSTRAINT "Comments_parent_id_fkey"
         FOREIGN KEY ("parent_id")
         REFERENCES :schema."Comments"("id")
