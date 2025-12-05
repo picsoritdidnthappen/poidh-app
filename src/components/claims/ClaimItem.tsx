@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
@@ -36,7 +36,7 @@ export default function ClaimItem({
 }) {
   const account = useAccount();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
   const utils = trpc.useUtils();
@@ -46,11 +46,9 @@ export default function ClaimItem({
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
-  const accountStats = trpc.accountInfoSplit.useQuery({
-    address: issuer,
-  });
+  const accountStats = trpc.accounts.stats.useQuery({ address: issuer });
 
-  const bounty = trpc.bounty.useQuery(
+  const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
       chainId: chain.id,
@@ -97,7 +95,7 @@ export default function ClaimItem({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const accepted = await trpcClient.isAcceptedClaim.query({
+        const accepted = await trpcClient.claims.isAccepted.query({
           id: Number(claimId),
           chainId: pollingChainId ?? chain.id,
         });
@@ -119,7 +117,7 @@ export default function ClaimItem({
       toast.error('Failed to accept claim:' + error.message);
     },
     onSettled: () => {
-      utils.bountyClaims.refetch();
+      utils.bounties.claims.refetch();
       setLoading({ isLoading: false, status: '' });
     },
   });

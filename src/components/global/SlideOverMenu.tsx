@@ -28,7 +28,7 @@ export default function SlideOverMenu({
   const account = useAccount();
   const [isResourcesExpanded, setIsResourcesExpanded] = useState(false);
 
-  const trendingAlbums = trpc.trendingAlbums.useQuery({});
+  const trendingAlbums = trpc.albums.trending.useQuery({});
 
   const handleCloseWithDelay = () => {
     setTimeout(() => {

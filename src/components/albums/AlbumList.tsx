@@ -16,7 +16,7 @@ export default function AlbumList({ keyword = '' }: { keyword?: string }) {
     data: albums,
     isLoading,
     isFetching,
-  } = trpc.albums.useQuery({ contains: debouncedKeyword });
+  } = trpc.albums.fetch.useQuery({ contains: debouncedKeyword });
 
   return (
     <div className='w-full max-w-sm mx-auto'>

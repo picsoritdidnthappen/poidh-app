@@ -1,5 +1,10 @@
 import z from 'zod';
 import * as dotenv from 'dotenv';
+import fs from 'fs';
+
+const overrides = fs.existsSync('.env.local')
+  ? dotenv.config({ path: '.env.local' })
+  : { parsed: {} };
 
 dotenv.config({ path: '.env' });
 
@@ -28,4 +33,11 @@ const envSchema = z.object({
   NEYNAR_CLIENT_ID: z.string(),
 });
 
-export default envSchema.parse(process.env);
+export default envSchema.parse(
+  { ...process.env, ...overrides.parsed },
+  {
+    errorMap: (error, ctx) => ({
+      message: error.message ?? ctx.defaultError,
+    }),
+  }
+);

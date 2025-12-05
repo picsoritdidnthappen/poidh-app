@@ -10,7 +10,7 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -48,16 +48,17 @@ export default function FormBounty({
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [currentChain, setCurrentChain] = useState<Chain>(chain);
   const price =
-    trpc.fetchPrice.useQuery({ currency: currentChain.currency }).data ?? 0;
+    trpc.web3.fetchPrice.useQuery({ currency: currentChain.currency }).data ??
+    0;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const usdRef = useRef<HTMLSpanElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const isMobile = useScreenSize();
 
-  const { data: albums } = trpc.albums.useQuery(
+  const { data: albums } = trpc.albums.fetch.useQuery(
     { contains: album },
     {
       enabled: !!album,
@@ -90,7 +91,7 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
-  const saveBountyAlbum = trpc.saveBountyAlbum.useMutation();
+  const saveBountyAlbum = trpc.bounties.addToAlbum.useMutation();
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
@@ -145,7 +146,7 @@ export default function FormBounty({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const bounty = await trpcClient.isBountyCreated.query({
+        const bounty = await trpcClient.bounties.isCreated.query({
           id: Number(data.args.id),
           chainId: pollingChainId ?? currentChain.id,
         });

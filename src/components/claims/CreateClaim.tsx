@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import GameButton from '@/components/global/GameButton';
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import FormClaim from './FormClaim';
 import ButtonCTA from '../global/ButtonCTA';
 
 export default function CreateClaim({ bountyId }: { bountyId: string }) {
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const [showForm, setShowForm] = useState(false);
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
 
-  const bounty = trpc.bounty.useQuery({
+  const bounty = trpc.bounties.fetch.useQuery({
     id: Number(bountyId),
     chainId: chain.id,
   });

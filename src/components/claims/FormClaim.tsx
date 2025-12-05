@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import { useGetChain } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
@@ -55,7 +55,7 @@ export default function FormClaim({
 
   const account = useAccount();
   const writeContract = useWriteContract({});
-  const chain = useGetChain();
+  const chain = useChainInfo();
   const switchChain = useSwitchChain();
   const isMobile = useScreenSize();
 
@@ -173,7 +173,7 @@ export default function FormClaim({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const claim = await trpcClient.isClaimCreated.query({
+        const claim = await trpcClient.claims.isCreated.query({
           id: Number(claimId),
           chainId: pollingChainId ?? chain.id,
         });
@@ -200,7 +200,7 @@ export default function FormClaim({
       toast.error('Failed to create claim: ' + error.message);
     },
     onSettled: () => {
-      utils.bountyClaims.refetch();
+      utils.bounties.claims.refetch();
       setPollingChainId(null);
       setTitle('');
       setDescription('');
