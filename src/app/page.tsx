@@ -119,7 +119,7 @@ export default function Home() {
           <div className='w-full md:w-auto flex justify-center'>
             <div
               id='btn-container'
-              className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent'
+              className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
             >
               {/* Slider indicator */}
               <div
