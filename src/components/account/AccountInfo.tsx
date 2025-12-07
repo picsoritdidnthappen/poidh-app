@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
-import { cn } from '@/utils';
 import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
@@ -234,21 +233,27 @@ export default function AccountInfo({ address }: { address: string }) {
                 }}
               />
               <button
-                ref={(el) => (tabRefs.current[0] = el)}
+                ref={(el) => {
+                  tabRefs.current[0] = el;
+                }}
                 onClick={() => handleSectionChange('nfts')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 NFTs({accountActivitiesCount.data?.nfts ?? 0})
               </button>
               <button
-                ref={(el) => (tabRefs.current[1] = el)}
+                ref={(el) => {
+                  tabRefs.current[1] = el;
+                }}
                 onClick={() => handleSectionChange('bounties')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 bounties ({accountActivitiesCount.data?.bounties ?? 0})
               </button>
               <button
-                ref={(el) => (tabRefs.current[2] = el)}
+                ref={(el) => {
+                  tabRefs.current[2] = el;
+                }}
                 onClick={() => handleSectionChange('claims')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >

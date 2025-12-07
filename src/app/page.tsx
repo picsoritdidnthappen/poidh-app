@@ -7,7 +7,6 @@ import { trpc } from '@/trpc/client';
 import 'react-toastify/dist/ReactToastify.css';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { cn } from '@/utils';
 import { useChainInfo } from '@/hooks/useGetChain';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -131,7 +130,9 @@ export default function Home() {
                 }}
               />
               <button
-                ref={(el) => (tabRefs.current[0] = el)}
+                ref={(el) => {
+                  tabRefs.current[0] = el;
+                }}
                 onClick={() => {
                   setDisplay('open');
                   router.push(`/?tab=open&sort=${sortType}`);
@@ -141,7 +142,9 @@ export default function Home() {
                 new bounties
               </button>
               <button
-                ref={(el) => (tabRefs.current[1] = el)}
+                ref={(el) => {
+                  tabRefs.current[1] = el;
+                }}
                 onClick={() => {
                   setDisplay('progress');
                   router.push(`/?tab=progress&sort=${sortType}`);
@@ -151,7 +154,9 @@ export default function Home() {
                 voting in progress
               </button>
               <button
-                ref={(el) => (tabRefs.current[2] = el)}
+                ref={(el) => {
+                  tabRefs.current[2] = el;
+                }}
                 onClick={() => {
                   setDisplay('past');
                   router.push(`/?tab=past&sort=${sortType}`);

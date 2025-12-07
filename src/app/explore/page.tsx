@@ -2,7 +2,6 @@
 
 import AlbumList from '@/components/albums/AlbumList';
 import { MagnifyingGlassIcon } from '@/components/global/Icons';
-import { cn } from '@/utils';
 import { trpc } from '@/trpc/client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -112,14 +111,18 @@ export default function Explore() {
                 }}
               />
               <button
-                ref={(el) => (tabRefs.current[0] = el)}
+                ref={(el) => {
+                  tabRefs.current[0] = el;
+                }}
                 onClick={() => setDisplay('albums')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 albums
               </button>
               <button
-                ref={(el) => (tabRefs.current[1] = el)}
+                ref={(el) => {
+                  tabRefs.current[1] = el;
+                }}
                 onClick={() => setDisplay('bounties')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
