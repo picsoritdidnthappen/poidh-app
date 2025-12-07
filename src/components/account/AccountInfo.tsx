@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
-import { cn } from '@/utils';
 import BountyList from '../bounty/BountyList';
 import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
@@ -46,6 +45,8 @@ export default function AccountInfo({ address }: { address: string }) {
     sectionFromUrl ?? 'bounties'
   );
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const handleSectionChange = (nextSection: Section) => {
     setCurrentSection(nextSection);
@@ -87,6 +88,31 @@ export default function AccountInfo({ address }: { address: string }) {
       enabled: !!address && currentSection === 'bounties',
     }
   );
+
+  // Update slider position when section changes or on resize
+  const updateSliderPosition = useCallback(() => {
+    const activeIndex = ['nfts', 'bounties', 'claims'].indexOf(currentSection);
+    const activeTab = tabRefs.current[activeIndex];
+
+    if (activeTab) {
+      const container = activeTab.parentElement;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        const left = tabRect.left - containerRect.left;
+        const width = tabRect.width;
+        setSliderStyle({ left, width });
+      }
+    }
+  }, [currentSection]);
+
+  useEffect(() => {
+    updateSliderPosition();
+
+    // Update on window resize
+    window.addEventListener('resize', updateSliderPosition);
+    return () => window.removeEventListener('resize', updateSliderPosition);
+  }, [currentSection, updateSliderPosition]);
 
   return (
     <>
@@ -196,30 +222,40 @@ export default function AccountInfo({ address }: { address: string }) {
           <div className='flex flex-row overflow-x-scroll items-center pb-3 border-b border-white justify-center gap-x-5 w-full px-3'>
             <div
               id='btn-container'
-              className={cn(
-                'flex flex-nowrap border border-white rounded-full transition-all bg-gradient-to-r h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs',
-                currentSection == 'nfts' && 'from-red-500 to-40%',
-                currentSection == 'bounties' &&
-                  'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
-                currentSection == 'claims' &&
-                  'from-transparent from-60% to-red-500'
-              )}
+              className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
             >
+              {/* Slider indicator */}
+              <div
+                className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
+                style={{
+                  left: `${sliderStyle.left}px`,
+                  width: `${sliderStyle.width}px`,
+                }}
+              />
               <button
+                ref={(el) => {
+                  tabRefs.current[0] = el;
+                }}
                 onClick={() => handleSectionChange('nfts')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 NFTs({accountActivitiesCount.data?.nfts ?? 0})
               </button>
               <button
+                ref={(el) => {
+                  tabRefs.current[1] = el;
+                }}
                 onClick={() => handleSectionChange('bounties')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 bounties ({accountActivitiesCount.data?.bounties ?? 0})
               </button>
               <button
+                ref={(el) => {
+                  tabRefs.current[2] = el;
+                }}
                 onClick={() => handleSectionChange('claims')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 claims ({accountActivitiesCount.data?.claims ?? 0})
               </button>

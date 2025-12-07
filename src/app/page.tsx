@@ -6,8 +6,7 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import { trpc } from '@/trpc/client';
 import 'react-toastify/dist/ReactToastify.css';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
-import { useState, useEffect } from 'react';
-import { cn } from '@/utils';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useChainInfo } from '@/hooks/useGetChain';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -27,6 +26,8 @@ export default function Home() {
   const [sortType, setSortType] = useState<BountySortType>('value');
   const chain = useChainInfo();
   const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
+  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // Initialize from URL params on mount
   useEffect(() => {
@@ -48,6 +49,31 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Update slider position when display changes or on resize
+  const updateSliderPosition = useCallback(() => {
+    const activeIndex = ['open', 'progress', 'past'].indexOf(display);
+    const activeTab = tabRefs.current[activeIndex];
+
+    if (activeTab) {
+      const container = activeTab.parentElement;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        const left = tabRect.left - containerRect.left;
+        const width = tabRect.width;
+        setSliderStyle({ left, width });
+      }
+    }
+  }, [display]);
+
+  useEffect(() => {
+    updateSliderPosition();
+
+    // Update on window resize
+    window.addEventListener('resize', updateSliderPosition);
+    return () => window.removeEventListener('resize', updateSliderPosition);
+  }, [display, updateSliderPosition]);
 
   const bounties = trpc.bounties.fetchAll.useInfiniteQuery(
     {
@@ -93,40 +119,49 @@ export default function Home() {
           <div className='w-full md:w-auto flex justify-center'>
             <div
               id='btn-container'
-              className={cn(
-                'flex flex-nowrap border border-white rounded-full transition-all bg-gradient-to-r h-[42px]',
-                'md:text-base sm:text-sm text-xs',
-                display == 'open' && 'from-red-500 to-40%',
-                display == 'progress' &&
-                  'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
-                display == 'past' && 'from-transparent from-60% to-red-500',
-                'gap-2 md:gap-4'
-              )}
+              className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
             >
+              {/* Slider indicator */}
+              <div
+                className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
+                style={{
+                  left: `${sliderStyle.left}px`,
+                  width: `${sliderStyle.width}px`,
+                }}
+              />
               <button
+                ref={(el) => {
+                  tabRefs.current[0] = el;
+                }}
                 onClick={() => {
                   setDisplay('open');
                   router.push(`/?tab=open&sort=${sortType}`);
                 }}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 new bounties
               </button>
               <button
+                ref={(el) => {
+                  tabRefs.current[1] = el;
+                }}
                 onClick={() => {
                   setDisplay('progress');
                   router.push(`/?tab=progress&sort=${sortType}`);
                 }}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 voting in progress
               </button>
               <button
+                ref={(el) => {
+                  tabRefs.current[2] = el;
+                }}
                 onClick={() => {
                   setDisplay('past');
                   router.push(`/?tab=past&sort=${sortType}`);
                 }}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 past bounties
               </button>
