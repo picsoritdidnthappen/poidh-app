@@ -2,9 +2,8 @@
 
 import AlbumList from '@/components/albums/AlbumList';
 import { MagnifyingGlassIcon } from '@/components/global/Icons';
-import { cn } from '@/utils';
 import { trpc } from '@/trpc/client';
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroller';
 import BountyList from '@/components/bounty/BountyList';
@@ -21,6 +20,8 @@ export default function Explore() {
   const initialSearch = searchParams.get('search') || '';
   const [search, setSearch] = useState<string>(initialSearch);
   const [display, setDisplay] = useState<Display>(initialDisplay);
+  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -32,7 +33,7 @@ export default function Explore() {
     }
     const url = `?${params.toString()}`;
     router.replace(url, { scroll: false });
-  }, [display, search]);
+  }, [display, search, router, searchParams]);
 
   const bounties = trpc.bounties.fetchByKeyword.useInfiniteQuery(
     {
@@ -44,6 +45,31 @@ export default function Explore() {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }
   );
+
+  // Update slider position when display changes or on resize
+  const updateSliderPosition = useCallback(() => {
+    const activeIndex = ['albums', 'bounties'].indexOf(display);
+    const activeTab = tabRefs.current[activeIndex];
+
+    if (activeTab) {
+      const container = activeTab.parentElement;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        const left = tabRect.left - containerRect.left;
+        const width = tabRect.width;
+        setSliderStyle({ left, width });
+      }
+    }
+  }, [display]);
+
+  useEffect(() => {
+    updateSliderPosition();
+
+    // Update on window resize
+    window.addEventListener('resize', updateSliderPosition);
+    return () => window.removeEventListener('resize', updateSliderPosition);
+  }, [display, updateSliderPosition]);
 
   return (
     <div>
@@ -74,22 +100,31 @@ export default function Explore() {
           <div className='w-full md:w-auto flex justify-center'>
             <div
               id='btn-container'
-              className={cn(
-                'flex flex-nowrap border border-white rounded-full transition-all bg-gradient-to-r h-[42px]',
-                'md:text-base text-xs',
-                display == 'albums' && 'from-red-500 to-60%',
-                display == 'bounties' && 'from-transparent from-40% to-red-500'
-              )}
+              className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base text-xs bg-transparent'
             >
+              {/* Slider indicator */}
+              <div
+                className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
+                style={{
+                  left: `${sliderStyle.left}px`,
+                  width: `${sliderStyle.width}px`,
+                }}
+              />
               <button
+                ref={(el) => {
+                  tabRefs.current[0] = el;
+                }}
                 onClick={() => setDisplay('albums')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 albums
               </button>
               <button
+                ref={(el) => {
+                  tabRefs.current[1] = el;
+                }}
                 onClick={() => setDisplay('bounties')}
-                className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 bounties
               </button>
