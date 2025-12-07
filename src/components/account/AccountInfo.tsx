@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
@@ -19,6 +20,13 @@ import ShareAccountModal from '@/components/account/ShareAccountModal';
 type Section = 'nfts' | 'bounties' | 'claims';
 const PAGE_SIZE = 9;
 
+const getSectionFromParam = (value: string | null): Section => {
+  if (value === 'nfts' || value === 'bounties' || value === 'claims') {
+    return value;
+  }
+  return 'bounties';
+};
+
 function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
     <div className='bg-white/5 rounded p-1.5 backdrop-blur-sm'>
@@ -29,11 +37,24 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 }
 
 export default function AccountInfo({ address }: { address: string }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const chain = useChainInfo();
-  const [currentSection, setCurrentSection] = useState<Section>('bounties');
+  const sectionFromUrl = getSectionFromParam(searchParams.get('tab'));
+  const [currentSection, setCurrentSection] = useState<Section>(
+    sectionFromUrl ?? 'bounties'
+  );
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleSectionChange = (nextSection: Section) => {
+    setCurrentSection(nextSection);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', nextSection);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const accountActivitiesCount = trpc.accounts.activitiesCount.useQuery(
     { address },
@@ -214,21 +235,21 @@ export default function AccountInfo({ address }: { address: string }) {
               />
               <button
                 ref={(el) => (tabRefs.current[0] = el)}
-                onClick={() => setCurrentSection('nfts')}
+                onClick={() => handleSectionChange('nfts')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 NFTs({accountActivitiesCount.data?.nfts ?? 0})
               </button>
               <button
                 ref={(el) => (tabRefs.current[1] = el)}
-                onClick={() => setCurrentSection('bounties')}
+                onClick={() => handleSectionChange('bounties')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 bounties ({accountActivitiesCount.data?.bounties ?? 0})
               </button>
               <button
                 ref={(el) => (tabRefs.current[2] = el)}
-                onClick={() => setCurrentSection('claims')}
+                onClick={() => handleSectionChange('claims')}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 claims ({accountActivitiesCount.data?.claims ?? 0})
