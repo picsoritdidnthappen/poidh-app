@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
@@ -19,6 +20,13 @@ import ShareAccountModal from '@/components/account/ShareAccountModal';
 type Section = 'nfts' | 'bounties' | 'claims';
 const PAGE_SIZE = 9;
 
+const getSectionFromParam = (value: string | null): Section => {
+  if (value === 'nfts' || value === 'bounties' || value === 'claims') {
+    return value;
+  }
+  return 'bounties';
+};
+
 function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
     <div className='bg-white/5 rounded p-1.5 backdrop-blur-sm'>
@@ -29,9 +37,22 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 }
 
 export default function AccountInfo({ address }: { address: string }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const chain = useChainInfo();
-  const [currentSection, setCurrentSection] = useState<Section>('bounties');
+  const sectionFromUrl = getSectionFromParam(searchParams.get('tab'));
+  const [currentSection, setCurrentSection] = useState<Section>(
+    sectionFromUrl ?? 'bounties'
+  );
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const handleSectionChange = (nextSection: Section) => {
+    setCurrentSection(nextSection);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', nextSection);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const accountActivitiesCount = trpc.accounts.activitiesCount.useQuery(
     { address },
@@ -185,19 +206,19 @@ export default function AccountInfo({ address }: { address: string }) {
               )}
             >
               <button
-                onClick={() => setCurrentSection('nfts')}
+                onClick={() => handleSectionChange('nfts')}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 NFTs({accountActivitiesCount.data?.nfts ?? 0})
               </button>
               <button
-                onClick={() => setCurrentSection('bounties')}
+                onClick={() => handleSectionChange('bounties')}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 bounties ({accountActivitiesCount.data?.bounties ?? 0})
               </button>
               <button
-                onClick={() => setCurrentSection('claims')}
+                onClick={() => handleSectionChange('claims')}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 claims ({accountActivitiesCount.data?.claims ?? 0})

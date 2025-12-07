@@ -4,13 +4,35 @@ import AlbumList from '@/components/albums/AlbumList';
 import { MagnifyingGlassIcon } from '@/components/global/Icons';
 import { cn } from '@/utils';
 import { trpc } from '@/trpc/client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroller';
 import BountyList from '@/components/bounty/BountyList';
 
+type Display = 'bounties' | 'albums';
+
 export default function Explore() {
-  const [search, setSearch] = useState<string>('');
-  const [display, setDisplay] = useState<'bounties' | 'albums'>('albums');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const initialDisplay = (
+    searchParams.get('tab') === 'bounties' ? 'bounties' : 'albums'
+  ) as Display;
+  const initialSearch = searchParams.get('search') || '';
+  const [search, setSearch] = useState<string>(initialSearch);
+  const [display, setDisplay] = useState<Display>(initialDisplay);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', display);
+    if (search) {
+      params.set('search', search);
+    } else {
+      params.delete('search');
+    }
+    const url = `?${params.toString()}`;
+    router.replace(url, { scroll: false });
+  }, [display, search]);
 
   const bounties = trpc.bounties.fetchByKeyword.useInfiniteQuery(
     {

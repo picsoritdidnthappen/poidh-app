@@ -13,6 +13,8 @@ import { useChainInfo } from '@/hooks/useGetChain';
 import { ChainId } from '@/utils/types';
 import { ArrowIcon } from '@/components/global/Icons';
 
+const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
+
 export default function Bounty({
   params,
   searchParams,

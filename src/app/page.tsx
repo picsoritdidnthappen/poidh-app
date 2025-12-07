@@ -16,13 +16,30 @@ import BountyList from '@/components/bounty/BountyList';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
 import Link from 'next/link';
 import { ALBUMS } from '@/utils/constants';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Home() {
   const isMobile = useScreenSize();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [display, setDisplay] = useState<BountyDisplayType>('open');
   const [sortType, setSortType] = useState<BountySortType>('value');
   const chain = useChainInfo();
   const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
+
+  // Initialize from URL params on mount
+  useEffect(() => {
+    const tabParam = searchParams.get('tab') as BountyDisplayType | null;
+    const sortParam = searchParams.get('sort') as BountySortType | null;
+
+    if (tabParam && ['open', 'progress', 'past'].includes(tabParam)) {
+      setDisplay(tabParam);
+    }
+    if (sortParam && ['value', 'date'].includes(sortParam)) {
+      setSortType(sortParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -87,19 +104,28 @@ export default function Home() {
               )}
             >
               <button
-                onClick={() => setDisplay('open')}
+                onClick={() => {
+                  setDisplay('open');
+                  router.push(`/?tab=open&sort=${sortType}`);
+                }}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 new bounties
               </button>
               <button
-                onClick={() => setDisplay('progress')}
+                onClick={() => {
+                  setDisplay('progress');
+                  router.push(`/?tab=progress&sort=${sortType}`);
+                }}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 voting in progress
               </button>
               <button
-                onClick={() => setDisplay('past')}
+                onClick={() => {
+                  setDisplay('past');
+                  router.push(`/?tab=past&sort=${sortType}`);
+                }}
                 className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 past bounties
@@ -141,7 +167,11 @@ export default function Home() {
                   },
                 }}
                 renderValue={() => <SortIcon size={18} />}
-                onChange={(e) => setSortType(e.target.value as BountySortType)}
+                onChange={(e) => {
+                  const newSort = e.target.value as BountySortType;
+                  setSortType(newSort);
+                  router.push(`/?tab=${display}&sort=${newSort}`);
+                }}
               >
                 <MenuItem value='value' className='color-white'>
                   by value
