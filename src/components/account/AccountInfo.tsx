@@ -112,7 +112,7 @@ export default function AccountInfo({ address }: { address: string }) {
     // Update on window resize
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
-  }, [currentSection, updateSliderPosition]);
+  }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
 
   return (
     <>
