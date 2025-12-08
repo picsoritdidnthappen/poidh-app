@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { trpc } from '@/trpc/client';
-import { cn } from '@/utils';
 import BountyList from '@/components/bounty/BountyList';
 import { BountyDisplayType, ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
@@ -15,11 +14,38 @@ export default function Album({ params }: { params: { album: string } }) {
   const album = params.album ?? 'album';
   const [display, setDisplay] = useState<BountyDisplayType>('open');
   const isMobile = useScreenSize();
+  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const bounties = trpc.bounties.fetchByAlbum.useQuery({
     album: album.toLowerCase(),
     status: display,
   });
+
+  // Update slider position when display changes or on resize
+  const updateSliderPosition = useCallback(() => {
+    const activeIndex = ['open', 'progress', 'past'].indexOf(display);
+    const activeTab = tabRefs.current[activeIndex];
+
+    if (activeTab) {
+      const container = activeTab.parentElement;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        const left = tabRect.left - containerRect.left;
+        const width = tabRect.width;
+        setSliderStyle({ left, width });
+      }
+    }
+  }, [display]);
+
+  useEffect(() => {
+    updateSliderPosition();
+
+    // Update on window resize
+    window.addEventListener('resize', updateSliderPosition);
+    return () => window.removeEventListener('resize', updateSliderPosition);
+  }, [display, updateSliderPosition]);
 
   return (
     <>
@@ -30,31 +56,40 @@ export default function Album({ params }: { params: { album: string } }) {
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:pb-12 sm:pb-8 pt-4  w-full items-center justify-center px-8'>
           <div
             id='btn-container'
-            className={cn(
-              'flex flex-nowrap border border-white rounded-full transition-all bg-gradient-to-r h-[42px]',
-              'md:text-base sm:text-sm text-xs',
-              display == 'open' && 'from-red-500 to-40%',
-              display == 'progress' &&
-                'via-red-500 from-transparent to-transparent from-[23.33%] to-[76.66%]',
-              display == 'past' && 'from-transparent from-60% to-red-500',
-              'gap-2 md:gap-4'
-            )}
+            className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
           >
+            {/* Slider indicator */}
+            <div
+              className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
+              style={{
+                left: `${sliderStyle.left}px`,
+                width: `${sliderStyle.width}px`,
+              }}
+            />
             <button
+              ref={(el) => {
+                tabRefs.current[0] = el;
+              }}
               onClick={() => setDisplay('open')}
-              className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
               new bounties
             </button>
             <button
+              ref={(el) => {
+                tabRefs.current[1] = el;
+              }}
               onClick={() => setDisplay('progress')}
-              className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
               voting in progress
             </button>
             <button
+              ref={(el) => {
+                tabRefs.current[2] = el;
+              }}
               onClick={() => setDisplay('past')}
-              className='flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
               past bounties
             </button>
