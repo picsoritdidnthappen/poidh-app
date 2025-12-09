@@ -158,7 +158,7 @@ export default function Album({ params }: { params: { album: string } }) {
           )}
         </div>
       </div>
-      {isMobile ? (
+      {/* {isMobile ? (
         <NavBarMobile
           type='bounty'
           prefilledAlbum={album}
@@ -166,7 +166,7 @@ export default function Album({ params }: { params: { album: string } }) {
         />
       ) : (
         <CreateBounty prefilledAlbum={album} showChainSelector={true} />
-      )}
+      )} */}
     </>
   );
 }

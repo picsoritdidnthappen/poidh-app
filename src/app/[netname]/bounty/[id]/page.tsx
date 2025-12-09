@@ -86,13 +86,13 @@ export default function Bounty({
           bountyId={Number(bountyId)}
         />
       </div>
-      {!isShareModalOpen &&
+      {/* {!isShareModalOpen &&
         !isHowItWorksModalOpen &&
         (isMobile ? (
           <NavBarMobile type='claim' bountyId={params.id} />
         ) : (
           <CreateClaim bountyId={params.id} />
-        ))}
+        ))} */}
       <div className='h-80' />
     </>
   );
