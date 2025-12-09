@@ -104,7 +104,7 @@ export default function ClaimSuccessModal({
     const claimIssuerUsername = await getAddressDisplayName(
       claimIssuer ?? '',
       'farcaster',
-      bountyIssuerData
+      claimIssuerData
     );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
 
