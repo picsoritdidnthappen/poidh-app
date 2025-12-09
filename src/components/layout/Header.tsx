@@ -26,8 +26,7 @@ export default function Header() {
     <>
       {/* tepmrorary banner */}
       <div className='bg-poidhRed text-white text-xxs md:text-xs px-4 lg:px-20 py-2 text-center font-semibold'>
-        poidh has experienced an exploit, please withdraw any funds you still
-        have deposited in bounties - follow{' '}
+        poidh has experienced an exploit - user funds will be fully reimbursed shortly - follow{' '}
         <a
           href='https://x.com/poidhxyz'
           target='_blank'
