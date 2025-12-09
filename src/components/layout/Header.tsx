@@ -24,6 +24,20 @@ export default function Header() {
 
   return (
     <>
+      {/* tepmrorary banner */}
+      <div className='bg-poidhRed text-white text-xxs md:text-xs px-4 lg:px-20 py-2 text-center font-semibold'>
+        poidh has experienced an exploit, please withdraw any funds you still
+        have deposited in bounties - follow{' '}
+        <a
+          href='https://x.com/poidhxyz'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='underline hover:text-gray-200'
+        >
+          @poidhxyz
+        </a>{' '}
+        on Twitter for the latest details
+      </div>
       <Drawer
         open={isOpen}
         onClose={(cur) => setIsOpen(!cur)}

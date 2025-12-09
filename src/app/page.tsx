@@ -28,7 +28,6 @@ export default function Home() {
   const chain = useChainInfo();
   const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
 
-  // Initialize from URL params on mount
   useEffect(() => {
     const tabParam = searchParams.get('tab') as BountyDisplayType | null;
     const sortParam = searchParams.get('sort') as BountySortType | null;
