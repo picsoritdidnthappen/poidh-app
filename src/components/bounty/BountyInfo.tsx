@@ -26,6 +26,7 @@ import ShareBountyModal from '@/components/bounty/ShareBountyModal';
 import { ArrowIcon, QuestionIcon } from '@/components/global/Icons';
 import Link from 'next/link';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
+import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 
 export default function BountyInfo({
   bountyId,
@@ -239,13 +240,17 @@ export default function BountyInfo({
               </Link>
             </p>
           )}
-          <p className='text-lg mb-5 mt-1 font-bold'>
+          <div className='text-lg mb-5 mt-1 font-bold flex items-center gap-2'>
             {formatAmount({
               amount: formatEther(BigInt(bounty.data.amount)),
               currency: chain.currency,
               price: price.toString(),
-            })}
-          </p>
+            })}{' '}
+            <DynamicChainIcon
+              chain={chain.slug}
+              size={chain.slug === 'base' ? 18 : 24}
+            />
+          </div>
         </div>
         <div className='flex flex-col space-between'>
           {bounty.data.inProgress ? (
