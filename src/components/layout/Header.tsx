@@ -114,7 +114,7 @@ function ConnectWalletButton() {
                 return (
                   <button
                     onClick={openConnectModal}
-                    className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-2 hover:bg-white/20'
+                    className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-2 hover:bg-white/20 h-10'
                   >
                     connect
                   </button>
