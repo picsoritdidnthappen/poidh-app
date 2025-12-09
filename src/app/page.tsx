@@ -29,7 +29,6 @@ export default function Home() {
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Initialize from URL params on mount
   useEffect(() => {
     const tabParam = searchParams.get('tab') as BountyDisplayType | null;
     const sortParam = searchParams.get('sort') as BountySortType | null;
