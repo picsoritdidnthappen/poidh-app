@@ -249,11 +249,11 @@ export default function Home() {
           )}
         </div>
       </div>
-      {isMobile ? (
+      {/* {isMobile ? (
         <NavBarMobile type='bounty' showChainSelector={true} />
       ) : (
         <CreateBounty showChainSelector={true} />
-      )}
+      )} */}
     </>
   );
 }
