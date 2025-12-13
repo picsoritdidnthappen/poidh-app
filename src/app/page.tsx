@@ -10,9 +10,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useChainInfo } from '@/hooks/useGetChain';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
-import { SortIcon } from '@/components/global/Icons';
-import BountyList from '@/components/bounty/BountyList';
+import { SortIcon, MaintenanceIcon } from '@/components/global/Icons';
+// import BountyList from '@/components/bounty/BountyList';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
+import PoidhLogo from '@/components/global/Logo';
 import Link from 'next/link';
 import { ALBUMS } from '@/utils/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -231,24 +232,48 @@ export default function Home() {
               threshold={300}
             >
               {display !== 'past' ? (
-                <BountyList
-                  key={bounties.data.pages[0]?.items[0]?.id || 'empty-list'}
-                  showChainIcon={true}
-                  bounties={bounties.data.pages.flatMap((page) =>
-                    page.items.map((bounty) => ({
-                      id: bounty.id.toString(),
-                      chainId: bounty.chain_id as ChainId,
-                      title: bounty.title,
-                      description: bounty.description,
-                      amount: bounty.amount,
-                      isMultiplayer: bounty.is_multiplayer || false,
-                      inProgress: bounty.in_progress || false,
-                      isCanceled: bounty.is_canceled || false,
-                      hasClaims: bounty.claims.length > 0,
-                      network: chain.slug,
-                    }))
-                  )}
-                />
+                <div className='flex flex-col items-center justify-center gap-3 px-6 py-7 text-center'>
+                  <div className='flex items-center text-white/80'>
+                    <MaintenanceIcon size={30} />
+                  </div>
+                  <div className='scale-100 sm:scale-100 drop-shadow-xl'>
+                    <PoidhLogo />
+                  </div>
+                  <p className='max-w-2xl text-md md:text-xl leading-relaxed text-white/90 '>
+                    new bounties are currently on hold as we work on the launch
+                    of v3 -{' '}
+                    <Link
+                      href='https://x.com/poidhxyz'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='underline transition-all normal-case'
+                    >
+                      follow us on X
+                    </Link>{' '}
+                    for the latest updates
+                  </p>
+                  {/*
+                    Previous display of open/progress bounties kept for future use:
+                    <BountyList
+                      key={bounties.data.pages[0]?.items[0]?.id || 'empty-list'}
+                      showChainIcon={true}
+                      bounties={bounties.data.pages.flatMap((page) =>
+                        page.items.map((bounty) => ({
+                          id: bounty.id.toString(),
+                          chainId: bounty.chain_id as ChainId,
+                          title: bounty.title,
+                          description: bounty.description,
+                          amount: bounty.amount,
+                          isMultiplayer: bounty.is_multiplayer || false,
+                          inProgress: bounty.in_progress || false,
+                          isCanceled: bounty.is_canceled || false,
+                          hasClaims: bounty.claims.length > 0,
+                          network: chain.slug,
+                        }))
+                      )}
+                    />
+                  */}
+                </div>
               ) : (
                 <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
                   {bounties.data.pages.flatMap((page) =>
