@@ -22,7 +22,7 @@ export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [display, setDisplay] = useState<BountyDisplayType>('open');
+  const [display, setDisplay] = useState<BountyDisplayType>('past');
   const [sortType, setSortType] = useState<BountySortType>('value');
   const chain = useChainInfo();
   const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
