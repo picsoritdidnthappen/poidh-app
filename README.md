@@ -97,7 +97,6 @@ Ensure the database is properly set up before proceeding.
    ```plaintext
    DATABASE_URL="postgresql://<username>:<password>@<host>:<port>/<database>"
    ADMINS="0x…,0x…,0x…"
-   OPENAI_API_KEY="sk-…"
    MAINNET_RPC_URL="https://eth-mainnet…"
    DEGEN_RPC_URL="https://degen-mainnet…"
    ARBITRUM_RPC_URL="https://arbitrum-mainnet…"
