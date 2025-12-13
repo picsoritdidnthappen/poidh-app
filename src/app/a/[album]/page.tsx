@@ -12,7 +12,7 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 
 export default function Album({ params }: { params: { album: string } }) {
   const album = params.album ?? 'album';
-  const [display, setDisplay] = useState<BountyDisplayType>('open');
+  const [display, setDisplay] = useState<BountyDisplayType>('past');
   const isMobile = useScreenSize();
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
