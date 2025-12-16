@@ -30,6 +30,10 @@ export default function AlbumList({ keyword = '' }: { keyword?: string }) {
         </div>
       ) : albums && albums.length > 0 ? (
         <div className='flex flex-col space-y-2'>
+          <div className='flex justify-between items-center px-4 pb-2 text-white/40 text-xs font-mono tracking-wider border-b border-white/10'>
+            <span className='font-semibold'>album</span>
+            <span className='font-semibold'>bounties</span>
+          </div>
           {albums
             .filter((album) => album.album)
             .map((album, idx) => (

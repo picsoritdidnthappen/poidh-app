@@ -237,7 +237,7 @@ export default function ClaimItem({
           <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
             <span className='shrink-0 mr-2'>issuer&nbsp;</span>
             <div className='flex flex-row  items-center w-full justify-end overflow-hidden'>
-              <DisplayAddress chainName={chain.slug} address={issuer} />
+              <DisplayAddress address={issuer} />
               <div className='ml-2'>
                 <CopyAddressButton address={issuer} />
               </div>

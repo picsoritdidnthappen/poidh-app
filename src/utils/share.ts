@@ -1,13 +1,12 @@
 import { toast } from 'react-toastify';
 import { sdk } from '@farcaster/miniapp-sdk';
-import { getEnsOrDegenName } from '@/utils/web3';
 import {
   FARCASTER_URL,
   TWITTER_URL,
 } from '@/components/global/SocialMediaLinks';
 import { inferRouterOutputs } from '@trpc/server';
 import { type AppRouter } from '@/trpc/trpc';
-import { tryCatchAsync } from './utils';
+import { trpc } from '@/trpc/client';
 
 type UserDataNeynar =
   inferRouterOutputs<AppRouter>['neynar']['usersData'][number];
@@ -63,30 +62,14 @@ export async function getAddressDisplayName(
   platform: 'farcaster' | 'twitter',
   user?: UserDataNeynar
 ): Promise<string> {
-  let displayName = `${address.slice(0, 7)}`;
-
-  if (platform === 'farcaster') {
-    if (user?.farcaster_tag) {
-      displayName = `@${user.farcaster_tag}`;
-    }
-  } else if (platform === 'twitter') {
-    if (user?.twitter_tag) {
-      displayName = `@${user.twitter_tag}`;
-    }
+  if (platform === 'farcaster' && user?.farcaster_tag) {
+    return `@${user.farcaster_tag}`;
+  } else if (platform === 'twitter' && user?.twitter_tag) {
+    return `@${user.twitter_tag}`;
   }
 
-  const [name, error] = await tryCatchAsync(
-    async () =>
-      await getEnsOrDegenName({
-        chainName: 'base',
-        address,
-      })
-  );
-
-  if (error) {
-    console.warn('Failed to fetch ENS/Degen name:', error);
-    return displayName;
-  }
-
-  return name ?? displayName;
+  const ensOrDegenName = await trpc.web3.fetchEnsOrDegenName.useQuery({
+    address,
+  });
+  return ensOrDegenName.data ?? `${address.slice(0, 7)}`;
 }

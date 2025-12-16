@@ -199,10 +199,7 @@ export default function BountyInfo({
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
-              <DisplayAddress
-                chainName={chain.slug}
-                address={bounty.data.issuer}
-              />
+              <DisplayAddress address={bounty.data.issuer} />
               <div className='ml-2 mr-2'>
                 <CopyAddressButton address={bounty.data.issuer} />
               </div>

@@ -3,10 +3,9 @@ import { generateDynamicOGUrl } from '@/utils/og';
 import { Currency, Netname } from '@/utils/types';
 import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
-import { createCallerFactory } from '@/trpc/init';
-import { appRouter } from '@/trpc/trpc';
 import { fetchPrice } from '@/utils/utils';
 import { formatEther } from 'viem';
+import { trpcCaller } from '@/trpc/server';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz';
 const APP_ICON_URL =
@@ -123,72 +122,11 @@ export const generateMetadataForBounty = async ({
   };
 };
 
-export const generateMetadataForNetnameFrame = async ({
-  params,
-}: {
-  params: { netname: Netname };
-}): Promise<Metadata> => {
-  const frame = {
-    version: 'next',
-    imageUrl: APP_OG_IMAGE_URL,
-    button: {
-      title: APP_BUTTON_TEXT,
-      action: {
-        type: 'launch_frame',
-        name: APP_NAME,
-        url: `${APP_URL}/${params?.netname}`,
-        splashImageUrl: APP_SPLASH_URL,
-        iconUrl: APP_ICON_URL,
-        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
-      },
-    },
-  };
-
-  const chainNames: Record<Netname, string> = {
-    arbitrum: 'Arbitrum',
-    base: 'Base',
-    degen: 'Degen Chain',
-  };
-
-  const chainDisplayName = chainNames[params.netname] || params.netname;
-  return {
-    title: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
-    description:
-      "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-    openGraph: {
-      type: 'website',
-      url: APP_URL,
-      title: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
-      description:
-        "poidh - pics or it didn't happen - fully onchain bounties + collectible NFTs - start your collection today on Arbitrum, Base, or Degen Chain",
-      siteName: 'POIDH',
-      images: [
-        {
-          url: APP_OG_IMAGE_URL,
-          width: 600,
-          height: 400,
-          alt: `${chainDisplayName} bounties on poidh - pics or it didn't happen`,
-        },
-      ],
-      locale: 'en_US',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      images: [APP_OG_IMAGE_URL],
-    },
-    other: {
-      'fc:frame': JSON.stringify(frame),
-    },
-  };
-};
-
 export const generateMetadataForAccountPage = async ({
   params,
 }: {
   params: { address: string };
 }): Promise<Metadata> => {
-  const createCaller = createCallerFactory(appRouter);
-  const trpcCaller = createCaller({});
   const address = params.address;
 
   const frame = {

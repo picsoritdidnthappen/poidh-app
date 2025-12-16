@@ -1,48 +1,6 @@
-import { ABI, DEGENNAMERESABI } from '@/constant';
+import { ABI } from '@/constant';
 import { chains } from '@/utils/config';
-import { mainnetPublicClient, degenPublicClient } from '@/utils/publicClients';
 import { Netname } from '@/utils/types';
-
-export async function getEnsOrDegenName({
-  chainName,
-  address,
-}: {
-  chainName: Netname;
-  address: string;
-}) {
-  if (chainName === 'arbitrum') {
-    return null;
-  }
-
-  try {
-    const ensName = await mainnetPublicClient.getEnsName({
-      address: address as `0x${string}`,
-    });
-
-    if (ensName) {
-      return ensName;
-    }
-  } catch (error) {
-    console.warn('Failed to resolve ENS name:', error);
-  }
-
-  try {
-    const degenName = await degenPublicClient.readContract({
-      abi: DEGENNAMERESABI,
-      address: '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
-      functionName: 'defaultNames',
-      args: [address as `0x${string}`],
-    });
-
-    if (degenName) {
-      return `${degenName}.degen`;
-    }
-  } catch (error) {
-    console.warn('Failed to resolve Degen name:', error);
-  }
-
-  return null;
-}
 
 export async function bountyCurrentVotingClaim({
   chainName,

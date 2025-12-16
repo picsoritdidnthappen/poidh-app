@@ -1,7 +1,6 @@
 'use client';
 
 import { trpc } from '@/trpc/client';
-import useDegenOrEnsName from '@/hooks/useDegenOrEnsName';
 import Image from 'next/image';
 import { TwitterXIcon } from '@/components/global/Icons';
 import { inferRouterOutputs } from '@trpc/server';
@@ -21,10 +20,10 @@ const formatUserName = (name: string) =>
   name.length >= 10 ? `${name.slice(0, 6)}…${name.slice(-5)}` : name;
 
 function ResolvedAddressCell({ address }: { address: string }) {
-  const ensOrDegenName = useDegenOrEnsName(address);
+  const ensOrDegenName = trpc.web3.fetchEnsOrDegenName.useQuery({ address });
   return (
     <span className='relative'>
-      {formatUserName(ensOrDegenName ?? address)}
+      {formatUserName(ensOrDegenName.data ?? address)}
     </span>
   );
 }
