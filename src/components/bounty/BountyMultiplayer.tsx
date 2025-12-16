@@ -64,10 +64,7 @@ export default function BountyMultiplayer({
                         size={12}
                       />
                     </span>
-                    <DisplayAddress
-                      chainName={chain.slug}
-                      address={participant.user_address}
-                    />
+                    <DisplayAddress address={participant.user_address} />
                   </div>
                   <div className='text-sm text-white/60'>
                     {formatEther(BigInt(participant.amount))} {chain.currency}

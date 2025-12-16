@@ -1,33 +1,21 @@
-import { useQuery } from '@tanstack/react-query';
-import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
+import { formatWalletAddress } from '@/utils/web3';
 import Link from 'next/link';
-import { Netname } from '@/utils/types';
 import { trpc } from '@/trpc/client';
 import Image from 'next/image';
 
 export default function DisplayAddress({
   address,
-  chainName = 'base',
   showPfpIfExists = true,
   pfpSize = 20,
 }: {
   address: string;
-  chainName?: Netname;
   showPfpIfExists?: boolean;
   pfpSize?: number;
 }) {
   const userQuery = trpc.neynar.usersData.useQuery({
     addresses: [address],
   });
-
-  const walletDisplayName = useQuery({
-    queryKey: ['getWalletDisplayName', address, chainName],
-    queryFn: () =>
-      getWalletDisplayName({
-        address,
-        chainName,
-      }),
-  });
+  const ensOrDegenName = trpc.web3.fetchEnsOrDegenName.useQuery({ address });
 
   const user = userQuery.data?.[0];
 
@@ -58,24 +46,14 @@ export default function DisplayAddress({
       >
         {userQuery.isLoading
           ? formatWalletAddress(address)
-          : user && Object.keys(user).length > 0
+          : user?.farcaster_tag
           ? user.farcaster_tag
-          : walletDisplayName.isLoading
+          : ensOrDegenName.isLoading
           ? formatWalletAddress(address)
-          : walletDisplayName.data
-          ? walletDisplayName.data
+          : ensOrDegenName.data
+          ? ensOrDegenName.data
           : formatWalletAddress(address)}
       </Link>
     </span>
   );
-}
-
-export async function getWalletDisplayName({
-  address,
-  chainName,
-}: {
-  address: string;
-  chainName: Netname;
-}) {
-  return (await getEnsOrDegenName({ address, chainName })) || null;
 }

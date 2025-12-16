@@ -1,4 +1,6 @@
-import { formatWalletAddress, getEnsOrDegenName } from '@/utils/web3';
+import { DEGENNAMERESABI } from '@/constant';
+import { degenPublicClient, mainnetPublicClient } from '@/utils/publicClients';
+import { formatWalletAddress } from '@/utils/web3';
 import { ImageResponse } from '@vercel/og';
 
 const truncateName = (name: string, maxLength = 35) => {
@@ -7,26 +9,6 @@ const truncateName = (name: string, maxLength = 35) => {
 };
 
 export const runtime = 'edge';
-
-const getProfilePictureUrl = async (
-  pfpUrl: string | null | undefined
-): Promise<string> => {
-  const fallbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`;
-
-  if (!pfpUrl) {
-    return fallbackUrl;
-  }
-
-  try {
-    const response = await fetch(pfpUrl, { method: 'HEAD' });
-    if (response.ok) {
-      return pfpUrl;
-    }
-    return fallbackUrl;
-  } catch (error) {
-    return fallbackUrl;
-  }
-};
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -48,10 +30,8 @@ export async function GET(req: Request) {
   }
 
   try {
-    const degenOrEnsName = await getEnsOrDegenName({
-      chainName: 'base',
-      address: address as string,
-    });
+    const degenOrEnsName = await fetchEnsOrDegenName(address);
+
     const fontData = await fetch(
       new URL(
         '../../../../../public/fonts/GeistMono-Regular.ttf',
@@ -366,3 +346,50 @@ async function loadFarcasterProfile(address: string) {
     return null;
   }
 }
+
+async function fetchEnsOrDegenName(address: string): Promise<string | null> {
+  try {
+    const ensName = await mainnetPublicClient.getEnsName({
+      address: address as `0x${string}`,
+    });
+
+    if (ensName) {
+      return ensName;
+    }
+  } catch {}
+
+  try {
+    const degenName = await degenPublicClient.readContract({
+      abi: DEGENNAMERESABI,
+      address: '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
+      functionName: 'defaultNames',
+      args: [address as `0x${string}`],
+    });
+
+    if (degenName) {
+      return `${degenName}.degen`;
+    }
+  } catch {}
+
+  return null;
+}
+
+const getProfilePictureUrl = async (
+  pfpUrl: string | null | undefined
+): Promise<string> => {
+  const fallbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`;
+
+  if (!pfpUrl) {
+    return fallbackUrl;
+  }
+
+  try {
+    const response = await fetch(pfpUrl, { method: 'HEAD' });
+    if (response.ok) {
+      return pfpUrl;
+    }
+    return fallbackUrl;
+  } catch (error) {
+    return fallbackUrl;
+  }
+};
