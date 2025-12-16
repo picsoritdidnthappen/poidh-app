@@ -1,3 +1,4 @@
+import { usersRouter } from '@/trpc/routers/users';
 import { createTRPCRouter } from './init';
 import { accountsRouter } from './routers/accounts';
 import { adminRouter } from './routers/admin';
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   accounts: accountsRouter,
   leaderboard: leaderboardRouter,
   web3: web3Router,
+  users: usersRouter,
 });
 
 export type AppRouter = typeof appRouter;

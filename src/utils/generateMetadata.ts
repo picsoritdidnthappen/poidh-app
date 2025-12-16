@@ -1,9 +1,8 @@
 import { chains } from '@/utils/config';
 import { generateDynamicOGUrl } from '@/utils/og';
-import { Currency, Netname } from '@/utils/types';
+import { Netname } from '@/utils/types';
 import { Metadata } from 'next';
 import prisma from 'prisma/prisma';
-import { fetchPrice } from '@/utils/utils';
 import { formatEther } from 'viem';
 import { trpcCaller } from '@/trpc/server';
 
@@ -17,7 +16,6 @@ const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
 const APP_OG_IMAGE_URL =
   `${process.env.NEXT_PUBLIC_APP_URL}/images/poidh-preview-hero-v2.png` ||
   `https://poidh.xyz/images/poidh-preview-hero-v2.png`;
-const APP_BUTTON_TEXT = 'launch poidh';
 const APP_NAME = 'poidh';
 
 export const generateMetadataForBounty = async ({
@@ -27,7 +25,7 @@ export const generateMetadataForBounty = async ({
 }): Promise<Metadata> => {
   const chain = chains[params.netname as keyof typeof chains];
   const id = Number(params.id);
-  const price: number | undefined = await safeFetchPrice({
+  const price: number | undefined = await trpcCaller.web3.fetchPrice({
     currency: chain.currency,
   });
 
@@ -372,19 +370,6 @@ export const generateMetadaForExplorePage = (): Metadata => {
     },
   } satisfies Metadata;
 };
-
-async function safeFetchPrice({
-  currency,
-}: {
-  currency: Currency;
-}): Promise<number | undefined> {
-  try {
-    return await fetchPrice({ currency });
-  } catch (error) {
-    console.error('Error fetching price:', error);
-    return;
-  }
-}
 
 function getSortedParticipants(
   participations: { amount: string; user_address: string }[]

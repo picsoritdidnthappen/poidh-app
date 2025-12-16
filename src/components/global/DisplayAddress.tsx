@@ -46,7 +46,7 @@ export default function DisplayAddress({
       >
         {userQuery.isLoading
           ? formatWalletAddress(address)
-          : user && Object.keys(user).length > 0
+          : user?.farcaster_tag
           ? user.farcaster_tag
           : ensOrDegenName.isLoading
           ? formatWalletAddress(address)

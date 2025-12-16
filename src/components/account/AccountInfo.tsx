@@ -89,7 +89,6 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
-  // Update slider position when section changes or on resize
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['nfts', 'bounties', 'claims'].indexOf(currentSection);
     const activeTab = tabRefs.current[activeIndex];
@@ -109,7 +108,6 @@ export default function AccountInfo({ address }: { address: string }) {
   useEffect(() => {
     updateSliderPosition();
 
-    // Update on window resize
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
