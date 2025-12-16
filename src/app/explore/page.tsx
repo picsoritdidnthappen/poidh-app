@@ -7,15 +7,20 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroller';
 import BountyList from '@/components/bounty/BountyList';
+import UserList from '@/components/account/UserList';
 
-type Display = 'bounties' | 'albums';
+type Display = 'bounties' | 'albums' | 'users';
 
 export default function Explore() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const initialDisplay = (
-    searchParams.get('tab') === 'bounties' ? 'bounties' : 'albums'
+    searchParams.get('tab') === 'bounties'
+      ? 'bounties'
+      : searchParams.get('tab') === 'users'
+      ? 'users'
+      : 'albums'
   ) as Display;
   const initialSearch = searchParams.get('search') || '';
   const [search, setSearch] = useState<string>(initialSearch);
@@ -46,9 +51,8 @@ export default function Explore() {
     }
   );
 
-  // Update slider position when display changes or on resize
   const updateSliderPosition = useCallback(() => {
-    const activeIndex = ['albums', 'bounties'].indexOf(display);
+    const activeIndex = ['albums', 'bounties', 'users'].indexOf(display);
     const activeTab = tabRefs.current[activeIndex];
 
     if (activeTab) {
@@ -66,7 +70,6 @@ export default function Explore() {
   useEffect(() => {
     updateSliderPosition();
 
-    // Update on window resize
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [display, updateSliderPosition]);
@@ -102,7 +105,6 @@ export default function Explore() {
               id='btn-container'
               className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base text-xs bg-transparent overflow-hidden'
             >
-              {/* Slider indicator */}
               <div
                 className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
                 style={{
@@ -127,6 +129,15 @@ export default function Explore() {
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
                 bounties
+              </button>
+              <button
+                ref={(el) => {
+                  tabRefs.current[2] = el;
+                }}
+                onClick={() => setDisplay('users')}
+                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              >
+                users
               </button>
             </div>
           </div>
@@ -173,6 +184,11 @@ export default function Explore() {
             loading…
           </div>
         ) : null}
+        {display === 'users' && (
+          <div className='lg:px-20 px-8'>
+            <UserList keyword={search} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -89,7 +89,6 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
-  // Update slider position when section changes or on resize
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['nfts', 'bounties', 'claims'].indexOf(currentSection);
     const activeTab = tabRefs.current[activeIndex];
@@ -109,7 +108,6 @@ export default function AccountInfo({ address }: { address: string }) {
   useEffect(() => {
     updateSliderPosition();
 
-    // Update on window resize
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
@@ -124,11 +122,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 <div className='text-sm text-gray-300 mb-1'>user</div>
                 <div className='flex items-center gap-2 overflow-visible'>
                   <span className='text-xl sm:text-2xl md:text-3xl'>
-                    <DisplayAddress
-                      chainName={chain.slug}
-                      address={address}
-                      pfpSize={26}
-                    />
+                    <DisplayAddress address={address} pfpSize={26} />
                   </span>
                   <CopyAddressButton address={address} size={20} />
                   <SocialMediaLinks address={address} />
