@@ -50,7 +50,7 @@ export default function UserList({ keyword = '' }: { keyword?: string }) {
     <div className='w-full max-w-sm mx-auto'>
       {isLoading && !data ? (
         <div className='text-center py-20 text-white/60 animate-pulse'>
-          loading 1…
+          loading…
         </div>
       ) : hasNoResults ? (
         <div className='text-center py-20 text-white/60'>
