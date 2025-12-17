@@ -21,6 +21,11 @@ export const usersRouter = {
         '0x7c7f6cb2dab9de9b242eeec29d2f61bd7d9750e0',
         '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
         '0xb69e851658dd228eca3bd888aa3b011db3e3a5c5',
+        '0x97cf924760e86c7d2644a2b500c5f1fdd7fa1b99',
+        '0x5934e2fabed0d4b766c89e29039c4875d5048750',
+        '0x2cd1353cf0e402770643b54011a63b546a189c44',
+        '0x023875c1c757953aa2ff410da001e79f2edb730d',
+        '0x081a1a9d254ad8c1da447f36566392a6dc7b9e7f',
       ];
 
       const hasCursor = Boolean(input.cursor && input.cursor.trim().length > 0);
