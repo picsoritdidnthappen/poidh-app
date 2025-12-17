@@ -50,7 +50,7 @@ export default function UserList({ keyword = '' }: { keyword?: string }) {
     <div className='w-full max-w-sm mx-auto'>
       {isLoading && !data ? (
         <div className='text-center py-20 text-white/60 animate-pulse'>
-          loading 1…
+          loading…
         </div>
       ) : hasNoResults ? (
         <div className='text-center py-20 text-white/60'>
@@ -61,7 +61,7 @@ export default function UserList({ keyword = '' }: { keyword?: string }) {
           no users available
         </div>
       ) : (
-        <div className='max-h-[65vh] overflow-y-auto pr-1'>
+        <div>
           <InfiniteScroll
             className='flex flex-col space-y-2'
             loadMore={() => {
@@ -79,9 +79,9 @@ export default function UserList({ keyword = '' }: { keyword?: string }) {
               </div>
             }
             threshold={200}
-            useWindow={false}
+            useWindow={true}
           >
-            <div className='flex justify-between items-center px-4 py-2 text-white/40 text-xs font-mono tracking-wider border-b border-white/10'>
+            <div className='flex justify-between items-center px-4 pb-2 text-white/40 text-xs font-mono tracking-wider border-b border-white/10'>
               <span className='font-semibold'>user</span>
               <span className='font-semibold'>bounties</span>
             </div>
