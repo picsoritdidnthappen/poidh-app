@@ -7,7 +7,6 @@ import { trpc } from '@/trpc/client';
 import 'react-toastify/dist/ReactToastify.css';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useChainInfo } from '@/hooks/useGetChain';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
 import { SortIcon, MaintenanceIcon } from '@/components/global/Icons';
@@ -25,7 +24,6 @@ export default function Home() {
 
   const [display, setDisplay] = useState<BountyDisplayType>('past');
   const [sortType, setSortType] = useState<BountySortType>('value');
-  const chain = useChainInfo();
   const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -50,7 +48,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Update slider position when display changes or on resize
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['open', 'progress', 'past'].indexOf(display);
     const activeTab = tabRefs.current[activeIndex];
@@ -70,7 +67,6 @@ export default function Home() {
   useEffect(() => {
     updateSliderPosition();
 
-    // Update on window resize
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [display, updateSliderPosition]);
@@ -121,7 +117,6 @@ export default function Home() {
               id='btn-container'
               className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
             >
-              {/* Slider indicator */}
               <div
                 className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
                 style={{
@@ -309,11 +304,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      {/* {isMobile ? (
-        <NavBarMobile type='bounty' showChainSelector={true} />
-      ) : (
-        <CreateBounty showChainSelector={true} />
-      )} */}
+      {/* {isMobile ? <NavBarMobile type='bounty' /> : <CreateBounty />} */}
     </>
   );
 }

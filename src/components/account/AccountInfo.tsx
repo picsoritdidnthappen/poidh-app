@@ -218,7 +218,6 @@ export default function AccountInfo({ address }: { address: string }) {
               id='btn-container'
               className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
             >
-              {/* Slider indicator */}
               <div
                 className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
                 style={{

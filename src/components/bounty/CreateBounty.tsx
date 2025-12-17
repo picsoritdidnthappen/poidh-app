@@ -5,13 +5,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import ButtonCTA from '../global/ButtonCTA';
 import FormBounty from './FormBounty';
 
-export default function CreateBounty({
-  showChainSelector = false,
-  prefilledAlbum,
-}: {
-  showChainSelector?: boolean;
-  prefilledAlbum?: string;
-}) {
+export default function CreateBounty() {
   const { openConnectModal } = useConnectModal();
   const [showForm, setShowForm] = useState(false);
   const account = useAccount();
@@ -33,12 +27,7 @@ export default function CreateBounty({
           <ButtonCTA>create bounty</ButtonCTA>
         </div>
       )}
-      <FormBounty
-        open={showForm}
-        onClose={() => setShowForm(false)}
-        prefilledAlbum={prefilledAlbum}
-        showChainSelector={showChainSelector}
-      />
+      <FormBounty open={showForm} onClose={() => setShowForm(false)} />
     </div>
   );
 }
