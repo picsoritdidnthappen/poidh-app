@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroller';
 import BountyList from '@/components/bounty/BountyList';
 import UserList from '@/components/account/UserList';
+import Navbar from '@/components/global/Navbar';
 
 type Display = 'bounties' | 'albums' | 'users';
 
@@ -190,6 +191,7 @@ export default function Explore() {
           </div>
         )}
       </div>
+      <Navbar type='bounty' />
     </div>
   );
 }

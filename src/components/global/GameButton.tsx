@@ -1,4 +1,8 @@
-export default function GameButton() {
+export default function GameButton({
+  hideShadow: hideGradient = false,
+}: {
+  hideShadow?: boolean;
+}) {
   return (
     <div className='flex justify-center items-center'>
       <svg
@@ -9,32 +13,36 @@ export default function GameButton() {
         fill='none'
         xmlns='http://www.w3.org/2000/svg'
       >
-        <g filter='url(#filter0_dd_615_3757)'>
-          <circle
-            cx='79'
-            cy='79.5'
-            r='58'
-            fill='#E2EFFB'
-            filter='url(#bgShadow)'
-          />
-          <rect
-            x='16.5'
-            y='17'
-            width='125'
-            height='125'
-            rx='62.5'
-            fill='#E2EFFB'
-            fillOpacity='0.5'
-          />
-          <rect
-            x='16.9687'
-            y='17.4687'
-            width='124.062'
-            height='124.062'
-            rx='62.0312'
-            stroke='#D1ECFF'
-            strokeWidth='0.9375'
-          />
+        <g filter={hideGradient ? undefined : 'url(#filter0_dd_615_3757)'}>
+          {!hideGradient && (
+            <>
+              <circle
+                cx='79'
+                cy='79.5'
+                r='58'
+                fill='#E2EFFB'
+                filter='url(#bgShadow)'
+              />
+              <rect
+                x='16.5'
+                y='17'
+                width='125'
+                height='125'
+                rx='62.5'
+                fill='#E2EFFB'
+                fillOpacity='0.5'
+              />
+              <rect
+                x='16.9687'
+                y='17.4687'
+                width='124.062'
+                height='124.062'
+                rx='62.0312'
+                stroke='#D1ECFF'
+                strokeWidth='0.9375'
+              />
+            </>
+          )}
           <g filter='url(#filter1_iii_615_3757)'>
             <circle
               cx='79'
@@ -1095,7 +1103,11 @@ export default function GameButton() {
   );
 }
 
-export function PlainGameButton() {
+export function PlainGameButton({
+  hideShadow: hideGradient = false,
+}: {
+  hideShadow?: boolean;
+}) {
   return (
     <div className='flex justify-center items-center'>
       <svg
@@ -1106,32 +1118,36 @@ export function PlainGameButton() {
         fill='none'
         xmlns='http://www.w3.org/2000/svg'
       >
-        <g filter='url(#filter0_dd_615_3757)'>
-          <circle
-            cx='79'
-            cy='79.5'
-            r='58'
-            fill='#E2EFFB'
-            filter='url(#bgShadow)'
-          />
-          <rect
-            x='16.5'
-            y='17'
-            width='125'
-            height='125'
-            rx='62.5'
-            fill='#E2EFFB'
-            fillOpacity='0.5'
-          />
-          <rect
-            x='16.9687'
-            y='17.4687'
-            width='124.062'
-            height='124.062'
-            rx='62.0312'
-            stroke='#D1ECFF'
-            strokeWidth='0.9375'
-          />
+        <g filter={hideGradient ? undefined : 'url(#filter0_dd_615_3757)'}>
+          {!hideGradient && (
+            <>
+              <circle
+                cx='79'
+                cy='79.5'
+                r='58'
+                fill='#E2EFFB'
+                filter='url(#bgShadow)'
+              />
+              <rect
+                x='16.5'
+                y='17'
+                width='125'
+                height='125'
+                rx='62.5'
+                fill='#E2EFFB'
+                fillOpacity='0.5'
+              />
+              <rect
+                x='16.9687'
+                y='17.4687'
+                width='124.062'
+                height='124.062'
+                rx='62.0312'
+                stroke='#D1ECFF'
+                strokeWidth='0.9375'
+              />
+            </>
+          )}
           <g filter='url(#filter1_iii_615_3757)'>
             <circle
               cx='79'

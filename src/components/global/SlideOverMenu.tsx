@@ -149,7 +149,7 @@ export default function SlideOverMenu({
           </MenuLink>
         </div>
       )}
-      <MenuLink href='https://poidh.xyz/terms' onClick={handleCloseWithDelay}>
+      <MenuLink href='/terms' onClick={handleCloseWithDelay}>
         terms 📜
       </MenuLink>
     </div>

@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 import { useChainInfo } from '@/hooks/useGetChain';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { decodeEventLog, parseEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { cn } from '@/utils';
@@ -31,18 +31,17 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 export default function FormBounty({
   open,
   onClose,
-  prefilledAlbum,
-  showChainSelector = false,
 }: {
   open: boolean;
   onClose: () => void;
-  prefilledAlbum?: string;
-  showChainSelector?: boolean;
 }) {
+  const pathname = usePathname();
+  const prefilledAlbum = pathname?.match(/^\/a\/([^/]+)/)?.[1] ?? '';
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
-  const [album, setAlbum] = useState(prefilledAlbum || '');
+  const [album, setAlbum] = useState(prefilledAlbum);
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
@@ -65,6 +64,12 @@ export default function FormBounty({
       staleTime: 30_000,
     }
   );
+
+  useEffect(() => {
+    if (prefilledAlbum) {
+      setAlbum(prefilledAlbum);
+    }
+  }, [prefilledAlbum]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -343,82 +348,76 @@ export default function FormBounty({
                 }
               }}
               className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full overflow-hidden whitespace-nowrap text-ellipsis transition-colors duration-150 placeholder:text-slate-400 ${
-                amount && showChainSelector ? 'pr-40' : 'pr-28'
+                amount ? 'pr-40' : 'pr-28'
               } ${isMobile ? ' text-base py-3' : ''}`}
             />
-            {showChainSelector && (
-              <>
-                <Button
-                  id='basic-button'
-                  aria-controls={menuOpen ? 'basic-menu' : undefined}
-                  aria-haspopup='true'
-                  aria-expanded={menuOpen ? 'true' : undefined}
-                  onClick={handleClick}
-                  className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/10 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
+            <Button
+              id='basic-button'
+              aria-controls={menuOpen ? 'basic-menu' : undefined}
+              aria-haspopup='true'
+              aria-expanded={menuOpen ? 'true' : undefined}
+              onClick={handleClick}
+              className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/10 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
+            >
+              <DynamicChainIcon
+                chain={currentChain.slug}
+                size={currentChain.slug === 'base' ? 15 : 20}
+              />
+              <span className='ml-1 color-white'>
+                <ExpandMoreIcon size={12} />
+              </span>
+            </Button>
+            <Menu
+              id='basic-menu'
+              anchorEl={anchorEl}
+              open={menuOpen}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+              sx={{
+                '& .MuiPaper-root': {
+                  backdropFilter: 'blur(8px)',
+                  background:
+                    'linear-gradient(to top, rgba(209, 236, 255, 0.2) 10%, rgba(209, 236, 255, 0.1) 30%, rgba(209, 236, 255, 0.05) 50%)',
+                  color: '#FFF',
+                  marginTop: '0.25rem',
+                  fontFamily: 'GeistMono-Regular',
+                  fontSize: '0.875rem',
+                  transform: 'translateX(-12px)',
+                },
+                '& .MuiMenuItem-root': {
+                  fontFamily: 'GeistMono-Regular',
+                  fontSize: '0.875rem',
+                },
+                '& .MuiList-root': {
+                  gap: '1.25rem',
+                },
+              }}
+            >
+              {Object.entries(chains).map(([netname, ch]) => (
+                <MenuItem
+                  key={netname}
+                  className={cn('mx-1')}
+                  onClick={() => {
+                    setCurrentChain(ch);
+                    handleClose();
+                  }}
                 >
                   <DynamicChainIcon
-                    chain={currentChain.slug}
-                    size={currentChain.slug === 'base' ? 15 : 20}
+                    chain={netname as Netname}
+                    size={netname === 'base' ? 14 : 18}
                   />
-                  <span className='ml-1 color-white'>
-                    <ExpandMoreIcon size={12} />
-                  </span>
-                </Button>
-                <Menu
-                  id='basic-menu'
-                  anchorEl={anchorEl}
-                  open={menuOpen}
-                  onClose={handleClose}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                  MenuListProps={{
-                    'aria-labelledby': 'basic-button',
-                  }}
-                  sx={{
-                    '& .MuiPaper-root': {
-                      backdropFilter: 'blur(8px)',
-                      background:
-                        'linear-gradient(to top, rgba(209, 236, 255, 0.2) 10%, rgba(209, 236, 255, 0.1) 30%, rgba(209, 236, 255, 0.05) 50%)',
-                      color: '#FFF',
-                      marginTop: '0.25rem',
-                      fontFamily: 'GeistMono-Regular',
-                      fontSize: '0.875rem',
-                      transform: 'translateX(-12px)',
-                    },
-                    '& .MuiMenuItem-root': {
-                      fontFamily: 'GeistMono-Regular',
-                      fontSize: '0.875rem',
-                    },
-                    '& .MuiList-root': {
-                      gap: '1.25rem',
-                    },
-                  }}
-                >
-                  {Object.entries(chains).map(([netname, ch]) => (
-                    <MenuItem
-                      key={netname}
-                      className={cn('mx-1')}
-                      onClick={() => {
-                        setCurrentChain(ch);
-                        handleClose();
-                      }}
-                    >
-                      <DynamicChainIcon
-                        chain={netname as Netname}
-                        size={netname === 'base' ? 14 : 18}
-                      />
-                      <p className='ml-4'>{netname}</p>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            )}
+                  <p className='ml-4'>{netname}</p>
+                </MenuItem>
+              ))}
+            </Menu>
             {usdPerToken !== null && (
               <span
                 ref={usdRef}
-                className={`absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md ${
-                  showChainSelector ? 'right-16' : 'right-4'
-                }`}
+                className='absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md right-16'
               >
                 (${formatAmountShort(usdPerToken)})
               </span>
