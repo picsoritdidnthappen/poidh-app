@@ -17,11 +17,11 @@ export default function Explore() {
   const searchParams = useSearchParams();
 
   const initialDisplay = (
-    searchParams.get('tab') === 'bounties'
-      ? 'bounties'
+    searchParams.get('tab') === 'albums'
+      ? 'albums'
       : searchParams.get('tab') === 'users'
       ? 'users'
-      : 'albums'
+      : 'bounties'
   ) as Display;
   const initialSearch = searchParams.get('search') || '';
   const [search, setSearch] = useState<string>(initialSearch);
