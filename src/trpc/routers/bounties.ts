@@ -35,6 +35,9 @@ export const bountiesRouter = {
               action: true,
               timestamp: true,
             },
+            orderBy: {
+              timestamp: 'desc',
+            },
           },
         },
       });
