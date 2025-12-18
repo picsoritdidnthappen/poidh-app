@@ -85,7 +85,7 @@ export default function Home() {
         <h3 className='font-mono text-2xl mt-4 racking-wide'>
           <span className='flex flex-wrap md:flex-nowrap items-baseline justify-center gap-x-2.5'>
             <span>social bounties for</span>
-            {/* <Link
+            <Link
               href={`/a/${ALBUMS[currentAlbumIndex].slug}`}
               className='inline-block no-underline overflow-hidden h-[1.2em] relative w-full md:w-auto text-center md:text-left'
               style={{
@@ -102,7 +102,7 @@ export default function Home() {
               >
                 {ALBUMS[currentAlbumIndex].name}
               </span>
-            </Link> */}
+            </Link>
           </span>
         </h3>
       </div>
