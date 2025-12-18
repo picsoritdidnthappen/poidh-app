@@ -62,7 +62,7 @@ export default function Navbar({
   if (isMobile) {
     return (
       <>
-        <nav className='fixed bottom-0 left-0 right-0 h-20 z-50 how-it-works-hidden shadow-[0_4px_24px_0_rgba(80,160,220,0.14)]'>
+        <nav className='fixed bottom-0 left-0 right-0 h-20 z-50 how-it-works-hidden shadow-[0_4px_24px_0_rgba(80,160,220,0.14)] android:pb-8 pb-4'>
           <div className='absolute inset-0 rounded-t-3xl bg-gradient-to-b from-[#7db3e0] to-[#b3d8f7] backdrop-blur-sm' />
 
           <div className='relative h-full flex items-center justify-between pt-2'>
