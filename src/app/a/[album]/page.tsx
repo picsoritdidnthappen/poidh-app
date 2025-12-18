@@ -6,14 +6,11 @@ import BountyList from '@/components/bounty/BountyList';
 import { BountyDisplayType, ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
-import NavBarMobile from '@/components/global/NavBarMobile';
-import CreateBounty from '@/components/bounty/CreateBounty';
-import { useScreenSize } from '@/hooks/useScreenSize';
+import Navbar from '@/components/global/Navbar';
 
 export default function Album({ params }: { params: { album: string } }) {
   const album = params.album ?? 'album';
   const [display, setDisplay] = useState<BountyDisplayType>('past');
-  const isMobile = useScreenSize();
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -22,7 +19,6 @@ export default function Album({ params }: { params: { album: string } }) {
     status: display,
   });
 
-  // Update slider position when display changes or on resize
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['open', 'progress', 'past'].indexOf(display);
     const activeTab = tabRefs.current[activeIndex];
@@ -42,7 +38,6 @@ export default function Album({ params }: { params: { album: string } }) {
   useEffect(() => {
     updateSliderPosition();
 
-    // Update on window resize
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [display, updateSliderPosition]);
@@ -58,7 +53,6 @@ export default function Album({ params }: { params: { album: string } }) {
             id='btn-container'
             className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
           >
-            {/* Slider indicator */}
             <div
               className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
               style={{
@@ -158,15 +152,7 @@ export default function Album({ params }: { params: { album: string } }) {
           )}
         </div>
       </div>
-      {/* {isMobile ? (
-        <NavBarMobile
-          type='bounty'
-          prefilledAlbum={album}
-          showChainSelector={true}
-        />
-      ) : (
-        <CreateBounty prefilledAlbum={album} showChainSelector={true} />
-      )} */}
+      <Navbar type='bounty' />
     </>
   );
 }

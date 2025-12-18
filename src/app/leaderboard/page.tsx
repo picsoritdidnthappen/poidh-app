@@ -13,6 +13,7 @@ import {
   FARCASTER_URL,
   TWITTER_URL,
 } from '@/components/global/SocialMediaLinks';
+import Navbar from '@/components/global/Navbar';
 
 type UserData = inferRouterOutputs<AppRouter>['neynar']['usersData'][number];
 
@@ -196,14 +197,8 @@ export default function HighScoresPage() {
             loadMore={loadMore}
             hasMore={hasMore && !isLoadingMore}
             loader={
-              <div
-                key='loader'
-                className='flex justify-center items-center py-8 mt-24'
-              >
-                <div className='flex items-center gap-3 text-white/80'>
-                  <div className='w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin' />
-                  <span className='font-mono'>loading more...</span>
-                </div>
+              <div className='text-center py-20 text-white/60 animate-pulse'>
+                loading…
               </div>
             }
             threshold={200}
@@ -445,6 +440,7 @@ export default function HighScoresPage() {
           </InfiniteScroll>
         </main>
       </div>
+      <Navbar type='bounty' />
     </div>
   );
 }
