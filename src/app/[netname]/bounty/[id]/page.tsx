@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import BountyClaims from '@/components/bounty/BountyClaims';
 import BountyInfo from '@/components/bounty/BountyInfo';
-import NavBarMobile from '@/components/global/NavBarMobile';
-import { useScreenSize } from '@/hooks/useScreenSize';
-import CreateClaim from '@/components/claims/CreateClaim';
+import Navbar from '@/components/global/Navbar';
 import CommentsSection from '@/components/bounty/CommentsSection';
 import BountySuccessModal from '@/components/bounty/BountySuccessModal';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -23,7 +21,6 @@ export default function Bounty({
   const { id: bountyId } = params;
   const { showSuccessCreationModal } = searchParams;
 
-  const isMobile = useScreenSize();
   const chain = useChainInfo();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
@@ -84,13 +81,9 @@ export default function Bounty({
           bountyId={Number(bountyId)}
         />
       </div>
-      {/* {!isShareModalOpen &&
-        !isHowItWorksModalOpen &&
-        (isMobile ? (
-          <NavBarMobile type='claim' bountyId={params.id} />
-        ) : (
-          <CreateClaim bountyId={params.id} />
-        ))} */}
+      {!isShareModalOpen && !isHowItWorksModalOpen && (
+        <Navbar type='claim' bountyId={params.id} />
+      )}
       <div className='h-80' />
     </>
   );

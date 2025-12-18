@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/utils';
-import { EarthIcon, ProfileIcon } from '@/components/global/Icons';
+import { EarthIcon, YouIcon } from '@/components/global/Icons';
 import Activity from '@/components/feed/Activity';
 import { trpc } from '@/trpc/client';
 import { useAccount } from 'wagmi';
 import InfiniteScroll from 'react-infinite-scroller';
+import Navbar from '@/components/global/Navbar';
 
 export default function Feed() {
   const [display, setDisplay] = useState<'all' | 'you'>('all');
@@ -78,7 +79,7 @@ export default function Feed() {
                       : 'bg-transparent hover:bg-white/5 hover:scale-105'
                   )}
                 >
-                  <ProfileIcon size={20} />
+                  <YouIcon size={20} />
                   <span className='font-mono text-xs text-white mt-1'>you</span>
                 </div>
                 {display === 'you' && (
@@ -136,6 +137,7 @@ export default function Feed() {
           </div>
         </div>
       </div>
+      <Navbar type='bounty' />
     </div>
   );
 }

@@ -1,3 +1,7 @@
+'use client';
+
+import Navbar from '@/components/global/Navbar';
+
 export default function Terms() {
   return (
     <main className='min-h-screen bg-poidhBlue/10 py-16 px-4'>
@@ -144,6 +148,7 @@ export default function Terms() {
           </div>
         </article>
       </div>
+      <Navbar type='bounty' />
     </main>
   );
 }

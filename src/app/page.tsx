@@ -1,8 +1,6 @@
 'use client';
 
-import NavBarMobile from '@/components/global/NavBarMobile';
-import CreateBounty from '@/components/bounty/CreateBounty';
-import { useScreenSize } from '@/hooks/useScreenSize';
+import Navbar from '@/components/global/Navbar';
 import { trpc } from '@/trpc/client';
 import 'react-toastify/dist/ReactToastify.css';
 import { BountyDisplayType, BountySortType, ChainId } from '@/utils/types';
@@ -18,7 +16,6 @@ import { ALBUMS } from '@/utils/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Home() {
-  const isMobile = useScreenSize();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -88,7 +85,7 @@ export default function Home() {
         <h3 className='font-mono text-2xl mt-4 racking-wide'>
           <span className='flex flex-wrap md:flex-nowrap items-baseline justify-center gap-x-2.5'>
             <span>social bounties for</span>
-            <Link
+            {/* <Link
               href={`/a/${ALBUMS[currentAlbumIndex].slug}`}
               className='inline-block no-underline overflow-hidden h-[1.2em] relative w-full md:w-auto text-center md:text-left'
               style={{
@@ -105,7 +102,7 @@ export default function Home() {
               >
                 {ALBUMS[currentAlbumIndex].name}
               </span>
-            </Link>
+            </Link> */}
           </span>
         </h3>
       </div>
@@ -304,7 +301,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      {/* {isMobile ? <NavBarMobile type='bounty' /> : <CreateBounty />} */}
+      <Navbar type='bounty' />
     </>
   );
 }

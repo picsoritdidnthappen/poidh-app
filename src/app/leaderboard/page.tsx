@@ -13,6 +13,7 @@ import {
   FARCASTER_URL,
   TWITTER_URL,
 } from '@/components/global/SocialMediaLinks';
+import Navbar from '@/components/global/Navbar';
 
 type UserData = inferRouterOutputs<AppRouter>['neynar']['usersData'][number];
 
@@ -439,6 +440,7 @@ export default function HighScoresPage() {
           </InfiniteScroll>
         </main>
       </div>
+      <Navbar type='bounty' />
     </div>
   );
 }

@@ -6,14 +6,11 @@ import BountyList from '@/components/bounty/BountyList';
 import { BountyDisplayType, ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
-import NavBarMobile from '@/components/global/NavBarMobile';
-import CreateBounty from '@/components/bounty/CreateBounty';
-import { useScreenSize } from '@/hooks/useScreenSize';
+import Navbar from '@/components/global/Navbar';
 
 export default function Album({ params }: { params: { album: string } }) {
   const album = params.album ?? 'album';
   const [display, setDisplay] = useState<BountyDisplayType>('past');
-  const isMobile = useScreenSize();
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -155,7 +152,7 @@ export default function Album({ params }: { params: { album: string } }) {
           )}
         </div>
       </div>
-      {/* {isMobile ? <NavBarMobile type='bounty' /> : <CreateBounty />} */}
+      <Navbar type='bounty' />
     </>
   );
 }

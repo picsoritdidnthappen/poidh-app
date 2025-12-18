@@ -16,9 +16,11 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Logo from '../global/Logo';
 import { useAccount } from 'wagmi';
+import { useScreenSize } from '@/hooks/useScreenSize';
 
 export default function Header() {
   const account = useAccount();
+  const isMobile = useScreenSize();
   const [isOpen, setIsOpen] = useState(false);
   const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
 
@@ -52,14 +54,17 @@ export default function Header() {
           </Link>
         </div>
         <div className='flex items-center'>
-          <Link
-            href='/explore'
-            className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
-            aria-label='Explore'
-          >
-            <MagnifyingGlassIcon />
-          </Link>
-          {account.address && (
+          {!isMobile && (
+            <Link
+              href='/explore'
+              className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+              aria-label='Explore'
+            >
+              <MagnifyingGlassIcon />
+            </Link>
+          )}
+
+          {!isMobile && account.address && (
             <Link
               href={`/account/${account.address}`}
               className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
