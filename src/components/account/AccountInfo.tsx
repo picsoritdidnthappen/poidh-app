@@ -115,7 +115,7 @@ export default function AccountInfo({ address }: { address: string }) {
   return (
     <>
       {address && (
-        <div className='space-y-6'>
+        <div className='space-y-6 pb-16'>
           <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-6 pb-3 rounded-xl'>
             <div className='space-y-4 flex-grow'>
               <div className='border-b border-white/20 pb-3'>
