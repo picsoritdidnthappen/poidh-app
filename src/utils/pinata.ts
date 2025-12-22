@@ -8,7 +8,7 @@ export async function compressImage(
   if (typeof window === 'undefined') return file;
   if (!file.type.startsWith('image/')) return file;
   if (file.size < 100 * 1024) return file;
-  
+
   try {
     const bitmap = await createImageBitmap(file);
     const { width, height } = bitmap;
@@ -45,7 +45,7 @@ type PinataMetadata = {
 
 const apiUrl =
   process.env.NODE_ENV === 'development'
-    ? 'http://localhost:3001'
+    ? 'http://localhost:3000'
     : 'https://us-central1-plated-hangout-393021.cloudfunctions.net/poidh';
 
 export const uploadFile = async (file: string | Blob) => {

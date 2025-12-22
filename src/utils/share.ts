@@ -4,14 +4,9 @@ import {
   FARCASTER_URL,
   TWITTER_URL,
 } from '@/components/global/SocialMediaLinks';
-import { inferRouterOutputs } from '@trpc/server';
-import { type AppRouter } from '@/trpc/trpc';
-import { trpc } from '@/trpc/client';
+import { UserData } from '@/utils/types';
 
-type UserDataNeynar =
-  inferRouterOutputs<AppRouter>['neynar']['usersData'][number];
-
-export function shareToX(text: string, url?: string) {
+export function shareToTwitter(text: string, url?: string) {
   const composeUrl = `${TWITTER_URL}/intent/tweet?text=${encodeURIComponent(
     `${text}\n\n${url ?? window.location.href}`
   )}`;
@@ -57,19 +52,23 @@ export function copyToClipboard(successMessage: string) {
   });
 }
 
-export async function getAddressDisplayName(
-  address: string,
-  platform: 'farcaster' | 'twitter',
-  user?: UserDataNeynar
-): Promise<string> {
+export function getDisplayUsername(
+  user: UserData,
+  platform: 'farcaster' | 'twitter'
+): string {
+  if (!user) {
+    return 'unknown';
+  }
   if (platform === 'farcaster' && user?.farcaster_tag) {
     return `@${user.farcaster_tag}`;
   } else if (platform === 'twitter' && user?.twitter_tag) {
     return `@${user.twitter_tag}`;
   }
-
-  const ensOrDegenName = await trpc.web3.fetchEnsOrDegenName.useQuery({
-    address,
-  });
-  return ensOrDegenName.data ?? `${address.slice(0, 7)}`;
+  if (user?.ens) {
+    return user.ens;
+  }
+  if (user?.degen_name) {
+    return user.degen_name;
+  }
+  return `${user?.address.slice(0, 7)}`;
 }

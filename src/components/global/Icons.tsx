@@ -504,7 +504,7 @@ export function ArrowIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-export function ShareIcon2({ size = 24 }: { size?: number }) {
+export function ShareIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -520,6 +520,27 @@ export function ShareIcon2({ size = 24 }: { size?: number }) {
         strokeWidth='1.5'
         strokeLinejoin='round'
       ></path>
+    </svg>
+  );
+}
+
+export function ShareIcon2({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      fill='none'
+      viewBox='0 0 24 24'
+      strokeWidth={1.5}
+      stroke='currentColor'
+      className='size-6'
+      height={size}
+      width={size}
+    >
+      <path
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        d='M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z'
+      />
     </svg>
   );
 }
@@ -577,23 +598,23 @@ export function MagnifyingGlassIcon({ size = 24 }: { size?: number }) {
       <path
         d='M15.2002 26.4001C21.3859 26.4001 26.4005 21.3857 26.4005 15.2001C26.4005 9.01444 21.3859 4 15.2002 4C9.01451 4 4 9.01444 4 15.2001C4 21.3857 9.01451 26.4001 15.2002 26.4001Z'
         stroke='white'
-        stroke-width='2'
-        stroke-linecap='round'
-        stroke-linejoin='round'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
       <path
         d='M15.1997 8.7998C16.8971 8.7998 18.525 9.47409 19.7253 10.6743C20.9255 11.8746 21.5998 13.5024 21.5998 15.1998'
         stroke='white'
-        stroke-width='2'
-        stroke-linecap='round'
-        stroke-linejoin='round'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
       <path
         d='M23.1997 23.2012L27.9998 28.0012'
         stroke='white'
-        stroke-width='2'
-        stroke-linecap='round'
-        stroke-linejoin='round'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
     </svg>
   );
@@ -653,23 +674,23 @@ export function ProfileIcon({ size = 24 }: { size?: number }) {
       <path
         d='M12 13.334C12 14.3949 12.4214 15.4123 13.1716 16.1624C13.9217 16.9126 14.9391 17.334 16 17.334C17.0609 17.334 18.0783 16.9126 18.8284 16.1624C19.5786 15.4123 20 14.3949 20 13.334C20 12.2731 19.5786 11.2557 18.8284 10.5056C18.0783 9.75541 17.0609 9.33398 16 9.33398C14.9391 9.33398 13.9217 9.75541 13.1716 10.5056C12.4214 11.2557 12 12.2731 12 13.334Z'
         stroke='white'
-        stroke-width='2.28571'
-        stroke-linecap='round'
-        stroke-linejoin='round'
+        strokeWidth='2.28571'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
       <path
         d='M4 16C4 17.5759 4.31039 19.1363 4.91345 20.5922C5.5165 22.0481 6.40042 23.371 7.51472 24.4853C8.62902 25.5996 9.95189 26.4835 11.4078 27.0866C12.8637 27.6896 14.4241 28 16 28C17.5759 28 19.1363 27.6896 20.5922 27.0866C22.0481 26.4835 23.371 25.5996 24.4853 24.4853C25.5996 23.371 26.4835 22.0481 27.0866 20.5922C27.6896 19.1363 28 17.5759 28 16C28 14.4241 27.6896 12.8637 27.0866 11.4078C26.4835 9.95189 25.5996 8.62902 24.4853 7.51472C23.371 6.40042 22.0481 5.5165 20.5922 4.91345C19.1363 4.31039 17.5759 4 16 4C14.4241 4 12.8637 4.31039 11.4078 4.91345C9.95189 5.5165 8.62902 6.40042 7.51472 7.51472C6.40042 8.62902 5.5165 9.95189 4.91345 11.4078C4.31039 12.8637 4 14.4241 4 16Z'
         stroke='white'
-        stroke-width='2.28571'
-        stroke-linecap='round'
-        stroke-linejoin='round'
+        strokeWidth='2.28571'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
       <path
         d='M8.22412 25.1327C8.55413 24.0343 9.22941 23.0716 10.1498 22.3873C11.0702 21.703 12.1866 21.3336 13.3335 21.334H18.6668C19.8151 21.3336 20.9329 21.7038 21.854 22.3897C22.775 23.0755 23.4501 24.0404 23.7788 25.1407'
         stroke='white'
-        stroke-width='2.28571'
-        stroke-linecap='round'
-        stroke-linejoin='round'
+        strokeWidth='2.28571'
+        strokeLinecap='round'
+        strokeLinejoin='round'
       />
     </svg>
   );
@@ -755,42 +776,42 @@ export function LeaderboardIcon({ size = 24 }: { size?: number }) {
         <path
           d='M8 21H16'
           stroke='white'
-          stroke-width='1.5'
+          strokeWidth='1.5'
           stroke-linecap='round'
           stroke-linejoin='round'
         />
         <path
           d='M12 17V21'
           stroke='white'
-          stroke-width='1.5'
+          strokeWidth='1.5'
           stroke-linecap='round'
           stroke-linejoin='round'
         />
         <path
           d='M7 4H17'
           stroke='white'
-          stroke-width='1.5'
+          strokeWidth='1.5'
           stroke-linecap='round'
           stroke-linejoin='round'
         />
         <path
           d='M17 4V12C17 13.3261 16.4732 14.5979 15.5355 15.5355C14.5979 16.4732 13.3261 17 12 17C10.6739 17 9.40215 16.4732 8.46447 15.5355C7.52678 14.5979 7 13.3261 7 12V4'
           stroke='white'
-          stroke-width='1.5'
+          strokeWidth='1.5'
           stroke-linecap='round'
           stroke-linejoin='round'
         />
         <path
           d='M3 9C3 9.53043 3.21071 10.0391 3.58579 10.4142C3.96086 10.7893 4.46957 11 5 11C5.53043 11 6.03914 10.7893 6.41421 10.4142C6.78929 10.0391 7 9.53043 7 9C7 8.46957 6.78929 7.96086 6.41421 7.58579C6.03914 7.21071 5.53043 7 5 7C4.46957 7 3.96086 7.21071 3.58579 7.58579C3.21071 7.96086 3 8.46957 3 9Z'
           stroke='white'
-          stroke-width='1.5'
+          strokeWidth='1.5'
           stroke-linecap='round'
           stroke-linejoin='round'
         />
         <path
           d='M17 9C17 9.53043 17.2107 10.0391 17.5858 10.4142C17.9609 10.7893 18.4696 11 19 11C19.5304 11 20.0391 10.7893 20.4142 10.4142C20.7893 10.0391 21 9.53043 21 9C21 8.46957 20.7893 7.96086 20.4142 7.58579C20.0391 7.21071 19.5304 7 19 7C18.4696 7 17.9609 7.21071 17.5858 7.58579C17.2107 7.96086 17 8.46957 17 9Z'
           stroke='white'
-          stroke-width='1.5'
+          strokeWidth='1.5'
           stroke-linecap='round'
           stroke-linejoin='round'
         />
