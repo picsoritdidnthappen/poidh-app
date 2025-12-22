@@ -3,8 +3,6 @@
 import { trpc } from '@/trpc/client';
 import Image from 'next/image';
 import { TwitterXIcon } from '@/components/global/Icons';
-import { inferRouterOutputs } from '@trpc/server';
-import { type AppRouter } from '@/trpc/trpc';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -14,8 +12,7 @@ import {
   TWITTER_URL,
 } from '@/components/global/SocialMediaLinks';
 import Navbar from '@/components/global/Navbar';
-
-type UserData = inferRouterOutputs<AppRouter>['neynar']['usersData'][number];
+import { UserData } from '@/utils/types';
 
 const formatUserName = (name: string) =>
   name.length >= 12 ? `${name.slice(0, 6)}…${name.slice(-5)}` : name;

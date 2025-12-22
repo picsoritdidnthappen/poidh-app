@@ -5,14 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { TwitterXIcon } from '@/components/global/Icons';
 import {
-  getAddressDisplayName,
+  getDisplayUsername,
   shareToFarcaster,
-  shareToX,
+  shareToTwitter,
 } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import { useChainInfo } from '@/hooks/useGetChain';
 import { uploadFile } from '@/utils/pinata';
+import { UserData } from '@/utils/types';
 
 export default function ClaimSuccessModal({
   open,
@@ -85,26 +86,23 @@ export default function ClaimSuccessModal({
   }, [shareOpen]);
 
   const handleShareTwitter = async () => {
-    const bountyIssuerUsername = await getAddressDisplayName(
-      bounty.data?.issuer ?? '',
-      'twitter',
-      bountyIssuerData
+    const bountyIssuerUsername = await getDisplayUsername(
+      bountyIssuerData as UserData,
+      'twitter'
     );
 
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
-    shareToX(text);
+    shareToTwitter(text);
   };
 
   const handleShareFarcaster = async () => {
-    const bountyIssuerUsername = await getAddressDisplayName(
-      bounty.data?.issuer ?? '',
-      'farcaster',
-      bountyIssuerData
+    const bountyIssuerUsername = await getDisplayUsername(
+      bountyIssuerData as UserData,
+      'farcaster'
     );
-    const claimIssuerUsername = await getAddressDisplayName(
-      claimIssuer ?? '',
-      'farcaster',
-      claimIssuerData
+    const claimIssuerUsername = await getDisplayUsername(
+      claimIssuerData as UserData,
+      'farcaster'
     );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
 

@@ -168,10 +168,11 @@ export default function ClaimItem({
           title,
           currency: chain.currency,
           issuer: {
-            address: issuer,
+            address: issuer.toLowerCase(),
             scorePoidh: Number(accountStats.data?.poidhScore) ?? 0,
           },
           bountyId,
+          bountyIssuer: bounty.data?.issuer.toLowerCase() ?? '',
         }}
         onClose={() => setOpenCard(false)}
         open={openCard}

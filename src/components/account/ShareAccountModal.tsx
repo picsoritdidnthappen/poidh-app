@@ -7,7 +7,11 @@ import {
 } from '@/components/global/Icons';
 import { useAccount } from 'wagmi';
 import ShareModal from '@/components/global/ShareModal';
-import { copyToClipboard, shareToFarcaster, shareToX } from '@/utils/share';
+import {
+  copyToClipboard,
+  shareToFarcaster,
+  shareToTwitter,
+} from '@/utils/share';
 
 export default function ShareAccountModal({
   address,
@@ -30,7 +34,7 @@ export default function ShareAccountModal({
     const text = `check out ${
       isConnectectedUser ? 'my' : 'this'
     } account on @poidhxyz 📸`;
-    shareToX(text);
+    shareToTwitter(text);
     onClose();
   };
 

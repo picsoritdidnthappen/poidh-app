@@ -4,6 +4,28 @@ import { baseProcedure } from '../init';
 import { z } from 'zod';
 
 export const usersRouter = {
+  fetchByAddress: baseProcedure
+    .input(
+      z.object({
+        address: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const user = await prisma.usersExtra.findUnique({
+        where: { address: input.address.toLowerCase() },
+      });
+      if (!user) return null;
+      return {
+        address: user.address,
+        pfp_url: user.pfp_url ?? null,
+        ens: user.ens ?? null,
+        degen_name: user.degen_name ?? null,
+        farcaster_tag: user.farcaster_tag ?? null,
+        twitter_tag: user.twitter_tag ?? null,
+        last_updated: user.last_updated,
+      };
+    }),
+
   fetchByKeyword: baseProcedure
     .input(
       z.object({
