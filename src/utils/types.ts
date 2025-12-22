@@ -67,3 +67,13 @@ export type WarpcastCast = {
 export type BountyDisplayType = 'open' | 'progress' | 'past';
 
 export type BountySortType = 'value' | 'date';
+
+export type UserData = {
+  address: string;
+  pfp_url: string | null;
+  ens: string | null;
+  degen_name: string | null;
+  farcaster_tag: string | null;
+  twitter_tag: string | null;
+  last_updated: Date;
+};

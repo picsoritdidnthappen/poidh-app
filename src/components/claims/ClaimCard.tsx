@@ -1,16 +1,28 @@
 import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
-import { Currency } from '@/utils/types';
+import { Currency, UserData } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
-import { BanIcon, CloseIcon, ZoomInIcon, ZoomOutIcon } from '../global/Icons';
+import {
+  BanIcon,
+  CloseIcon,
+  ShareIcon2,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from '../global/Icons';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import DisplayAddress from '@/components/global/DisplayAddress';
+import {
+  getDisplayUsername,
+  shareToFarcaster,
+  shareToTwitter,
+} from '@/utils/share';
+import { uploadFile } from '@/utils';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -25,6 +37,7 @@ export type ClaimCardProps = {
       scorePoidh: number;
     };
     bountyId: string;
+    bountyIssuer: string;
   };
   onClose: () => void;
 };
@@ -36,6 +49,12 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const switctChain = useSwitchChain();
   const { signMessageAsync } = useSignMessage();
 
+  const [scale, setScale] = useState(1);
+  const [isImageFullscreen, setIsImageFullscreen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareDropdownRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingCard, setIsGeneratingCard] = useState(false);
+
   const banClaimMutation = trpc.admin.banClaim.useMutation({});
   const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
   const isIssuer = trpc.bounties.isIssuer.useQuery({
@@ -43,9 +62,15 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
     chainId: chain.id,
     bountyId: Number(claim.bountyId),
   });
-
-  const [scale, setScale] = useState(1);
-  const [isImageFullscreen, setIsImageFullscreen] = useState(false);
+  const bountyIssuer = trpc.users.fetchByAddress.useQuery(
+    { address: claim.bountyIssuer },
+    { enabled: shareOpen }
+  );
+  const claimIssuer = trpc.users.fetchByAddress.useQuery(
+    { address: claim.issuer.address },
+    { enabled: shareOpen }
+  );
+  const isClaimIssuer = account.address?.toLowerCase() === claim.issuer.address;
 
   const handleZoomIn = () => {
     setScale((prev) => Math.min(prev + 0.5, 3));
@@ -107,6 +132,90 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       utils.bounties.claims.refetch();
     },
   });
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        shareDropdownRef.current &&
+        !shareDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShareOpen(false);
+      }
+    }
+    if (shareOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [shareOpen]);
+
+  const handleShareTwitter = () => {
+    const claimIssuerName = claimIssuer.data
+      ? getDisplayUsername(claimIssuer.data as UserData, 'twitter')
+      : claim.issuer.address.slice(0, 7);
+    const bountyIssuerName = claimIssuer.data
+      ? getDisplayUsername(bountyIssuer.data as UserData, 'twitter')
+      : claim.bountyIssuer.slice(0, 7);
+
+    const text = `check out ${
+      isClaimIssuer ? 'my' : `${claimIssuerName}'s`
+    } claim on ${bountyIssuerName}'s @poidhxyz bounty`;
+
+    shareToTwitter(text);
+  };
+
+  const handleShareFarcaster = async () => {
+    const bountyIssuerUsername = getDisplayUsername(
+      bountyIssuer.data as UserData,
+      'farcaster'
+    );
+    const claimIssuerUsername = getDisplayUsername(
+      claimIssuer.data as UserData,
+      'farcaster'
+    );
+    const text = `check out ${
+      isClaimIssuer ? 'my' : `${claimIssuerUsername}'s`
+    } claim on ${bountyIssuerUsername}'s @poidhxyz bounty`;
+
+    setIsGeneratingCard(true);
+    try {
+      const cardUrl = new URL(
+        '/api/generate-claim-card',
+        window.location.origin
+      );
+      if (claim.imageUrl) cardUrl.searchParams.set('image', claim.imageUrl);
+      cardUrl.searchParams.set('title', claim.title.slice(0, 30));
+      cardUrl.searchParams.set('issuer', claimIssuerUsername);
+
+      if (claimIssuer.data?.pfp_url) {
+        cardUrl.searchParams.set('pfp', claimIssuer.data?.pfp_url);
+      }
+
+      const response = await fetch(cardUrl.toString());
+      if (!response.ok) {
+        throw new Error('Failed to generate claim card');
+      }
+
+      const imageBlob = await response.blob();
+      const uploadResult = await uploadFile(imageBlob);
+      if (!uploadResult?.IpfsHash) {
+        throw new Error('Failed to upload to Pinata');
+      }
+
+      const embedImageUrl = `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`;
+      await shareToFarcaster({
+        text,
+        embedImage: embedImageUrl,
+      });
+    } catch (error) {
+      await shareToFarcaster({ text, embedImage: claim.imageUrl ?? '' });
+    } finally {
+      setIsGeneratingCard(false);
+    }
+  };
 
   return (
     <>
@@ -174,8 +283,61 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                 </div>
               </div>
             </div>
-            {(isAdmin.data || isIssuer.data) && (
-              <div className='flex gap-3 mt-3'>
+            <div
+              className={`flex gap-3 mt-3${
+                isAdmin.data || isIssuer.data ? '' : ' justify-center'
+              }`}
+            >
+              <div className='flex-1 relative group' ref={shareDropdownRef}>
+                {shareOpen && (
+                  <div className='absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 flex flex-col items-center justify-center w-[95%]'>
+                    <div
+                      className='rounded-lg shadow-lg font-family-pixeloid text-white text-sm py-2 px-0 flex flex-col items-stretch border border-[#D1ECFF] w-full'
+                      style={{
+                        backdropFilter: 'blur(8px)',
+                        background:
+                          'linear-gradient(to top, rgba(209,236,255,0.2) 10%, rgba(209,236,255,0.1) 30%, rgba(209,236,255,0.05) 50%)',
+                        color: '#FFF',
+                        marginTop: '0.25rem',
+                        fontFamily: 'GeistMono-Regular',
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      <button
+                        className='w-full px-6 py-2 text-left hover:bg-[#D1ECFF]/20 transition-colors border-b border-[#D1ECFF]/10 font-mono tracking-wide rounded-t-lg'
+                        onClick={handleShareFarcaster}
+                        style={{ fontFamily: 'GeistMono-Regular, monospace' }}
+                      >
+                        {isGeneratingCard
+                          ? 'generating...'
+                          : 'share to farcaster'}
+                      </button>
+                      <button
+                        className='w-full px-6 py-2 text-left hover:bg-[#D1ECFF]/20 transition-colors font-mono tracking-wide rounded-b-lg'
+                        onClick={handleShareTwitter}
+                        style={{ fontFamily: 'GeistMono-Regular, monospace' }}
+                      >
+                        share to twitter
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <button
+                  onClick={() => setShareOpen((v) => !v)}
+                  className='w-full relative group'
+                >
+                  <div className='absolute inset-0 bg-[#cf5d5d] rounded-md transform translate-y-[2px]'></div>
+                  <div className='relative bg-poidhRed text-white py-2 px-3 rounded-md text-xs font-bold transition-all duration-75 group-hover:-translate-y-[1px] group-active:translate-y-[2px] flex items-center justify-center gap-1.5 border-2 border-t-[#ff6e6e] border-l-[#ff6e6e] border-r-[#cf5d5d] border-b-[#cf5d5d]'>
+                    <span className='w-3.5 h-3.5 flex items-center justify-center drop-shadow-[1px_1px_0px_rgba(0,0,0,0.5)]'>
+                      <ShareIcon2 />
+                    </span>
+                    <span className='drop-shadow-[1px_1px_0px_rgba(0,0,0,0.5)] tracking-wide'>
+                      share
+                    </span>
+                  </div>
+                </button>
+              </div>
+              {(isAdmin.data || isIssuer.data) && (
                 <button
                   onClick={async () =>
                     await signMutation.mutateAsync({
@@ -193,8 +355,8 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                     </span>
                   </div>
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </DialogPanel>
         </div>
       </Dialog>

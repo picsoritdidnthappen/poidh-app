@@ -4,7 +4,7 @@ import { Currency } from '@/utils/types';
 import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
 import { TwitterXIcon } from '@/components/global/Icons';
-import { shareToFarcaster, shareToX } from '@/utils/share';
+import { shareToFarcaster, shareToTwitter } from '@/utils/share';
 import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
 import { formatEther } from 'viem';
@@ -120,7 +120,9 @@ export default function BountySuccessModal({
                       </button>
                       <button
                         onClick={async () => {
-                          shareToX(`check out my new bounty on @poidhxyz!`);
+                          shareToTwitter(
+                            `check out my new bounty on @poidhxyz!`
+                          );
                         }}
                         className='w-full text-left px-4 py-2 rounded-md hover:bg-white/5 flex items-center gap-3 text-white'
                       >

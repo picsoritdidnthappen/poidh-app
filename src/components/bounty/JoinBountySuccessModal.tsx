@@ -1,14 +1,14 @@
 'use client';
 
 import { useChainInfo } from '@/hooks/useGetChain';
-import { Currency } from '@/utils/types';
+import { Currency, UserData } from '@/utils/types';
 import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
 import { TwitterXIcon } from '@/components/global/Icons';
 import {
-  getAddressDisplayName,
+  getDisplayUsername,
   shareToFarcaster,
-  shareToX,
+  shareToTwitter,
 } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 
@@ -71,22 +71,20 @@ export default function JoinBountySuccessModal({
   }, [shareOpen]);
 
   const handleShareTwitter = async () => {
-    const bountyIssuerUsername = await getAddressDisplayName(
-      bounty.data?.issuer ?? '',
-      'twitter',
-      user
+    const bountyIssuerUsername = await getDisplayUsername(
+      user as UserData,
+      'twitter'
     );
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
     const text = `I just added ${amountText} to ${bountyIssuerUsername}'s @poidhxyz bounty`;
-    shareToX(text);
+    shareToTwitter(text);
   };
 
   const handleShareFarcaster = async () => {
-    const bountyIssuerUsername = await getAddressDisplayName(
-      bounty.data?.issuer ?? '',
-      'farcaster',
-      user
+    const bountyIssuerUsername = await getDisplayUsername(
+      user as UserData,
+      'farcaster'
     );
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;

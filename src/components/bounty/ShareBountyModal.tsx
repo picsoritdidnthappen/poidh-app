@@ -7,7 +7,11 @@ import {
 } from '@/components/global/Icons';
 import { trpc } from '@/trpc/client';
 import ShareModal from '@/components/global/ShareModal';
-import { copyToClipboard, shareToFarcaster, shareToX } from '@/utils/share';
+import {
+  copyToClipboard,
+  shareToFarcaster,
+  shareToTwitter,
+} from '@/utils/share';
 
 export default function ShareBountyModal({
   bountyIssuerAddress,
@@ -41,7 +45,7 @@ export default function ShareBountyModal({
         text = `check out this bounty from @${user.twitter_tag} on @poidhxyz 📸 \n`;
       }
     }
-    shareToX(text);
+    shareToTwitter(text);
     onClose();
   };
 

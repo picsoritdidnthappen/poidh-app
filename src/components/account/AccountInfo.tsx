@@ -10,7 +10,7 @@ import ClaimsListAccount from './ClaimListAccount';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
-import { ShareIcon2 } from '@/components/global/Icons';
+import { ShareIcon } from '@/components/global/Icons';
 import { formatAmountShort } from '@/utils/utils';
 import InfiniteScroll from 'react-infinite-scroller';
 import { ChainId } from '@/utils/types';
@@ -135,7 +135,7 @@ export default function AccountInfo({ address }: { address: string }) {
                       setIsShareModalOpen(true);
                     }}
                   >
-                    <ShareIcon2 size={20} />
+                    <ShareIcon size={20} />
                   </button>
                 </div>
               </div>
