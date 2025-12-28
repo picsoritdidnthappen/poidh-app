@@ -43,9 +43,9 @@ export default function Album({ params }: { params: { album: string } }) {
   }, [display, updateSliderPosition]);
 
   return (
-    <>
+    <div className='pb-14'>
       <div>
-        <div className='container mx-auto text-center my-6 mt-8'>
+        <div className='container mx-auto text-center my-6 mt-8 '>
           <h1 className='font-mono text-4xl'>{album}</h1>
         </div>
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:pb-12 sm:pb-8 pt-4  w-full items-center justify-center px-8'>
@@ -153,6 +153,6 @@ export default function Album({ params }: { params: { album: string } }) {
         </div>
       </div>
       <Navbar type='bounty' />
-    </>
+    </div>
   );
 }

@@ -35,7 +35,7 @@ export default function Feed() {
   }, [account, display]);
 
   return (
-    <div className='min-h-screen '>
+    <div className='min-h-screen pb-20'>
       <div className='flex flex-col gap-2 pt-12 px-4 sm:px-10 border-b border-white pb-3 items-center justify-center'>
         <h1 className='text-center font-mono mb-6 text-4xl'>📸</h1>
 
@@ -112,7 +112,7 @@ export default function Feed() {
                       key='loader'
                       className='animate-pulse text-center py-4 text-white/60'
                     >
-                      Loading more activities...
+                      Loading more...
                     </div>
                   }
                   threshold={500}
