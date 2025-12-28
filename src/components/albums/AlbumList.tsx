@@ -19,7 +19,7 @@ export default function AlbumList({ keyword = '' }: { keyword?: string }) {
   } = trpc.albums.fetch.useQuery({ contains: debouncedKeyword });
 
   return (
-    <div className='w-full max-w-sm mx-auto'>
+    <div className='w-full max-w-sm mx-auto pb-16'>
       {!albums && !isLoading ? (
         <div className='text-center py-20 text-white/60'>
           no albums available

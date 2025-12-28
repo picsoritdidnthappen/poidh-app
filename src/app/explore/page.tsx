@@ -144,7 +144,7 @@ export default function Explore() {
           </div>
         </div>
       </div>
-      <div className='py-10'>
+      <div className='pt-10 pb-16'>
         {display === 'albums' && (
           <div className='lg:px-20 px-8'>
             <AlbumList keyword={search} />

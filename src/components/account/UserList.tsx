@@ -47,7 +47,7 @@ export default function UserList({ keyword = '' }: { keyword?: string }) {
   const hasNoResults = !isLoading && !isFetching && users.length === 0;
 
   return (
-    <div className='w-full max-w-sm mx-auto'>
+    <div className='w-full max-w-sm mx-auto pb-16'>
       {isLoading && !data ? (
         <div className='text-center py-20 text-white/60 animate-pulse'>
           loading…
