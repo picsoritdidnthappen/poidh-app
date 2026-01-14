@@ -3,10 +3,9 @@ import { baseProcedure } from '../init';
 import { z } from 'zod';
 import { ChainId } from '@/utils/types';
 import { addressSchema } from '../serverTypes';
-import { getChainById } from '@/utils/config';
 import { formatEther } from 'viem';
 import { fetchPrice } from '@/utils/utils';
-import { Decimal } from '@prisma/client/runtime/library';
+import type { Prisma } from 'generated/prisma/client';
 
 export function scoreETH({
   earned,
@@ -317,7 +316,7 @@ export const accountsRouter = {
         if (b) mergedMap.set(b.id, b);
       });
 
-      const toNum = (v: Decimal) =>
+      const toNum = (v: Prisma.Decimal) =>
         typeof v === 'number'
           ? v
           : v instanceof Date

@@ -1,7 +1,7 @@
 import prisma from 'prisma/prisma';
-import { Prisma } from '@prisma/client';
 import { baseProcedure } from '../init';
 import { z } from 'zod';
+import { Prisma } from 'generated/prisma/client';
 
 export const usersRouter = {
   fetchByAddress: baseProcedure

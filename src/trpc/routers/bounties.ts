@@ -4,7 +4,7 @@ import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
 import { checkIsIssuer } from './admin';
 import { ChainId } from '@/utils/types';
-import { Decimal } from '@prisma/client/runtime/library';
+import type { Prisma } from 'generated/prisma/client';
 
 export const bountiesRouter = {
   fetch: baseProcedure
@@ -177,7 +177,7 @@ export const bountiesRouter = {
       if (items.length === input.limit) {
         const last = items[items.length - 1];
 
-        const toNum = (v: Decimal) =>
+        const toNum = (v: Prisma.Decimal) =>
           typeof v === 'number'
             ? v
             : v && typeof v.toNumber === 'function'
