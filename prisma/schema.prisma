@@ -31,6 +31,7 @@ model Bounties {
   ban            Ban[]
   transactions   Transactions[]
   comments       Comments[]
+  votes          Votes[]
 
   @@id([id, chain_id])
 }
@@ -166,6 +167,19 @@ model Comments {
   @@index([chain_id])
   @@index([parent_id])
   @@index([user_address])
+}
+
+model Votes {
+  chainId  Int @map("chain_id")
+  bountyId Int @map("bounty_id")
+  claimId  Int @map("claim_id")
+  yes      Int
+  no       Int
+  round    Int
+
+  bounty Bounties @relation(fields: [bountyId, chainId], references: [id, chain_id])
+
+  @@id([bountyId, chainId, round])
 }
 
 model Reactions {
