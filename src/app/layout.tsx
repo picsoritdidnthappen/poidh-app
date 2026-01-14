@@ -26,8 +26,6 @@ const APP_SPLASH_URL =
 const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
 const APP_BUTTON_TEXT = 'launch poidh';
 
-export const metadataBase = new URL('https://poidh.xyz');
-
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,6 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 
   return {
+    metadataBase: new URL(APP_URL),
     title: "poidh - pics or it didn't happen - crypto bounties",
     description: APP_DESCRIPTION,
     viewport: {

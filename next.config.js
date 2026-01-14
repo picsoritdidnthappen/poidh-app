@@ -4,6 +4,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  experimental: {
+    esmExternals: 'loose',
+  },
+
   reactStrictMode: true,
   swcMinify: true,
 
@@ -49,6 +53,11 @@ const nextConfig = {
     config.resolve.extensionAlias = {
       ...config.resolve.extensionAlias,
       '.js': ['.ts', '.tsx', '.js'],
+    };
+
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'pg-native': false,
     };
 
     return config;
