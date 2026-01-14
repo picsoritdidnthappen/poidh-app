@@ -13,7 +13,6 @@ import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import { useChainInfo } from '@/hooks/useGetChain';
 import { uploadFile } from '@/utils/pinata';
-import { UserData } from '@/utils/types';
 
 export default function ClaimSuccessModal({
   open,
@@ -86,8 +85,8 @@ export default function ClaimSuccessModal({
   }, [shareOpen]);
 
   const handleShareTwitter = async () => {
-    const bountyIssuerUsername = await getDisplayUsername(
-      bountyIssuerData as UserData,
+    const bountyIssuerUsername = getDisplayUsername(
+      bountyIssuerData,
       'twitter'
     );
 
@@ -96,12 +95,12 @@ export default function ClaimSuccessModal({
   };
 
   const handleShareFarcaster = async () => {
-    const bountyIssuerUsername = await getDisplayUsername(
-      bountyIssuerData as UserData,
+    const bountyIssuerUsername = getDisplayUsername(
+      bountyIssuerData,
       'farcaster'
     );
-    const claimIssuerUsername = await getDisplayUsername(
-      claimIssuerData as UserData,
+    const claimIssuerUsername = getDisplayUsername(
+      claimIssuerData,
       'farcaster'
     );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;

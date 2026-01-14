@@ -27,10 +27,14 @@ function ResolvedAddressCell({ address }: { address: string }) {
 }
 
 function getDisplayName(user: UserData): string {
+  if (!user) {
+    return 'unknown';
+  }
+
   if (user.farcaster_tag) return formatUserName(user.farcaster_tag);
   if (user.ens) return formatUserName(user.ens.slice(0, 12));
   if (user.degen_name) return formatUserName(user.degen_name.slice(0, 12));
-  return user.address?.slice(0, 7) ?? '';
+  return user.address?.slice(0, 7) ?? 'unknown';
 }
 
 function UserDisplay({

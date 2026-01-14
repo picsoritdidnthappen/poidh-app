@@ -1,6 +1,6 @@
 import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc } from '@/trpc/client';
-import { Currency, UserData } from '@/utils/types';
+import { Currency } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
@@ -154,10 +154,10 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
   const handleShareTwitter = () => {
     const claimIssuerName = claimIssuer.data
-      ? getDisplayUsername(claimIssuer.data as UserData, 'twitter')
+      ? getDisplayUsername(claimIssuer.data, 'twitter')
       : claim.issuer.address.slice(0, 7);
     const bountyIssuerName = claimIssuer.data
-      ? getDisplayUsername(bountyIssuer.data as UserData, 'twitter')
+      ? getDisplayUsername(bountyIssuer.data ?? null, 'twitter')
       : claim.bountyIssuer.slice(0, 7);
 
     const text = `check out ${
@@ -169,11 +169,11 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
   const handleShareFarcaster = async () => {
     const bountyIssuerUsername = getDisplayUsername(
-      bountyIssuer.data as UserData,
+      bountyIssuer.data,
       'farcaster'
     );
     const claimIssuerUsername = getDisplayUsername(
-      claimIssuer.data as UserData,
+      claimIssuer.data,
       'farcaster'
     );
     const text = `check out ${
