@@ -1,3 +1,6 @@
+import { AppRouter } from '@/trpc/trpc';
+import { inferRouterOutputs } from '@trpc/server';
+
 export type Currency = 'eth' | 'degen';
 
 export type Netname = 'degen' | 'base' | 'arbitrum';
@@ -17,12 +20,6 @@ export type Chain = {
   explorer: string;
 };
 
-export type Wallet = {
-  id: string;
-  ens: string | null;
-  degenName: string | null;
-};
-
 export type Claim = {
   id: string;
   title: string;
@@ -34,46 +31,10 @@ export type Claim = {
   accepted: boolean;
 };
 
-export type WarpcastCast = {
-  object: 'cast';
-  hash: string;
-  parent_hash: string | null;
-  author: {
-    object: 'user';
-    fid: number;
-    username: string;
-    display_name: string;
-    pfp_url: string;
-    custody_address: string;
-    follower_count: number;
-    following_count: number;
-    verified_addresses: object;
-    power_badge: boolean;
-  };
-  text: string;
-  timestamp: string;
-  reactions: {
-    likes_count: number;
-    recasts_count: number;
-    likes: any[];
-    recasts: any[];
-  };
-  replies: {
-    count: number;
-  };
-  direct_replies: WarpcastCast[];
-};
-
 export type BountyDisplayType = 'open' | 'progress' | 'past';
 
 export type BountySortType = 'value' | 'date';
 
-export type UserData = {
-  address: string;
-  pfp_url: string | null;
-  ens: string | null;
-  degen_name: string | null;
-  farcaster_tag: string | null;
-  twitter_tag: string | null;
-  last_updated: Date;
-};
+export type UserData =
+  | inferRouterOutputs<AppRouter>['users']['fetchByAddress']
+  | undefined;

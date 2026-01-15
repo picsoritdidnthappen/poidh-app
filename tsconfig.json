@@ -17,7 +17,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "~/*": ["./public/*"]
+      "~/*": ["./public/*"],
+      "generated/*": ["./generated/*"],
+      "prisma/*": ["./prisma/*"]
     },
     "incremental": true,
     "plugins": [

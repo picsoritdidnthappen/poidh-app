@@ -1,16 +1,15 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  // We are using Prisma 5, but the latest Prisma LSP targets version 7
-  // You can safely ignore this warning, or upgrade to Prisma 7 :)
-  url      = env("DATABASE_URL")
 }
 
 model Bounties {
   id               Int
+  onChainId        Int      @map("on_chain_id")
   chain_id         Int
   title            String
   description      String
@@ -31,6 +30,7 @@ model Bounties {
   ban            Ban[]
   transactions   Transactions[]
   comments       Comments[]
+  votes          Votes[]
 
   @@id([id, chain_id])
 }
@@ -45,6 +45,7 @@ model BountiesExtra {
 
 model Claims {
   id          Int
+  onChainId   Int      @map("on_chain_id")
   chain_id    Int
   title       String
   description String
@@ -75,7 +76,10 @@ model ParticipationsBounties {
 }
 
 model Users {
-  address String
+  address            String
+  withdrawalDegen    Int    @default(0) @map("withdrawal_amount_degen")
+  withdrawalBase     Int    @default(0) @map("withdrawal_amount_base")
+  withdrawalArbitrum Int    @default(0) @map("withdrawal_amount_arbitrum")
 
   participations ParticipationsBounties[]
   claims         Claims[]
@@ -166,6 +170,19 @@ model Comments {
   @@index([chain_id])
   @@index([parent_id])
   @@index([user_address])
+}
+
+model Votes {
+  chainId  Int @map("chain_id")
+  bountyId Int @map("bounty_id")
+  claimId  Int @map("claim_id")
+  yes      Int
+  no       Int
+  round    Int
+
+  bounty Bounties @relation(fields: [bountyId, chainId], references: [id, chain_id])
+
+  @@id([bountyId, chainId, round])
 }
 
 model Reactions {

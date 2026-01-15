@@ -2,8 +2,8 @@ import prisma from 'prisma/prisma';
 import { baseProcedure } from '../init';
 import { z } from 'zod';
 import { addressSchema } from '../serverTypes';
-import { Leaderboard } from '@prisma/client';
 import { scoreDegen, scoreETH } from './accounts';
+import { Leaderboard } from 'generated/prisma/client';
 
 export const leaderboardRouter = {
   fetch: baseProcedure
