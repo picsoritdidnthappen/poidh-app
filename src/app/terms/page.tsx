@@ -4,7 +4,7 @@ import Navbar from '@/components/global/Navbar';
 
 export default function Terms() {
   return (
-    <main className='min-h-screen bg-poidhBlue/10 py-16 px-4'>
+    <main className='min-h-screen bg-poidhBlue/10 pt-16 pb-24 px-4'>
       <div className='mx-auto max-w-3xl'>
         <header className='mb-8 text-center'>
           <h1 className="text-3xl sm:text-4xl font-['PixeloidSans'] font-extrabold tracking-tight mb-3 text-poidhRed [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]">
