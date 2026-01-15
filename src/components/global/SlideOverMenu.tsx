@@ -106,10 +106,10 @@ export default function SlideOverMenu({
             github 🛠️
           </MenuLink>
           <MenuLink
-            href='https://dune.com/yesyes/poidh-pics-or-it-didnt-happen'
+            href='https://docs.poidh.xyz'
             onClick={handleCloseWithDelay}
           >
-            analytics 📊
+            docs ⚙️
           </MenuLink>
           <MenuLink
             href='https://words.poidh.xyz'
