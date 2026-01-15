@@ -1419,6 +1419,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const BountiesScalarFieldEnum = {
   id: 'id',
+  onChainId: 'onChainId',
   chain_id: 'chain_id',
   title: 'title',
   description: 'description',
@@ -1448,6 +1449,7 @@ export type BountiesExtraScalarFieldEnum = (typeof BountiesExtraScalarFieldEnum)
 
 export const ClaimsScalarFieldEnum = {
   id: 'id',
+  onChainId: 'onChainId',
   chain_id: 'chain_id',
   title: 'title',
   description: 'description',
@@ -1472,7 +1474,10 @@ export type ParticipationsBountiesScalarFieldEnum = (typeof ParticipationsBounti
 
 
 export const UsersScalarFieldEnum = {
-  address: 'address'
+  address: 'address',
+  withdrawalDegen: 'withdrawalDegen',
+  withdrawalBase: 'withdrawalBase',
+  withdrawalArbitrum: 'withdrawalArbitrum'
 } as const
 
 export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]

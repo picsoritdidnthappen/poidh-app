@@ -20,34 +20,78 @@ export type UsersModel = runtime.Types.Result.DefaultSelection<Prisma.$UsersPayl
 
 export type AggregateUsers = {
   _count: UsersCountAggregateOutputType | null
+  _avg: UsersAvgAggregateOutputType | null
+  _sum: UsersSumAggregateOutputType | null
   _min: UsersMinAggregateOutputType | null
   _max: UsersMaxAggregateOutputType | null
 }
 
+export type UsersAvgAggregateOutputType = {
+  withdrawalDegen: number | null
+  withdrawalBase: number | null
+  withdrawalArbitrum: number | null
+}
+
+export type UsersSumAggregateOutputType = {
+  withdrawalDegen: number | null
+  withdrawalBase: number | null
+  withdrawalArbitrum: number | null
+}
+
 export type UsersMinAggregateOutputType = {
   address: string | null
+  withdrawalDegen: number | null
+  withdrawalBase: number | null
+  withdrawalArbitrum: number | null
 }
 
 export type UsersMaxAggregateOutputType = {
   address: string | null
+  withdrawalDegen: number | null
+  withdrawalBase: number | null
+  withdrawalArbitrum: number | null
 }
 
 export type UsersCountAggregateOutputType = {
   address: number
+  withdrawalDegen: number
+  withdrawalBase: number
+  withdrawalArbitrum: number
   _all: number
 }
 
 
+export type UsersAvgAggregateInputType = {
+  withdrawalDegen?: true
+  withdrawalBase?: true
+  withdrawalArbitrum?: true
+}
+
+export type UsersSumAggregateInputType = {
+  withdrawalDegen?: true
+  withdrawalBase?: true
+  withdrawalArbitrum?: true
+}
+
 export type UsersMinAggregateInputType = {
   address?: true
+  withdrawalDegen?: true
+  withdrawalBase?: true
+  withdrawalArbitrum?: true
 }
 
 export type UsersMaxAggregateInputType = {
   address?: true
+  withdrawalDegen?: true
+  withdrawalBase?: true
+  withdrawalArbitrum?: true
 }
 
 export type UsersCountAggregateInputType = {
   address?: true
+  withdrawalDegen?: true
+  withdrawalBase?: true
+  withdrawalArbitrum?: true
   _all?: true
 }
 
@@ -89,6 +133,18 @@ export type UsersAggregateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UsersAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UsersSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UsersMinAggregateInputType
@@ -119,13 +175,20 @@ export type UsersGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   _count?: UsersCountAggregateInputType | true
+  _avg?: UsersAvgAggregateInputType
+  _sum?: UsersSumAggregateInputType
   _min?: UsersMinAggregateInputType
   _max?: UsersMaxAggregateInputType
 }
 
 export type UsersGroupByOutputType = {
   address: string
+  withdrawalDegen: number
+  withdrawalBase: number
+  withdrawalArbitrum: number
   _count: UsersCountAggregateOutputType | null
+  _avg: UsersAvgAggregateOutputType | null
+  _sum: UsersSumAggregateOutputType | null
   _min: UsersMinAggregateOutputType | null
   _max: UsersMaxAggregateOutputType | null
 }
@@ -150,6 +213,9 @@ export type UsersWhereInput = {
   OR?: Prisma.UsersWhereInput[]
   NOT?: Prisma.UsersWhereInput | Prisma.UsersWhereInput[]
   address?: Prisma.StringFilter<"Users"> | string
+  withdrawalDegen?: Prisma.IntFilter<"Users"> | number
+  withdrawalBase?: Prisma.IntFilter<"Users"> | number
+  withdrawalArbitrum?: Prisma.IntFilter<"Users"> | number
   participations?: Prisma.ParticipationsBountiesListRelationFilter
   claims?: Prisma.ClaimsListRelationFilter
   bounties?: Prisma.BountiesListRelationFilter
@@ -160,6 +226,9 @@ export type UsersWhereInput = {
 
 export type UsersOrderByWithRelationInput = {
   address?: Prisma.SortOrder
+  withdrawalDegen?: Prisma.SortOrder
+  withdrawalBase?: Prisma.SortOrder
+  withdrawalArbitrum?: Prisma.SortOrder
   participations?: Prisma.ParticipationsBountiesOrderByRelationAggregateInput
   claims?: Prisma.ClaimsOrderByRelationAggregateInput
   bounties?: Prisma.BountiesOrderByRelationAggregateInput
@@ -173,6 +242,9 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.UsersWhereInput | Prisma.UsersWhereInput[]
   OR?: Prisma.UsersWhereInput[]
   NOT?: Prisma.UsersWhereInput | Prisma.UsersWhereInput[]
+  withdrawalDegen?: Prisma.IntFilter<"Users"> | number
+  withdrawalBase?: Prisma.IntFilter<"Users"> | number
+  withdrawalArbitrum?: Prisma.IntFilter<"Users"> | number
   participations?: Prisma.ParticipationsBountiesListRelationFilter
   claims?: Prisma.ClaimsListRelationFilter
   bounties?: Prisma.BountiesListRelationFilter
@@ -183,9 +255,14 @@ export type UsersWhereUniqueInput = Prisma.AtLeast<{
 
 export type UsersOrderByWithAggregationInput = {
   address?: Prisma.SortOrder
+  withdrawalDegen?: Prisma.SortOrder
+  withdrawalBase?: Prisma.SortOrder
+  withdrawalArbitrum?: Prisma.SortOrder
   _count?: Prisma.UsersCountOrderByAggregateInput
+  _avg?: Prisma.UsersAvgOrderByAggregateInput
   _max?: Prisma.UsersMaxOrderByAggregateInput
   _min?: Prisma.UsersMinOrderByAggregateInput
+  _sum?: Prisma.UsersSumOrderByAggregateInput
 }
 
 export type UsersScalarWhereWithAggregatesInput = {
@@ -193,10 +270,16 @@ export type UsersScalarWhereWithAggregatesInput = {
   OR?: Prisma.UsersScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UsersScalarWhereWithAggregatesInput | Prisma.UsersScalarWhereWithAggregatesInput[]
   address?: Prisma.StringWithAggregatesFilter<"Users"> | string
+  withdrawalDegen?: Prisma.IntWithAggregatesFilter<"Users"> | number
+  withdrawalBase?: Prisma.IntWithAggregatesFilter<"Users"> | number
+  withdrawalArbitrum?: Prisma.IntWithAggregatesFilter<"Users"> | number
 }
 
 export type UsersCreateInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesCreateNestedManyWithoutIssuerUserInput
@@ -207,6 +290,9 @@ export type UsersCreateInput = {
 
 export type UsersUncheckedCreateInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesUncheckedCreateNestedManyWithoutIssuerUserInput
@@ -217,6 +303,9 @@ export type UsersUncheckedCreateInput = {
 
 export type UsersUpdateInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUpdateManyWithoutIssuerUserNestedInput
@@ -227,6 +316,9 @@ export type UsersUpdateInput = {
 
 export type UsersUncheckedUpdateInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUncheckedUpdateManyWithoutIssuerUserNestedInput
@@ -237,14 +329,23 @@ export type UsersUncheckedUpdateInput = {
 
 export type UsersCreateManyInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
 }
 
 export type UsersUpdateManyMutationInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type UsersUncheckedUpdateManyInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type UsersNullableScalarRelationFilter = {
@@ -254,14 +355,35 @@ export type UsersNullableScalarRelationFilter = {
 
 export type UsersCountOrderByAggregateInput = {
   address?: Prisma.SortOrder
+  withdrawalDegen?: Prisma.SortOrder
+  withdrawalBase?: Prisma.SortOrder
+  withdrawalArbitrum?: Prisma.SortOrder
+}
+
+export type UsersAvgOrderByAggregateInput = {
+  withdrawalDegen?: Prisma.SortOrder
+  withdrawalBase?: Prisma.SortOrder
+  withdrawalArbitrum?: Prisma.SortOrder
 }
 
 export type UsersMaxOrderByAggregateInput = {
   address?: Prisma.SortOrder
+  withdrawalDegen?: Prisma.SortOrder
+  withdrawalBase?: Prisma.SortOrder
+  withdrawalArbitrum?: Prisma.SortOrder
 }
 
 export type UsersMinOrderByAggregateInput = {
   address?: Prisma.SortOrder
+  withdrawalDegen?: Prisma.SortOrder
+  withdrawalBase?: Prisma.SortOrder
+  withdrawalArbitrum?: Prisma.SortOrder
+}
+
+export type UsersSumOrderByAggregateInput = {
+  withdrawalDegen?: Prisma.SortOrder
+  withdrawalBase?: Prisma.SortOrder
+  withdrawalArbitrum?: Prisma.SortOrder
 }
 
 export type UsersScalarRelationFilter = {
@@ -363,6 +485,9 @@ export type UsersUpdateOneRequiredWithoutReactionsNestedInput = {
 
 export type UsersCreateWithoutBountiesInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsCreateNestedManyWithoutIssuerUserInput
   comments?: Prisma.CommentsCreateNestedManyWithoutAuthorInput
@@ -372,6 +497,9 @@ export type UsersCreateWithoutBountiesInput = {
 
 export type UsersUncheckedCreateWithoutBountiesInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutIssuerUserInput
   comments?: Prisma.CommentsUncheckedCreateNestedManyWithoutAuthorInput
@@ -397,6 +525,9 @@ export type UsersUpdateToOneWithWhereWithoutBountiesInput = {
 
 export type UsersUpdateWithoutBountiesInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUpdateManyWithoutIssuerUserNestedInput
   comments?: Prisma.CommentsUpdateManyWithoutAuthorNestedInput
@@ -406,6 +537,9 @@ export type UsersUpdateWithoutBountiesInput = {
 
 export type UsersUncheckedUpdateWithoutBountiesInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutIssuerUserNestedInput
   comments?: Prisma.CommentsUncheckedUpdateManyWithoutAuthorNestedInput
@@ -415,6 +549,9 @@ export type UsersUncheckedUpdateWithoutBountiesInput = {
 
 export type UsersCreateWithoutClaimsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutUserInput
   bounties?: Prisma.BountiesCreateNestedManyWithoutIssuerUserInput
   comments?: Prisma.CommentsCreateNestedManyWithoutAuthorInput
@@ -424,6 +561,9 @@ export type UsersCreateWithoutClaimsInput = {
 
 export type UsersUncheckedCreateWithoutClaimsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutUserInput
   bounties?: Prisma.BountiesUncheckedCreateNestedManyWithoutIssuerUserInput
   comments?: Prisma.CommentsUncheckedCreateNestedManyWithoutAuthorInput
@@ -449,6 +589,9 @@ export type UsersUpdateToOneWithWhereWithoutClaimsInput = {
 
 export type UsersUpdateWithoutClaimsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutUserNestedInput
   bounties?: Prisma.BountiesUpdateManyWithoutIssuerUserNestedInput
   comments?: Prisma.CommentsUpdateManyWithoutAuthorNestedInput
@@ -458,6 +601,9 @@ export type UsersUpdateWithoutClaimsInput = {
 
 export type UsersUncheckedUpdateWithoutClaimsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutUserNestedInput
   bounties?: Prisma.BountiesUncheckedUpdateManyWithoutIssuerUserNestedInput
   comments?: Prisma.CommentsUncheckedUpdateManyWithoutAuthorNestedInput
@@ -467,6 +613,9 @@ export type UsersUncheckedUpdateWithoutClaimsInput = {
 
 export type UsersCreateWithoutParticipationsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   claims?: Prisma.ClaimsCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesCreateNestedManyWithoutIssuerUserInput
   comments?: Prisma.CommentsCreateNestedManyWithoutAuthorInput
@@ -476,6 +625,9 @@ export type UsersCreateWithoutParticipationsInput = {
 
 export type UsersUncheckedCreateWithoutParticipationsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesUncheckedCreateNestedManyWithoutIssuerUserInput
   comments?: Prisma.CommentsUncheckedCreateNestedManyWithoutAuthorInput
@@ -501,6 +653,9 @@ export type UsersUpdateToOneWithWhereWithoutParticipationsInput = {
 
 export type UsersUpdateWithoutParticipationsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   claims?: Prisma.ClaimsUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUpdateManyWithoutIssuerUserNestedInput
   comments?: Prisma.CommentsUpdateManyWithoutAuthorNestedInput
@@ -510,6 +665,9 @@ export type UsersUpdateWithoutParticipationsInput = {
 
 export type UsersUncheckedUpdateWithoutParticipationsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUncheckedUpdateManyWithoutIssuerUserNestedInput
   comments?: Prisma.CommentsUncheckedUpdateManyWithoutAuthorNestedInput
@@ -519,6 +677,9 @@ export type UsersUncheckedUpdateWithoutParticipationsInput = {
 
 export type UsersCreateWithoutUsersExtrasInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesCreateNestedManyWithoutIssuerUserInput
@@ -528,6 +689,9 @@ export type UsersCreateWithoutUsersExtrasInput = {
 
 export type UsersUncheckedCreateWithoutUsersExtrasInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesUncheckedCreateNestedManyWithoutIssuerUserInput
@@ -553,6 +717,9 @@ export type UsersUpdateToOneWithWhereWithoutUsersExtrasInput = {
 
 export type UsersUpdateWithoutUsersExtrasInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUpdateManyWithoutIssuerUserNestedInput
@@ -562,6 +729,9 @@ export type UsersUpdateWithoutUsersExtrasInput = {
 
 export type UsersUncheckedUpdateWithoutUsersExtrasInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUncheckedUpdateManyWithoutIssuerUserNestedInput
@@ -571,6 +741,9 @@ export type UsersUncheckedUpdateWithoutUsersExtrasInput = {
 
 export type UsersCreateWithoutCommentsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesCreateNestedManyWithoutIssuerUserInput
@@ -580,6 +753,9 @@ export type UsersCreateWithoutCommentsInput = {
 
 export type UsersUncheckedCreateWithoutCommentsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesUncheckedCreateNestedManyWithoutIssuerUserInput
@@ -605,6 +781,9 @@ export type UsersUpdateToOneWithWhereWithoutCommentsInput = {
 
 export type UsersUpdateWithoutCommentsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUpdateManyWithoutIssuerUserNestedInput
@@ -614,6 +793,9 @@ export type UsersUpdateWithoutCommentsInput = {
 
 export type UsersUncheckedUpdateWithoutCommentsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUncheckedUpdateManyWithoutIssuerUserNestedInput
@@ -623,6 +805,9 @@ export type UsersUncheckedUpdateWithoutCommentsInput = {
 
 export type UsersCreateWithoutReactionsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesCreateNestedManyWithoutIssuerUserInput
@@ -632,6 +817,9 @@ export type UsersCreateWithoutReactionsInput = {
 
 export type UsersUncheckedCreateWithoutReactionsInput = {
   address: string
+  withdrawalDegen?: number
+  withdrawalBase?: number
+  withdrawalArbitrum?: number
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutUserInput
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutIssuerUserInput
   bounties?: Prisma.BountiesUncheckedCreateNestedManyWithoutIssuerUserInput
@@ -657,6 +845,9 @@ export type UsersUpdateToOneWithWhereWithoutReactionsInput = {
 
 export type UsersUpdateWithoutReactionsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUpdateManyWithoutIssuerUserNestedInput
@@ -666,6 +857,9 @@ export type UsersUpdateWithoutReactionsInput = {
 
 export type UsersUncheckedUpdateWithoutReactionsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  withdrawalDegen?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalBase?: Prisma.IntFieldUpdateOperationsInput | number
+  withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutUserNestedInput
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutIssuerUserNestedInput
   bounties?: Prisma.BountiesUncheckedUpdateManyWithoutIssuerUserNestedInput
@@ -751,6 +945,9 @@ export type UsersCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types
 
 export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
+  withdrawalDegen?: boolean
+  withdrawalBase?: boolean
+  withdrawalArbitrum?: boolean
   participations?: boolean | Prisma.Users$participationsArgs<ExtArgs>
   claims?: boolean | Prisma.Users$claimsArgs<ExtArgs>
   bounties?: boolean | Prisma.Users$bountiesArgs<ExtArgs>
@@ -762,17 +959,26 @@ export type UsersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 
 export type UsersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
+  withdrawalDegen?: boolean
+  withdrawalBase?: boolean
+  withdrawalArbitrum?: boolean
 }, ExtArgs["result"]["users"]>
 
 export type UsersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
+  withdrawalDegen?: boolean
+  withdrawalBase?: boolean
+  withdrawalArbitrum?: boolean
 }, ExtArgs["result"]["users"]>
 
 export type UsersSelectScalar = {
   address?: boolean
+  withdrawalDegen?: boolean
+  withdrawalBase?: boolean
+  withdrawalArbitrum?: boolean
 }
 
-export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"address", ExtArgs["result"]["users"]>
+export type UsersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"address" | "withdrawalDegen" | "withdrawalBase" | "withdrawalArbitrum", ExtArgs["result"]["users"]>
 export type UsersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   participations?: boolean | Prisma.Users$participationsArgs<ExtArgs>
   claims?: boolean | Prisma.Users$claimsArgs<ExtArgs>
@@ -797,6 +1003,9 @@ export type $UsersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     address: string
+    withdrawalDegen: number
+    withdrawalBase: number
+    withdrawalArbitrum: number
   }, ExtArgs["result"]["users"]>
   composites: {}
 }
@@ -1227,6 +1436,9 @@ export interface Prisma__UsersClient<T, Null = never, ExtArgs extends runtime.Ty
  */
 export interface UsersFieldRefs {
   readonly address: Prisma.FieldRef<"Users", 'String'>
+  readonly withdrawalDegen: Prisma.FieldRef<"Users", 'Int'>
+  readonly withdrawalBase: Prisma.FieldRef<"Users", 'Int'>
+  readonly withdrawalArbitrum: Prisma.FieldRef<"Users", 'Int'>
 }
     
 

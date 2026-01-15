@@ -28,6 +28,7 @@ export type AggregateBounties = {
 
 export type BountiesAvgAggregateOutputType = {
   id: number | null
+  onChainId: number | null
   chain_id: number | null
   amount_sort: number | null
   created_at: runtime.Decimal | null
@@ -36,6 +37,7 @@ export type BountiesAvgAggregateOutputType = {
 
 export type BountiesSumAggregateOutputType = {
   id: number | null
+  onChainId: number | null
   chain_id: number | null
   amount_sort: number | null
   created_at: runtime.Decimal | null
@@ -44,6 +46,7 @@ export type BountiesSumAggregateOutputType = {
 
 export type BountiesMinAggregateOutputType = {
   id: number | null
+  onChainId: number | null
   chain_id: number | null
   title: string | null
   description: string | null
@@ -61,6 +64,7 @@ export type BountiesMinAggregateOutputType = {
 
 export type BountiesMaxAggregateOutputType = {
   id: number | null
+  onChainId: number | null
   chain_id: number | null
   title: string | null
   description: string | null
@@ -78,6 +82,7 @@ export type BountiesMaxAggregateOutputType = {
 
 export type BountiesCountAggregateOutputType = {
   id: number
+  onChainId: number
   chain_id: number
   title: number
   description: number
@@ -97,6 +102,7 @@ export type BountiesCountAggregateOutputType = {
 
 export type BountiesAvgAggregateInputType = {
   id?: true
+  onChainId?: true
   chain_id?: true
   amount_sort?: true
   created_at?: true
@@ -105,6 +111,7 @@ export type BountiesAvgAggregateInputType = {
 
 export type BountiesSumAggregateInputType = {
   id?: true
+  onChainId?: true
   chain_id?: true
   amount_sort?: true
   created_at?: true
@@ -113,6 +120,7 @@ export type BountiesSumAggregateInputType = {
 
 export type BountiesMinAggregateInputType = {
   id?: true
+  onChainId?: true
   chain_id?: true
   title?: true
   description?: true
@@ -130,6 +138,7 @@ export type BountiesMinAggregateInputType = {
 
 export type BountiesMaxAggregateInputType = {
   id?: true
+  onChainId?: true
   chain_id?: true
   title?: true
   description?: true
@@ -147,6 +156,7 @@ export type BountiesMaxAggregateInputType = {
 
 export type BountiesCountAggregateInputType = {
   id?: true
+  onChainId?: true
   chain_id?: true
   title?: true
   description?: true
@@ -251,6 +261,7 @@ export type BountiesGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type BountiesGroupByOutputType = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -291,6 +302,7 @@ export type BountiesWhereInput = {
   OR?: Prisma.BountiesWhereInput[]
   NOT?: Prisma.BountiesWhereInput | Prisma.BountiesWhereInput[]
   id?: Prisma.IntFilter<"Bounties"> | number
+  onChainId?: Prisma.IntFilter<"Bounties"> | number
   chain_id?: Prisma.IntFilter<"Bounties"> | number
   title?: Prisma.StringFilter<"Bounties"> | string
   description?: Prisma.StringFilter<"Bounties"> | string
@@ -315,6 +327,7 @@ export type BountiesWhereInput = {
 
 export type BountiesOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  onChainId?: Prisma.SortOrder
   chain_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -343,6 +356,7 @@ export type BountiesWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.BountiesWhereInput[]
   NOT?: Prisma.BountiesWhereInput | Prisma.BountiesWhereInput[]
   id?: Prisma.IntFilter<"Bounties"> | number
+  onChainId?: Prisma.IntFilter<"Bounties"> | number
   chain_id?: Prisma.IntFilter<"Bounties"> | number
   title?: Prisma.StringFilter<"Bounties"> | string
   description?: Prisma.StringFilter<"Bounties"> | string
@@ -367,6 +381,7 @@ export type BountiesWhereUniqueInput = Prisma.AtLeast<{
 
 export type BountiesOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  onChainId?: Prisma.SortOrder
   chain_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -392,6 +407,7 @@ export type BountiesScalarWhereWithAggregatesInput = {
   OR?: Prisma.BountiesScalarWhereWithAggregatesInput[]
   NOT?: Prisma.BountiesScalarWhereWithAggregatesInput | Prisma.BountiesScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Bounties"> | number
+  onChainId?: Prisma.IntWithAggregatesFilter<"Bounties"> | number
   chain_id?: Prisma.IntWithAggregatesFilter<"Bounties"> | number
   title?: Prisma.StringWithAggregatesFilter<"Bounties"> | string
   description?: Prisma.StringWithAggregatesFilter<"Bounties"> | string
@@ -409,6 +425,7 @@ export type BountiesScalarWhereWithAggregatesInput = {
 
 export type BountiesCreateInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -432,6 +449,7 @@ export type BountiesCreateInput = {
 
 export type BountiesUncheckedCreateInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -455,6 +473,7 @@ export type BountiesUncheckedCreateInput = {
 
 export type BountiesUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -478,6 +497,7 @@ export type BountiesUpdateInput = {
 
 export type BountiesUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -501,6 +521,7 @@ export type BountiesUncheckedUpdateInput = {
 
 export type BountiesCreateManyInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -518,6 +539,7 @@ export type BountiesCreateManyInput = {
 
 export type BountiesUpdateManyMutationInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -534,6 +556,7 @@ export type BountiesUpdateManyMutationInput = {
 
 export type BountiesUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -556,6 +579,7 @@ export type BountiesIdChain_idCompoundUniqueInput = {
 
 export type BountiesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  onChainId?: Prisma.SortOrder
   chain_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -573,6 +597,7 @@ export type BountiesCountOrderByAggregateInput = {
 
 export type BountiesAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  onChainId?: Prisma.SortOrder
   chain_id?: Prisma.SortOrder
   amount_sort?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -581,6 +606,7 @@ export type BountiesAvgOrderByAggregateInput = {
 
 export type BountiesMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  onChainId?: Prisma.SortOrder
   chain_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -598,6 +624,7 @@ export type BountiesMaxOrderByAggregateInput = {
 
 export type BountiesMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  onChainId?: Prisma.SortOrder
   chain_id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -615,6 +642,7 @@ export type BountiesMinOrderByAggregateInput = {
 
 export type BountiesSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  onChainId?: Prisma.SortOrder
   chain_id?: Prisma.SortOrder
   amount_sort?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -815,6 +843,7 @@ export type BountiesUpdateOneRequiredWithoutVotesNestedInput = {
 
 export type BountiesCreateWithoutClaimsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -837,6 +866,7 @@ export type BountiesCreateWithoutClaimsInput = {
 
 export type BountiesUncheckedCreateWithoutClaimsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -875,6 +905,7 @@ export type BountiesUpdateToOneWithWhereWithoutClaimsInput = {
 
 export type BountiesUpdateWithoutClaimsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -897,6 +928,7 @@ export type BountiesUpdateWithoutClaimsInput = {
 
 export type BountiesUncheckedUpdateWithoutClaimsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -919,6 +951,7 @@ export type BountiesUncheckedUpdateWithoutClaimsInput = {
 
 export type BountiesCreateWithoutParticipationsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -941,6 +974,7 @@ export type BountiesCreateWithoutParticipationsInput = {
 
 export type BountiesUncheckedCreateWithoutParticipationsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -979,6 +1013,7 @@ export type BountiesUpdateToOneWithWhereWithoutParticipationsInput = {
 
 export type BountiesUpdateWithoutParticipationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1001,6 +1036,7 @@ export type BountiesUpdateWithoutParticipationsInput = {
 
 export type BountiesUncheckedUpdateWithoutParticipationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1023,6 +1059,7 @@ export type BountiesUncheckedUpdateWithoutParticipationsInput = {
 
 export type BountiesCreateWithoutIssuerUserInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1045,6 +1082,7 @@ export type BountiesCreateWithoutIssuerUserInput = {
 
 export type BountiesUncheckedCreateWithoutIssuerUserInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1096,6 +1134,7 @@ export type BountiesScalarWhereInput = {
   OR?: Prisma.BountiesScalarWhereInput[]
   NOT?: Prisma.BountiesScalarWhereInput | Prisma.BountiesScalarWhereInput[]
   id?: Prisma.IntFilter<"Bounties"> | number
+  onChainId?: Prisma.IntFilter<"Bounties"> | number
   chain_id?: Prisma.IntFilter<"Bounties"> | number
   title?: Prisma.StringFilter<"Bounties"> | string
   description?: Prisma.StringFilter<"Bounties"> | string
@@ -1113,6 +1152,7 @@ export type BountiesScalarWhereInput = {
 
 export type BountiesCreateWithoutBanInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1135,6 +1175,7 @@ export type BountiesCreateWithoutBanInput = {
 
 export type BountiesUncheckedCreateWithoutBanInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1173,6 +1214,7 @@ export type BountiesUpdateToOneWithWhereWithoutBanInput = {
 
 export type BountiesUpdateWithoutBanInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1195,6 +1237,7 @@ export type BountiesUpdateWithoutBanInput = {
 
 export type BountiesUncheckedUpdateWithoutBanInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1217,6 +1260,7 @@ export type BountiesUncheckedUpdateWithoutBanInput = {
 
 export type BountiesCreateWithoutTransactionsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1239,6 +1283,7 @@ export type BountiesCreateWithoutTransactionsInput = {
 
 export type BountiesUncheckedCreateWithoutTransactionsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1277,6 +1322,7 @@ export type BountiesUpdateToOneWithWhereWithoutTransactionsInput = {
 
 export type BountiesUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1299,6 +1345,7 @@ export type BountiesUpdateWithoutTransactionsInput = {
 
 export type BountiesUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1321,6 +1368,7 @@ export type BountiesUncheckedUpdateWithoutTransactionsInput = {
 
 export type BountiesCreateWithoutCommentsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1343,6 +1391,7 @@ export type BountiesCreateWithoutCommentsInput = {
 
 export type BountiesUncheckedCreateWithoutCommentsInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1381,6 +1430,7 @@ export type BountiesUpdateToOneWithWhereWithoutCommentsInput = {
 
 export type BountiesUpdateWithoutCommentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1403,6 +1453,7 @@ export type BountiesUpdateWithoutCommentsInput = {
 
 export type BountiesUncheckedUpdateWithoutCommentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1425,6 +1476,7 @@ export type BountiesUncheckedUpdateWithoutCommentsInput = {
 
 export type BountiesCreateWithoutVotesInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1447,6 +1499,7 @@ export type BountiesCreateWithoutVotesInput = {
 
 export type BountiesUncheckedCreateWithoutVotesInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1485,6 +1538,7 @@ export type BountiesUpdateToOneWithWhereWithoutVotesInput = {
 
 export type BountiesUpdateWithoutVotesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1507,6 +1561,7 @@ export type BountiesUpdateWithoutVotesInput = {
 
 export type BountiesUncheckedUpdateWithoutVotesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1529,6 +1584,7 @@ export type BountiesUncheckedUpdateWithoutVotesInput = {
 
 export type BountiesCreateManyIssuerUserInput = {
   id: number
+  onChainId: number
   chain_id: number
   title: string
   description: string
@@ -1545,6 +1601,7 @@ export type BountiesCreateManyIssuerUserInput = {
 
 export type BountiesUpdateWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1567,6 +1624,7 @@ export type BountiesUpdateWithoutIssuerUserInput = {
 
 export type BountiesUncheckedUpdateWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1589,6 +1647,7 @@ export type BountiesUncheckedUpdateWithoutIssuerUserInput = {
 
 export type BountiesUncheckedUpdateManyWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  onChainId?: Prisma.IntFieldUpdateOperationsInput | number
   chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1681,6 +1740,7 @@ export type BountiesCountOutputTypeCountVotesArgs<ExtArgs extends runtime.Types.
 
 export type BountiesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  onChainId?: boolean
   chain_id?: boolean
   title?: boolean
   description?: boolean
@@ -1706,6 +1766,7 @@ export type BountiesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 
 export type BountiesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  onChainId?: boolean
   chain_id?: boolean
   title?: boolean
   description?: boolean
@@ -1724,6 +1785,7 @@ export type BountiesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type BountiesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  onChainId?: boolean
   chain_id?: boolean
   title?: boolean
   description?: boolean
@@ -1742,6 +1804,7 @@ export type BountiesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type BountiesSelectScalar = {
   id?: boolean
+  onChainId?: boolean
   chain_id?: boolean
   title?: boolean
   description?: boolean
@@ -1757,7 +1820,7 @@ export type BountiesSelectScalar = {
   deadline?: boolean
 }
 
-export type BountiesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chain_id" | "title" | "description" | "amount" | "amount_sort" | "issuer" | "created_at" | "in_progress" | "is_joined_bounty" | "is_canceled" | "is_multiplayer" | "is_voting" | "deadline", ExtArgs["result"]["bounties"]>
+export type BountiesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "onChainId" | "chain_id" | "title" | "description" | "amount" | "amount_sort" | "issuer" | "created_at" | "in_progress" | "is_joined_bounty" | "is_canceled" | "is_multiplayer" | "is_voting" | "deadline", ExtArgs["result"]["bounties"]>
 export type BountiesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   claims?: boolean | Prisma.Bounties$claimsArgs<ExtArgs>
   participations?: boolean | Prisma.Bounties$participationsArgs<ExtArgs>
@@ -1788,6 +1851,7 @@ export type $BountiesPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    onChainId: number
     chain_id: number
     title: string
     description: string
@@ -2232,6 +2296,7 @@ export interface Prisma__BountiesClient<T, Null = never, ExtArgs extends runtime
  */
 export interface BountiesFieldRefs {
   readonly id: Prisma.FieldRef<"Bounties", 'Int'>
+  readonly onChainId: Prisma.FieldRef<"Bounties", 'Int'>
   readonly chain_id: Prisma.FieldRef<"Bounties", 'Int'>
   readonly title: Prisma.FieldRef<"Bounties", 'String'>
   readonly description: Prisma.FieldRef<"Bounties", 'String'>

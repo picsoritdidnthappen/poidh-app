@@ -9,6 +9,7 @@ datasource db {
 
 model Bounties {
   id               Int
+  onChainId        Int      @map("on_chain_id")
   chain_id         Int
   title            String
   description      String
@@ -44,6 +45,7 @@ model BountiesExtra {
 
 model Claims {
   id          Int
+  onChainId   Int      @map("on_chain_id")
   chain_id    Int
   title       String
   description String
@@ -74,7 +76,10 @@ model ParticipationsBounties {
 }
 
 model Users {
-  address String
+  address            String
+  withdrawalDegen    Int    @default(0) @map("withdrawal_amount_degen")
+  withdrawalBase     Int    @default(0) @map("withdrawal_amount_base")
+  withdrawalArbitrum Int    @default(0) @map("withdrawal_amount_arbitrum")
 
   participations ParticipationsBounties[]
   claims         Claims[]
