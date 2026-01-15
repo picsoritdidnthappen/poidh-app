@@ -69,13 +69,11 @@ export default function ClaimItem({
   }, [url]);
 
   const acceptClaimMutation = useMutation({
-    mutationFn: async ({
-      bountyId,
-      claimId,
-    }: {
-      bountyId: bigint;
-      claimId: bigint;
-    }) => {
+    mutationFn: async ({ claimId }: { claimId: bigint }) => {
+      if (!bounty.data) {
+        throw new Error('Bounty data not found!');
+      }
+
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network...' });
@@ -89,7 +87,7 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'acceptClaim',
-        args: [bountyId, claimId],
+        args: [BigInt(bounty.data.onChainId), claimId],
         chainId: chain.id,
       });
 
@@ -123,13 +121,11 @@ export default function ClaimItem({
   });
 
   const submitForVoteMutation = useMutation({
-    mutationFn: async ({
-      bountyId,
-      claimId,
-    }: {
-      bountyId: bigint;
-      claimId: bigint;
-    }) => {
+    mutationFn: async ({ claimId }: { claimId: bigint }) => {
+      if (!bounty.data) {
+        throw new Error('Bounty data not found!');
+      }
+
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         await switctChain.switchChainAsync({ chainId: chain.id });
@@ -142,7 +138,7 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'submitClaimForVote',
-        args: [bountyId, claimId],
+        args: [BigInt(bounty.data.onChainId), claimId],
         chainId: pollingChainId ?? chain.id,
       });
     },
@@ -183,7 +179,6 @@ export default function ClaimItem({
         imageUrl={imageUrl ? imageUrl + '?q=50' : ''}
         onConfirm={() => {
           submitForVoteMutation.mutate({
-            bountyId: BigInt(bountyId),
             claimId: BigInt(id),
           });
           setShowVotingConfirm(false);
@@ -203,7 +198,6 @@ export default function ClaimItem({
                     setShowVotingConfirm(true);
                   } else {
                     acceptClaimMutation.mutate({
-                      bountyId: BigInt(bountyId),
                       claimId: BigInt(id),
                     });
                   }

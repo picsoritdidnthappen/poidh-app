@@ -8,7 +8,13 @@ import { toast } from 'react-toastify';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { pollingChainIdAtom } from '@/store/loading';
 
-export default function Withdraw({ bountyId }: { bountyId: string }) {
+export default function Withdraw({
+  id,
+  onChainId,
+}: {
+  id: string;
+  onChainId: number;
+}) {
   const chain = useChainInfo();
   const account = useAccount();
   const writeContract = useWriteContract({});
@@ -19,7 +25,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const withdrawFromOpenBountyMutation = useMutation({
-    mutationFn: async (bountyId: bigint) => {
+    mutationFn: async () => {
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network' });
@@ -33,7 +39,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
         chainId: chain.id,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'withdrawFromOpenBounty',
-        args: [bountyId],
+        args: [BigInt(onChainId)],
       });
 
       for (let i = 0; i < 180; i++) {
@@ -42,7 +48,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
           throw new Error('Wallet not connected');
         }
         const participant = await trpcClient.bounties.isWithdraw.query({
-          bountyId: Number(bountyId),
+          bountyId: Number(id),
           chainId: pollingChainId ?? chain.id,
           participantAddress: account.address,
         });
@@ -74,7 +80,7 @@ export default function Withdraw({ bountyId }: { bountyId: string }) {
           className='border border-white rounded-full px-5 py-2  backdrop-blur-sm bg-white/30 hover:bg-white/40'
           onClick={() => {
             if (account.address) {
-              withdrawFromOpenBountyMutation.mutate(BigInt(bountyId));
+              withdrawFromOpenBountyMutation.mutate();
             } else {
               toast.error('Please fill in all fields and connect wallet');
             }

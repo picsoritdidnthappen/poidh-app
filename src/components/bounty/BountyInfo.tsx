@@ -82,7 +82,11 @@ export default function BountyInfo({
   );
 
   const signMutation = useMutation({
-    mutationFn: async (bountyId: string) => {
+    mutationFn: async () => {
+      if (!bounty.data) {
+        throw new Error('Bounty data not found!');
+      }
+
       //arbitrum has a problem with message signing, so all confirmations are on base
       const chainId = await account.connector?.getChainId();
       if (chainId !== 8453) {
@@ -91,8 +95,8 @@ export default function BountyInfo({
 
       const message =
         getBanSignatureFirstLine({
-          id: Number(bountyId),
-          chainId: chain.id,
+          id: Number(bounty.data.id),
+          chainId: bounty.data.chain_id,
           type: 'bounty',
         }) + JSON.stringify(bounty.data, undefined, 2);
       if (account.address) {
@@ -101,8 +105,8 @@ export default function BountyInfo({
           throw new Error('Failed to sign message');
         }
         await banBountyMutation.mutateAsync({
-          id: Number(bountyId),
-          chainId: chain.id,
+          id: Number(bounty.data.id),
+          chainId: bounty.data.chain_id,
           address: account.address,
           chainName: chain.slug,
           message,
@@ -122,7 +126,11 @@ export default function BountyInfo({
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async (bountyId: bigint) => {
+    mutationFn: async () => {
+      if (!bounty.data) {
+        throw new Error('Bounty data not found!');
+      }
+
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network...' });
@@ -140,14 +148,14 @@ export default function BountyInfo({
         functionName: bounty.data.isMultiplayer
           ? 'cancelOpenBounty'
           : 'cancelSoloBounty',
-        args: [bountyId],
+        args: [BigInt(bounty.data.onChainId)],
         chainId: chain.id,
       });
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const canceled = await trpcClient.bounties.isCanceled.query({
-          id: Number(bountyId),
+          id: Number(bounty.data.id),
           chainId: chain.id,
         });
         if (canceled) {
@@ -210,7 +218,7 @@ export default function BountyInfo({
             <button
               onClick={() => {
                 if (isAdmin.data) {
-                  signMutation.mutate(bountyId);
+                  signMutation.mutate();
                 } else {
                   toast.error('You are not an admin');
                 }
@@ -255,7 +263,7 @@ export default function BountyInfo({
               bounty.data.issuer.toLocaleLowerCase() &&
             !bounty.data.is_voting && (
               <button
-                onClick={() => cancelMutation.mutate(BigInt(bountyId))}
+                onClick={() => cancelMutation.mutate()}
                 disabled={!bounty.data.inProgress}
                 className='border border-poidhRed rounded-md w-fit py-2 px-5 mt-5 hover:bg-red-400 hover:text-white'
               >
@@ -279,10 +287,10 @@ export default function BountyInfo({
       />
       <div className='flex flex-wrap items-center gap-4 my-8'>
         <div className='flex items-center gap-4'>
-          {bounty.data.is_multiplayer &&
+          {bounty.data.isMultiplayer &&
             bounty.data.inProgress &&
             (canWithdraw ? (
-              <Withdraw bountyId={bountyId} />
+              <Withdraw id={bounty.data.id} onChainId={bounty.data.onChainId} />
             ) : (
               !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
             ))}

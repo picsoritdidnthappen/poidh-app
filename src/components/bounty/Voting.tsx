@@ -1,7 +1,6 @@
 import { PieChart } from 'react-minimal-pie-chart';
 import { toast } from 'react-toastify';
 import { formatEther } from 'viem';
-
 import { useChainInfo } from '@/hooks/useGetChain';
 import { bountyVotingTracker } from '@/utils/web3';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
@@ -65,13 +64,11 @@ export default function Voting({
     parseInt(voting.data?.deadline ?? '0') * 1000 > Date.now();
 
   const voteMutation = useMutation({
-    mutationFn: async ({
-      vote,
-      bountyId,
-    }: {
-      vote: boolean;
-      bountyId: bigint;
-    }) => {
+    mutationFn: async ({ vote }: { vote: boolean }) => {
+      if (!bounty.data) {
+        throw new Error('Bounty not found');
+      }
+
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network' });
@@ -84,7 +81,7 @@ export default function Voting({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'voteClaim',
-        args: [bountyId, vote],
+        args: [BigInt(bounty.data.onChainId), vote],
         chainId: chain.id,
       });
 
@@ -103,7 +100,11 @@ export default function Voting({
   });
 
   const resolveVoteMutation = useMutation({
-    mutationFn: async (bountyId: bigint) => {
+    mutationFn: async () => {
+      if (!bounty.data) {
+        throw new Error('Bounty data not found!');
+      }
+
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         await switctChain.switchChainAsync({ chainId: chain.id });
@@ -112,7 +113,7 @@ export default function Voting({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'resolveVote',
-        args: [bountyId],
+        args: [BigInt(bounty.data.onChainId)],
         chainId: chain.id,
       });
     },
@@ -237,7 +238,6 @@ export default function Voting({
                         if (account.address) {
                           voteMutation.mutate({
                             vote: true,
-                            bountyId: BigInt(bountyId),
                           });
                         } else {
                           toast.error('Please connect wallet to continue');
@@ -253,7 +253,6 @@ export default function Voting({
                         if (account.address) {
                           voteMutation.mutate({
                             vote: false,
-                            bountyId: BigInt(bountyId),
                           });
                         } else {
                           toast.error('Please connect wallet to continue');
@@ -280,7 +279,7 @@ export default function Voting({
                 className='w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-blue-400/20 bg-gradient-to-r from-blue-500/70 to-blue-600/70 text-white hover:from-blue-500/85 hover:to-blue-600/85 hover:border-blue-400 active:scale-95 shadow-lg hover:shadow-blue-500/20'
                 onClick={() => {
                   if (account.address) {
-                    resolveVoteMutation.mutate(BigInt(bountyId));
+                    resolveVoteMutation.mutate();
                   } else {
                     toast.error('Please connect wallet to continue');
                   }

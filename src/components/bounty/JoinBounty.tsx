@@ -17,10 +17,15 @@ export default function JoinBounty({ bountyId }: { bountyId: string }) {
     chainId: chain.id,
   });
 
+  if (!bounty.data) {
+    return null;
+  }
+
   return (
     <>
       <FormJoinBounty
-        bountyId={bountyId}
+        id={bounty.data.id}
+        onChainId={bounty.data.onChainId}
         open={showForm}
         onClose={() => setShowForm(false)}
       />

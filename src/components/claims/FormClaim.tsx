@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { useAtomValue, useSetAtom } from 'jotai';
-
 import { useChainInfo } from '@/hooks/useGetChain';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
@@ -10,7 +9,6 @@ import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import Image from 'next/image';
 import { useMutation } from '@tanstack/react-query';
-
 import { Dialog, DialogContent, Box } from '@mui/material';
 import { decodeEventLog } from 'viem';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -29,11 +27,13 @@ type SuccessPayload = {
 
 export default function FormClaim({
   bountyId,
+  onChainBountyId,
   open,
   onClose,
 }: {
   bountyId: string;
   open: boolean;
+  onChainBountyId: number;
   onClose: () => void;
 }) {
   const [preview, setPreview] = useState<string>('');
@@ -120,7 +120,7 @@ export default function FormClaim({
   }, [file]);
 
   const createClaimMutations = useMutation({
-    mutationFn: async (bountyId: bigint) => {
+    mutationFn: async () => {
       setShowConfirm(false);
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
@@ -139,7 +139,7 @@ export default function FormClaim({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'createClaim',
-        args: [bountyId, title, uri, description],
+        args: [BigInt(onChainBountyId), title, uri, description],
       });
 
       setLoading({ isLoading: true, status: 'Waiting for receipt...' });
@@ -216,7 +216,7 @@ export default function FormClaim({
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
         imageUrl={preview}
-        onConfirm={() => createClaimMutations.mutate(BigInt(bountyId))}
+        onConfirm={() => createClaimMutations.mutate()}
       />
       <ClaimSuccessModal
         open={showSuccess}

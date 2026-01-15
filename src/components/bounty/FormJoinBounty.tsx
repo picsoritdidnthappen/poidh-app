@@ -14,11 +14,13 @@ import { formatAmountShort } from '@/utils/utils';
 import JoinBountySuccessModal from './JoinBountySuccessModal';
 
 export default function FormJoinBounty({
-  bountyId,
+  id,
+  onChainId,
   open,
   onClose,
 }: {
-  bountyId: string;
+  id: string;
+  onChainId: number;
   open: boolean;
   onClose: () => void;
 }) {
@@ -39,12 +41,14 @@ export default function FormJoinBounty({
     trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
 
   const bountyMutation = useMutation({
-    mutationFn: async (bountyId: bigint) => {
-      const chainId = await account.connector?.getChainId();
-      if (chain.id !== chainId) {
+    mutationFn: async () => {
+      const walletChainId = await account.connector?.getChainId();
+
+      if (chain.id !== walletChainId) {
         setLoading({ isLoading: true, status: 'Switching network...' });
         await switchChain.switchChainAsync({ chainId: chain.id });
       }
+
       setLoading({ isLoading: true, status: 'Waiting approval' });
       setPollingChainId(chain.id);
       await writeContract.writeContractAsync({
@@ -52,7 +56,7 @@ export default function FormJoinBounty({
         address: chain.contracts.mainContract as `0x${string}`,
         value: BigInt(parseEther(amount)),
         functionName: 'joinOpenBounty',
-        args: [bountyId],
+        args: [BigInt(onChainId)],
         chainId: chain.id,
       });
 
@@ -62,7 +66,7 @@ export default function FormJoinBounty({
           throw new Error('No wallet address found');
         }
         const participant = await trpcClient.bounties.isJoined.query({
-          bountyId: Number(bountyId),
+          bountyId: Number(id),
           chainId: pollingChainId ?? chain.id,
           participantAddress: account.address,
         });
@@ -143,7 +147,7 @@ export default function FormJoinBounty({
               onClick={() => {
                 if (account.address) {
                   onClose();
-                  bountyMutation.mutate(BigInt(bountyId));
+                  bountyMutation.mutate();
                 } else {
                   toast.error('Please connect wallet to continue');
                 }
@@ -162,7 +166,7 @@ export default function FormJoinBounty({
           utils.bounties.participations.refetch();
         }}
         joinedAmount={amount}
-        bountyId={bountyId}
+        bountyId={id}
       />
     </>
   );

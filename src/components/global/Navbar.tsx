@@ -48,15 +48,11 @@ export default function Navbar({
       return;
     }
 
-    toast.error(
-      `${type} creation is currently on hold as we work on the launch of poidh v3`
-    );
-
-    // if (account.address) {
-    //   setShowForm(true);
-    //   return;
-    // }
-    // openConnectModal?.();
+    if (account.address) {
+      setShowForm(true);
+      return;
+    }
+    openConnectModal?.();
   };
 
   if (isMobile) {
@@ -131,9 +127,10 @@ export default function Navbar({
         {type === 'bounty' ? (
           <FormBounty open={showForm} onClose={() => setShowForm(false)} />
         ) : (
-          bountyId && (
+          bounty.data && (
             <FormClaim
-              bountyId={bountyId}
+              bountyId={bounty.data.id}
+              onChainBountyId={bounty.data.onChainId}
               open={showForm}
               onClose={() => setShowForm(false)}
             />
@@ -158,9 +155,10 @@ export default function Navbar({
       {type === 'bounty' ? (
         <FormBounty open={showForm} onClose={() => setShowForm(false)} />
       ) : (
-        bountyId && (
+        bounty.data && (
           <FormClaim
-            bountyId={bountyId}
+            bountyId={bounty.data.id}
+            onChainBountyId={bounty.data.onChainId}
             open={showForm}
             onClose={() => setShowForm(false)}
           />

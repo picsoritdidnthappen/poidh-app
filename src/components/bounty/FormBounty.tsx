@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-
 import { useChainInfo } from '@/hooks/useGetChain';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';

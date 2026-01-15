@@ -45,6 +45,7 @@ export const bountiesRouter = {
       return {
         ...bounty,
         id: bounty.id.toString(),
+        onChainId: bounty.onChainId,
         hasClaims: bounty.claims.length > 0,
         inProgress: bounty.in_progress,
         isMultiplayer: bounty.is_multiplayer,
