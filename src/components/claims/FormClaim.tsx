@@ -139,7 +139,7 @@ export default function FormClaim({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'createClaim',
-        args: [BigInt(onChainBountyId), title, uri, description],
+        args: [BigInt(onChainBountyId), title, description, uri],
       });
 
       setLoading({ isLoading: true, status: 'Waiting for receipt...' });
