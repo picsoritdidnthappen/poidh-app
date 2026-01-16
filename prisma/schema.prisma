@@ -36,11 +36,11 @@ model Bounties {
 }
 
 model BountiesExtra {
-  bounty_id Int
-  chain_id  Int
-  album     String
+  bountyId Int @map("bounty_id")
+  chainId  Int @map("chain_id")
+  album    String
 
-  @@id([bounty_id, chain_id])
+  @@id([bountyId, chainId])
 }
 
 model Claims {
