@@ -1420,18 +1420,18 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const BountiesScalarFieldEnum = {
   id: 'id',
   onChainId: 'onChainId',
-  chain_id: 'chain_id',
+  chainId: 'chainId',
   title: 'title',
   description: 'description',
   amount: 'amount',
-  amount_sort: 'amount_sort',
+  amountSort: 'amountSort',
   issuer: 'issuer',
-  created_at: 'created_at',
-  in_progress: 'in_progress',
-  is_joined_bounty: 'is_joined_bounty',
-  is_canceled: 'is_canceled',
-  is_multiplayer: 'is_multiplayer',
-  is_voting: 'is_voting',
+  createdAt: 'createdAt',
+  inProgress: 'inProgress',
+  isJoinedBounty: 'isJoinedBounty',
+  isCanceled: 'isCanceled',
+  isMultiplayer: 'isMultiplayer',
+  isVoting: 'isVoting',
   deadline: 'deadline'
 } as const
 

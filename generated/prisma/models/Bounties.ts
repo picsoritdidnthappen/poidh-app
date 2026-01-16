@@ -29,72 +29,72 @@ export type AggregateBounties = {
 export type BountiesAvgAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
-  amount_sort: number | null
-  created_at: runtime.Decimal | null
+  chainId: number | null
+  amountSort: number | null
+  createdAt: runtime.Decimal | null
   deadline: number | null
 }
 
 export type BountiesSumAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
-  amount_sort: number | null
-  created_at: runtime.Decimal | null
+  chainId: number | null
+  amountSort: number | null
+  createdAt: runtime.Decimal | null
   deadline: number | null
 }
 
 export type BountiesMinAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
+  chainId: number | null
   title: string | null
   description: string | null
   amount: string | null
-  amount_sort: number | null
+  amountSort: number | null
   issuer: string | null
-  created_at: runtime.Decimal | null
-  in_progress: boolean | null
-  is_joined_bounty: boolean | null
-  is_canceled: boolean | null
-  is_multiplayer: boolean | null
-  is_voting: boolean | null
+  createdAt: runtime.Decimal | null
+  inProgress: boolean | null
+  isJoinedBounty: boolean | null
+  isCanceled: boolean | null
+  isMultiplayer: boolean | null
+  isVoting: boolean | null
   deadline: number | null
 }
 
 export type BountiesMaxAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
+  chainId: number | null
   title: string | null
   description: string | null
   amount: string | null
-  amount_sort: number | null
+  amountSort: number | null
   issuer: string | null
-  created_at: runtime.Decimal | null
-  in_progress: boolean | null
-  is_joined_bounty: boolean | null
-  is_canceled: boolean | null
-  is_multiplayer: boolean | null
-  is_voting: boolean | null
+  createdAt: runtime.Decimal | null
+  inProgress: boolean | null
+  isJoinedBounty: boolean | null
+  isCanceled: boolean | null
+  isMultiplayer: boolean | null
+  isVoting: boolean | null
   deadline: number | null
 }
 
 export type BountiesCountAggregateOutputType = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: number
   description: number
   amount: number
-  amount_sort: number
+  amountSort: number
   issuer: number
-  created_at: number
-  in_progress: number
-  is_joined_bounty: number
-  is_canceled: number
-  is_multiplayer: number
-  is_voting: number
+  createdAt: number
+  inProgress: number
+  isJoinedBounty: number
+  isCanceled: number
+  isMultiplayer: number
+  isVoting: number
   deadline: number
   _all: number
 }
@@ -103,72 +103,72 @@ export type BountiesCountAggregateOutputType = {
 export type BountiesAvgAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
-  amount_sort?: true
-  created_at?: true
+  chainId?: true
+  amountSort?: true
+  createdAt?: true
   deadline?: true
 }
 
 export type BountiesSumAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
-  amount_sort?: true
-  created_at?: true
+  chainId?: true
+  amountSort?: true
+  createdAt?: true
   deadline?: true
 }
 
 export type BountiesMinAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
+  chainId?: true
   title?: true
   description?: true
   amount?: true
-  amount_sort?: true
+  amountSort?: true
   issuer?: true
-  created_at?: true
-  in_progress?: true
-  is_joined_bounty?: true
-  is_canceled?: true
-  is_multiplayer?: true
-  is_voting?: true
+  createdAt?: true
+  inProgress?: true
+  isJoinedBounty?: true
+  isCanceled?: true
+  isMultiplayer?: true
+  isVoting?: true
   deadline?: true
 }
 
 export type BountiesMaxAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
+  chainId?: true
   title?: true
   description?: true
   amount?: true
-  amount_sort?: true
+  amountSort?: true
   issuer?: true
-  created_at?: true
-  in_progress?: true
-  is_joined_bounty?: true
-  is_canceled?: true
-  is_multiplayer?: true
-  is_voting?: true
+  createdAt?: true
+  inProgress?: true
+  isJoinedBounty?: true
+  isCanceled?: true
+  isMultiplayer?: true
+  isVoting?: true
   deadline?: true
 }
 
 export type BountiesCountAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
+  chainId?: true
   title?: true
   description?: true
   amount?: true
-  amount_sort?: true
+  amountSort?: true
   issuer?: true
-  created_at?: true
-  in_progress?: true
-  is_joined_bounty?: true
-  is_canceled?: true
-  is_multiplayer?: true
-  is_voting?: true
+  createdAt?: true
+  inProgress?: true
+  isJoinedBounty?: true
+  isCanceled?: true
+  isMultiplayer?: true
+  isVoting?: true
   deadline?: true
   _all?: true
 }
@@ -262,18 +262,18 @@ export type BountiesGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type BountiesGroupByOutputType = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal
-  in_progress: boolean | null
-  is_joined_bounty: boolean | null
-  is_canceled: boolean | null
-  is_multiplayer: boolean | null
-  is_voting: boolean | null
+  createdAt: runtime.Decimal
+  inProgress: boolean | null
+  isJoinedBounty: boolean | null
+  isCanceled: boolean | null
+  isMultiplayer: boolean | null
+  isVoting: boolean | null
   deadline: number | null
   _count: BountiesCountAggregateOutputType | null
   _avg: BountiesAvgAggregateOutputType | null
@@ -303,18 +303,18 @@ export type BountiesWhereInput = {
   NOT?: Prisma.BountiesWhereInput | Prisma.BountiesWhereInput[]
   id?: Prisma.IntFilter<"Bounties"> | number
   onChainId?: Prisma.IntFilter<"Bounties"> | number
-  chain_id?: Prisma.IntFilter<"Bounties"> | number
+  chainId?: Prisma.IntFilter<"Bounties"> | number
   title?: Prisma.StringFilter<"Bounties"> | string
   description?: Prisma.StringFilter<"Bounties"> | string
   amount?: Prisma.StringFilter<"Bounties"> | string
-  amount_sort?: Prisma.FloatFilter<"Bounties"> | number
+  amountSort?: Prisma.FloatFilter<"Bounties"> | number
   issuer?: Prisma.StringFilter<"Bounties"> | string
-  created_at?: Prisma.DecimalFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_joined_bounty?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_canceled?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_multiplayer?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_voting?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  createdAt?: Prisma.DecimalFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isJoinedBounty?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isCanceled?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isMultiplayer?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isVoting?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
   deadline?: Prisma.IntNullableFilter<"Bounties"> | number | null
   claims?: Prisma.ClaimsListRelationFilter
   participations?: Prisma.ParticipationsBountiesListRelationFilter
@@ -328,18 +328,18 @@ export type BountiesWhereInput = {
 export type BountiesOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  amount_sort?: Prisma.SortOrder
+  amountSort?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  in_progress?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_joined_bounty?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_canceled?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_multiplayer?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_voting?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  inProgress?: Prisma.SortOrderInput | Prisma.SortOrder
+  isJoinedBounty?: Prisma.SortOrderInput | Prisma.SortOrder
+  isCanceled?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMultiplayer?: Prisma.SortOrderInput | Prisma.SortOrder
+  isVoting?: Prisma.SortOrderInput | Prisma.SortOrder
   deadline?: Prisma.SortOrderInput | Prisma.SortOrder
   claims?: Prisma.ClaimsOrderByRelationAggregateInput
   participations?: Prisma.ParticipationsBountiesOrderByRelationAggregateInput
@@ -351,24 +351,24 @@ export type BountiesOrderByWithRelationInput = {
 }
 
 export type BountiesWhereUniqueInput = Prisma.AtLeast<{
-  id_chain_id?: Prisma.BountiesIdChain_idCompoundUniqueInput
+  id_chainId?: Prisma.BountiesIdChainIdCompoundUniqueInput
   AND?: Prisma.BountiesWhereInput | Prisma.BountiesWhereInput[]
   OR?: Prisma.BountiesWhereInput[]
   NOT?: Prisma.BountiesWhereInput | Prisma.BountiesWhereInput[]
   id?: Prisma.IntFilter<"Bounties"> | number
   onChainId?: Prisma.IntFilter<"Bounties"> | number
-  chain_id?: Prisma.IntFilter<"Bounties"> | number
+  chainId?: Prisma.IntFilter<"Bounties"> | number
   title?: Prisma.StringFilter<"Bounties"> | string
   description?: Prisma.StringFilter<"Bounties"> | string
   amount?: Prisma.StringFilter<"Bounties"> | string
-  amount_sort?: Prisma.FloatFilter<"Bounties"> | number
+  amountSort?: Prisma.FloatFilter<"Bounties"> | number
   issuer?: Prisma.StringFilter<"Bounties"> | string
-  created_at?: Prisma.DecimalFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_joined_bounty?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_canceled?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_multiplayer?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_voting?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  createdAt?: Prisma.DecimalFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isJoinedBounty?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isCanceled?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isMultiplayer?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isVoting?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
   deadline?: Prisma.IntNullableFilter<"Bounties"> | number | null
   claims?: Prisma.ClaimsListRelationFilter
   participations?: Prisma.ParticipationsBountiesListRelationFilter
@@ -377,23 +377,23 @@ export type BountiesWhereUniqueInput = Prisma.AtLeast<{
   transactions?: Prisma.TransactionsListRelationFilter
   comments?: Prisma.CommentsListRelationFilter
   votes?: Prisma.VotesListRelationFilter
-}, "id_chain_id">
+}, "id_chainId">
 
 export type BountiesOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  amount_sort?: Prisma.SortOrder
+  amountSort?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  in_progress?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_joined_bounty?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_canceled?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_multiplayer?: Prisma.SortOrderInput | Prisma.SortOrder
-  is_voting?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  inProgress?: Prisma.SortOrderInput | Prisma.SortOrder
+  isJoinedBounty?: Prisma.SortOrderInput | Prisma.SortOrder
+  isCanceled?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMultiplayer?: Prisma.SortOrderInput | Prisma.SortOrder
+  isVoting?: Prisma.SortOrderInput | Prisma.SortOrder
   deadline?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.BountiesCountOrderByAggregateInput
   _avg?: Prisma.BountiesAvgOrderByAggregateInput
@@ -408,35 +408,35 @@ export type BountiesScalarWhereWithAggregatesInput = {
   NOT?: Prisma.BountiesScalarWhereWithAggregatesInput | Prisma.BountiesScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Bounties"> | number
   onChainId?: Prisma.IntWithAggregatesFilter<"Bounties"> | number
-  chain_id?: Prisma.IntWithAggregatesFilter<"Bounties"> | number
+  chainId?: Prisma.IntWithAggregatesFilter<"Bounties"> | number
   title?: Prisma.StringWithAggregatesFilter<"Bounties"> | string
   description?: Prisma.StringWithAggregatesFilter<"Bounties"> | string
   amount?: Prisma.StringWithAggregatesFilter<"Bounties"> | string
-  amount_sort?: Prisma.FloatWithAggregatesFilter<"Bounties"> | number
+  amountSort?: Prisma.FloatWithAggregatesFilter<"Bounties"> | number
   issuer?: Prisma.StringWithAggregatesFilter<"Bounties"> | string
-  created_at?: Prisma.DecimalWithAggregatesFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
-  is_joined_bounty?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
-  is_canceled?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
-  is_multiplayer?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
-  is_voting?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
+  createdAt?: Prisma.DecimalWithAggregatesFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
+  isJoinedBounty?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
+  isCanceled?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
+  isMultiplayer?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
+  isVoting?: Prisma.BoolNullableWithAggregatesFilter<"Bounties"> | boolean | null
   deadline?: Prisma.IntNullableWithAggregatesFilter<"Bounties"> | number | null
 }
 
 export type BountiesCreateInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutBountyInput
@@ -450,18 +450,18 @@ export type BountiesCreateInput = {
 export type BountiesUncheckedCreateInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutBountyInput
@@ -474,17 +474,17 @@ export type BountiesUncheckedCreateInput = {
 export type BountiesUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutBountyNestedInput
@@ -498,18 +498,18 @@ export type BountiesUpdateInput = {
 export type BountiesUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutBountyNestedInput
@@ -522,130 +522,130 @@ export type BountiesUncheckedUpdateInput = {
 export type BountiesCreateManyInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
 }
 
 export type BountiesUpdateManyMutationInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BountiesUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type BountiesIdChain_idCompoundUniqueInput = {
+export type BountiesIdChainIdCompoundUniqueInput = {
   id: number
-  chain_id: number
+  chainId: number
 }
 
 export type BountiesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  amount_sort?: Prisma.SortOrder
+  amountSort?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  in_progress?: Prisma.SortOrder
-  is_joined_bounty?: Prisma.SortOrder
-  is_canceled?: Prisma.SortOrder
-  is_multiplayer?: Prisma.SortOrder
-  is_voting?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  inProgress?: Prisma.SortOrder
+  isJoinedBounty?: Prisma.SortOrder
+  isCanceled?: Prisma.SortOrder
+  isMultiplayer?: Prisma.SortOrder
+  isVoting?: Prisma.SortOrder
   deadline?: Prisma.SortOrder
 }
 
 export type BountiesAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  amount_sort?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  amountSort?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   deadline?: Prisma.SortOrder
 }
 
 export type BountiesMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  amount_sort?: Prisma.SortOrder
+  amountSort?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  in_progress?: Prisma.SortOrder
-  is_joined_bounty?: Prisma.SortOrder
-  is_canceled?: Prisma.SortOrder
-  is_multiplayer?: Prisma.SortOrder
-  is_voting?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  inProgress?: Prisma.SortOrder
+  isJoinedBounty?: Prisma.SortOrder
+  isCanceled?: Prisma.SortOrder
+  isMultiplayer?: Prisma.SortOrder
+  isVoting?: Prisma.SortOrder
   deadline?: Prisma.SortOrder
 }
 
 export type BountiesMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  amount_sort?: Prisma.SortOrder
+  amountSort?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  in_progress?: Prisma.SortOrder
-  is_joined_bounty?: Prisma.SortOrder
-  is_canceled?: Prisma.SortOrder
-  is_multiplayer?: Prisma.SortOrder
-  is_voting?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  inProgress?: Prisma.SortOrder
+  isJoinedBounty?: Prisma.SortOrder
+  isCanceled?: Prisma.SortOrder
+  isMultiplayer?: Prisma.SortOrder
+  isVoting?: Prisma.SortOrder
   deadline?: Prisma.SortOrder
 }
 
 export type BountiesSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  amount_sort?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  amountSort?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
   deadline?: Prisma.SortOrder
 }
 
@@ -844,17 +844,17 @@ export type BountiesUpdateOneRequiredWithoutVotesNestedInput = {
 export type BountiesCreateWithoutClaimsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutBountyInput
   issuerUser?: Prisma.UsersCreateNestedOneWithoutBountiesInput
@@ -867,18 +867,18 @@ export type BountiesCreateWithoutClaimsInput = {
 export type BountiesUncheckedCreateWithoutClaimsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutBountyInput
   ban?: Prisma.BanUncheckedCreateNestedManyWithoutBountyInput
@@ -906,17 +906,17 @@ export type BountiesUpdateToOneWithWhereWithoutClaimsInput = {
 export type BountiesUpdateWithoutClaimsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutBountyNestedInput
   issuerUser?: Prisma.UsersUpdateOneWithoutBountiesNestedInput
@@ -929,18 +929,18 @@ export type BountiesUpdateWithoutClaimsInput = {
 export type BountiesUncheckedUpdateWithoutClaimsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutBountyNestedInput
   ban?: Prisma.BanUncheckedUpdateManyWithoutBountyNestedInput
@@ -952,17 +952,17 @@ export type BountiesUncheckedUpdateWithoutClaimsInput = {
 export type BountiesCreateWithoutParticipationsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsCreateNestedManyWithoutBountyInput
   issuerUser?: Prisma.UsersCreateNestedOneWithoutBountiesInput
@@ -975,18 +975,18 @@ export type BountiesCreateWithoutParticipationsInput = {
 export type BountiesUncheckedCreateWithoutParticipationsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutBountyInput
   ban?: Prisma.BanUncheckedCreateNestedManyWithoutBountyInput
@@ -1014,17 +1014,17 @@ export type BountiesUpdateToOneWithWhereWithoutParticipationsInput = {
 export type BountiesUpdateWithoutParticipationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUpdateManyWithoutBountyNestedInput
   issuerUser?: Prisma.UsersUpdateOneWithoutBountiesNestedInput
@@ -1037,18 +1037,18 @@ export type BountiesUpdateWithoutParticipationsInput = {
 export type BountiesUncheckedUpdateWithoutParticipationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutBountyNestedInput
   ban?: Prisma.BanUncheckedUpdateManyWithoutBountyNestedInput
@@ -1060,17 +1060,17 @@ export type BountiesUncheckedUpdateWithoutParticipationsInput = {
 export type BountiesCreateWithoutIssuerUserInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutBountyInput
@@ -1083,17 +1083,17 @@ export type BountiesCreateWithoutIssuerUserInput = {
 export type BountiesUncheckedCreateWithoutIssuerUserInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutBountyInput
@@ -1135,35 +1135,35 @@ export type BountiesScalarWhereInput = {
   NOT?: Prisma.BountiesScalarWhereInput | Prisma.BountiesScalarWhereInput[]
   id?: Prisma.IntFilter<"Bounties"> | number
   onChainId?: Prisma.IntFilter<"Bounties"> | number
-  chain_id?: Prisma.IntFilter<"Bounties"> | number
+  chainId?: Prisma.IntFilter<"Bounties"> | number
   title?: Prisma.StringFilter<"Bounties"> | string
   description?: Prisma.StringFilter<"Bounties"> | string
   amount?: Prisma.StringFilter<"Bounties"> | string
-  amount_sort?: Prisma.FloatFilter<"Bounties"> | number
+  amountSort?: Prisma.FloatFilter<"Bounties"> | number
   issuer?: Prisma.StringFilter<"Bounties"> | string
-  created_at?: Prisma.DecimalFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_joined_bounty?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_canceled?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_multiplayer?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
-  is_voting?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  createdAt?: Prisma.DecimalFilter<"Bounties"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isJoinedBounty?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isCanceled?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isMultiplayer?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
+  isVoting?: Prisma.BoolNullableFilter<"Bounties"> | boolean | null
   deadline?: Prisma.IntNullableFilter<"Bounties"> | number | null
 }
 
 export type BountiesCreateWithoutBanInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutBountyInput
@@ -1176,18 +1176,18 @@ export type BountiesCreateWithoutBanInput = {
 export type BountiesUncheckedCreateWithoutBanInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutBountyInput
@@ -1215,17 +1215,17 @@ export type BountiesUpdateToOneWithWhereWithoutBanInput = {
 export type BountiesUpdateWithoutBanInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutBountyNestedInput
@@ -1238,18 +1238,18 @@ export type BountiesUpdateWithoutBanInput = {
 export type BountiesUncheckedUpdateWithoutBanInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutBountyNestedInput
@@ -1261,17 +1261,17 @@ export type BountiesUncheckedUpdateWithoutBanInput = {
 export type BountiesCreateWithoutTransactionsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutBountyInput
@@ -1284,18 +1284,18 @@ export type BountiesCreateWithoutTransactionsInput = {
 export type BountiesUncheckedCreateWithoutTransactionsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutBountyInput
@@ -1323,17 +1323,17 @@ export type BountiesUpdateToOneWithWhereWithoutTransactionsInput = {
 export type BountiesUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutBountyNestedInput
@@ -1346,18 +1346,18 @@ export type BountiesUpdateWithoutTransactionsInput = {
 export type BountiesUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutBountyNestedInput
@@ -1369,17 +1369,17 @@ export type BountiesUncheckedUpdateWithoutTransactionsInput = {
 export type BountiesCreateWithoutCommentsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutBountyInput
@@ -1392,18 +1392,18 @@ export type BountiesCreateWithoutCommentsInput = {
 export type BountiesUncheckedCreateWithoutCommentsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutBountyInput
@@ -1431,17 +1431,17 @@ export type BountiesUpdateToOneWithWhereWithoutCommentsInput = {
 export type BountiesUpdateWithoutCommentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutBountyNestedInput
@@ -1454,18 +1454,18 @@ export type BountiesUpdateWithoutCommentsInput = {
 export type BountiesUncheckedUpdateWithoutCommentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutBountyNestedInput
@@ -1477,17 +1477,17 @@ export type BountiesUncheckedUpdateWithoutCommentsInput = {
 export type BountiesCreateWithoutVotesInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesCreateNestedManyWithoutBountyInput
@@ -1500,18 +1500,18 @@ export type BountiesCreateWithoutVotesInput = {
 export type BountiesUncheckedCreateWithoutVotesInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
+  amountSort: number
   issuer: string
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
   claims?: Prisma.ClaimsUncheckedCreateNestedManyWithoutBountyInput
   participations?: Prisma.ParticipationsBountiesUncheckedCreateNestedManyWithoutBountyInput
@@ -1539,17 +1539,17 @@ export type BountiesUpdateToOneWithWhereWithoutVotesInput = {
 export type BountiesUpdateWithoutVotesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutBountyNestedInput
@@ -1562,18 +1562,18 @@ export type BountiesUpdateWithoutVotesInput = {
 export type BountiesUncheckedUpdateWithoutVotesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutBountyNestedInput
@@ -1585,34 +1585,34 @@ export type BountiesUncheckedUpdateWithoutVotesInput = {
 export type BountiesCreateManyIssuerUserInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   amount: string
-  amount_sort: number
-  created_at: runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: boolean | null
-  is_joined_bounty?: boolean | null
-  is_canceled?: boolean | null
-  is_multiplayer?: boolean | null
-  is_voting?: boolean | null
+  amountSort: number
+  createdAt: runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: boolean | null
+  isJoinedBounty?: boolean | null
+  isCanceled?: boolean | null
+  isMultiplayer?: boolean | null
+  isVoting?: boolean | null
   deadline?: number | null
 }
 
 export type BountiesUpdateWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUpdateManyWithoutBountyNestedInput
@@ -1625,17 +1625,17 @@ export type BountiesUpdateWithoutIssuerUserInput = {
 export type BountiesUncheckedUpdateWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   claims?: Prisma.ClaimsUncheckedUpdateManyWithoutBountyNestedInput
   participations?: Prisma.ParticipationsBountiesUncheckedUpdateManyWithoutBountyNestedInput
@@ -1648,17 +1648,17 @@ export type BountiesUncheckedUpdateWithoutIssuerUserInput = {
 export type BountiesUncheckedUpdateManyWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  amount_sort?: Prisma.FloatFieldUpdateOperationsInput | number
-  created_at?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  in_progress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_joined_bounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_canceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_multiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  is_voting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  amountSort?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  inProgress?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isJoinedBounty?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isCanceled?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMultiplayer?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isVoting?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   deadline?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -1741,18 +1741,18 @@ export type BountiesCountOutputTypeCountVotesArgs<ExtArgs extends runtime.Types.
 export type BountiesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   amount?: boolean
-  amount_sort?: boolean
+  amountSort?: boolean
   issuer?: boolean
-  created_at?: boolean
-  in_progress?: boolean
-  is_joined_bounty?: boolean
-  is_canceled?: boolean
-  is_multiplayer?: boolean
-  is_voting?: boolean
+  createdAt?: boolean
+  inProgress?: boolean
+  isJoinedBounty?: boolean
+  isCanceled?: boolean
+  isMultiplayer?: boolean
+  isVoting?: boolean
   deadline?: boolean
   claims?: boolean | Prisma.Bounties$claimsArgs<ExtArgs>
   participations?: boolean | Prisma.Bounties$participationsArgs<ExtArgs>
@@ -1767,18 +1767,18 @@ export type BountiesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type BountiesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   amount?: boolean
-  amount_sort?: boolean
+  amountSort?: boolean
   issuer?: boolean
-  created_at?: boolean
-  in_progress?: boolean
-  is_joined_bounty?: boolean
-  is_canceled?: boolean
-  is_multiplayer?: boolean
-  is_voting?: boolean
+  createdAt?: boolean
+  inProgress?: boolean
+  isJoinedBounty?: boolean
+  isCanceled?: boolean
+  isMultiplayer?: boolean
+  isVoting?: boolean
   deadline?: boolean
   issuerUser?: boolean | Prisma.Bounties$issuerUserArgs<ExtArgs>
 }, ExtArgs["result"]["bounties"]>
@@ -1786,18 +1786,18 @@ export type BountiesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type BountiesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   amount?: boolean
-  amount_sort?: boolean
+  amountSort?: boolean
   issuer?: boolean
-  created_at?: boolean
-  in_progress?: boolean
-  is_joined_bounty?: boolean
-  is_canceled?: boolean
-  is_multiplayer?: boolean
-  is_voting?: boolean
+  createdAt?: boolean
+  inProgress?: boolean
+  isJoinedBounty?: boolean
+  isCanceled?: boolean
+  isMultiplayer?: boolean
+  isVoting?: boolean
   deadline?: boolean
   issuerUser?: boolean | Prisma.Bounties$issuerUserArgs<ExtArgs>
 }, ExtArgs["result"]["bounties"]>
@@ -1805,22 +1805,22 @@ export type BountiesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type BountiesSelectScalar = {
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   amount?: boolean
-  amount_sort?: boolean
+  amountSort?: boolean
   issuer?: boolean
-  created_at?: boolean
-  in_progress?: boolean
-  is_joined_bounty?: boolean
-  is_canceled?: boolean
-  is_multiplayer?: boolean
-  is_voting?: boolean
+  createdAt?: boolean
+  inProgress?: boolean
+  isJoinedBounty?: boolean
+  isCanceled?: boolean
+  isMultiplayer?: boolean
+  isVoting?: boolean
   deadline?: boolean
 }
 
-export type BountiesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "onChainId" | "chain_id" | "title" | "description" | "amount" | "amount_sort" | "issuer" | "created_at" | "in_progress" | "is_joined_bounty" | "is_canceled" | "is_multiplayer" | "is_voting" | "deadline", ExtArgs["result"]["bounties"]>
+export type BountiesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "onChainId" | "chainId" | "title" | "description" | "amount" | "amountSort" | "issuer" | "createdAt" | "inProgress" | "isJoinedBounty" | "isCanceled" | "isMultiplayer" | "isVoting" | "deadline", ExtArgs["result"]["bounties"]>
 export type BountiesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   claims?: boolean | Prisma.Bounties$claimsArgs<ExtArgs>
   participations?: boolean | Prisma.Bounties$participationsArgs<ExtArgs>
@@ -1852,18 +1852,18 @@ export type $BountiesPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     onChainId: number
-    chain_id: number
+    chainId: number
     title: string
     description: string
     amount: string
-    amount_sort: number
+    amountSort: number
     issuer: string
-    created_at: runtime.Decimal
-    in_progress: boolean | null
-    is_joined_bounty: boolean | null
-    is_canceled: boolean | null
-    is_multiplayer: boolean | null
-    is_voting: boolean | null
+    createdAt: runtime.Decimal
+    inProgress: boolean | null
+    isJoinedBounty: boolean | null
+    isCanceled: boolean | null
+    isMultiplayer: boolean | null
+    isVoting: boolean | null
     deadline: number | null
   }, ExtArgs["result"]["bounties"]>
   composites: {}
@@ -2297,18 +2297,18 @@ export interface Prisma__BountiesClient<T, Null = never, ExtArgs extends runtime
 export interface BountiesFieldRefs {
   readonly id: Prisma.FieldRef<"Bounties", 'Int'>
   readonly onChainId: Prisma.FieldRef<"Bounties", 'Int'>
-  readonly chain_id: Prisma.FieldRef<"Bounties", 'Int'>
+  readonly chainId: Prisma.FieldRef<"Bounties", 'Int'>
   readonly title: Prisma.FieldRef<"Bounties", 'String'>
   readonly description: Prisma.FieldRef<"Bounties", 'String'>
   readonly amount: Prisma.FieldRef<"Bounties", 'String'>
-  readonly amount_sort: Prisma.FieldRef<"Bounties", 'Float'>
+  readonly amountSort: Prisma.FieldRef<"Bounties", 'Float'>
   readonly issuer: Prisma.FieldRef<"Bounties", 'String'>
-  readonly created_at: Prisma.FieldRef<"Bounties", 'Decimal'>
-  readonly in_progress: Prisma.FieldRef<"Bounties", 'Boolean'>
-  readonly is_joined_bounty: Prisma.FieldRef<"Bounties", 'Boolean'>
-  readonly is_canceled: Prisma.FieldRef<"Bounties", 'Boolean'>
-  readonly is_multiplayer: Prisma.FieldRef<"Bounties", 'Boolean'>
-  readonly is_voting: Prisma.FieldRef<"Bounties", 'Boolean'>
+  readonly createdAt: Prisma.FieldRef<"Bounties", 'Decimal'>
+  readonly inProgress: Prisma.FieldRef<"Bounties", 'Boolean'>
+  readonly isJoinedBounty: Prisma.FieldRef<"Bounties", 'Boolean'>
+  readonly isCanceled: Prisma.FieldRef<"Bounties", 'Boolean'>
+  readonly isMultiplayer: Prisma.FieldRef<"Bounties", 'Boolean'>
+  readonly isVoting: Prisma.FieldRef<"Bounties", 'Boolean'>
   readonly deadline: Prisma.FieldRef<"Bounties", 'Int'>
 }
     

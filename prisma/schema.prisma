@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Bounties {
-  id               Int
-  onChainId        Int      @map("on_chain_id")
-  chain_id         Int
-  title            String
-  description      String
-  amount           String
-  amount_sort      Float
-  issuer           String
-  created_at       Decimal  @db.Decimal(78, 0)
-  in_progress      Boolean? @default(true)
-  is_joined_bounty Boolean? @default(false)
-  is_canceled      Boolean? @default(false)
-  is_multiplayer   Boolean?
-  is_voting        Boolean? @default(false)
-  deadline         Int?
+  id             Int
+  onChainId      Int      @map("on_chain_id")
+  chainId        Int      @map("chain_id")
+  title          String
+  description    String
+  amount         String
+  amountSort     Float    @map("amount_sort")
+  issuer         String
+  createdAt      Decimal  @map("created_at") @db.Decimal(78, 0)
+  inProgress     Boolean? @default(true) @map("in_progress")
+  isJoinedBounty Boolean? @default(false) @map("is_joined_bounty")
+  isCanceled     Boolean? @default(false) @map("is_canceled")
+  isMultiplayer  Boolean? @map("is_multiplayer")
+  isVoting       Boolean? @default(false) @map("is_voting")
+  deadline       Int?
 
   claims         Claims[]
   participations ParticipationsBounties[]
@@ -32,7 +32,7 @@ model Bounties {
   comments       Comments[]
   votes          Votes[]
 
-  @@id([id, chain_id])
+  @@id([id, chainId])
 }
 
 model BountiesExtra {
@@ -55,7 +55,7 @@ model Claims {
   bounty_id   Int
   owner       String
 
-  bounty       Bounties?      @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  bounty       Bounties?      @relation(fields: [bounty_id, chain_id], references: [id, chainId])
   issuerUser   Users?         @relation(fields: [issuer], references: [address])
   ban          Ban[]
   transactions Transactions[]
@@ -69,7 +69,7 @@ model ParticipationsBounties {
   chain_id     Int
   amount       String
 
-  bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chainId])
   user   Users?    @relation(fields: [user_address], references: [address])
 
   @@id([user_address, bounty_id, chain_id])
@@ -113,7 +113,7 @@ model Ban {
   banned_at DateTime @default(now())
   banned_by String
 
-  bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  bounty Bounties? @relation(fields: [bounty_id, chain_id], references: [id, chainId])
   claim  Claims?   @relation(fields: [claim_id, chain_id], references: [id, chain_id])
 }
 
@@ -127,7 +127,7 @@ model Transactions {
   action    String
   timestamp Decimal @db.Decimal(78, 0)
 
-  bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chain_id])
+  bounty Bounties @relation(fields: [bounty_id, chain_id], references: [id, chainId])
   claim  Claims?  @relation(fields: [claim_id, chain_id], references: [id, chain_id])
 
   @@id([tx, index, chain_id])
@@ -160,7 +160,7 @@ model Comments {
   created_at   DateTime  @default(now())
   deleted_at   DateTime?
 
-  bounty    Bounties    @relation(fields: [chain_id, bounty_id], references: [chain_id, id], onDelete: NoAction)
+  bounty    Bounties    @relation(fields: [chain_id, bounty_id], references: [chainId, id], onDelete: NoAction)
   author    Users?      @relation(fields: [user_address], references: [address], onDelete: NoAction)
   parent    Comments?   @relation("CommentToParent", fields: [parent_id], references: [id], onDelete: NoAction)
   replies   Comments[]  @relation("CommentToParent")
@@ -180,7 +180,7 @@ model Votes {
   no       Int
   round    Int
 
-  bounty Bounties @relation(fields: [bountyId, chainId], references: [id, chain_id])
+  bounty Bounties @relation(fields: [bountyId, chainId], references: [id, chainId])
 
   @@id([bountyId, chainId, round])
 }
