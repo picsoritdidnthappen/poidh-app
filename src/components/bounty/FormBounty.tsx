@@ -158,7 +158,7 @@ export default function FormBounty({
         if (bounty) {
           const usd = Number(formData.amount) * price;
           return {
-            bountyId: data.args.id.toString(),
+            bountyId: bounty.id,
             album: formData.album.trim(),
             bountyTitle: formData.name,
             bountyUsd: usd,
