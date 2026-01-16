@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import BountyItem from './BountyItem';
 import { ChainId } from '@/utils/types';
 

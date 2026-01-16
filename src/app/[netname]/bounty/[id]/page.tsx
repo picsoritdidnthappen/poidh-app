@@ -7,7 +7,7 @@ import Navbar from '@/components/global/Navbar';
 import CommentsSection from '@/components/bounty/CommentsSection';
 import BountySuccessModal from '@/components/bounty/BountySuccessModal';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { ChainId } from '@/utils/types';
 import { ArrowIcon } from '@/components/global/Icons';
 

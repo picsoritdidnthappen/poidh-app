@@ -1,6 +1,6 @@
 'use client';
 
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { Currency } from '@/utils/types';
 import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';

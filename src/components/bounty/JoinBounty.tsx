@@ -4,7 +4,7 @@ import ButtonCTA from '../global/ButtonCTA';
 import { PlusIcon } from '@/components/global/Icons';
 import { useAccount } from 'wagmi';
 import { trpc } from '@/trpc/client';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { toast } from 'react-toastify';
 
 export default function JoinBounty({ bountyId }: { bountyId: string }) {

@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi';
 import FormBounty from '../bounty/FormBounty';
 import FormClaim from '../claims/FormClaim';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc } from '@/trpc/client';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import ButtonCTA from './ButtonCTA';

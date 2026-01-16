@@ -13,7 +13,7 @@ import PastBountyCard from '@/components/bounty/PastBountyCard';
 import Link from 'next/link';
 import { ALBUMS } from '@/utils/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 
 export default function Home() {
   const router = useRouter();

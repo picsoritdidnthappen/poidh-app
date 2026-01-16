@@ -11,7 +11,7 @@ import {
 } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { uploadFile } from '@/utils/pinata';
 
 export default function ClaimSuccessModal({

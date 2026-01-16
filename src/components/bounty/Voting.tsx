@@ -1,7 +1,7 @@
 import { PieChart } from 'react-minimal-pie-chart';
 import { toast } from 'react-toastify';
 import { formatEther } from 'viem';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { bountyVotingTracker } from '@/utils/web3';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';

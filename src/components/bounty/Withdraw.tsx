@@ -1,5 +1,5 @@
 import abi from '@/constant/abi/abi';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';

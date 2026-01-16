@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
 import {
@@ -11,7 +11,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';

@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
 import { TwitterXIcon } from '@/components/global/Icons';
 import { shareToFarcaster, shareToTwitter } from '@/utils/share';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc } from '@/trpc/client';
 import { formatEther } from 'viem';
 

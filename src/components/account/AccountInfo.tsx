@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
 import BountyList from '../bounty/BountyList';

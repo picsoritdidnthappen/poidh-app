@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { trpc } from '@/trpc/client';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import InfiniteScroll from 'react-infinite-scroller';
 import { bountyCurrentVotingClaim } from '@/utils/web3';
 import ClaimList from '../claims/ClaimList';

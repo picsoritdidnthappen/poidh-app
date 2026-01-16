@@ -1,4 +1,4 @@
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc } from '@/trpc/client';
 import { Currency } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
@@ -22,7 +22,7 @@ import {
   shareToFarcaster,
   shareToTwitter,
 } from '@/utils/share';
-import { uploadFile } from '@/utils';
+import { uploadFile } from '@/utils/pinata';
 
 export type ClaimCardProps = {
   open: boolean;

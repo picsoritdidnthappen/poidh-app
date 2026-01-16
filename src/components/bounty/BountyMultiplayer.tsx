@@ -4,7 +4,7 @@ import { ExpandMoreIcon } from '@/components/global/Icons';
 import { trpc } from '@/trpc/client';
 import { Chain } from '@/utils/types';
 import { formatEther } from 'viem';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import CopyAddressButton from '../global/CopyAddressButton';
 import DisplayAddress from '../global/DisplayAddress';
 
