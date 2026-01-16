@@ -1,6 +1,6 @@
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc } from '@/trpc/client';
-import { Currency } from '@/utils/types';
+import { Bounty, Claim } from '@/utils/types';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
@@ -26,18 +26,12 @@ import { uploadFile } from '@/utils/pinata';
 
 export type ClaimCardProps = {
   open: boolean;
-  claim: {
-    id: string;
-    title: string;
-    description: string;
-    imageUrl: string | null;
-    currency: Currency;
+  claim: Omit<Claim, 'issuer'> & {
     issuer: {
       address: string;
       scorePoidh: number;
     };
-    bountyId: string;
-    bountyIssuer: string;
+    bounty?: Bounty;
   };
   onClose: () => void;
 };
@@ -63,7 +57,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
     bountyId: Number(claim.bountyId),
   });
   const bountyIssuer = trpc.users.fetchByAddress.useQuery(
-    { address: claim.bountyIssuer },
+    { address: claim.bounty?.issuer ?? '' },
     { enabled: shareOpen }
   );
   const claimIssuer = trpc.users.fetchByAddress.useQuery(
@@ -92,8 +86,8 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       claimId,
       bountyId,
     }: {
-      claimId: string;
-      bountyId: string;
+      claimId: number;
+      bountyId: number;
     }) => {
       const chainId = await account.connector?.getChainId();
       if (chainId !== 8453) {
@@ -129,7 +123,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       toast.error('Failed to ban claim: ' + error.message);
     },
     onSettled: () => {
-      utils.bounties.claims.refetch();
+      utils.claims.fetchAcceptedClaimByBountyId.refetch();
     },
   });
 
@@ -158,7 +152,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       : claim.issuer.address.slice(0, 7);
     const bountyIssuerName = claimIssuer.data
       ? getDisplayUsername(bountyIssuer.data ?? null, 'twitter')
-      : claim.bountyIssuer.slice(0, 7);
+      : claim.bounty?.issuer.slice(0, 7);
 
     const text = `check out ${
       isClaimIssuer ? 'my' : `${claimIssuerName}'s`
@@ -186,12 +180,12 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         '/api/generate-claim-card',
         window.location.origin
       );
-      if (claim.imageUrl) cardUrl.searchParams.set('image', claim.imageUrl);
+      if (claim.url) cardUrl.searchParams.set('image', claim.url);
       cardUrl.searchParams.set('title', claim.title.slice(0, 30));
       cardUrl.searchParams.set('issuer', claimIssuerUsername);
 
-      if (claimIssuer.data?.pfp_url) {
-        cardUrl.searchParams.set('pfp', claimIssuer.data?.pfp_url);
+      if (claimIssuer.data?.pfpUrl) {
+        cardUrl.searchParams.set('pfp', claimIssuer.data?.pfpUrl);
       }
 
       const response = await fetch(cardUrl.toString());
@@ -211,7 +205,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         embedImage: embedImageUrl,
       });
     } catch (error) {
-      await shareToFarcaster({ text, embedImage: claim.imageUrl ?? '' });
+      await shareToFarcaster({ text, embedImage: claim.url ?? '' });
     } finally {
       setIsGeneratingCard(false);
     }
@@ -225,22 +219,22 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
             <div className='bg-blur rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 border border-white/20'>
               <div
                 className='bg-blur-white rounded-lg p-2 h-48 sm:h-64 flex items-center justify-center cursor-pointer relative'
-                onClick={() => claim.imageUrl && setIsImageFullscreen(true)}
+                onClick={() => claim.url && setIsImageFullscreen(true)}
               >
-                {claim.imageUrl && (
+                {claim.url && (
                   <div
                     className='absolute inset-0 rounded-lg opacity-30'
                     style={{
-                      backgroundImage: `url(${claim.imageUrl})`,
+                      backgroundImage: `url(${claim.url})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       backgroundRepeat: 'no-repeat',
                     }}
                   />
                 )}
-                {claim.imageUrl ? (
+                {claim.url ? (
                   <Image
-                    src={claim.imageUrl}
+                    src={claim.url}
                     alt={claim.title}
                     width={400}
                     height={400}
@@ -402,9 +396,9 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
             >
               <CloseIcon size={20} />
             </button>
-            {claim.imageUrl && (
+            {claim.url && (
               <Image
-                src={claim.imageUrl}
+                src={claim.url}
                 alt={claim.title}
                 width={400}
                 height={400}

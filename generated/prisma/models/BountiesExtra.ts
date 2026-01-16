@@ -27,60 +27,60 @@ export type AggregateBountiesExtra = {
 }
 
 export type BountiesExtraAvgAggregateOutputType = {
-  bounty_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  chainId: number | null
 }
 
 export type BountiesExtraSumAggregateOutputType = {
-  bounty_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  chainId: number | null
 }
 
 export type BountiesExtraMinAggregateOutputType = {
-  bounty_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  chainId: number | null
   album: string | null
 }
 
 export type BountiesExtraMaxAggregateOutputType = {
-  bounty_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  chainId: number | null
   album: string | null
 }
 
 export type BountiesExtraCountAggregateOutputType = {
-  bounty_id: number
-  chain_id: number
+  bountyId: number
+  chainId: number
   album: number
   _all: number
 }
 
 
 export type BountiesExtraAvgAggregateInputType = {
-  bounty_id?: true
-  chain_id?: true
+  bountyId?: true
+  chainId?: true
 }
 
 export type BountiesExtraSumAggregateInputType = {
-  bounty_id?: true
-  chain_id?: true
+  bountyId?: true
+  chainId?: true
 }
 
 export type BountiesExtraMinAggregateInputType = {
-  bounty_id?: true
-  chain_id?: true
+  bountyId?: true
+  chainId?: true
   album?: true
 }
 
 export type BountiesExtraMaxAggregateInputType = {
-  bounty_id?: true
-  chain_id?: true
+  bountyId?: true
+  chainId?: true
   album?: true
 }
 
 export type BountiesExtraCountAggregateInputType = {
-  bounty_id?: true
-  chain_id?: true
+  bountyId?: true
+  chainId?: true
   album?: true
   _all?: true
 }
@@ -172,8 +172,8 @@ export type BountiesExtraGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 export type BountiesExtraGroupByOutputType = {
-  bounty_id: number
-  chain_id: number
+  bountyId: number
+  chainId: number
   album: string
   _count: BountiesExtraCountAggregateOutputType | null
   _avg: BountiesExtraAvgAggregateOutputType | null
@@ -201,30 +201,33 @@ export type BountiesExtraWhereInput = {
   AND?: Prisma.BountiesExtraWhereInput | Prisma.BountiesExtraWhereInput[]
   OR?: Prisma.BountiesExtraWhereInput[]
   NOT?: Prisma.BountiesExtraWhereInput | Prisma.BountiesExtraWhereInput[]
-  bounty_id?: Prisma.IntFilter<"BountiesExtra"> | number
-  chain_id?: Prisma.IntFilter<"BountiesExtra"> | number
+  bountyId?: Prisma.IntFilter<"BountiesExtra"> | number
+  chainId?: Prisma.IntFilter<"BountiesExtra"> | number
   album?: Prisma.StringFilter<"BountiesExtra"> | string
+  bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
 }
 
 export type BountiesExtraOrderByWithRelationInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   album?: Prisma.SortOrder
+  bounty?: Prisma.BountiesOrderByWithRelationInput
 }
 
 export type BountiesExtraWhereUniqueInput = Prisma.AtLeast<{
-  bounty_id_chain_id?: Prisma.BountiesExtraBounty_idChain_idCompoundUniqueInput
+  bountyId_chainId?: Prisma.BountiesExtraBountyIdChainIdCompoundUniqueInput
   AND?: Prisma.BountiesExtraWhereInput | Prisma.BountiesExtraWhereInput[]
   OR?: Prisma.BountiesExtraWhereInput[]
   NOT?: Prisma.BountiesExtraWhereInput | Prisma.BountiesExtraWhereInput[]
-  bounty_id?: Prisma.IntFilter<"BountiesExtra"> | number
-  chain_id?: Prisma.IntFilter<"BountiesExtra"> | number
+  bountyId?: Prisma.IntFilter<"BountiesExtra"> | number
+  chainId?: Prisma.IntFilter<"BountiesExtra"> | number
   album?: Prisma.StringFilter<"BountiesExtra"> | string
-}, "bounty_id_chain_id">
+  bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
+}, "bountyId_chainId">
 
 export type BountiesExtraOrderByWithAggregationInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   album?: Prisma.SortOrder
   _count?: Prisma.BountiesExtraCountOrderByAggregateInput
   _avg?: Prisma.BountiesExtraAvgOrderByAggregateInput
@@ -237,120 +240,191 @@ export type BountiesExtraScalarWhereWithAggregatesInput = {
   AND?: Prisma.BountiesExtraScalarWhereWithAggregatesInput | Prisma.BountiesExtraScalarWhereWithAggregatesInput[]
   OR?: Prisma.BountiesExtraScalarWhereWithAggregatesInput[]
   NOT?: Prisma.BountiesExtraScalarWhereWithAggregatesInput | Prisma.BountiesExtraScalarWhereWithAggregatesInput[]
-  bounty_id?: Prisma.IntWithAggregatesFilter<"BountiesExtra"> | number
-  chain_id?: Prisma.IntWithAggregatesFilter<"BountiesExtra"> | number
+  bountyId?: Prisma.IntWithAggregatesFilter<"BountiesExtra"> | number
+  chainId?: Prisma.IntWithAggregatesFilter<"BountiesExtra"> | number
   album?: Prisma.StringWithAggregatesFilter<"BountiesExtra"> | string
 }
 
 export type BountiesExtraCreateInput = {
-  bounty_id: number
-  chain_id: number
+  bountyId: number
+  chainId: number
   album: string
+  bounty?: Prisma.BountiesCreateNestedOneWithoutExtraInput
 }
 
 export type BountiesExtraUncheckedCreateInput = {
-  bounty_id: number
-  chain_id: number
+  bountyId: number
+  chainId: number
   album: string
+  bounty?: Prisma.BountiesUncheckedCreateNestedOneWithoutExtraInput
 }
 
 export type BountiesExtraUpdateInput = {
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   album?: Prisma.StringFieldUpdateOperationsInput | string
+  bounty?: Prisma.BountiesUpdateOneWithoutExtraNestedInput
 }
 
 export type BountiesExtraUncheckedUpdateInput = {
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   album?: Prisma.StringFieldUpdateOperationsInput | string
+  bounty?: Prisma.BountiesUncheckedUpdateOneWithoutExtraNestedInput
 }
 
 export type BountiesExtraCreateManyInput = {
-  bounty_id: number
-  chain_id: number
+  bountyId: number
+  chainId: number
   album: string
 }
 
 export type BountiesExtraUpdateManyMutationInput = {
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   album?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BountiesExtraUncheckedUpdateManyInput = {
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   album?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type BountiesExtraBounty_idChain_idCompoundUniqueInput = {
-  bounty_id: number
-  chain_id: number
+export type BountiesExtraScalarRelationFilter = {
+  is?: Prisma.BountiesExtraWhereInput
+  isNot?: Prisma.BountiesExtraWhereInput
+}
+
+export type BountiesExtraBountyIdChainIdCompoundUniqueInput = {
+  bountyId: number
+  chainId: number
 }
 
 export type BountiesExtraCountOrderByAggregateInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   album?: Prisma.SortOrder
 }
 
 export type BountiesExtraAvgOrderByAggregateInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
 }
 
 export type BountiesExtraMaxOrderByAggregateInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   album?: Prisma.SortOrder
 }
 
 export type BountiesExtraMinOrderByAggregateInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   album?: Prisma.SortOrder
 }
 
 export type BountiesExtraSumOrderByAggregateInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+}
+
+export type BountiesExtraCreateNestedOneWithoutBountyInput = {
+  create?: Prisma.XOR<Prisma.BountiesExtraCreateWithoutBountyInput, Prisma.BountiesExtraUncheckedCreateWithoutBountyInput>
+  connectOrCreate?: Prisma.BountiesExtraCreateOrConnectWithoutBountyInput
+  connect?: Prisma.BountiesExtraWhereUniqueInput
+}
+
+export type BountiesExtraUpdateOneRequiredWithoutBountyNestedInput = {
+  create?: Prisma.XOR<Prisma.BountiesExtraCreateWithoutBountyInput, Prisma.BountiesExtraUncheckedCreateWithoutBountyInput>
+  connectOrCreate?: Prisma.BountiesExtraCreateOrConnectWithoutBountyInput
+  upsert?: Prisma.BountiesExtraUpsertWithoutBountyInput
+  connect?: Prisma.BountiesExtraWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BountiesExtraUpdateToOneWithWhereWithoutBountyInput, Prisma.BountiesExtraUpdateWithoutBountyInput>, Prisma.BountiesExtraUncheckedUpdateWithoutBountyInput>
+}
+
+export type BountiesExtraCreateWithoutBountyInput = {
+  bountyId: number
+  chainId: number
+  album: string
+}
+
+export type BountiesExtraUncheckedCreateWithoutBountyInput = {
+  bountyId: number
+  chainId: number
+  album: string
+}
+
+export type BountiesExtraCreateOrConnectWithoutBountyInput = {
+  where: Prisma.BountiesExtraWhereUniqueInput
+  create: Prisma.XOR<Prisma.BountiesExtraCreateWithoutBountyInput, Prisma.BountiesExtraUncheckedCreateWithoutBountyInput>
+}
+
+export type BountiesExtraUpsertWithoutBountyInput = {
+  update: Prisma.XOR<Prisma.BountiesExtraUpdateWithoutBountyInput, Prisma.BountiesExtraUncheckedUpdateWithoutBountyInput>
+  create: Prisma.XOR<Prisma.BountiesExtraCreateWithoutBountyInput, Prisma.BountiesExtraUncheckedCreateWithoutBountyInput>
+  where?: Prisma.BountiesExtraWhereInput
+}
+
+export type BountiesExtraUpdateToOneWithWhereWithoutBountyInput = {
+  where?: Prisma.BountiesExtraWhereInput
+  data: Prisma.XOR<Prisma.BountiesExtraUpdateWithoutBountyInput, Prisma.BountiesExtraUncheckedUpdateWithoutBountyInput>
+}
+
+export type BountiesExtraUpdateWithoutBountyInput = {
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  album?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type BountiesExtraUncheckedUpdateWithoutBountyInput = {
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  album?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
 
 export type BountiesExtraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  bounty_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   album?: boolean
+  bounty?: boolean | Prisma.BountiesExtra$bountyArgs<ExtArgs>
 }, ExtArgs["result"]["bountiesExtra"]>
 
 export type BountiesExtraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  bounty_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   album?: boolean
 }, ExtArgs["result"]["bountiesExtra"]>
 
 export type BountiesExtraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  bounty_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   album?: boolean
 }, ExtArgs["result"]["bountiesExtra"]>
 
 export type BountiesExtraSelectScalar = {
-  bounty_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   album?: boolean
 }
 
-export type BountiesExtraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"bounty_id" | "chain_id" | "album", ExtArgs["result"]["bountiesExtra"]>
+export type BountiesExtraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"bountyId" | "chainId" | "album", ExtArgs["result"]["bountiesExtra"]>
+export type BountiesExtraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  bounty?: boolean | Prisma.BountiesExtra$bountyArgs<ExtArgs>
+}
+export type BountiesExtraIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type BountiesExtraIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $BountiesExtraPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BountiesExtra"
-  objects: {}
+  objects: {
+    bounty: Prisma.$BountiesPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    bounty_id: number
-    chain_id: number
+    bountyId: number
+    chainId: number
     album: string
   }, ExtArgs["result"]["bountiesExtra"]>
   composites: {}
@@ -435,8 +509,8 @@ export interface BountiesExtraDelegate<ExtArgs extends runtime.Types.Extensions.
    * // Get first 10 BountiesExtras
    * const bountiesExtras = await prisma.bountiesExtra.findMany({ take: 10 })
    * 
-   * // Only select the `bounty_id`
-   * const bountiesExtraWithBounty_idOnly = await prisma.bountiesExtra.findMany({ select: { bounty_id: true } })
+   * // Only select the `bountyId`
+   * const bountiesExtraWithBountyIdOnly = await prisma.bountiesExtra.findMany({ select: { bountyId: true } })
    * 
    */
   findMany<T extends BountiesExtraFindManyArgs>(args?: Prisma.SelectSubset<T, BountiesExtraFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BountiesExtraPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -480,9 +554,9 @@ export interface BountiesExtraDelegate<ExtArgs extends runtime.Types.Extensions.
    *   ]
    * })
    * 
-   * // Create many BountiesExtras and only return the `bounty_id`
-   * const bountiesExtraWithBounty_idOnly = await prisma.bountiesExtra.createManyAndReturn({
-   *   select: { bounty_id: true },
+   * // Create many BountiesExtras and only return the `bountyId`
+   * const bountiesExtraWithBountyIdOnly = await prisma.bountiesExtra.createManyAndReturn({
+   *   select: { bountyId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -571,9 +645,9 @@ export interface BountiesExtraDelegate<ExtArgs extends runtime.Types.Extensions.
    *   ]
    * })
    * 
-   * // Update zero or more BountiesExtras and only return the `bounty_id`
-   * const bountiesExtraWithBounty_idOnly = await prisma.bountiesExtra.updateManyAndReturn({
-   *   select: { bounty_id: true },
+   * // Update zero or more BountiesExtras and only return the `bountyId`
+   * const bountiesExtraWithBountyIdOnly = await prisma.bountiesExtra.updateManyAndReturn({
+   *   select: { bountyId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -746,6 +820,7 @@ readonly fields: BountiesExtraFieldRefs;
  */
 export interface Prisma__BountiesExtraClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  bounty<T extends Prisma.BountiesExtra$bountyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BountiesExtra$bountyArgs<ExtArgs>>): Prisma.Prisma__BountiesClient<runtime.Types.Result.GetResult<Prisma.$BountiesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -775,8 +850,8 @@ export interface Prisma__BountiesExtraClient<T, Null = never, ExtArgs extends ru
  * Fields of the BountiesExtra model
  */
 export interface BountiesExtraFieldRefs {
-  readonly bounty_id: Prisma.FieldRef<"BountiesExtra", 'Int'>
-  readonly chain_id: Prisma.FieldRef<"BountiesExtra", 'Int'>
+  readonly bountyId: Prisma.FieldRef<"BountiesExtra", 'Int'>
+  readonly chainId: Prisma.FieldRef<"BountiesExtra", 'Int'>
   readonly album: Prisma.FieldRef<"BountiesExtra", 'String'>
 }
     
@@ -794,6 +869,10 @@ export type BountiesExtraFindUniqueArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the BountiesExtra
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
   /**
    * Filter, which BountiesExtra to fetch.
    */
@@ -813,6 +892,10 @@ export type BountiesExtraFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
+  /**
    * Filter, which BountiesExtra to fetch.
    */
   where: Prisma.BountiesExtraWhereUniqueInput
@@ -830,6 +913,10 @@ export type BountiesExtraFindFirstArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the BountiesExtra
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
   /**
    * Filter, which BountiesExtra to fetch.
    */
@@ -879,6 +966,10 @@ export type BountiesExtraFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
+  /**
    * Filter, which BountiesExtra to fetch.
    */
   where?: Prisma.BountiesExtraWhereInput
@@ -927,6 +1018,10 @@ export type BountiesExtraFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
+  /**
    * Filter, which BountiesExtras to fetch.
    */
   where?: Prisma.BountiesExtraWhereInput
@@ -969,6 +1064,10 @@ export type BountiesExtraCreateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the BountiesExtra
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
   /**
    * The data needed to create a BountiesExtra.
    */
@@ -1017,6 +1116,10 @@ export type BountiesExtraUpdateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the BountiesExtra
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
   /**
    * The data needed to update a BountiesExtra.
    */
@@ -1084,6 +1187,10 @@ export type BountiesExtraUpsertArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
+  /**
    * The filter to search for the BountiesExtra to update in case it exists.
    */
   where: Prisma.BountiesExtraWhereUniqueInput
@@ -1110,6 +1217,10 @@ export type BountiesExtraDeleteArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
+  /**
    * Filter which BountiesExtra to delete.
    */
   where: Prisma.BountiesExtraWhereUniqueInput
@@ -1130,6 +1241,25 @@ export type BountiesExtraDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
+ * BountiesExtra.bounty
+ */
+export type BountiesExtra$bountyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Bounties
+   */
+  select?: Prisma.BountiesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Bounties
+   */
+  omit?: Prisma.BountiesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesInclude<ExtArgs> | null
+  where?: Prisma.BountiesWhereInput
+}
+
+/**
  * BountiesExtra without action
  */
 export type BountiesExtraDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1141,4 +1271,8 @@ export type BountiesExtraDefaultArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the BountiesExtra
    */
   omit?: Prisma.BountiesExtraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BountiesExtraInclude<ExtArgs> | null
 }

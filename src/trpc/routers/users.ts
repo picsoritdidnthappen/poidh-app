@@ -17,12 +17,12 @@ export const usersRouter = {
       if (!user) return null;
       return {
         address: user.address,
-        pfp_url: user.pfp_url ?? null,
+        pfpUrl: user.pfpUrl ?? null,
         ens: user.ens ?? null,
-        degen_name: user.degen_name ?? null,
-        farcaster_tag: user.farcaster_tag ?? null,
-        twitter_tag: user.twitter_tag ?? null,
-        last_updated: user.last_updated,
+        degenName: user.degenName ?? null,
+        farcasterTag: user.farcasterTag ?? null,
+        twitterTag: user.twitterTag ?? null,
+        lastUpdated: user.lastUpdated,
       };
     }),
 

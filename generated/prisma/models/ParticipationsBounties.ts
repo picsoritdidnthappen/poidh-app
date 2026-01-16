@@ -27,66 +27,66 @@ export type AggregateParticipationsBounties = {
 }
 
 export type ParticipationsBountiesAvgAggregateOutputType = {
-  bounty_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  chainId: number | null
 }
 
 export type ParticipationsBountiesSumAggregateOutputType = {
-  bounty_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  chainId: number | null
 }
 
 export type ParticipationsBountiesMinAggregateOutputType = {
-  user_address: string | null
-  bounty_id: number | null
-  chain_id: number | null
+  userAddress: string | null
+  bountyId: number | null
+  chainId: number | null
   amount: string | null
 }
 
 export type ParticipationsBountiesMaxAggregateOutputType = {
-  user_address: string | null
-  bounty_id: number | null
-  chain_id: number | null
+  userAddress: string | null
+  bountyId: number | null
+  chainId: number | null
   amount: string | null
 }
 
 export type ParticipationsBountiesCountAggregateOutputType = {
-  user_address: number
-  bounty_id: number
-  chain_id: number
+  userAddress: number
+  bountyId: number
+  chainId: number
   amount: number
   _all: number
 }
 
 
 export type ParticipationsBountiesAvgAggregateInputType = {
-  bounty_id?: true
-  chain_id?: true
+  bountyId?: true
+  chainId?: true
 }
 
 export type ParticipationsBountiesSumAggregateInputType = {
-  bounty_id?: true
-  chain_id?: true
+  bountyId?: true
+  chainId?: true
 }
 
 export type ParticipationsBountiesMinAggregateInputType = {
-  user_address?: true
-  bounty_id?: true
-  chain_id?: true
+  userAddress?: true
+  bountyId?: true
+  chainId?: true
   amount?: true
 }
 
 export type ParticipationsBountiesMaxAggregateInputType = {
-  user_address?: true
-  bounty_id?: true
-  chain_id?: true
+  userAddress?: true
+  bountyId?: true
+  chainId?: true
   amount?: true
 }
 
 export type ParticipationsBountiesCountAggregateInputType = {
-  user_address?: true
-  bounty_id?: true
-  chain_id?: true
+  userAddress?: true
+  bountyId?: true
+  chainId?: true
   amount?: true
   _all?: true
 }
@@ -178,9 +178,9 @@ export type ParticipationsBountiesGroupByArgs<ExtArgs extends runtime.Types.Exte
 }
 
 export type ParticipationsBountiesGroupByOutputType = {
-  user_address: string
-  bounty_id: number
-  chain_id: number
+  userAddress: string
+  bountyId: number
+  chainId: number
   amount: string
   _count: ParticipationsBountiesCountAggregateOutputType | null
   _avg: ParticipationsBountiesAvgAggregateOutputType | null
@@ -208,40 +208,40 @@ export type ParticipationsBountiesWhereInput = {
   AND?: Prisma.ParticipationsBountiesWhereInput | Prisma.ParticipationsBountiesWhereInput[]
   OR?: Prisma.ParticipationsBountiesWhereInput[]
   NOT?: Prisma.ParticipationsBountiesWhereInput | Prisma.ParticipationsBountiesWhereInput[]
-  user_address?: Prisma.StringFilter<"ParticipationsBounties"> | string
-  bounty_id?: Prisma.IntFilter<"ParticipationsBounties"> | number
-  chain_id?: Prisma.IntFilter<"ParticipationsBounties"> | number
+  userAddress?: Prisma.StringFilter<"ParticipationsBounties"> | string
+  bountyId?: Prisma.IntFilter<"ParticipationsBounties"> | number
+  chainId?: Prisma.IntFilter<"ParticipationsBounties"> | number
   amount?: Prisma.StringFilter<"ParticipationsBounties"> | string
-  bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
-  user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
+  bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
+  user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
 }
 
 export type ParticipationsBountiesOrderByWithRelationInput = {
-  user_address?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   bounty?: Prisma.BountiesOrderByWithRelationInput
   user?: Prisma.UsersOrderByWithRelationInput
 }
 
 export type ParticipationsBountiesWhereUniqueInput = Prisma.AtLeast<{
-  user_address_bounty_id_chain_id?: Prisma.ParticipationsBountiesUser_addressBounty_idChain_idCompoundUniqueInput
+  userAddress_bountyId_chainId?: Prisma.ParticipationsBountiesUserAddressBountyIdChainIdCompoundUniqueInput
   AND?: Prisma.ParticipationsBountiesWhereInput | Prisma.ParticipationsBountiesWhereInput[]
   OR?: Prisma.ParticipationsBountiesWhereInput[]
   NOT?: Prisma.ParticipationsBountiesWhereInput | Prisma.ParticipationsBountiesWhereInput[]
-  user_address?: Prisma.StringFilter<"ParticipationsBounties"> | string
-  bounty_id?: Prisma.IntFilter<"ParticipationsBounties"> | number
-  chain_id?: Prisma.IntFilter<"ParticipationsBounties"> | number
+  userAddress?: Prisma.StringFilter<"ParticipationsBounties"> | string
+  bountyId?: Prisma.IntFilter<"ParticipationsBounties"> | number
+  chainId?: Prisma.IntFilter<"ParticipationsBounties"> | number
   amount?: Prisma.StringFilter<"ParticipationsBounties"> | string
-  bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
-  user?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
-}, "user_address_bounty_id_chain_id">
+  bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
+  user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
+}, "userAddress_bountyId_chainId">
 
 export type ParticipationsBountiesOrderByWithAggregationInput = {
-  user_address?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   _count?: Prisma.ParticipationsBountiesCountOrderByAggregateInput
   _avg?: Prisma.ParticipationsBountiesAvgOrderByAggregateInput
@@ -254,42 +254,42 @@ export type ParticipationsBountiesScalarWhereWithAggregatesInput = {
   AND?: Prisma.ParticipationsBountiesScalarWhereWithAggregatesInput | Prisma.ParticipationsBountiesScalarWhereWithAggregatesInput[]
   OR?: Prisma.ParticipationsBountiesScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ParticipationsBountiesScalarWhereWithAggregatesInput | Prisma.ParticipationsBountiesScalarWhereWithAggregatesInput[]
-  user_address?: Prisma.StringWithAggregatesFilter<"ParticipationsBounties"> | string
-  bounty_id?: Prisma.IntWithAggregatesFilter<"ParticipationsBounties"> | number
-  chain_id?: Prisma.IntWithAggregatesFilter<"ParticipationsBounties"> | number
+  userAddress?: Prisma.StringWithAggregatesFilter<"ParticipationsBounties"> | string
+  bountyId?: Prisma.IntWithAggregatesFilter<"ParticipationsBounties"> | number
+  chainId?: Prisma.IntWithAggregatesFilter<"ParticipationsBounties"> | number
   amount?: Prisma.StringWithAggregatesFilter<"ParticipationsBounties"> | string
 }
 
 export type ParticipationsBountiesCreateInput = {
   amount: string
-  bounty?: Prisma.BountiesCreateNestedOneWithoutParticipationsInput
-  user?: Prisma.UsersCreateNestedOneWithoutParticipationsInput
+  bounty: Prisma.BountiesCreateNestedOneWithoutParticipationsInput
+  user: Prisma.UsersCreateNestedOneWithoutParticipationsInput
 }
 
 export type ParticipationsBountiesUncheckedCreateInput = {
-  user_address: string
-  bounty_id: number
-  chain_id: number
+  userAddress: string
+  bountyId: number
+  chainId: number
   amount: string
 }
 
 export type ParticipationsBountiesUpdateInput = {
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty?: Prisma.BountiesUpdateOneWithoutParticipationsNestedInput
-  user?: Prisma.UsersUpdateOneWithoutParticipationsNestedInput
+  bounty?: Prisma.BountiesUpdateOneRequiredWithoutParticipationsNestedInput
+  user?: Prisma.UsersUpdateOneRequiredWithoutParticipationsNestedInput
 }
 
 export type ParticipationsBountiesUncheckedUpdateInput = {
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   amount?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ParticipationsBountiesCreateManyInput = {
-  user_address: string
-  bounty_id: number
-  chain_id: number
+  userAddress: string
+  bountyId: number
+  chainId: number
   amount: string
 }
 
@@ -298,9 +298,9 @@ export type ParticipationsBountiesUpdateManyMutationInput = {
 }
 
 export type ParticipationsBountiesUncheckedUpdateManyInput = {
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   amount?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -314,41 +314,41 @@ export type ParticipationsBountiesOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ParticipationsBountiesUser_addressBounty_idChain_idCompoundUniqueInput = {
-  user_address: string
-  bounty_id: number
-  chain_id: number
+export type ParticipationsBountiesUserAddressBountyIdChainIdCompoundUniqueInput = {
+  userAddress: string
+  bountyId: number
+  chainId: number
 }
 
 export type ParticipationsBountiesCountOrderByAggregateInput = {
-  user_address?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
 }
 
 export type ParticipationsBountiesAvgOrderByAggregateInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
 }
 
 export type ParticipationsBountiesMaxOrderByAggregateInput = {
-  user_address?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
 }
 
 export type ParticipationsBountiesMinOrderByAggregateInput = {
-  user_address?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
 }
 
 export type ParticipationsBountiesSumOrderByAggregateInput = {
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
 }
 
 export type ParticipationsBountiesCreateNestedManyWithoutBountyInput = {
@@ -437,11 +437,11 @@ export type ParticipationsBountiesUncheckedUpdateManyWithoutUserNestedInput = {
 
 export type ParticipationsBountiesCreateWithoutBountyInput = {
   amount: string
-  user?: Prisma.UsersCreateNestedOneWithoutParticipationsInput
+  user: Prisma.UsersCreateNestedOneWithoutParticipationsInput
 }
 
 export type ParticipationsBountiesUncheckedCreateWithoutBountyInput = {
-  user_address: string
+  userAddress: string
   amount: string
 }
 
@@ -475,20 +475,20 @@ export type ParticipationsBountiesScalarWhereInput = {
   AND?: Prisma.ParticipationsBountiesScalarWhereInput | Prisma.ParticipationsBountiesScalarWhereInput[]
   OR?: Prisma.ParticipationsBountiesScalarWhereInput[]
   NOT?: Prisma.ParticipationsBountiesScalarWhereInput | Prisma.ParticipationsBountiesScalarWhereInput[]
-  user_address?: Prisma.StringFilter<"ParticipationsBounties"> | string
-  bounty_id?: Prisma.IntFilter<"ParticipationsBounties"> | number
-  chain_id?: Prisma.IntFilter<"ParticipationsBounties"> | number
+  userAddress?: Prisma.StringFilter<"ParticipationsBounties"> | string
+  bountyId?: Prisma.IntFilter<"ParticipationsBounties"> | number
+  chainId?: Prisma.IntFilter<"ParticipationsBounties"> | number
   amount?: Prisma.StringFilter<"ParticipationsBounties"> | string
 }
 
 export type ParticipationsBountiesCreateWithoutUserInput = {
   amount: string
-  bounty?: Prisma.BountiesCreateNestedOneWithoutParticipationsInput
+  bounty: Prisma.BountiesCreateNestedOneWithoutParticipationsInput
 }
 
 export type ParticipationsBountiesUncheckedCreateWithoutUserInput = {
-  bounty_id: number
-  chain_id: number
+  bountyId: number
+  chainId: number
   amount: string
 }
 
@@ -519,108 +519,108 @@ export type ParticipationsBountiesUpdateManyWithWhereWithoutUserInput = {
 }
 
 export type ParticipationsBountiesCreateManyBountyInput = {
-  user_address: string
+  userAddress: string
   amount: string
 }
 
 export type ParticipationsBountiesUpdateWithoutBountyInput = {
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  user?: Prisma.UsersUpdateOneWithoutParticipationsNestedInput
+  user?: Prisma.UsersUpdateOneRequiredWithoutParticipationsNestedInput
 }
 
 export type ParticipationsBountiesUncheckedUpdateWithoutBountyInput = {
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ParticipationsBountiesUncheckedUpdateManyWithoutBountyInput = {
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ParticipationsBountiesCreateManyUserInput = {
-  bounty_id: number
-  chain_id: number
+  bountyId: number
+  chainId: number
   amount: string
 }
 
 export type ParticipationsBountiesUpdateWithoutUserInput = {
   amount?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty?: Prisma.BountiesUpdateOneWithoutParticipationsNestedInput
+  bounty?: Prisma.BountiesUpdateOneRequiredWithoutParticipationsNestedInput
 }
 
 export type ParticipationsBountiesUncheckedUpdateWithoutUserInput = {
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   amount?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ParticipationsBountiesUncheckedUpdateManyWithoutUserInput = {
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   amount?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
 
 export type ParticipationsBountiesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  user_address?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
+  userAddress?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   amount?: boolean
-  bounty?: boolean | Prisma.ParticipationsBounties$bountyArgs<ExtArgs>
-  user?: boolean | Prisma.ParticipationsBounties$userArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["participationsBounties"]>
 
 export type ParticipationsBountiesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  user_address?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
+  userAddress?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   amount?: boolean
-  bounty?: boolean | Prisma.ParticipationsBounties$bountyArgs<ExtArgs>
-  user?: boolean | Prisma.ParticipationsBounties$userArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["participationsBounties"]>
 
 export type ParticipationsBountiesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  user_address?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
+  userAddress?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   amount?: boolean
-  bounty?: boolean | Prisma.ParticipationsBounties$bountyArgs<ExtArgs>
-  user?: boolean | Prisma.ParticipationsBounties$userArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["participationsBounties"]>
 
 export type ParticipationsBountiesSelectScalar = {
-  user_address?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
+  userAddress?: boolean
+  bountyId?: boolean
+  chainId?: boolean
   amount?: boolean
 }
 
-export type ParticipationsBountiesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"user_address" | "bounty_id" | "chain_id" | "amount", ExtArgs["result"]["participationsBounties"]>
+export type ParticipationsBountiesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"userAddress" | "bountyId" | "chainId" | "amount", ExtArgs["result"]["participationsBounties"]>
 export type ParticipationsBountiesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bounty?: boolean | Prisma.ParticipationsBounties$bountyArgs<ExtArgs>
-  user?: boolean | Prisma.ParticipationsBounties$userArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
 export type ParticipationsBountiesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bounty?: boolean | Prisma.ParticipationsBounties$bountyArgs<ExtArgs>
-  user?: boolean | Prisma.ParticipationsBounties$userArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
 export type ParticipationsBountiesIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bounty?: boolean | Prisma.ParticipationsBounties$bountyArgs<ExtArgs>
-  user?: boolean | Prisma.ParticipationsBounties$userArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
 
 export type $ParticipationsBountiesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ParticipationsBounties"
   objects: {
-    bounty: Prisma.$BountiesPayload<ExtArgs> | null
-    user: Prisma.$UsersPayload<ExtArgs> | null
+    bounty: Prisma.$BountiesPayload<ExtArgs>
+    user: Prisma.$UsersPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    user_address: string
-    bounty_id: number
-    chain_id: number
+    userAddress: string
+    bountyId: number
+    chainId: number
     amount: string
   }, ExtArgs["result"]["participationsBounties"]>
   composites: {}
@@ -705,8 +705,8 @@ export interface ParticipationsBountiesDelegate<ExtArgs extends runtime.Types.Ex
    * // Get first 10 ParticipationsBounties
    * const participationsBounties = await prisma.participationsBounties.findMany({ take: 10 })
    * 
-   * // Only select the `user_address`
-   * const participationsBountiesWithUser_addressOnly = await prisma.participationsBounties.findMany({ select: { user_address: true } })
+   * // Only select the `userAddress`
+   * const participationsBountiesWithUserAddressOnly = await prisma.participationsBounties.findMany({ select: { userAddress: true } })
    * 
    */
   findMany<T extends ParticipationsBountiesFindManyArgs>(args?: Prisma.SelectSubset<T, ParticipationsBountiesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ParticipationsBountiesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -750,9 +750,9 @@ export interface ParticipationsBountiesDelegate<ExtArgs extends runtime.Types.Ex
    *   ]
    * })
    * 
-   * // Create many ParticipationsBounties and only return the `user_address`
-   * const participationsBountiesWithUser_addressOnly = await prisma.participationsBounties.createManyAndReturn({
-   *   select: { user_address: true },
+   * // Create many ParticipationsBounties and only return the `userAddress`
+   * const participationsBountiesWithUserAddressOnly = await prisma.participationsBounties.createManyAndReturn({
+   *   select: { userAddress: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -841,9 +841,9 @@ export interface ParticipationsBountiesDelegate<ExtArgs extends runtime.Types.Ex
    *   ]
    * })
    * 
-   * // Update zero or more ParticipationsBounties and only return the `user_address`
-   * const participationsBountiesWithUser_addressOnly = await prisma.participationsBounties.updateManyAndReturn({
-   *   select: { user_address: true },
+   * // Update zero or more ParticipationsBounties and only return the `userAddress`
+   * const participationsBountiesWithUserAddressOnly = await prisma.participationsBounties.updateManyAndReturn({
+   *   select: { userAddress: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1016,8 +1016,8 @@ readonly fields: ParticipationsBountiesFieldRefs;
  */
 export interface Prisma__ParticipationsBountiesClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  bounty<T extends Prisma.ParticipationsBounties$bountyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ParticipationsBounties$bountyArgs<ExtArgs>>): Prisma.Prisma__BountiesClient<runtime.Types.Result.GetResult<Prisma.$BountiesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.ParticipationsBounties$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ParticipationsBounties$userArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  bounty<T extends Prisma.BountiesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BountiesDefaultArgs<ExtArgs>>): Prisma.Prisma__BountiesClient<runtime.Types.Result.GetResult<Prisma.$BountiesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UsersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UsersDefaultArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1047,9 +1047,9 @@ export interface Prisma__ParticipationsBountiesClient<T, Null = never, ExtArgs e
  * Fields of the ParticipationsBounties model
  */
 export interface ParticipationsBountiesFieldRefs {
-  readonly user_address: Prisma.FieldRef<"ParticipationsBounties", 'String'>
-  readonly bounty_id: Prisma.FieldRef<"ParticipationsBounties", 'Int'>
-  readonly chain_id: Prisma.FieldRef<"ParticipationsBounties", 'Int'>
+  readonly userAddress: Prisma.FieldRef<"ParticipationsBounties", 'String'>
+  readonly bountyId: Prisma.FieldRef<"ParticipationsBounties", 'Int'>
+  readonly chainId: Prisma.FieldRef<"ParticipationsBounties", 'Int'>
   readonly amount: Prisma.FieldRef<"ParticipationsBounties", 'String'>
 }
     
@@ -1444,44 +1444,6 @@ export type ParticipationsBountiesDeleteManyArgs<ExtArgs extends runtime.Types.E
    * Limit how many ParticipationsBounties to delete.
    */
   limit?: number
-}
-
-/**
- * ParticipationsBounties.bounty
- */
-export type ParticipationsBounties$bountyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Bounties
-   */
-  select?: Prisma.BountiesSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Bounties
-   */
-  omit?: Prisma.BountiesOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.BountiesInclude<ExtArgs> | null
-  where?: Prisma.BountiesWhereInput
-}
-
-/**
- * ParticipationsBounties.user
- */
-export type ParticipationsBounties$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Users
-   */
-  select?: Prisma.UsersSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Users
-   */
-  omit?: Prisma.UsersOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UsersInclude<ExtArgs> | null
-  where?: Prisma.UsersWhereInput
 }
 
 /**

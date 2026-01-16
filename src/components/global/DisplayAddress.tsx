@@ -21,7 +21,7 @@ export default function DisplayAddress({
 
   return (
     <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-      {showPfpIfExists && user && user.pfp_url && (
+      {showPfpIfExists && user && user.pfpUrl && (
         <div
           style={{
             width: pfpSize,
@@ -31,8 +31,8 @@ export default function DisplayAddress({
           className='flex-shrink-0 relative mr-1 overflow-hidden rounded-full'
         >
           <Image
-            src={user.pfp_url}
-            alt={user?.farcaster_tag ?? 'User'}
+            src={user.pfpUrl}
+            alt={user?.farcasterTag ?? 'User'}
             width={pfpSize}
             height={pfpSize}
             unoptimized
@@ -46,8 +46,8 @@ export default function DisplayAddress({
       >
         {userQuery.isLoading
           ? formatWalletAddress(address)
-          : user?.farcaster_tag
-          ? user.farcaster_tag
+          : user?.farcasterTag
+          ? user.farcasterTag
           : ensOrDegenName.isLoading
           ? formatWalletAddress(address)
           : ensOrDegenName.data

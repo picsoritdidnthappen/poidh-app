@@ -21,7 +21,7 @@ export default function JoinBountySuccessModal({
   open: boolean;
   onClose: () => void;
   joinedAmount: string;
-  bountyId?: string;
+  bountyId?: number;
 }) {
   const account = useAccount();
   const chain = useChainInfo();

@@ -465,7 +465,7 @@ export default function FormBounty({
                     }}
                   >
                     {c.album.length > 20 ? `${c.album.slice(0, 20)}…` : c.album}{' '}
-                    ({c._count.album})
+                    ({c.count.album})
                   </li>
                 ))}
               </ul>

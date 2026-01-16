@@ -28,86 +28,86 @@ export type AggregateBan = {
 
 export type BanAvgAggregateOutputType = {
   id: number | null
-  chain_id: number | null
-  bounty_id: number | null
-  claim_id: number | null
+  chainId: number | null
+  bountyId: number | null
+  claimId: number | null
 }
 
 export type BanSumAggregateOutputType = {
   id: number | null
-  chain_id: number | null
-  bounty_id: number | null
-  claim_id: number | null
+  chainId: number | null
+  bountyId: number | null
+  claimId: number | null
 }
 
 export type BanMinAggregateOutputType = {
   id: number | null
-  chain_id: number | null
-  bounty_id: number | null
-  claim_id: number | null
-  banned_at: Date | null
-  banned_by: string | null
+  chainId: number | null
+  bountyId: number | null
+  claimId: number | null
+  bannedAt: Date | null
+  bannedBy: string | null
 }
 
 export type BanMaxAggregateOutputType = {
   id: number | null
-  chain_id: number | null
-  bounty_id: number | null
-  claim_id: number | null
-  banned_at: Date | null
-  banned_by: string | null
+  chainId: number | null
+  bountyId: number | null
+  claimId: number | null
+  bannedAt: Date | null
+  bannedBy: string | null
 }
 
 export type BanCountAggregateOutputType = {
   id: number
-  chain_id: number
-  bounty_id: number
-  claim_id: number
-  banned_at: number
-  banned_by: number
+  chainId: number
+  bountyId: number
+  claimId: number
+  bannedAt: number
+  bannedBy: number
   _all: number
 }
 
 
 export type BanAvgAggregateInputType = {
   id?: true
-  chain_id?: true
-  bounty_id?: true
-  claim_id?: true
+  chainId?: true
+  bountyId?: true
+  claimId?: true
 }
 
 export type BanSumAggregateInputType = {
   id?: true
-  chain_id?: true
-  bounty_id?: true
-  claim_id?: true
+  chainId?: true
+  bountyId?: true
+  claimId?: true
 }
 
 export type BanMinAggregateInputType = {
   id?: true
-  chain_id?: true
-  bounty_id?: true
-  claim_id?: true
-  banned_at?: true
-  banned_by?: true
+  chainId?: true
+  bountyId?: true
+  claimId?: true
+  bannedAt?: true
+  bannedBy?: true
 }
 
 export type BanMaxAggregateInputType = {
   id?: true
-  chain_id?: true
-  bounty_id?: true
-  claim_id?: true
-  banned_at?: true
-  banned_by?: true
+  chainId?: true
+  bountyId?: true
+  claimId?: true
+  bannedAt?: true
+  bannedBy?: true
 }
 
 export type BanCountAggregateInputType = {
   id?: true
-  chain_id?: true
-  bounty_id?: true
-  claim_id?: true
-  banned_at?: true
-  banned_by?: true
+  chainId?: true
+  bountyId?: true
+  claimId?: true
+  bannedAt?: true
+  bannedBy?: true
   _all?: true
 }
 
@@ -199,11 +199,11 @@ export type BanGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
 
 export type BanGroupByOutputType = {
   id: number
-  chain_id: number
-  bounty_id: number | null
-  claim_id: number | null
-  banned_at: Date
-  banned_by: string
+  chainId: number
+  bountyId: number | null
+  claimId: number | null
+  bannedAt: Date
+  bannedBy: string
   _count: BanCountAggregateOutputType | null
   _avg: BanAvgAggregateOutputType | null
   _sum: BanSumAggregateOutputType | null
@@ -231,22 +231,22 @@ export type BanWhereInput = {
   OR?: Prisma.BanWhereInput[]
   NOT?: Prisma.BanWhereInput | Prisma.BanWhereInput[]
   id?: Prisma.IntFilter<"Ban"> | number
-  chain_id?: Prisma.IntFilter<"Ban"> | number
-  bounty_id?: Prisma.IntNullableFilter<"Ban"> | number | null
-  claim_id?: Prisma.IntNullableFilter<"Ban"> | number | null
-  banned_at?: Prisma.DateTimeFilter<"Ban"> | Date | string
-  banned_by?: Prisma.StringFilter<"Ban"> | string
+  chainId?: Prisma.IntFilter<"Ban"> | number
+  bountyId?: Prisma.IntNullableFilter<"Ban"> | number | null
+  claimId?: Prisma.IntNullableFilter<"Ban"> | number | null
+  bannedAt?: Prisma.DateTimeFilter<"Ban"> | Date | string
+  bannedBy?: Prisma.StringFilter<"Ban"> | string
   bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
   claim?: Prisma.XOR<Prisma.ClaimsNullableScalarRelationFilter, Prisma.ClaimsWhereInput> | null
 }
 
 export type BanOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  claim_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  banned_at?: Prisma.SortOrder
-  banned_by?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  claimId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bannedAt?: Prisma.SortOrder
+  bannedBy?: Prisma.SortOrder
   bounty?: Prisma.BountiesOrderByWithRelationInput
   claim?: Prisma.ClaimsOrderByWithRelationInput
 }
@@ -256,22 +256,22 @@ export type BanWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.BanWhereInput | Prisma.BanWhereInput[]
   OR?: Prisma.BanWhereInput[]
   NOT?: Prisma.BanWhereInput | Prisma.BanWhereInput[]
-  chain_id?: Prisma.IntFilter<"Ban"> | number
-  bounty_id?: Prisma.IntNullableFilter<"Ban"> | number | null
-  claim_id?: Prisma.IntNullableFilter<"Ban"> | number | null
-  banned_at?: Prisma.DateTimeFilter<"Ban"> | Date | string
-  banned_by?: Prisma.StringFilter<"Ban"> | string
+  chainId?: Prisma.IntFilter<"Ban"> | number
+  bountyId?: Prisma.IntNullableFilter<"Ban"> | number | null
+  claimId?: Prisma.IntNullableFilter<"Ban"> | number | null
+  bannedAt?: Prisma.DateTimeFilter<"Ban"> | Date | string
+  bannedBy?: Prisma.StringFilter<"Ban"> | string
   bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
   claim?: Prisma.XOR<Prisma.ClaimsNullableScalarRelationFilter, Prisma.ClaimsWhereInput> | null
 }, "id">
 
 export type BanOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  claim_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  banned_at?: Prisma.SortOrder
-  banned_by?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  claimId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bannedAt?: Prisma.SortOrder
+  bannedBy?: Prisma.SortOrder
   _count?: Prisma.BanCountOrderByAggregateInput
   _avg?: Prisma.BanAvgOrderByAggregateInput
   _max?: Prisma.BanMaxOrderByAggregateInput
@@ -284,66 +284,66 @@ export type BanScalarWhereWithAggregatesInput = {
   OR?: Prisma.BanScalarWhereWithAggregatesInput[]
   NOT?: Prisma.BanScalarWhereWithAggregatesInput | Prisma.BanScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Ban"> | number
-  chain_id?: Prisma.IntWithAggregatesFilter<"Ban"> | number
-  bounty_id?: Prisma.IntNullableWithAggregatesFilter<"Ban"> | number | null
-  claim_id?: Prisma.IntNullableWithAggregatesFilter<"Ban"> | number | null
-  banned_at?: Prisma.DateTimeWithAggregatesFilter<"Ban"> | Date | string
-  banned_by?: Prisma.StringWithAggregatesFilter<"Ban"> | string
+  chainId?: Prisma.IntWithAggregatesFilter<"Ban"> | number
+  bountyId?: Prisma.IntNullableWithAggregatesFilter<"Ban"> | number | null
+  claimId?: Prisma.IntNullableWithAggregatesFilter<"Ban"> | number | null
+  bannedAt?: Prisma.DateTimeWithAggregatesFilter<"Ban"> | Date | string
+  bannedBy?: Prisma.StringWithAggregatesFilter<"Ban"> | string
 }
 
 export type BanCreateInput = {
-  banned_at?: Date | string
-  banned_by: string
+  bannedAt?: Date | string
+  bannedBy: string
   bounty?: Prisma.BountiesCreateNestedOneWithoutBanInput
   claim?: Prisma.ClaimsCreateNestedOneWithoutBanInput
 }
 
 export type BanUncheckedCreateInput = {
   id?: number
-  chain_id: number
-  bounty_id?: number | null
-  claim_id?: number | null
-  banned_at?: Date | string
-  banned_by: string
+  chainId: number
+  bountyId?: number | null
+  claimId?: number | null
+  bannedAt?: Date | string
+  bannedBy: string
 }
 
 export type BanUpdateInput = {
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
   bounty?: Prisma.BountiesUpdateOneWithoutBanNestedInput
   claim?: Prisma.ClaimsUpdateOneWithoutBanNestedInput
 }
 
 export type BanUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BanCreateManyInput = {
   id?: number
-  chain_id: number
-  bounty_id?: number | null
-  claim_id?: number | null
-  banned_at?: Date | string
-  banned_by: string
+  chainId: number
+  bountyId?: number | null
+  claimId?: number | null
+  bannedAt?: Date | string
+  bannedBy: string
 }
 
 export type BanUpdateManyMutationInput = {
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BanUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BanListRelationFilter = {
@@ -358,43 +358,43 @@ export type BanOrderByRelationAggregateInput = {
 
 export type BanCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  banned_at?: Prisma.SortOrder
-  banned_by?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  bannedAt?: Prisma.SortOrder
+  bannedBy?: Prisma.SortOrder
 }
 
 export type BanAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
 }
 
 export type BanMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  banned_at?: Prisma.SortOrder
-  banned_by?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  bannedAt?: Prisma.SortOrder
+  bannedBy?: Prisma.SortOrder
 }
 
 export type BanMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  banned_at?: Prisma.SortOrder
-  banned_by?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  bannedAt?: Prisma.SortOrder
+  bannedBy?: Prisma.SortOrder
 }
 
 export type BanSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
 }
 
 export type BanCreateNestedManyWithoutBountyInput = {
@@ -482,16 +482,16 @@ export type BanUncheckedUpdateManyWithoutClaimNestedInput = {
 }
 
 export type BanCreateWithoutBountyInput = {
-  banned_at?: Date | string
-  banned_by: string
+  bannedAt?: Date | string
+  bannedBy: string
   claim?: Prisma.ClaimsCreateNestedOneWithoutBanInput
 }
 
 export type BanUncheckedCreateWithoutBountyInput = {
   id?: number
-  claim_id?: number | null
-  banned_at?: Date | string
-  banned_by: string
+  claimId?: number | null
+  bannedAt?: Date | string
+  bannedBy: string
 }
 
 export type BanCreateOrConnectWithoutBountyInput = {
@@ -525,24 +525,24 @@ export type BanScalarWhereInput = {
   OR?: Prisma.BanScalarWhereInput[]
   NOT?: Prisma.BanScalarWhereInput | Prisma.BanScalarWhereInput[]
   id?: Prisma.IntFilter<"Ban"> | number
-  chain_id?: Prisma.IntFilter<"Ban"> | number
-  bounty_id?: Prisma.IntNullableFilter<"Ban"> | number | null
-  claim_id?: Prisma.IntNullableFilter<"Ban"> | number | null
-  banned_at?: Prisma.DateTimeFilter<"Ban"> | Date | string
-  banned_by?: Prisma.StringFilter<"Ban"> | string
+  chainId?: Prisma.IntFilter<"Ban"> | number
+  bountyId?: Prisma.IntNullableFilter<"Ban"> | number | null
+  claimId?: Prisma.IntNullableFilter<"Ban"> | number | null
+  bannedAt?: Prisma.DateTimeFilter<"Ban"> | Date | string
+  bannedBy?: Prisma.StringFilter<"Ban"> | string
 }
 
 export type BanCreateWithoutClaimInput = {
-  banned_at?: Date | string
-  banned_by: string
+  bannedAt?: Date | string
+  bannedBy: string
   bounty?: Prisma.BountiesCreateNestedOneWithoutBanInput
 }
 
 export type BanUncheckedCreateWithoutClaimInput = {
   id?: number
-  bounty_id?: number | null
-  banned_at?: Date | string
-  banned_by: string
+  bountyId?: number | null
+  bannedAt?: Date | string
+  bannedBy: string
 }
 
 export type BanCreateOrConnectWithoutClaimInput = {
@@ -573,103 +573,103 @@ export type BanUpdateManyWithWhereWithoutClaimInput = {
 
 export type BanCreateManyBountyInput = {
   id?: number
-  claim_id?: number | null
-  banned_at?: Date | string
-  banned_by: string
+  claimId?: number | null
+  bannedAt?: Date | string
+  bannedBy: string
 }
 
 export type BanUpdateWithoutBountyInput = {
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
   claim?: Prisma.ClaimsUpdateOneWithoutBanNestedInput
 }
 
 export type BanUncheckedUpdateWithoutBountyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BanUncheckedUpdateManyWithoutBountyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BanCreateManyClaimInput = {
   id?: number
-  bounty_id?: number | null
-  banned_at?: Date | string
-  banned_by: string
+  bountyId?: number | null
+  bannedAt?: Date | string
+  bannedBy: string
 }
 
 export type BanUpdateWithoutClaimInput = {
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
   bounty?: Prisma.BountiesUpdateOneWithoutBanNestedInput
 }
 
 export type BanUncheckedUpdateWithoutClaimInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BanUncheckedUpdateManyWithoutClaimInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  banned_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  banned_by?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bannedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bannedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
 
 export type BanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  chain_id?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  banned_at?: boolean
-  banned_by?: boolean
+  chainId?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  bannedAt?: boolean
+  bannedBy?: boolean
   bounty?: boolean | Prisma.Ban$bountyArgs<ExtArgs>
   claim?: boolean | Prisma.Ban$claimArgs<ExtArgs>
 }, ExtArgs["result"]["ban"]>
 
 export type BanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  chain_id?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  banned_at?: boolean
-  banned_by?: boolean
+  chainId?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  bannedAt?: boolean
+  bannedBy?: boolean
   bounty?: boolean | Prisma.Ban$bountyArgs<ExtArgs>
   claim?: boolean | Prisma.Ban$claimArgs<ExtArgs>
 }, ExtArgs["result"]["ban"]>
 
 export type BanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  chain_id?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  banned_at?: boolean
-  banned_by?: boolean
+  chainId?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  bannedAt?: boolean
+  bannedBy?: boolean
   bounty?: boolean | Prisma.Ban$bountyArgs<ExtArgs>
   claim?: boolean | Prisma.Ban$claimArgs<ExtArgs>
 }, ExtArgs["result"]["ban"]>
 
 export type BanSelectScalar = {
   id?: boolean
-  chain_id?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  banned_at?: boolean
-  banned_by?: boolean
+  chainId?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  bannedAt?: boolean
+  bannedBy?: boolean
 }
 
-export type BanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chain_id" | "bounty_id" | "claim_id" | "banned_at" | "banned_by", ExtArgs["result"]["ban"]>
+export type BanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chainId" | "bountyId" | "claimId" | "bannedAt" | "bannedBy", ExtArgs["result"]["ban"]>
 export type BanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bounty?: boolean | Prisma.Ban$bountyArgs<ExtArgs>
   claim?: boolean | Prisma.Ban$claimArgs<ExtArgs>
@@ -691,11 +691,11 @@ export type $BanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    chain_id: number
-    bounty_id: number | null
-    claim_id: number | null
-    banned_at: Date
-    banned_by: string
+    chainId: number
+    bountyId: number | null
+    claimId: number | null
+    bannedAt: Date
+    bannedBy: string
   }, ExtArgs["result"]["ban"]>
   composites: {}
 }
@@ -1122,11 +1122,11 @@ export interface Prisma__BanClient<T, Null = never, ExtArgs extends runtime.Type
  */
 export interface BanFieldRefs {
   readonly id: Prisma.FieldRef<"Ban", 'Int'>
-  readonly chain_id: Prisma.FieldRef<"Ban", 'Int'>
-  readonly bounty_id: Prisma.FieldRef<"Ban", 'Int'>
-  readonly claim_id: Prisma.FieldRef<"Ban", 'Int'>
-  readonly banned_at: Prisma.FieldRef<"Ban", 'DateTime'>
-  readonly banned_by: Prisma.FieldRef<"Ban", 'String'>
+  readonly chainId: Prisma.FieldRef<"Ban", 'Int'>
+  readonly bountyId: Prisma.FieldRef<"Ban", 'Int'>
+  readonly claimId: Prisma.FieldRef<"Ban", 'Int'>
+  readonly bannedAt: Prisma.FieldRef<"Ban", 'DateTime'>
+  readonly bannedBy: Prisma.FieldRef<"Ban", 'String'>
 }
     
 

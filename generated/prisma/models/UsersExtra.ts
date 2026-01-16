@@ -26,64 +26,64 @@ export type AggregateUsersExtra = {
 
 export type UsersExtraMinAggregateOutputType = {
   address: string | null
-  pfp_url: string | null
+  pfpUrl: string | null
   ens: string | null
-  degen_name: string | null
-  farcaster_tag: string | null
-  twitter_tag: string | null
-  last_updated: Date | null
+  degenName: string | null
+  farcasterTag: string | null
+  twitterTag: string | null
+  lastUpdated: Date | null
 }
 
 export type UsersExtraMaxAggregateOutputType = {
   address: string | null
-  pfp_url: string | null
+  pfpUrl: string | null
   ens: string | null
-  degen_name: string | null
-  farcaster_tag: string | null
-  twitter_tag: string | null
-  last_updated: Date | null
+  degenName: string | null
+  farcasterTag: string | null
+  twitterTag: string | null
+  lastUpdated: Date | null
 }
 
 export type UsersExtraCountAggregateOutputType = {
   address: number
-  pfp_url: number
+  pfpUrl: number
   ens: number
-  degen_name: number
-  farcaster_tag: number
-  twitter_tag: number
-  last_updated: number
+  degenName: number
+  farcasterTag: number
+  twitterTag: number
+  lastUpdated: number
   _all: number
 }
 
 
 export type UsersExtraMinAggregateInputType = {
   address?: true
-  pfp_url?: true
+  pfpUrl?: true
   ens?: true
-  degen_name?: true
-  farcaster_tag?: true
-  twitter_tag?: true
-  last_updated?: true
+  degenName?: true
+  farcasterTag?: true
+  twitterTag?: true
+  lastUpdated?: true
 }
 
 export type UsersExtraMaxAggregateInputType = {
   address?: true
-  pfp_url?: true
+  pfpUrl?: true
   ens?: true
-  degen_name?: true
-  farcaster_tag?: true
-  twitter_tag?: true
-  last_updated?: true
+  degenName?: true
+  farcasterTag?: true
+  twitterTag?: true
+  lastUpdated?: true
 }
 
 export type UsersExtraCountAggregateInputType = {
   address?: true
-  pfp_url?: true
+  pfpUrl?: true
   ens?: true
-  degen_name?: true
-  farcaster_tag?: true
-  twitter_tag?: true
-  last_updated?: true
+  degenName?: true
+  farcasterTag?: true
+  twitterTag?: true
+  lastUpdated?: true
   _all?: true
 }
 
@@ -161,12 +161,12 @@ export type UsersExtraGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type UsersExtraGroupByOutputType = {
   address: string
-  pfp_url: string | null
+  pfpUrl: string | null
   ens: string | null
-  degen_name: string | null
-  farcaster_tag: string | null
-  twitter_tag: string | null
-  last_updated: Date
+  degenName: string | null
+  farcasterTag: string | null
+  twitterTag: string | null
+  lastUpdated: Date
   _count: UsersExtraCountAggregateOutputType | null
   _min: UsersExtraMinAggregateOutputType | null
   _max: UsersExtraMaxAggregateOutputType | null
@@ -192,23 +192,23 @@ export type UsersExtraWhereInput = {
   OR?: Prisma.UsersExtraWhereInput[]
   NOT?: Prisma.UsersExtraWhereInput | Prisma.UsersExtraWhereInput[]
   address?: Prisma.StringFilter<"UsersExtra"> | string
-  pfp_url?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  pfpUrl?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
   ens?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  degen_name?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  farcaster_tag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  twitter_tag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  last_updated?: Prisma.DateTimeFilter<"UsersExtra"> | Date | string
+  degenName?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  farcasterTag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  twitterTag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  lastUpdated?: Prisma.DateTimeFilter<"UsersExtra"> | Date | string
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
 }
 
 export type UsersExtraOrderByWithRelationInput = {
   address?: Prisma.SortOrder
-  pfp_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  pfpUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   ens?: Prisma.SortOrderInput | Prisma.SortOrder
-  degen_name?: Prisma.SortOrderInput | Prisma.SortOrder
-  farcaster_tag?: Prisma.SortOrderInput | Prisma.SortOrder
-  twitter_tag?: Prisma.SortOrderInput | Prisma.SortOrder
-  last_updated?: Prisma.SortOrder
+  degenName?: Prisma.SortOrderInput | Prisma.SortOrder
+  farcasterTag?: Prisma.SortOrderInput | Prisma.SortOrder
+  twitterTag?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUpdated?: Prisma.SortOrder
   user?: Prisma.UsersOrderByWithRelationInput
 }
 
@@ -217,23 +217,23 @@ export type UsersExtraWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.UsersExtraWhereInput | Prisma.UsersExtraWhereInput[]
   OR?: Prisma.UsersExtraWhereInput[]
   NOT?: Prisma.UsersExtraWhereInput | Prisma.UsersExtraWhereInput[]
-  pfp_url?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  pfpUrl?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
   ens?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  degen_name?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  farcaster_tag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  twitter_tag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  last_updated?: Prisma.DateTimeFilter<"UsersExtra"> | Date | string
+  degenName?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  farcasterTag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  twitterTag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  lastUpdated?: Prisma.DateTimeFilter<"UsersExtra"> | Date | string
   user?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
 }, "address">
 
 export type UsersExtraOrderByWithAggregationInput = {
   address?: Prisma.SortOrder
-  pfp_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  pfpUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   ens?: Prisma.SortOrderInput | Prisma.SortOrder
-  degen_name?: Prisma.SortOrderInput | Prisma.SortOrder
-  farcaster_tag?: Prisma.SortOrderInput | Prisma.SortOrder
-  twitter_tag?: Prisma.SortOrderInput | Prisma.SortOrder
-  last_updated?: Prisma.SortOrder
+  degenName?: Prisma.SortOrderInput | Prisma.SortOrder
+  farcasterTag?: Prisma.SortOrderInput | Prisma.SortOrder
+  twitterTag?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUpdated?: Prisma.SortOrder
   _count?: Prisma.UsersExtraCountOrderByAggregateInput
   _max?: Prisma.UsersExtraMaxOrderByAggregateInput
   _min?: Prisma.UsersExtraMinOrderByAggregateInput
@@ -244,81 +244,81 @@ export type UsersExtraScalarWhereWithAggregatesInput = {
   OR?: Prisma.UsersExtraScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UsersExtraScalarWhereWithAggregatesInput | Prisma.UsersExtraScalarWhereWithAggregatesInput[]
   address?: Prisma.StringWithAggregatesFilter<"UsersExtra"> | string
-  pfp_url?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
+  pfpUrl?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
   ens?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
-  degen_name?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
-  farcaster_tag?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
-  twitter_tag?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
-  last_updated?: Prisma.DateTimeWithAggregatesFilter<"UsersExtra"> | Date | string
+  degenName?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
+  farcasterTag?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
+  twitterTag?: Prisma.StringNullableWithAggregatesFilter<"UsersExtra"> | string | null
+  lastUpdated?: Prisma.DateTimeWithAggregatesFilter<"UsersExtra"> | Date | string
 }
 
 export type UsersExtraCreateInput = {
-  pfp_url?: string | null
+  pfpUrl?: string | null
   ens?: string | null
-  degen_name?: string | null
-  farcaster_tag?: string | null
-  twitter_tag?: string | null
-  last_updated?: Date | string
+  degenName?: string | null
+  farcasterTag?: string | null
+  twitterTag?: string | null
+  lastUpdated?: Date | string
   user: Prisma.UsersCreateNestedOneWithoutUsersExtrasInput
 }
 
 export type UsersExtraUncheckedCreateInput = {
   address: string
-  pfp_url?: string | null
+  pfpUrl?: string | null
   ens?: string | null
-  degen_name?: string | null
-  farcaster_tag?: string | null
-  twitter_tag?: string | null
-  last_updated?: Date | string
+  degenName?: string | null
+  farcasterTag?: string | null
+  twitterTag?: string | null
+  lastUpdated?: Date | string
 }
 
 export type UsersExtraUpdateInput = {
-  pfp_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pfpUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ens?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  degen_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  farcaster_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitter_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  last_updated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degenName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  farcasterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UsersUpdateOneRequiredWithoutUsersExtrasNestedInput
 }
 
 export type UsersExtraUncheckedUpdateInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  pfp_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pfpUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ens?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  degen_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  farcaster_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitter_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  last_updated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degenName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  farcasterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UsersExtraCreateManyInput = {
   address: string
-  pfp_url?: string | null
+  pfpUrl?: string | null
   ens?: string | null
-  degen_name?: string | null
-  farcaster_tag?: string | null
-  twitter_tag?: string | null
-  last_updated?: Date | string
+  degenName?: string | null
+  farcasterTag?: string | null
+  twitterTag?: string | null
+  lastUpdated?: Date | string
 }
 
 export type UsersExtraUpdateManyMutationInput = {
-  pfp_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pfpUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ens?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  degen_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  farcaster_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitter_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  last_updated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degenName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  farcasterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UsersExtraUncheckedUpdateManyInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  pfp_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pfpUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ens?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  degen_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  farcaster_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitter_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  last_updated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degenName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  farcasterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UsersExtraListRelationFilter = {
@@ -333,32 +333,32 @@ export type UsersExtraOrderByRelationAggregateInput = {
 
 export type UsersExtraCountOrderByAggregateInput = {
   address?: Prisma.SortOrder
-  pfp_url?: Prisma.SortOrder
+  pfpUrl?: Prisma.SortOrder
   ens?: Prisma.SortOrder
-  degen_name?: Prisma.SortOrder
-  farcaster_tag?: Prisma.SortOrder
-  twitter_tag?: Prisma.SortOrder
-  last_updated?: Prisma.SortOrder
+  degenName?: Prisma.SortOrder
+  farcasterTag?: Prisma.SortOrder
+  twitterTag?: Prisma.SortOrder
+  lastUpdated?: Prisma.SortOrder
 }
 
 export type UsersExtraMaxOrderByAggregateInput = {
   address?: Prisma.SortOrder
-  pfp_url?: Prisma.SortOrder
+  pfpUrl?: Prisma.SortOrder
   ens?: Prisma.SortOrder
-  degen_name?: Prisma.SortOrder
-  farcaster_tag?: Prisma.SortOrder
-  twitter_tag?: Prisma.SortOrder
-  last_updated?: Prisma.SortOrder
+  degenName?: Prisma.SortOrder
+  farcasterTag?: Prisma.SortOrder
+  twitterTag?: Prisma.SortOrder
+  lastUpdated?: Prisma.SortOrder
 }
 
 export type UsersExtraMinOrderByAggregateInput = {
   address?: Prisma.SortOrder
-  pfp_url?: Prisma.SortOrder
+  pfpUrl?: Prisma.SortOrder
   ens?: Prisma.SortOrder
-  degen_name?: Prisma.SortOrder
-  farcaster_tag?: Prisma.SortOrder
-  twitter_tag?: Prisma.SortOrder
-  last_updated?: Prisma.SortOrder
+  degenName?: Prisma.SortOrder
+  farcasterTag?: Prisma.SortOrder
+  twitterTag?: Prisma.SortOrder
+  lastUpdated?: Prisma.SortOrder
 }
 
 export type UsersExtraCreateNestedManyWithoutUserInput = {
@@ -412,21 +412,21 @@ export type DateTimeFieldUpdateOperationsInput = {
 }
 
 export type UsersExtraCreateWithoutUserInput = {
-  pfp_url?: string | null
+  pfpUrl?: string | null
   ens?: string | null
-  degen_name?: string | null
-  farcaster_tag?: string | null
-  twitter_tag?: string | null
-  last_updated?: Date | string
+  degenName?: string | null
+  farcasterTag?: string | null
+  twitterTag?: string | null
+  lastUpdated?: Date | string
 }
 
 export type UsersExtraUncheckedCreateWithoutUserInput = {
-  pfp_url?: string | null
+  pfpUrl?: string | null
   ens?: string | null
-  degen_name?: string | null
-  farcaster_tag?: string | null
-  twitter_tag?: string | null
-  last_updated?: Date | string
+  degenName?: string | null
+  farcasterTag?: string | null
+  twitterTag?: string | null
+  lastUpdated?: Date | string
 }
 
 export type UsersExtraCreateOrConnectWithoutUserInput = {
@@ -460,96 +460,96 @@ export type UsersExtraScalarWhereInput = {
   OR?: Prisma.UsersExtraScalarWhereInput[]
   NOT?: Prisma.UsersExtraScalarWhereInput | Prisma.UsersExtraScalarWhereInput[]
   address?: Prisma.StringFilter<"UsersExtra"> | string
-  pfp_url?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  pfpUrl?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
   ens?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  degen_name?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  farcaster_tag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  twitter_tag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
-  last_updated?: Prisma.DateTimeFilter<"UsersExtra"> | Date | string
+  degenName?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  farcasterTag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  twitterTag?: Prisma.StringNullableFilter<"UsersExtra"> | string | null
+  lastUpdated?: Prisma.DateTimeFilter<"UsersExtra"> | Date | string
 }
 
 export type UsersExtraCreateManyUserInput = {
-  pfp_url?: string | null
+  pfpUrl?: string | null
   ens?: string | null
-  degen_name?: string | null
-  farcaster_tag?: string | null
-  twitter_tag?: string | null
-  last_updated?: Date | string
+  degenName?: string | null
+  farcasterTag?: string | null
+  twitterTag?: string | null
+  lastUpdated?: Date | string
 }
 
 export type UsersExtraUpdateWithoutUserInput = {
-  pfp_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pfpUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ens?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  degen_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  farcaster_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitter_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  last_updated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degenName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  farcasterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UsersExtraUncheckedUpdateWithoutUserInput = {
-  pfp_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pfpUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ens?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  degen_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  farcaster_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitter_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  last_updated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degenName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  farcasterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UsersExtraUncheckedUpdateManyWithoutUserInput = {
-  pfp_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pfpUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ens?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  degen_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  farcaster_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitter_tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  last_updated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degenName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  farcasterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastUpdated?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
 
 export type UsersExtraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
-  pfp_url?: boolean
+  pfpUrl?: boolean
   ens?: boolean
-  degen_name?: boolean
-  farcaster_tag?: boolean
-  twitter_tag?: boolean
-  last_updated?: boolean
+  degenName?: boolean
+  farcasterTag?: boolean
+  twitterTag?: boolean
+  lastUpdated?: boolean
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["usersExtra"]>
 
 export type UsersExtraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
-  pfp_url?: boolean
+  pfpUrl?: boolean
   ens?: boolean
-  degen_name?: boolean
-  farcaster_tag?: boolean
-  twitter_tag?: boolean
-  last_updated?: boolean
+  degenName?: boolean
+  farcasterTag?: boolean
+  twitterTag?: boolean
+  lastUpdated?: boolean
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["usersExtra"]>
 
 export type UsersExtraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
-  pfp_url?: boolean
+  pfpUrl?: boolean
   ens?: boolean
-  degen_name?: boolean
-  farcaster_tag?: boolean
-  twitter_tag?: boolean
-  last_updated?: boolean
+  degenName?: boolean
+  farcasterTag?: boolean
+  twitterTag?: boolean
+  lastUpdated?: boolean
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["usersExtra"]>
 
 export type UsersExtraSelectScalar = {
   address?: boolean
-  pfp_url?: boolean
+  pfpUrl?: boolean
   ens?: boolean
-  degen_name?: boolean
-  farcaster_tag?: boolean
-  twitter_tag?: boolean
-  last_updated?: boolean
+  degenName?: boolean
+  farcasterTag?: boolean
+  twitterTag?: boolean
+  lastUpdated?: boolean
 }
 
-export type UsersExtraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"address" | "pfp_url" | "ens" | "degen_name" | "farcaster_tag" | "twitter_tag" | "last_updated", ExtArgs["result"]["usersExtra"]>
+export type UsersExtraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"address" | "pfpUrl" | "ens" | "degenName" | "farcasterTag" | "twitterTag" | "lastUpdated", ExtArgs["result"]["usersExtra"]>
 export type UsersExtraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
@@ -567,12 +567,12 @@ export type $UsersExtraPayload<ExtArgs extends runtime.Types.Extensions.Internal
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     address: string
-    pfp_url: string | null
+    pfpUrl: string | null
     ens: string | null
-    degen_name: string | null
-    farcaster_tag: string | null
-    twitter_tag: string | null
-    last_updated: Date
+    degenName: string | null
+    farcasterTag: string | null
+    twitterTag: string | null
+    lastUpdated: Date
   }, ExtArgs["result"]["usersExtra"]>
   composites: {}
 }
@@ -998,12 +998,12 @@ export interface Prisma__UsersExtraClient<T, Null = never, ExtArgs extends runti
  */
 export interface UsersExtraFieldRefs {
   readonly address: Prisma.FieldRef<"UsersExtra", 'String'>
-  readonly pfp_url: Prisma.FieldRef<"UsersExtra", 'String'>
+  readonly pfpUrl: Prisma.FieldRef<"UsersExtra", 'String'>
   readonly ens: Prisma.FieldRef<"UsersExtra", 'String'>
-  readonly degen_name: Prisma.FieldRef<"UsersExtra", 'String'>
-  readonly farcaster_tag: Prisma.FieldRef<"UsersExtra", 'String'>
-  readonly twitter_tag: Prisma.FieldRef<"UsersExtra", 'String'>
-  readonly last_updated: Prisma.FieldRef<"UsersExtra", 'DateTime'>
+  readonly degenName: Prisma.FieldRef<"UsersExtra", 'String'>
+  readonly farcasterTag: Prisma.FieldRef<"UsersExtra", 'String'>
+  readonly twitterTag: Prisma.FieldRef<"UsersExtra", 'String'>
+  readonly lastUpdated: Prisma.FieldRef<"UsersExtra", 'DateTime'>
 }
     
 

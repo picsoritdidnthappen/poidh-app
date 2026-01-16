@@ -104,8 +104,8 @@ export type BountiesScalarFieldEnum = (typeof BountiesScalarFieldEnum)[keyof typ
 
 
 export const BountiesExtraScalarFieldEnum = {
-  bounty_id: 'bounty_id',
-  chain_id: 'chain_id',
+  bountyId: 'bountyId',
+  chainId: 'chainId',
   album: 'album'
 } as const
 
@@ -115,13 +115,13 @@ export type BountiesExtraScalarFieldEnum = (typeof BountiesExtraScalarFieldEnum)
 export const ClaimsScalarFieldEnum = {
   id: 'id',
   onChainId: 'onChainId',
-  chain_id: 'chain_id',
+  chainId: 'chainId',
   title: 'title',
   description: 'description',
   url: 'url',
   issuer: 'issuer',
-  is_accepted: 'is_accepted',
-  bounty_id: 'bounty_id',
+  isAccepted: 'isAccepted',
+  bountyId: 'bountyId',
   owner: 'owner'
 } as const
 
@@ -129,9 +129,9 @@ export type ClaimsScalarFieldEnum = (typeof ClaimsScalarFieldEnum)[keyof typeof 
 
 
 export const ParticipationsBountiesScalarFieldEnum = {
-  user_address: 'user_address',
-  bounty_id: 'bounty_id',
-  chain_id: 'chain_id',
+  userAddress: 'userAddress',
+  bountyId: 'bountyId',
+  chainId: 'chainId',
   amount: 'amount'
 } as const
 
@@ -150,12 +150,12 @@ export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof Us
 
 export const UsersExtraScalarFieldEnum = {
   address: 'address',
-  pfp_url: 'pfp_url',
+  pfpUrl: 'pfpUrl',
   ens: 'ens',
-  degen_name: 'degen_name',
-  farcaster_tag: 'farcaster_tag',
-  twitter_tag: 'twitter_tag',
-  last_updated: 'last_updated'
+  degenName: 'degenName',
+  farcasterTag: 'farcasterTag',
+  twitterTag: 'twitterTag',
+  lastUpdated: 'lastUpdated'
 } as const
 
 export type UsersExtraScalarFieldEnum = (typeof UsersExtraScalarFieldEnum)[keyof typeof UsersExtraScalarFieldEnum]
@@ -163,11 +163,11 @@ export type UsersExtraScalarFieldEnum = (typeof UsersExtraScalarFieldEnum)[keyof
 
 export const BanScalarFieldEnum = {
   id: 'id',
-  chain_id: 'chain_id',
-  bounty_id: 'bounty_id',
-  claim_id: 'claim_id',
-  banned_at: 'banned_at',
-  banned_by: 'banned_by'
+  chainId: 'chainId',
+  bountyId: 'bountyId',
+  claimId: 'claimId',
+  bannedAt: 'bannedAt',
+  bannedBy: 'bannedBy'
 } as const
 
 export type BanScalarFieldEnum = (typeof BanScalarFieldEnum)[keyof typeof BanScalarFieldEnum]
@@ -176,9 +176,9 @@ export type BanScalarFieldEnum = (typeof BanScalarFieldEnum)[keyof typeof BanSca
 export const TransactionsScalarFieldEnum = {
   tx: 'tx',
   index: 'index',
-  bounty_id: 'bounty_id',
-  claim_id: 'claim_id',
-  chain_id: 'chain_id',
+  bountyId: 'bountyId',
+  claimId: 'claimId',
+  chainId: 'chainId',
   address: 'address',
   action: 'action',
   timestamp: 'timestamp'
@@ -189,7 +189,7 @@ export type TransactionsScalarFieldEnum = (typeof TransactionsScalarFieldEnum)[k
 
 export const LeaderboardScalarFieldEnum = {
   address: 'address',
-  chain_id: 'chain_id',
+  chainId: 'chainId',
   earned: 'earned',
   paid: 'paid',
   nfts: 'nfts'
@@ -200,9 +200,9 @@ export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[key
 
 export const PriceScalarFieldEnum = {
   id: 'id',
-  created_at: 'created_at',
-  degen_usd: 'degen_usd',
-  eth_usd: 'eth_usd'
+  createdAt: 'createdAt',
+  degenUsd: 'degenUsd',
+  ethUsd: 'ethUsd'
 } as const
 
 export type PriceScalarFieldEnum = (typeof PriceScalarFieldEnum)[keyof typeof PriceScalarFieldEnum]
@@ -210,13 +210,13 @@ export type PriceScalarFieldEnum = (typeof PriceScalarFieldEnum)[keyof typeof Pr
 
 export const CommentsScalarFieldEnum = {
   id: 'id',
-  bounty_id: 'bounty_id',
-  chain_id: 'chain_id',
-  parent_id: 'parent_id',
-  user_address: 'user_address',
+  bountyId: 'bountyId',
+  chainId: 'chainId',
+  parentId: 'parentId',
+  userAddress: 'userAddress',
   body: 'body',
-  created_at: 'created_at',
-  deleted_at: 'deleted_at'
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt'
 } as const
 
 export type CommentsScalarFieldEnum = (typeof CommentsScalarFieldEnum)[keyof typeof CommentsScalarFieldEnum]
@@ -236,7 +236,7 @@ export type VotesScalarFieldEnum = (typeof VotesScalarFieldEnum)[keyof typeof Vo
 
 export const ReactionsScalarFieldEnum = {
   id: 'id',
-  comment_id: 'comment_id',
+  commentId: 'commentId',
   type: 'type',
   address: 'address'
 } as const

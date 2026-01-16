@@ -31,9 +31,9 @@ function getDisplayName(user: UserData): string {
     return 'unknown';
   }
 
-  if (user.farcaster_tag) return formatUserName(user.farcaster_tag);
+  if (user.farcasterTag) return formatUserName(user.farcasterTag);
   if (user.ens) return formatUserName(user.ens.slice(0, 12));
-  if (user.degen_name) return formatUserName(user.degen_name.slice(0, 12));
+  if (user.degenName) return formatUserName(user.degenName.slice(0, 12));
   return user.address?.slice(0, 7) ?? 'unknown';
 }
 
@@ -58,10 +58,10 @@ function UserDisplay({
 
   return (
     <span className='inline-flex items-center whitespace-nowrap max-w-full'>
-      {user.pfp_url && (
+      {user.pfpUrl && (
         <div className='flex-shrink-0 relative overflow-hidden rounded-full mr-2 w-7 h-7'>
           <Image
-            src={user.pfp_url ?? 'https://poidh.xyz/images/unknown.png'}
+            src={user.pfpUrl ?? 'https://poidh.xyz/images/unknown.png'}
             alt={displayName || 'User'}
             width={8}
             height={8}
@@ -233,13 +233,13 @@ export default function HighScoresPage() {
                     <div className='flex items-center justify-end md:mr-3'>
                       {usersQuery.data && (
                         <div className='flex items-center gap-3'>
-                          {user.farcaster_tag && (
+                          {user.farcasterTag && (
                             <a
-                              href={`${FARCASTER_URL}/${user.farcaster_tag}`}
+                              href={`${FARCASTER_URL}/${user.farcasterTag}`}
                               target='_blank'
                               rel='noopener noreferrer'
                               className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                              aria-label={`Visit ${user.farcaster_tag}'s Warpcast profile`}
+                              aria-label={`Visit ${user.farcasterTag}'s Warpcast profile`}
                             >
                               <Image
                                 src='/images/farcaster_arch.svg'
@@ -250,13 +250,13 @@ export default function HighScoresPage() {
                               />
                             </a>
                           )}
-                          {user?.twitter_tag && (
+                          {user?.twitterTag && (
                             <a
-                              href={`${TWITTER_URL}/${user.twitter_tag}`}
+                              href={`${TWITTER_URL}/${user.twitterTag}`}
                               target='_blank'
                               rel='noopener noreferrer'
                               className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                              aria-label={`Visit ${user.twitter_tag}'s X profile`}
+                              aria-label={`Visit ${user.twitterTag}'s X profile`}
                             >
                               <div className='text-gray-300 group-hover:text-white transition-colors duration-200'>
                                 <TwitterXIcon width={16} height={18} />
@@ -332,13 +332,13 @@ export default function HighScoresPage() {
                       <div className='flex items-center justify-end md:mr-4'>
                         {currentUser && (
                           <div className='flex items-center gap-3'>
-                            {currentUser.farcaster_tag && (
+                            {currentUser.farcasterTag && (
                               <a
-                                href={`${FARCASTER_URL}/${currentUser.farcaster_tag}`}
+                                href={`${FARCASTER_URL}/${currentUser.farcasterTag}`}
                                 target='_blank'
                                 rel='noopener noreferrer'
                                 className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                                aria-label={`Visit ${currentUser.farcaster_tag}'s Warpcast profile`}
+                                aria-label={`Visit ${currentUser.farcasterTag}'s Warpcast profile`}
                               >
                                 <Image
                                   src='/images/farcaster_arch.svg'
@@ -349,13 +349,13 @@ export default function HighScoresPage() {
                                 />
                               </a>
                             )}
-                            {currentUser.twitter_tag && (
+                            {currentUser.twitterTag && (
                               <a
-                                href={`${TWITTER_URL}/${currentUser.twitter_tag}`}
+                                href={`${TWITTER_URL}/${currentUser.twitterTag}`}
                                 target='_blank'
                                 rel='noopener noreferrer'
                                 className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                                aria-label={`Visit ${currentUser.twitter_tag}'s X profile`}
+                                aria-label={`Visit ${currentUser.twitterTag}'s X profile`}
                               >
                                 <div className='text-gray-300 group-hover:text-white transition-colors duration-200'>
                                   <TwitterXIcon width={16} height={18} />
@@ -492,13 +492,13 @@ function LeaderboardCardMobile({
         </Link>
         {user && (
           <div className='flex items-center gap-2'>
-            {user.farcaster_tag && (
+            {user.farcasterTag && (
               <a
-                href={`${FARCASTER_URL}/${user.farcaster_tag}`}
+                href={`${FARCASTER_URL}/${user.farcasterTag}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 className='group inline-flex items-center justify-center w-7 h-7 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                aria-label={`Visit ${user.farcaster_tag}'s Warpcast profile`}
+                aria-label={`Visit ${user.farcasterTag}'s Warpcast profile`}
               >
                 <Image
                   src='/images/farcaster_arch.svg'
@@ -509,13 +509,13 @@ function LeaderboardCardMobile({
                 />
               </a>
             )}
-            {user.farcaster_tag && (
+            {user.farcasterTag && (
               <a
-                href={`${TWITTER_URL}/${user.twitter_tag}`}
+                href={`${TWITTER_URL}/${user.twitterTag}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 className='group inline-flex items-center justify-center w-7 h-7 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
-                aria-label={`Visit ${user.twitter_tag}'s X profile`}
+                aria-label={`Visit ${user.twitterTag}'s X profile`}
               >
                 <div className='text-gray-300 transition-colors duration-200'>
                   <TwitterXIcon width={14} height={16} />

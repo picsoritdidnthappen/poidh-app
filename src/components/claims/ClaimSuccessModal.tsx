@@ -26,7 +26,7 @@ export default function ClaimSuccessModal({
   onClose: () => void;
   claimImage: string;
   claimTitle: string;
-  bountyId: string;
+  bountyId: number;
   claimIssuer: string;
 }) {
   const router = useRouter();
@@ -115,7 +115,7 @@ export default function ClaimSuccessModal({
       cardUrl.searchParams.set('title', claimTitle.slice(0, 30));
       cardUrl.searchParams.set('issuer', claimIssuerUsername);
 
-      const claimIssuerPfp = claimIssuerData?.pfp_url;
+      const claimIssuerPfp = claimIssuerData?.pfpUrl;
       if (claimIssuerPfp) {
         cardUrl.searchParams.set('pfp', claimIssuerPfp);
       }

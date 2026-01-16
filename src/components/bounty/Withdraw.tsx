@@ -12,7 +12,7 @@ export default function Withdraw({
   id,
   onChainId,
 }: {
-  id: string;
+  id: number;
   onChainId: number;
 }) {
   const chain = useChainInfo();

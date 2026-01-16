@@ -18,7 +18,7 @@ export default function FormJoinBounty({
   open,
   onClose,
 }: {
-  id: string;
+  id: number;
   onChainId: number;
   open: boolean;
   onClose: () => void;

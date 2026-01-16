@@ -71,11 +71,11 @@ export default function Bounty({
         <BountyInfo
           isShareModalOpen={isShareModalOpen}
           isHowItWorksModalOpen={isHowItWorksModalOpen}
-          bountyId={params.id}
+          bountyId={Number(params.id)}
           onShareModalStateChange={setIsShareModalOpen}
           onHowItWorksModalStateChange={setIsHowItWorksModalOpen}
         />
-        <BountyClaims bountyId={params.id} />
+        <BountyClaims bountyId={Number(params.id)} />
         <CommentsSection
           chainId={chain.id as ChainId}
           bountyId={Number(bountyId)}

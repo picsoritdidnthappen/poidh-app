@@ -32,7 +32,7 @@ export default function FormClaim({
   open,
   onClose,
 }: {
-  bountyId: string;
+  bountyId: number;
   open: boolean;
   onChainBountyId: number;
   onClose: () => void;
@@ -201,7 +201,7 @@ export default function FormClaim({
       toast.error('Failed to create claim: ' + error.message);
     },
     onSettled: () => {
-      utils.bounties.claims.refetch();
+      utils.claims.fetchBountyClaims.refetch();
       setPollingChainId(null);
       setTitle('');
       setDescription('');

@@ -13,7 +13,7 @@ export default function BountyMultiplayer({
   bountyId,
 }: {
   chain: Chain;
-  bountyId: string;
+  bountyId: number;
 }) {
   const [showParticipants, setShowParticipants] = useState(false);
 
@@ -53,18 +53,18 @@ export default function BountyMultiplayer({
           {participants.isSuccess ? (
             participants.data.map((participant) => (
               <div
-                key={participant.user_address}
+                key={participant.userAddress}
                 className='flex items-center p-4 hover:bg-[#D1ECFF]/10 transition-all'
               >
                 <div className='flex flex-col sm:flex-row sm:items-center w-full gap-2 sm:gap-4'>
                   <div className='flex items-center gap-1 min-w-[200px]'>
                     <span className='mr-1'>
                       <CopyAddressButton
-                        address={participant.user_address}
+                        address={participant.userAddress}
                         size={12}
                       />
                     </span>
-                    <DisplayAddress address={participant.user_address} />
+                    <DisplayAddress address={participant.userAddress} />
                   </div>
                   <div className='text-sm text-white/60'>
                     {formatEther(BigInt(participant.amount))} {chain.currency}
