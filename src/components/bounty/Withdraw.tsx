@@ -1,5 +1,5 @@
 import abi from '@/constant/abi/abi';
-import { useChainInfo } from '@/hooks/useChainInfo';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ export default function Withdraw({
   id,
   onChainId,
 }: {
-  id: number;
+  id: string;
   onChainId: number;
 }) {
   const chain = useChainInfo();

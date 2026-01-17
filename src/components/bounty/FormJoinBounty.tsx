@@ -1,15 +1,16 @@
 import abi from '@/constant/abi/abi';
-import { useChainInfo } from '@/hooks/useChainInfo';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther } from 'viem';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
+import { cn } from '@/utils';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom, pollingChainIdAtom } from '@/store/loading';
-import { cn, formatAmountShort } from '@/utils/utils';
+import { formatAmountShort } from '@/utils/utils';
 import JoinBountySuccessModal from './JoinBountySuccessModal';
 
 export default function FormJoinBounty({
@@ -18,7 +19,7 @@ export default function FormJoinBounty({
   open,
   onClose,
 }: {
-  id: number;
+  id: string;
   onChainId: number;
   open: boolean;
   onClose: () => void;

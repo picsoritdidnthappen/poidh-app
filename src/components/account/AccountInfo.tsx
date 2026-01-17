@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
 import BountyList from '../bounty/BountyList';
@@ -38,6 +39,7 @@ export default function AccountInfo({ address }: { address: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const chain = useChainInfo();
   const sectionFromUrl = getSectionFromParam(searchParams.get('tab'));
   const [currentSection, setCurrentSection] = useState<Section>(
     sectionFromUrl ?? 'bounties'
@@ -271,12 +273,12 @@ export default function AccountInfo({ address }: { address: string }) {
                       key={nfts.data.pages[0]?.items[0]?.id || 'empty-nfts'}
                       NFTs={nfts.data.pages.flatMap((page) =>
                         page.items.map((NFT) => ({
-                          id: NFT.id,
-                          chainId: NFT.chainId as ChainId,
+                          chainId: NFT.chain_id as ChainId,
+                          id: NFT.id.toString(),
                           url: NFT.url,
                           title: NFT.title,
                           description: NFT.description,
-                          bountyId: NFT.bountyId,
+                          bountyId: NFT.bounty?.id?.toString() ?? '',
                           issuer: NFT.issuer,
                         }))
                       )}
@@ -306,8 +308,15 @@ export default function AccountInfo({ address }: { address: string }) {
                       }
                       bounties={bounties.data.pages.flatMap((page) =>
                         page.items.map((bounty) => ({
-                          ...bounty,
-                          chainId: bounty.chainId as ChainId,
+                          id: bounty.id.toString(),
+                          chainId: bounty.chain_id as ChainId,
+                          title: bounty.title,
+                          description: bounty.description,
+                          amount: bounty.amount,
+                          isMultiplayer: bounty.is_multiplayer || false,
+                          inProgress: bounty.in_progress || false,
+                          isCanceled: bounty.is_canceled || false,
+                          hasClaims: (bounty.claims ?? []).length > 0,
                         }))
                       )}
                       showStatusEmoji={true}
@@ -333,8 +342,14 @@ export default function AccountInfo({ address }: { address: string }) {
                       key={claims.data.pages[0]?.items[0]?.id || 'empty-claims'}
                       claims={claims.data.pages.flatMap((page) =>
                         page.items.map((c) => ({
-                          ...c,
-                          chainId: c.chainId as ChainId,
+                          id: c.id.toString(),
+                          chainId: c.chain_id as ChainId,
+                          title: c.title,
+                          description: c.description,
+                          url: c.url,
+                          issuer: c.issuer,
+                          bountyId: c.bounty?.id?.toString() ?? '',
+                          accepted: c.is_accepted || false,
                         }))
                       )}
                     />

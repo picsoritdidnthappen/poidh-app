@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useChainInfo } from '@/hooks/useChainInfo';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { useScreenSize } from '@/hooks/useScreenSize';
-import { cn } from '@/utils/utils';
+import { buildMetadata, cn, uploadFile, uploadMetadata } from '@/utils';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
 import Image from 'next/image';
@@ -17,7 +17,6 @@ import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import ClaimConfirm from '@/components/claims/ClaimConfirm';
 import ClaimSuccessModal from '@/components/claims/ClaimSuccessModal';
 import { ImageIcon, CloseIcon } from '@/components/global/Icons';
-import buildMetadata, { uploadFile, uploadMetadata } from '@/utils/pinata';
 
 const LINK_IPFS = 'https://beige-impossible-dragon-883.mypinata.cloud/ipfs';
 
@@ -32,7 +31,7 @@ export default function FormClaim({
   open,
   onClose,
 }: {
-  bountyId: number;
+  bountyId: string;
   open: boolean;
   onChainBountyId: number;
   onClose: () => void;
@@ -201,7 +200,7 @@ export default function FormClaim({
       toast.error('Failed to create claim: ' + error.message);
     },
     onSettled: () => {
-      utils.claims.fetchBountyClaims.refetch();
+      utils.bounties.claims.refetch();
       setPollingChainId(null);
       setTitle('');
       setDescription('');

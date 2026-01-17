@@ -1,6 +1,6 @@
 'use client';
 
-import { useChainInfo } from '@/hooks/useChainInfo';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { Currency } from '@/utils/types';
 import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
@@ -21,7 +21,7 @@ export default function JoinBountySuccessModal({
   open: boolean;
   onClose: () => void;
   joinedAmount: string;
-  bountyId?: number;
+  bountyId?: string;
 }) {
   const account = useAccount();
   const chain = useChainInfo();

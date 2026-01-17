@@ -18,13 +18,13 @@ export default function SocialMediaLinks({ address }: { address: string }) {
 
   return (
     <div className='flex flex-row items-center gap-2'>
-      {user.farcasterTag && (
+      {user.farcaster_tag && (
         <a
-          href={`${FARCASTER_URL}/${user.farcasterTag}`}
+          href={`${FARCASTER_URL}/${user.farcaster_tag}`}
           target='_blank'
           rel='noopener noreferrer'
           className='inline-block text-gray-400 hover:text-gray-200 transition-colors'
-          aria-label={`Visit ${user.farcasterTag}'s Farcaster profile`}
+          aria-label={`Visit ${user.farcaster_tag}'s Farcaster profile`}
         >
           <Image
             src='/images/farcaster_arch.svg'
@@ -35,13 +35,13 @@ export default function SocialMediaLinks({ address }: { address: string }) {
           />
         </a>
       )}
-      {user.twitterTag && (
+      {user.twitter_tag && (
         <a
-          href={`${TWITTER_URL}/${user.twitterTag}`}
+          href={`${TWITTER_URL}/${user.twitter_tag}`}
           target='_blank'
           rel='noopener noreferrer'
           className='inline-block'
-          aria-label={`Visit ${user.twitterTag}'s X profile`}
+          aria-label={`Visit ${user.twitter_tag}'s X profile`}
         >
           <TwitterXIcon width={17} height={20} />
         </a>

@@ -157,11 +157,11 @@ export const commentsRouter = {
       })
     )
     .query(async ({ input }) => {
-      const { chainId, bountyId } = input;
+      const { chainId: chain_id, bountyId: bounty_id } = input;
 
       const comments = await prisma.comments.findMany({
         where: {
-          AND: [{ bountyId }, { chainId }, { deletedAt: null }],
+          AND: [{ bounty_id }, { chain_id }, { deleted_at: null }],
         },
         include: {
           author: {
@@ -180,7 +180,7 @@ export const commentsRouter = {
         orderBy: {
           // Older comments usually have more likes,
           // so this is a small optimization
-          createdAt: 'asc',
+          created_at: 'asc',
         },
       });
 
@@ -230,10 +230,10 @@ export const commentsRouter = {
       await prisma.comments.create({
         data: {
           body: input.text,
-          parentId: input.parrentId,
-          chainId: input.chainId,
-          bountyId: input.bountyId,
-          userAddress: input.address,
+          parent_id: input.parrentId,
+          chain_id: input.chainId,
+          bounty_id: input.bountyId,
+          user_address: input.address,
         },
       });
     }),
@@ -259,7 +259,7 @@ export const commentsRouter = {
     .mutation(async ({ input }) => {
       const comment = await prisma.comments.findFirst({
         where: {
-          AND: [{ id: input.commentId }, { chainId: input.chainId }],
+          AND: [{ id: input.commentId }, { chain_id: input.chainId }],
         },
         select: {
           id: true,
@@ -277,13 +277,13 @@ export const commentsRouter = {
       await prisma.$transaction([
         prisma.reactions.deleteMany({
           where: {
-            commentId: input.commentId,
+            comment_id: input.commentId,
             address: input.address,
           },
         }),
         prisma.reactions.create({
           data: {
-            commentId: input.commentId,
+            comment_id: input.commentId,
             address: input.address,
             type: input.type,
           },
@@ -305,8 +305,8 @@ async function getUserCommentsCount({
 
   const comments = await prisma.comments.findMany({
     where: {
-      userAddress: address,
-      createdAt: {
+      user_address: address,
+      created_at: {
         gte: fiveMinutesAgo,
       },
     },
@@ -315,7 +315,8 @@ async function getUserCommentsCount({
   return {
     globalCount: comments.length,
     bountyCount: comments.filter(
-      (comment) => comment.bountyId === bountyId && comment.chainId === chainId
+      (comment) =>
+        comment.bounty_id === bountyId && comment.chain_id === chainId
     ).length,
   };
 }

@@ -3,6 +3,8 @@ import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
 import { checkIsIssuer } from './admin';
+import { ChainId } from '@/utils/types';
+import type { Prisma } from 'generated/prisma/client';
 
 export const bountiesRouter = {
   fetch: baseProcedure
@@ -10,51 +12,61 @@ export const bountiesRouter = {
     .query(async ({ input }) => {
       const bounty = await prisma.bounties.findUniqueOrThrow({
         where: {
-          id_chainId: {
-            ...input,
+          id_chain_id: {
+            id: input.id,
+            chain_id: input.chainId,
           },
         },
         include: {
+          ban: true,
           claims: {
-            where: {
-              ban: { none: {} },
-            },
-            select: { id: true },
             take: 1,
           },
-          ban: { take: 1 },
           participations: {
-            select: { userAddress: true },
-            take: 2,
+            select: {
+              amount: true,
+              user_address: true,
+            },
           },
-          extra: true,
+          transactions: {
+            select: {
+              tx: true,
+              address: true,
+              action: true,
+              timestamp: true,
+            },
+            orderBy: {
+              timestamp: 'desc',
+            },
+          },
         },
       });
 
-      const { claims, participations, ...bountyData } = bounty;
-
       return {
-        ...bountyData,
-        hasClaims: claims.length > 0,
-        hasParticipants: participations.length > 1,
+        ...bounty,
+        id: bounty.id.toString(),
+        onChainId: bounty.onChainId,
+        hasClaims: bounty.claims.length > 0,
+        inProgress: bounty.in_progress,
+        isMultiplayer: bounty.is_multiplayer,
+        isBanned: bounty.ban.length > 0,
+        isCanceled: bounty.is_canceled,
       };
     }),
 
-  fetchTransactions: baseProcedure
-    .input(
-      z.object({
-        bountyId: z.number(),
-        chainId: z.number(),
-      })
-    )
+  extra: baseProcedure
+    .input(z.object({ bountyId: z.number(), chainId: z.number() }))
     .query(async ({ input }) => {
-      return prisma.transactions.findMany({
+      const bountyExtra = await prisma.bountiesExtra.findUnique({
         where: {
-          bountyId: input.bountyId,
-          chainId: input.chainId,
+          bounty_id_chain_id: {
+            bounty_id: input.bountyId,
+            chain_id: input.chainId,
+          },
         },
-        orderBy: { timestamp: 'desc' },
       });
+
+      return bountyExtra ?? null;
     }),
 
   addToAlbum: baseProcedure
@@ -66,79 +78,69 @@ export const bountiesRouter = {
       })
     )
     .mutation(async ({ input }) => {
-      return prisma.bountiesExtra.upsert({
+      const bountyExtra = await prisma.bountiesExtra.upsert({
         where: {
-          bountyId_chainId: {
-            bountyId: input.bountyId,
-            chainId: input.chainId,
+          bounty_id_chain_id: {
+            bounty_id: input.bountyId,
+            chain_id: input.chainId,
           },
         },
         create: {
-          ...input,
+          bounty_id: input.bountyId,
+          chain_id: input.chainId,
+          album: input.album,
         },
         update: {
           album: input.album,
         },
       });
+
+      return bountyExtra;
     }),
 
   fetchAll: baseProcedure
     .input(
       z.object({
         status: z.enum(['open', 'progress', 'past']),
-        sortType: z.enum(['value', 'date']).default('date'),
         limit: z.number().min(1).max(100).default(10),
         cursor: z
           .object({
-            createdAt: z.coerce.number(),
-            amountSort: z.number(),
-            ids: z.array(z.number()),
+            created_at: z.coerce.number(),
+            amount_sort: z.number(),
+            dates: z.array(z.number()),
           })
           .nullish(),
+        sortType: z.enum(['value', 'date']).default('date'),
       })
     )
     .query(async ({ input }) => {
       const sortByDate = input.sortType === 'date';
       const sortByValue = input.sortType === 'value';
-
       const items = await prisma.bounties.findMany({
-        include: {
-          claims: {
-            take: 1,
-            where: {
-              ban: {
-                none: {},
-              },
-            },
-            orderBy: { isAccepted: 'desc' },
-          },
-          participations: {
-            select: { userAddress: true },
-            take: 2,
-          },
-        },
-
         where: {
           inProgress: true,
           isCanceled: false,
           ban: {
             none: {},
           },
-
+          is_canceled: false,
           ...(input.status === 'open'
             ? {
-                isVoting: false,
+                in_progress: true,
+                is_voting: false,
               }
-            : input.status === 'progress'
+            : {}),
+          ...(input.status === 'progress'
             ? {
                 isVoting: true,
               }
-            : input.status === 'past'
+            : {}),
+          ...(input.status === 'past'
             ? {
-                inProgress: false,
+                in_progress: false,
+                is_canceled: false,
               }
             : {}),
-
           ...(input.cursor
             ? sortByDate
               ? {
@@ -147,12 +149,24 @@ export const bountiesRouter = {
                 }
               : { amountSort: { lt: input.cursor.amountSort } }
             : {}),
+          ...(input.cursor &&
+            !sortByDate && { created_at: { notIn: input.cursor.dates } }),
         },
-
+        include: {
+          claims: {
+            take: 1,
+            where: {
+              ban: {
+                none: {},
+              },
+            },
+            orderBy: { is_accepted: 'desc' },
+          },
+        },
         orderBy: sortByDate
-          ? { createdAt: 'desc' }
+          ? { created_at: 'desc' }
           : sortByValue
-          ? { amountSort: 'desc' }
+          ? { amount_sort: 'desc' }
           : {},
 
         distinct: 'id',
@@ -170,6 +184,13 @@ export const bountiesRouter = {
       if (items.length === input.limit) {
         const last = items[items.length - 1];
 
+        const toNum = (v: Prisma.Decimal) =>
+          typeof v === 'number'
+            ? v
+            : v && typeof v.toNumber === 'function'
+            ? v.toNumber()
+            : Number(v);
+
         nextCursor = {
           createdAt: last.createdAt.toNumber(),
           amountSort: last.amountSort,
@@ -178,12 +199,7 @@ export const bountiesRouter = {
       }
 
       return {
-        items: items.map(({ claims, participations, ...bounty }) => ({
-          ...bounty,
-          hasClaims: claims.length > 0,
-          createdAt: bounty.createdAt.toNumber(),
-          hasParticipants: participations.length > 1,
-        })),
+        items,
         nextCursor,
       };
     }),
@@ -193,28 +209,24 @@ export const bountiesRouter = {
       z.object({
         album: z.string(),
         status: z.enum(['open', 'progress', 'past']),
-        limit: z.number().min(1).max(100).default(15),
-        cursor: z.number().nullish(),
       })
     )
     .query(async ({ input }) => {
-      const items = await prisma.bounties.findMany({
-        include: {
-          claims: {
-            take: 1,
-            where: {
-              ban: {
-                none: {},
-              },
-            },
-            orderBy: { isAccepted: 'desc' },
-          },
-          participations: {
-            select: { userAddress: true },
-            take: 2,
-          },
-        },
+      const extras = await prisma.bountiesExtra.findMany({
+        where: { album: { equals: input.album, mode: 'insensitive' } },
+        select: { bounty_id: true, chain_id: true },
+      });
 
+      if (extras.length === 0) {
+        return [];
+      }
+
+      const orFilters = extras.map((e) => ({
+        id: e.bounty_id,
+        chain_id: e.chain_id,
+      }));
+
+      const items = await prisma.bounties.findMany({
         where: {
           inProgress: true,
           isCanceled: false,
@@ -224,19 +236,22 @@ export const bountiesRouter = {
           ban: {
             none: {},
           },
-          ...(input.cursor ? { createdAt: { lt: input.cursor } } : {}),
-
+          is_canceled: false,
           ...(input.status === 'open'
             ? {
-                isVoting: false,
+                in_progress: true,
+                is_voting: false,
               }
-            : input.status === 'progress'
+            : {}),
+          ...(input.status === 'progress'
             ? {
                 isVoting: true,
               }
-            : input.status === 'past'
+            : {}),
+          ...(input.status === 'past'
             ? {
-                inProgress: false,
+                in_progress: false,
+                is_canceled: false,
               }
             : {}),
         },
@@ -246,21 +261,35 @@ export const bountiesRouter = {
         take: input.limit,
       });
 
-      let nextCursor: number | undefined = undefined;
-      if (items.length === input.limit) {
-        nextCursor = items[items.length - 1].id;
-      }
-
-      return {
-        items: items.map(({ claims, participations, ...bounty }) => ({
-          ...bounty,
-          hasClaims: claims.length > 0,
-          createdAt: bounty.createdAt.toNumber(),
-          hasParticipants: participations.length > 1,
-        })),
-        nextCursor,
+      const getTsNumber = (b: {
+        transactions?: { timestamp?: unknown }[];
+      }): number => {
+        const ts = b.transactions?.[0]?.timestamp;
+        if (ts === undefined || ts === null) return 0;
+        return Number(String(ts)) || 0;
       };
+
+      items.sort((a, b) => {
+        const at = getTsNumber(a);
+        const bt = getTsNumber(b);
+        if (bt === at) return b.id - a.id;
+        return bt - at;
+      });
+
+      return items;
     }),
+
+  completedCount: baseProcedure.query(async () => {
+    return await prisma.claims.count({
+      where: {
+        is_accepted: true,
+        bounty: {
+          in_progress: false,
+          is_canceled: false,
+        },
+      },
+    });
+  }),
 
   participations: baseProcedure
     .input(z.object({ bountyId: z.number(), chainId: z.number() }))
@@ -268,12 +297,57 @@ export const bountiesRouter = {
       return prisma.participationsBounties.findMany({
         select: {
           amount: true,
-          userAddress: true,
+          user_address: true,
         },
         where: {
-          ...input,
+          bounty_id: input.bountyId,
+          chain_id: input.chainId,
         },
       });
+    }),
+
+  claims: baseProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        chainId: z.number(),
+        limit: z.number().min(1).max(100).default(10),
+        cursor: z.number().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      const items = await prisma.claims.findMany({
+        where: {
+          bounty_id: input.bountyId,
+          chain_id: input.chainId,
+          ban: {
+            none: {},
+          },
+          ...(input.cursor ? { is_accepted: false } : {}),
+          ...(input.cursor ? { id: { lt: input.cursor } } : {}),
+        },
+        orderBy: [!input.cursor ? { is_accepted: 'desc' } : {}, { id: 'desc' }],
+        take: input.limit,
+        select: {
+          id: true,
+          issuer: true,
+          bounty_id: true,
+          title: true,
+          description: true,
+          is_accepted: true,
+          url: true,
+        },
+      });
+
+      let nextCursor: number | undefined = undefined;
+      if (items.length === input.limit) {
+        nextCursor = items[items.length - 1].id;
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
     }),
 
   claimsCount: baseProcedure
@@ -286,22 +360,12 @@ export const bountiesRouter = {
     .query(async ({ input }) => {
       return await prisma.claims.count({
         where: {
-          ...input,
+          bounty_id: input.bountyId,
+          chain_id: input.chainId,
           ban: {
             none: {},
           },
         },
-      });
-    }),
-
-  fetchVoting: baseProcedure
-    .input(z.object({ chainId: z.number(), bountyId: z.number() }))
-    .query(async ({ input }) => {
-      return prisma.votes.findFirst({
-        where: {
-          ...input,
-        },
-        orderBy: { round: 'desc' },
       });
     }),
 
@@ -310,8 +374,9 @@ export const bountiesRouter = {
     .query(async ({ input }) => {
       return prisma.bounties.findUnique({
         where: {
-          id_chainId: {
-            ...input,
+          id_chain_id: {
+            id: input.id,
+            chain_id: input.chainId,
           },
         },
       });
@@ -322,10 +387,11 @@ export const bountiesRouter = {
     .query(async ({ input }) => {
       return prisma.bounties.findUnique({
         where: {
-          id_chainId: {
-            ...input,
+          id_chain_id: {
+            id: input.id,
+            chain_id: input.chainId,
           },
-          isCanceled: true,
+          is_canceled: true,
         },
       });
     }),
@@ -334,17 +400,17 @@ export const bountiesRouter = {
     .input(
       z.object({
         bountyId: z.number(),
-        chainId: z.number(),
         participantAddress: addressSchema,
+        chainId: z.number(),
       })
     )
     .query(async ({ input }) => {
       return prisma.participationsBounties.findUnique({
         where: {
-          userAddress_bountyId_chainId: {
-            bountyId: input.bountyId,
-            userAddress: input.participantAddress.toLowerCase(),
-            chainId: input.chainId,
+          user_address_bounty_id_chain_id: {
+            bounty_id: input.bountyId,
+            user_address: input.participantAddress.toLowerCase(),
+            chain_id: input.chainId,
           },
         },
       });
@@ -354,17 +420,17 @@ export const bountiesRouter = {
     .input(
       z.object({
         bountyId: z.number(),
-        chainId: z.number(),
         participantAddress: addressSchema,
+        chainId: z.number(),
       })
     )
     .query(async ({ input }) => {
       return prisma.participationsBounties.findUnique({
         where: {
-          userAddress_bountyId_chainId: {
-            bountyId: input.bountyId,
-            userAddress: input.participantAddress.toLowerCase(),
-            chainId: input.chainId,
+          user_address_bounty_id_chain_id: {
+            bounty_id: input.bountyId,
+            user_address: input.participantAddress.toLowerCase(),
+            chain_id: input.chainId,
           },
         },
       });
@@ -373,14 +439,16 @@ export const bountiesRouter = {
   isIssuer: baseProcedure
     .input(
       z.object({
+        address: addressSchema.optional(),
         chainId: z.number(),
         bountyId: z.number(),
-        address: addressSchema.optional(),
       })
     )
     .query(async ({ input }) => {
       return checkIsIssuer({
-        ...input,
+        address: input.address,
+        bountyId: input.bountyId,
+        chainId: input.chainId,
       });
     }),
 
@@ -396,28 +464,13 @@ export const bountiesRouter = {
       const q = input.keyword.trim();
 
       const items = await prisma.bounties.findMany({
-        include: {
-          claims: {
-            take: 1,
-            where: {
-              ban: {
-                none: {},
-              },
-            },
-          },
-          participations: {
-            select: { userAddress: true },
-            take: 2,
-          },
-        },
-
         where: {
-          isCanceled: false,
+          is_canceled: false,
           ban: { none: {} },
           ...(q === ''
             ? {
-                inProgress: true,
-                isVoting: false,
+                in_progress: true,
+                is_voting: false,
               }
             : {
                 OR: [
@@ -425,7 +478,7 @@ export const bountiesRouter = {
                   { description: { contains: q, mode: 'insensitive' } },
                 ],
               }),
-          ...(input.cursor ? { createdAt: { lt: input.cursor } } : {}),
+          ...(input.cursor ? { created_at: { lt: input.cursor } } : {}),
         },
 
         distinct: 'id',
@@ -435,15 +488,22 @@ export const bountiesRouter = {
 
       let nextCursor: string | undefined = undefined;
       if (items.length === input.limit) {
-        nextCursor = items[items.length - 1].createdAt.toString();
+        nextCursor = items[items.length - 1].created_at.toString();
       }
 
       return {
-        items: items.map(({ claims, participations, ...bounty }) => ({
-          ...bounty,
-          createdAt: bounty.createdAt.toNumber(),
-          hasClaims: claims.length > 0,
-          hasParticipants: participations.length > 1,
+        items: items.map((bounty) => ({
+          id: bounty.id.toString(),
+          chainId: bounty.chain_id as ChainId,
+          title: bounty.title,
+          description: bounty.description,
+          amount: bounty.amount,
+          network: bounty.chain_id.toString(),
+          isMultiplayer: bounty.is_multiplayer || false,
+          inProgress: bounty.in_progress || false,
+          hasClaims: bounty.claims.length > 0,
+          isCanceled: bounty.is_canceled || false,
+          claims: bounty.claims,
         })),
         nextCursor,
       };

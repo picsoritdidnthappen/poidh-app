@@ -1420,18 +1420,18 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const BountiesScalarFieldEnum = {
   id: 'id',
   onChainId: 'onChainId',
-  chainId: 'chainId',
+  chain_id: 'chain_id',
   title: 'title',
   description: 'description',
   amount: 'amount',
-  amountSort: 'amountSort',
+  amount_sort: 'amount_sort',
   issuer: 'issuer',
-  createdAt: 'createdAt',
-  inProgress: 'inProgress',
-  isJoinedBounty: 'isJoinedBounty',
-  isCanceled: 'isCanceled',
-  isMultiplayer: 'isMultiplayer',
-  isVoting: 'isVoting',
+  created_at: 'created_at',
+  in_progress: 'in_progress',
+  is_joined_bounty: 'is_joined_bounty',
+  is_canceled: 'is_canceled',
+  is_multiplayer: 'is_multiplayer',
+  is_voting: 'is_voting',
   deadline: 'deadline'
 } as const
 
@@ -1439,8 +1439,8 @@ export type BountiesScalarFieldEnum = (typeof BountiesScalarFieldEnum)[keyof typ
 
 
 export const BountiesExtraScalarFieldEnum = {
-  bountyId: 'bountyId',
-  chainId: 'chainId',
+  bounty_id: 'bounty_id',
+  chain_id: 'chain_id',
   album: 'album'
 } as const
 
@@ -1450,13 +1450,13 @@ export type BountiesExtraScalarFieldEnum = (typeof BountiesExtraScalarFieldEnum)
 export const ClaimsScalarFieldEnum = {
   id: 'id',
   onChainId: 'onChainId',
-  chainId: 'chainId',
+  chain_id: 'chain_id',
   title: 'title',
   description: 'description',
   url: 'url',
   issuer: 'issuer',
-  isAccepted: 'isAccepted',
-  bountyId: 'bountyId',
+  is_accepted: 'is_accepted',
+  bounty_id: 'bounty_id',
   owner: 'owner'
 } as const
 
@@ -1464,9 +1464,9 @@ export type ClaimsScalarFieldEnum = (typeof ClaimsScalarFieldEnum)[keyof typeof 
 
 
 export const ParticipationsBountiesScalarFieldEnum = {
-  userAddress: 'userAddress',
-  bountyId: 'bountyId',
-  chainId: 'chainId',
+  user_address: 'user_address',
+  bounty_id: 'bounty_id',
+  chain_id: 'chain_id',
   amount: 'amount'
 } as const
 
@@ -1485,12 +1485,12 @@ export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof Us
 
 export const UsersExtraScalarFieldEnum = {
   address: 'address',
-  pfpUrl: 'pfpUrl',
+  pfp_url: 'pfp_url',
   ens: 'ens',
-  degenName: 'degenName',
-  farcasterTag: 'farcasterTag',
-  twitterTag: 'twitterTag',
-  lastUpdated: 'lastUpdated'
+  degen_name: 'degen_name',
+  farcaster_tag: 'farcaster_tag',
+  twitter_tag: 'twitter_tag',
+  last_updated: 'last_updated'
 } as const
 
 export type UsersExtraScalarFieldEnum = (typeof UsersExtraScalarFieldEnum)[keyof typeof UsersExtraScalarFieldEnum]
@@ -1498,11 +1498,11 @@ export type UsersExtraScalarFieldEnum = (typeof UsersExtraScalarFieldEnum)[keyof
 
 export const BanScalarFieldEnum = {
   id: 'id',
-  chainId: 'chainId',
-  bountyId: 'bountyId',
-  claimId: 'claimId',
-  bannedAt: 'bannedAt',
-  bannedBy: 'bannedBy'
+  chain_id: 'chain_id',
+  bounty_id: 'bounty_id',
+  claim_id: 'claim_id',
+  banned_at: 'banned_at',
+  banned_by: 'banned_by'
 } as const
 
 export type BanScalarFieldEnum = (typeof BanScalarFieldEnum)[keyof typeof BanScalarFieldEnum]
@@ -1511,9 +1511,9 @@ export type BanScalarFieldEnum = (typeof BanScalarFieldEnum)[keyof typeof BanSca
 export const TransactionsScalarFieldEnum = {
   tx: 'tx',
   index: 'index',
-  bountyId: 'bountyId',
-  claimId: 'claimId',
-  chainId: 'chainId',
+  bounty_id: 'bounty_id',
+  claim_id: 'claim_id',
+  chain_id: 'chain_id',
   address: 'address',
   action: 'action',
   timestamp: 'timestamp'
@@ -1524,7 +1524,7 @@ export type TransactionsScalarFieldEnum = (typeof TransactionsScalarFieldEnum)[k
 
 export const LeaderboardScalarFieldEnum = {
   address: 'address',
-  chainId: 'chainId',
+  chain_id: 'chain_id',
   earned: 'earned',
   paid: 'paid',
   nfts: 'nfts'
@@ -1535,9 +1535,9 @@ export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[key
 
 export const PriceScalarFieldEnum = {
   id: 'id',
-  createdAt: 'createdAt',
-  degenUsd: 'degenUsd',
-  ethUsd: 'ethUsd'
+  created_at: 'created_at',
+  degen_usd: 'degen_usd',
+  eth_usd: 'eth_usd'
 } as const
 
 export type PriceScalarFieldEnum = (typeof PriceScalarFieldEnum)[keyof typeof PriceScalarFieldEnum]
@@ -1545,13 +1545,13 @@ export type PriceScalarFieldEnum = (typeof PriceScalarFieldEnum)[keyof typeof Pr
 
 export const CommentsScalarFieldEnum = {
   id: 'id',
-  bountyId: 'bountyId',
-  chainId: 'chainId',
-  parentId: 'parentId',
-  userAddress: 'userAddress',
+  bounty_id: 'bounty_id',
+  chain_id: 'chain_id',
+  parent_id: 'parent_id',
+  user_address: 'user_address',
   body: 'body',
-  createdAt: 'createdAt',
-  deletedAt: 'deletedAt'
+  created_at: 'created_at',
+  deleted_at: 'deleted_at'
 } as const
 
 export type CommentsScalarFieldEnum = (typeof CommentsScalarFieldEnum)[keyof typeof CommentsScalarFieldEnum]
@@ -1571,7 +1571,7 @@ export type VotesScalarFieldEnum = (typeof VotesScalarFieldEnum)[keyof typeof Vo
 
 export const ReactionsScalarFieldEnum = {
   id: 'id',
-  commentId: 'commentId',
+  comment_id: 'comment_id',
   type: 'type',
   address: 'address'
 } as const

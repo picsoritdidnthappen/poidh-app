@@ -33,16 +33,16 @@ export const generateMetadataForBounty = async ({
   if (!Number.isNaN(id)) {
     bounty = await prisma.bounties.findUnique({
       where: {
-        id_chainId: {
+        id_chain_id: {
           id: id,
-          chainId: chain.id,
+          chain_id: chain.id,
         },
       },
       include: {
         participations: {
           select: {
             amount: true,
-            userAddress: true,
+            user_address: true,
           },
         },
       },
@@ -372,7 +372,7 @@ export const generateMetadaForExplorePage = (): Metadata => {
 };
 
 function getSortedParticipants(
-  participations: { amount: string; userAddress: string }[]
+  participations: { amount: string; user_address: string }[]
 ): string[] {
   if (!participations?.length) return [];
 
@@ -383,7 +383,7 @@ function getSortedParticipants(
         Number(formatEther(BigInt(a.amount)))
     )
     .slice(0, 8)
-    .map((p) => p.userAddress); // limit number of participants to 8
+    .map((p) => p.user_address); // limit number of participants to 8
 }
 
 function buildFrame({

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useChainInfo } from '@/hooks/useChainInfo';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
@@ -14,35 +14,59 @@ import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
-import { ChainId, Claim } from '@/utils/types';
 
 export default function ClaimItem({
-  claim,
+  id,
+  title,
+  description,
+  issuer,
+  bountyId,
+  accepted,
+  url,
+  isVotingOrAcceptedBounty,
 }: {
-  claim: Claim & {
-    isVotingOrAcceptedBounty: boolean;
-  };
+  id: string;
+  title: string;
+  description: string;
+  issuer: string;
+  bountyId: string;
+  accepted: boolean;
+  url: string;
+  isVotingOrAcceptedBounty: boolean;
 }) {
   const account = useAccount();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const chain = useChainInfo();
-
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
-
   const utils = trpc.useUtils();
-
   const [openCard, setOpenCard] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
-  const accountStats = trpc.accounts.stats.useQuery({ address: claim.issuer });
+  const accountStats = trpc.accounts.stats.useQuery({ address: issuer });
 
-  const bounty = trpc.bounties.fetch.useQuery({
-    id: claim.bountyId,
-    chainId: claim.chainId,
-  });
+  const bounty = trpc.bounties.fetch.useQuery(
+    {
+      id: Number(bountyId),
+      chainId: chain.id,
+    },
+    {
+      enabled: !!bountyId,
+    }
+  );
+
+  const fetchImageUrl = async (url: string) => {
+    const response = await fetch(url);
+    const data = await response.json();
+    setImageUrl(data.image);
+  };
+
+  useEffect(() => {
+    fetchImageUrl(url);
+  }, [url]);
 
   const acceptClaimMutation = useMutation({
     mutationFn: async ({ claimId }: { claimId: bigint }) => {
@@ -91,7 +115,7 @@ export default function ClaimItem({
       toast.error('Failed to accept claim:' + error.message);
     },
     onSettled: () => {
-      utils.claims.fetchBountyClaims.refetch();
+      utils.bounties.claims.refetch();
       setLoading({ isLoading: false, status: '' });
     },
   });
@@ -134,14 +158,17 @@ export default function ClaimItem({
     <>
       <ClaimCard
         claim={{
-          ...claim,
+          id,
+          description,
+          imageUrl,
+          title,
+          currency: chain.currency,
           issuer: {
-            address: claim.issuer.toLowerCase(),
+            address: issuer.toLowerCase(),
             scorePoidh: Number(accountStats.data?.poidhScore) ?? 0,
           },
-          bounty: bounty.data
-            ? { ...bounty.data, chainId: bounty.data.chainId as ChainId }
-            : undefined,
+          bountyId,
+          bountyIssuer: bounty.data?.issuer.toLowerCase() ?? '',
         }}
         onClose={() => setOpenCard(false)}
         open={openCard}
@@ -149,10 +176,10 @@ export default function ClaimItem({
       <SubmitVotingConfirm
         isOpen={showVotingConfirm}
         onClose={() => setShowVotingConfirm(false)}
-        imageUrl={claim.url ? claim.url + '?q=50' : ''}
+        imageUrl={imageUrl ? imageUrl + '?q=50' : ''}
         onConfirm={() => {
           submitForVoteMutation.mutate({
-            claimId: BigInt(claim.id),
+            claimId: BigInt(id),
           });
           setShowVotingConfirm(false);
         }}
@@ -163,55 +190,57 @@ export default function ClaimItem({
             bounty.data.inProgress &&
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&
-            !claim.isVotingOrAcceptedBounty && (
+            !isVotingOrAcceptedBounty && (
               <button
                 className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
                 onClick={() => {
-                  if (bounty.data.hasParticipants) {
+                  if (bounty.data.participations.length > 1) {
                     setShowVotingConfirm(true);
                   } else {
                     acceptClaimMutation.mutate({
-                      claimId: BigInt(claim.id),
+                      claimId: BigInt(id),
                     });
                   }
                 }}
               >
-                {bounty.data.hasParticipants ? 'submit for vote' : 'accept'}
+                {bounty.data.participations.length > 1
+                  ? 'submit for vote'
+                  : 'accept'}
               </button>
             )}
         </div>
 
-        {claim.isAccepted && (
+        {accepted && (
           <div className='left-5 top-5 text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute'>
             accepted
           </div>
         )}
         <div
-          style={{ backgroundImage: `url(${claim.url})` }}
+          style={{ backgroundImage: `url(${imageUrl})` }}
           className='bg-[#12AAFF] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
           onClick={() => setOpenCard(true)}
         />
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
-              {claim.title}
+              {title}
             </p>
             <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words'>
-              <TextWithLinks>{claim.description}</TextWithLinks>
+              <TextWithLinks>{description}</TextWithLinks>
             </p>
           </div>
           <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
             <span className='shrink-0 mr-2'>issuer&nbsp;</span>
             <div className='flex flex-row  items-center w-full justify-end overflow-hidden'>
-              <DisplayAddress address={claim.issuer} />
+              <DisplayAddress address={issuer} />
               <div className='ml-2'>
-                <CopyAddressButton address={claim.issuer} />
+                <CopyAddressButton address={issuer} />
               </div>
             </div>
           </div>
           <div className='flex flex-row items-center justify-between'>
-            <span>claim id: {claim.id}</span>
-            <SocialMediaLinks address={claim.issuer} />
+            <span>claim id: {id}</span>
+            <SocialMediaLinks address={issuer} />
           </div>
         </div>
       </div>

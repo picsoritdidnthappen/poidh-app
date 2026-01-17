@@ -27,14 +27,14 @@ export type AggregateLeaderboard = {
 }
 
 export type LeaderboardAvgAggregateOutputType = {
-  chainId: number | null
+  chain_id: number | null
   earned: number | null
   paid: number | null
   nfts: number | null
 }
 
 export type LeaderboardSumAggregateOutputType = {
-  chainId: number | null
+  chain_id: number | null
   earned: number | null
   paid: number | null
   nfts: number | null
@@ -42,7 +42,7 @@ export type LeaderboardSumAggregateOutputType = {
 
 export type LeaderboardMinAggregateOutputType = {
   address: string | null
-  chainId: number | null
+  chain_id: number | null
   earned: number | null
   paid: number | null
   nfts: number | null
@@ -50,7 +50,7 @@ export type LeaderboardMinAggregateOutputType = {
 
 export type LeaderboardMaxAggregateOutputType = {
   address: string | null
-  chainId: number | null
+  chain_id: number | null
   earned: number | null
   paid: number | null
   nfts: number | null
@@ -58,7 +58,7 @@ export type LeaderboardMaxAggregateOutputType = {
 
 export type LeaderboardCountAggregateOutputType = {
   address: number
-  chainId: number
+  chain_id: number
   earned: number
   paid: number
   nfts: number
@@ -67,14 +67,14 @@ export type LeaderboardCountAggregateOutputType = {
 
 
 export type LeaderboardAvgAggregateInputType = {
-  chainId?: true
+  chain_id?: true
   earned?: true
   paid?: true
   nfts?: true
 }
 
 export type LeaderboardSumAggregateInputType = {
-  chainId?: true
+  chain_id?: true
   earned?: true
   paid?: true
   nfts?: true
@@ -82,7 +82,7 @@ export type LeaderboardSumAggregateInputType = {
 
 export type LeaderboardMinAggregateInputType = {
   address?: true
-  chainId?: true
+  chain_id?: true
   earned?: true
   paid?: true
   nfts?: true
@@ -90,7 +90,7 @@ export type LeaderboardMinAggregateInputType = {
 
 export type LeaderboardMaxAggregateInputType = {
   address?: true
-  chainId?: true
+  chain_id?: true
   earned?: true
   paid?: true
   nfts?: true
@@ -98,7 +98,7 @@ export type LeaderboardMaxAggregateInputType = {
 
 export type LeaderboardCountAggregateInputType = {
   address?: true
-  chainId?: true
+  chain_id?: true
   earned?: true
   paid?: true
   nfts?: true
@@ -193,7 +193,7 @@ export type LeaderboardGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type LeaderboardGroupByOutputType = {
   address: string
-  chainId: number
+  chain_id: number
   earned: number
   paid: number
   nfts: number
@@ -224,7 +224,7 @@ export type LeaderboardWhereInput = {
   OR?: Prisma.LeaderboardWhereInput[]
   NOT?: Prisma.LeaderboardWhereInput | Prisma.LeaderboardWhereInput[]
   address?: Prisma.StringFilter<"Leaderboard"> | string
-  chainId?: Prisma.IntFilter<"Leaderboard"> | number
+  chain_id?: Prisma.IntFilter<"Leaderboard"> | number
   earned?: Prisma.FloatFilter<"Leaderboard"> | number
   paid?: Prisma.FloatFilter<"Leaderboard"> | number
   nfts?: Prisma.FloatFilter<"Leaderboard"> | number
@@ -232,27 +232,27 @@ export type LeaderboardWhereInput = {
 
 export type LeaderboardOrderByWithRelationInput = {
   address?: Prisma.SortOrder
-  chainId?: Prisma.SortOrder
+  chain_id?: Prisma.SortOrder
   earned?: Prisma.SortOrder
   paid?: Prisma.SortOrder
   nfts?: Prisma.SortOrder
 }
 
 export type LeaderboardWhereUniqueInput = Prisma.AtLeast<{
-  address_chainId?: Prisma.LeaderboardAddressChainIdCompoundUniqueInput
+  address_chain_id?: Prisma.LeaderboardAddressChain_idCompoundUniqueInput
   AND?: Prisma.LeaderboardWhereInput | Prisma.LeaderboardWhereInput[]
   OR?: Prisma.LeaderboardWhereInput[]
   NOT?: Prisma.LeaderboardWhereInput | Prisma.LeaderboardWhereInput[]
   address?: Prisma.StringFilter<"Leaderboard"> | string
-  chainId?: Prisma.IntFilter<"Leaderboard"> | number
+  chain_id?: Prisma.IntFilter<"Leaderboard"> | number
   earned?: Prisma.FloatFilter<"Leaderboard"> | number
   paid?: Prisma.FloatFilter<"Leaderboard"> | number
   nfts?: Prisma.FloatFilter<"Leaderboard"> | number
-}, "address_chainId">
+}, "address_chain_id">
 
 export type LeaderboardOrderByWithAggregationInput = {
   address?: Prisma.SortOrder
-  chainId?: Prisma.SortOrder
+  chain_id?: Prisma.SortOrder
   earned?: Prisma.SortOrder
   paid?: Prisma.SortOrder
   nfts?: Prisma.SortOrder
@@ -268,7 +268,7 @@ export type LeaderboardScalarWhereWithAggregatesInput = {
   OR?: Prisma.LeaderboardScalarWhereWithAggregatesInput[]
   NOT?: Prisma.LeaderboardScalarWhereWithAggregatesInput | Prisma.LeaderboardScalarWhereWithAggregatesInput[]
   address?: Prisma.StringWithAggregatesFilter<"Leaderboard"> | string
-  chainId?: Prisma.IntWithAggregatesFilter<"Leaderboard"> | number
+  chain_id?: Prisma.IntWithAggregatesFilter<"Leaderboard"> | number
   earned?: Prisma.FloatWithAggregatesFilter<"Leaderboard"> | number
   paid?: Prisma.FloatWithAggregatesFilter<"Leaderboard"> | number
   nfts?: Prisma.FloatWithAggregatesFilter<"Leaderboard"> | number
@@ -276,7 +276,7 @@ export type LeaderboardScalarWhereWithAggregatesInput = {
 
 export type LeaderboardCreateInput = {
   address: string
-  chainId: number
+  chain_id: number
   earned?: number
   paid?: number
   nfts?: number
@@ -284,7 +284,7 @@ export type LeaderboardCreateInput = {
 
 export type LeaderboardUncheckedCreateInput = {
   address: string
-  chainId: number
+  chain_id: number
   earned?: number
   paid?: number
   nfts?: number
@@ -292,7 +292,7 @@ export type LeaderboardUncheckedCreateInput = {
 
 export type LeaderboardUpdateInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   earned?: Prisma.FloatFieldUpdateOperationsInput | number
   paid?: Prisma.FloatFieldUpdateOperationsInput | number
   nfts?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -300,7 +300,7 @@ export type LeaderboardUpdateInput = {
 
 export type LeaderboardUncheckedUpdateInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   earned?: Prisma.FloatFieldUpdateOperationsInput | number
   paid?: Prisma.FloatFieldUpdateOperationsInput | number
   nfts?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -308,7 +308,7 @@ export type LeaderboardUncheckedUpdateInput = {
 
 export type LeaderboardCreateManyInput = {
   address: string
-  chainId: number
+  chain_id: number
   earned?: number
   paid?: number
   nfts?: number
@@ -316,7 +316,7 @@ export type LeaderboardCreateManyInput = {
 
 export type LeaderboardUpdateManyMutationInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   earned?: Prisma.FloatFieldUpdateOperationsInput | number
   paid?: Prisma.FloatFieldUpdateOperationsInput | number
   nfts?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -324,27 +324,27 @@ export type LeaderboardUpdateManyMutationInput = {
 
 export type LeaderboardUncheckedUpdateManyInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
   earned?: Prisma.FloatFieldUpdateOperationsInput | number
   paid?: Prisma.FloatFieldUpdateOperationsInput | number
   nfts?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
-export type LeaderboardAddressChainIdCompoundUniqueInput = {
+export type LeaderboardAddressChain_idCompoundUniqueInput = {
   address: string
-  chainId: number
+  chain_id: number
 }
 
 export type LeaderboardCountOrderByAggregateInput = {
   address?: Prisma.SortOrder
-  chainId?: Prisma.SortOrder
+  chain_id?: Prisma.SortOrder
   earned?: Prisma.SortOrder
   paid?: Prisma.SortOrder
   nfts?: Prisma.SortOrder
 }
 
 export type LeaderboardAvgOrderByAggregateInput = {
-  chainId?: Prisma.SortOrder
+  chain_id?: Prisma.SortOrder
   earned?: Prisma.SortOrder
   paid?: Prisma.SortOrder
   nfts?: Prisma.SortOrder
@@ -352,7 +352,7 @@ export type LeaderboardAvgOrderByAggregateInput = {
 
 export type LeaderboardMaxOrderByAggregateInput = {
   address?: Prisma.SortOrder
-  chainId?: Prisma.SortOrder
+  chain_id?: Prisma.SortOrder
   earned?: Prisma.SortOrder
   paid?: Prisma.SortOrder
   nfts?: Prisma.SortOrder
@@ -360,14 +360,14 @@ export type LeaderboardMaxOrderByAggregateInput = {
 
 export type LeaderboardMinOrderByAggregateInput = {
   address?: Prisma.SortOrder
-  chainId?: Prisma.SortOrder
+  chain_id?: Prisma.SortOrder
   earned?: Prisma.SortOrder
   paid?: Prisma.SortOrder
   nfts?: Prisma.SortOrder
 }
 
 export type LeaderboardSumOrderByAggregateInput = {
-  chainId?: Prisma.SortOrder
+  chain_id?: Prisma.SortOrder
   earned?: Prisma.SortOrder
   paid?: Prisma.SortOrder
   nfts?: Prisma.SortOrder
@@ -377,7 +377,7 @@ export type LeaderboardSumOrderByAggregateInput = {
 
 export type LeaderboardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
-  chainId?: boolean
+  chain_id?: boolean
   earned?: boolean
   paid?: boolean
   nfts?: boolean
@@ -385,7 +385,7 @@ export type LeaderboardSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type LeaderboardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
-  chainId?: boolean
+  chain_id?: boolean
   earned?: boolean
   paid?: boolean
   nfts?: boolean
@@ -393,7 +393,7 @@ export type LeaderboardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type LeaderboardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   address?: boolean
-  chainId?: boolean
+  chain_id?: boolean
   earned?: boolean
   paid?: boolean
   nfts?: boolean
@@ -401,20 +401,20 @@ export type LeaderboardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type LeaderboardSelectScalar = {
   address?: boolean
-  chainId?: boolean
+  chain_id?: boolean
   earned?: boolean
   paid?: boolean
   nfts?: boolean
 }
 
-export type LeaderboardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"address" | "chainId" | "earned" | "paid" | "nfts", ExtArgs["result"]["leaderboard"]>
+export type LeaderboardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"address" | "chain_id" | "earned" | "paid" | "nfts", ExtArgs["result"]["leaderboard"]>
 
 export type $LeaderboardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Leaderboard"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     address: string
-    chainId: number
+    chain_id: number
     earned: number
     paid: number
     nfts: number
@@ -842,7 +842,7 @@ export interface Prisma__LeaderboardClient<T, Null = never, ExtArgs extends runt
  */
 export interface LeaderboardFieldRefs {
   readonly address: Prisma.FieldRef<"Leaderboard", 'String'>
-  readonly chainId: Prisma.FieldRef<"Leaderboard", 'Int'>
+  readonly chain_id: Prisma.FieldRef<"Leaderboard", 'Int'>
   readonly earned: Prisma.FieldRef<"Leaderboard", 'Float'>
   readonly paid: Prisma.FieldRef<"Leaderboard", 'Float'>
   readonly nfts: Prisma.FieldRef<"Leaderboard", 'Float'>
