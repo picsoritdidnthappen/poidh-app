@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { useChainInfo } from '@/hooks/useChainInfo';
+import { useChainInfo } from '@/hooks/useGetChain';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
 import {
@@ -11,7 +11,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
-import { cn } from '@/utils/utils';
+import { cn } from '@/utils';
 import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
@@ -35,7 +35,7 @@ export default function BountyInfo({
   onShareModalStateChange,
   onHowItWorksModalStateChange,
 }: {
-  bountyId: number;
+  bountyId: string;
   isShareModalOpen: boolean;
   isHowItWorksModalOpen: boolean;
   onShareModalStateChange?: (modalOpen: boolean) => void;
@@ -55,7 +55,7 @@ export default function BountyInfo({
 
   const bounty = trpc.bounties.fetch.useQuery(
     {
-      id: bountyId,
+      id: Number(bountyId),
       chainId: chain.id,
     },
     { enabled: !!bountyId }
@@ -63,7 +63,7 @@ export default function BountyInfo({
 
   const participants = trpc.bounties.participations.useQuery(
     {
-      bountyId: bountyId,
+      bountyId: Number(bountyId),
       chainId: chain.id,
     },
     {
@@ -71,10 +71,15 @@ export default function BountyInfo({
     }
   );
 
-  const transactions = trpc.bounties.fetchTransactions.useQuery({
-    bountyId,
-    chainId: chain.id,
-  });
+  const bountyExtra = trpc.bounties.extra.useQuery(
+    {
+      bountyId: Number(bountyId),
+      chainId: chain.id,
+    },
+    {
+      enabled: !!bountyId,
+    }
+  );
 
   const signMutation = useMutation({
     mutationFn: async () => {
@@ -91,7 +96,7 @@ export default function BountyInfo({
       const message =
         getBanSignatureFirstLine({
           id: Number(bounty.data.id),
-          chainId: bounty.data.chainId,
+          chainId: bounty.data.chain_id,
           type: 'bounty',
         }) + JSON.stringify(bounty.data, undefined, 2);
       if (account.address) {
@@ -101,7 +106,7 @@ export default function BountyInfo({
         }
         await banBountyMutation.mutateAsync({
           id: Number(bounty.data.id),
-          chainId: bounty.data.chainId,
+          chainId: bounty.data.chain_id,
           address: account.address,
           chainName: chain.slug,
           message,
@@ -175,14 +180,14 @@ export default function BountyInfo({
 
   const isCurrentUserAParticipant = participants.data?.some(
     (participant) =>
-      participant.userAddress.toLocaleLowerCase() ===
+      participant.user_address.toLocaleLowerCase() ===
       account.address?.toLocaleLowerCase()
   );
 
   const canWithdraw =
     account.address?.toLocaleLowerCase() !==
       bounty.data?.issuer.toLocaleLowerCase() &&
-    !bounty.data?.isVoting &&
+    !bounty.data?.is_voting &&
     isCurrentUserAParticipant;
 
   if (!bounty.data) {
@@ -229,14 +234,14 @@ export default function BountyInfo({
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          {bounty.data?.extra.album && (
+          {bountyExtra.data?.album && (
             <p className='text-white mb-3'>
               📸{' '}
               <Link
-                href={`${window.location.origin}/a/${bounty.data.extra.album}`}
+                href={`${window.location.origin}/a/${bountyExtra.data.album}`}
                 className='underline hover:opacity-80 cursor-pointer'
               >
-                {bounty.data.extra.album}
+                {bountyExtra.data.album}
               </Link>
             </p>
           )}
@@ -256,7 +261,7 @@ export default function BountyInfo({
           {bounty.data.inProgress ? (
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&
-            !bounty.data.isVoting && (
+            !bounty.data.is_voting && (
               <button
                 onClick={() => cancelMutation.mutate()}
                 disabled={!bounty.data.inProgress}
@@ -276,7 +281,7 @@ export default function BountyInfo({
         <BountyMultiplayer chain={chain} bountyId={bountyId} />
       )}
       <BountyHistory
-        transactions={(transactions.data ?? []).map((transaction) => {
+        transactions={bounty.data.transactions.map((transaction) => {
           return { ...transaction, timestamp: Number(transaction.timestamp) };
         })}
       />
@@ -287,7 +292,7 @@ export default function BountyInfo({
             (canWithdraw ? (
               <Withdraw id={bounty.data.id} onChainId={bounty.data.onChainId} />
             ) : (
-              !bounty.data.isVoting && <JoinBounty bountyId={bountyId} />
+              !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
             ))}
           <button
             type='button'

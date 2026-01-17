@@ -1,145 +1,59 @@
 import { z } from 'zod';
 import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
-import axios from 'axios';
-import { tryCatchAsync } from '@/utils/utils';
 
 export const claimsRouter = {
-  fetch: baseProcedure
-    .input(z.object({ claimId: z.number(), chainId: z.number() }))
-    .query(async ({ input }) => {
-      const claim = await prisma.claims.findUniqueOrThrow({
-        where: {
-          id_chainId: {
-            id: input.claimId,
-            chainId: input.chainId,
-          },
-          ban: {
-            none: {},
-          },
-        },
-      });
-
-      const imageMetadata = await fetchImageMetadata(claim.url);
-
-      return {
-        ...claim,
-        url: imageMetadata.image,
-      };
-    }),
-
-  fetchBountyClaims: baseProcedure
+  fetchRandomAccepted: baseProcedure
     .input(
       z.object({
-        bountyId: z.number(),
-        chainId: z.number(),
-        limit: z.number().min(1).max(100).default(10),
-        cursor: z.number().nullish(),
+        limit: z.number().min(0).default(24),
       })
     )
     .query(async ({ input }) => {
-      const items = await prisma.claims.findMany({
+      return await prisma.$queryRaw`
+        SELECT c.*,
+          c.chain_id AS "chainId",
+          c.is_accepted AS "accepted",
+          c.bounty_id AS "bountyId",
+          b.title AS "bountyTitle",
+          b.amount AS "bountyAmount",
+          b.is_multiplayer AS "isMultiplayer"
+        FROM "Claims" c
+        JOIN (
+            SELECT id, chain_id, title, amount, is_multiplayer
+            FROM "Bounties"
+            WHERE in_progress IS FALSE
+              AND is_canceled IS FALSE
+        ) b ON c.bounty_id = b.id AND c.chain_id = b.chain_id
+        WHERE c.is_accepted IS TRUE
+        ORDER BY RANDOM()
+        LIMIT ${input.limit};
+      `;
+    }),
+
+  fetch: baseProcedure
+    .input(z.object({ claimId: z.number(), chainId: z.number() }))
+    .query(async ({ input }) => {
+      return prisma.claims.findUniqueOrThrow({
         where: {
-          bountyId: input.bountyId,
-          chainId: input.chainId,
+          id_chain_id: {
+            id: input.claimId,
+            chain_id: input.chainId,
+          },
           ban: {
             none: {},
           },
-          ...(input.cursor
-            ? { isAccepted: false, id: { lt: input.cursor } }
-            : {}),
         },
-        orderBy: [!input.cursor ? { isAccepted: 'desc' } : {}, { id: 'desc' }],
-        take: input.limit,
-      });
-
-      let nextCursor: number | undefined = undefined;
-      if (items.length === input.limit) {
-        nextCursor = items[items.length - 1].id;
-      }
-
-      const normalizedItems = await Promise.all(
-        items.map(async (claim) => {
-          const imageMetadata = await fetchImageMetadata(claim.url);
-
-          return {
-            ...claim,
-            url: imageMetadata.image,
-          };
-        })
-      );
-
-      return {
-        items: normalizedItems,
-        nextCursor,
-      };
-    }),
-
-  fetchAcceptedClaimByBountyId: baseProcedure
-    .input(z.object({ bountyId: z.number(), chainId: z.number() }))
-    .query(async ({ input }) => {
-      const claim = await prisma.claims.findFirst({
-        where: {
-          bountyId: input.bountyId,
-          chainId: input.chainId,
-          ban: {
-            none: {},
-          },
-          isAccepted: true,
-        },
-      });
-
-      if (!claim) {
-        return null;
-      }
-
-      const imageMetadata = await fetchImageMetadata(claim.url);
-
-      return {
-        ...claim,
-        url: imageMetadata.image,
-      };
-    }),
-
-  fetchVotingClaimByBountyId: baseProcedure
-    .input(z.object({ bountyId: z.number(), chainId: z.number() }))
-    .query(async ({ input }) => {
-      const vote = await prisma.votes.findFirst({
         select: {
-          claimId: true,
-        },
-        where: {
-          ...input,
-        },
-        orderBy: { round: 'desc' },
-        take: 1,
-      });
-
-      if (!vote) {
-        return null;
-      }
-
-      const claim = await prisma.claims.findFirst({
-        where: {
-          id: vote.claimId,
-          chainId: input.chainId,
-          ban: {
-            none: {},
-          },
-          isAccepted: true,
+          id: true,
+          issuer: true,
+          bounty_id: true,
+          title: true,
+          description: true,
+          is_accepted: true,
+          url: true,
         },
       });
-
-      if (!claim) {
-        return null;
-      }
-
-      const imageMetadata = await fetchImageMetadata(claim.url);
-
-      return {
-        ...claim,
-        url: imageMetadata.image,
-      };
     }),
 
   isCreated: baseProcedure
@@ -147,9 +61,9 @@ export const claimsRouter = {
     .query(async ({ input }) => {
       return prisma.claims.findUnique({
         where: {
-          id_chainId: {
+          id_chain_id: {
             id: input.id,
-            chainId: input.chainId,
+            chain_id: input.chainId,
           },
         },
       });
@@ -160,48 +74,12 @@ export const claimsRouter = {
     .query(async ({ input }) => {
       return prisma.claims.findUnique({
         where: {
-          id_chainId: {
+          id_chain_id: {
             id: input.id,
-            chainId: input.chainId,
+            chain_id: input.chainId,
           },
-          isAccepted: true,
+          is_accepted: true,
         },
       });
     }),
 };
-
-export async function fetchImageMetadata(url: string) {
-  const [response, _] = await tryCatchAsync(async () => axios.get(url));
-
-  if (!response?.data) {
-    return {
-      name: null,
-      description: null,
-      external_url: null,
-      image: null,
-      attributes: null,
-    };
-  }
-
-  const responseSchema = z.object({
-    name: z.string(),
-    description: z.string(),
-    external_url: z.string(),
-    image: z.string(),
-    attributes: z.array(z.any()),
-  });
-
-  const parsed = responseSchema.safeParse(response.data);
-
-  if (!parsed.data) {
-    return {
-      name: null,
-      description: null,
-      external_url: null,
-      image: null,
-      attributes: null,
-    };
-  }
-
-  return parsed.data;
-}

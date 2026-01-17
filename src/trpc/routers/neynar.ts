@@ -38,7 +38,7 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
   const existingAddresses = new Set(users.map((user) => user.address));
 
   const usersToUpdate = users
-    .filter((user) => user.lastUpdated < sevenDaysAgo)
+    .filter((user) => user.last_updated < sevenDaysAgo)
     .map((user) => user.address);
 
   const missingAddresses = normalizedAddresses.filter(
@@ -86,19 +86,19 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
         },
         create: {
           address: data.address,
-          pfpUrl: data.extra.pfp_url,
-          farcasterTag: data.extra.username,
-          twitterTag: data.extra.verified_accounts.find(
+          pfp_url: data.extra.pfp_url,
+          farcaster_tag: data.extra.username,
+          twitter_tag: data.extra.verified_accounts.find(
             (account) => account.platform === 'x'
           )?.username,
         },
         update: {
-          pfpUrl: data.extra.pfp_url,
-          farcasterTag: data.extra.username,
-          twitterTag: data.extra.verified_accounts.find(
+          pfp_url: data.extra.pfp_url,
+          farcaster_tag: data.extra.username,
+          twitter_tag: data.extra.verified_accounts.find(
             (account) => account.platform === 'x'
           )?.username,
-          lastUpdated: new Date(),
+          last_updated: new Date(),
         },
       })
     )

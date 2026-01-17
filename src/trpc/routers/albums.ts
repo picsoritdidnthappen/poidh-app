@@ -51,12 +51,12 @@ export const albumsRouter = {
       const result = await prisma.$queryRaw<
         Array<{
           album: string;
-          count: bigint;
+          _count: bigint;
         }>
       >`
       SELECT
         LOWER(TRIM(album)) as album,
-        COUNT(*)::bigint as count
+        COUNT(*)::bigint as _count
       FROM "BountiesExtra"
       WHERE TRIM(LOWER(album)) LIKE ${`%${input.contains.toLowerCase()}%`}
         AND album IS NOT NULL
@@ -66,8 +66,8 @@ export const albumsRouter = {
 
       return result.map((item) => ({
         album: item.album,
-        count: {
-          album: Number(item.count),
+        _count: {
+          album: Number(item._count),
         },
       }));
     }),

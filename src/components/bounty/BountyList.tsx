@@ -1,7 +1,19 @@
 import { motion } from 'framer-motion';
-import { cn } from '@/utils/utils';
+import { cn } from '@/utils';
 import BountyItem from './BountyItem';
-import { Bounty } from '@/utils/types';
+import { ChainId } from '@/utils/types';
+
+type Bounty = {
+  id: string;
+  chainId: ChainId;
+  title: string;
+  description: string;
+  amount: string;
+  isMultiplayer: boolean;
+  inProgress: boolean;
+  hasClaims: boolean;
+  isCanceled: boolean;
+};
 
 export default function BountyList({
   bounties,
@@ -55,7 +67,14 @@ export default function BountyList({
           >
             <BountyItem
               bounty={{
-                ...bounty,
+                id: bounty.id,
+                chainId: bounty.chainId,
+                title: bounty.title,
+                description: bounty.description,
+                amount: bounty.amount,
+                isMultiplayer: bounty.isMultiplayer,
+                inProgress: bounty.inProgress,
+                isCanceled: bounty.isCanceled,
               }}
               showStatusEmoji={showStatusEmoji}
               showChainIcon={showChainIcon}

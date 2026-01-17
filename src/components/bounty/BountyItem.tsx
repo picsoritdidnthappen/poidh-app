@@ -3,10 +3,22 @@ import Link from 'next/link';
 import { formatEther } from 'viem';
 
 import { UsersRoundIcon } from '@/components/global/Icons';
-import { formatSortAmount } from '@/utils/utils';
+import { formatAmount } from '@/utils/utils';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import { ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
-import { Bounty } from '@/utils/types';
+import { trpc } from '@/trpc/client';
+
+interface Bounty {
+  id: string;
+  chainId: ChainId;
+  title: string;
+  description: string;
+  amount: string;
+  isMultiplayer: boolean;
+  inProgress?: boolean;
+  isCanceled?: boolean;
+}
 
 export default function BountyItem({
   bounty,
@@ -18,6 +30,8 @@ export default function BountyItem({
   showChainIcon?: boolean;
 }) {
   const chain = getChainById({ chainId: bounty.chainId });
+  const price =
+    trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
   const amount = formatEther(BigInt(bounty.amount)).toString();
 
   const getStatusEmoji = () => {
@@ -50,10 +64,10 @@ export default function BountyItem({
             >
               <div className='flex gap-2 items-center'>
                 <div>
-                  {formatSortAmount({
+                  {formatAmount({
                     amount,
-                    usdAmount: bounty.amountSort,
                     currency: chain.currency,
+                    price: price.toString(),
                     precision: 5,
                   })}
                 </div>

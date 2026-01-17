@@ -41,8 +41,8 @@ export default function ShareBountyModal({
     let text = `check out this bounty on @poidhxyz 📸\n\n${window.location.href}`;
 
     if (user) {
-      if (user?.twitterTag) {
-        text = `check out this bounty from @${user.twitterTag} on @poidhxyz 📸 \n`;
+      if (user?.twitter_tag) {
+        text = `check out this bounty from @${user.twitter_tag} on @poidhxyz 📸 \n`;
       }
     }
     shareToTwitter(text);
@@ -52,8 +52,8 @@ export default function ShareBountyModal({
   const handleShareFarcaster = async () => {
     let text = 'check out this bounty on /poidh 📸\n';
 
-    if (user?.farcasterTag) {
-      text = `check out this bounty from @${user.farcasterTag} on /poidh 📸\n`;
+    if (user?.farcaster_tag) {
+      text = `check out this bounty from @${user.farcaster_tag} on /poidh 📸\n`;
     }
 
     await shareToFarcaster({ text });
