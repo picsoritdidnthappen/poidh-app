@@ -28,98 +28,98 @@ export type AggregateComments = {
 
 export type CommentsAvgAggregateOutputType = {
   id: number | null
-  bounty_id: number | null
-  chain_id: number | null
-  parent_id: number | null
+  bountyId: number | null
+  chainId: number | null
+  parentId: number | null
 }
 
 export type CommentsSumAggregateOutputType = {
   id: number | null
-  bounty_id: number | null
-  chain_id: number | null
-  parent_id: number | null
+  bountyId: number | null
+  chainId: number | null
+  parentId: number | null
 }
 
 export type CommentsMinAggregateOutputType = {
   id: number | null
-  bounty_id: number | null
-  chain_id: number | null
-  parent_id: number | null
-  user_address: string | null
+  bountyId: number | null
+  chainId: number | null
+  parentId: number | null
+  userAddress: string | null
   body: string | null
-  created_at: Date | null
-  deleted_at: Date | null
+  createdAt: Date | null
+  deletedAt: Date | null
 }
 
 export type CommentsMaxAggregateOutputType = {
   id: number | null
-  bounty_id: number | null
-  chain_id: number | null
-  parent_id: number | null
-  user_address: string | null
+  bountyId: number | null
+  chainId: number | null
+  parentId: number | null
+  userAddress: string | null
   body: string | null
-  created_at: Date | null
-  deleted_at: Date | null
+  createdAt: Date | null
+  deletedAt: Date | null
 }
 
 export type CommentsCountAggregateOutputType = {
   id: number
-  bounty_id: number
-  chain_id: number
-  parent_id: number
-  user_address: number
+  bountyId: number
+  chainId: number
+  parentId: number
+  userAddress: number
   body: number
-  created_at: number
-  deleted_at: number
+  createdAt: number
+  deletedAt: number
   _all: number
 }
 
 
 export type CommentsAvgAggregateInputType = {
   id?: true
-  bounty_id?: true
-  chain_id?: true
-  parent_id?: true
+  bountyId?: true
+  chainId?: true
+  parentId?: true
 }
 
 export type CommentsSumAggregateInputType = {
   id?: true
-  bounty_id?: true
-  chain_id?: true
-  parent_id?: true
+  bountyId?: true
+  chainId?: true
+  parentId?: true
 }
 
 export type CommentsMinAggregateInputType = {
   id?: true
-  bounty_id?: true
-  chain_id?: true
-  parent_id?: true
-  user_address?: true
+  bountyId?: true
+  chainId?: true
+  parentId?: true
+  userAddress?: true
   body?: true
-  created_at?: true
-  deleted_at?: true
+  createdAt?: true
+  deletedAt?: true
 }
 
 export type CommentsMaxAggregateInputType = {
   id?: true
-  bounty_id?: true
-  chain_id?: true
-  parent_id?: true
-  user_address?: true
+  bountyId?: true
+  chainId?: true
+  parentId?: true
+  userAddress?: true
   body?: true
-  created_at?: true
-  deleted_at?: true
+  createdAt?: true
+  deletedAt?: true
 }
 
 export type CommentsCountAggregateInputType = {
   id?: true
-  bounty_id?: true
-  chain_id?: true
-  parent_id?: true
-  user_address?: true
+  bountyId?: true
+  chainId?: true
+  parentId?: true
+  userAddress?: true
   body?: true
-  created_at?: true
-  deleted_at?: true
+  createdAt?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -211,13 +211,13 @@ export type CommentsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type CommentsGroupByOutputType = {
   id: number
-  bounty_id: number
-  chain_id: number
-  parent_id: number | null
-  user_address: string
+  bountyId: number
+  chainId: number
+  parentId: number | null
+  userAddress: string
   body: string
-  created_at: Date
-  deleted_at: Date | null
+  createdAt: Date
+  deletedAt: Date | null
   _count: CommentsCountAggregateOutputType | null
   _avg: CommentsAvgAggregateOutputType | null
   _sum: CommentsSumAggregateOutputType | null
@@ -245,15 +245,15 @@ export type CommentsWhereInput = {
   OR?: Prisma.CommentsWhereInput[]
   NOT?: Prisma.CommentsWhereInput | Prisma.CommentsWhereInput[]
   id?: Prisma.IntFilter<"Comments"> | number
-  bounty_id?: Prisma.IntFilter<"Comments"> | number
-  chain_id?: Prisma.IntFilter<"Comments"> | number
-  parent_id?: Prisma.IntNullableFilter<"Comments"> | number | null
-  user_address?: Prisma.StringFilter<"Comments"> | string
+  bountyId?: Prisma.IntFilter<"Comments"> | number
+  chainId?: Prisma.IntFilter<"Comments"> | number
+  parentId?: Prisma.IntNullableFilter<"Comments"> | number | null
+  userAddress?: Prisma.StringFilter<"Comments"> | string
   body?: Prisma.StringFilter<"Comments"> | string
-  created_at?: Prisma.DateTimeFilter<"Comments"> | Date | string
-  deleted_at?: Prisma.DateTimeNullableFilter<"Comments"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Comments"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Comments"> | Date | string | null
   bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
-  author?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
+  author?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   parent?: Prisma.XOR<Prisma.CommentsNullableScalarRelationFilter, Prisma.CommentsWhereInput> | null
   replies?: Prisma.CommentsListRelationFilter
   reactions?: Prisma.ReactionsListRelationFilter
@@ -261,13 +261,13 @@ export type CommentsWhereInput = {
 
 export type CommentsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  parent_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  user_address?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
   body?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  deleted_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   bounty?: Prisma.BountiesOrderByWithRelationInput
   author?: Prisma.UsersOrderByWithRelationInput
   parent?: Prisma.CommentsOrderByWithRelationInput
@@ -280,15 +280,15 @@ export type CommentsWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.CommentsWhereInput | Prisma.CommentsWhereInput[]
   OR?: Prisma.CommentsWhereInput[]
   NOT?: Prisma.CommentsWhereInput | Prisma.CommentsWhereInput[]
-  bounty_id?: Prisma.IntFilter<"Comments"> | number
-  chain_id?: Prisma.IntFilter<"Comments"> | number
-  parent_id?: Prisma.IntNullableFilter<"Comments"> | number | null
-  user_address?: Prisma.StringFilter<"Comments"> | string
+  bountyId?: Prisma.IntFilter<"Comments"> | number
+  chainId?: Prisma.IntFilter<"Comments"> | number
+  parentId?: Prisma.IntNullableFilter<"Comments"> | number | null
+  userAddress?: Prisma.StringFilter<"Comments"> | string
   body?: Prisma.StringFilter<"Comments"> | string
-  created_at?: Prisma.DateTimeFilter<"Comments"> | Date | string
-  deleted_at?: Prisma.DateTimeNullableFilter<"Comments"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Comments"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Comments"> | Date | string | null
   bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
-  author?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
+  author?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   parent?: Prisma.XOR<Prisma.CommentsNullableScalarRelationFilter, Prisma.CommentsWhereInput> | null
   replies?: Prisma.CommentsListRelationFilter
   reactions?: Prisma.ReactionsListRelationFilter
@@ -296,13 +296,13 @@ export type CommentsWhereUniqueInput = Prisma.AtLeast<{
 
 export type CommentsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  parent_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  user_address?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
   body?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  deleted_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CommentsCountOrderByAggregateInput
   _avg?: Prisma.CommentsAvgOrderByAggregateInput
   _max?: Prisma.CommentsMaxOrderByAggregateInput
@@ -315,21 +315,21 @@ export type CommentsScalarWhereWithAggregatesInput = {
   OR?: Prisma.CommentsScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CommentsScalarWhereWithAggregatesInput | Prisma.CommentsScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Comments"> | number
-  bounty_id?: Prisma.IntWithAggregatesFilter<"Comments"> | number
-  chain_id?: Prisma.IntWithAggregatesFilter<"Comments"> | number
-  parent_id?: Prisma.IntNullableWithAggregatesFilter<"Comments"> | number | null
-  user_address?: Prisma.StringWithAggregatesFilter<"Comments"> | string
+  bountyId?: Prisma.IntWithAggregatesFilter<"Comments"> | number
+  chainId?: Prisma.IntWithAggregatesFilter<"Comments"> | number
+  parentId?: Prisma.IntNullableWithAggregatesFilter<"Comments"> | number | null
+  userAddress?: Prisma.StringWithAggregatesFilter<"Comments"> | string
   body?: Prisma.StringWithAggregatesFilter<"Comments"> | string
-  created_at?: Prisma.DateTimeWithAggregatesFilter<"Comments"> | Date | string
-  deleted_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Comments"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Comments"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Comments"> | Date | string | null
 }
 
 export type CommentsCreateInput = {
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   bounty: Prisma.BountiesCreateNestedOneWithoutCommentsInput
-  author?: Prisma.UsersCreateNestedOneWithoutCommentsInput
+  author: Prisma.UsersCreateNestedOneWithoutCommentsInput
   parent?: Prisma.CommentsCreateNestedOneWithoutRepliesInput
   replies?: Prisma.CommentsCreateNestedManyWithoutParentInput
   reactions?: Prisma.ReactionsCreateNestedManyWithoutCommentInput
@@ -337,23 +337,23 @@ export type CommentsCreateInput = {
 
 export type CommentsUncheckedCreateInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  parent_id?: number | null
-  user_address: string
+  bountyId: number
+  chainId: number
+  parentId?: number | null
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   replies?: Prisma.CommentsUncheckedCreateNestedManyWithoutParentInput
   reactions?: Prisma.ReactionsUncheckedCreateNestedManyWithoutCommentInput
 }
 
 export type CommentsUpdateInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bounty?: Prisma.BountiesUpdateOneRequiredWithoutCommentsNestedInput
-  author?: Prisma.UsersUpdateOneWithoutCommentsNestedInput
+  author?: Prisma.UsersUpdateOneRequiredWithoutCommentsNestedInput
   parent?: Prisma.CommentsUpdateOneWithoutRepliesNestedInput
   replies?: Prisma.CommentsUpdateManyWithoutParentNestedInput
   reactions?: Prisma.ReactionsUpdateManyWithoutCommentNestedInput
@@ -361,43 +361,43 @@ export type CommentsUpdateInput = {
 
 export type CommentsUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   replies?: Prisma.CommentsUncheckedUpdateManyWithoutParentNestedInput
   reactions?: Prisma.ReactionsUncheckedUpdateManyWithoutCommentNestedInput
 }
 
 export type CommentsCreateManyInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  parent_id?: number | null
-  user_address: string
+  bountyId: number
+  chainId: number
+  parentId?: number | null
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type CommentsUpdateManyMutationInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CommentsUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CommentsListRelationFilter = {
@@ -417,49 +417,49 @@ export type CommentsNullableScalarRelationFilter = {
 
 export type CommentsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  parent_id?: Prisma.SortOrder
-  user_address?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
   body?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  deleted_at?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type CommentsAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  parent_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
 }
 
 export type CommentsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  parent_id?: Prisma.SortOrder
-  user_address?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
   body?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  deleted_at?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type CommentsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  parent_id?: Prisma.SortOrder
-  user_address?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
+  userAddress?: Prisma.SortOrder
   body?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-  deleted_at?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type CommentsSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  parent_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
 }
 
 export type CommentsScalarRelationFilter = {
@@ -629,9 +629,9 @@ export type CommentsUpdateOneRequiredWithoutReactionsNestedInput = {
 
 export type CommentsCreateWithoutBountyInput = {
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
-  author?: Prisma.UsersCreateNestedOneWithoutCommentsInput
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
+  author: Prisma.UsersCreateNestedOneWithoutCommentsInput
   parent?: Prisma.CommentsCreateNestedOneWithoutRepliesInput
   replies?: Prisma.CommentsCreateNestedManyWithoutParentInput
   reactions?: Prisma.ReactionsCreateNestedManyWithoutCommentInput
@@ -639,11 +639,11 @@ export type CommentsCreateWithoutBountyInput = {
 
 export type CommentsUncheckedCreateWithoutBountyInput = {
   id?: number
-  parent_id?: number | null
-  user_address: string
+  parentId?: number | null
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   replies?: Prisma.CommentsUncheckedCreateNestedManyWithoutParentInput
   reactions?: Prisma.ReactionsUncheckedCreateNestedManyWithoutCommentInput
 }
@@ -679,19 +679,19 @@ export type CommentsScalarWhereInput = {
   OR?: Prisma.CommentsScalarWhereInput[]
   NOT?: Prisma.CommentsScalarWhereInput | Prisma.CommentsScalarWhereInput[]
   id?: Prisma.IntFilter<"Comments"> | number
-  bounty_id?: Prisma.IntFilter<"Comments"> | number
-  chain_id?: Prisma.IntFilter<"Comments"> | number
-  parent_id?: Prisma.IntNullableFilter<"Comments"> | number | null
-  user_address?: Prisma.StringFilter<"Comments"> | string
+  bountyId?: Prisma.IntFilter<"Comments"> | number
+  chainId?: Prisma.IntFilter<"Comments"> | number
+  parentId?: Prisma.IntNullableFilter<"Comments"> | number | null
+  userAddress?: Prisma.StringFilter<"Comments"> | string
   body?: Prisma.StringFilter<"Comments"> | string
-  created_at?: Prisma.DateTimeFilter<"Comments"> | Date | string
-  deleted_at?: Prisma.DateTimeNullableFilter<"Comments"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Comments"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Comments"> | Date | string | null
 }
 
 export type CommentsCreateWithoutAuthorInput = {
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   bounty: Prisma.BountiesCreateNestedOneWithoutCommentsInput
   parent?: Prisma.CommentsCreateNestedOneWithoutRepliesInput
   replies?: Prisma.CommentsCreateNestedManyWithoutParentInput
@@ -700,12 +700,12 @@ export type CommentsCreateWithoutAuthorInput = {
 
 export type CommentsUncheckedCreateWithoutAuthorInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  parent_id?: number | null
+  bountyId: number
+  chainId: number
+  parentId?: number | null
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   replies?: Prisma.CommentsUncheckedCreateNestedManyWithoutParentInput
   reactions?: Prisma.ReactionsUncheckedCreateNestedManyWithoutCommentInput
 }
@@ -738,23 +738,23 @@ export type CommentsUpdateManyWithWhereWithoutAuthorInput = {
 
 export type CommentsCreateWithoutRepliesInput = {
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   bounty: Prisma.BountiesCreateNestedOneWithoutCommentsInput
-  author?: Prisma.UsersCreateNestedOneWithoutCommentsInput
+  author: Prisma.UsersCreateNestedOneWithoutCommentsInput
   parent?: Prisma.CommentsCreateNestedOneWithoutRepliesInput
   reactions?: Prisma.ReactionsCreateNestedManyWithoutCommentInput
 }
 
 export type CommentsUncheckedCreateWithoutRepliesInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  parent_id?: number | null
-  user_address: string
+  bountyId: number
+  chainId: number
+  parentId?: number | null
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   reactions?: Prisma.ReactionsUncheckedCreateNestedManyWithoutCommentInput
 }
 
@@ -765,22 +765,22 @@ export type CommentsCreateOrConnectWithoutRepliesInput = {
 
 export type CommentsCreateWithoutParentInput = {
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   bounty: Prisma.BountiesCreateNestedOneWithoutCommentsInput
-  author?: Prisma.UsersCreateNestedOneWithoutCommentsInput
+  author: Prisma.UsersCreateNestedOneWithoutCommentsInput
   replies?: Prisma.CommentsCreateNestedManyWithoutParentInput
   reactions?: Prisma.ReactionsCreateNestedManyWithoutCommentInput
 }
 
 export type CommentsUncheckedCreateWithoutParentInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  user_address: string
+  bountyId: number
+  chainId: number
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   replies?: Prisma.CommentsUncheckedCreateNestedManyWithoutParentInput
   reactions?: Prisma.ReactionsUncheckedCreateNestedManyWithoutCommentInput
 }
@@ -808,23 +808,23 @@ export type CommentsUpdateToOneWithWhereWithoutRepliesInput = {
 
 export type CommentsUpdateWithoutRepliesInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bounty?: Prisma.BountiesUpdateOneRequiredWithoutCommentsNestedInput
-  author?: Prisma.UsersUpdateOneWithoutCommentsNestedInput
+  author?: Prisma.UsersUpdateOneRequiredWithoutCommentsNestedInput
   parent?: Prisma.CommentsUpdateOneWithoutRepliesNestedInput
   reactions?: Prisma.ReactionsUpdateManyWithoutCommentNestedInput
 }
 
 export type CommentsUncheckedUpdateWithoutRepliesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reactions?: Prisma.ReactionsUncheckedUpdateManyWithoutCommentNestedInput
 }
 
@@ -846,23 +846,23 @@ export type CommentsUpdateManyWithWhereWithoutParentInput = {
 
 export type CommentsCreateWithoutReactionsInput = {
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   bounty: Prisma.BountiesCreateNestedOneWithoutCommentsInput
-  author?: Prisma.UsersCreateNestedOneWithoutCommentsInput
+  author: Prisma.UsersCreateNestedOneWithoutCommentsInput
   parent?: Prisma.CommentsCreateNestedOneWithoutRepliesInput
   replies?: Prisma.CommentsCreateNestedManyWithoutParentInput
 }
 
 export type CommentsUncheckedCreateWithoutReactionsInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  parent_id?: number | null
-  user_address: string
+  bountyId: number
+  chainId: number
+  parentId?: number | null
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
   replies?: Prisma.CommentsUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -884,40 +884,40 @@ export type CommentsUpdateToOneWithWhereWithoutReactionsInput = {
 
 export type CommentsUpdateWithoutReactionsInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bounty?: Prisma.BountiesUpdateOneRequiredWithoutCommentsNestedInput
-  author?: Prisma.UsersUpdateOneWithoutCommentsNestedInput
+  author?: Prisma.UsersUpdateOneRequiredWithoutCommentsNestedInput
   parent?: Prisma.CommentsUpdateOneWithoutRepliesNestedInput
   replies?: Prisma.CommentsUpdateManyWithoutParentNestedInput
 }
 
 export type CommentsUncheckedUpdateWithoutReactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   replies?: Prisma.CommentsUncheckedUpdateManyWithoutParentNestedInput
 }
 
 export type CommentsCreateManyBountyInput = {
   id?: number
-  parent_id?: number | null
-  user_address: string
+  parentId?: number | null
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type CommentsUpdateWithoutBountyInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  author?: Prisma.UsersUpdateOneWithoutCommentsNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  author?: Prisma.UsersUpdateOneRequiredWithoutCommentsNestedInput
   parent?: Prisma.CommentsUpdateOneWithoutRepliesNestedInput
   replies?: Prisma.CommentsUpdateManyWithoutParentNestedInput
   reactions?: Prisma.ReactionsUpdateManyWithoutCommentNestedInput
@@ -925,38 +925,38 @@ export type CommentsUpdateWithoutBountyInput = {
 
 export type CommentsUncheckedUpdateWithoutBountyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   replies?: Prisma.CommentsUncheckedUpdateManyWithoutParentNestedInput
   reactions?: Prisma.ReactionsUncheckedUpdateManyWithoutCommentNestedInput
 }
 
 export type CommentsUncheckedUpdateManyWithoutBountyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CommentsCreateManyAuthorInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  parent_id?: number | null
+  bountyId: number
+  chainId: number
+  parentId?: number | null
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type CommentsUpdateWithoutAuthorInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bounty?: Prisma.BountiesUpdateOneRequiredWithoutCommentsNestedInput
   parent?: Prisma.CommentsUpdateOneWithoutRepliesNestedInput
   replies?: Prisma.CommentsUpdateManyWithoutParentNestedInput
@@ -965,66 +965,66 @@ export type CommentsUpdateWithoutAuthorInput = {
 
 export type CommentsUncheckedUpdateWithoutAuthorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   replies?: Prisma.CommentsUncheckedUpdateManyWithoutParentNestedInput
   reactions?: Prisma.ReactionsUncheckedUpdateManyWithoutCommentNestedInput
 }
 
 export type CommentsUncheckedUpdateManyWithoutAuthorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  parent_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CommentsCreateManyParentInput = {
   id?: number
-  bounty_id: number
-  chain_id: number
-  user_address: string
+  bountyId: number
+  chainId: number
+  userAddress: string
   body: string
-  created_at?: Date | string
-  deleted_at?: Date | string | null
+  createdAt?: Date | string
+  deletedAt?: Date | string | null
 }
 
 export type CommentsUpdateWithoutParentInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bounty?: Prisma.BountiesUpdateOneRequiredWithoutCommentsNestedInput
-  author?: Prisma.UsersUpdateOneWithoutCommentsNestedInput
+  author?: Prisma.UsersUpdateOneRequiredWithoutCommentsNestedInput
   replies?: Prisma.CommentsUpdateManyWithoutParentNestedInput
   reactions?: Prisma.ReactionsUpdateManyWithoutCommentNestedInput
 }
 
 export type CommentsUncheckedUpdateWithoutParentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   replies?: Prisma.CommentsUncheckedUpdateManyWithoutParentNestedInput
   reactions?: Prisma.ReactionsUncheckedUpdateManyWithoutCommentNestedInput
 }
 
 export type CommentsUncheckedUpdateManyWithoutParentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
-  user_address?: Prisma.StringFieldUpdateOperationsInput | string
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
+  userAddress?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1069,15 +1069,15 @@ export type CommentsCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Ty
 
 export type CommentsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
-  parent_id?: boolean
-  user_address?: boolean
+  bountyId?: boolean
+  chainId?: boolean
+  parentId?: boolean
+  userAddress?: boolean
   body?: boolean
-  created_at?: boolean
-  deleted_at?: boolean
+  createdAt?: boolean
+  deletedAt?: boolean
   bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.Comments$authorArgs<ExtArgs>
+  author?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Comments$parentArgs<ExtArgs>
   replies?: boolean | Prisma.Comments$repliesArgs<ExtArgs>
   reactions?: boolean | Prisma.Comments$reactionsArgs<ExtArgs>
@@ -1086,47 +1086,47 @@ export type CommentsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 
 export type CommentsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
-  parent_id?: boolean
-  user_address?: boolean
+  bountyId?: boolean
+  chainId?: boolean
+  parentId?: boolean
+  userAddress?: boolean
   body?: boolean
-  created_at?: boolean
-  deleted_at?: boolean
+  createdAt?: boolean
+  deletedAt?: boolean
   bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.Comments$authorArgs<ExtArgs>
+  author?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Comments$parentArgs<ExtArgs>
 }, ExtArgs["result"]["comments"]>
 
 export type CommentsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
-  parent_id?: boolean
-  user_address?: boolean
+  bountyId?: boolean
+  chainId?: boolean
+  parentId?: boolean
+  userAddress?: boolean
   body?: boolean
-  created_at?: boolean
-  deleted_at?: boolean
+  createdAt?: boolean
+  deletedAt?: boolean
   bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.Comments$authorArgs<ExtArgs>
+  author?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Comments$parentArgs<ExtArgs>
 }, ExtArgs["result"]["comments"]>
 
 export type CommentsSelectScalar = {
   id?: boolean
-  bounty_id?: boolean
-  chain_id?: boolean
-  parent_id?: boolean
-  user_address?: boolean
+  bountyId?: boolean
+  chainId?: boolean
+  parentId?: boolean
+  userAddress?: boolean
   body?: boolean
-  created_at?: boolean
-  deleted_at?: boolean
+  createdAt?: boolean
+  deletedAt?: boolean
 }
 
-export type CommentsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "bounty_id" | "chain_id" | "parent_id" | "user_address" | "body" | "created_at" | "deleted_at", ExtArgs["result"]["comments"]>
+export type CommentsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "bountyId" | "chainId" | "parentId" | "userAddress" | "body" | "createdAt" | "deletedAt", ExtArgs["result"]["comments"]>
 export type CommentsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.Comments$authorArgs<ExtArgs>
+  author?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Comments$parentArgs<ExtArgs>
   replies?: boolean | Prisma.Comments$repliesArgs<ExtArgs>
   reactions?: boolean | Prisma.Comments$reactionsArgs<ExtArgs>
@@ -1134,12 +1134,12 @@ export type CommentsInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 export type CommentsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.Comments$authorArgs<ExtArgs>
+  author?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Comments$parentArgs<ExtArgs>
 }
 export type CommentsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.Comments$authorArgs<ExtArgs>
+  author?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Comments$parentArgs<ExtArgs>
 }
 
@@ -1147,20 +1147,20 @@ export type $CommentsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "Comments"
   objects: {
     bounty: Prisma.$BountiesPayload<ExtArgs>
-    author: Prisma.$UsersPayload<ExtArgs> | null
+    author: Prisma.$UsersPayload<ExtArgs>
     parent: Prisma.$CommentsPayload<ExtArgs> | null
     replies: Prisma.$CommentsPayload<ExtArgs>[]
     reactions: Prisma.$ReactionsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    bounty_id: number
-    chain_id: number
-    parent_id: number | null
-    user_address: string
+    bountyId: number
+    chainId: number
+    parentId: number | null
+    userAddress: string
     body: string
-    created_at: Date
-    deleted_at: Date | null
+    createdAt: Date
+    deletedAt: Date | null
   }, ExtArgs["result"]["comments"]>
   composites: {}
 }
@@ -1556,7 +1556,7 @@ readonly fields: CommentsFieldRefs;
 export interface Prisma__CommentsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   bounty<T extends Prisma.BountiesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BountiesDefaultArgs<ExtArgs>>): Prisma.Prisma__BountiesClient<runtime.Types.Result.GetResult<Prisma.$BountiesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  author<T extends Prisma.Comments$authorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Comments$authorArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  author<T extends Prisma.UsersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UsersDefaultArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.Comments$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Comments$parentArgs<ExtArgs>>): Prisma.Prisma__CommentsClient<runtime.Types.Result.GetResult<Prisma.$CommentsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   replies<T extends Prisma.Comments$repliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Comments$repliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reactions<T extends Prisma.Comments$reactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Comments$reactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1590,13 +1590,13 @@ export interface Prisma__CommentsClient<T, Null = never, ExtArgs extends runtime
  */
 export interface CommentsFieldRefs {
   readonly id: Prisma.FieldRef<"Comments", 'Int'>
-  readonly bounty_id: Prisma.FieldRef<"Comments", 'Int'>
-  readonly chain_id: Prisma.FieldRef<"Comments", 'Int'>
-  readonly parent_id: Prisma.FieldRef<"Comments", 'Int'>
-  readonly user_address: Prisma.FieldRef<"Comments", 'String'>
+  readonly bountyId: Prisma.FieldRef<"Comments", 'Int'>
+  readonly chainId: Prisma.FieldRef<"Comments", 'Int'>
+  readonly parentId: Prisma.FieldRef<"Comments", 'Int'>
+  readonly userAddress: Prisma.FieldRef<"Comments", 'String'>
   readonly body: Prisma.FieldRef<"Comments", 'String'>
-  readonly created_at: Prisma.FieldRef<"Comments", 'DateTime'>
-  readonly deleted_at: Prisma.FieldRef<"Comments", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"Comments", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"Comments", 'DateTime'>
 }
     
 
@@ -1990,25 +1990,6 @@ export type CommentsDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Comments to delete.
    */
   limit?: number
-}
-
-/**
- * Comments.author
- */
-export type Comments$authorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Users
-   */
-  select?: Prisma.UsersSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Users
-   */
-  omit?: Prisma.UsersOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UsersInclude<ExtArgs> | null
-  where?: Prisma.UsersWhereInput
 }
 
 /**

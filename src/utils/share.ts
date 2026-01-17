@@ -59,16 +59,16 @@ export function getDisplayUsername(
   if (!user) {
     return 'unknown';
   }
-  if (platform === 'farcaster' && user?.farcaster_tag) {
-    return `@${user.farcaster_tag}`;
-  } else if (platform === 'twitter' && user?.twitter_tag) {
-    return `@${user.twitter_tag}`;
+  if (platform === 'farcaster' && user?.farcasterTag) {
+    return `@${user.farcasterTag}`;
+  } else if (platform === 'twitter' && user?.twitterTag) {
+    return `@${user.twitterTag}`;
   }
   if (user?.ens) {
     return user.ens;
   }
-  if (user?.degen_name) {
-    return user.degen_name;
+  if (user?.degenName) {
+    return user.degenName;
   }
   return `${user?.address.slice(0, 7)}`;
 }

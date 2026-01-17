@@ -348,9 +348,9 @@ export type UsersUncheckedUpdateManyInput = {
   withdrawalArbitrum?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type UsersNullableScalarRelationFilter = {
-  is?: Prisma.UsersWhereInput | null
-  isNot?: Prisma.UsersWhereInput | null
+export type UsersScalarRelationFilter = {
+  is?: Prisma.UsersWhereInput
+  isNot?: Prisma.UsersWhereInput
 }
 
 export type UsersCountOrderByAggregateInput = {
@@ -386,23 +386,16 @@ export type UsersSumOrderByAggregateInput = {
   withdrawalArbitrum?: Prisma.SortOrder
 }
 
-export type UsersScalarRelationFilter = {
-  is?: Prisma.UsersWhereInput
-  isNot?: Prisma.UsersWhereInput
-}
-
 export type UsersCreateNestedOneWithoutBountiesInput = {
   create?: Prisma.XOR<Prisma.UsersCreateWithoutBountiesInput, Prisma.UsersUncheckedCreateWithoutBountiesInput>
   connectOrCreate?: Prisma.UsersCreateOrConnectWithoutBountiesInput
   connect?: Prisma.UsersWhereUniqueInput
 }
 
-export type UsersUpdateOneWithoutBountiesNestedInput = {
+export type UsersUpdateOneRequiredWithoutBountiesNestedInput = {
   create?: Prisma.XOR<Prisma.UsersCreateWithoutBountiesInput, Prisma.UsersUncheckedCreateWithoutBountiesInput>
   connectOrCreate?: Prisma.UsersCreateOrConnectWithoutBountiesInput
   upsert?: Prisma.UsersUpsertWithoutBountiesInput
-  disconnect?: Prisma.UsersWhereInput | boolean
-  delete?: Prisma.UsersWhereInput | boolean
   connect?: Prisma.UsersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutBountiesInput, Prisma.UsersUpdateWithoutBountiesInput>, Prisma.UsersUncheckedUpdateWithoutBountiesInput>
 }
@@ -413,12 +406,10 @@ export type UsersCreateNestedOneWithoutClaimsInput = {
   connect?: Prisma.UsersWhereUniqueInput
 }
 
-export type UsersUpdateOneWithoutClaimsNestedInput = {
+export type UsersUpdateOneRequiredWithoutClaimsNestedInput = {
   create?: Prisma.XOR<Prisma.UsersCreateWithoutClaimsInput, Prisma.UsersUncheckedCreateWithoutClaimsInput>
   connectOrCreate?: Prisma.UsersCreateOrConnectWithoutClaimsInput
   upsert?: Prisma.UsersUpsertWithoutClaimsInput
-  disconnect?: Prisma.UsersWhereInput | boolean
-  delete?: Prisma.UsersWhereInput | boolean
   connect?: Prisma.UsersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutClaimsInput, Prisma.UsersUpdateWithoutClaimsInput>, Prisma.UsersUncheckedUpdateWithoutClaimsInput>
 }
@@ -429,12 +420,10 @@ export type UsersCreateNestedOneWithoutParticipationsInput = {
   connect?: Prisma.UsersWhereUniqueInput
 }
 
-export type UsersUpdateOneWithoutParticipationsNestedInput = {
+export type UsersUpdateOneRequiredWithoutParticipationsNestedInput = {
   create?: Prisma.XOR<Prisma.UsersCreateWithoutParticipationsInput, Prisma.UsersUncheckedCreateWithoutParticipationsInput>
   connectOrCreate?: Prisma.UsersCreateOrConnectWithoutParticipationsInput
   upsert?: Prisma.UsersUpsertWithoutParticipationsInput
-  disconnect?: Prisma.UsersWhereInput | boolean
-  delete?: Prisma.UsersWhereInput | boolean
   connect?: Prisma.UsersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutParticipationsInput, Prisma.UsersUpdateWithoutParticipationsInput>, Prisma.UsersUncheckedUpdateWithoutParticipationsInput>
 }
@@ -459,12 +448,10 @@ export type UsersCreateNestedOneWithoutCommentsInput = {
   connect?: Prisma.UsersWhereUniqueInput
 }
 
-export type UsersUpdateOneWithoutCommentsNestedInput = {
+export type UsersUpdateOneRequiredWithoutCommentsNestedInput = {
   create?: Prisma.XOR<Prisma.UsersCreateWithoutCommentsInput, Prisma.UsersUncheckedCreateWithoutCommentsInput>
   connectOrCreate?: Prisma.UsersCreateOrConnectWithoutCommentsInput
   upsert?: Prisma.UsersUpsertWithoutCommentsInput
-  disconnect?: Prisma.UsersWhereInput | boolean
-  delete?: Prisma.UsersWhereInput | boolean
   connect?: Prisma.UsersWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsersUpdateToOneWithWhereWithoutCommentsInput, Prisma.UsersUpdateWithoutCommentsInput>, Prisma.UsersUncheckedUpdateWithoutCommentsInput>
 }

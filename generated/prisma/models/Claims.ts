@@ -29,53 +29,53 @@ export type AggregateClaims = {
 export type ClaimsAvgAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
-  bounty_id: number | null
+  chainId: number | null
+  bountyId: number | null
 }
 
 export type ClaimsSumAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
-  bounty_id: number | null
+  chainId: number | null
+  bountyId: number | null
 }
 
 export type ClaimsMinAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
+  chainId: number | null
   title: string | null
   description: string | null
   url: string | null
   issuer: string | null
-  is_accepted: boolean | null
-  bounty_id: number | null
+  isAccepted: boolean | null
+  bountyId: number | null
   owner: string | null
 }
 
 export type ClaimsMaxAggregateOutputType = {
   id: number | null
   onChainId: number | null
-  chain_id: number | null
+  chainId: number | null
   title: string | null
   description: string | null
   url: string | null
   issuer: string | null
-  is_accepted: boolean | null
-  bounty_id: number | null
+  isAccepted: boolean | null
+  bountyId: number | null
   owner: string | null
 }
 
 export type ClaimsCountAggregateOutputType = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: number
   description: number
   url: number
   issuer: number
-  is_accepted: number
-  bounty_id: number
+  isAccepted: number
+  bountyId: number
   owner: number
   _all: number
 }
@@ -84,53 +84,53 @@ export type ClaimsCountAggregateOutputType = {
 export type ClaimsAvgAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
-  bounty_id?: true
+  chainId?: true
+  bountyId?: true
 }
 
 export type ClaimsSumAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
-  bounty_id?: true
+  chainId?: true
+  bountyId?: true
 }
 
 export type ClaimsMinAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
+  chainId?: true
   title?: true
   description?: true
   url?: true
   issuer?: true
-  is_accepted?: true
-  bounty_id?: true
+  isAccepted?: true
+  bountyId?: true
   owner?: true
 }
 
 export type ClaimsMaxAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
+  chainId?: true
   title?: true
   description?: true
   url?: true
   issuer?: true
-  is_accepted?: true
-  bounty_id?: true
+  isAccepted?: true
+  bountyId?: true
   owner?: true
 }
 
 export type ClaimsCountAggregateInputType = {
   id?: true
   onChainId?: true
-  chain_id?: true
+  chainId?: true
   title?: true
   description?: true
   url?: true
   issuer?: true
-  is_accepted?: true
-  bounty_id?: true
+  isAccepted?: true
+  bountyId?: true
   owner?: true
   _all?: true
 }
@@ -224,13 +224,13 @@ export type ClaimsGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type ClaimsGroupByOutputType = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   url: string
   issuer: string
-  is_accepted: boolean | null
-  bounty_id: number
+  isAccepted: boolean
+  bountyId: number
   owner: string
   _count: ClaimsCountAggregateOutputType | null
   _avg: ClaimsAvgAggregateOutputType | null
@@ -260,16 +260,16 @@ export type ClaimsWhereInput = {
   NOT?: Prisma.ClaimsWhereInput | Prisma.ClaimsWhereInput[]
   id?: Prisma.IntFilter<"Claims"> | number
   onChainId?: Prisma.IntFilter<"Claims"> | number
-  chain_id?: Prisma.IntFilter<"Claims"> | number
+  chainId?: Prisma.IntFilter<"Claims"> | number
   title?: Prisma.StringFilter<"Claims"> | string
   description?: Prisma.StringFilter<"Claims"> | string
   url?: Prisma.StringFilter<"Claims"> | string
   issuer?: Prisma.StringFilter<"Claims"> | string
-  is_accepted?: Prisma.BoolNullableFilter<"Claims"> | boolean | null
-  bounty_id?: Prisma.IntFilter<"Claims"> | number
+  isAccepted?: Prisma.BoolFilter<"Claims"> | boolean
+  bountyId?: Prisma.IntFilter<"Claims"> | number
   owner?: Prisma.StringFilter<"Claims"> | string
-  bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
-  issuerUser?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
+  bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
+  issuerUser?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   ban?: Prisma.BanListRelationFilter
   transactions?: Prisma.TransactionsListRelationFilter
 }
@@ -277,13 +277,13 @@ export type ClaimsWhereInput = {
 export type ClaimsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   url?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  is_accepted?: Prisma.SortOrderInput | Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
+  isAccepted?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   owner?: Prisma.SortOrder
   bounty?: Prisma.BountiesOrderByWithRelationInput
   issuerUser?: Prisma.UsersOrderByWithRelationInput
@@ -292,36 +292,36 @@ export type ClaimsOrderByWithRelationInput = {
 }
 
 export type ClaimsWhereUniqueInput = Prisma.AtLeast<{
-  id_chain_id?: Prisma.ClaimsIdChain_idCompoundUniqueInput
+  id_chainId?: Prisma.ClaimsIdChainIdCompoundUniqueInput
   AND?: Prisma.ClaimsWhereInput | Prisma.ClaimsWhereInput[]
   OR?: Prisma.ClaimsWhereInput[]
   NOT?: Prisma.ClaimsWhereInput | Prisma.ClaimsWhereInput[]
   id?: Prisma.IntFilter<"Claims"> | number
   onChainId?: Prisma.IntFilter<"Claims"> | number
-  chain_id?: Prisma.IntFilter<"Claims"> | number
+  chainId?: Prisma.IntFilter<"Claims"> | number
   title?: Prisma.StringFilter<"Claims"> | string
   description?: Prisma.StringFilter<"Claims"> | string
   url?: Prisma.StringFilter<"Claims"> | string
   issuer?: Prisma.StringFilter<"Claims"> | string
-  is_accepted?: Prisma.BoolNullableFilter<"Claims"> | boolean | null
-  bounty_id?: Prisma.IntFilter<"Claims"> | number
+  isAccepted?: Prisma.BoolFilter<"Claims"> | boolean
+  bountyId?: Prisma.IntFilter<"Claims"> | number
   owner?: Prisma.StringFilter<"Claims"> | string
-  bounty?: Prisma.XOR<Prisma.BountiesNullableScalarRelationFilter, Prisma.BountiesWhereInput> | null
-  issuerUser?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
+  bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
+  issuerUser?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.UsersWhereInput>
   ban?: Prisma.BanListRelationFilter
   transactions?: Prisma.TransactionsListRelationFilter
-}, "id_chain_id">
+}, "id_chainId">
 
 export type ClaimsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   url?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  is_accepted?: Prisma.SortOrderInput | Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
+  isAccepted?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   owner?: Prisma.SortOrder
   _count?: Prisma.ClaimsCountOrderByAggregateInput
   _avg?: Prisma.ClaimsAvgOrderByAggregateInput
@@ -336,13 +336,13 @@ export type ClaimsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ClaimsScalarWhereWithAggregatesInput | Prisma.ClaimsScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Claims"> | number
   onChainId?: Prisma.IntWithAggregatesFilter<"Claims"> | number
-  chain_id?: Prisma.IntWithAggregatesFilter<"Claims"> | number
+  chainId?: Prisma.IntWithAggregatesFilter<"Claims"> | number
   title?: Prisma.StringWithAggregatesFilter<"Claims"> | string
   description?: Prisma.StringWithAggregatesFilter<"Claims"> | string
   url?: Prisma.StringWithAggregatesFilter<"Claims"> | string
   issuer?: Prisma.StringWithAggregatesFilter<"Claims"> | string
-  is_accepted?: Prisma.BoolNullableWithAggregatesFilter<"Claims"> | boolean | null
-  bounty_id?: Prisma.IntWithAggregatesFilter<"Claims"> | number
+  isAccepted?: Prisma.BoolWithAggregatesFilter<"Claims"> | boolean
+  bountyId?: Prisma.IntWithAggregatesFilter<"Claims"> | number
   owner?: Prisma.StringWithAggregatesFilter<"Claims"> | string
 }
 
@@ -352,10 +352,10 @@ export type ClaimsCreateInput = {
   title: string
   description: string
   url: string
-  is_accepted?: boolean | null
+  isAccepted?: boolean
   owner: string
-  bounty?: Prisma.BountiesCreateNestedOneWithoutClaimsInput
-  issuerUser?: Prisma.UsersCreateNestedOneWithoutClaimsInput
+  bounty: Prisma.BountiesCreateNestedOneWithoutClaimsInput
+  issuerUser: Prisma.UsersCreateNestedOneWithoutClaimsInput
   ban?: Prisma.BanCreateNestedManyWithoutClaimInput
   transactions?: Prisma.TransactionsCreateNestedManyWithoutClaimInput
 }
@@ -363,13 +363,13 @@ export type ClaimsCreateInput = {
 export type ClaimsUncheckedCreateInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   url: string
   issuer: string
-  is_accepted?: boolean | null
-  bounty_id: number
+  isAccepted?: boolean
+  bountyId: number
   owner: string
   ban?: Prisma.BanUncheckedCreateNestedManyWithoutClaimInput
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutClaimInput
@@ -381,10 +381,10 @@ export type ClaimsUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty?: Prisma.BountiesUpdateOneWithoutClaimsNestedInput
-  issuerUser?: Prisma.UsersUpdateOneWithoutClaimsNestedInput
+  bounty?: Prisma.BountiesUpdateOneRequiredWithoutClaimsNestedInput
+  issuerUser?: Prisma.UsersUpdateOneRequiredWithoutClaimsNestedInput
   ban?: Prisma.BanUpdateManyWithoutClaimNestedInput
   transactions?: Prisma.TransactionsUpdateManyWithoutClaimNestedInput
 }
@@ -392,13 +392,13 @@ export type ClaimsUpdateInput = {
 export type ClaimsUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   owner?: Prisma.StringFieldUpdateOperationsInput | string
   ban?: Prisma.BanUncheckedUpdateManyWithoutClaimNestedInput
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutClaimNestedInput
@@ -407,13 +407,13 @@ export type ClaimsUncheckedUpdateInput = {
 export type ClaimsCreateManyInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   url: string
   issuer: string
-  is_accepted?: boolean | null
-  bounty_id: number
+  isAccepted?: boolean
+  bountyId: number
   owner: string
 }
 
@@ -423,20 +423,20 @@ export type ClaimsUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ClaimsUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   owner?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -450,62 +450,62 @@ export type ClaimsOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ClaimsIdChain_idCompoundUniqueInput = {
+export type ClaimsIdChainIdCompoundUniqueInput = {
   id: number
-  chain_id: number
+  chainId: number
 }
 
 export type ClaimsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   url?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  is_accepted?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
+  isAccepted?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   owner?: Prisma.SortOrder
 }
 
 export type ClaimsAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
 }
 
 export type ClaimsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   url?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  is_accepted?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
+  isAccepted?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   owner?: Prisma.SortOrder
 }
 
 export type ClaimsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   url?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
-  is_accepted?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
+  isAccepted?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
   owner?: Prisma.SortOrder
 }
 
 export type ClaimsSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   onChainId?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
 }
 
 export type ClaimsNullableScalarRelationFilter = {
@@ -635,9 +635,9 @@ export type ClaimsCreateWithoutBountyInput = {
   title: string
   description: string
   url: string
-  is_accepted?: boolean | null
+  isAccepted?: boolean
   owner: string
-  issuerUser?: Prisma.UsersCreateNestedOneWithoutClaimsInput
+  issuerUser: Prisma.UsersCreateNestedOneWithoutClaimsInput
   ban?: Prisma.BanCreateNestedManyWithoutClaimInput
   transactions?: Prisma.TransactionsCreateNestedManyWithoutClaimInput
 }
@@ -649,7 +649,7 @@ export type ClaimsUncheckedCreateWithoutBountyInput = {
   description: string
   url: string
   issuer: string
-  is_accepted?: boolean | null
+  isAccepted?: boolean
   owner: string
   ban?: Prisma.BanUncheckedCreateNestedManyWithoutClaimInput
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutClaimInput
@@ -687,13 +687,13 @@ export type ClaimsScalarWhereInput = {
   NOT?: Prisma.ClaimsScalarWhereInput | Prisma.ClaimsScalarWhereInput[]
   id?: Prisma.IntFilter<"Claims"> | number
   onChainId?: Prisma.IntFilter<"Claims"> | number
-  chain_id?: Prisma.IntFilter<"Claims"> | number
+  chainId?: Prisma.IntFilter<"Claims"> | number
   title?: Prisma.StringFilter<"Claims"> | string
   description?: Prisma.StringFilter<"Claims"> | string
   url?: Prisma.StringFilter<"Claims"> | string
   issuer?: Prisma.StringFilter<"Claims"> | string
-  is_accepted?: Prisma.BoolNullableFilter<"Claims"> | boolean | null
-  bounty_id?: Prisma.IntFilter<"Claims"> | number
+  isAccepted?: Prisma.BoolFilter<"Claims"> | boolean
+  bountyId?: Prisma.IntFilter<"Claims"> | number
   owner?: Prisma.StringFilter<"Claims"> | string
 }
 
@@ -703,9 +703,9 @@ export type ClaimsCreateWithoutIssuerUserInput = {
   title: string
   description: string
   url: string
-  is_accepted?: boolean | null
+  isAccepted?: boolean
   owner: string
-  bounty?: Prisma.BountiesCreateNestedOneWithoutClaimsInput
+  bounty: Prisma.BountiesCreateNestedOneWithoutClaimsInput
   ban?: Prisma.BanCreateNestedManyWithoutClaimInput
   transactions?: Prisma.TransactionsCreateNestedManyWithoutClaimInput
 }
@@ -713,12 +713,12 @@ export type ClaimsCreateWithoutIssuerUserInput = {
 export type ClaimsUncheckedCreateWithoutIssuerUserInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   url: string
-  is_accepted?: boolean | null
-  bounty_id: number
+  isAccepted?: boolean
+  bountyId: number
   owner: string
   ban?: Prisma.BanUncheckedCreateNestedManyWithoutClaimInput
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutClaimInput
@@ -756,23 +756,23 @@ export type ClaimsCreateWithoutBanInput = {
   title: string
   description: string
   url: string
-  is_accepted?: boolean | null
+  isAccepted?: boolean
   owner: string
-  bounty?: Prisma.BountiesCreateNestedOneWithoutClaimsInput
-  issuerUser?: Prisma.UsersCreateNestedOneWithoutClaimsInput
+  bounty: Prisma.BountiesCreateNestedOneWithoutClaimsInput
+  issuerUser: Prisma.UsersCreateNestedOneWithoutClaimsInput
   transactions?: Prisma.TransactionsCreateNestedManyWithoutClaimInput
 }
 
 export type ClaimsUncheckedCreateWithoutBanInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   url: string
   issuer: string
-  is_accepted?: boolean | null
-  bounty_id: number
+  isAccepted?: boolean
+  bountyId: number
   owner: string
   transactions?: Prisma.TransactionsUncheckedCreateNestedManyWithoutClaimInput
 }
@@ -799,23 +799,23 @@ export type ClaimsUpdateWithoutBanInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty?: Prisma.BountiesUpdateOneWithoutClaimsNestedInput
-  issuerUser?: Prisma.UsersUpdateOneWithoutClaimsNestedInput
+  bounty?: Prisma.BountiesUpdateOneRequiredWithoutClaimsNestedInput
+  issuerUser?: Prisma.UsersUpdateOneRequiredWithoutClaimsNestedInput
   transactions?: Prisma.TransactionsUpdateManyWithoutClaimNestedInput
 }
 
 export type ClaimsUncheckedUpdateWithoutBanInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   owner?: Prisma.StringFieldUpdateOperationsInput | string
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutClaimNestedInput
 }
@@ -826,23 +826,23 @@ export type ClaimsCreateWithoutTransactionsInput = {
   title: string
   description: string
   url: string
-  is_accepted?: boolean | null
+  isAccepted?: boolean
   owner: string
-  bounty?: Prisma.BountiesCreateNestedOneWithoutClaimsInput
-  issuerUser?: Prisma.UsersCreateNestedOneWithoutClaimsInput
+  bounty: Prisma.BountiesCreateNestedOneWithoutClaimsInput
+  issuerUser: Prisma.UsersCreateNestedOneWithoutClaimsInput
   ban?: Prisma.BanCreateNestedManyWithoutClaimInput
 }
 
 export type ClaimsUncheckedCreateWithoutTransactionsInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   url: string
   issuer: string
-  is_accepted?: boolean | null
-  bounty_id: number
+  isAccepted?: boolean
+  bountyId: number
   owner: string
   ban?: Prisma.BanUncheckedCreateNestedManyWithoutClaimInput
 }
@@ -869,23 +869,23 @@ export type ClaimsUpdateWithoutTransactionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty?: Prisma.BountiesUpdateOneWithoutClaimsNestedInput
-  issuerUser?: Prisma.UsersUpdateOneWithoutClaimsNestedInput
+  bounty?: Prisma.BountiesUpdateOneRequiredWithoutClaimsNestedInput
+  issuerUser?: Prisma.UsersUpdateOneRequiredWithoutClaimsNestedInput
   ban?: Prisma.BanUpdateManyWithoutClaimNestedInput
 }
 
 export type ClaimsUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   owner?: Prisma.StringFieldUpdateOperationsInput | string
   ban?: Prisma.BanUncheckedUpdateManyWithoutClaimNestedInput
 }
@@ -897,7 +897,7 @@ export type ClaimsCreateManyBountyInput = {
   description: string
   url: string
   issuer: string
-  is_accepted?: boolean | null
+  isAccepted?: boolean
   owner: string
 }
 
@@ -907,9 +907,9 @@ export type ClaimsUpdateWithoutBountyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
-  issuerUser?: Prisma.UsersUpdateOneWithoutClaimsNestedInput
+  issuerUser?: Prisma.UsersUpdateOneRequiredWithoutClaimsNestedInput
   ban?: Prisma.BanUpdateManyWithoutClaimNestedInput
   transactions?: Prisma.TransactionsUpdateManyWithoutClaimNestedInput
 }
@@ -921,7 +921,7 @@ export type ClaimsUncheckedUpdateWithoutBountyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
   ban?: Prisma.BanUncheckedUpdateManyWithoutClaimNestedInput
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutClaimNestedInput
@@ -934,19 +934,19 @@ export type ClaimsUncheckedUpdateManyWithoutBountyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ClaimsCreateManyIssuerUserInput = {
   id: number
   onChainId: number
-  chain_id: number
+  chainId: number
   title: string
   description: string
   url: string
-  is_accepted?: boolean | null
-  bounty_id: number
+  isAccepted?: boolean
+  bountyId: number
   owner: string
 }
 
@@ -956,9 +956,9 @@ export type ClaimsUpdateWithoutIssuerUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   owner?: Prisma.StringFieldUpdateOperationsInput | string
-  bounty?: Prisma.BountiesUpdateOneWithoutClaimsNestedInput
+  bounty?: Prisma.BountiesUpdateOneRequiredWithoutClaimsNestedInput
   ban?: Prisma.BanUpdateManyWithoutClaimNestedInput
   transactions?: Prisma.TransactionsUpdateManyWithoutClaimNestedInput
 }
@@ -966,12 +966,12 @@ export type ClaimsUpdateWithoutIssuerUserInput = {
 export type ClaimsUncheckedUpdateWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   owner?: Prisma.StringFieldUpdateOperationsInput | string
   ban?: Prisma.BanUncheckedUpdateManyWithoutClaimNestedInput
   transactions?: Prisma.TransactionsUncheckedUpdateManyWithoutClaimNestedInput
@@ -980,12 +980,12 @@ export type ClaimsUncheckedUpdateWithoutIssuerUserInput = {
 export type ClaimsUncheckedUpdateManyWithoutIssuerUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   onChainId?: Prisma.IntFieldUpdateOperationsInput | number
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  is_accepted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  isAccepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   owner?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -1032,16 +1032,16 @@ export type ClaimsCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.T
 export type ClaimsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   url?: boolean
   issuer?: boolean
-  is_accepted?: boolean
-  bounty_id?: boolean
+  isAccepted?: boolean
+  bountyId?: boolean
   owner?: boolean
-  bounty?: boolean | Prisma.Claims$bountyArgs<ExtArgs>
-  issuerUser?: boolean | Prisma.Claims$issuerUserArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  issuerUser?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   ban?: boolean | Prisma.Claims$banArgs<ExtArgs>
   transactions?: boolean | Prisma.Claims$transactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ClaimsCountOutputTypeDefaultArgs<ExtArgs>
@@ -1050,81 +1050,81 @@ export type ClaimsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type ClaimsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   url?: boolean
   issuer?: boolean
-  is_accepted?: boolean
-  bounty_id?: boolean
+  isAccepted?: boolean
+  bountyId?: boolean
   owner?: boolean
-  bounty?: boolean | Prisma.Claims$bountyArgs<ExtArgs>
-  issuerUser?: boolean | Prisma.Claims$issuerUserArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  issuerUser?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["claims"]>
 
 export type ClaimsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   url?: boolean
   issuer?: boolean
-  is_accepted?: boolean
-  bounty_id?: boolean
+  isAccepted?: boolean
+  bountyId?: boolean
   owner?: boolean
-  bounty?: boolean | Prisma.Claims$bountyArgs<ExtArgs>
-  issuerUser?: boolean | Prisma.Claims$issuerUserArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  issuerUser?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["claims"]>
 
 export type ClaimsSelectScalar = {
   id?: boolean
   onChainId?: boolean
-  chain_id?: boolean
+  chainId?: boolean
   title?: boolean
   description?: boolean
   url?: boolean
   issuer?: boolean
-  is_accepted?: boolean
-  bounty_id?: boolean
+  isAccepted?: boolean
+  bountyId?: boolean
   owner?: boolean
 }
 
-export type ClaimsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "onChainId" | "chain_id" | "title" | "description" | "url" | "issuer" | "is_accepted" | "bounty_id" | "owner", ExtArgs["result"]["claims"]>
+export type ClaimsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "onChainId" | "chainId" | "title" | "description" | "url" | "issuer" | "isAccepted" | "bountyId" | "owner", ExtArgs["result"]["claims"]>
 export type ClaimsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bounty?: boolean | Prisma.Claims$bountyArgs<ExtArgs>
-  issuerUser?: boolean | Prisma.Claims$issuerUserArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  issuerUser?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
   ban?: boolean | Prisma.Claims$banArgs<ExtArgs>
   transactions?: boolean | Prisma.Claims$transactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ClaimsCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ClaimsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bounty?: boolean | Prisma.Claims$bountyArgs<ExtArgs>
-  issuerUser?: boolean | Prisma.Claims$issuerUserArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  issuerUser?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
 export type ClaimsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  bounty?: boolean | Prisma.Claims$bountyArgs<ExtArgs>
-  issuerUser?: boolean | Prisma.Claims$issuerUserArgs<ExtArgs>
+  bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
+  issuerUser?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
 }
 
 export type $ClaimsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Claims"
   objects: {
-    bounty: Prisma.$BountiesPayload<ExtArgs> | null
-    issuerUser: Prisma.$UsersPayload<ExtArgs> | null
+    bounty: Prisma.$BountiesPayload<ExtArgs>
+    issuerUser: Prisma.$UsersPayload<ExtArgs>
     ban: Prisma.$BanPayload<ExtArgs>[]
     transactions: Prisma.$TransactionsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     onChainId: number
-    chain_id: number
+    chainId: number
     title: string
     description: string
     url: string
     issuer: string
-    is_accepted: boolean | null
-    bounty_id: number
+    isAccepted: boolean
+    bountyId: number
     owner: string
   }, ExtArgs["result"]["claims"]>
   composites: {}
@@ -1520,8 +1520,8 @@ readonly fields: ClaimsFieldRefs;
  */
 export interface Prisma__ClaimsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  bounty<T extends Prisma.Claims$bountyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Claims$bountyArgs<ExtArgs>>): Prisma.Prisma__BountiesClient<runtime.Types.Result.GetResult<Prisma.$BountiesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  issuerUser<T extends Prisma.Claims$issuerUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Claims$issuerUserArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  bounty<T extends Prisma.BountiesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BountiesDefaultArgs<ExtArgs>>): Prisma.Prisma__BountiesClient<runtime.Types.Result.GetResult<Prisma.$BountiesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  issuerUser<T extends Prisma.UsersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UsersDefaultArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ban<T extends Prisma.Claims$banArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Claims$banArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.Claims$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Claims$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1555,13 +1555,13 @@ export interface Prisma__ClaimsClient<T, Null = never, ExtArgs extends runtime.T
 export interface ClaimsFieldRefs {
   readonly id: Prisma.FieldRef<"Claims", 'Int'>
   readonly onChainId: Prisma.FieldRef<"Claims", 'Int'>
-  readonly chain_id: Prisma.FieldRef<"Claims", 'Int'>
+  readonly chainId: Prisma.FieldRef<"Claims", 'Int'>
   readonly title: Prisma.FieldRef<"Claims", 'String'>
   readonly description: Prisma.FieldRef<"Claims", 'String'>
   readonly url: Prisma.FieldRef<"Claims", 'String'>
   readonly issuer: Prisma.FieldRef<"Claims", 'String'>
-  readonly is_accepted: Prisma.FieldRef<"Claims", 'Boolean'>
-  readonly bounty_id: Prisma.FieldRef<"Claims", 'Int'>
+  readonly isAccepted: Prisma.FieldRef<"Claims", 'Boolean'>
+  readonly bountyId: Prisma.FieldRef<"Claims", 'Int'>
   readonly owner: Prisma.FieldRef<"Claims", 'String'>
 }
     
@@ -1956,44 +1956,6 @@ export type ClaimsDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Claims to delete.
    */
   limit?: number
-}
-
-/**
- * Claims.bounty
- */
-export type Claims$bountyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Bounties
-   */
-  select?: Prisma.BountiesSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Bounties
-   */
-  omit?: Prisma.BountiesOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.BountiesInclude<ExtArgs> | null
-  where?: Prisma.BountiesWhereInput
-}
-
-/**
- * Claims.issuerUser
- */
-export type Claims$issuerUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Users
-   */
-  select?: Prisma.UsersSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Users
-   */
-  omit?: Prisma.UsersOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UsersInclude<ExtArgs> | null
-  where?: Prisma.UsersWhereInput
 }
 
 /**

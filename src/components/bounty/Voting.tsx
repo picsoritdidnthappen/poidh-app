@@ -1,7 +1,7 @@
 import { PieChart } from 'react-minimal-pie-chart';
 import { toast } from 'react-toastify';
 import { formatEther } from 'viem';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { bountyVotingTracker } from '@/utils/web3';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import abi from '@/constant/abi/abi';
@@ -25,7 +25,7 @@ export default function Voting({
   bountyId,
   isAcceptedBounty,
 }: {
-  bountyId: string;
+  bountyId: number;
   isAcceptedBounty: boolean;
 }) {
   const account = useAccount();
@@ -35,9 +35,9 @@ export default function Voting({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
 
-  const voting = useQuery({
-    queryKey: ['bountyVotingTracker', { id: bountyId, chainName: chain.slug }],
-    queryFn: () => bountyVotingTracker({ id: bountyId, chainName: chain.slug }),
+  const voting = trpc.bounties.fetchVoting.useQuery({
+    bountyId,
+    chainId: chain.id,
   });
 
   const bounty = trpc.bounties.fetch.useQuery({
@@ -57,11 +57,10 @@ export default function Voting({
   });
 
   const isBountyContributor = bountyContibutors.data?.some(
-    (contributor: { user_address: string }) =>
-      contributor.user_address.toLowerCase() === account.address?.toLowerCase()
+    (contributor: { userAddress: string }) =>
+      contributor.userAddress.toLowerCase() === account.address?.toLowerCase()
   );
-  const isVotingInProgress =
-    parseInt(voting.data?.deadline ?? '0') * 1000 > Date.now();
+  const isVotingInProgress = bounty.data?.deadline ?? 0 * 1000 > Date.now();
 
   const voteMutation = useMutation({
     mutationFn: async ({ vote }: { vote: boolean }) => {
@@ -297,7 +296,7 @@ export default function Voting({
                 <p className='font-medium text-white/80'>Deadline</p>
                 <p className='mt-1'>
                   {formatDeadline(
-                    new Date(parseInt(voting.data.deadline ?? '0') * 1000)
+                    new Date((bounty.data?.deadline ?? 0) * 1000)
                   )}
                 </p>
               </div>

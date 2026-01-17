@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { ExpandMoreIcon } from '@/components/global/Icons';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import CopyAddressButton from '../global/CopyAddressButton';
 import DisplayAddress from '../global/DisplayAddress';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import Link from 'next/link';
 
 type Transactions = {

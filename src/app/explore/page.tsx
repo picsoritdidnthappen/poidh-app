@@ -9,6 +9,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import BountyList from '@/components/bounty/BountyList';
 import UserList from '@/components/account/UserList';
 import Navbar from '@/components/global/Navbar';
+import { ChainId } from '@/utils/types';
 
 type Display = 'bounties' | 'albums' | 'users';
 
@@ -165,15 +166,8 @@ export default function Explore() {
               key={bounties.data.pages[0]?.items[0]?.id || 'empty-list'}
               bounties={bounties.data.pages.flatMap((page) =>
                 page.items.map((bounty) => ({
-                  id: bounty.id.toString(),
-                  chainId: bounty.chainId,
-                  title: bounty.title,
-                  description: bounty.description,
-                  amount: bounty.amount,
-                  isMultiplayer: bounty.isMultiplayer || false,
-                  inProgress: bounty.inProgress || false,
-                  isCanceled: bounty.isCanceled || false,
-                  hasClaims: bounty.claims.length > 0,
+                  ...bounty,
+                  chainId: bounty.chainId as ChainId,
                 }))
               )}
               showChainIcon={true}

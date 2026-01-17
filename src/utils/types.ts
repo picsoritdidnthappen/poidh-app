@@ -20,15 +20,30 @@ export type Chain = {
   explorer: string;
 };
 
-export type Claim = {
-  id: string;
+export type Bounty = {
+  id: number;
+  chainId: ChainId;
   title: string;
   description: string;
-  url: string;
+  amount: string;
+  isMultiplayer: boolean;
+  isCanceled: boolean;
+  inProgress: boolean;
+  hasClaims: boolean;
+  amountSort: number;
   issuer: string;
-  bountyId: string;
-  chainId?: ChainId;
-  accepted: boolean;
+  hasParticipants: boolean;
+};
+
+export type Claim = {
+  id: number;
+  title: string;
+  description: string;
+  url: string | null;
+  issuer: string;
+  bountyId: number;
+  chainId: ChainId;
+  isAccepted: boolean;
 };
 
 export type BountyDisplayType = 'open' | 'progress' | 'past';
