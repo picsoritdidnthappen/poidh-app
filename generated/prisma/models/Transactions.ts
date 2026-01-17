@@ -28,26 +28,26 @@ export type AggregateTransactions = {
 
 export type TransactionsAvgAggregateOutputType = {
   index: number | null
-  bounty_id: number | null
-  claim_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  claimId: number | null
+  chainId: number | null
   timestamp: runtime.Decimal | null
 }
 
 export type TransactionsSumAggregateOutputType = {
   index: number | null
-  bounty_id: number | null
-  claim_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  claimId: number | null
+  chainId: number | null
   timestamp: runtime.Decimal | null
 }
 
 export type TransactionsMinAggregateOutputType = {
   tx: string | null
   index: number | null
-  bounty_id: number | null
-  claim_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  claimId: number | null
+  chainId: number | null
   address: string | null
   action: string | null
   timestamp: runtime.Decimal | null
@@ -56,9 +56,9 @@ export type TransactionsMinAggregateOutputType = {
 export type TransactionsMaxAggregateOutputType = {
   tx: string | null
   index: number | null
-  bounty_id: number | null
-  claim_id: number | null
-  chain_id: number | null
+  bountyId: number | null
+  claimId: number | null
+  chainId: number | null
   address: string | null
   action: string | null
   timestamp: runtime.Decimal | null
@@ -67,9 +67,9 @@ export type TransactionsMaxAggregateOutputType = {
 export type TransactionsCountAggregateOutputType = {
   tx: number
   index: number
-  bounty_id: number
-  claim_id: number
-  chain_id: number
+  bountyId: number
+  claimId: number
+  chainId: number
   address: number
   action: number
   timestamp: number
@@ -79,26 +79,26 @@ export type TransactionsCountAggregateOutputType = {
 
 export type TransactionsAvgAggregateInputType = {
   index?: true
-  bounty_id?: true
-  claim_id?: true
-  chain_id?: true
+  bountyId?: true
+  claimId?: true
+  chainId?: true
   timestamp?: true
 }
 
 export type TransactionsSumAggregateInputType = {
   index?: true
-  bounty_id?: true
-  claim_id?: true
-  chain_id?: true
+  bountyId?: true
+  claimId?: true
+  chainId?: true
   timestamp?: true
 }
 
 export type TransactionsMinAggregateInputType = {
   tx?: true
   index?: true
-  bounty_id?: true
-  claim_id?: true
-  chain_id?: true
+  bountyId?: true
+  claimId?: true
+  chainId?: true
   address?: true
   action?: true
   timestamp?: true
@@ -107,9 +107,9 @@ export type TransactionsMinAggregateInputType = {
 export type TransactionsMaxAggregateInputType = {
   tx?: true
   index?: true
-  bounty_id?: true
-  claim_id?: true
-  chain_id?: true
+  bountyId?: true
+  claimId?: true
+  chainId?: true
   address?: true
   action?: true
   timestamp?: true
@@ -118,9 +118,9 @@ export type TransactionsMaxAggregateInputType = {
 export type TransactionsCountAggregateInputType = {
   tx?: true
   index?: true
-  bounty_id?: true
-  claim_id?: true
-  chain_id?: true
+  bountyId?: true
+  claimId?: true
+  chainId?: true
   address?: true
   action?: true
   timestamp?: true
@@ -216,9 +216,9 @@ export type TransactionsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type TransactionsGroupByOutputType = {
   tx: string
   index: number
-  bounty_id: number
-  claim_id: number | null
-  chain_id: number
+  bountyId: number
+  claimId: number | null
+  chainId: number
   address: string
   action: string
   timestamp: runtime.Decimal
@@ -250,9 +250,9 @@ export type TransactionsWhereInput = {
   NOT?: Prisma.TransactionsWhereInput | Prisma.TransactionsWhereInput[]
   tx?: Prisma.StringFilter<"Transactions"> | string
   index?: Prisma.IntFilter<"Transactions"> | number
-  bounty_id?: Prisma.IntFilter<"Transactions"> | number
-  claim_id?: Prisma.IntNullableFilter<"Transactions"> | number | null
-  chain_id?: Prisma.IntFilter<"Transactions"> | number
+  bountyId?: Prisma.IntFilter<"Transactions"> | number
+  claimId?: Prisma.IntNullableFilter<"Transactions"> | number | null
+  chainId?: Prisma.IntFilter<"Transactions"> | number
   address?: Prisma.StringFilter<"Transactions"> | string
   action?: Prisma.StringFilter<"Transactions"> | string
   timestamp?: Prisma.DecimalFilter<"Transactions"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -263,9 +263,9 @@ export type TransactionsWhereInput = {
 export type TransactionsOrderByWithRelationInput = {
   tx?: Prisma.SortOrder
   index?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrderInput | Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   action?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
@@ -274,28 +274,28 @@ export type TransactionsOrderByWithRelationInput = {
 }
 
 export type TransactionsWhereUniqueInput = Prisma.AtLeast<{
-  tx_index_chain_id?: Prisma.TransactionsTxIndexChain_idCompoundUniqueInput
+  tx_index_chainId?: Prisma.TransactionsTxIndexChainIdCompoundUniqueInput
   AND?: Prisma.TransactionsWhereInput | Prisma.TransactionsWhereInput[]
   OR?: Prisma.TransactionsWhereInput[]
   NOT?: Prisma.TransactionsWhereInput | Prisma.TransactionsWhereInput[]
   tx?: Prisma.StringFilter<"Transactions"> | string
   index?: Prisma.IntFilter<"Transactions"> | number
-  bounty_id?: Prisma.IntFilter<"Transactions"> | number
-  claim_id?: Prisma.IntNullableFilter<"Transactions"> | number | null
-  chain_id?: Prisma.IntFilter<"Transactions"> | number
+  bountyId?: Prisma.IntFilter<"Transactions"> | number
+  claimId?: Prisma.IntNullableFilter<"Transactions"> | number | null
+  chainId?: Prisma.IntFilter<"Transactions"> | number
   address?: Prisma.StringFilter<"Transactions"> | string
   action?: Prisma.StringFilter<"Transactions"> | string
   timestamp?: Prisma.DecimalFilter<"Transactions"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
   claim?: Prisma.XOR<Prisma.ClaimsNullableScalarRelationFilter, Prisma.ClaimsWhereInput> | null
-}, "tx_index_chain_id">
+}, "tx_index_chainId">
 
 export type TransactionsOrderByWithAggregationInput = {
   tx?: Prisma.SortOrder
   index?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrderInput | Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   action?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
@@ -312,9 +312,9 @@ export type TransactionsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.TransactionsScalarWhereWithAggregatesInput | Prisma.TransactionsScalarWhereWithAggregatesInput[]
   tx?: Prisma.StringWithAggregatesFilter<"Transactions"> | string
   index?: Prisma.IntWithAggregatesFilter<"Transactions"> | number
-  bounty_id?: Prisma.IntWithAggregatesFilter<"Transactions"> | number
-  claim_id?: Prisma.IntNullableWithAggregatesFilter<"Transactions"> | number | null
-  chain_id?: Prisma.IntWithAggregatesFilter<"Transactions"> | number
+  bountyId?: Prisma.IntWithAggregatesFilter<"Transactions"> | number
+  claimId?: Prisma.IntNullableWithAggregatesFilter<"Transactions"> | number | null
+  chainId?: Prisma.IntWithAggregatesFilter<"Transactions"> | number
   address?: Prisma.StringWithAggregatesFilter<"Transactions"> | string
   action?: Prisma.StringWithAggregatesFilter<"Transactions"> | string
   timestamp?: Prisma.DecimalWithAggregatesFilter<"Transactions"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -333,9 +333,9 @@ export type TransactionsCreateInput = {
 export type TransactionsUncheckedCreateInput = {
   tx: string
   index: number
-  bounty_id: number
-  claim_id?: number | null
-  chain_id: number
+  bountyId: number
+  claimId?: number | null
+  chainId: number
   address: string
   action: string
   timestamp: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -354,9 +354,9 @@ export type TransactionsUpdateInput = {
 export type TransactionsUncheckedUpdateInput = {
   tx?: Prisma.StringFieldUpdateOperationsInput | string
   index?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.StringFieldUpdateOperationsInput | string
   timestamp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -365,9 +365,9 @@ export type TransactionsUncheckedUpdateInput = {
 export type TransactionsCreateManyInput = {
   tx: string
   index: number
-  bounty_id: number
-  claim_id?: number | null
-  chain_id: number
+  bountyId: number
+  claimId?: number | null
+  chainId: number
   address: string
   action: string
   timestamp: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -384,9 +384,9 @@ export type TransactionsUpdateManyMutationInput = {
 export type TransactionsUncheckedUpdateManyInput = {
   tx?: Prisma.StringFieldUpdateOperationsInput | string
   index?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chain_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chainId?: Prisma.IntFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.StringFieldUpdateOperationsInput | string
   timestamp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -402,18 +402,18 @@ export type TransactionsOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type TransactionsTxIndexChain_idCompoundUniqueInput = {
+export type TransactionsTxIndexChainIdCompoundUniqueInput = {
   tx: string
   index: number
-  chain_id: number
+  chainId: number
 }
 
 export type TransactionsCountOrderByAggregateInput = {
   tx?: Prisma.SortOrder
   index?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   action?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
@@ -421,18 +421,18 @@ export type TransactionsCountOrderByAggregateInput = {
 
 export type TransactionsAvgOrderByAggregateInput = {
   index?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
 export type TransactionsMaxOrderByAggregateInput = {
   tx?: Prisma.SortOrder
   index?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   action?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
@@ -441,9 +441,9 @@ export type TransactionsMaxOrderByAggregateInput = {
 export type TransactionsMinOrderByAggregateInput = {
   tx?: Prisma.SortOrder
   index?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   action?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
@@ -451,9 +451,9 @@ export type TransactionsMinOrderByAggregateInput = {
 
 export type TransactionsSumOrderByAggregateInput = {
   index?: Prisma.SortOrder
-  bounty_id?: Prisma.SortOrder
-  claim_id?: Prisma.SortOrder
-  chain_id?: Prisma.SortOrder
+  bountyId?: Prisma.SortOrder
+  claimId?: Prisma.SortOrder
+  chainId?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
@@ -553,7 +553,7 @@ export type TransactionsCreateWithoutBountyInput = {
 export type TransactionsUncheckedCreateWithoutBountyInput = {
   tx: string
   index: number
-  claim_id?: number | null
+  claimId?: number | null
   address: string
   action: string
   timestamp: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -591,9 +591,9 @@ export type TransactionsScalarWhereInput = {
   NOT?: Prisma.TransactionsScalarWhereInput | Prisma.TransactionsScalarWhereInput[]
   tx?: Prisma.StringFilter<"Transactions"> | string
   index?: Prisma.IntFilter<"Transactions"> | number
-  bounty_id?: Prisma.IntFilter<"Transactions"> | number
-  claim_id?: Prisma.IntNullableFilter<"Transactions"> | number | null
-  chain_id?: Prisma.IntFilter<"Transactions"> | number
+  bountyId?: Prisma.IntFilter<"Transactions"> | number
+  claimId?: Prisma.IntNullableFilter<"Transactions"> | number | null
+  chainId?: Prisma.IntFilter<"Transactions"> | number
   address?: Prisma.StringFilter<"Transactions"> | string
   action?: Prisma.StringFilter<"Transactions"> | string
   timestamp?: Prisma.DecimalFilter<"Transactions"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -611,7 +611,7 @@ export type TransactionsCreateWithoutClaimInput = {
 export type TransactionsUncheckedCreateWithoutClaimInput = {
   tx: string
   index: number
-  bounty_id: number
+  bountyId: number
   address: string
   action: string
   timestamp: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -646,7 +646,7 @@ export type TransactionsUpdateManyWithWhereWithoutClaimInput = {
 export type TransactionsCreateManyBountyInput = {
   tx: string
   index: number
-  claim_id?: number | null
+  claimId?: number | null
   address: string
   action: string
   timestamp: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -664,7 +664,7 @@ export type TransactionsUpdateWithoutBountyInput = {
 export type TransactionsUncheckedUpdateWithoutBountyInput = {
   tx?: Prisma.StringFieldUpdateOperationsInput | string
   index?: Prisma.IntFieldUpdateOperationsInput | number
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.StringFieldUpdateOperationsInput | string
   timestamp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -673,7 +673,7 @@ export type TransactionsUncheckedUpdateWithoutBountyInput = {
 export type TransactionsUncheckedUpdateManyWithoutBountyInput = {
   tx?: Prisma.StringFieldUpdateOperationsInput | string
   index?: Prisma.IntFieldUpdateOperationsInput | number
-  claim_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  claimId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.StringFieldUpdateOperationsInput | string
   timestamp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -682,7 +682,7 @@ export type TransactionsUncheckedUpdateManyWithoutBountyInput = {
 export type TransactionsCreateManyClaimInput = {
   tx: string
   index: number
-  bounty_id: number
+  bountyId: number
   address: string
   action: string
   timestamp: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -700,7 +700,7 @@ export type TransactionsUpdateWithoutClaimInput = {
 export type TransactionsUncheckedUpdateWithoutClaimInput = {
   tx?: Prisma.StringFieldUpdateOperationsInput | string
   index?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.StringFieldUpdateOperationsInput | string
   timestamp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -709,7 +709,7 @@ export type TransactionsUncheckedUpdateWithoutClaimInput = {
 export type TransactionsUncheckedUpdateManyWithoutClaimInput = {
   tx?: Prisma.StringFieldUpdateOperationsInput | string
   index?: Prisma.IntFieldUpdateOperationsInput | number
-  bounty_id?: Prisma.IntFieldUpdateOperationsInput | number
+  bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   address?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.StringFieldUpdateOperationsInput | string
   timestamp?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -720,9 +720,9 @@ export type TransactionsUncheckedUpdateManyWithoutClaimInput = {
 export type TransactionsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   tx?: boolean
   index?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  chainId?: boolean
   address?: boolean
   action?: boolean
   timestamp?: boolean
@@ -733,9 +733,9 @@ export type TransactionsSelect<ExtArgs extends runtime.Types.Extensions.Internal
 export type TransactionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   tx?: boolean
   index?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  chainId?: boolean
   address?: boolean
   action?: boolean
   timestamp?: boolean
@@ -746,9 +746,9 @@ export type TransactionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
 export type TransactionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   tx?: boolean
   index?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  chainId?: boolean
   address?: boolean
   action?: boolean
   timestamp?: boolean
@@ -759,15 +759,15 @@ export type TransactionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type TransactionsSelectScalar = {
   tx?: boolean
   index?: boolean
-  bounty_id?: boolean
-  claim_id?: boolean
-  chain_id?: boolean
+  bountyId?: boolean
+  claimId?: boolean
+  chainId?: boolean
   address?: boolean
   action?: boolean
   timestamp?: boolean
 }
 
-export type TransactionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"tx" | "index" | "bounty_id" | "claim_id" | "chain_id" | "address" | "action" | "timestamp", ExtArgs["result"]["transactions"]>
+export type TransactionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"tx" | "index" | "bountyId" | "claimId" | "chainId" | "address" | "action" | "timestamp", ExtArgs["result"]["transactions"]>
 export type TransactionsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bounty?: boolean | Prisma.BountiesDefaultArgs<ExtArgs>
   claim?: boolean | Prisma.Transactions$claimArgs<ExtArgs>
@@ -790,9 +790,9 @@ export type $TransactionsPayload<ExtArgs extends runtime.Types.Extensions.Intern
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     tx: string
     index: number
-    bounty_id: number
-    claim_id: number | null
-    chain_id: number
+    bountyId: number
+    claimId: number | null
+    chainId: number
     address: string
     action: string
     timestamp: runtime.Decimal
@@ -1223,9 +1223,9 @@ export interface Prisma__TransactionsClient<T, Null = never, ExtArgs extends run
 export interface TransactionsFieldRefs {
   readonly tx: Prisma.FieldRef<"Transactions", 'String'>
   readonly index: Prisma.FieldRef<"Transactions", 'Int'>
-  readonly bounty_id: Prisma.FieldRef<"Transactions", 'Int'>
-  readonly claim_id: Prisma.FieldRef<"Transactions", 'Int'>
-  readonly chain_id: Prisma.FieldRef<"Transactions", 'Int'>
+  readonly bountyId: Prisma.FieldRef<"Transactions", 'Int'>
+  readonly claimId: Prisma.FieldRef<"Transactions", 'Int'>
+  readonly chainId: Prisma.FieldRef<"Transactions", 'Int'>
   readonly address: Prisma.FieldRef<"Transactions", 'String'>
   readonly action: Prisma.FieldRef<"Transactions", 'String'>
   readonly timestamp: Prisma.FieldRef<"Transactions", 'Decimal'>

@@ -68,9 +68,9 @@ export const adminRouter = {
 
       await prisma.ban.create({
         data: {
-          chain_id: input.chainId,
-          bounty_id: input.id,
-          banned_by: input.address.toLowerCase(),
+          chainId: input.chainId,
+          bountyId: input.id,
+          bannedBy: input.address.toLowerCase(),
         },
       });
     }),
@@ -131,9 +131,9 @@ export const adminRouter = {
 
       await prisma.ban.create({
         data: {
-          chain_id: input.chainId,
-          banned_by: input.address.toLowerCase(),
-          claim_id: input.id,
+          chainId: input.chainId,
+          bannedBy: input.address.toLowerCase(),
+          claimId: input.id,
         },
       });
     }),
@@ -187,7 +187,7 @@ export const adminRouter = {
       }
 
       const comment = await prisma.comments.findFirst({
-        where: { id: input.id, chain_id: input.chainId },
+        where: { id: input.id, chainId: input.chainId },
       });
 
       if (!comment) {
@@ -198,8 +198,8 @@ export const adminRouter = {
       }
 
       await prisma.comments.updateMany({
-        where: { OR: [{ id: input.id }, { parent_id: input.id }] },
-        data: { deleted_at: new Date() },
+        where: { OR: [{ id: input.id }, { parentId: input.id }] },
+        data: { deletedAt: new Date() },
       });
     }),
 };
@@ -225,7 +225,7 @@ export async function checkIsIssuer({
   }
 
   const bounty = await prisma.bounties.findUniqueOrThrow({
-    where: { id_chain_id: { id: bountyId, chain_id: chainId } },
+    where: { id_chainId: { id: bountyId, chainId } },
   });
 
   return address.toLocaleLowerCase() === bounty.issuer;

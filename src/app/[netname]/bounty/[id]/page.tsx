@@ -7,7 +7,7 @@ import Navbar from '@/components/global/Navbar';
 import CommentsSection from '@/components/bounty/CommentsSection';
 import BountySuccessModal from '@/components/bounty/BountySuccessModal';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { ChainId } from '@/utils/types';
 import { ArrowIcon } from '@/components/global/Icons';
 
@@ -71,11 +71,11 @@ export default function Bounty({
         <BountyInfo
           isShareModalOpen={isShareModalOpen}
           isHowItWorksModalOpen={isHowItWorksModalOpen}
-          bountyId={params.id}
+          bountyId={Number(params.id)}
           onShareModalStateChange={setIsShareModalOpen}
           onHowItWorksModalStateChange={setIsHowItWorksModalOpen}
         />
-        <BountyClaims bountyId={params.id} />
+        <BountyClaims bountyId={Number(params.id)} />
         <CommentsSection
           chainId={chain.id as ChainId}
           bountyId={Number(bountyId)}

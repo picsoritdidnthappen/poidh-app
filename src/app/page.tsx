@@ -13,7 +13,7 @@ import PastBountyCard from '@/components/bounty/PastBountyCard';
 import Link from 'next/link';
 import { ALBUMS } from '@/utils/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 
 export default function Home() {
   const router = useRouter();
@@ -231,16 +231,8 @@ export default function Home() {
                     showChainIcon={true}
                     bounties={bounties.data.pages.flatMap((page) =>
                       page.items.map((bounty) => ({
-                        id: bounty.id.toString(),
-                        chainId: bounty.chain_id as ChainId,
-                        title: bounty.title,
-                        description: bounty.description,
-                        amount: bounty.amount,
-                        isMultiplayer: bounty.is_multiplayer || false,
-                        inProgress: bounty.in_progress || false,
-                        isCanceled: bounty.is_canceled || false,
-                        hasClaims: bounty.claims.length > 0,
-                        network: chain.slug,
+                        ...bounty,
+                        chainId: bounty.chainId as ChainId,
                       }))
                     )}
                   />
@@ -249,27 +241,14 @@ export default function Home() {
                 <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
                   {bounties.data.pages.flatMap((page) =>
                     page.items
-                      .filter((bounty) => bounty.claims.length > 0)
+                      .filter((bounty) => bounty.hasClaims)
                       .map((bounty) => {
-                        const claim = bounty.claims.filter(
-                          (claim) => claim.is_accepted
-                        )[0];
-                        return claim ? (
+                        return !bounty.isCanceled && !bounty.inProgress ? (
                           <PastBountyCard
-                            key={`${claim.id}-${claim.chain_id}`}
-                            claim={{
-                              id: claim.id.toString(),
-                              title: claim.title,
-                              description: claim.description,
-                              url: claim.url,
-                              issuer: claim.issuer,
-                              bountyId: claim.bounty_id.toString(),
-                              chainId: claim.chain_id as ChainId,
-                              accepted: true,
+                            bounty={{
+                              ...bounty,
+                              chainId: bounty.chainId as ChainId,
                             }}
-                            bountyTitle={bounty.title}
-                            bountyAmount={bounty.amount}
-                            isMultiplayer={bounty.is_multiplayer || false}
                           />
                         ) : null;
                       })

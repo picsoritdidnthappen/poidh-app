@@ -123,7 +123,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   const commentsByParent = (commentsQuery.data ?? []).reduce(
     (acc: { [key: string]: CommentType[] }, comment) => {
-      const parrentId = comment.parent_id || 'root';
+      const parrentId = comment.parentId || 'root';
       if (!acc[parrentId]) {
         acc[parrentId] = [];
       }
@@ -145,8 +145,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
     const downDiff = aDown - bDown;
     if (downDiff !== 0) return downDiff;
 
-    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
-    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return bTime - aTime;
   }
 
@@ -471,11 +471,11 @@ function Comment({
   isBanLoading?: boolean;
   canBan?: boolean;
 }) {
-  const timestamp = comment.created_at ? new Date(comment.created_at) : null;
+  const timestamp = comment.createdAt ? new Date(comment.createdAt) : null;
   const isValidDate = timestamp && !isNaN(timestamp.getTime());
 
   const signaturePrefix = getCommentSignatureFirstLine({
-    address: comment.user_address,
+    address: comment.userAddress,
   });
   const displayBody = comment.body.startsWith(signaturePrefix)
     ? comment.body.slice(signaturePrefix.length)
@@ -486,8 +486,8 @@ function Comment({
       <div className='flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 relative'>
         <div className='w-full h-full overflow-hidden rounded-full'>
           <Image
-            src={comment.author?.pfp_url ?? '/images/avatar.png'}
-            alt={comment.user_address}
+            src={comment.author?.pfpUrl ?? '/images/avatar.png'}
+            alt={comment.userAddress}
             width={40}
             height={40}
             unoptimized
@@ -499,13 +499,13 @@ function Comment({
       <div className='flex-1 min-w-0'>
         <div className='flex items-center space-x-2 flex-wrap'>
           <span className='font-bold text-sm sm:text-base'>
-            {comment.author?.farcaster_tag ??
-              formatWalletAddress(comment.user_address)}
+            {comment.author?.farcasterTag ??
+              formatWalletAddress(comment.userAddress)}
           </span>
           <div className='flex items-center gap-2'>
-            {comment.author?.farcaster_tag ? (
+            {comment.author?.farcasterTag ? (
               <a
-                href={`${FARCASTER_URL}/${comment.author.farcaster_tag}`}
+                href={`${FARCASTER_URL}/${comment.author.farcasterTag}`}
                 target='_blank'
                 rel='noreferrer'
                 className='text-white/70 hover:text-white transition'
@@ -514,9 +514,9 @@ function Comment({
                 <FarcasterIcon size={14} />
               </a>
             ) : null}
-            {comment.author?.twitter_tag ? (
+            {comment.author?.twitterTag ? (
               <a
-                href={`${TWITTER_URL}/${comment.author.twitter_tag}`}
+                href={`${TWITTER_URL}/${comment.author.twitterTag}`}
                 target='_blank'
                 rel='noreferrer'
                 className='text-white/70 hover:text-white transition'
