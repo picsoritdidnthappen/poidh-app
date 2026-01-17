@@ -26,8 +26,8 @@ export const web3Router = {
       }
 
       return input.currency === 'degen'
-        ? Number(rate.degen_usd)
-        : Number(rate.eth_usd);
+        ? Number(rate.degenUsd)
+        : Number(rate.ethUsd);
     }),
 
   fetchEnsOrDegenName: baseProcedure
@@ -45,7 +45,7 @@ export const web3Router = {
         },
       });
 
-      if (!user || !user.ens || user.last_updated < tenDaysAgo) {
+      if (!user || !user.ens || user.lastUpdated < tenDaysAgo) {
         try {
           const ensName = await mainnetPublicClient.getEnsName({
             address: input.address as `0x${string}`,
@@ -54,11 +54,11 @@ export const web3Router = {
           if (ensName) {
             await prisma.usersExtra.upsert({
               where: { address: input.address.toLowerCase() },
-              update: { ens: ensName, last_updated: new Date() },
+              update: { ens: ensName, lastUpdated: new Date() },
               create: {
                 address: input.address.toLowerCase(),
                 ens: ensName,
-                last_updated: new Date(),
+                lastUpdated: new Date(),
               },
             });
 
@@ -71,7 +71,7 @@ export const web3Router = {
         return user.ens;
       }
 
-      if (!user || !user.degen_name || user.last_updated < tenDaysAgo) {
+      if (!user || !user.degenName || user.lastUpdated < tenDaysAgo) {
         try {
           const degenName = await degenPublicClient.readContract({
             abi: DEGENNAMERESABI,
@@ -84,13 +84,13 @@ export const web3Router = {
             await prisma.usersExtra.upsert({
               where: { address: input.address.toLowerCase() },
               update: {
-                degen_name: `${degenName}.degen`,
-                last_updated: new Date(),
+                degenName: `${degenName}.degen`,
+                lastUpdated: new Date(),
               },
               create: {
                 address: input.address.toLowerCase(),
-                degen_name: `${degenName}.degen`,
-                last_updated: new Date(),
+                degenName: `${degenName}.degen`,
+                lastUpdated: new Date(),
               },
             });
 
@@ -99,6 +99,6 @@ export const web3Router = {
         } catch {}
       }
 
-      return user?.degen_name ?? null;
+      return user?.degenName ?? null;
     }),
 };

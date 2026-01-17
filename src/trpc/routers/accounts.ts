@@ -5,7 +5,7 @@ import { ChainId } from '@/utils/types';
 import { addressSchema } from '../serverTypes';
 import { formatEther } from 'viem';
 import { fetchPrice } from '@/utils/utils';
-import type { Prisma } from 'generated/prisma/client';
+import { fetchImageMetadata } from './claims';
 
 export function scoreETH({
   earned,
@@ -60,14 +60,12 @@ export const accountsRouter = {
         },
         select: {
           id: true,
-          chain_id: true,
+          chainId: true,
           url: true,
           title: true,
           description: true,
           issuer: true,
-          bounty: {
-            select: { id: true },
-          },
+          bountyId: true,
         },
         ...(input.cursor
           ? {
@@ -86,8 +84,19 @@ export const accountsRouter = {
         nextCursor = items[items.length - 1].id;
       }
 
+      const normalizedItems = await Promise.all(
+        items.map(async (claim) => {
+          const imageMetadata = await fetchImageMetadata(claim.url);
+
+          return {
+            ...claim,
+            url: imageMetadata.image,
+          };
+        })
+      );
+
       return {
-        items,
+        items: normalizedItems,
         nextCursor,
       };
     }),
@@ -109,13 +118,13 @@ export const accountsRouter = {
         },
         select: {
           id: true,
-          chain_id: true,
+          chainId: true,
           title: true,
           description: true,
-          is_accepted: true,
+          isAccepted: true,
           url: true,
           issuer: true,
-          bounty: { select: { id: true } },
+          bountyId: true,
         },
         orderBy: { id: 'desc' },
         take: input.limit,
@@ -126,8 +135,19 @@ export const accountsRouter = {
         nextCursor = items[items.length - 1].id;
       }
 
+      const normalizedItems = await Promise.all(
+        items.map(async (claim) => {
+          const imageMetadata = await fetchImageMetadata(claim.url);
+
+          return {
+            ...claim,
+            url: imageMetadata.image,
+          };
+        })
+      );
+
       return {
-        items,
+        items: normalizedItems,
         nextCursor,
       };
     }),
@@ -152,41 +172,41 @@ export const accountsRouter = {
         prisma.claims.count({ where: { issuer: addr, ban: { none: {} } } }),
         prisma.bounties.findMany({
           where: { issuer: addr, ban: { none: {} } },
-          select: { id: true, in_progress: true, is_canceled: true },
+          select: { id: true, inProgress: true, isCanceled: true },
         }),
         prisma.participationsBounties.findMany({
-          where: { user_address: addr, bounty: { ban: { none: {} } } },
+          where: { userAddress: addr, bounty: { ban: { none: {} } } },
           select: {
-            bounty_id: true,
+            bountyId: true,
             bounty: {
-              select: { id: true, in_progress: true, is_canceled: true },
+              select: { id: true, inProgress: true, isCanceled: true },
             },
           },
         }),
         prisma.claims.count({
-          where: { issuer: addr, is_accepted: true, ban: { none: {} } },
+          where: { issuer: addr, isAccepted: true, ban: { none: {} } },
         }),
       ]);
 
       const uniqueBountyIds = new Set<number>();
       createdBounties.forEach((b) => uniqueBountyIds.add(b.id));
-      contributedBounties.forEach((p) => uniqueBountyIds.add(p.bounty_id));
+      contributedBounties.forEach((p) => uniqueBountyIds.add(p.bountyId));
       const bounties = uniqueBountyIds.size;
 
       const activeIds = new Set<number>();
       const completedIds = new Set<number>();
 
       createdBounties.forEach((b) => {
-        if (!b.is_canceled) {
-          if (b.in_progress) activeIds.add(b.id);
+        if (!b.isCanceled) {
+          if (b.inProgress) activeIds.add(b.id);
           else completedIds.add(b.id);
         }
       });
 
       contributedBounties.forEach((p) => {
         const b = p.bounty;
-        if (b && !b.is_canceled) {
-          if (b.in_progress) activeIds.add(b.id);
+        if (b && !b.isCanceled) {
+          if (b.inProgress) activeIds.add(b.id);
           else completedIds.add(b.id);
         }
       });
@@ -211,10 +231,10 @@ export const accountsRouter = {
         limit: z.number().min(1).max(100).default(9),
         cursor: z
           .object({
-            created_at: z.coerce.number(),
             id: z.number(),
-            in_progress: z.boolean(),
-            is_canceled: z.boolean(),
+            createdAt: z.coerce.number(),
+            inProgress: z.boolean(),
+            isCanceled: z.boolean(),
           })
           .nullish(),
       })
@@ -227,16 +247,7 @@ export const accountsRouter = {
               issuer: input.address.toLowerCase(),
               ban: { none: {} },
             },
-            select: {
-              id: true,
-              title: true,
-              description: true,
-              chain_id: true,
-              amount: true,
-              is_multiplayer: true,
-              in_progress: true,
-              is_canceled: true,
-              created_at: true,
+            include: {
               claims: {
                 take: 1,
                 where: {
@@ -245,41 +256,31 @@ export const accountsRouter = {
                   },
                 },
               },
+              participations: {
+                select: { userAddress: true },
+                take: 2,
+              },
             },
             orderBy: { id: 'desc' },
           })
           .then((rows) =>
-            rows.map((b) => ({
-              id: b.id,
-              chain_id: b.chain_id,
-              title: b.title,
-              description: b.description,
-              amount: b.amount,
-              is_multiplayer: b.is_multiplayer || false,
-              in_progress: b.in_progress || false,
-              is_canceled: b.is_canceled || false,
-              created_at: b.created_at,
-              claims: b.claims,
+            rows.map(({ claims, participations, ...b }) => ({
+              ...b,
+              hasClaims: claims.length > 0,
+              createdAt: b.createdAt.toNumber(),
+              hasParticipants: participations.length > 1,
             }))
           ),
+
         prisma.participationsBounties
           .findMany({
             where: {
-              user_address: input.address.toLowerCase(),
+              userAddress: input.address.toLowerCase(),
               bounty: { ban: { none: {} } },
             },
             include: {
               bounty: {
-                select: {
-                  id: true,
-                  title: true,
-                  description: true,
-                  chain_id: true,
-                  amount: true,
-                  is_multiplayer: true,
-                  in_progress: true,
-                  is_canceled: true,
-                  created_at: true,
+                include: {
                   claims: {
                     take: 1,
                     where: {
@@ -287,6 +288,10 @@ export const accountsRouter = {
                         none: {},
                       },
                     },
+                  },
+                  participations: {
+                    select: { userAddress: true },
+                    take: 2,
                   },
                 },
               },
@@ -296,17 +301,11 @@ export const accountsRouter = {
             rows
               .map((p) => p.bounty)
               .filter((b): b is NonNullable<typeof b> => !!b)
-              .map((b) => ({
-                id: b.id,
-                chain_id: b.chain_id,
-                title: b.title,
-                description: b.description,
-                amount: b.amount,
-                is_multiplayer: b.is_multiplayer || false,
-                in_progress: b.in_progress || false,
-                is_canceled: b.is_canceled || false,
-                created_at: b.created_at,
-                claims: b.claims,
+              .map(({ claims, participations, ...b }) => ({
+                ...b,
+                hasClaims: claims.length > 0,
+                createdAt: b.createdAt.toNumber(),
+                hasParticipants: participations.length > 1,
               }))
           ),
       ]);
@@ -316,29 +315,20 @@ export const accountsRouter = {
         if (b) mergedMap.set(b.id, b);
       });
 
-      const toNum = (v: Prisma.Decimal) =>
-        typeof v === 'number'
-          ? v
-          : v instanceof Date
-          ? v.getTime()
-          : v && typeof v.toNumber === 'function'
-          ? v.toNumber()
-          : Number(v);
-
       const compare = (
         a: (typeof createdBounties)[number],
         b: (typeof createdBounties)[number]
       ) => {
-        const aIn = a.in_progress ? 1 : 0;
-        const bIn = b.in_progress ? 1 : 0;
+        const aIn = a.inProgress ? 1 : 0;
+        const bIn = b.inProgress ? 1 : 0;
         if (aIn !== bIn) return bIn - aIn; // in_progress desc
 
-        const aCanc = a.is_canceled ? 1 : 0;
-        const bCanc = b.is_canceled ? 1 : 0;
+        const aCanc = a.isCanceled ? 1 : 0;
+        const bCanc = b.isCanceled ? 1 : 0;
         if (aCanc !== bCanc) return aCanc - bCanc; // is_canceled asc
 
-        const aTs = toNum(a.created_at);
-        const bTs = toNum(b.created_at);
+        const aTs = a.createdAt;
+        const bTs = b.createdAt;
         if (aTs !== bTs) return bTs - aTs; // created_at desc
 
         return b.id - a.id;
@@ -349,16 +339,16 @@ export const accountsRouter = {
       if (input.cursor) {
         const c = input.cursor;
         merged = merged.filter((item) => {
-          const iIn = item.in_progress ? 1 : 0;
-          const cIn = c.in_progress ? 1 : 0;
+          const iIn = item.inProgress ? 1 : 0;
+          const cIn = c.inProgress ? 1 : 0;
           if (iIn !== cIn) return iIn < cIn;
 
-          const iCanc = item.is_canceled ? 1 : 0;
-          const cCanc = c.is_canceled ? 1 : 0;
+          const iCanc = item.isCanceled ? 1 : 0;
+          const cCanc = c.isCanceled ? 1 : 0;
           if (iCanc !== cCanc) return iCanc > cCanc;
 
-          const iTs = toNum(item.created_at);
-          if (iTs !== c.created_at) return iTs < c.created_at;
+          const iTs = item.createdAt;
+          if (iTs !== c.createdAt) return iTs < c.createdAt;
 
           return item.id < c.id;
         });
@@ -368,20 +358,20 @@ export const accountsRouter = {
 
       let nextCursor:
         | {
-            created_at: number;
+            createdAt: number;
             id: number;
-            in_progress: boolean;
-            is_canceled: boolean;
+            inProgress: boolean;
+            isCanceled: boolean;
           }
         | undefined = undefined;
 
       if (merged.length > input.limit) {
         const last = page[page.length - 1];
         nextCursor = {
-          created_at: toNum(last.created_at),
+          createdAt: last.createdAt,
           id: last.id,
-          in_progress: !!last.in_progress,
-          is_canceled: !!last.is_canceled,
+          inProgress: !!last.inProgress,
+          isCanceled: !!last.isCanceled,
         };
       }
 
@@ -406,12 +396,12 @@ export const accountsRouter = {
         await Promise.all([
           prisma.participationsBounties.findMany({
             where: {
-              user_address: input.address.toLowerCase(),
-              chain_id: { in: ethChainIds as number[] },
+              userAddress: input.address.toLowerCase(),
+              chainId: { in: ethChainIds as number[] },
               bounty: {
                 is: {
-                  in_progress: true,
-                  is_canceled: false,
+                  inProgress: true,
+                  isCanceled: false,
                   ban: { none: {} },
                 },
               },
@@ -420,12 +410,12 @@ export const accountsRouter = {
           }),
           prisma.participationsBounties.findMany({
             where: {
-              user_address: input.address.toLowerCase(),
-              chain_id: degenChainId as number,
+              userAddress: input.address.toLowerCase(),
+              chainId: degenChainId as number,
               bounty: {
                 is: {
-                  in_progress: true,
-                  is_canceled: false,
+                  inProgress: true,
+                  isCanceled: false,
                   ban: { none: {} },
                 },
               },
@@ -438,14 +428,14 @@ export const accountsRouter = {
         prisma.leaderboard.findMany({
           where: {
             address: input.address.toLowerCase(),
-            chain_id: { in: ethChainIds as number[] },
+            chainId: { in: ethChainIds as number[] },
           },
         }),
         prisma.leaderboard.findUnique({
           where: {
-            address_chain_id: {
+            address_chainId: {
               address: input.address.toLowerCase(),
-              chain_id: degenChainId as number,
+              chainId: degenChainId as number,
             },
           },
         }),
@@ -541,12 +531,12 @@ export const accountsRouter = {
       const txs = await prisma.transactions.findMany({
         include: {
           bounty: {
-            select: { id: true, chain_id: true, title: true, issuer: true },
+            select: { id: true, chainId: true, title: true, issuer: true },
           },
           claim: {
             select: {
               id: true,
-              chain_id: true,
+              chainId: true,
               title: true,
               url: true,
               issuer: true,
@@ -561,7 +551,7 @@ export const accountsRouter = {
             },
           },
           OR: [
-            { claim_id: { equals: null } },
+            { claimId: { equals: null } },
             { claim: { is: { ban: { none: {} } } } },
           ],
           ...(input.address
@@ -599,8 +589,8 @@ export const accountsRouter = {
         where: {
           address: input.address.toLowerCase(),
           action: 'voted',
-          bounty_id: input.bountyId,
-          chain_id: input.chainId,
+          bountyId: input.bountyId,
+          chainId: input.chainId,
         },
       });
 

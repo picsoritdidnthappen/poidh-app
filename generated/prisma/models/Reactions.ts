@@ -28,31 +28,31 @@ export type AggregateReactions = {
 
 export type ReactionsAvgAggregateOutputType = {
   id: number | null
-  comment_id: number | null
+  commentId: number | null
 }
 
 export type ReactionsSumAggregateOutputType = {
   id: number | null
-  comment_id: number | null
+  commentId: number | null
 }
 
 export type ReactionsMinAggregateOutputType = {
   id: number | null
-  comment_id: number | null
+  commentId: number | null
   type: $Enums.Reaction | null
   address: string | null
 }
 
 export type ReactionsMaxAggregateOutputType = {
   id: number | null
-  comment_id: number | null
+  commentId: number | null
   type: $Enums.Reaction | null
   address: string | null
 }
 
 export type ReactionsCountAggregateOutputType = {
   id: number
-  comment_id: number
+  commentId: number
   type: number
   address: number
   _all: number
@@ -61,31 +61,31 @@ export type ReactionsCountAggregateOutputType = {
 
 export type ReactionsAvgAggregateInputType = {
   id?: true
-  comment_id?: true
+  commentId?: true
 }
 
 export type ReactionsSumAggregateInputType = {
   id?: true
-  comment_id?: true
+  commentId?: true
 }
 
 export type ReactionsMinAggregateInputType = {
   id?: true
-  comment_id?: true
+  commentId?: true
   type?: true
   address?: true
 }
 
 export type ReactionsMaxAggregateInputType = {
   id?: true
-  comment_id?: true
+  commentId?: true
   type?: true
   address?: true
 }
 
 export type ReactionsCountAggregateInputType = {
   id?: true
-  comment_id?: true
+  commentId?: true
   type?: true
   address?: true
   _all?: true
@@ -179,7 +179,7 @@ export type ReactionsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type ReactionsGroupByOutputType = {
   id: number
-  comment_id: number
+  commentId: number
   type: $Enums.Reaction
   address: string
   _count: ReactionsCountAggregateOutputType | null
@@ -209,7 +209,7 @@ export type ReactionsWhereInput = {
   OR?: Prisma.ReactionsWhereInput[]
   NOT?: Prisma.ReactionsWhereInput | Prisma.ReactionsWhereInput[]
   id?: Prisma.IntFilter<"Reactions"> | number
-  comment_id?: Prisma.IntFilter<"Reactions"> | number
+  commentId?: Prisma.IntFilter<"Reactions"> | number
   type?: Prisma.EnumReactionFilter<"Reactions"> | $Enums.Reaction
   address?: Prisma.StringFilter<"Reactions"> | string
   comment?: Prisma.XOR<Prisma.CommentsScalarRelationFilter, Prisma.CommentsWhereInput>
@@ -218,7 +218,7 @@ export type ReactionsWhereInput = {
 
 export type ReactionsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  comment_id?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   address?: Prisma.SortOrder
   comment?: Prisma.CommentsOrderByWithRelationInput
@@ -230,7 +230,7 @@ export type ReactionsWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ReactionsWhereInput | Prisma.ReactionsWhereInput[]
   OR?: Prisma.ReactionsWhereInput[]
   NOT?: Prisma.ReactionsWhereInput | Prisma.ReactionsWhereInput[]
-  comment_id?: Prisma.IntFilter<"Reactions"> | number
+  commentId?: Prisma.IntFilter<"Reactions"> | number
   type?: Prisma.EnumReactionFilter<"Reactions"> | $Enums.Reaction
   address?: Prisma.StringFilter<"Reactions"> | string
   comment?: Prisma.XOR<Prisma.CommentsScalarRelationFilter, Prisma.CommentsWhereInput>
@@ -239,7 +239,7 @@ export type ReactionsWhereUniqueInput = Prisma.AtLeast<{
 
 export type ReactionsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  comment_id?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   address?: Prisma.SortOrder
   _count?: Prisma.ReactionsCountOrderByAggregateInput
@@ -254,7 +254,7 @@ export type ReactionsScalarWhereWithAggregatesInput = {
   OR?: Prisma.ReactionsScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ReactionsScalarWhereWithAggregatesInput | Prisma.ReactionsScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Reactions"> | number
-  comment_id?: Prisma.IntWithAggregatesFilter<"Reactions"> | number
+  commentId?: Prisma.IntWithAggregatesFilter<"Reactions"> | number
   type?: Prisma.EnumReactionWithAggregatesFilter<"Reactions"> | $Enums.Reaction
   address?: Prisma.StringWithAggregatesFilter<"Reactions"> | string
 }
@@ -267,7 +267,7 @@ export type ReactionsCreateInput = {
 
 export type ReactionsUncheckedCreateInput = {
   id?: number
-  comment_id: number
+  commentId: number
   type: $Enums.Reaction
   address: string
 }
@@ -280,14 +280,14 @@ export type ReactionsUpdateInput = {
 
 export type ReactionsUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  comment_id?: Prisma.IntFieldUpdateOperationsInput | number
+  commentId?: Prisma.IntFieldUpdateOperationsInput | number
   type?: Prisma.EnumReactionFieldUpdateOperationsInput | $Enums.Reaction
   address?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ReactionsCreateManyInput = {
   id?: number
-  comment_id: number
+  commentId: number
   type: $Enums.Reaction
   address: string
 }
@@ -298,7 +298,7 @@ export type ReactionsUpdateManyMutationInput = {
 
 export type ReactionsUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  comment_id?: Prisma.IntFieldUpdateOperationsInput | number
+  commentId?: Prisma.IntFieldUpdateOperationsInput | number
   type?: Prisma.EnumReactionFieldUpdateOperationsInput | $Enums.Reaction
   address?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -315,33 +315,33 @@ export type ReactionsOrderByRelationAggregateInput = {
 
 export type ReactionsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  comment_id?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   address?: Prisma.SortOrder
 }
 
 export type ReactionsAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  comment_id?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
 }
 
 export type ReactionsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  comment_id?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   address?: Prisma.SortOrder
 }
 
 export type ReactionsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  comment_id?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   address?: Prisma.SortOrder
 }
 
 export type ReactionsSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  comment_id?: Prisma.SortOrder
+  commentId?: Prisma.SortOrder
 }
 
 export type ReactionsCreateNestedManyWithoutUserInput = {
@@ -439,7 +439,7 @@ export type ReactionsCreateWithoutUserInput = {
 
 export type ReactionsUncheckedCreateWithoutUserInput = {
   id?: number
-  comment_id: number
+  commentId: number
   type: $Enums.Reaction
 }
 
@@ -474,7 +474,7 @@ export type ReactionsScalarWhereInput = {
   OR?: Prisma.ReactionsScalarWhereInput[]
   NOT?: Prisma.ReactionsScalarWhereInput | Prisma.ReactionsScalarWhereInput[]
   id?: Prisma.IntFilter<"Reactions"> | number
-  comment_id?: Prisma.IntFilter<"Reactions"> | number
+  commentId?: Prisma.IntFilter<"Reactions"> | number
   type?: Prisma.EnumReactionFilter<"Reactions"> | $Enums.Reaction
   address?: Prisma.StringFilter<"Reactions"> | string
 }
@@ -518,7 +518,7 @@ export type ReactionsUpdateManyWithWhereWithoutCommentInput = {
 
 export type ReactionsCreateManyUserInput = {
   id?: number
-  comment_id: number
+  commentId: number
   type: $Enums.Reaction
 }
 
@@ -529,13 +529,13 @@ export type ReactionsUpdateWithoutUserInput = {
 
 export type ReactionsUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  comment_id?: Prisma.IntFieldUpdateOperationsInput | number
+  commentId?: Prisma.IntFieldUpdateOperationsInput | number
   type?: Prisma.EnumReactionFieldUpdateOperationsInput | $Enums.Reaction
 }
 
 export type ReactionsUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  comment_id?: Prisma.IntFieldUpdateOperationsInput | number
+  commentId?: Prisma.IntFieldUpdateOperationsInput | number
   type?: Prisma.EnumReactionFieldUpdateOperationsInput | $Enums.Reaction
 }
 
@@ -566,7 +566,7 @@ export type ReactionsUncheckedUpdateManyWithoutCommentInput = {
 
 export type ReactionsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  comment_id?: boolean
+  commentId?: boolean
   type?: boolean
   address?: boolean
   comment?: boolean | Prisma.CommentsDefaultArgs<ExtArgs>
@@ -575,7 +575,7 @@ export type ReactionsSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type ReactionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  comment_id?: boolean
+  commentId?: boolean
   type?: boolean
   address?: boolean
   comment?: boolean | Prisma.CommentsDefaultArgs<ExtArgs>
@@ -584,7 +584,7 @@ export type ReactionsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type ReactionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  comment_id?: boolean
+  commentId?: boolean
   type?: boolean
   address?: boolean
   comment?: boolean | Prisma.CommentsDefaultArgs<ExtArgs>
@@ -593,12 +593,12 @@ export type ReactionsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type ReactionsSelectScalar = {
   id?: boolean
-  comment_id?: boolean
+  commentId?: boolean
   type?: boolean
   address?: boolean
 }
 
-export type ReactionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "comment_id" | "type" | "address", ExtArgs["result"]["reactions"]>
+export type ReactionsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "commentId" | "type" | "address", ExtArgs["result"]["reactions"]>
 export type ReactionsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   comment?: boolean | Prisma.CommentsDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UsersDefaultArgs<ExtArgs>
@@ -620,7 +620,7 @@ export type $ReactionsPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    comment_id: number
+    commentId: number
     type: $Enums.Reaction
     address: string
   }, ExtArgs["result"]["reactions"]>
@@ -1049,7 +1049,7 @@ export interface Prisma__ReactionsClient<T, Null = never, ExtArgs extends runtim
  */
 export interface ReactionsFieldRefs {
   readonly id: Prisma.FieldRef<"Reactions", 'Int'>
-  readonly comment_id: Prisma.FieldRef<"Reactions", 'Int'>
+  readonly commentId: Prisma.FieldRef<"Reactions", 'Int'>
   readonly type: Prisma.FieldRef<"Reactions", 'Reaction'>
   readonly address: Prisma.FieldRef<"Reactions", 'String'>
 }

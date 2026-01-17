@@ -3,16 +3,14 @@ import { Claim } from '@/utils/types';
 import ClaimItem from './ClaimItem';
 
 export default function ClaimList({
-  bountyId,
   claims,
   votingClaim,
 }: {
-  bountyId: string;
   claims: Claim[];
   votingClaim: Claim | null;
 }) {
   const isVotingOrAcceptedBounty =
-    !!votingClaim || claims.some((claim) => claim.accepted);
+    !!votingClaim || claims.some((claim) => claim.isAccepted);
 
   return (
     <>
@@ -25,20 +23,16 @@ export default function ClaimList({
           <>
             <div className='lg:col-start-3 lg:col-span-4 mt-5'>
               <ClaimItem
-                bountyId={bountyId}
-                id={votingClaim.id}
-                title={votingClaim.title}
-                description={votingClaim.description}
-                issuer={votingClaim.issuer}
-                accepted={votingClaim.accepted}
-                url={votingClaim.url}
-                isVotingOrAcceptedBounty={isVotingOrAcceptedBounty}
+                claim={{
+                  ...votingClaim,
+                  isVotingOrAcceptedBounty,
+                }}
               />
             </div>
             <div className='lg:col-span-4'>
               <Voting
-                bountyId={bountyId}
-                isAcceptedBounty={claims.some((claim) => claim.accepted)}
+                bountyId={claims?.[0].bountyId}
+                isAcceptedBounty={claims.some((claim) => claim.isAccepted)}
               />
             </div>
           </>
@@ -53,16 +47,7 @@ export default function ClaimList({
           .filter((claim) => claim.id !== votingClaim?.id)
           .map((claim) => (
             <div key={claim.id} className='lg:col-span-4 otherClaims'>
-              <ClaimItem
-                bountyId={bountyId}
-                id={claim.id}
-                title={claim.title}
-                description={claim.description}
-                issuer={claim.issuer}
-                accepted={claim.accepted}
-                url={claim.url}
-                isVotingOrAcceptedBounty={isVotingOrAcceptedBounty}
-              />
+              <ClaimItem claim={{ ...claim, isVotingOrAcceptedBounty }} />
             </div>
           ))}
       </div>
