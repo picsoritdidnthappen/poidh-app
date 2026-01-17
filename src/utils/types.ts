@@ -23,6 +23,7 @@ export type Chain = {
 export type Bounty = {
   id: number;
   chainId: ChainId;
+  onChainId: number;
   title: string;
   description: string;
   amount: string;
@@ -38,6 +39,7 @@ export type Bounty = {
 export type Claim = {
   id: number;
   title: string;
+  onChainId: number;
   description: string;
   url: string | null;
   issuer: string;

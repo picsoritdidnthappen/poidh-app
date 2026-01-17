@@ -63,7 +63,7 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'acceptClaim',
-        args: [BigInt(bounty.data.onChainId), claimId],
+        args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
         chainId: chain.id,
       });
 
@@ -97,7 +97,7 @@ export default function ClaimItem({
   });
 
   const submitForVoteMutation = useMutation({
-    mutationFn: async ({ claimId }: { claimId: bigint }) => {
+    mutationFn: async () => {
       if (!bounty.data) {
         throw new Error('Bounty data not found!');
       }
@@ -114,7 +114,7 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'submitClaimForVote',
-        args: [BigInt(bounty.data.onChainId), claimId],
+        args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
         chainId: pollingChainId ?? chain.id,
       });
     },
@@ -151,9 +151,7 @@ export default function ClaimItem({
         onClose={() => setShowVotingConfirm(false)}
         imageUrl={claim.url ? claim.url + '?q=50' : ''}
         onConfirm={() => {
-          submitForVoteMutation.mutate({
-            claimId: BigInt(claim.id),
-          });
+          submitForVoteMutation.mutate();
           setShowVotingConfirm(false);
         }}
       />
