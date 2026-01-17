@@ -229,7 +229,7 @@ export default function BountyInfo({
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          {bounty.data?.extra.album && (
+          {bounty.data?.extra?.album && (
             <p className='text-white mb-3'>
               📸{' '}
               <Link

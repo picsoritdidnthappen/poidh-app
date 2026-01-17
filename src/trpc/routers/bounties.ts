@@ -92,6 +92,7 @@ export const bountiesRouter = {
           .object({
             createdAt: z.coerce.number(),
             amountSort: z.number(),
+            ids: z.array(z.number()),
           })
           .nullish(),
       })
@@ -119,6 +120,7 @@ export const bountiesRouter = {
 
         where: {
           inProgress: true,
+          isCanceled: false,
           ban: {
             none: {},
           },
@@ -130,7 +132,6 @@ export const bountiesRouter = {
             : input.status === 'progress'
             ? {
                 isVoting: true,
-                isCanceled: false,
               }
             : input.status === 'past'
             ? {
@@ -140,8 +141,11 @@ export const bountiesRouter = {
 
           ...(input.cursor
             ? sortByDate
-              ? { createdAt: { lte: input.cursor.createdAt } }
-              : { amountSort: { lte: input.cursor.amountSort } }
+              ? {
+                  createdAt: { lt: input.cursor.createdAt },
+                  id: { notIn: input.cursor.ids },
+                }
+              : { amountSort: { lt: input.cursor.amountSort } }
             : {}),
         },
 
@@ -150,6 +154,8 @@ export const bountiesRouter = {
           : sortByValue
           ? { amountSort: 'desc' }
           : {},
+
+        distinct: 'id',
         take: input.limit,
       });
 
@@ -157,6 +163,7 @@ export const bountiesRouter = {
         | {
             createdAt: number;
             amountSort: number;
+            ids: number[];
           }
         | undefined = undefined;
 
@@ -166,6 +173,7 @@ export const bountiesRouter = {
         nextCursor = {
           createdAt: last.createdAt.toNumber(),
           amountSort: last.amountSort,
+          ids: [...(input.cursor?.ids ?? []), ...items.map((item) => item.id)],
         };
       }
 
@@ -209,6 +217,7 @@ export const bountiesRouter = {
 
         where: {
           inProgress: true,
+          isCanceled: false,
           extra: {
             album: { equals: input.album, mode: 'insensitive' },
           },
@@ -224,7 +233,6 @@ export const bountiesRouter = {
             : input.status === 'progress'
             ? {
                 isVoting: true,
-                isCanceled: false,
               }
             : input.status === 'past'
             ? {
@@ -233,6 +241,7 @@ export const bountiesRouter = {
             : {}),
         },
 
+        distinct: 'id',
         orderBy: { createdAt: 'desc' },
         take: input.limit,
       });
@@ -419,6 +428,7 @@ export const bountiesRouter = {
           ...(input.cursor ? { createdAt: { lt: input.cursor } } : {}),
         },
 
+        distinct: 'id',
         orderBy: { createdAt: 'desc' },
         take: input.limit,
       });
