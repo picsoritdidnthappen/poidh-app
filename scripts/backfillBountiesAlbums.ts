@@ -57,15 +57,15 @@ async function run(csvPath: string) {
           prisma.bountiesExtra
             .upsert({
               where: {
-                bountyId_chainId: {
-                  bountyId: bountyId,
-                  chainId: chainId,
+                bounty_id_chain_id: {
+                  bounty_id: bountyId,
+                  chain_id: chainId,
                 },
               },
               update: { album: row.data.album },
               create: {
-                bountyId: bountyId,
-                chainId: chainId,
+                bounty_id: bountyId,
+                chain_id: chainId,
                 album: row.data.album,
               },
             })

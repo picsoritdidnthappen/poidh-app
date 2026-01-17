@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { trpc } from '@/trpc/client';
 import BountyList from '@/components/bounty/BountyList';
 import { BountyDisplayType, ChainId } from '@/utils/types';
+import { getChainById } from '@/utils/config';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
 import Navbar from '@/components/global/Navbar';
 
@@ -90,31 +91,49 @@ export default function Album({ params }: { params: { album: string } }) {
         </div>
 
         <div className='pb-20 z-1 mt-7'>
-          {bounties.data && bounties.data.items.length > 0 ? (
+          {bounties.data && bounties.data.length > 0 ? (
             display !== 'past' ? (
               <BountyList
-                key={`bounty-list-album-${bounties.data.nextCursor ?? -1}`}
-                bounties={bounties.data.items.map((bounty) => ({
-                  ...bounty,
-                  chainId: bounty.chainId as ChainId,
+                key={(bounties.data[0]?.id ?? 'empty-list').toString()}
+                bounties={bounties.data.map((bounty) => ({
+                  id: bounty.id.toString(),
+                  chainId: bounty.chain_id as ChainId,
+                  network: getChainById({ chainId: bounty.chain_id as ChainId })
+                    .name,
+                  title: bounty.title,
+                  description: bounty.description,
+                  amount: bounty.amount,
+                  isMultiplayer: bounty.is_multiplayer || false,
+                  inProgress: bounty.in_progress || false,
+                  isCanceled: bounty.is_canceled || false,
+                  hasClaims: bounty.claims.length > 0,
                 }))}
                 showChainIcon={true}
               />
             ) : (
               <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
-                {bounties.data.items
-                  .filter((bounty) => !bounty.inProgress && !bounty.isCanceled)
-                  .map((bounty) => {
-                    return (
-                      <PastBountyCard
-                        key={`bounty-list-album-past-${bounty.id}`}
-                        bounty={{
-                          ...bounty,
-                          chainId: bounty.chainId as ChainId,
-                        }}
-                      />
-                    );
-                  })}
+                {bounties.data.map((bounty) => {
+                  const claim = bounty.claims.find((c) => c.is_accepted);
+                  if (!claim) return null;
+                  return (
+                    <PastBountyCard
+                      key={`${claim.id}-${claim.chain_id}`}
+                      claim={{
+                        id: claim.id.toString(),
+                        title: claim.title,
+                        description: claim.description,
+                        url: claim.url ?? '',
+                        issuer: claim.issuer,
+                        bountyId: claim.bounty_id.toString(),
+                        chainId: claim.chain_id as ChainId,
+                        accepted: true,
+                      }}
+                      bountyTitle={bounty.title}
+                      bountyAmount={bounty.amount}
+                      isMultiplayer={bounty.is_multiplayer || false}
+                    />
+                  );
+                })}
               </div>
             )
           ) : (

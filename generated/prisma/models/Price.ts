@@ -28,70 +28,70 @@ export type AggregatePrice = {
 
 export type PriceAvgAggregateOutputType = {
   id: number | null
-  degenUsd: runtime.Decimal | null
-  ethUsd: runtime.Decimal | null
+  degen_usd: runtime.Decimal | null
+  eth_usd: runtime.Decimal | null
 }
 
 export type PriceSumAggregateOutputType = {
   id: number | null
-  degenUsd: runtime.Decimal | null
-  ethUsd: runtime.Decimal | null
+  degen_usd: runtime.Decimal | null
+  eth_usd: runtime.Decimal | null
 }
 
 export type PriceMinAggregateOutputType = {
   id: number | null
-  createdAt: Date | null
-  degenUsd: runtime.Decimal | null
-  ethUsd: runtime.Decimal | null
+  created_at: Date | null
+  degen_usd: runtime.Decimal | null
+  eth_usd: runtime.Decimal | null
 }
 
 export type PriceMaxAggregateOutputType = {
   id: number | null
-  createdAt: Date | null
-  degenUsd: runtime.Decimal | null
-  ethUsd: runtime.Decimal | null
+  created_at: Date | null
+  degen_usd: runtime.Decimal | null
+  eth_usd: runtime.Decimal | null
 }
 
 export type PriceCountAggregateOutputType = {
   id: number
-  createdAt: number
-  degenUsd: number
-  ethUsd: number
+  created_at: number
+  degen_usd: number
+  eth_usd: number
   _all: number
 }
 
 
 export type PriceAvgAggregateInputType = {
   id?: true
-  degenUsd?: true
-  ethUsd?: true
+  degen_usd?: true
+  eth_usd?: true
 }
 
 export type PriceSumAggregateInputType = {
   id?: true
-  degenUsd?: true
-  ethUsd?: true
+  degen_usd?: true
+  eth_usd?: true
 }
 
 export type PriceMinAggregateInputType = {
   id?: true
-  createdAt?: true
-  degenUsd?: true
-  ethUsd?: true
+  created_at?: true
+  degen_usd?: true
+  eth_usd?: true
 }
 
 export type PriceMaxAggregateInputType = {
   id?: true
-  createdAt?: true
-  degenUsd?: true
-  ethUsd?: true
+  created_at?: true
+  degen_usd?: true
+  eth_usd?: true
 }
 
 export type PriceCountAggregateInputType = {
   id?: true
-  createdAt?: true
-  degenUsd?: true
-  ethUsd?: true
+  created_at?: true
+  degen_usd?: true
+  eth_usd?: true
   _all?: true
 }
 
@@ -183,9 +183,9 @@ export type PriceGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 
 export type PriceGroupByOutputType = {
   id: number
-  createdAt: Date
-  degenUsd: runtime.Decimal | null
-  ethUsd: runtime.Decimal | null
+  created_at: Date
+  degen_usd: runtime.Decimal | null
+  eth_usd: runtime.Decimal | null
   _count: PriceCountAggregateOutputType | null
   _avg: PriceAvgAggregateOutputType | null
   _sum: PriceSumAggregateOutputType | null
@@ -213,16 +213,16 @@ export type PriceWhereInput = {
   OR?: Prisma.PriceWhereInput[]
   NOT?: Prisma.PriceWhereInput | Prisma.PriceWhereInput[]
   id?: Prisma.IntFilter<"Price"> | number
-  createdAt?: Prisma.DateTimeFilter<"Price"> | Date | string
-  degenUsd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Prisma.DateTimeFilter<"Price"> | Date | string
+  degen_usd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  degenUsd?: Prisma.SortOrderInput | Prisma.SortOrder
-  ethUsd?: Prisma.SortOrderInput | Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  degen_usd?: Prisma.SortOrderInput | Prisma.SortOrder
+  eth_usd?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type PriceWhereUniqueInput = Prisma.AtLeast<{
@@ -230,16 +230,16 @@ export type PriceWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PriceWhereInput | Prisma.PriceWhereInput[]
   OR?: Prisma.PriceWhereInput[]
   NOT?: Prisma.PriceWhereInput | Prisma.PriceWhereInput[]
-  createdAt?: Prisma.DateTimeFilter<"Price"> | Date | string
-  degenUsd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Prisma.DateTimeFilter<"Price"> | Date | string
+  degen_usd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: Prisma.DecimalNullableFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }, "id">
 
 export type PriceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  degenUsd?: Prisma.SortOrderInput | Prisma.SortOrder
-  ethUsd?: Prisma.SortOrderInput | Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  degen_usd?: Prisma.SortOrderInput | Prisma.SortOrder
+  eth_usd?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PriceCountOrderByAggregateInput
   _avg?: Prisma.PriceAvgOrderByAggregateInput
   _max?: Prisma.PriceMaxOrderByAggregateInput
@@ -252,88 +252,88 @@ export type PriceScalarWhereWithAggregatesInput = {
   OR?: Prisma.PriceScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PriceScalarWhereWithAggregatesInput | Prisma.PriceScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Price"> | number
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Price"> | Date | string
-  degenUsd?: Prisma.DecimalNullableWithAggregatesFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: Prisma.DecimalNullableWithAggregatesFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Prisma.DateTimeWithAggregatesFilter<"Price"> | Date | string
+  degen_usd?: Prisma.DecimalNullableWithAggregatesFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: Prisma.DecimalNullableWithAggregatesFilter<"Price"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceCreateInput = {
-  createdAt?: Date | string
-  degenUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Date | string
+  degen_usd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceUncheckedCreateInput = {
   id?: number
-  createdAt?: Date | string
-  degenUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Date | string
+  degen_usd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceUpdateInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  degenUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degen_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  degenUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degen_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceCreateManyInput = {
   id?: number
-  createdAt?: Date | string
-  degenUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Date | string
+  degen_usd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceUpdateManyMutationInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  degenUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degen_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  degenUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  ethUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  degen_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  eth_usd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type PriceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  degenUsd?: Prisma.SortOrder
-  ethUsd?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  degen_usd?: Prisma.SortOrder
+  eth_usd?: Prisma.SortOrder
 }
 
 export type PriceAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  degenUsd?: Prisma.SortOrder
-  ethUsd?: Prisma.SortOrder
+  degen_usd?: Prisma.SortOrder
+  eth_usd?: Prisma.SortOrder
 }
 
 export type PriceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  degenUsd?: Prisma.SortOrder
-  ethUsd?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  degen_usd?: Prisma.SortOrder
+  eth_usd?: Prisma.SortOrder
 }
 
 export type PriceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  degenUsd?: Prisma.SortOrder
-  ethUsd?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  degen_usd?: Prisma.SortOrder
+  eth_usd?: Prisma.SortOrder
 }
 
 export type PriceSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  degenUsd?: Prisma.SortOrder
-  ethUsd?: Prisma.SortOrder
+  degen_usd?: Prisma.SortOrder
+  eth_usd?: Prisma.SortOrder
 }
 
 export type NullableDecimalFieldUpdateOperationsInput = {
@@ -348,42 +348,42 @@ export type NullableDecimalFieldUpdateOperationsInput = {
 
 export type PriceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  createdAt?: boolean
-  degenUsd?: boolean
-  ethUsd?: boolean
+  created_at?: boolean
+  degen_usd?: boolean
+  eth_usd?: boolean
 }, ExtArgs["result"]["price"]>
 
 export type PriceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  createdAt?: boolean
-  degenUsd?: boolean
-  ethUsd?: boolean
+  created_at?: boolean
+  degen_usd?: boolean
+  eth_usd?: boolean
 }, ExtArgs["result"]["price"]>
 
 export type PriceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  createdAt?: boolean
-  degenUsd?: boolean
-  ethUsd?: boolean
+  created_at?: boolean
+  degen_usd?: boolean
+  eth_usd?: boolean
 }, ExtArgs["result"]["price"]>
 
 export type PriceSelectScalar = {
   id?: boolean
-  createdAt?: boolean
-  degenUsd?: boolean
-  ethUsd?: boolean
+  created_at?: boolean
+  degen_usd?: boolean
+  eth_usd?: boolean
 }
 
-export type PriceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "degenUsd" | "ethUsd", ExtArgs["result"]["price"]>
+export type PriceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "created_at" | "degen_usd" | "eth_usd", ExtArgs["result"]["price"]>
 
 export type $PricePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Price"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    createdAt: Date
-    degenUsd: runtime.Decimal | null
-    ethUsd: runtime.Decimal | null
+    created_at: Date
+    degen_usd: runtime.Decimal | null
+    eth_usd: runtime.Decimal | null
   }, ExtArgs["result"]["price"]>
   composites: {}
 }
@@ -808,9 +808,9 @@ export interface Prisma__PriceClient<T, Null = never, ExtArgs extends runtime.Ty
  */
 export interface PriceFieldRefs {
   readonly id: Prisma.FieldRef<"Price", 'Int'>
-  readonly createdAt: Prisma.FieldRef<"Price", 'DateTime'>
-  readonly degenUsd: Prisma.FieldRef<"Price", 'Decimal'>
-  readonly ethUsd: Prisma.FieldRef<"Price", 'Decimal'>
+  readonly created_at: Prisma.FieldRef<"Price", 'DateTime'>
+  readonly degen_usd: Prisma.FieldRef<"Price", 'Decimal'>
+  readonly eth_usd: Prisma.FieldRef<"Price", 'Decimal'>
 }
     
 

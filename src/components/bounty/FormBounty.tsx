@@ -9,13 +9,13 @@ import {
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { useChainInfo } from '@/hooks/useChainInfo';
+import { useChainInfo } from '@/hooks/useGetChain';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import { decodeEventLog, parseEther } from 'viem';
 import abi from '@/constant/abi/abi';
-import { cn } from '@/utils/utils';
+import { cn } from '@/utils';
 import GameButton from '@/components/global/GameButton';
 import { ExpandMoreIcon, InfoIcon, CloseIcon } from '@/components/global/Icons';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -465,7 +465,7 @@ export default function FormBounty({
                     }}
                   >
                     {c.album.length > 20 ? `${c.album.slice(0, 20)}…` : c.album}{' '}
-                    ({c.count.album})
+                    ({c._count.album})
                   </li>
                 ))}
               </ul>

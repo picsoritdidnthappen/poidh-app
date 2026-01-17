@@ -73,43 +73,6 @@ export function formatAmount({
   return `${numAmount} ${currency} (${numAmountUSD.toFixed(2)} usd)`;
 }
 
-export function formatSortAmount({
-  amount,
-  usdAmount,
-  currency,
-  precision,
-}: {
-  amount: string;
-  usdAmount: number;
-  currency: Currency;
-  precision?: number;
-}) {
-  let numAmount = parseFloat(amount);
-
-  if (isNaN(numAmount) || isNaN(usdAmount)) {
-    return `0 ${currency}`;
-  }
-
-  if (numAmount < 0.00001) {
-    return `<0.00001 ${currency}`;
-  }
-
-  if (currency === 'degen' && numAmount >= 1_000) {
-    if (numAmount >= 10_000) {
-      return `${formatAmountShort(numAmount)} ${currency} (${usdAmount.toFixed(
-        2
-      )} usd)`;
-    } else {
-      numAmount = Number(numAmount.toFixed(0));
-    }
-  }
-
-  if (precision) {
-    numAmount = Number(numAmount.toFixed(precision));
-  }
-  return `${numAmount} ${currency} (${usdAmount.toFixed(2)} usd)`;
-}
-
 export async function fetchPrice({ currency }: { currency: Currency }) {
   const response = await fetch(
     `https://api.coinbase.com/v2/exchange-rates?currency=${currency}`

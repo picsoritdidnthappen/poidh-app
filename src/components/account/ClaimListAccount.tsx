@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
 import { ChainId, Claim } from '@/utils/types';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
@@ -26,11 +28,22 @@ export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
 
 function ClaimItem({ claim }: { claim: Claim }) {
   const chain = getChainById({ chainId: claim.chainId as ChainId });
+  const [imageUrl, setImageUrl] = useState('');
+
+  const fetchImageUrl = async (url: string) => {
+    const response = await fetch(url);
+    const data = await response.json();
+    setImageUrl(data.image);
+  };
+
+  useEffect(() => {
+    fetchImageUrl(claim.url);
+  }, [claim]);
 
   return (
     <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
       <Link href={`/${chain.slug}/bounty/${claim.bountyId}`}>
-        {claim.isAccepted && (
+        {claim.accepted && (
           <div className='right-5 top-5  text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute'>
             accepted
           </div>
@@ -38,7 +51,7 @@ function ClaimItem({ claim }: { claim: Claim }) {
 
         <div className='bg-poidhBlue w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
           <div
-            style={{ backgroundImage: `url(${claim.url})` }}
+            style={{ backgroundImage: `url(${imageUrl})` }}
             className='bg-poidhBlue bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
           ></div>
         </div>

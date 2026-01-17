@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
@@ -7,12 +8,12 @@ import { getChainById } from '@/utils/config';
 import { ChainId } from '@/utils/types';
 
 type NFT = {
-  id: number;
+  id: string;
   chainId: ChainId;
   title: string;
   description: string;
-  url: string | null;
-  bountyId: number;
+  url: string;
+  bountyId: string;
   issuer: string;
 };
 
@@ -35,14 +36,25 @@ export default function NftList({ NFTs }: { NFTs: NFT[] }) {
 }
 
 function NftListItem({ NFT }: { NFT: NFT }) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const chain = getChainById({ chainId: NFT.chainId });
+
+  const fetchImageUrl = async (url: string) => {
+    const response = await fetch(url);
+    const data = await response.json();
+    setImageUrl(data.image);
+  };
+
+  useEffect(() => {
+    fetchImageUrl(NFT.url);
+  }, [NFT]);
 
   return (
     <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl w-full'>
       <Link href={`/${chain.slug}/bounty/${NFT.bountyId}`}>
         <div className='bg-poidhBlue aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
           <div
-            style={{ backgroundImage: `url(${NFT.url})` }}
+            style={{ backgroundImage: `url(${imageUrl})` }}
             className='bg-poidhBlue bg-cover bg-center aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
           />
         </div>
