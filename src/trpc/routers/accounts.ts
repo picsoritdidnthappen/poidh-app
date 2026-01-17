@@ -58,15 +58,6 @@ export const accountsRouter = {
         where: {
           owner: input.address.toLowerCase(),
         },
-        select: {
-          id: true,
-          chainId: true,
-          url: true,
-          title: true,
-          description: true,
-          issuer: true,
-          bountyId: true,
-        },
         ...(input.cursor
           ? {
               where: {
@@ -115,16 +106,6 @@ export const accountsRouter = {
           issuer: input.address.toLowerCase(),
           ban: { none: {} },
           ...(input.cursor ? { id: { lt: input.cursor } } : {}),
-        },
-        select: {
-          id: true,
-          chainId: true,
-          title: true,
-          description: true,
-          isAccepted: true,
-          url: true,
-          issuer: true,
-          bountyId: true,
         },
         orderBy: { id: 'desc' },
         take: input.limit,
