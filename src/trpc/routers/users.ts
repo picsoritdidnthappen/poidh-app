@@ -11,18 +11,24 @@ export const usersRouter = {
       })
     )
     .query(async ({ input }) => {
-      const user = await prisma.usersExtra.findUnique({
+      const user = await prisma.users.findUnique({
+        where: { address: input.address.toLowerCase() },
+      });
+      const userExtra = await prisma.usersExtra.findUnique({
         where: { address: input.address.toLowerCase() },
       });
       if (!user) return null;
       return {
         address: user.address,
-        pfpUrl: user.pfpUrl ?? null,
-        ens: user.ens ?? null,
-        degenName: user.degenName ?? null,
-        farcasterTag: user.farcasterTag ?? null,
-        twitterTag: user.twitterTag ?? null,
-        lastUpdated: user.lastUpdated,
+        withdrawalDegen: Number(user.withdrawalDegen),
+        withdrawalBase: Number(user.withdrawalBase),
+        withdrawalArbitrum: Number(user.withdrawalArbitrum),
+        pfpUrl: userExtra?.pfpUrl ?? null,
+        ens: userExtra?.ens ?? null,
+        degenName: userExtra?.degenName ?? null,
+        farcasterTag: userExtra?.farcasterTag ?? null,
+        twitterTag: userExtra?.twitterTag ?? null,
+        lastUpdated: userExtra?.lastUpdated ?? null,
       };
     }),
 

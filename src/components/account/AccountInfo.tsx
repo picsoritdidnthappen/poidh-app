@@ -10,10 +10,12 @@ import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import { ShareIcon } from '@/components/global/Icons';
+import ClaimFundsButton from '@/components/global/ClaimFundsButton';
 import { formatAmountShort } from '@/utils/utils';
 import InfiniteScroll from 'react-infinite-scroller';
 import { ChainId } from '@/utils/types';
 import ShareAccountModal from '@/components/account/ShareAccountModal';
+import { useAccount } from 'wagmi';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 const PAGE_SIZE = 9;
@@ -35,6 +37,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 }
 
 export default function AccountInfo({ address }: { address: string }) {
+  const account = useAccount();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -87,6 +90,13 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
+  const user = trpc.users.fetchByAddress.useQuery(
+    { address: account.address as `0x${string}` },
+    {
+      enabled: !!account,
+    }
+  );
+
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['nfts', 'bounties', 'claims'].indexOf(currentSection);
     const activeTab = tabRefs.current[activeIndex];
@@ -110,11 +120,13 @@ export default function AccountInfo({ address }: { address: string }) {
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
 
+  const isOwnPage = (account.address ?? '').toLowerCase() === address;
+
   return (
     <>
       {address && (
-        <div className='space-y-6 pb-16'>
-          <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-6 pb-3 rounded-xl'>
+        <div className='space-y-3 pb-16'>
+          <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-6 pb-0 md:pb-3 rounded-xl space-y-2 lg:space-y-0'>
             <div className='space-y-4 flex-grow'>
               <div className='border-b border-white/20 pb-3'>
                 <div className='text-sm text-gray-300 mb-1'>user</div>
@@ -153,48 +165,51 @@ export default function AccountInfo({ address }: { address: string }) {
                 />
                 <StatCard
                   title='eth paid'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.eth.totalPaid.amountCrypto
-                  )} eth`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.eth.totalPaid.amountCrypto
+                    ),
+                  })} eth`}
                 />
                 <StatCard
                   title='eth in contract'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.eth.amountInContract.amountCrypto
-                  )} eth`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.eth.amountInContract.amountCrypto
+                    ),
+                  })} eth`}
                 />
                 <StatCard
                   title='eth earned'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.eth.totalEarn.amountCrypto
-                  )} eth`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.eth.totalEarn.amountCrypto
+                    ),
+                  })} eth`}
                 />
                 <StatCard
                   title='degen paid'
-                  value={`${formatAmountShort(
-                    formatCryptoValue(
-                      accountStats.data?.degen.totalPaid.amountCrypto,
-                      2
-                    )
-                  )} dgn`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.degen.totalPaid.amountCrypto
+                    ),
+                  })} dgn`}
                 />
                 <StatCard
                   title='degen in contract'
-                  value={`${formatAmountShort(
-                    formatCryptoValue(
-                      accountStats.data?.degen.amountInContract.amountCrypto,
-                      2
-                    )
-                  )} dgn`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.degen.amountInContract.amountCrypto
+                    ),
+                  })} dgn`}
                 />
                 <StatCard
                   title='degen earned'
-                  value={`${formatAmountShort(
-                    formatCryptoValue(
-                      accountStats.data?.degen.totalEarn.amountCrypto,
-                      2
-                    )
-                  )} dgn`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.degen.totalEarn.amountCrypto
+                    ),
+                  })} dgn`}
                 />
               </div>
             </div>
@@ -211,7 +226,15 @@ export default function AccountInfo({ address }: { address: string }) {
             </div>
           </div>
 
-          <div className='flex flex-row overflow-x-scroll items-center pb-3 border-b border-white justify-center gap-x-5 w-full px-3'>
+          {user.data && isOwnPage && (
+            <div className='flex justify-center px-6 lg:mt-0'>
+              <div className='w-full lg:w-[35%]'>
+                <ClaimFundsButton user={user.data} />
+              </div>
+            </div>
+          )}
+
+          <div className='flex flex-row items-center justify-center pb-3 border-b border-white w-full'>
             <div
               id='btn-container'
               className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
@@ -286,7 +309,7 @@ export default function AccountInfo({ address }: { address: string }) {
               </div>
             )}
             {currentSection === 'bounties' && (
-              <div className=''>
+              <div>
                 {bounties.data && (
                   <InfiniteScroll
                     loadMore={async () => await bounties.fetchNextPage()}
@@ -353,9 +376,4 @@ export default function AccountInfo({ address }: { address: string }) {
       )}
     </>
   );
-}
-
-function formatCryptoValue(value: number | undefined, precision = 4): number {
-  if (value === undefined) return 0;
-  return Number(Number(value).toFixed(precision));
 }
