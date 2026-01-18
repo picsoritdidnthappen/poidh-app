@@ -30,6 +30,13 @@ export default function Navbar({
   const chain = useChainInfo();
   const isMobile = useScreenSize();
 
+  const user = trpc.users.fetchByAddress.useQuery(
+    { address: account.address as `0x${string}` },
+    {
+      enabled: !!account,
+    }
+  );
+
   const bounty = trpc.bounties.fetch.useQuery(
     {
       id: Number(bountyId),
@@ -72,7 +79,14 @@ export default function Navbar({
               }}
               className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
             >
-              <ProfileIcon size={24} />
+              <div className='relative'>
+                <ProfileIcon size={24} />
+                {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
+                  (user?.data?.withdrawalBase ?? 0) > 0 ||
+                  (user?.data?.withdrawalDegen ?? 0) > 0) && (
+                  <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
+                )}
+              </div>
               <span className='text-[10px] whitespace-nowrap'>profile</span>
             </Link>
 

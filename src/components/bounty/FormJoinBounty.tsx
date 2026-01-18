@@ -132,7 +132,7 @@ export default function FormJoinBounty({
                 />
                 {usdPerToken !== null && (
                   <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
-                    (${formatAmountShort(usdPerToken)})
+                    (${formatAmountShort({ amount: usdPerToken })})
                   </span>
                 )}
               </div>

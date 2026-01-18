@@ -80,9 +80,9 @@ model ParticipationsBounties {
 
 model Users {
   address            String
-  withdrawalDegen    Int    @default(0) @map("withdrawal_amount_degen")
-  withdrawalBase     Int    @default(0) @map("withdrawal_amount_base")
-  withdrawalArbitrum Int    @default(0) @map("withdrawal_amount_arbitrum")
+  withdrawalDegen    Decimal @default(0) @map("withdrawal_amount_degen") @db.Decimal(20, 18)
+  withdrawalBase     Decimal @default(0) @map("withdrawal_amount_base") @db.Decimal(20, 18)
+  withdrawalArbitrum Decimal @default(0) @map("withdrawal_amount_arbitrum") @db.Decimal(20, 18)
 
   participations ParticipationsBounties[]
   claims         Claims[]

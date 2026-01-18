@@ -418,7 +418,7 @@ export default function FormBounty({
                 ref={usdRef}
                 className='absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md right-16'
               >
-                (${formatAmountShort(usdPerToken)})
+                (${formatAmountShort({ amount: usdPerToken })})
               </span>
             )}
           </div>

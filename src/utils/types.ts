@@ -54,4 +54,5 @@ export type BountySortType = 'value' | 'date';
 
 export type UserData =
   | inferRouterOutputs<AppRouter>['users']['fetchByAddress']
+  | inferRouterOutputs<AppRouter>['neynar']['usersData'][number]
   | undefined;

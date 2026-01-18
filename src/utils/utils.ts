@@ -59,9 +59,9 @@ export function formatAmount({
 
   if (currency === 'degen' && numAmount >= 1_000) {
     if (numAmount >= 10_000) {
-      return `${formatAmountShort(
-        numAmount
-      )} ${currency} (${numAmountUSD.toFixed(2)} usd)`;
+      return `${formatAmountShort({
+        amount: numAmount,
+      })} ${currency} (${numAmountUSD.toFixed(2)} usd)`;
     } else {
       numAmount = Number(numAmount.toFixed(0));
     }
@@ -96,9 +96,9 @@ export function formatSortAmount({
 
   if (currency === 'degen' && numAmount >= 1_000) {
     if (numAmount >= 10_000) {
-      return `${formatAmountShort(numAmount)} ${currency} (${usdAmount.toFixed(
-        2
-      )} usd)`;
+      return `${formatAmountShort({
+        amount: numAmount,
+      })} ${currency} (${usdAmount.toFixed(2)} usd)`;
     } else {
       numAmount = Number(numAmount.toFixed(0));
     }
@@ -118,22 +118,28 @@ export async function fetchPrice({ currency }: { currency: Currency }) {
   return Number(body.data.rates.USD);
 }
 
-export function formatAmountShort(value: number): string {
-  const abs = Math.abs(value);
+export function formatAmountShort({
+  amount,
+  precision = 2,
+}: {
+  amount: number;
+  precision?: number;
+}): string {
+  const abs = Math.abs(amount);
   if (abs >= 1_000_000_000_000_000_000_000)
-    return (value / 1_000_000_000_000_000_000_000).toFixed(2) + 'Sx';
+    return (amount / 1_000_000_000_000_000_000_000).toFixed(2) + 'Sx';
   if (abs >= 1_000_000_000_000_000_000)
-    return (value / 1_000_000_000_000_000_000).toFixed(2) + 'Qi';
+    return (amount / 1_000_000_000_000_000_000).toFixed(2) + 'Qi';
   if (abs >= 1_000_000_000_000_000)
-    return (value / 1_000_000_000_000_000).toFixed(2) + 'Qa';
+    return (amount / 1_000_000_000_000_000).toFixed(2) + 'Qa';
   if (abs >= 1_000_000_000_000)
-    return (value / 1_000_000_000_000).toFixed(2) + 'T';
-  if (abs >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + 'B';
-  if (abs >= 1_000_000) return (value / 1_000_000).toFixed(2) + 'M';
-  if (abs >= 1_000) return (value / 1_000).toFixed(2) + 'K';
-  return value.toLocaleString(undefined, {
+    return (amount / 1_000_000_000_000).toFixed(2) + 'T';
+  if (abs >= 1_000_000_000) return (amount / 1_000_000_000).toFixed(2) + 'B';
+  if (abs >= 1_000_000) return (amount / 1_000_000).toFixed(2) + 'M';
+  if (abs >= 1_000) return (amount / 1_000).toFixed(2) + 'K';
+  return amount.toLocaleString(undefined, {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: precision,
   });
 }
 
