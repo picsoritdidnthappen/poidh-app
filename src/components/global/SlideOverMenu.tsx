@@ -56,10 +56,9 @@ export default function SlideOverMenu({
         explore 🔎
       </MenuLink>
 
-      <span className='ml-4 my-1.5 text-sm'>trending 📈</span>
-
       {trendingAlbums.data && trendingAlbums.data.length > 0 && (
         <>
+          <span className='ml-4 my-1.5 text-sm'>trending 📈</span>
           {trendingAlbums.data.map((album) => (
             <Link
               key={album.name}
