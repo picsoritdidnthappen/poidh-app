@@ -308,11 +308,11 @@ export const bountiesRouter = {
   isCreated: baseProcedure
     .input(z.object({ chainId: z.number(), id: z.number() }))
     .query(async ({ input }) => {
-      return prisma.bounties.findUnique({
+      return prisma.bounties.findFirst({
         where: {
-          id_chainId: {
-            ...input,
-          },
+          chainId: input.chainId,
+          onChainId: input.id,
+          inProgress: true,
         },
       });
     }),
