@@ -40,3 +40,8 @@ next-env.d.ts
 robots.txt
 sitemap.xml
 sitemap-*.xml
+
+# prisma
+/generated/prisma/
+/prisma/generated/
+/.prisma/
