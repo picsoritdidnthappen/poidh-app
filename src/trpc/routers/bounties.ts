@@ -313,7 +313,6 @@ export const bountiesRouter = {
           id_chainId: {
             ...input,
           },
-          inProgress: true,
         },
       });
     }),
