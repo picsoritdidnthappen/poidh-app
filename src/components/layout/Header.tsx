@@ -10,6 +10,7 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   WalletIcon,
+  InfoIcon,
 } from '@/components/global/Icons';
 import { Drawer } from '@mui/material';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -62,6 +63,13 @@ export default function Header() {
           </Link>
         </div>
         <div className='flex items-center'>
+          <button
+            onClick={() => setIsHowItWorksModalOpen(true)}
+            className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20 transition-colors'
+            aria-label='How it works'
+          >
+            <InfoIcon />
+          </button>
           {!isMobile && (
             <Link
               href='/explore'
