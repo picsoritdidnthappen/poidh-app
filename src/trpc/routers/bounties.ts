@@ -297,12 +297,22 @@ export const bountiesRouter = {
   fetchVoting: baseProcedure
     .input(z.object({ chainId: z.number(), bountyId: z.number() }))
     .query(async ({ input }) => {
-      return prisma.votes.findFirst({
+      const voting = await prisma.votes.findFirst({
         where: {
           ...input,
         },
         orderBy: { round: 'desc' },
       });
+
+      if (!voting) {
+        return null;
+      }
+
+      return {
+        ...voting,
+        yes: voting.yes.toNumber(),
+        no: voting.no.toNumber(),
+      };
     }),
 
   isCreated: baseProcedure
