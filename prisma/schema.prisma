@@ -176,11 +176,11 @@ model Comments {
 }
 
 model Votes {
-  chainId  Int @map("chain_id")
-  bountyId Int @map("bounty_id")
-  claimId  Int @map("claim_id")
-  yes      Int
-  no       Int
+  chainId  Int     @map("chain_id")
+  bountyId Int     @map("bounty_id")
+  claimId  Int     @map("claim_id")
+  yes      Decimal
+  no       Decimal
   round    Int
 
   bounty Bounties @relation(fields: [bountyId, chainId], references: [id, chainId])

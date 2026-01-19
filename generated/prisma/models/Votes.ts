@@ -30,8 +30,8 @@ export type VotesAvgAggregateOutputType = {
   chainId: number | null
   bountyId: number | null
   claimId: number | null
-  yes: number | null
-  no: number | null
+  yes: runtime.Decimal | null
+  no: runtime.Decimal | null
   round: number | null
 }
 
@@ -39,8 +39,8 @@ export type VotesSumAggregateOutputType = {
   chainId: number | null
   bountyId: number | null
   claimId: number | null
-  yes: number | null
-  no: number | null
+  yes: runtime.Decimal | null
+  no: runtime.Decimal | null
   round: number | null
 }
 
@@ -48,8 +48,8 @@ export type VotesMinAggregateOutputType = {
   chainId: number | null
   bountyId: number | null
   claimId: number | null
-  yes: number | null
-  no: number | null
+  yes: runtime.Decimal | null
+  no: runtime.Decimal | null
   round: number | null
 }
 
@@ -57,8 +57,8 @@ export type VotesMaxAggregateOutputType = {
   chainId: number | null
   bountyId: number | null
   claimId: number | null
-  yes: number | null
-  no: number | null
+  yes: runtime.Decimal | null
+  no: runtime.Decimal | null
   round: number | null
 }
 
@@ -209,8 +209,8 @@ export type VotesGroupByOutputType = {
   chainId: number
   bountyId: number
   claimId: number
-  yes: number
-  no: number
+  yes: runtime.Decimal
+  no: runtime.Decimal
   round: number
   _count: VotesCountAggregateOutputType | null
   _avg: VotesAvgAggregateOutputType | null
@@ -241,8 +241,8 @@ export type VotesWhereInput = {
   chainId?: Prisma.IntFilter<"Votes"> | number
   bountyId?: Prisma.IntFilter<"Votes"> | number
   claimId?: Prisma.IntFilter<"Votes"> | number
-  yes?: Prisma.IntFilter<"Votes"> | number
-  no?: Prisma.IntFilter<"Votes"> | number
+  yes?: Prisma.DecimalFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFilter<"Votes"> | number
   bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
 }
@@ -265,8 +265,8 @@ export type VotesWhereUniqueInput = Prisma.AtLeast<{
   chainId?: Prisma.IntFilter<"Votes"> | number
   bountyId?: Prisma.IntFilter<"Votes"> | number
   claimId?: Prisma.IntFilter<"Votes"> | number
-  yes?: Prisma.IntFilter<"Votes"> | number
-  no?: Prisma.IntFilter<"Votes"> | number
+  yes?: Prisma.DecimalFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFilter<"Votes"> | number
   bounty?: Prisma.XOR<Prisma.BountiesScalarRelationFilter, Prisma.BountiesWhereInput>
 }, "bountyId_chainId_round">
@@ -292,15 +292,15 @@ export type VotesScalarWhereWithAggregatesInput = {
   chainId?: Prisma.IntWithAggregatesFilter<"Votes"> | number
   bountyId?: Prisma.IntWithAggregatesFilter<"Votes"> | number
   claimId?: Prisma.IntWithAggregatesFilter<"Votes"> | number
-  yes?: Prisma.IntWithAggregatesFilter<"Votes"> | number
-  no?: Prisma.IntWithAggregatesFilter<"Votes"> | number
+  yes?: Prisma.DecimalWithAggregatesFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalWithAggregatesFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntWithAggregatesFilter<"Votes"> | number
 }
 
 export type VotesCreateInput = {
   claimId: number
-  yes: number
-  no: number
+  yes: runtime.Decimal | runtime.DecimalJsLike | number | string
+  no: runtime.Decimal | runtime.DecimalJsLike | number | string
   round: number
   bounty: Prisma.BountiesCreateNestedOneWithoutVotesInput
 }
@@ -309,15 +309,15 @@ export type VotesUncheckedCreateInput = {
   chainId: number
   bountyId: number
   claimId: number
-  yes: number
-  no: number
+  yes: runtime.Decimal | runtime.DecimalJsLike | number | string
+  no: runtime.Decimal | runtime.DecimalJsLike | number | string
   round: number
 }
 
 export type VotesUpdateInput = {
   claimId?: Prisma.IntFieldUpdateOperationsInput | number
-  yes?: Prisma.IntFieldUpdateOperationsInput | number
-  no?: Prisma.IntFieldUpdateOperationsInput | number
+  yes?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFieldUpdateOperationsInput | number
   bounty?: Prisma.BountiesUpdateOneRequiredWithoutVotesNestedInput
 }
@@ -326,8 +326,8 @@ export type VotesUncheckedUpdateInput = {
   chainId?: Prisma.IntFieldUpdateOperationsInput | number
   bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   claimId?: Prisma.IntFieldUpdateOperationsInput | number
-  yes?: Prisma.IntFieldUpdateOperationsInput | number
-  no?: Prisma.IntFieldUpdateOperationsInput | number
+  yes?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -335,15 +335,15 @@ export type VotesCreateManyInput = {
   chainId: number
   bountyId: number
   claimId: number
-  yes: number
-  no: number
+  yes: runtime.Decimal | runtime.DecimalJsLike | number | string
+  no: runtime.Decimal | runtime.DecimalJsLike | number | string
   round: number
 }
 
 export type VotesUpdateManyMutationInput = {
   claimId?: Prisma.IntFieldUpdateOperationsInput | number
-  yes?: Prisma.IntFieldUpdateOperationsInput | number
-  no?: Prisma.IntFieldUpdateOperationsInput | number
+  yes?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -351,8 +351,8 @@ export type VotesUncheckedUpdateManyInput = {
   chainId?: Prisma.IntFieldUpdateOperationsInput | number
   bountyId?: Prisma.IntFieldUpdateOperationsInput | number
   claimId?: Prisma.IntFieldUpdateOperationsInput | number
-  yes?: Prisma.IntFieldUpdateOperationsInput | number
-  no?: Prisma.IntFieldUpdateOperationsInput | number
+  yes?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -461,15 +461,15 @@ export type VotesUncheckedUpdateManyWithoutBountyNestedInput = {
 
 export type VotesCreateWithoutBountyInput = {
   claimId: number
-  yes: number
-  no: number
+  yes: runtime.Decimal | runtime.DecimalJsLike | number | string
+  no: runtime.Decimal | runtime.DecimalJsLike | number | string
   round: number
 }
 
 export type VotesUncheckedCreateWithoutBountyInput = {
   claimId: number
-  yes: number
-  no: number
+  yes: runtime.Decimal | runtime.DecimalJsLike | number | string
+  no: runtime.Decimal | runtime.DecimalJsLike | number | string
   round: number
 }
 
@@ -506,36 +506,36 @@ export type VotesScalarWhereInput = {
   chainId?: Prisma.IntFilter<"Votes"> | number
   bountyId?: Prisma.IntFilter<"Votes"> | number
   claimId?: Prisma.IntFilter<"Votes"> | number
-  yes?: Prisma.IntFilter<"Votes"> | number
-  no?: Prisma.IntFilter<"Votes"> | number
+  yes?: Prisma.DecimalFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFilter<"Votes"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFilter<"Votes"> | number
 }
 
 export type VotesCreateManyBountyInput = {
   claimId: number
-  yes: number
-  no: number
+  yes: runtime.Decimal | runtime.DecimalJsLike | number | string
+  no: runtime.Decimal | runtime.DecimalJsLike | number | string
   round: number
 }
 
 export type VotesUpdateWithoutBountyInput = {
   claimId?: Prisma.IntFieldUpdateOperationsInput | number
-  yes?: Prisma.IntFieldUpdateOperationsInput | number
-  no?: Prisma.IntFieldUpdateOperationsInput | number
+  yes?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type VotesUncheckedUpdateWithoutBountyInput = {
   claimId?: Prisma.IntFieldUpdateOperationsInput | number
-  yes?: Prisma.IntFieldUpdateOperationsInput | number
-  no?: Prisma.IntFieldUpdateOperationsInput | number
+  yes?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type VotesUncheckedUpdateManyWithoutBountyInput = {
   claimId?: Prisma.IntFieldUpdateOperationsInput | number
-  yes?: Prisma.IntFieldUpdateOperationsInput | number
-  no?: Prisma.IntFieldUpdateOperationsInput | number
+  yes?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  no?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   round?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -600,8 +600,8 @@ export type $VotesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     chainId: number
     bountyId: number
     claimId: number
-    yes: number
-    no: number
+    yes: runtime.Decimal
+    no: runtime.Decimal
     round: number
   }, ExtArgs["result"]["votes"]>
   composites: {}
@@ -1030,8 +1030,8 @@ export interface VotesFieldRefs {
   readonly chainId: Prisma.FieldRef<"Votes", 'Int'>
   readonly bountyId: Prisma.FieldRef<"Votes", 'Int'>
   readonly claimId: Prisma.FieldRef<"Votes", 'Int'>
-  readonly yes: Prisma.FieldRef<"Votes", 'Int'>
-  readonly no: Prisma.FieldRef<"Votes", 'Int'>
+  readonly yes: Prisma.FieldRef<"Votes", 'Decimal'>
+  readonly no: Prisma.FieldRef<"Votes", 'Decimal'>
   readonly round: Prisma.FieldRef<"Votes", 'Int'>
 }
     

@@ -93,7 +93,7 @@ export default function AccountInfo({ address }: { address: string }) {
   const user = trpc.users.fetchByAddress.useQuery(
     { address: account.address as `0x${string}` },
     {
-      enabled: !!account,
+      enabled: !!account.address,
     }
   );
 
