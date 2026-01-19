@@ -126,7 +126,6 @@ export const claimsRouter = {
           ban: {
             none: {},
           },
-          isAccepted: true,
         },
       });
 
