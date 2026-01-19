@@ -26,7 +26,17 @@ function createPrisma() {
     throw new Error('DATABASE_URL env var is required');
   }
 
-  const adapter = new PrismaPg({ connectionString: databaseUrl });
+  const poolMax = 5;
+  const idleTimeoutMillis = 10_000;
+  const connectionTimeoutMillis = 5_000;
+
+  const adapter = new PrismaPg({
+    connectionString: databaseUrl,
+    max: poolMax,
+    idleTimeoutMillis,
+    connectionTimeoutMillis,
+  });
+
   const prisma = new PrismaClient({
     adapter,
     log: [
