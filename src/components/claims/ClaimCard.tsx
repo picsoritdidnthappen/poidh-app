@@ -58,7 +58,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   });
   const bountyIssuer = trpc.users.fetchByAddress.useQuery(
     { address: claim.bounty?.issuer ?? '' },
-    { enabled: shareOpen }
+    { enabled: shareOpen && !!claim.bounty?.issuer }
   );
   const claimIssuer = trpc.users.fetchByAddress.useQuery(
     { address: claim.issuer.address },
