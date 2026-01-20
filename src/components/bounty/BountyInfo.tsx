@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
 import {
@@ -11,7 +11,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
@@ -35,7 +35,7 @@ export default function BountyInfo({
   onShareModalStateChange,
   onHowItWorksModalStateChange,
 }: {
-  bountyId: string;
+  bountyId: number;
   isShareModalOpen: boolean;
   isHowItWorksModalOpen: boolean;
   onShareModalStateChange?: (modalOpen: boolean) => void;
@@ -55,7 +55,7 @@ export default function BountyInfo({
 
   const bounty = trpc.bounties.fetch.useQuery(
     {
-      id: Number(bountyId),
+      id: bountyId,
       chainId: chain.id,
     },
     { enabled: !!bountyId }
@@ -63,7 +63,7 @@ export default function BountyInfo({
 
   const participants = trpc.bounties.participations.useQuery(
     {
-      bountyId: Number(bountyId),
+      bountyId: bountyId,
       chainId: chain.id,
     },
     {
@@ -71,18 +71,17 @@ export default function BountyInfo({
     }
   );
 
-  const bountyExtra = trpc.bounties.extra.useQuery(
-    {
-      bountyId: Number(bountyId),
-      chainId: chain.id,
-    },
-    {
-      enabled: !!bountyId,
-    }
-  );
+  const transactions = trpc.bounties.fetchTransactions.useQuery({
+    bountyId,
+    chainId: chain.id,
+  });
 
   const signMutation = useMutation({
-    mutationFn: async (bountyId: string) => {
+    mutationFn: async () => {
+      if (!bounty.data) {
+        throw new Error('Bounty data not found!');
+      }
+
       //arbitrum has a problem with message signing, so all confirmations are on base
       const chainId = await account.connector?.getChainId();
       if (chainId !== 8453) {
@@ -91,8 +90,8 @@ export default function BountyInfo({
 
       const message =
         getBanSignatureFirstLine({
-          id: Number(bountyId),
-          chainId: chain.id,
+          id: Number(bounty.data.id),
+          chainId: bounty.data.chainId,
           type: 'bounty',
         }) + JSON.stringify(bounty.data, undefined, 2);
       if (account.address) {
@@ -101,8 +100,8 @@ export default function BountyInfo({
           throw new Error('Failed to sign message');
         }
         await banBountyMutation.mutateAsync({
-          id: Number(bountyId),
-          chainId: chain.id,
+          id: Number(bounty.data.id),
+          chainId: bounty.data.chainId,
           address: account.address,
           chainName: chain.slug,
           message,
@@ -122,7 +121,11 @@ export default function BountyInfo({
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async (bountyId: bigint) => {
+    mutationFn: async () => {
+      if (!bounty.data) {
+        throw new Error('Bounty data not found!');
+      }
+
       const chainId = await account.connector?.getChainId();
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network...' });
@@ -140,14 +143,14 @@ export default function BountyInfo({
         functionName: bounty.data.isMultiplayer
           ? 'cancelOpenBounty'
           : 'cancelSoloBounty',
-        args: [bountyId],
+        args: [BigInt(bounty.data.onChainId)],
         chainId: chain.id,
       });
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const canceled = await trpcClient.bounties.isCanceled.query({
-          id: Number(bountyId),
+          id: Number(bounty.data.id),
           chainId: chain.id,
         });
         if (canceled) {
@@ -172,14 +175,14 @@ export default function BountyInfo({
 
   const isCurrentUserAParticipant = participants.data?.some(
     (participant) =>
-      participant.user_address.toLocaleLowerCase() ===
+      participant.userAddress.toLocaleLowerCase() ===
       account.address?.toLocaleLowerCase()
   );
 
   const canWithdraw =
     account.address?.toLocaleLowerCase() !==
       bounty.data?.issuer.toLocaleLowerCase() &&
-    !bounty.data?.is_voting &&
+    !bounty.data?.isVoting &&
     isCurrentUserAParticipant;
 
   if (!bounty.data) {
@@ -210,7 +213,7 @@ export default function BountyInfo({
             <button
               onClick={() => {
                 if (isAdmin.data) {
-                  signMutation.mutate(bountyId);
+                  signMutation.mutate();
                 } else {
                   toast.error('You are not an admin');
                 }
@@ -226,14 +229,14 @@ export default function BountyInfo({
               {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
             </button>
           )}
-          {bountyExtra.data?.album && (
+          {bounty.data?.extra?.album && (
             <p className='text-white mb-3'>
               📸{' '}
               <Link
-                href={`${window.location.origin}/a/${bountyExtra.data.album}`}
+                href={`${window.location.origin}/a/${bounty.data.extra.album}`}
                 className='underline hover:opacity-80 cursor-pointer'
               >
-                {bountyExtra.data.album}
+                {bounty.data.extra.album}
               </Link>
             </p>
           )}
@@ -253,9 +256,9 @@ export default function BountyInfo({
           {bounty.data.inProgress ? (
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&
-            !bounty.data.is_voting && (
+            !bounty.data.isVoting && (
               <button
-                onClick={() => cancelMutation.mutate(BigInt(bountyId))}
+                onClick={() => cancelMutation.mutate()}
                 disabled={!bounty.data.inProgress}
                 className='border border-poidhRed rounded-md w-fit py-2 px-5 mt-5 hover:bg-red-400 hover:text-white'
               >
@@ -273,18 +276,18 @@ export default function BountyInfo({
         <BountyMultiplayer chain={chain} bountyId={bountyId} />
       )}
       <BountyHistory
-        transactions={bounty.data.transactions.map((transaction) => {
+        transactions={(transactions.data ?? []).map((transaction) => {
           return { ...transaction, timestamp: Number(transaction.timestamp) };
         })}
       />
       <div className='flex flex-wrap items-center gap-4 my-8'>
         <div className='flex items-center gap-4'>
-          {bounty.data.is_multiplayer &&
+          {bounty.data.isMultiplayer &&
             bounty.data.inProgress &&
             (canWithdraw ? (
-              <Withdraw bountyId={bountyId} />
+              <Withdraw id={bounty.data.id} onChainId={bounty.data.onChainId} />
             ) : (
-              !bounty.data.is_voting && <JoinBounty bountyId={bountyId} />
+              !bounty.data.isVoting && <JoinBounty bountyId={bountyId} />
             ))}
           <button
             type='button'

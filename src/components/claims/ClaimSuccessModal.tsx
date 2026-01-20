@@ -11,9 +11,8 @@ import {
 } from '@/utils/share';
 import { trpc } from '@/trpc/client';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { uploadFile } from '@/utils/pinata';
-import { UserData } from '@/utils/types';
 
 export default function ClaimSuccessModal({
   open,
@@ -27,7 +26,7 @@ export default function ClaimSuccessModal({
   onClose: () => void;
   claimImage: string;
   claimTitle: string;
-  bountyId: string;
+  bountyId: number;
   claimIssuer: string;
 }) {
   const router = useRouter();
@@ -86,8 +85,8 @@ export default function ClaimSuccessModal({
   }, [shareOpen]);
 
   const handleShareTwitter = async () => {
-    const bountyIssuerUsername = await getDisplayUsername(
-      bountyIssuerData as UserData,
+    const bountyIssuerUsername = getDisplayUsername(
+      bountyIssuerData,
       'twitter'
     );
 
@@ -96,12 +95,12 @@ export default function ClaimSuccessModal({
   };
 
   const handleShareFarcaster = async () => {
-    const bountyIssuerUsername = await getDisplayUsername(
-      bountyIssuerData as UserData,
+    const bountyIssuerUsername = getDisplayUsername(
+      bountyIssuerData,
       'farcaster'
     );
-    const claimIssuerUsername = await getDisplayUsername(
-      claimIssuerData as UserData,
+    const claimIssuerUsername = getDisplayUsername(
+      claimIssuerData,
       'farcaster'
     );
     const text = `I just submitted a claim on ${bountyIssuerUsername}'s poidh bounty ${bounty.data?.title} 📸`;
@@ -116,7 +115,7 @@ export default function ClaimSuccessModal({
       cardUrl.searchParams.set('title', claimTitle.slice(0, 30));
       cardUrl.searchParams.set('issuer', claimIssuerUsername);
 
-      const claimIssuerPfp = claimIssuerData?.pfp_url;
+      const claimIssuerPfp = claimIssuerData?.pfpUrl;
       if (claimIssuerPfp) {
         cardUrl.searchParams.set('pfp', claimIssuerPfp);
       }

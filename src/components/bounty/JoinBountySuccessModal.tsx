@@ -1,7 +1,7 @@
 'use client';
 
-import { useChainInfo } from '@/hooks/useGetChain';
-import { Currency, UserData } from '@/utils/types';
+import { useChainInfo } from '@/hooks/useChainInfo';
+import { Currency } from '@/utils/types';
 import { useAccount } from 'wagmi';
 import { useState, useRef, useEffect } from 'react';
 import { TwitterXIcon } from '@/components/global/Icons';
@@ -21,7 +21,7 @@ export default function JoinBountySuccessModal({
   open: boolean;
   onClose: () => void;
   joinedAmount: string;
-  bountyId?: string;
+  bountyId?: number;
 }) {
   const account = useAccount();
   const chain = useChainInfo();
@@ -71,10 +71,7 @@ export default function JoinBountySuccessModal({
   }, [shareOpen]);
 
   const handleShareTwitter = async () => {
-    const bountyIssuerUsername = await getDisplayUsername(
-      user as UserData,
-      'twitter'
-    );
+    const bountyIssuerUsername = getDisplayUsername(user, 'twitter');
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
     const text = `I just added ${amountText} to ${bountyIssuerUsername}'s @poidhxyz bounty`;
@@ -82,10 +79,7 @@ export default function JoinBountySuccessModal({
   };
 
   const handleShareFarcaster = async () => {
-    const bountyIssuerUsername = await getDisplayUsername(
-      user as UserData,
-      'farcaster'
-    );
+    const bountyIssuerUsername = getDisplayUsername(user, 'farcaster');
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
     const text = `I just added ${amountText} to ${bountyIssuerUsername}'s /poidh bounty`;

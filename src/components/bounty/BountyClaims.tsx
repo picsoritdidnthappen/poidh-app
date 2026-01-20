@@ -1,34 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { trpc } from '@/trpc/client';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import InfiniteScroll from 'react-infinite-scroller';
-import { bountyCurrentVotingClaim } from '@/utils/web3';
 import ClaimList from '../claims/ClaimList';
 import { CommentsIcon } from '@/components/global/Icons';
+import { ChainId } from '@/utils/types';
 
 const PAGE_SIZE = 9;
 
-export default function BountyClaims({ bountyId }: { bountyId: string }) {
+export default function BountyClaims({ bountyId }: { bountyId: number }) {
   const chain = useChainInfo();
-  const [votingClaimId, setVotingClaimId] = useState<number | null>(null);
   const [infiniteEnabled, setInfiniteEnabled] = useState(true);
 
-  useEffect(() => {
-    const fetchCurrentVotingClaim = async () => {
-      const currentVotingClaim = await bountyCurrentVotingClaim({
-        id: bountyId,
-        chainName: chain.slug,
-      });
-      setVotingClaimId(currentVotingClaim);
-    };
-
-    fetchCurrentVotingClaim();
-  }, [bountyId, chain]);
-
-  const claims = trpc.bounties.claims.useInfiniteQuery(
+  const claims = trpc.claims.fetchBountyClaims.useInfiniteQuery(
     {
-      bountyId: Number(bountyId),
+      bountyId,
       chainId: chain.id,
       limit: PAGE_SIZE,
     },
@@ -40,7 +27,7 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
 
   const bountyClaimsCount = trpc.bounties.claimsCount.useQuery(
     {
-      bountyId: Number(bountyId),
+      bountyId,
       chainId: chain.id,
     },
     {
@@ -48,13 +35,10 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
     }
   );
 
-  const { data: votingClaim } = trpc.claims.fetch.useQuery(
+  const { data: votingClaim } = trpc.claims.fetchVotingClaimByBountyId.useQuery(
     {
-      claimId: Number(votingClaimId),
+      bountyId,
       chainId: chain.id,
-    },
-    {
-      enabled: !!votingClaimId,
     }
   );
 
@@ -115,27 +99,17 @@ export default function BountyClaims({ bountyId }: { bountyId: string }) {
           threshold={300}
         >
           <ClaimList
-            key={claims.data?.pages?.[0]?.items?.[0]?.id ?? 'empty-list'}
-            bountyId={bountyId}
+            key={`bounty-claim-${claims.data?.pageParams}`}
             votingClaim={
               votingClaim
-                ? {
-                    ...votingClaim,
-                    accepted: votingClaim.is_accepted || false,
-                    id: votingClaim.id.toString(),
-                    bountyId: votingClaim.bounty_id.toString(),
-                    issuer: votingClaim.issuer,
-                  }
+                ? { ...votingClaim, chainId: votingClaim.chainId as ChainId }
                 : null
             }
             claims={
               claims.data?.pages.flatMap((page) => {
                 return (page.items || []).map((item) => ({
                   ...item,
-                  accepted: item.is_accepted || false,
-                  id: item.id.toString(),
-                  issuer: item.issuer,
-                  bountyId: item.bounty_id.toString(),
+                  chainId: item.chainId as ChainId,
                 }));
               }) ?? []
             }

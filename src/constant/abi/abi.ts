@@ -1,119 +1,94 @@
-const abi = [
+export default [
   {
     inputs: [
-      {
-        internalType: 'address',
-        name: '_poidhV2Nft',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_treasury',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_startClaimIndex',
-        type: 'uint256',
-      },
+      { internalType: 'address', name: '_poidhNft', type: 'address' },
+      { internalType: 'address', name: '_treasury', type: 'address' },
+      { internalType: 'uint256', name: '_startClaimIndex', type: 'uint256' },
+      { internalType: 'uint256', name: '_minBountyAmount', type: 'uint256' },
+      { internalType: 'uint256', name: '_minContribution', type: 'uint256' },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
+  { inputs: [], name: 'AlreadyVoted', type: 'error' },
+  { inputs: [], name: 'BountyClaimed', type: 'error' },
+  { inputs: [], name: 'BountyClosed', type: 'error' },
+  { inputs: [], name: 'BountyNotFound', type: 'error' },
+  { inputs: [], name: 'ClaimAlreadyAccepted', type: 'error' },
+  { inputs: [], name: 'ClaimNotFound', type: 'error' },
+  { inputs: [], name: 'ContractsCannotCreateBounties', type: 'error' },
+  { inputs: [], name: 'DirectEtherNotAccepted', type: 'error' },
+  { inputs: [], name: 'InsufficientBalance', type: 'error' },
   {
-    inputs: [],
-    name: 'AlreadyVoted',
+    inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
+    name: 'InvalidMinBountyAmount',
     type: 'error',
   },
   {
-    inputs: [],
-    name: 'BountyAmountTooHigh',
+    inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
+    name: 'InvalidMinContribution',
     type: 'error',
   },
   {
-    inputs: [],
-    name: 'BountyClaimed',
+    inputs: [{ internalType: 'address', name: 'poidhNft', type: 'address' }],
+    name: 'InvalidPoidhNft',
+    type: 'error',
+  },
+  { inputs: [], name: 'InvalidStartClaimIndex', type: 'error' },
+  {
+    inputs: [{ internalType: 'address', name: 'treasury', type: 'address' }],
+    name: 'InvalidTreasury',
     type: 'error',
   },
   {
-    inputs: [],
-    name: 'BountyClosed',
+    inputs: [{ internalType: 'address', name: 'to', type: 'address' }],
+    name: 'InvalidWithdrawTo',
     type: 'error',
   },
-  {
-    inputs: [],
-    name: 'BountyNotFound',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'ClaimNotFound',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'IssuerCannotClaim',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'IssuerCannotWithdraw',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'NoEther',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'NoVotingPeriodSet',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'NotActiveParticipant',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'NotOpenBounty',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'NotSoloBounty',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'VotingOngoing',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'WrongCaller',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'transferFailed',
-    type: 'error',
-  },
+  { inputs: [], name: 'IssuerCannotClaim', type: 'error' },
+  { inputs: [], name: 'IssuerCannotWithdraw', type: 'error' },
+  { inputs: [], name: 'MaxParticipantsReached', type: 'error' },
+  { inputs: [], name: 'MinimumBountyNotMet', type: 'error' },
+  { inputs: [], name: 'MinimumContributionNotMet', type: 'error' },
+  { inputs: [], name: 'NoEther', type: 'error' },
+  { inputs: [], name: 'NoVotingPeriodSet', type: 'error' },
+  { inputs: [], name: 'NotActiveParticipant', type: 'error' },
+  { inputs: [], name: 'NotCancelledOpenBounty', type: 'error' },
+  { inputs: [], name: 'NotOpenBounty', type: 'error' },
+  { inputs: [], name: 'NotSoloBounty', type: 'error' },
+  { inputs: [], name: 'NothingToWithdraw', type: 'error' },
+  { inputs: [], name: 'ReentrancyGuardReentrantCall', type: 'error' },
+  { inputs: [], name: 'TransferFailed', type: 'error' },
+  { inputs: [], name: 'VoteWouldPass', type: 'error' },
+  { inputs: [], name: 'VotingEnded', type: 'error' },
+  { inputs: [], name: 'VotingOngoing', type: 'error' },
+  { inputs: [], name: 'WrongCaller', type: 'error' },
   {
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: 'uint256',
         name: 'bountyId',
         type: 'uint256',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'issuer',
         type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'issuerRefund',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
       },
     ],
     name: 'BountyCancelled',
@@ -122,24 +97,14 @@ const abi = [
   {
     anonymous: false,
     inputs: [
+      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
       {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'issuer',
         type: 'address',
       },
-      {
-        indexed: false,
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
+      { indexed: false, internalType: 'string', name: 'title', type: 'string' },
       {
         indexed: false,
         internalType: 'string',
@@ -158,6 +123,18 @@ const abi = [
         name: 'createdAt',
         type: 'uint256',
       },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isOpenBounty',
+        type: 'bool',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
+      },
     ],
     name: 'BountyCreated',
     type: 'event',
@@ -166,13 +143,13 @@ const abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: 'uint256',
         name: 'bountyId',
         type: 'uint256',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'participant',
         type: 'address',
@@ -183,6 +160,18 @@ const abi = [
         name: 'amount',
         type: 'uint256',
       },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'latestBountyBalance',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
+      },
     ],
     name: 'BountyJoined',
     type: 'event',
@@ -191,19 +180,19 @@ const abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: 'uint256',
         name: 'bountyId',
         type: 'uint256',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'uint256',
         name: 'claimId',
         type: 'uint256',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'claimIssuer',
         type: 'address',
@@ -217,7 +206,20 @@ const abi = [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'fee',
+        name: 'bountyAmount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'payout',
+        type: 'uint256',
+      },
+      { indexed: false, internalType: 'uint256', name: 'fee', type: 'uint256' },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
         type: 'uint256',
       },
     ],
@@ -227,20 +229,15 @@ const abi = [
   {
     anonymous: false,
     inputs: [
+      { indexed: true, internalType: 'uint256', name: 'id', type: 'uint256' },
       {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'issuer',
         type: 'address',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'uint256',
         name: 'bountyId',
         type: 'uint256',
@@ -251,12 +248,7 @@ const abi = [
         name: 'bountyIssuer',
         type: 'address',
       },
-      {
-        indexed: false,
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
+      { indexed: false, internalType: 'string', name: 'title', type: 'string' },
       {
         indexed: false,
         internalType: 'string',
@@ -267,6 +259,18 @@ const abi = [
         indexed: false,
         internalType: 'uint256',
         name: 'createdAt',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'imageUri',
+        type: 'string',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
         type: 'uint256',
       },
     ],
@@ -277,70 +281,13 @@ const abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: 'uint256',
         name: 'bountyId',
         type: 'uint256',
       },
       {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'claimId',
-        type: 'uint256',
-      },
-    ],
-    name: 'ClaimSubmittedForVote',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-    ],
-    name: 'ResetVotingPeriod',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'voter',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'claimId',
-        type: 'uint256',
-      },
-    ],
-    name: 'VoteClaim',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'participant',
         type: 'address',
@@ -351,22 +298,224 @@ const abi = [
         name: 'amount',
         type: 'uint256',
       },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
+      },
     ],
-    name: 'WithdrawFromOpenBounty',
+    name: 'RefundClaimed',
     type: 'event',
   },
   {
+    anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: 'address',
+        name: 'voter',
+        type: 'address',
+      },
+      {
+        indexed: true,
         internalType: 'uint256',
         name: 'bountyId',
         type: 'uint256',
       },
       {
+        indexed: true,
         internalType: 'uint256',
         name: 'claimId',
         type: 'uint256',
       },
+      { indexed: false, internalType: 'bool', name: 'support', type: 'bool' },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'weight',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
+      },
+    ],
+    name: 'VoteCast',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'bountyId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'claimId',
+        type: 'uint256',
+      },
+      { indexed: false, internalType: 'bool', name: 'passed', type: 'bool' },
+      { indexed: false, internalType: 'uint256', name: 'yes', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'no', type: 'uint256' },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
+      },
+    ],
+    name: 'VotingResolved',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'bountyId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'claimId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'deadline',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'issuerYesWeight',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
+      },
+    ],
+    name: 'VotingStarted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'bountyId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'participant',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'latestBountyAmount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'round',
+        type: 'uint256',
+      },
+    ],
+    name: 'WithdrawFromOpenBounty',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'Withdrawal',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      { indexed: true, internalType: 'address', name: 'to', type: 'address' },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'WithdrawalTo',
+    type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'BPS_DENOM',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'FEE_BPS',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MAX_PARTICIPANTS',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MIN_BOUNTY_AMOUNT',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MIN_CONTRIBUTION',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'uint256', name: 'claimId', type: 'uint256' },
     ],
     name: 'acceptClaim',
     outputs: [],
@@ -374,165 +523,65 @@ const abi = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     name: 'bounties',
     outputs: [
-      {
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'issuer',
-        type: 'address',
-      },
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'description',
-        type: 'string',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'claimer',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'createdAt',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'claimId',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'id', type: 'uint256' },
+      { internalType: 'address', name: 'issuer', type: 'address' },
+      { internalType: 'string', name: 'name', type: 'string' },
+      { internalType: 'string', name: 'description', type: 'string' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      { internalType: 'address', name: 'claimer', type: 'address' },
+      { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+      { internalType: 'uint256', name: 'claimId', type: 'uint256' },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
     ],
     name: 'bountyClaims',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ internalType: 'uint256', name: 'claimIds', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'bountyCounter',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'bountyCurrentVotingClaim',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ internalType: 'uint256', name: 'claimId', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'bountyVotingTracker',
     outputs: [
-      {
-        internalType: 'uint256',
-        name: 'yes',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'no',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'deadline',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'yes', type: 'uint256' },
+      { internalType: 'uint256', name: 'no', type: 'uint256' },
+      { internalType: 'uint256', name: 'deadline', type: 'uint256' },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'cancelOpenBounty',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'cancelSoloBounty',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -541,92 +590,39 @@ const abi = [
   {
     inputs: [],
     name: 'claimCounter',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
+    name: 'claimRefundFromCancelledOpenBounty',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     name: 'claims',
     outputs: [
-      {
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'issuer',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: 'bountyIssuer',
-        type: 'address',
-      },
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'description',
-        type: 'string',
-      },
-      {
-        internalType: 'uint256',
-        name: 'createdAt',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'accepted',
-        type: 'bool',
-      },
+      { internalType: 'uint256', name: 'id', type: 'uint256' },
+      { internalType: 'address', name: 'issuer', type: 'address' },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'address', name: 'bountyIssuer', type: 'address' },
+      { internalType: 'string', name: 'name', type: 'string' },
+      { internalType: 'string', name: 'description', type: 'string' },
+      { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+      { internalType: 'bool', name: 'accepted', type: 'bool' },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'uri',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'description',
-        type: 'string',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'string', name: 'name', type: 'string' },
+      { internalType: 'string', name: 'description', type: 'string' },
+      { internalType: 'string', name: 'uri', type: 'string' },
     ],
     name: 'createClaim',
     outputs: [],
@@ -635,16 +631,8 @@ const abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'description',
-        type: 'string',
-      },
+      { internalType: 'string', name: 'name', type: 'string' },
+      { internalType: 'string', name: 'description', type: 'string' },
     ],
     name: 'createOpenBounty',
     outputs: [],
@@ -653,16 +641,8 @@ const abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'description',
-        type: 'string',
-      },
+      { internalType: 'string', name: 'name', type: 'string' },
+      { internalType: 'string', name: 'description', type: 'string' },
     ],
     name: 'createSoloBounty',
     outputs: [],
@@ -670,61 +650,32 @@ const abi = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'offset',
-        type: 'uint256',
-      },
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
+    name: 'everHadExternalContributor',
+    outputs: [
+      { internalType: 'bool', name: 'hadExternalContributor', type: 'bool' },
     ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'offset', type: 'uint256' }],
     name: 'getBounties',
     outputs: [
       {
         components: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'issuer',
-            type: 'address',
-          },
-          {
-            internalType: 'string',
-            name: 'name',
-            type: 'string',
-          },
-          {
-            internalType: 'string',
-            name: 'description',
-            type: 'string',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'claimer',
-            type: 'address',
-          },
-          {
-            internalType: 'uint256',
-            name: 'createdAt',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'claimId',
-            type: 'uint256',
-          },
+          { internalType: 'uint256', name: 'id', type: 'uint256' },
+          { internalType: 'address', name: 'issuer', type: 'address' },
+          { internalType: 'string', name: 'name', type: 'string' },
+          { internalType: 'string', name: 'description', type: 'string' },
+          { internalType: 'uint256', name: 'amount', type: 'uint256' },
+          { internalType: 'address', name: 'claimer', type: 'address' },
+          { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+          { internalType: 'uint256', name: 'claimId', type: 'uint256' },
         ],
-        internalType: 'struct PoidhV2.Bounty[10]',
-        name: 'result',
-        type: 'tuple[10]',
+        internalType: 'struct PoidhV3.Bounty[]',
+        name: '',
+        type: 'tuple[]',
       },
     ],
     stateMutability: 'view',
@@ -732,65 +683,25 @@ const abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'offset',
-        type: 'uint256',
-      },
+      { internalType: 'address', name: 'user', type: 'address' },
+      { internalType: 'uint256', name: 'offset', type: 'uint256' },
     ],
     name: 'getBountiesByUser',
     outputs: [
       {
         components: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'issuer',
-            type: 'address',
-          },
-          {
-            internalType: 'string',
-            name: 'name',
-            type: 'string',
-          },
-          {
-            internalType: 'string',
-            name: 'description',
-            type: 'string',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'claimer',
-            type: 'address',
-          },
-          {
-            internalType: 'uint256',
-            name: 'createdAt',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'claimId',
-            type: 'uint256',
-          },
+          { internalType: 'uint256', name: 'id', type: 'uint256' },
+          { internalType: 'address', name: 'issuer', type: 'address' },
+          { internalType: 'string', name: 'name', type: 'string' },
+          { internalType: 'string', name: 'description', type: 'string' },
+          { internalType: 'uint256', name: 'amount', type: 'uint256' },
+          { internalType: 'address', name: 'claimer', type: 'address' },
+          { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+          { internalType: 'uint256', name: 'claimId', type: 'uint256' },
         ],
-        internalType: 'struct PoidhV2.Bounty[10]',
-        name: 'result',
-        type: 'tuple[10]',
+        internalType: 'struct PoidhV3.Bounty[]',
+        name: '',
+        type: 'tuple[]',
       },
     ],
     stateMutability: 'view',
@@ -799,70 +710,29 @@ const abi = [
   {
     inputs: [],
     name: 'getBountiesLength',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'uint256', name: 'offset', type: 'uint256' },
     ],
     name: 'getClaimsByBountyId',
     outputs: [
       {
         components: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'issuer',
-            type: 'address',
-          },
-          {
-            internalType: 'uint256',
-            name: 'bountyId',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'bountyIssuer',
-            type: 'address',
-          },
-          {
-            internalType: 'string',
-            name: 'name',
-            type: 'string',
-          },
-          {
-            internalType: 'string',
-            name: 'description',
-            type: 'string',
-          },
-          {
-            internalType: 'uint256',
-            name: 'createdAt',
-            type: 'uint256',
-          },
-          {
-            internalType: 'bool',
-            name: 'accepted',
-            type: 'bool',
-          },
+          { internalType: 'uint256', name: 'id', type: 'uint256' },
+          { internalType: 'address', name: 'issuer', type: 'address' },
+          { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+          { internalType: 'address', name: 'bountyIssuer', type: 'address' },
+          { internalType: 'string', name: 'name', type: 'string' },
+          { internalType: 'string', name: 'description', type: 'string' },
+          { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+          { internalType: 'bool', name: 'accepted', type: 'bool' },
         ],
-        internalType: 'struct PoidhV2.Claim[]',
+        internalType: 'struct PoidhV3.Claim[]',
         name: '',
         type: 'tuple[]',
       },
@@ -872,58 +742,23 @@ const abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
+      { internalType: 'address', name: 'user', type: 'address' },
+      { internalType: 'uint256', name: 'offset', type: 'uint256' },
     ],
     name: 'getClaimsByUser',
     outputs: [
       {
         components: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'issuer',
-            type: 'address',
-          },
-          {
-            internalType: 'uint256',
-            name: 'bountyId',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'bountyIssuer',
-            type: 'address',
-          },
-          {
-            internalType: 'string',
-            name: 'name',
-            type: 'string',
-          },
-          {
-            internalType: 'string',
-            name: 'description',
-            type: 'string',
-          },
-          {
-            internalType: 'uint256',
-            name: 'createdAt',
-            type: 'uint256',
-          },
-          {
-            internalType: 'bool',
-            name: 'accepted',
-            type: 'bool',
-          },
+          { internalType: 'uint256', name: 'id', type: 'uint256' },
+          { internalType: 'address', name: 'issuer', type: 'address' },
+          { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+          { internalType: 'address', name: 'bountyIssuer', type: 'address' },
+          { internalType: 'string', name: 'name', type: 'string' },
+          { internalType: 'string', name: 'description', type: 'string' },
+          { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+          { internalType: 'bool', name: 'accepted', type: 'bool' },
         ],
-        internalType: 'struct PoidhV2.Claim[]',
+        internalType: 'struct PoidhV3.Claim[]',
         name: '',
         type: 'tuple[]',
       },
@@ -932,37 +767,31 @@ const abi = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'getParticipants',
     outputs: [
-      {
-        internalType: 'address[]',
-        name: '',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
+      { internalType: 'address[]', name: '', type: 'address[]' },
+      { internalType: 'uint256[]', name: '', type: 'uint256[]' },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'uint256', name: 'offset', type: 'uint256' },
+      { internalType: 'uint256', name: 'limit', type: 'uint256' },
     ],
+    name: 'getParticipantsPaged',
+    outputs: [
+      { internalType: 'address[]', name: 'addrs', type: 'address[]' },
+      { internalType: 'uint256[]', name: 'amts', type: 'uint256[]' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'joinOpenBounty',
     outputs: [],
     stateMutability: 'payable',
@@ -970,56 +799,14 @@ const abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-    ],
-    name: 'onERC721Received',
-    outputs: [
-      {
-        internalType: 'bytes4',
-        name: '',
-        type: 'bytes4',
-      },
-    ],
-    stateMutability: 'pure',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
     ],
     name: 'participantAmounts',
     outputs: [
       {
         internalType: 'uint256',
-        name: '',
+        name: 'participantContributionAmounts',
         type: 'uint256',
       },
     ],
@@ -1028,22 +815,14 @@ const abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
     ],
     name: 'participants',
     outputs: [
       {
         internalType: 'address',
-        name: '',
+        name: 'participantAddresses',
         type: 'address',
       },
     ],
@@ -1051,52 +830,30 @@ const abi = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'poidhV2Nft',
-    outputs: [
-      {
-        internalType: 'contract IPoidhV2Nft',
-        name: '',
-        type: 'address',
-      },
-    ],
+    inputs: [{ internalType: 'address', name: 'account', type: 'address' }],
+    name: 'pendingWithdrawals',
+    outputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'poidhV2NftSet',
+    name: 'poidhNft',
     outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
+      { internalType: 'contract IPoidhClaimNFT', name: '', type: 'address' },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'resetVotingPeriod',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'resolveVote',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1104,16 +861,8 @@ const abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'claimId',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'uint256', name: 'claimId', type: 'uint256' },
     ],
     name: 'submitClaimForVote',
     outputs: [],
@@ -1123,76 +872,34 @@ const abi = [
   {
     inputs: [],
     name: 'treasury',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
+      { internalType: 'address', name: 'user', type: 'address' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
     ],
     name: 'userBounties',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ internalType: 'uint256', name: 'bountyIds', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
+      { internalType: 'address', name: 'user', type: 'address' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
     ],
     name: 'userClaims',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ internalType: 'uint256', name: 'claimIds', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'vote',
-        type: 'bool',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'bool', name: 'vote', type: 'bool' },
     ],
     name: 'voteClaim',
     outputs: [],
@@ -1200,31 +907,49 @@ const abi = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'votingPeriod',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
+    name: 'voteRound',
+    outputs: [{ internalType: 'uint256', name: 'roundId', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: 'bountyId',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'bountyId', type: 'uint256' },
+      { internalType: 'address', name: 'participant', type: 'address' },
     ],
+    name: 'voteWeightSnapshot',
+    outputs: [{ internalType: 'uint256', name: 'weight', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'votingPeriod',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'bountyId', type: 'uint256' }],
     name: 'withdrawFromOpenBounty',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
+  {
+    inputs: [{ internalType: 'address payable', name: 'to', type: 'address' }],
+    name: 'withdrawTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  { stateMutability: 'payable', type: 'receive' },
 ] as const;
-
-export default abi;

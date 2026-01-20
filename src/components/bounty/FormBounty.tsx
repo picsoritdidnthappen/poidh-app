@@ -9,14 +9,13 @@ import {
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import { decodeEventLog, parseEther } from 'viem';
 import abi from '@/constant/abi/abi';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import GameButton from '@/components/global/GameButton';
 import { ExpandMoreIcon, InfoIcon, CloseIcon } from '@/components/global/Icons';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -70,15 +69,6 @@ export default function FormBounty({
       setAlbum(prefilledAlbum);
     }
   }, [prefilledAlbum]);
-
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea && isMobile) {
-      textarea.style.height = 'auto';
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, 120), 200);
-      textarea.style.height = `${newHeight}px`;
-    }
-  }, [description, isMobile]);
 
   useEffect(() => {
     if (amount) {
@@ -159,7 +149,7 @@ export default function FormBounty({
         if (bounty) {
           const usd = Number(formData.amount) * price;
           return {
-            bountyId: data.args.id.toString(),
+            bountyId: bounty.id,
             album: formData.album.trim(),
             bountyTitle: formData.name,
             bountyUsd: usd,
@@ -314,10 +304,10 @@ export default function FormBounty({
             ref={textareaRef}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
+            className={`border py-3 px-3 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
               isMobile
-                ? 'min-h-[120px] max-h-[200px] text-base py-3'
-                : 'min-h-[60px] max-h-80'
+                ? 'min-h-[150px] max-h-[400px] text-base'
+                : 'min-h-[100px] max-h-80'
             } overflow-y-auto`}
             placeholder='pro tip: be detailed and add a deadline'
             style={{
@@ -419,7 +409,7 @@ export default function FormBounty({
                 ref={usdRef}
                 className='absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md right-16'
               >
-                (${formatAmountShort(usdPerToken)})
+                (${formatAmountShort({ amount: usdPerToken })})
               </span>
             )}
           </div>
@@ -466,7 +456,7 @@ export default function FormBounty({
                     }}
                   >
                     {c.album.length > 20 ? `${c.album.slice(0, 20)}…` : c.album}{' '}
-                    ({c._count.album})
+                    ({c.count.album})
                   </li>
                 ))}
               </ul>

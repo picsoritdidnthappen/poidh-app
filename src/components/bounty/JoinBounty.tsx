@@ -4,10 +4,10 @@ import ButtonCTA from '../global/ButtonCTA';
 import { PlusIcon } from '@/components/global/Icons';
 import { useAccount } from 'wagmi';
 import { trpc } from '@/trpc/client';
-import { useChainInfo } from '@/hooks/useGetChain';
+import { useChainInfo } from '@/hooks/useChainInfo';
 import { toast } from 'react-toastify';
 
-export default function JoinBounty({ bountyId }: { bountyId: string }) {
+export default function JoinBounty({ bountyId }: { bountyId: number }) {
   const [showForm, setShowForm] = useState(false);
   const account = useAccount();
   const chain = useChainInfo();
@@ -17,10 +17,15 @@ export default function JoinBounty({ bountyId }: { bountyId: string }) {
     chainId: chain.id,
   });
 
+  if (!bounty.data) {
+    return null;
+  }
+
   return (
     <>
       <FormJoinBounty
-        bountyId={bountyId}
+        id={bounty.data.id}
+        onChainId={bounty.data.onChainId}
         open={showForm}
         onClose={() => setShowForm(false)}
       />

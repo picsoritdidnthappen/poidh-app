@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Prisma, PrismaClient } from 'generated/prisma/client';
 
 export const prismaDevOptions = {
   logSlowQueries: true,
@@ -20,7 +21,24 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 function createPrisma() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL env var is required');
+  }
+
+  const poolMax = 5;
+  const idleTimeoutMillis = 10_000;
+  const connectionTimeoutMillis = 5_000;
+
+  const adapter = new PrismaPg({
+    connectionString: databaseUrl,
+    max: poolMax,
+    idleTimeoutMillis,
+    connectionTimeoutMillis,
+  });
+
   const prisma = new PrismaClient({
+    adapter,
     log: [
       { level: 'query', emit: 'event' },
       { level: 'error', emit: 'stdout' },
@@ -28,11 +46,11 @@ function createPrisma() {
     ],
   });
 
-  prisma.$on('query', async (e) => {
-    if (e.duration < 2_000) return;
+  prisma.$on('query', async (event: Prisma.QueryEvent) => {
+    if (event.duration < 2_000) return;
 
     if (prismaDevOptions.logSlowQueries) {
-      console.info(`Prisma: slow query - ${e.duration}ms - ${e.query}`);
+      console.info(`Prisma: slow query - ${event.duration}ms - ${event.query}`);
     }
   });
 

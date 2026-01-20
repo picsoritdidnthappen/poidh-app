@@ -10,6 +10,7 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   WalletIcon,
+  InfoIcon,
 } from '@/components/global/Icons';
 import { Drawer } from '@mui/material';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -17,12 +18,20 @@ import Image from 'next/image';
 import Logo from '../global/Logo';
 import { useAccount } from 'wagmi';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { trpc } from '@/trpc/client';
 
 export default function Header() {
   const account = useAccount();
   const isMobile = useScreenSize();
   const [isOpen, setIsOpen] = useState(false);
   const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
+
+  const user = trpc.users.fetchByAddress.useQuery(
+    { address: account.address as `0x${string}` },
+    {
+      enabled: !!account.address,
+    }
+  );
 
   return (
     <>
@@ -54,6 +63,13 @@ export default function Header() {
           </Link>
         </div>
         <div className='flex items-center'>
+          <button
+            onClick={() => setIsHowItWorksModalOpen(true)}
+            className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20 transition-colors'
+            aria-label='How it works'
+          >
+            <InfoIcon />
+          </button>
           {!isMobile && (
             <Link
               href='/explore'
@@ -69,6 +85,11 @@ export default function Header() {
               href={`/account/${account.address}`}
               className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
             >
+              {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
+                (user?.data?.withdrawalBase ?? 0) > 0 ||
+                (user?.data?.withdrawalDegen ?? 0) > 0) && (
+                <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
+              )}
               <UserIcon />
             </Link>
           )}

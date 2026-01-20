@@ -2,8 +2,8 @@ import prisma from 'prisma/prisma';
 import { baseProcedure } from '../init';
 import { z } from 'zod';
 import { addressSchema } from '../serverTypes';
-import { Leaderboard } from '@prisma/client';
 import { scoreDegen, scoreETH } from './accounts';
+import { Leaderboard } from 'generated/prisma/client';
 
 export const leaderboardRouter = {
   fetch: baseProcedure
@@ -36,10 +36,7 @@ export const leaderboardRouter = {
       ) =>
         prisma.leaderboard.findMany({
           where: {
-            AND: [
-              { chain_id: chainId },
-              { address: { not: { in: ignoreAddresses } } },
-            ],
+            AND: [{ chainId }, { address: { not: { in: ignoreAddresses } } }],
           },
           orderBy: { [orderCol]: 'desc' },
           take,
@@ -88,7 +85,7 @@ export const leaderboardRouter = {
           } = {
             base:
               initialScore?.base ??
-              (user.chain_id === 8453
+              (user.chainId === 8453
                 ? scoreETH({
                     earned: user.earned,
                     paid: user.paid,
@@ -97,7 +94,7 @@ export const leaderboardRouter = {
                 : initialScore?.base),
             degen:
               initialScore?.degen ??
-              (user.chain_id === 666666666
+              (user.chainId === 666666666
                 ? scoreDegen({
                     earned: user.earned,
                     paid: user.paid,
@@ -106,7 +103,7 @@ export const leaderboardRouter = {
                 : initialScore?.degen),
             arbitrum:
               initialScore?.arbitrum ??
-              (user.chain_id === 42161
+              (user.chainId === 42161
                 ? scoreETH({
                     earned: user.earned,
                     paid: user.paid,
@@ -157,7 +154,7 @@ export const leaderboardRouter = {
         const userRows = await prisma.leaderboard.findMany({
           where: {
             address: input.userAddress.toLowerCase(),
-            chain_id: { in: [8453, 666666666, 42161] },
+            chainId: { in: [8453, 666666666, 42161] },
           },
         });
 
@@ -167,19 +164,19 @@ export const leaderboardRouter = {
           let arbitrumScore: number | undefined = undefined;
 
           for (const row of userRows) {
-            if (row.chain_id === 8453) {
+            if (row.chainId === 8453) {
               baseScore = scoreETH({
                 earned: row.earned,
                 paid: row.paid,
                 NFTheld: row.nfts,
               });
-            } else if (row.chain_id === 666666666) {
+            } else if (row.chainId === 666666666) {
               degenScore = scoreDegen({
                 earned: row.earned,
                 paid: row.paid,
                 NFTheld: row.nfts,
               });
-            } else if (row.chain_id === 42161) {
+            } else if (row.chainId === 42161) {
               arbitrumScore = scoreETH({
                 earned: row.earned,
                 paid: row.paid,

@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useChainInfo } from '@/hooks/useGetChain';
 import NftList from '@/components/bounty/NftList';
 import { trpc } from '@/trpc/client';
 import BountyList from '../bounty/BountyList';
@@ -11,10 +10,12 @@ import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import { ShareIcon } from '@/components/global/Icons';
+import ClaimFundsButton from '@/components/global/ClaimFundsButton';
 import { formatAmountShort } from '@/utils/utils';
 import InfiniteScroll from 'react-infinite-scroller';
 import { ChainId } from '@/utils/types';
 import ShareAccountModal from '@/components/account/ShareAccountModal';
+import { useAccount } from 'wagmi';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 const PAGE_SIZE = 9;
@@ -36,10 +37,10 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 }
 
 export default function AccountInfo({ address }: { address: string }) {
+  const account = useAccount();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const chain = useChainInfo();
   const sectionFromUrl = getSectionFromParam(searchParams.get('tab'));
   const [currentSection, setCurrentSection] = useState<Section>(
     sectionFromUrl ?? 'bounties'
@@ -89,6 +90,13 @@ export default function AccountInfo({ address }: { address: string }) {
     }
   );
 
+  const user = trpc.users.fetchByAddress.useQuery(
+    { address: account.address as `0x${string}` },
+    {
+      enabled: !!account.address,
+    }
+  );
+
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['nfts', 'bounties', 'claims'].indexOf(currentSection);
     const activeTab = tabRefs.current[activeIndex];
@@ -112,11 +120,13 @@ export default function AccountInfo({ address }: { address: string }) {
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
 
+  const isOwnPage = (account.address ?? '').toLowerCase() === address;
+
   return (
     <>
       {address && (
-        <div className='space-y-6 pb-16'>
-          <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-6 pb-3 rounded-xl'>
+        <div className='space-y-3 pb-16'>
+          <div className='flex flex-col lg:flex-row lg:justify-between lg:items-start p-6 pb-0 md:pb-3 rounded-xl space-y-2 lg:space-y-0'>
             <div className='space-y-4 flex-grow'>
               <div className='border-b border-white/20 pb-3'>
                 <div className='text-sm text-gray-300 mb-1'>user</div>
@@ -155,48 +165,51 @@ export default function AccountInfo({ address }: { address: string }) {
                 />
                 <StatCard
                   title='eth paid'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.eth.totalPaid.amountCrypto
-                  )} eth`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.eth.totalPaid.amountCrypto
+                    ),
+                  })} eth`}
                 />
                 <StatCard
                   title='eth in contract'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.eth.amountInContract.amountCrypto
-                  )} eth`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.eth.amountInContract.amountCrypto
+                    ),
+                  })} eth`}
                 />
                 <StatCard
                   title='eth earned'
-                  value={`${formatCryptoValue(
-                    accountStats.data?.eth.totalEarn.amountCrypto
-                  )} eth`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.eth.totalEarn.amountCrypto
+                    ),
+                  })} eth`}
                 />
                 <StatCard
                   title='degen paid'
-                  value={`${formatAmountShort(
-                    formatCryptoValue(
-                      accountStats.data?.degen.totalPaid.amountCrypto,
-                      2
-                    )
-                  )} dgn`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.degen.totalPaid.amountCrypto
+                    ),
+                  })} dgn`}
                 />
                 <StatCard
                   title='degen in contract'
-                  value={`${formatAmountShort(
-                    formatCryptoValue(
-                      accountStats.data?.degen.amountInContract.amountCrypto,
-                      2
-                    )
-                  )} dgn`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.degen.amountInContract.amountCrypto
+                    ),
+                  })} dgn`}
                 />
                 <StatCard
                   title='degen earned'
-                  value={`${formatAmountShort(
-                    formatCryptoValue(
-                      accountStats.data?.degen.totalEarn.amountCrypto,
-                      2
-                    )
-                  )} dgn`}
+                  value={`${formatAmountShort({
+                    amount: Number(
+                      accountStats.data?.degen.totalEarn.amountCrypto
+                    ),
+                  })} dgn`}
                 />
               </div>
             </div>
@@ -213,7 +226,15 @@ export default function AccountInfo({ address }: { address: string }) {
             </div>
           </div>
 
-          <div className='flex flex-row overflow-x-scroll items-center pb-3 border-b border-white justify-center gap-x-5 w-full px-3'>
+          {user.data && isOwnPage && (
+            <div className='flex justify-center px-6 lg:mt-0'>
+              <div className='w-full lg:w-[35%]'>
+                <ClaimFundsButton user={user.data} />
+              </div>
+            </div>
+          )}
+
+          <div className='flex flex-row items-center justify-center pb-3 border-b border-white w-full'>
             <div
               id='btn-container'
               className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
@@ -273,12 +294,12 @@ export default function AccountInfo({ address }: { address: string }) {
                       key={nfts.data.pages[0]?.items[0]?.id || 'empty-nfts'}
                       NFTs={nfts.data.pages.flatMap((page) =>
                         page.items.map((NFT) => ({
-                          chainId: NFT.chain_id as ChainId,
-                          id: NFT.id.toString(),
+                          id: NFT.id,
+                          chainId: NFT.chainId as ChainId,
                           url: NFT.url,
                           title: NFT.title,
                           description: NFT.description,
-                          bountyId: NFT.bounty?.id?.toString() ?? '',
+                          bountyId: NFT.bountyId,
                           issuer: NFT.issuer,
                         }))
                       )}
@@ -288,7 +309,7 @@ export default function AccountInfo({ address }: { address: string }) {
               </div>
             )}
             {currentSection === 'bounties' && (
-              <div className=''>
+              <div>
                 {bounties.data && (
                   <InfiniteScroll
                     loadMore={async () => await bounties.fetchNextPage()}
@@ -308,15 +329,8 @@ export default function AccountInfo({ address }: { address: string }) {
                       }
                       bounties={bounties.data.pages.flatMap((page) =>
                         page.items.map((bounty) => ({
-                          id: bounty.id.toString(),
-                          chainId: bounty.chain_id as ChainId,
-                          title: bounty.title,
-                          description: bounty.description,
-                          amount: bounty.amount,
-                          isMultiplayer: bounty.is_multiplayer || false,
-                          inProgress: bounty.in_progress || false,
-                          isCanceled: bounty.is_canceled || false,
-                          hasClaims: (bounty.claims ?? []).length > 0,
+                          ...bounty,
+                          chainId: bounty.chainId as ChainId,
                         }))
                       )}
                       showStatusEmoji={true}
@@ -342,14 +356,8 @@ export default function AccountInfo({ address }: { address: string }) {
                       key={claims.data.pages[0]?.items[0]?.id || 'empty-claims'}
                       claims={claims.data.pages.flatMap((page) =>
                         page.items.map((c) => ({
-                          id: c.id.toString(),
-                          chainId: c.chain_id as ChainId,
-                          title: c.title,
-                          description: c.description,
-                          url: c.url,
-                          issuer: c.issuer,
-                          bountyId: c.bounty?.id?.toString() ?? '',
-                          accepted: c.is_accepted || false,
+                          ...c,
+                          chainId: c.chainId as ChainId,
                         }))
                       )}
                     />
@@ -368,9 +376,4 @@ export default function AccountInfo({ address }: { address: string }) {
       )}
     </>
   );
-}
-
-function formatCryptoValue(value: number | undefined, precision = 4): number {
-  if (value === undefined) return 0;
-  return Number(Number(value).toFixed(precision));
 }

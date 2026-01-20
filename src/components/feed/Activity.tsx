@@ -12,22 +12,22 @@ type ActivityTx = {
   index?: number;
   bounty?: {
     id: number;
-    chain_id: number;
+    chainId: number;
     title: string;
     issuer: string;
   } | null;
   claim?: Claim | null;
-  bounty_id: number;
-  claim_id?: number;
-  chain_id: ChainId;
+  bountyId: number;
+  claimId?: number;
+  chainId: ChainId;
   address: string;
   action: string;
   timestamp: number | string;
 };
 
 export default function Activity({ activity }: { activity: ActivityTx }) {
-  const bountyId = activity.bounty?.id ?? activity.bounty_id;
-  const chainId = activity.bounty?.chain_id ?? activity.chain_id;
+  const bountyId = activity.bounty?.id ?? activity.bountyId;
+  const chainId = activity.bounty?.chainId ?? activity.bountyId;
   const chain = getChainById({ chainId: chainId as ChainId });
 
   const bountyData = trpc.bounties.fetch.useQuery(

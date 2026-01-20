@@ -4,6 +4,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  experimental: {
+    esmExternals: 'loose',
+  },
+
   reactStrictMode: true,
   swcMinify: true,
 
@@ -45,6 +49,16 @@ const nextConfig = {
 
     // Modify the file loader rule to ignore *.svg, since we have it handled now.
     fileLoaderRule.exclude = /\.svg$/i;
+
+    config.resolve.extensionAlias = {
+      ...config.resolve.extensionAlias,
+      '.js': ['.ts', '.tsx', '.js'],
+    };
+
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'pg-native': false,
+    };
 
     return config;
   },

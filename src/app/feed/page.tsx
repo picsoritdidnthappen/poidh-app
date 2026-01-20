@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import { EarthIcon, YouIcon } from '@/components/global/Icons';
 import Activity from '@/components/feed/Activity';
 import { trpc } from '@/trpc/client';
