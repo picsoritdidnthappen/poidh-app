@@ -13,8 +13,8 @@ export const chains: Record<Netname, Chain> = {
     currency: 'degen',
     provider: degenPublicClient,
     contracts: {
-      mainContract: '0x0285626130C127741C18C7730625ca624B727DC3',
-      nftContract: '0xc43e1ab1f0e9daf37Ba532D06A9Fc713AA999A96',
+      mainContract: '0x18e5585ca7ce31b90bc8bb7aaf84152857ce243f',
+      nftContract: '0x39f04b7897dcaf9dc454e433f43fb1c3bb528e11',
     },
     explorer: 'https://explorer.degen.tips/tx/',
   },
@@ -25,8 +25,8 @@ export const chains: Record<Netname, Chain> = {
     currency: 'eth',
     provider: arbitrumPublicClient,
     contracts: {
-      mainContract: '0xF3872201171A0fF0a6e789627583E8036C41Baec',
-      nftContract: '0x18E5585ca7cE31b90Bc8BB7aAf84152857cE243f',
+      mainContract: '0x5555fa783936c260f77385b4e153b9725fef1719',
+      nftContract: '0x27E117Cc9A8DA363442e7Bd0618939E3EEEACF6A',
     },
     explorer: 'https://arbiscan.io/tx/',
   },
@@ -39,8 +39,8 @@ export const chains: Record<Netname, Chain> = {
     // @ts-ignore
     provider: basePublicClient,
     contracts: {
-      mainContract: '0xF3872201171A0fF0a6e789627583E8036C41Baec',
-      nftContract: '0x18E5585ca7cE31b90Bc8BB7aAf84152857cE243f',
+      mainContract: '0x5555fa783936c260f77385b4e153b9725fef1719',
+      nftContract: '0x27E117Cc9A8DA363442e7Bd0618939E3EEEACF6A',
     },
     explorer: 'https://basescan.org/tx/',
   },
