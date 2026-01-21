@@ -26,6 +26,7 @@ import { Chain, Netname } from '@/utils/types';
 import { chains } from '@/utils/config';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { ETH_MIN_AMOUNT, DEGEN_MIN_AMOUNT } from '@/utils/constants';
 
 export default function FormBounty({
   open,
@@ -324,13 +325,31 @@ export default function FormBounty({
               placeholder={`amount in ${currentChain.currency}`}
               value={amount}
               maxLength={15}
+              min={
+                currentChain.currency === 'degen'
+                  ? DEGEN_MIN_AMOUNT
+                  : ETH_MIN_AMOUNT
+              }
               onChange={(e) => {
                 const raw = e.target.value;
-                const integerPart = raw.split(/[.,]/)[0];
-                if (integerPart.length > 20) return;
+                if (raw.split(/[.,]/)[0].length > 20) return;
+
+                const minValue =
+                  currentChain.currency === 'degen'
+                    ? DEGEN_MIN_AMOUNT
+                    : ETH_MIN_AMOUNT;
+                const value = Number(raw);
+
+                if (
+                  raw !== '' &&
+                  !isNaN(value) &&
+                  value > 0 &&
+                  value < minValue
+                ) {
+                  return;
+                }
 
                 setAmount(raw);
-                const value = Number(raw);
                 if (!isNaN(value) && value > 0) {
                   setUsdPerToken(parseFloat((value * price).toFixed(2)));
                 } else {
