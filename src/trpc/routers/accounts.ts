@@ -241,15 +241,19 @@ export const accountsRouter = {
                 select: { userAddress: true },
                 take: 2,
               },
+              extra: {
+                select: { amountSort: true },
+              },
             },
             orderBy: { id: 'desc' },
           })
           .then((rows) =>
-            rows.map(({ claims, participations, ...b }) => ({
+            rows.map(({ claims, participations, extra, ...b }) => ({
               ...b,
               hasClaims: claims.length > 0,
               createdAt: b.createdAt.toNumber(),
               hasParticipants: participations.length > 1,
+              amountSort: extra.amountSort,
             }))
           ),
 
@@ -274,6 +278,9 @@ export const accountsRouter = {
                     select: { userAddress: true },
                     take: 2,
                   },
+                  extra: {
+                    select: { amountSort: true },
+                  },
                 },
               },
             },
@@ -282,11 +289,12 @@ export const accountsRouter = {
             rows
               .map((p) => p.bounty)
               .filter((b): b is NonNullable<typeof b> => !!b)
-              .map(({ claims, participations, ...b }) => ({
+              .map(({ claims, participations, extra, ...b }) => ({
                 ...b,
                 hasClaims: claims.length > 0,
                 createdAt: b.createdAt.toNumber(),
                 hasParticipants: participations.length > 1,
+                amountSort: extra.amountSort,
               }))
           ),
       ]);
