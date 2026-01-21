@@ -11,6 +11,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom, pollingChainIdAtom } from '@/store/loading';
 import { cn, formatAmountShort } from '@/utils/utils';
 import JoinBountySuccessModal from './JoinBountySuccessModal';
+import { DEGEN_MIN_AMOUNT, ETH_MIN_AMOUNT } from '@/utils/constants';
 
 export default function FormJoinBounty({
   id,
@@ -92,11 +93,17 @@ export default function FormJoinBounty({
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const raw = event.target.value;
-    const integerPart = raw.split(/[.,]/)[0];
-    if (integerPart.length > 20) return;
+    if (raw.split(/[.,]/)[0].length > 20) return;
+
+    const minValue =
+      chain.currency === 'degen' ? DEGEN_MIN_AMOUNT : ETH_MIN_AMOUNT;
+    const value = Number(raw);
+
+    if (raw !== '' && !isNaN(value) && value > 0 && value < minValue) {
+      return;
+    }
 
     setAmount(raw);
-    const value = Number(raw);
     if (!isNaN(value) && value > 0) {
       setUsdPerToken(parseFloat((value * price).toFixed(2)));
     } else {

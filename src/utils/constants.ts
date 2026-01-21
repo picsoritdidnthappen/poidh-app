@@ -15,3 +15,6 @@ export const ALBUMS = [
   { name: 'gaming', slug: 'gaming' },
   { name: 'fashion', slug: 'fashion' },
 ];
+
+export const ETH_MIN_AMOUNT = 0.001;
+export const DEGEN_MIN_AMOUNT = 1;
