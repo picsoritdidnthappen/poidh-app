@@ -67,6 +67,7 @@ async function run(csvPath: string) {
                 bountyId: bountyId,
                 chainId: chainId,
                 album: row.data.album,
+                amountSort: 0,
               },
             })
             .then(() => ok++)

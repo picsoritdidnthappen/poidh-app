@@ -31,12 +31,15 @@ export const bountiesRouter = {
         },
       });
 
-      const { claims, participations, ...bountyData } = bounty;
+      const { claims, participations, extra, ...bountyData } = bounty;
+      const { amountSort, ...extraData } = extra;
 
       return {
         ...bountyData,
+        extra: extraData,
         hasClaims: claims.length > 0,
         hasParticipants: participations.length > 1,
+        amountSort,
       };
     }),
 
@@ -75,6 +78,7 @@ export const bountiesRouter = {
         },
         create: {
           ...input,
+          amountSort: 0,
         },
         update: {
           album: input.album,
@@ -92,7 +96,7 @@ export const bountiesRouter = {
           .object({
             createdAt: z.coerce.number(),
             amountSort: z.number(),
-            ids: z.array(z.number()),
+            dates: z.array(z.number()),
           })
           .nullish(),
       })
@@ -101,69 +105,133 @@ export const bountiesRouter = {
       const sortByDate = input.sortType === 'date';
       const sortByValue = input.sortType === 'value';
 
-      const items = await prisma.bounties.findMany({
-        include: {
-          claims: {
-            take: 1,
-            where: {
+      let items = undefined;
+
+      if (sortByValue) {
+        const bountiesExtra = await prisma.bountiesExtra.findMany({
+          where: {
+            bounty: {
               ban: {
                 none: {},
               },
+              inProgress: true,
+              isCanceled: false,
+              ...(input.status === 'open'
+                ? {
+                    isVoting: false,
+                  }
+                : input.status === 'progress'
+                ? {
+                    isVoting: true,
+                  }
+                : input.status === 'past'
+                ? {
+                    inProgress: false,
+                  }
+                : {}),
             },
-            orderBy: { isAccepted: 'desc' },
-          },
-          participations: {
-            select: { userAddress: true },
-            take: 2,
-          },
-        },
 
-        where: {
-          inProgress: true,
-          isCanceled: false,
-          ban: {
-            none: {},
+            ...(input.cursor
+              ? { amountSort: { lt: input.cursor.amountSort } }
+              : {}),
+          },
+          select: {
+            bounty: {
+              include: {
+                claims: {
+                  take: 1,
+                  where: {
+                    ban: {
+                      none: {},
+                    },
+                  },
+                  orderBy: { isAccepted: 'desc' },
+                },
+                participations: {
+                  select: { userAddress: true },
+                  take: 2,
+                },
+              },
+            },
+            amountSort: true,
+          },
+          orderBy: { amountSort: 'desc' },
+          take: input.limit,
+        });
+
+        items = bountiesExtra.map((e) => ({
+          ...e.bounty!,
+          amountSort: e.amountSort,
+        }));
+      } else {
+        const bounties = await prisma.bounties.findMany({
+          include: {
+            claims: {
+              take: 1,
+              where: {
+                ban: {
+                  none: {},
+                },
+              },
+              orderBy: { isAccepted: 'desc' },
+            },
+            participations: {
+              select: { userAddress: true },
+              take: 2,
+            },
+
+            extra: {
+              select: {
+                amountSort: true,
+              },
+            },
           },
 
-          ...(input.status === 'open'
-            ? {
-                isVoting: false,
-              }
-            : input.status === 'progress'
-            ? {
-                isVoting: true,
-              }
-            : input.status === 'past'
-            ? {
-                inProgress: false,
-              }
-            : {}),
-
-          ...(input.cursor
-            ? sortByDate
+          where: {
+            inProgress: true,
+            isCanceled: false,
+            ban: {
+              none: {},
+            },
+            ...(input.cursor
               ? {
-                  createdAt: { lt: input.cursor.createdAt },
-                  id: { notIn: input.cursor.ids },
+                  createdAt: {
+                    lt: input.cursor.createdAt,
+                    notIn: input.cursor.dates,
+                  },
                 }
-              : { amountSort: { lt: input.cursor.amountSort } }
-            : {}),
-        },
+              : {}),
 
-        orderBy: sortByDate
-          ? { createdAt: 'desc' }
-          : sortByValue
-          ? { amountSort: 'desc' }
-          : {},
+            ...(input.status === 'open'
+              ? {
+                  isVoting: false,
+                }
+              : input.status === 'progress'
+              ? {
+                  isVoting: true,
+                }
+              : input.status === 'past'
+              ? {
+                  inProgress: false,
+                }
+              : {}),
+          },
 
-        distinct: 'id',
-        take: input.limit,
-      });
+          orderBy: { createdAt: 'desc' },
+          take: input.limit,
+        });
+
+        items = bounties.map(({ extra, ...bounty }) => ({
+          ...bounty,
+          amountSort: extra.amountSort,
+        }));
+      }
 
       let nextCursor:
         | {
             createdAt: number;
             amountSort: number;
-            ids: number[];
+            dates: number[];
           }
         | undefined = undefined;
 
@@ -173,7 +241,10 @@ export const bountiesRouter = {
         nextCursor = {
           createdAt: last.createdAt.toNumber(),
           amountSort: last.amountSort,
-          ids: [...(input.cursor?.ids ?? []), ...items.map((item) => item.id)],
+          dates: [
+            ...(input.cursor?.dates ?? []),
+            ...items.map((item) => Number(item?.createdAt)),
+          ],
         };
       }
 
@@ -213,6 +284,12 @@ export const bountiesRouter = {
             select: { userAddress: true },
             take: 2,
           },
+
+          extra: {
+            select: {
+              amountSort: true,
+            },
+          },
         },
 
         where: {
@@ -241,7 +318,6 @@ export const bountiesRouter = {
             : {}),
         },
 
-        distinct: 'id',
         orderBy: { createdAt: 'desc' },
         take: input.limit,
       });
@@ -252,11 +328,12 @@ export const bountiesRouter = {
       }
 
       return {
-        items: items.map(({ claims, participations, ...bounty }) => ({
+        items: items.map(({ claims, participations, extra, ...bounty }) => ({
           ...bounty,
           hasClaims: claims.length > 0,
           createdAt: bounty.createdAt.toNumber(),
           hasParticipants: participations.length > 1,
+          amountSort: extra.amountSort,
         })),
         nextCursor,
       };
@@ -419,6 +496,11 @@ export const bountiesRouter = {
             select: { userAddress: true },
             take: 2,
           },
+          extra: {
+            select: {
+              amountSort: true,
+            },
+          },
         },
 
         where: {
@@ -449,11 +531,12 @@ export const bountiesRouter = {
       }
 
       return {
-        items: items.map(({ claims, participations, ...bounty }) => ({
+        items: items.map(({ claims, participations, extra, ...bounty }) => ({
           ...bounty,
           createdAt: bounty.createdAt.toNumber(),
           hasClaims: claims.length > 0,
           hasParticipants: participations.length > 1,
+          amountSort: extra.amountSort,
         })),
         nextCursor,
       };
