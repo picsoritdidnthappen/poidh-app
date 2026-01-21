@@ -14,7 +14,6 @@ model Bounties {
   title          String
   description    String
   amount         String
-  amountSort     Float   @map("amount_sort")
   issuer         String
   createdAt      Decimal @map("created_at") @db.Decimal(78, 0)
   inProgress     Boolean @default(true) @map("in_progress")
@@ -37,9 +36,10 @@ model Bounties {
 }
 
 model BountiesExtra {
-  bountyId Int    @map("bounty_id")
-  chainId  Int    @map("chain_id")
-  album    String
+  bountyId   Int    @map("bounty_id")
+  chainId    Int    @map("chain_id")
+  album      String
+  amountSort Float  @map("amount_sort")
 
   bounty Bounties?
 
