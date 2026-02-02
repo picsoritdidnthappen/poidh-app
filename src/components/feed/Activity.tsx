@@ -159,8 +159,11 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       );
     }
 
-    return <div className='truncate'>{activity.action ?? 'activity'}</div>;
+    return null;
   }
+
+  const text = renderText();
+  if (!text) return null;
 
   return (
     <div className='w-full max-w-full sm:max-w-3xl bg-white/5 border border-white/8 rounded-lg backdrop-blur-sm mt-4 sm:mt-5 overflow-hidden shadow-sm'>
@@ -187,7 +190,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
 
         <div className='mt-3'>
           <div className='text-sm sm:text-base text-white/90 font-mono leading-relaxed'>
-            {renderText()}
+            {text}
           </div>
         </div>
       </div>
