@@ -59,7 +59,7 @@ export default function Voting({
     (contributor: { userAddress: string }) =>
       contributor.userAddress.toLowerCase() === account.address?.toLowerCase()
   );
-  const isVotingInProgress = bounty.data?.deadline ?? 0 * 1000 > Date.now();
+  const isVotingInProgress = (bounty.data?.deadline ?? 0) * 1000 > Date.now();
 
   const voteMutation = useMutation({
     mutationFn: async ({ vote }: { vote: boolean }) => {
