@@ -198,6 +198,16 @@ model Reactions {
   user    Users    @relation(fields: [address], references: [address])
 }
 
+model Notifications {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  event     String
+  data      Json
+  sendAt    DateTime? @map("send_at") @db.Timestamptz(6)
+
+  @@map("Notifications")
+}
+
 enum Reaction {
   upvote
   downvote
