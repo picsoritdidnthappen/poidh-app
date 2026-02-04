@@ -144,17 +144,14 @@ export default function FormBounty({
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const bounty = await trpcClient.bounties.isCreated.query({
           id: Number(data.args.id),
-          chainId: pollingChainId ?? currentChain.id,
+          chainId: currentChain.id,
         });
 
         if (bounty) {
-          const usd = Number(formData.amount) * price;
           return {
             bountyId: bounty.id,
             album: formData.album.trim(),
-            bountyTitle: formData.name,
-            bountyUsd: usd,
-            creatorAddress: account.address ?? '',
+            chainId: bounty.chainId,
           };
         }
         await new Promise((resolve) => setTimeout(resolve, 1_000));
@@ -162,13 +159,13 @@ export default function FormBounty({
 
       throw new Error('Failed to index bounty');
     },
-    onSuccess: async ({ bountyId, album }) => {
-      saveBountyAlbum.mutate({
-        bountyId: Number(bountyId),
-        chainId: pollingChainId ?? currentChain.id,
+    onSuccess: async ({ bountyId, album, chainId }) => {
+      await saveBountyAlbum.mutateAsync({
+        bountyId,
+        chainId,
         album,
       });
-      setLoading({ isLoading: false, status: '' });
+      setLoading({ isLoading: true, status: 'Redirecting...' });
       router.push(
         `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
       );
