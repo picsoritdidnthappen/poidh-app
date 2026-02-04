@@ -261,10 +261,10 @@ export const commentsRouter = {
       const chain = getChainById({ chainId: input.chainId });
       const shortMessage =
         input.text.length > 140 ? `${input.text.slice(0, 137)}...` : input.text;
-      const adresses = new Set<string>();
+      const addresses = new Set<string>();
 
       if (bounty?.issuer && bounty.issuer !== input.address) {
-        adresses.add(bounty.issuer);
+        addresses.add(bounty.issuer);
       }
 
       if (
@@ -272,14 +272,14 @@ export const commentsRouter = {
         parentComment?.userAddress &&
         parentComment.userAddress !== input.address
       ) {
-        adresses.add(parentComment.userAddress);
+        addresses.add(parentComment.userAddress);
       }
 
       await prisma.notifications.create({
         data: {
           event: input.parrentId ? 'ReplyCreated' : 'CommentCreated',
           data: {
-            adresses: Array.from(adresses),
+            addresses: Array.from(addresses),
             link: `https://poidh.xyz/${chain.slug}/bounty/${input.bountyId}`,
             message: shortMessage,
             issuer: input.address,
