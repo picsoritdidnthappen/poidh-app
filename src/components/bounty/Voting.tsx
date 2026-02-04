@@ -45,7 +45,7 @@ export default function Voting({
   });
 
   const userHasVoted = trpc.accounts.hasVoted.useQuery({
-    address: account.address ?? '',
+    address: account.address?.toLowerCase() ?? '',
     bountyId: Number(bountyId),
     chainId: chain.id,
   });
