@@ -259,6 +259,8 @@ export const commentsRouter = {
       });
 
       const chain = getChainById({ chainId: input.chainId });
+      const shortMessage =
+        input.text.length > 140 ? `${input.text.slice(0, 137)}...` : input.text;
       const adresses = new Set<string>();
 
       if (bounty?.issuer && bounty.issuer !== input.address) {
@@ -279,6 +281,8 @@ export const commentsRouter = {
           data: {
             adresses: Array.from(adresses),
             link: `https://poidh.xyz/${chain.slug}/bounty/${input.bountyId}`,
+            message: shortMessage,
+            issuer: input.address,
           },
         },
       });
