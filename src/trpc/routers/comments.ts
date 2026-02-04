@@ -7,7 +7,7 @@ import {
   getReactionSignatureMessage,
 } from '@/utils/utils';
 import { TRPCError } from '@trpc/server';
-import { chains } from '@/utils/config';
+import { chains, getChainById } from '@/utils/config';
 import { getUsersDataOrFetchItFromNeynar } from './neynar';
 
 const COMMENTS_USER_LIMIT = {
@@ -227,6 +227,27 @@ export const commentsRouter = {
     .use(verifyComment)
     .mutation(async ({ input }) => {
       await getUsersDataOrFetchItFromNeynar([input.address]);
+      const [bounty, parentComment] = await Promise.all([
+        prisma.bounties.findFirst({
+          where: {
+            id: input.bountyId,
+            chainId: input.chainId,
+          },
+          select: {
+            issuer: true,
+          },
+        }),
+        input.parrentId
+          ? prisma.comments.findFirst({
+              where: {
+                id: input.parrentId,
+              },
+              select: {
+                userAddress: true,
+              },
+            })
+          : Promise.resolve(null),
+      ]);
       await prisma.comments.create({
         data: {
           body: input.text,
@@ -234,6 +255,35 @@ export const commentsRouter = {
           chainId: input.chainId,
           bountyId: input.bountyId,
           userAddress: input.address,
+        },
+      });
+
+      const chain = getChainById({ chainId: input.chainId });
+      const shortMessage =
+        input.text.length > 140 ? `${input.text.slice(0, 137)}...` : input.text;
+      const addresses = new Set<string>();
+
+      if (bounty?.issuer && bounty.issuer !== input.address) {
+        addresses.add(bounty.issuer);
+      }
+
+      if (
+        input.parrentId &&
+        parentComment?.userAddress &&
+        parentComment.userAddress !== input.address
+      ) {
+        addresses.add(parentComment.userAddress);
+      }
+
+      await prisma.notifications.create({
+        data: {
+          event: input.parrentId ? 'ReplyCreated' : 'CommentCreated',
+          data: {
+            addresses: Array.from(addresses),
+            link: `https://poidh.xyz/${chain.slug}/bounty/${input.bountyId}`,
+            message: shortMessage,
+            issuer: input.address,
+          },
         },
       });
     }),
