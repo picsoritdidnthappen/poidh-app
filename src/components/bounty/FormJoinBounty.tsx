@@ -12,6 +12,7 @@ import { setLoadingAtom, pollingChainIdAtom } from '@/store/loading';
 import { cn, formatAmountShort } from '@/utils/utils';
 import JoinBountySuccessModal from './JoinBountySuccessModal';
 import { DEGEN_MIN_AMOUNT, ETH_MIN_AMOUNT } from '@/utils/constants';
+import { CloseIcon } from '@/components/global/Icons';
 
 export default function FormJoinBounty({
   id,
@@ -94,14 +95,7 @@ export default function FormJoinBounty({
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const raw = event.target.value;
     if (raw.split(/[.,]/)[0].length > 20) return;
-
-    const minValue =
-      chain.currency === 'degen' ? DEGEN_MIN_AMOUNT : ETH_MIN_AMOUNT;
     const value = Number(raw);
-
-    if (raw !== '' && !isNaN(value) && value > 0 && value < minValue) {
-      return;
-    }
 
     setAmount(raw);
     if (!isNaN(value) && value > 0) {
@@ -123,7 +117,17 @@ export default function FormJoinBounty({
         className='relative z-50'
       >
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center p-4'>
-          <DialogPanel className='w-full max-w-xs rounded-lg p-6 bg-poidhBlue/90 border border-[#D1ECFF] text-white'>
+          <DialogPanel className='w-full max-w-xs rounded-lg p-6 bg-poidhBlue/90 border border-[#D1ECFF] text-white relative'>
+            <button
+              onClick={() => {
+                onClose();
+                setUsdPerToken(null);
+                setAmount('');
+              }}
+              className='absolute top-4 right-4 text-white/80 hover:text-white transition-colors'
+            >
+              <CloseIcon size={12} />
+            </button>
             <div className='flex flex-col items-start w-full'>
               <DialogTitle className='text-base mb-2 font-family-geist'>
                 Reward
@@ -145,21 +149,39 @@ export default function FormJoinBounty({
               </div>
             </div>
             <button
-              className={cn(
-                'w-full rounded-full lowercase bg-poidhRed hover:bg-red-400 text-white font-family-geist py-2 px-4 border border-transparent transition-colors',
-                !amount && 'opacity-50 cursor-not-allowed'
-              )}
               disabled={!amount}
               onClick={() => {
                 if (account.address) {
+                  const minValue =
+                    chain.currency === 'degen'
+                      ? DEGEN_MIN_AMOUNT
+                      : ETH_MIN_AMOUNT;
+
+                  if (Number(amount) < minValue) {
+                    toast.error(
+                      `minimum amount is ${minValue} ${chain.currency.toUpperCase()}`
+                    );
+                    return;
+                  }
+
                   onClose();
+                  setUsdPerToken(null);
                   bountyMutation.mutate();
                 } else {
                   toast.error('Please connect wallet to continue');
                 }
               }}
+              className={cn(
+                'w-full relative group',
+                !amount && 'opacity-50 cursor-not-allowed'
+              )}
             >
-              add funds
+              <div className='absolute inset-0 bg-[#cf5d5d] rounded-md transform translate-y-[2px]'></div>
+              <div className='relative bg-poidhRed text-white py-2 px-3 rounded-md  transition-all text-sm duration-75 group-hover:-translate-y-[1px] group-active:translate-y-[2px] flex items-center justify-center gap-1.5 border-2 border-t-[#ff6e6e] border-l-[#ff6e6e] border-r-[#cf5d5d] border-b-[#cf5d5d]'>
+                <span className='drop-shadow-[1px_1px_0px_rgba(0,0,0,0.5)] tracking-wide'>
+                  add funds
+                </span>
+              </div>
             </button>
           </DialogPanel>
         </div>

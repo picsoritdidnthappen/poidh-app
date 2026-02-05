@@ -18,7 +18,7 @@ import abi from '@/constant/abi/abi';
 import { cn } from '@/utils/utils';
 import GameButton from '@/components/global/GameButton';
 import { ExpandMoreIcon, InfoIcon, CloseIcon } from '@/components/global/Icons';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { formatAmountShort } from '@/utils/utils';
@@ -86,7 +86,6 @@ export default function FormBounty({
   const router = useRouter();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
-  const pollingChainId = useAtomValue(pollingChainIdAtom);
   const saveBountyAlbum = trpc.bounties.addToAlbum.useMutation();
 
   const createBountyMutations = useMutation({
