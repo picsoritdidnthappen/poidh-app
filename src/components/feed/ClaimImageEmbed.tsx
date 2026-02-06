@@ -67,7 +67,7 @@ export default function ClaimImageEmbed({
             </div>
           )}
           <div className='mt-3'>
-            <h3 className='text-white text-lg font-bold'>
+            <h3 className='text-white text-lg font-bold truncate'>
               {claim.title || '???'}
             </h3>
           </div>
