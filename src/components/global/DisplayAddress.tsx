@@ -15,7 +15,9 @@ export default function DisplayAddress({
   const userQuery = trpc.neynar.usersData.useQuery({
     addresses: [address],
   });
-  const ensOrDegenName = trpc.web3.fetchEnsOrDegenName.useQuery({ address });
+  const weiOrEnsOrDegenName = trpc.web3.fetchWeiOrEnsOrDegenName.useQuery({
+    address,
+  });
 
   const user = userQuery.data?.[0];
 
@@ -48,10 +50,10 @@ export default function DisplayAddress({
           ? formatWalletAddress(address)
           : user?.farcasterTag
           ? user.farcasterTag
-          : ensOrDegenName.isLoading
+          : weiOrEnsOrDegenName.isLoading
           ? formatWalletAddress(address)
-          : ensOrDegenName.data
-          ? ensOrDegenName.data
+          : weiOrEnsOrDegenName.data
+          ? weiOrEnsOrDegenName.data
           : formatWalletAddress(address)}
       </Link>
     </span>

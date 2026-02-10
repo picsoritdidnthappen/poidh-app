@@ -99,6 +99,7 @@ model UsersExtra {
   pfpUrl       String?  @map("pfp_url")
   ens          String?
   degenName    String?  @map("degen_name")
+  wei          String?
   farcasterTag String?  @map("farcaster_tag")
   twitterTag   String?  @map("twitter_tag")
   lastUpdated  DateTime @default(now()) @map("last_updated")
