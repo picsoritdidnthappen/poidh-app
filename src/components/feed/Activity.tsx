@@ -218,7 +218,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                 className='flex items-center justify-between gap-4'
               >
                 <div className='flex flex-col flex-1 min-w-0'>
-                  <span className='font-mono text-m mb-3 break-words'>
+                  <span className='font-mono text-m mb-3 truncate'>
                     {activity.bounty?.title ?? '???'}
                   </span>
                   {bountyData.data?.amount && priceData.data && chain && (

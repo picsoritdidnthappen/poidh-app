@@ -18,7 +18,7 @@ import abi from '@/constant/abi/abi';
 import { cn } from '@/utils/utils';
 import GameButton from '@/components/global/GameButton';
 import { ExpandMoreIcon, InfoIcon, CloseIcon } from '@/components/global/Icons';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { formatAmountShort } from '@/utils/utils';
@@ -86,7 +86,6 @@ export default function FormBounty({
   const router = useRouter();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
-  const pollingChainId = useAtomValue(pollingChainIdAtom);
   const saveBountyAlbum = trpc.bounties.addToAlbum.useMutation();
 
   const createBountyMutations = useMutation({
@@ -322,30 +321,11 @@ export default function FormBounty({
               placeholder={`amount in ${currentChain.currency}`}
               value={amount}
               maxLength={15}
-              min={
-                currentChain.currency === 'degen'
-                  ? DEGEN_MIN_AMOUNT
-                  : ETH_MIN_AMOUNT
-              }
               onChange={(e) => {
                 const raw = e.target.value;
                 if (raw.split(/[.,]/)[0].length > 20) return;
 
-                const minValue =
-                  currentChain.currency === 'degen'
-                    ? DEGEN_MIN_AMOUNT
-                    : ETH_MIN_AMOUNT;
                 const value = Number(raw);
-
-                if (
-                  raw !== '' &&
-                  !isNaN(value) &&
-                  value > 0 &&
-                  value < minValue
-                ) {
-                  return;
-                }
-
                 setAmount(raw);
                 if (!isNaN(value) && value > 0) {
                   setUsdPerToken(parseFloat((value * price).toFixed(2)));
@@ -510,6 +490,18 @@ export default function FormBounty({
               )}
               onClick={() => {
                 if (name && description && amount) {
+                  const minValue =
+                    currentChain.currency === 'degen'
+                      ? DEGEN_MIN_AMOUNT
+                      : ETH_MIN_AMOUNT;
+
+                  if (Number(amount) < minValue) {
+                    toast.error(
+                      `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
+                    );
+                    return;
+                  }
+
                   const formData = {
                     name,
                     description,

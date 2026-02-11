@@ -26,6 +26,7 @@ export const usersRouter = {
         pfpUrl: userExtra?.pfpUrl ?? null,
         ens: userExtra?.ens ?? null,
         degenName: userExtra?.degenName ?? null,
+        wei: userExtra?.wei ?? null,
         farcasterTag: userExtra?.farcasterTag ?? null,
         twitterTag: userExtra?.twitterTag ?? null,
         lastUpdated: userExtra?.lastUpdated ?? null,
@@ -108,6 +109,7 @@ export const usersRouter = {
             ux."pfp_url",
             ux."ens",
             ux."degen_name",
+            ux."wei",
             ux."farcaster_tag",
             COALESCE(c.bounty_count, 0) AS bounty_count
           FROM "Users" u
@@ -119,6 +121,7 @@ export const usersRouter = {
             u."address" NOT IN (${Prisma.join(ignoreAddresses)})
             AND CASE
               WHEN ux."farcaster_tag" IS NOT NULL THEN ux."farcaster_tag" ILIKE ${search}
+              WHEN ux."wei"          IS NOT NULL THEN ux."wei"          ILIKE ${search}
               WHEN ux."ens"          IS NOT NULL THEN ux."ens"          ILIKE ${search}
               WHEN ux."degen_name"   IS NOT NULL THEN ux."degen_name"   ILIKE ${search}
               ELSE u."address" ILIKE ${search}

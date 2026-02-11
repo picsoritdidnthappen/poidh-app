@@ -2,7 +2,7 @@ import prisma from 'prisma/prisma';
 import { baseProcedure } from '../init';
 import { z } from 'zod';
 import { mainnetPublicClient, degenPublicClient } from '@/utils/publicClients';
-import { DEGENNAMERESABI } from '@/constant';
+import { DEGENNAMERESABI, WEINAMESABI } from '@/constant';
 
 export const web3Router = {
   fetchPrice: baseProcedure
@@ -30,7 +30,7 @@ export const web3Router = {
         : Number(rate.ethUsd);
     }),
 
-  fetchEnsOrDegenName: baseProcedure
+  fetchWeiOrEnsOrDegenName: baseProcedure
     .input(
       z.object({
         address: z.string(),
@@ -44,6 +44,35 @@ export const web3Router = {
           address: input.address.toLowerCase(),
         },
       });
+
+      if (!user || !user.wei || user.lastUpdated < tenDaysAgo) {
+        try {
+          const weiName = await mainnetPublicClient.readContract({
+            abi: WEINAMESABI,
+            address: '0x0000000000696760E15f265e828DB644A0c242EB',
+            functionName: 'reverseResolve',
+            args: [input.address as `0x${string}`],
+          });
+
+          if (weiName) {
+            await prisma.usersExtra.upsert({
+              where: { address: input.address.toLowerCase() },
+              update: { wei: weiName, lastUpdated: new Date() },
+              create: {
+                address: input.address.toLowerCase(),
+                wei: weiName,
+                lastUpdated: new Date(),
+              },
+            });
+
+            return weiName;
+          }
+        } catch {}
+      }
+
+      if (user?.wei) {
+        return user.wei;
+      }
 
       if (!user || !user.ens || user.lastUpdated < tenDaysAgo) {
         try {
