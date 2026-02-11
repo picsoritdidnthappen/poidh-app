@@ -401,6 +401,9 @@ export const bountiesRouter = {
           onChainId: input.id,
           inProgress: true,
         },
+        orderBy: {
+          id: 'desc',
+        },
       });
     }),
 

@@ -124,9 +124,21 @@ export default function FormBounty({
         hash: tx,
       });
 
-      const log = receipt.logs[0];
+      const log = receipt.logs.find((log) => {
+        try {
+          const decoded = decodeEventLog({
+            abi,
+            data: log.data,
+            topics: log.topics,
+          });
+          return decoded.eventName === 'BountyCreated';
+        } catch {
+          return false;
+        }
+      });
+
       if (!log) {
-        throw new Error('No logs found');
+        throw new Error('BountyCreated log not found');
       }
 
       const data = decodeEventLog({
