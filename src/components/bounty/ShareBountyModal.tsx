@@ -38,7 +38,7 @@ export default function ShareBountyModal({
   );
 
   const handleShareX = async () => {
-    let text = `check out this bounty on @poidhxyz 📸\n\n${window.location.href}`;
+    let text = `check out this bounty on @poidhxyz 📸`;
 
     if (user) {
       if (user?.twitterTag) {

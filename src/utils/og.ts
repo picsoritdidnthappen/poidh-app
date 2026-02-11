@@ -11,5 +11,5 @@ export function generateDynamicOGUrl({
 
   return `${baseUrl}/api/og/${type}?${new URLSearchParams(
     dataObject
-  )}&imageFormat=${imageFormat}&timestamp=${Math.floor(Date.now() / 1000)}`;
+  )}&imageFormat=${imageFormat}`;
 }

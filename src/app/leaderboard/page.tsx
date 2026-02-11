@@ -36,7 +36,7 @@ function getDisplayName(user: UserData): string {
   }
 
   if (user.farcasterTag) return formatUserName(user.farcasterTag);
-  if ('wei' in user && user.wei) return formatUserName(user.wei.slice(0, 12));
+  if (user.wei) return formatUserName(user.wei.slice(0, 12));
   if (user.ens) return formatUserName(user.ens.slice(0, 12));
   if (user.degenName) return formatUserName(user.degenName.slice(0, 12));
   return user.address?.slice(0, 7) ?? 'unknown';
