@@ -7,12 +7,14 @@ import Image from 'next/image';
 import InfiniteScroll from 'react-infinite-scroller';
 
 function getDisplayName(user: {
-  farcaster?: string | null;
+  farcaster_tag?: string | null;
+  wei?: string | null;
   ens?: string | null;
   degen_name?: string | null;
   address?: string;
 }): string {
-  if (user.farcaster) return user.farcaster;
+  if (user.farcaster_tag) return user.farcaster_tag;
+  if (user.wei) return user.wei;
   if (user.ens) return user.ens;
   if (user.degen_name) return user.degen_name;
   return user.address?.slice(0, 7) ?? '';
