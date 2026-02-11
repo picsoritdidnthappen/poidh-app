@@ -7,8 +7,11 @@ import {
 import { UserData } from '@/utils/types';
 
 export function shareToTwitter(text: string, url?: string) {
+  const nonCashedUrl = `${url ?? window.location.href}?t=${Math.floor(
+    Date.now() / 1000
+  )}`;
   const composeUrl = `${TWITTER_URL}/intent/tweet?text=${encodeURIComponent(
-    `${text}\n\n${url ?? window.location.href}`
+    `${text}\n\n${nonCashedUrl}`
   )}`;
   window.open(composeUrl, '_blank');
 }
@@ -63,6 +66,9 @@ export function getDisplayUsername(
     return `@${user.farcasterTag}`;
   } else if (platform === 'twitter' && user?.twitterTag) {
     return `@${user.twitterTag}`;
+  }
+  if (user?.wei) {
+    return user.wei;
   }
   if (user?.ens) {
     return user.ens;
