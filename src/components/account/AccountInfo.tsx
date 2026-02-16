@@ -16,6 +16,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { ChainId } from '@/utils/types';
 import ShareAccountModal from '@/components/account/ShareAccountModal';
 import { useAccount } from 'wagmi';
+import ZkPassportVerify from '@/components/account/ZkPassportVerify';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 const PAGE_SIZE = 9;
@@ -147,6 +148,7 @@ export default function AccountInfo({ address }: { address: string }) {
                   >
                     <ShareIcon size={20} />
                   </button>
+                  {isOwnPage && <ZkPassportVerify address={address} />}
                 </div>
               </div>
 
