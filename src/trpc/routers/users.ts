@@ -29,6 +29,7 @@ export const usersRouter = {
         wei: userExtra?.wei ?? null,
         farcasterTag: userExtra?.farcasterTag ?? null,
         twitterTag: userExtra?.twitterTag ?? null,
+        zkpassportCountry: userExtra?.zkpassportCountry ?? null,
         lastUpdated: userExtra?.lastUpdated ?? null,
       };
     }),

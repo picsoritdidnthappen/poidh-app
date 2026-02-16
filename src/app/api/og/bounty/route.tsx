@@ -34,13 +34,11 @@ export async function GET(req: NextRequest) {
     );
 
     return new ImageResponse(
-      (
-        <BountyPreviewCard
-          bountyData={bountyPreviewData}
-          farcasterParticipants={farcasterParticipants}
-          imageFormat={imageFormat}
-        />
-      ),
+      await BountyPreviewCard({
+        bountyData: bountyPreviewData,
+        farcasterParticipants,
+        imageFormat,
+      }),
       {
         width: imageFormat === 'og' ? 1200 : 600,
         height: imageFormat === 'og' ? 630 : 400,

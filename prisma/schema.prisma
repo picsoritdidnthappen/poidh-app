@@ -100,9 +100,11 @@ model UsersExtra {
   ens          String?
   degenName    String?  @map("degen_name")
   wei          String?
-  farcasterTag String?  @map("farcaster_tag")
-  twitterTag   String?  @map("twitter_tag")
-  lastUpdated  DateTime @default(now()) @map("last_updated")
+  farcasterTag       String?   @map("farcaster_tag")
+  twitterTag         String?   @map("twitter_tag")
+  zkpassportCountry  String?   @map("zkpassport_country")
+  zkpassportVerifiedAt DateTime? @map("zkpassport_verified_at")
+  lastUpdated        DateTime  @default(now()) @map("last_updated")
 
   user Users @relation(fields: [address], references: [address])
 
