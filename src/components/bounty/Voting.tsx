@@ -8,6 +8,9 @@ import { useMutation } from '@tanstack/react-query';
 import { trpc } from '@/trpc/client';
 import { useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
+import { Claim } from '@/utils/types';
+import { useState } from 'react';
+import ConfirmBountySuccessModal from './ConfirmBountySuccessModal';
 
 function formatDeadline(date: Date) {
   return date.toLocaleString('en-US', {
@@ -23,9 +26,11 @@ function formatDeadline(date: Date) {
 export default function Voting({
   bountyId,
   isAcceptedBounty,
+  votingClaim,
 }: {
   bountyId: number;
   isAcceptedBounty: boolean;
+  votingClaim?: Claim | null;
 }) {
   const account = useAccount();
   const chain = useChainInfo();
@@ -33,6 +38,7 @@ export default function Voting({
   const switctChain = useSwitchChain();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
+  const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
 
   const voting = trpc.bounties.fetchVoting.useQuery({
     bountyId,
@@ -43,6 +49,10 @@ export default function Voting({
     id: Number(bountyId),
     chainId: chain.id,
   });
+
+  const isBountyOwner =
+    account?.address?.toLocaleLowerCase() ===
+    bounty.data?.issuer?.toLocaleLowerCase();
 
   const userHasVoted = trpc.accounts.hasVoted.useQuery({
     address: account.address?.toLowerCase() ?? '',
@@ -116,7 +126,11 @@ export default function Voting({
       });
     },
     onSuccess: () => {
-      toast.success('Vote resolved successfully');
+      if (isBountyOwner && votingClaim) {
+        setShowConfirmSuccess(true);
+      } else {
+        toast.success('Vote resolved successfully');
+      }
     },
     onError: (error) => {
       toast.error('Failed to resolve vote: ' + error.message);
@@ -306,6 +320,18 @@ export default function Voting({
         <div className='flex items-center justify-center h-40 animate-pulse bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 backdrop-blur-md'>
           <p className='text-sm text-white/50'>Loading voting data...</p>
         </div>
+      )}
+      {bounty.data && votingClaim && (
+        <ConfirmBountySuccessModal
+          open={showConfirmSuccess}
+          onClose={() => setShowConfirmSuccess(false)}
+          claimImage={votingClaim.url ?? ''}
+          claimTitle={votingClaim.title}
+          claimIssuer={votingClaim.issuer}
+          bountyTitle={bounty.data.title}
+          bountyAmount={bounty.data.amount}
+          bountyIssuer={bounty.data.issuer}
+        />
       )}
     </div>
   );

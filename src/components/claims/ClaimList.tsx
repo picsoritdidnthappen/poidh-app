@@ -33,6 +33,7 @@ export default function ClaimList({
               <Voting
                 bountyId={claims?.[0].bountyId}
                 isAcceptedBounty={claims.some((claim) => claim.isAccepted)}
+                votingClaim={votingClaim}
               />
             </div>
           </>
