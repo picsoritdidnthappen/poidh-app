@@ -9,6 +9,7 @@ import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import ClaimCard from './ClaimCard';
 import SubmitVotingConfirm from '../bounty/SubmitVotingConfirm';
+import ConfirmBountySuccessModal from '../bounty/ConfirmBountySuccessModal';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
@@ -33,6 +34,7 @@ export default function ClaimItem({
 
   const [openCard, setOpenCard] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
+  const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
@@ -84,7 +86,7 @@ export default function ClaimItem({
 
     onSuccess: () => {
       setLoading({ isLoading: false });
-      toast.success('Claim accepted');
+      setShowConfirmSuccess(true);
     },
     onError: (error) => {
       setLoading({ isLoading: false });
@@ -146,6 +148,18 @@ export default function ClaimItem({
         onClose={() => setOpenCard(false)}
         open={openCard}
       />
+      {bounty.data && (
+        <ConfirmBountySuccessModal
+          open={showConfirmSuccess}
+          onClose={() => setShowConfirmSuccess(false)}
+          claimImage={claim.url ?? ''}
+          claimTitle={claim.title}
+          claimIssuer={claim.issuer}
+          bountyTitle={bounty.data.title}
+          bountyAmount={bounty.data.amount}
+          bountyIssuer={bounty.data.issuer}
+        />
+      )}
       <SubmitVotingConfirm
         isOpen={showVotingConfirm}
         onClose={() => setShowVotingConfirm(false)}
