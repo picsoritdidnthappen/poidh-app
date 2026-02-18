@@ -368,13 +368,13 @@ export default function AccountInfo({ address }: { address: string }) {
               </div>
             )}
           </div>
-          {isShareModalOpen && (
-            <ShareAccountModal
-              address={address}
-              onClose={() => setIsShareModalOpen(false)}
-            />
-          )}
         </div>
+      )}
+      {isShareModalOpen && (
+        <ShareAccountModal
+          address={address}
+          onClose={() => setIsShareModalOpen(false)}
+        />
       )}
     </>
   );
