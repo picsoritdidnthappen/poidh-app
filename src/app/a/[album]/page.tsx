@@ -9,7 +9,7 @@ import Navbar from '@/components/global/Navbar';
 
 export default function Album({ params }: { params: { album: string } }) {
   const album = params.album ?? 'album';
-  const [display, setDisplay] = useState<BountyDisplayType>('past');
+  const [display, setDisplay] = useState<BountyDisplayType>('open');
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
