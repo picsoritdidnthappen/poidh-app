@@ -117,10 +117,6 @@ body {
   background-size: cover;
   text-transform: lowercase;
   background: linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5);
-  padding-top: env(safe-area-inset-top);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .aspect-w-1 {
