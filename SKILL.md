@@ -14,7 +14,7 @@ metadata:
 
 ## Overview
 
-This skill interacts with the PoidhV3 contract on Base to:
+This skill interacts with the PoidhV3 contracts on Arbitrum, Base, and Degen Chain to:
 
 1. **Post bounties** (solo or open)
 2. **Evaluate claim submissions** using vision — fetch the image URI from each claim and compare against the bounty description
