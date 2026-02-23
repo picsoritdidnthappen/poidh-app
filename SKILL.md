@@ -1,6 +1,6 @@
 ---
 name: poidh-bounty
-description: Post bounties and evaluate/accept winning submissions on poidh (pics or it didn't happen) on Base. Use this skill when the user wants to create a bounty on poidh.xyz, post a task with an ETH reward on-chain, evaluate photo submissions using vision, accept a winning claim on a solo bounty, or initiate/resolve voting on an open bounty.
+description: Post bounties and evaluate/accept winning submissions on poidh (pics or it didn't happen) on Arbitrum, Base, or Degen Chain. Use this skill when the user wants to create a bounty on poidh.xyz, post a task with an ETH or DEGEN reward on-chain, evaluate photo submissions using vision, accept a winning claim on a solo bounty, or initiate/resolve voting on an open bounty.
 metadata:
   clawdbot:
     env:
