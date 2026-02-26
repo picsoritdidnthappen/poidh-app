@@ -392,14 +392,16 @@ export const bountiesRouter = {
       };
     }),
 
-  isCreated: baseProcedure
+  isNewlyCreated: baseProcedure
     .input(z.object({ chainId: z.number(), id: z.number() }))
     .query(async ({ input }) => {
+      const oneHourAgo = Math.floor(Date.now() / 1000) - 3600;
       return prisma.bounties.findFirst({
         where: {
           chainId: input.chainId,
           onChainId: input.id,
           inProgress: true,
+          createdAt: { gte: oneHourAgo },
         },
       });
     }),
