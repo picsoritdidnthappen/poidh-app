@@ -69,10 +69,13 @@ The poidh.xyz URL also changes per chain:
 ```bash
 if [ "$POIDH_CHAIN" = "arbitrum" ]; then
   POIDH_BASE_URL="https://poidh.xyz/arbitrum"
+  POIDH_V2_OFFSET=180
 elif [ "$POIDH_CHAIN" = "degen" ]; then
   POIDH_BASE_URL="https://poidh.xyz/degen"
+  POIDH_V2_OFFSET=1197
 else
   POIDH_BASE_URL="https://poidh.xyz/base"
+  POIDH_V2_OFFSET=986
 fi
 ```
 
@@ -134,10 +137,11 @@ cast receipt <TX_HASH> --rpc-url $RPC_URL --json | \
 import sys, json
 receipt = json.load(sys.stdin)
 for log in receipt['logs']:
-    if log['address'].lower() == '$POIDH_CONTRACT_ADDRESS'.lower() and len(log['topics']) >= 2:
+    if log['address'].lower() == '${POIDH_CONTRACT_ADDRESS}'.lower() and len(log['topics']) >= 2:
         bounty_id = int(log['topics'][1], 16)
+        frontend_id = bounty_id + ${POIDH_V2_OFFSET}
         print(f'Bounty ID: {bounty_id}')
-        print(f'View at: $POIDH_BASE_URL/{bounty_id}')
+        print(f'View at: ${POIDH_BASE_URL}/bounty/{frontend_id}')
         break
 "
 ```
@@ -425,7 +429,7 @@ cast send $POIDH_CONTRACT_ADDRESS \
 1. Ask for: **name**, **description**, **amount** (ETH on Arbitrum/Base, DEGEN on Degen Chain), **type** (solo or open — default solo)
 2. Confirm with user before sending — this spends real ETH (or DEGEN on Degen Chain)
 3. Run `createSoloBounty` or `createOpenBounty`
-4. Return tx hash and `$POIDH_BASE_URL/<bountyId>`
+4. Return tx hash and `$POIDH_BASE_URL/bounty/<bountyId + $POIDH_V2_OFFSET>`
 
 ### Submitting a Claim
 
