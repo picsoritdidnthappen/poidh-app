@@ -141,7 +141,7 @@ export default function FormBounty({
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const bounty = await trpcClient.bounties.isCreated.query({
+        const bounty = await trpcClient.bounties.isNewlyCreated.query({
           id: Number(data.args.id),
           chainId: currentChain.id,
         });
