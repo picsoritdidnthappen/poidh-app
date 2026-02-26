@@ -426,7 +426,7 @@ cast send $POIDH_CONTRACT_ADDRESS \
 
 ### Posting a Bounty
 
-1. Ask for: **name**, **description**, **amount** (ETH on Arbitrum/Base, DEGEN on Degen Chain), **type** (solo or open — default solo)
+1. Ask for: **name**, **description**, **amount** (ETH on Arbitrum/Base, DEGEN on Degen Chain), **type** (solo or open — default open)
 2. Confirm with user before sending — this spends real ETH (or DEGEN on Degen Chain)
 3. Run `createSoloBounty` or `createOpenBounty`
 4. Return tx hash and `$POIDH_BASE_URL/bounty/<bountyId + $POIDH_V2_OFFSET>`
