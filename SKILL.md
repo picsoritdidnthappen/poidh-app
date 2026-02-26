@@ -137,11 +137,11 @@ cast receipt <TX_HASH> --rpc-url $RPC_URL --json | \
 import sys, json
 receipt = json.load(sys.stdin)
 for log in receipt['logs']:
-    if log['address'].lower() == '$POIDH_CONTRACT_ADDRESS'.lower() and len(log['topics']) >= 2:
+    if log['address'].lower() == '${POIDH_CONTRACT_ADDRESS}'.lower() and len(log['topics']) >= 2:
         bounty_id = int(log['topics'][1], 16)
+        frontend_id = bounty_id + ${POIDH_V2_OFFSET}
         print(f'Bounty ID: {bounty_id}')
-        frontend_id = bounty_id + $POIDH_V2_OFFSET
-        print(f'View at: $POIDH_BASE_URL/bounty/{frontend_id}')
+        print(f'View at: ${POIDH_BASE_URL}/bounty/{frontend_id}')
         break
 "
 ```
