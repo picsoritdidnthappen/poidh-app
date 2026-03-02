@@ -108,60 +108,87 @@ export const bountiesRouter = {
       let items = undefined;
 
       if (sortByValue) {
-        const bountiesExtra = await prisma.bountiesExtra.findMany({
+        // Query from bounties table to include ALL bounties, not just those with bountiesExtra entries
+        // Use extra relation (LEFT JOIN) - if null, amountSort will be handled in memory
+        const bountiesWithExtra = await prisma.bounties.findMany({
           where: {
-            bounty: {
-              ban: {
-                none: {},
-              },
-              inProgress: true,
-              isCanceled: false,
-              ...(input.status === 'open'
-                ? {
-                    isVoting: false,
-                  }
-                : input.status === 'progress'
-                ? {
-                    isVoting: true,
-                  }
-                : input.status === 'past'
-                ? {
-                    inProgress: false,
-                  }
-                : {}),
+            ban: {
+              none: {},
             },
-
+            inProgress: true,
+            isCanceled: false,
+            ...(input.status === 'open'
+              ? {
+                  isVoting: false,
+                }
+              : input.status === 'progress'
+              ? {
+                  isVoting: true,
+                }
+              : input.status === 'past'
+              ? {
+                  inProgress: false,
+                }
+              : {}),
+            // Exclude bounties that have already been shown (via cursor)
             ...(input.cursor
-              ? { amountSort: { lt: input.cursor.amountSort } }
+              ? {
+                  OR: [
+                    {
+                      // Bounties with extra entry where amountSort is less than cursor
+                      extra: {
+                        isNot: null,
+                        amountSort: { lt: input.cursor.amountSort },
+                      },
+                    },
+                    {
+                      // Bounties without extra entry, use amount as fallback (greater than 0)
+                      extra: null,
+                      amount: { gt: '0' },
+                    },
+                  ],
+                }
               : {}),
           },
-          select: {
-            bounty: {
-              include: {
-                claims: {
-                  take: 1,
-                  where: {
-                    ban: {
-                      none: {},
-                    },
-                  },
-                  orderBy: { isAccepted: 'desc' },
-                },
-                participations: {
-                  select: { userAddress: true },
-                  take: 2,
+          include: {
+            claims: {
+              take: 1,
+              where: {
+                ban: {
+                  none: {},
                 },
               },
+              orderBy: { isAccepted: 'desc' },
             },
-            amountSort: true,
+            participations: {
+              select: { userAddress: true },
+              take: 2,
+            },
+            extra: {
+              select: {
+                amountSort: true,
+              },
+            },
           },
-          orderBy: { amountSort: 'desc' },
           take: input.limit,
         });
 
-        items = bountiesExtra.map((e) => ({
-          ...e.bounty!,
-          amountSort: e.amountSort,
+        // Calculate amountSort: use extra.amountSort if available, otherwise parse the bounty amount
+        const itemsWithSort = bountiesWithExtra.map((bounty) => {
+          const amountSort =
+            bounty.extra?.amountSort ?? parseFloat(bounty.amount) || 0;
+          return {
+            ...bounty,
+            amountSort,
+          };
+        });
+
+        // Sort by amountSort descending in memory (Prisma doesn't support COALESCE well)
+        itemsWithSort.sort((a, b) => b.amountSort - a.amountSort);
+
+        items = itemsWithSort.map(({ extra, ...bounty }) => ({
+          ...bounty,
+          amountSort: extra?.amountSort ?? parseFloat(bounty.amount) || 0,
         }));
       } else {
         const bounties = await prisma.bounties.findMany({
