@@ -114,7 +114,13 @@ export const bountiesRouter = {
               ban: {
                 none: {},
               },
-              inProgress: true,
+              ...(input.status === 'past'
+                ? {
+                    inProgress: false,
+                  }
+                : {
+                    inProgress: true,
+                  }),
               isCanceled: false,
               ...(input.status === 'open'
                 ? {
@@ -123,10 +129,6 @@ export const bountiesRouter = {
                 : input.status === 'progress'
                 ? {
                     isVoting: true,
-                  }
-                : input.status === 'past'
-                ? {
-                    inProgress: false,
                   }
                 : {}),
             },
@@ -188,7 +190,13 @@ export const bountiesRouter = {
           },
 
           where: {
-            inProgress: true,
+            ...(input.status === 'past'
+              ? {
+                  inProgress: false,
+                }
+              : {
+                  inProgress: true,
+                }),
             isCanceled: false,
             ban: {
               none: {},
@@ -209,10 +217,6 @@ export const bountiesRouter = {
               : input.status === 'progress'
               ? {
                   isVoting: true,
-                }
-              : input.status === 'past'
-              ? {
-                  inProgress: false,
                 }
               : {}),
           },
