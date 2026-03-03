@@ -134,7 +134,7 @@ export const bountiesRouter = {
             },
 
             ...(input.cursor
-              ? { amountSort: { lte: input.cursor.amountSort } }
+              ? { amountSort: { lt: input.cursor.amountSort } }
               : {}),
           },
           select: {
