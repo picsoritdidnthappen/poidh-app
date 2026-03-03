@@ -23,7 +23,7 @@ import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { trpc, trpcClient } from '@/trpc/client';
 import { formatAmountShort } from '@/utils/utils';
 import { Chain, Netname } from '@/utils/types';
-import { chains, getChainById } from '@/utils/config';
+import { chains } from '@/utils/config';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { ETH_MIN_AMOUNT, DEGEN_MIN_AMOUNT } from '@/utils/constants';
@@ -165,9 +165,10 @@ export default function FormBounty({
         album,
       });
       setLoading({ isLoading: true, status: 'Redirecting...' });
-      const indexedChain = getChainById({ chainId });
+      const targetChain =
+        chains.find((c) => c.id === chainId) ?? currentChain;
       router.push(
-        `/${indexedChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
+        `/${targetChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
       );
       toast.success('Bounty created successfully');
     },
