@@ -54,11 +54,16 @@ export default function Voting({
     account?.address?.toLocaleLowerCase() ===
     bounty.data?.issuer?.toLocaleLowerCase();
 
-  const userHasVoted = trpc.accounts.hasVoted.useQuery({
-    address: account.address?.toLowerCase() ?? '',
-    bountyId: Number(bountyId),
-    chainId: chain.id,
-  });
+  const userHasVoted = trpc.accounts.hasVoted.useQuery(
+    {
+      address: account.address?.toLowerCase() ?? '',
+      bountyId: Number(bountyId),
+      chainId: chain.id,
+    },
+    {
+      enabled: !!account.address,
+    }
+  );
 
   const bountyContibutors = trpc.bounties.participations.useQuery({
     chainId: chain.id,
