@@ -124,20 +124,28 @@ export default function FormBounty({
         hash: tx,
       });
 
-      const log = receipt.logs[0];
-      if (!log) {
-        throw new Error('No logs found');
+      const bountyCreatedLog = receipt.logs.find((log) => {
+        try {
+          const data = decodeEventLog({
+            abi,
+            data: log.data,
+            topics: log.topics,
+          });
+          return data.eventName === 'BountyCreated';
+        } catch {
+          return false;
+        }
+      });
+
+      if (!bountyCreatedLog) {
+        throw new Error('BountyCreated event not found');
       }
 
       const data = decodeEventLog({
         abi,
-        data: log.data,
-        topics: log.topics,
+        data: bountyCreatedLog.data,
+        topics: bountyCreatedLog.topics,
       });
-
-      if (data.eventName !== 'BountyCreated') {
-        throw new Error('Invalid event: ' + data.eventName);
-      }
 
       for (let i = 0; i < 60; i++) {
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
