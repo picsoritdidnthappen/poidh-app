@@ -134,7 +134,7 @@ export const bountiesRouter = {
             },
 
             ...(input.cursor
-              ? { amountSort: { lt: input.cursor.amountSort } }
+              ? { amountSort: { lte: input.cursor.amountSort } }
               : {}),
           },
           select: {
@@ -158,7 +158,7 @@ export const bountiesRouter = {
             amountSort: true,
           },
           orderBy: { amountSort: 'desc' },
-          take: input.limit,
+          take: input.limit + 1,
         });
 
         items = bountiesExtra.map((e) => ({
@@ -222,7 +222,7 @@ export const bountiesRouter = {
           },
 
           orderBy: { createdAt: 'desc' },
-          take: input.limit,
+          take: input.limit + 1,
         });
 
         items = bounties.map(({ extra, ...bounty }) => ({
@@ -239,7 +239,11 @@ export const bountiesRouter = {
           }
         | undefined = undefined;
 
-      if (items.length === input.limit) {
+      const hasMore = items.length > input.limit;
+
+      if (hasMore) {
+        items = items.slice(0, input.limit);
+
         const last = items[items.length - 1];
 
         nextCursor = {
@@ -323,11 +327,15 @@ export const bountiesRouter = {
         },
 
         orderBy: { createdAt: 'desc' },
-        take: input.limit,
+        take: input.limit + 1,
       });
 
       let nextCursor: number | undefined = undefined;
-      if (items.length === input.limit) {
+      const hasMore = items.length > input.limit;
+
+      if (hasMore) {
+        items = items.slice(0, input.limit);
+
         nextCursor = items[items.length - 1].id;
       }
 
@@ -528,11 +536,15 @@ export const bountiesRouter = {
 
         distinct: 'id',
         orderBy: { createdAt: 'desc' },
-        take: input.limit,
+        take: input.limit + 1,
       });
 
       let nextCursor: string | undefined = undefined;
-      if (items.length === input.limit) {
+      const hasMore = items.length > input.limit;
+
+      if (hasMore) {
+        items = items.slice(0, input.limit);
+
         nextCursor = items[items.length - 1].createdAt.toString();
       }
 
