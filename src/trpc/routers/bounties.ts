@@ -114,7 +114,6 @@ export const bountiesRouter = {
               ban: {
                 none: {},
               },
-              inProgress: true,
               isCanceled: false,
               ...(input.status === 'open'
                 ? {
@@ -188,7 +187,6 @@ export const bountiesRouter = {
           },
 
           where: {
-            inProgress: true,
             isCanceled: false,
             ban: {
               none: {},
