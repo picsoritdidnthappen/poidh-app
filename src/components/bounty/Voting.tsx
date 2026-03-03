@@ -278,6 +278,15 @@ export default function Voting({
                 </div>
               )}
 
+            {/* Show thank you message for bounty owner who has already voted (their vote is automatic) */}
+            {isVotingInProgress && isBountyOwner && !isBountyContributor && (
+              <div className='p-4 rounded-lg border text-center'>
+                <p className='text-sm font-medium'>
+                  ✓ Thank you for your vote!
+                </p>
+              </div>
+            )}
+
             {isVotingInProgress && isBountyContributor && userHasVoted.data && (
               <div className='p-4 rounded-lg border text-center'>
                 <p className='text-sm font-medium'>
