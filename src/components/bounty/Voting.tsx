@@ -238,7 +238,8 @@ export default function Voting({
 
             {isVotingInProgress &&
               isBountyContributor &&
-              !userHasVoted.data && (
+              !userHasVoted.data &&
+              !isBountyOwner && (
                 <div className='space-y-3'>
                   <p className='text-center text-sm font-medium text-white/80'>
                     What is your vote?
@@ -278,7 +279,7 @@ export default function Voting({
                 </div>
               )}
 
-            {isVotingInProgress && isBountyContributor && userHasVoted.data && (
+            {isVotingInProgress && isBountyOwner && (
               <div className='p-4 rounded-lg border text-center'>
                 <p className='text-sm font-medium'>
                   ✓ Thank you for your vote!
