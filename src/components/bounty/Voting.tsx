@@ -238,6 +238,7 @@ export default function Voting({
 
             {isVotingInProgress &&
               isBountyContributor &&
+              !isBountyOwner &&
               !userHasVoted.data && (
                 <div className='space-y-3'>
                   <p className='text-center text-sm font-medium text-white/80'>
