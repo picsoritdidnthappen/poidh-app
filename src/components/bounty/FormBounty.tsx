@@ -62,7 +62,7 @@ export default function FormBounty({
     {
       enabled: !!album,
       staleTime: 30_000,
-    }
+    },
   );
 
   useEffect(() => {
@@ -165,8 +165,10 @@ export default function FormBounty({
         album,
       });
       setLoading({ isLoading: true, status: 'Redirecting...' });
+      const indexedChain = chains.find((chain) => chain.id === chainId);
+      const targetSlug = indexedChain?.slug ?? currentChain.slug;
       router.push(
-        `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
+        `/${targetSlug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`,
       );
       toast.success('Bounty created successfully');
     },
@@ -486,7 +488,7 @@ export default function FormBounty({
             <button
               className={cn(
                 'flex flex-row items-center justify-center',
-                account.isDisconnected && 'opacity-50 cursor-not-allowed'
+                account.isDisconnected && 'opacity-50 cursor-not-allowed',
               )}
               onClick={() => {
                 if (name && description && amount) {
@@ -497,7 +499,7 @@ export default function FormBounty({
 
                   if (Number(amount) < minValue) {
                     toast.error(
-                      `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
+                      `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`,
                     );
                     return;
                   }
@@ -518,7 +520,7 @@ export default function FormBounty({
                   createBountyMutations.mutate(formData);
                 } else {
                   toast.error(
-                    'Please fill in all required fields and check wallet connection.'
+                    'Please fill in all required fields and check wallet connection.',
                   );
                 }
               }}
