@@ -157,7 +157,7 @@ export default function ClaimSuccessModal({
       >
         <button
           onClick={onClose}
-          className='absolute top-4 right-4 text-white hover:opacity-70 transition-opacity'
+          className='absolute top-4 right-4 z-20 text-white bg-black/30 rounded-full p-1 hover:opacity-90 transition-opacity'
           aria-label='Close'
         >
           <svg
