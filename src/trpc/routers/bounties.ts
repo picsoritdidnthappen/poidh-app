@@ -108,60 +108,66 @@ export const bountiesRouter = {
       let items = undefined;
 
       if (sortByValue) {
-        const bountiesExtra = await prisma.bountiesExtra.findMany({
-          where: {
-            bounty: {
-              ban: {
-                none: {},
+        // Query from bounties table with LEFT JOIN to bountiesExtra
+        // This ensures bounties without bountiesExtra record still appear
+        const bounties = await prisma.bounties.findMany({
+          include: {
+            claims: {
+              take: 1,
+              where: {
+                ban: {
+                  none: {},
+                },
               },
-              inProgress: true,
-              isCanceled: false,
-              ...(input.status === 'open'
-                ? {
-                    isVoting: false,
-                  }
-                : input.status === 'progress'
-                ? {
-                    isVoting: true,
-                  }
-                : input.status === 'past'
-                ? {
-                    inProgress: false,
-                  }
-                : {}),
+              orderBy: { isAccepted: 'desc' },
             },
-
+            participations: {
+              select: { userAddress: true },
+              take: 2,
+            },
+            extra: {
+              select: {
+                amountSort: true,
+              },
+            },
+          },
+          where: {
+            inProgress: true,
+            isCanceled: false,
+            ban: {
+              none: {},
+            },
             ...(input.cursor
-              ? { amountSort: { lt: input.cursor.amountSort } }
+              ? {
+                  extra: {
+                    amountSort: { lte: input.cursor.amountSort },
+                  },
+                }
+              : {}),
+            ...(input.status === 'open'
+              ? {
+                  isVoting: false,
+                }
+              : input.status === 'progress'
+              ? {
+                  isVoting: true,
+                }
+              : input.status === 'past'
+              ? {
+                  inProgress: false,
+                }
               : {}),
           },
-          select: {
-            bounty: {
-              include: {
-                claims: {
-                  take: 1,
-                  where: {
-                    ban: {
-                      none: {},
-                    },
-                  },
-                  orderBy: { isAccepted: 'desc' },
-                },
-                participations: {
-                  select: { userAddress: true },
-                  take: 2,
-                },
-              },
-            },
-            amountSort: true,
-          },
-          orderBy: { amountSort: 'desc' },
+          orderBy: [
+            { extra: { amountSort: 'desc' } },
+            { createdAt: 'desc' },
+          ],
           take: input.limit,
         });
 
-        items = bountiesExtra.map((e) => ({
-          ...e.bounty!,
-          amountSort: e.amountSort,
+        items = bounties.map(({ extra, ...bounty }) => ({
+          ...bounty,
+          amountSort: extra?.amountSort ?? 0,
         }));
       } else {
         const bounties = await prisma.bounties.findMany({
@@ -223,7 +229,7 @@ export const bountiesRouter = {
 
         items = bounties.map(({ extra, ...bounty }) => ({
           ...bounty,
-          amountSort: extra.amountSort,
+          amountSort: extra?.amountSort ?? 0,
         }));
       }
 
