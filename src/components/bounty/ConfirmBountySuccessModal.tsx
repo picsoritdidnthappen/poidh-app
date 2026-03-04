@@ -149,22 +149,31 @@ export default function ConfirmBountySuccessModal({
       >
         <button
           onClick={onClose}
-          className='absolute top-2 right-2 text-white/70 hover:text-white transition-colors'
+          className='absolute top-3 right-3 text-white/90 hover:text-white transition-colors p-1 z-10'
           aria-label='Close'
         >
           <svg
-            width='20'
-            height='20'
+            width='28'
+            height='28'
             viewBox='0 0 24 24'
             fill='none'
             stroke='currentColor'
-            strokeWidth='2'
+            strokeWidth='2.5'
             strokeLinecap='round'
             strokeLinejoin='round'
           >
             <line x1='18' y1='6' x2='6' y2='18' />
             <line x1='6' y1='6' x2='18' y2='18' />
           </svg>
+        </button>
+
+        {/* Fallback close button for browsers with rendering issues */}
+        <button
+          onClick={onClose}
+          className='absolute top-3 right-14 text-white/70 hover:text-white text-sm px-3 py-1 rounded bg-white/10 hover:bg-white/20 transition-colors'
+          aria-label='Close modal'
+        >
+          ✕ close
         </button>
 
         <p className='font-family-geist text-sm text-white/90 font-bold text-center'>

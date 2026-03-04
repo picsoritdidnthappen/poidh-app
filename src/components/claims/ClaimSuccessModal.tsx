@@ -157,23 +157,31 @@ export default function ClaimSuccessModal({
       >
         <button
           onClick={onClose}
-          className='absolute top-4 right-4 text-white hover:opacity-70 transition-opacity'
+          className='absolute top-4 right-4 text-white hover:opacity-70 transition-opacity p-1 z-10'
           aria-label='Close'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
+            width='28'
+            height='28'
             viewBox='0 0 24 24'
             fill='none'
             stroke='currentColor'
-            strokeWidth='2'
+            strokeWidth='2.5'
             strokeLinecap='round'
             strokeLinejoin='round'
           >
             <line x1='18' y1='6' x2='6' y2='18'></line>
             <line x1='6' y1='6' x2='18' y2='18'></line>
           </svg>
+        </button>
+        {/* Fallback close button for browsers with rendering issues */}
+        <button
+          onClick={onClose}
+          className='absolute top-4 right-16 text-white/70 hover:text-white text-sm px-3 py-1 rounded bg-white/10 hover:bg-white/20 transition-colors'
+          aria-label='Close modal'
+        >
+          ✕ close
         </button>
         <h3 className='font-mono text-xl text-white font-bold text-center mt-8'>
           congratulations! your claim has been submitted:
