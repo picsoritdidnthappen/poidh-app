@@ -188,7 +188,7 @@ export default function ClaimItem({
                   }
                 }}
               >
-                {bounty.data.hasParticipants ? 'submit for vote' : 'accept'}
+                {bounty.data.hasParticipants ? 'propose winner' : 'accept'}
               </button>
             )}
         </div>
