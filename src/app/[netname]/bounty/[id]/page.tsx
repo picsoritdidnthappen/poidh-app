@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BountyClaims from '@/components/bounty/BountyClaims';
 import BountyInfo from '@/components/bounty/BountyInfo';
 import Navbar from '@/components/global/Navbar';
@@ -31,10 +31,39 @@ export default function Bounty({
   const pathname = usePathname();
   const router = useRouter();
 
+  // Save the referrer tab when navigating to this bounty page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Get the tab from the referring URL or sessionStorage
+      const referrer = document.referrer;
+      if (referrer) {
+        try {
+          const url = new URL(referrer);
+          const tab = url.searchParams.get('tab');
+          if (tab && ['open', 'progress', 'past'].includes(tab)) {
+            sessionStorage.setItem('bountyListTab', tab);
+            const sort = url.searchParams.get('sort') || 'value';
+            sessionStorage.setItem('bountyListSort', sort);
+          }
+        } catch (e) {
+          // Invalid referrer URL, ignore
+        }
+      }
+    }
+  }, []);
+
   const handleBack = () => {
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back();
-      return;
+    // Try to restore the correct tab when going back
+    if (typeof window !== 'undefined') {
+      const savedTab = sessionStorage.getItem('bountyListTab');
+      const savedSort = sessionStorage.getItem('bountyListSort') || 'value';
+      
+      if (savedTab) {
+        sessionStorage.removeItem('bountyListTab');
+        sessionStorage.removeItem('bountyListSort');
+        router.push(`/?tab=${savedTab}&sort=${savedSort}`, { scroll: false });
+        return;
+      }
     }
 
     router.push('/', { scroll: false });
