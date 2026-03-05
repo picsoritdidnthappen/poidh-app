@@ -139,7 +139,7 @@ export default function FormJoinBounty({
                   value={amount}
                   onChange={handleAmountChange}
                   placeholder={`amount in ${chain.currency}`}
-                  className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full pr-28 placeholder:text-slate-400 whitespace-nowrap'
+                  className='border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full md:pr-28 pr-16 placeholder:text-slate-400'
                 />
                 {usdPerToken !== null && (
                   <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
