@@ -148,7 +148,7 @@ export default function FormBounty({
 
         if (bounty) {
           return {
-            bountyId: bounty.id,
+            bountyId: bounty.onChainId,
             album: formData.album.trim(),
             chainId: bounty.chainId,
           };
