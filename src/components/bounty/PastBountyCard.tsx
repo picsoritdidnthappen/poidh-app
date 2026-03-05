@@ -21,6 +21,11 @@ export default function PastBountyCard({ bounty }: { bounty: Bounty }) {
   }
 
   const chain = getChainById({ chainId: claim.data.chainId as ChainId });
+  
+  // Fetch current price to calculate accurate USD value
+  const price = trpc.web3.fetchPrice.useQuery({ currency: chain.currency });
+  const tokenAmount = formatEther(BigInt(bounty.amount));
+  const currentUsdAmount = price.data ? parseFloat(tokenAmount) * price.data : bounty.amountSort;
 
   return (
     <>
@@ -73,8 +78,8 @@ export default function PastBountyCard({ bounty }: { bounty: Bounty }) {
             <div className='flex items-center'>
               <span className='text-md mr-3'>
                 {formatSortAmount({
-                  usdAmount: bounty.amountSort,
-                  amount: formatEther(BigInt(bounty.amount)),
+                  usdAmount: currentUsdAmount,
+                  amount: tokenAmount,
                   currency: chain.currency,
                 })}
               </span>
