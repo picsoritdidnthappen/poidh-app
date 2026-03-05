@@ -103,7 +103,7 @@ export default function RootLayout({
           <WalletProvider>
             <LoadingLayout>
               <ClientLayout>{children}</ClientLayout>
-              <ToastContainer />
+              <ToastContainer position="top-right" />
               <CryptoWalletMobilePopup />
             </LoadingLayout>
           </WalletProvider>
