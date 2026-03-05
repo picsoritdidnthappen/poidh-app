@@ -130,6 +130,46 @@ body {
 
 button {
   text-transform: lowercase;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+button:hover {
+  transform: scale(1.02);
+}
+
+button:active {
+  transform: scale(0.96) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Motion feedback for clickable cards */
+[role='button'],
+.clickable-card,
+.button {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+[role='button']:hover,
+.clickable-card:hover {
+  transform: scale(1.02);
+}
+
+[role='button']:active,
+.clickable-card:active {
+  transform: scale(0.98);
+}
+
+/* Bounty item hover effects */
+.bountyItem a > div {
+  transition: transform 0.15s ease;
+}
+
+.bountyItem a:hover > div {
+  transform: translateY(-2px);
+}
+
+.bountyItem a:active > div {
+  transform: translateY(0) scale(0.99);
 }
 
 .otherClaims .submitForVote {
