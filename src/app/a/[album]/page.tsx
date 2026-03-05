@@ -6,10 +6,19 @@ import BountyList from '@/components/bounty/BountyList';
 import { BountyDisplayType, ChainId } from '@/utils/types';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
 import Navbar from '@/components/global/Navbar';
+import { useSearchParams } from 'next/navigation';
 
 export default function Album({ params }: { params: { album: string } }) {
   const album = params.album ?? 'album';
-  const [display, setDisplay] = useState<BountyDisplayType>('open');
+  const searchParams = useSearchParams();
+
+  // Initialize tab from URL param for immediate rendering (mini app support)
+  const initialTab = searchParams.get('tab');
+  const [display, setDisplay] = useState<BountyDisplayType>(
+    initialTab && ['open', 'progress', 'past'].includes(initialTab)
+      ? (initialTab as BountyDisplayType)
+      : 'open'
+  );
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 

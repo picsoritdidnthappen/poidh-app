@@ -19,8 +19,19 @@ export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [display, setDisplay] = useState<BountyDisplayType>('open');
-  const [sortType, setSortType] = useState<BountySortType>('value');
+  // Initialize tab and sort from URL params for immediate rendering (mini app support)
+  const initialTab = searchParams.get('tab');
+  const initialSort = searchParams.get('sort');
+  const [display, setDisplay] = useState<BountyDisplayType>(
+    initialTab && ['open', 'progress', 'past'].includes(initialTab)
+      ? (initialTab as BountyDisplayType)
+      : 'open'
+  );
+  const [sortType, setSortType] = useState<BountySortType>(
+    initialSort && ['value', 'date'].includes(initialSort)
+      ? (initialSort as BountySortType)
+      : 'value'
+  );
   const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
