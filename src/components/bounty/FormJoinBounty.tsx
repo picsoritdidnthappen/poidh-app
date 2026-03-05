@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther } from 'viem';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useSwitchChain, useWriteContract, useBalance } from 'wagmi';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -37,6 +37,11 @@ export default function FormJoinBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
+
+  const { data: balance } = useBalance({
+    address: account.address,
+    chainId: chain.id,
+  });
 
   const price =
     trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
@@ -129,6 +134,14 @@ export default function FormJoinBounty({
               <CloseIcon size={12} />
             </button>
             <div className='flex flex-col items-start w-full'>
+              {balance && (
+                <div className='text-xs text-gray-300 mb-3'>
+                  Balance:{' '}
+                  <span className='font-semibold text-white'>
+                    {balance.formatted} {chain.currency}
+                  </span>
+                </div>
+              )}
               <DialogTitle className='text-base mb-2 font-family-geist'>
                 Reward
               </DialogTitle>

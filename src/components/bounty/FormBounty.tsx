@@ -10,7 +10,7 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useChainInfo } from '@/hooks/useChainInfo';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useSwitchChain, useWriteContract, useBalance } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import { decodeEventLog, parseEther } from 'viem';
@@ -87,6 +87,11 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const saveBountyAlbum = trpc.bounties.addToAlbum.useMutation();
+
+  const { data: balance } = useBalance({
+    address: account.address,
+    chainId: chain?.id,
+  });
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
@@ -312,6 +317,14 @@ export default function FormBounty({
             }}
           ></textarea>
 
+          {balance && (
+            <div className='text-xs text-gray-400 mb-2'>
+              Balance:{' '}
+              <span className='font-semibold text-gray-200'>
+                {balance.formatted} {currentChain.currency}
+              </span>
+            </div>
+          )}
           <span className={isMobile ? 'text-base mb-2' : ''}>reward</span>
           <div className='relative w-full mb-3'>
             <input
