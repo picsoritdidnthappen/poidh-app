@@ -171,6 +171,7 @@ export default function AccountInfo({ address }: { address: string }) {
                     amount: Number(
                       accountStats.data?.eth.totalPaid.amountCrypto
                     ),
+                    precision: 5,
                   })} eth`}
                 />
                 <StatCard
@@ -179,6 +180,7 @@ export default function AccountInfo({ address }: { address: string }) {
                     amount: Number(
                       accountStats.data?.eth.amountInContract.amountCrypto
                     ),
+                    precision: 5,
                   })} eth`}
                 />
                 <StatCard
@@ -187,6 +189,7 @@ export default function AccountInfo({ address }: { address: string }) {
                     amount: Number(
                       accountStats.data?.eth.totalEarn.amountCrypto
                     ),
+                    precision: 5,
                   })} eth`}
                 />
                 <StatCard
