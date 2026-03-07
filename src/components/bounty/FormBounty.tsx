@@ -465,11 +465,13 @@ export default function FormBounty({
               onClick={() => setIsOpenBounty(!isOpenBounty)}
               inputProps={{ 'aria-label': 'controlled' }}
               sx={{
-                '& .MuiSwitch-thumb': {
-                  color: isOpenBounty ? '#F15E5F' : 'default',
-                },
+                width: 'auto',
                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
                   backgroundColor: '#fff',
+                },
+                '& .MuiSwitch-track': {
+                  minWidth: '42px',
+                  borderRadius: '21px',
                 },
               }}
             />
