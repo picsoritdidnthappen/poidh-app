@@ -26,6 +26,7 @@ export default function JoinBounty({ bountyId }: { bountyId: number }) {
       <FormJoinBounty
         id={bounty.data.id}
         onChainId={bounty.data.onChainId}
+        currentAmount={bounty.data.amount}
         open={showForm}
         onClose={() => setShowForm(false)}
       />
