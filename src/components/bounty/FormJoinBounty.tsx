@@ -139,12 +139,10 @@ export default function FormJoinBounty({
               </p>
               <div className='w-full rounded-md border border-[#D1ECFF]/40 bg-white/10 p-3 mb-4 text-sm space-y-2'>
                 <p>
-                  • funds aren&apos;t locked – withdraw anytime before a winner
-                  is proposed
+                  • funds aren’t locked — you can withdraw anytime before a winner is proposed
                 </p>
                 <p>
-                  • once a winner is proposed, you have 48 hours to approve the
-                  claim{' '}
+                  • once a winner is proposed, you will have 48 hours to approve or veto the claim{' '}
                   <span className='text-white/70'>
                     (voting power proportional to funds added)
                   </span>
