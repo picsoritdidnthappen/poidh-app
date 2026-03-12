@@ -105,6 +105,7 @@ model UsersExtra {
   zkpassportCountry  String?   @map("zkpassport_country")
   zkpassportVerifiedAt DateTime? @map("zkpassport_verified_at")
   lastUpdated        DateTime  @default(now()) @map("last_updated")
+  extraPoints        Float   @default(0) @map("extra_points")
 
   user Users @relation(fields: [address], references: [address])
 

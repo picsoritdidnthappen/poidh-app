@@ -32,7 +32,7 @@ export const leaderboardRouter = {
       const fetchTop = (
         chainId: number,
         orderCol: 'paid' | 'earned' | 'nfts',
-        take = 30
+        take = 50
       ) =>
         prisma.leaderboard.findMany({
           where: {
@@ -124,6 +124,89 @@ export const leaderboardRouter = {
         }
       );
 
+      const allAddresses = Array.from(leaderBoard.keys());
+      const [extraPointsRows, extraPointsUsers] = await Promise.all([
+        prisma.usersExtra.findMany({
+          where: { address: { in: allAddresses } },
+          select: { address: true, extraPoints: true },
+        }),
+        prisma.usersExtra.findMany({
+          where: {
+            extraPoints: { gt: 0 },
+            address: { notIn: allAddresses },
+          },
+          select: { address: true, extraPoints: true },
+        }),
+      ]);
+
+      const extraPointsMap = new Map(
+        [...extraPointsRows, ...extraPointsUsers].map((r) => [
+          r.address.toLowerCase(),
+          Number(r.extraPoints),
+        ])
+      );
+
+      if (extraPointsUsers.length > 0) {
+        const missingAddresses = extraPointsUsers.map((r) =>
+          r.address.toLowerCase()
+        );
+        const missingRows = await prisma.leaderboard.findMany({
+          where: {
+            address: { in: missingAddresses },
+            chainId: { in: [8453, 666666666, 42161] },
+          },
+        });
+
+        missingRows.forEach((user) => {
+          const addr = user.address.toLowerCase();
+          const existing = leaderBoard.get(addr);
+          const base =
+            existing?.base ??
+            (user.chainId === 8453
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : undefined);
+          const degen =
+            existing?.degen ??
+            (user.chainId === 666666666
+              ? scoreDegen({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : undefined);
+          const arbitrum =
+            existing?.arbitrum ??
+            (user.chainId === 42161
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : undefined);
+          leaderBoard.set(addr, {
+            base,
+            degen,
+            arbitrum,
+            total: (base ?? 0) + (degen ?? 0) + (arbitrum ?? 0),
+          });
+        });
+
+        missingAddresses.forEach((addr) => {
+          if (!leaderBoard.has(addr)) {
+            leaderBoard.set(addr, {
+              base: undefined,
+              degen: undefined,
+              arbitrum: undefined,
+              total: 0,
+            });
+          }
+        });
+      }
+
       const sortedLeaderboard = Array.from(leaderBoard.entries())
         .map(
           ([address, scores]) =>
@@ -133,7 +216,9 @@ export const leaderboardRouter = {
                 base: Math.round(scores.base ?? 0),
                 degen: Math.round(scores.degen ?? 0),
                 arbitrum: Math.round(scores.arbitrum ?? 0),
-                total: Math.round(scores.total ?? 0),
+                total: Math.round(
+                  (scores.total ?? 0) + (extraPointsMap.get(address) ?? 0)
+                ),
               },
             ] as [
               string,
@@ -185,8 +270,16 @@ export const leaderboardRouter = {
             }
           }
 
+          const userExtra = await prisma.usersExtra.findUnique({
+            where: { address: input.userAddress.toLowerCase() },
+            select: { extraPoints: true },
+          });
+
           const totalScore =
-            (baseScore ?? 0) + (degenScore ?? 0) + (arbitrumScore ?? 0);
+            (baseScore ?? 0) +
+            (degenScore ?? 0) +
+            (arbitrumScore ?? 0) +
+            Number(userExtra?.extraPoints ?? 0);
 
           const rounded = {
             base: Math.round(baseScore ?? 0),
