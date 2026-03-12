@@ -413,7 +413,7 @@ export const accountsRouter = {
           }),
         ]);
 
-      const [ethStats, degenStats] = await Promise.all([
+      const [ethStats, degenStats, usersExtra] = await Promise.all([
         prisma.leaderboard.findMany({
           where: {
             address: input.address.toLowerCase(),
@@ -427,6 +427,10 @@ export const accountsRouter = {
               chainId: degenChainId as number,
             },
           },
+        }),
+        prisma.usersExtra.findUnique({
+          where: { address: input.address.toLowerCase() },
+          select: { extraPoints: true },
         }),
       ]);
 
@@ -472,7 +476,8 @@ export const accountsRouter = {
             earned: totalEthEarn ?? 0,
             paid: totalEthPaid ?? 0,
             NFTheld: totalEthNfts,
-          })
+          }) +
+          Number(usersExtra?.extraPoints ?? 0)
       );
 
       return {
