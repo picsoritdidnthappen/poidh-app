@@ -3,7 +3,7 @@ import { useChainInfo } from '@/hooks/useChainInfo';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { parseEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -17,11 +17,13 @@ import { CloseIcon } from '@/components/global/Icons';
 export default function FormJoinBounty({
   id,
   onChainId,
+  currentAmount,
   open,
   onClose,
 }: {
   id: number;
   onChainId: number;
+  currentAmount: string;
   open: boolean;
   onClose: () => void;
 }) {
@@ -132,21 +134,23 @@ export default function FormJoinBounty({
               <DialogTitle className='text-base mb-2 font-family-geist'>
                 boost this bounty 📈
               </DialogTitle>
-
-              <p className='text-sm text-white/90 mb-3'>
+              <p className='text-sm text-white/80 mb-4'>
                 increase the reward to help this bounty get completed
               </p>
-
-              <div className='w-full mb-5 p-3 rounded-md bg-white/5 border border-white/10 text-xs text-white/80 leading-relaxed space-y-1'>
-                <div>
-                  • funds aren’t locked — you can withdraw anytime before a winner is proposed
-                </div>
-                <div>
-                  • once a winner is proposed, you will have <b>48 hours</b> to approve or veto the claim
-                  <span className="block opacity-80">(voting power proportional to funds added)</span>
-                </div>
+              <div className='w-full rounded-md border border-[#D1ECFF]/40 bg-white/10 p-3 mb-4 text-sm space-y-2'>
+                <p>
+                  • funds aren&apos;t locked – withdraw anytime before a winner
+                  is proposed
+                </p>
+                <p>
+                  • once a winner is proposed, you have 48 hours to approve the
+                  claim{' '}
+                  <span className='text-white/70'>
+                    (voting power proportional to funds added)
+                  </span>
+                </p>
               </div>
-              <div className='relative w-full mb-6'>
+              <div className='relative w-full mb-3'>
                 <input
                   type='number'
                   step='any'
@@ -161,6 +165,58 @@ export default function FormJoinBounty({
                   </span>
                 )}
               </div>
+              {amount && Number(amount) > 0 && (
+                <div className='w-full mb-2 space-y-0.5'>
+                  <div className='flex items-center justify-between text-[13px] leading-tight font-mono'>
+                    <span className='text-white/60'>current reward:</span>
+                    <span className='text-right min-w-[110px] text-white/60 font-normal'>
+                      {formatAmountShort({
+                        amount: Number(formatEther(BigInt(currentAmount))),
+                        precision: 3,
+                      })}{' '}
+                      {chain.currency.toLowerCase()}
+                    </span>
+                  </div>
+                  <div className='flex items-center justify-between text-[13px] leading-tight font-mono'>
+                    <span className='text-white/60'>your contribution:</span>
+                    <span className='text-right min-w-[110px] text-white/60 font-normal'>
+                      +
+                      {formatAmountShort({
+                        amount: Number(amount),
+                        precision: 3,
+                      })}{' '}
+                      {chain.currency.toLowerCase()}
+                    </span>
+                  </div>
+                  <div className='flex items-center justify-between text-[13px] leading-tight font-mono mt-1'>
+                    <span className='text-white/60'>new total:</span>
+                    <span className='text-right min-w-[110px] text-white/60 font-normal'>
+                      {formatAmountShort({
+                        amount:
+                          Number(formatEther(BigInt(currentAmount))) +
+                          Number(amount),
+                        precision: 3,
+                      })}{' '}
+                      {chain.currency.toLowerCase()}
+                      {usdPerToken !== null && price > 0 && (
+                        <span className='ml-1'>
+                          (
+                          <span className='font-bold text-white'>
+                            $
+                            {formatAmountShort({
+                              amount:
+                                (Number(formatEther(BigInt(currentAmount))) +
+                                  Number(amount)) *
+                                price,
+                            })}
+                          </span>
+                          )
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
             <button
               disabled={!amount}
@@ -193,7 +249,7 @@ export default function FormJoinBounty({
               <div className='absolute inset-0 bg-[#cf5d5d] rounded-md transform translate-y-[2px]'></div>
               <div className='relative bg-poidhRed text-white py-2 px-3 rounded-md  transition-all text-sm duration-75 group-hover:-translate-y-[1px] group-active:translate-y-[2px] flex items-center justify-center gap-1.5 border-2 border-t-[#ff6e6e] border-l-[#ff6e6e] border-r-[#cf5d5d] border-b-[#cf5d5d]'>
                 <span className='drop-shadow-[1px_1px_0px_rgba(0,0,0,0.5)] tracking-wide'>
-                  boost bounty
+                  add funds
                 </span>
               </div>
             </button>
