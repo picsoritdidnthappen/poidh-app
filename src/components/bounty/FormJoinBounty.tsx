@@ -130,8 +130,22 @@ export default function FormJoinBounty({
             </button>
             <div className='flex flex-col items-start w-full'>
               <DialogTitle className='text-base mb-2 font-family-geist'>
-                Reward
+                boost this bounty 📈
               </DialogTitle>
+
+              <p className='text-sm text-white/90 mb-3'>
+                increase the reward to help this bounty get completed
+              </p>
+
+              <div className='w-full mb-5 p-3 rounded-md bg-white/5 border border-white/10 text-xs text-white/80 leading-relaxed space-y-1'>
+                <div>
+                  • funds aren’t locked — you can withdraw anytime before a winner is proposed
+                </div>
+                <div>
+                  • once a winner is proposed, you will have <b>48 hours</b> to approve or veto the claim
+                  <span className="block opacity-80">(voting power proportional to funds added)</span>
+                </div>
+              </div>
               <div className='relative w-full mb-6'>
                 <input
                   type='number'
@@ -179,7 +193,7 @@ export default function FormJoinBounty({
               <div className='absolute inset-0 bg-[#cf5d5d] rounded-md transform translate-y-[2px]'></div>
               <div className='relative bg-poidhRed text-white py-2 px-3 rounded-md  transition-all text-sm duration-75 group-hover:-translate-y-[1px] group-active:translate-y-[2px] flex items-center justify-center gap-1.5 border-2 border-t-[#ff6e6e] border-l-[#ff6e6e] border-r-[#cf5d5d] border-b-[#cf5d5d]'>
                 <span className='drop-shadow-[1px_1px_0px_rgba(0,0,0,0.5)] tracking-wide'>
-                  add funds
+                  boost bounty
                 </span>
               </div>
             </button>
