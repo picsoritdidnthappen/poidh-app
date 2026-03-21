@@ -38,9 +38,12 @@ export default function FormJoinBounty({
   const utils = trpc.useUtils();
 
   const account = useAccount();
-  const { data: balance } = useBalance({ address: account.address });
   const writeContract = useWriteContract({});
   const chain = useChainInfo();
+  const { data: balance } = useBalance({
+    address: account.address,
+    chainId: chain.id,
+  });
   const switchChain = useSwitchChain();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
