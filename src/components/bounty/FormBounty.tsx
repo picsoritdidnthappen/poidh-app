@@ -10,10 +10,15 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useChainInfo } from '@/hooks/useChainInfo';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useBalance,
+  useSwitchChain,
+  useWriteContract,
+} from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
-import { decodeEventLog, parseEther } from 'viem';
+import { decodeEventLog, formatEther, parseEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { cn } from '@/utils/utils';
 import GameButton from '@/components/global/GameButton';
@@ -82,6 +87,10 @@ export default function FormBounty({
 
   const writeContract = useWriteContract({});
   const account = useAccount();
+  const { data: balance } = useBalance({
+    address: account.address,
+    chainId: currentChain.id,
+  });
   const switctChain = useSwitchChain();
   const router = useRouter();
   const setLoading = useSetAtom(setLoadingAtom);
@@ -313,7 +322,7 @@ export default function FormBounty({
           ></textarea>
 
           <span className={isMobile ? 'text-base mb-2' : ''}>reward</span>
-          <div className='relative w-full mb-3'>
+          <div className='relative w-full'>
             <input
               ref={inputRef}
               type='number'
@@ -407,6 +416,15 @@ export default function FormBounty({
               >
                 (${formatAmountShort({ amount: usdPerToken })})
               </span>
+            )}
+          </div>
+          <div className='min-h-[1px]'>
+            {account.address && balance && (
+              <p className='text-xs text-white/50 font-mono mb-1 mt-2'>
+                balance:{' '}
+                {Number(parseFloat(formatEther(balance.value)).toFixed(4))}{' '}
+                {balance.symbol.toLowerCase()}
+              </p>
             )}
           </div>
           <div className='flex text-balance gap-2 text-xs mb-4 items-center'>

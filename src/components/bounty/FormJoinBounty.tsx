@@ -4,7 +4,12 @@ import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { formatEther, parseEther } from 'viem';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useBalance,
+  useSwitchChain,
+  useWriteContract,
+} from 'wagmi';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -35,6 +40,10 @@ export default function FormJoinBounty({
   const account = useAccount();
   const writeContract = useWriteContract({});
   const chain = useChainInfo();
+  const { data: balance } = useBalance({
+    address: account.address,
+    chainId: chain.id,
+  });
   const switchChain = useSwitchChain();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -139,16 +148,18 @@ export default function FormJoinBounty({
               </p>
               <div className='w-full rounded-md border border-[#D1ECFF]/40 bg-white/10 p-3 mb-4 text-sm space-y-2'>
                 <p>
-                  • funds aren’t locked — you can withdraw anytime before a winner is proposed
+                  • funds aren’t locked — you can withdraw anytime before a
+                  winner is proposed
                 </p>
                 <p>
-                  • once a winner is proposed, you will have 48 hours to approve or veto the claim{' '}
+                  • once a winner is proposed, you will have 48 hours to approve
+                  or veto the claim{' '}
                   <span className='text-white/70'>
                     (voting power proportional to funds added)
                   </span>
                 </p>
               </div>
-              <div className='relative w-full mb-3'>
+              <div className='relative w-full'>
                 <input
                   type='number'
                   step='any'
@@ -161,6 +172,15 @@ export default function FormJoinBounty({
                   <span className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 font-semibold pointer-events-none max-w-[120px] truncate text-right'>
                     (${formatAmountShort({ amount: usdPerToken })})
                   </span>
+                )}
+              </div>
+              <div className='min-h-[0.75rem] mb-1.5'>
+                {account.address && balance && (
+                  <p className='text-xs text-white/50 font-mono mt-1'>
+                    balance:{' '}
+                    {Number(parseFloat(formatEther(balance.value)).toFixed(4))}{' '}
+                    {balance.symbol.toLowerCase()}
+                  </p>
                 )}
               </div>
               {amount && Number(amount) > 0 && (

@@ -115,7 +115,7 @@ Ensure the database is properly set up before proceeding.
 1. After indexer finished indexing, run the following command:
 
    ```bash
-   pnpm dev:generate
+   pnpm generate
    ```
 
 2. Next, run the following command to migrate the database:
