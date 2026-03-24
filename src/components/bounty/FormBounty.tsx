@@ -520,6 +520,11 @@ export default function FormBounty({
                     return;
                   }
 
+                  if (balance && parseEther(amount) > balance.value) {
+                    toast.error('You do not have enough funds for this bounty');
+                    return;
+                  }
+
                   const formData = {
                     name,
                     description,

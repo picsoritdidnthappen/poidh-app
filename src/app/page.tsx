@@ -245,6 +245,7 @@ export default function Home() {
                       .map((bounty) => {
                         return !bounty.isCanceled && !bounty.inProgress ? (
                           <PastBountyCard
+                            key={`${bounty.chainId}-${bounty.id}`}
                             bounty={{
                               ...bounty,
                               chainId: bounty.chainId as ChainId,
