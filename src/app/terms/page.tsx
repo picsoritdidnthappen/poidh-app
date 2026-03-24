@@ -144,7 +144,9 @@ export default function Terms() {
               <p>These Terms are governed by the laws of the United States.</p>
             </section>
 
-            <p className='mt-8 text-sm text-white/60'>© 2025 poidh, inc.</p>
+            <p className='mt-8 text-sm text-white/60'>
+              © {new Date().getFullYear()} poidh, inc.
+            </p>
           </div>
         </article>
       </div>
