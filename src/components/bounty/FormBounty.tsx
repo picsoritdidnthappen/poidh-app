@@ -173,6 +173,12 @@ export default function FormBounty({
         chainId,
         album,
       });
+      onClose();
+      setUsdPerToken(null);
+      setName('');
+      setDescription('');
+      setAmount('');
+      setAlbum(prefilledAlbum);
       setLoading({ isLoading: true, status: 'Redirecting...' });
       router.push(
         `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
@@ -532,12 +538,6 @@ export default function FormBounty({
                     album,
                   };
 
-                  onClose();
-                  setUsdPerToken(null);
-                  setName('');
-                  setDescription('');
-                  setAmount('');
-                  setAlbum('');
                   createBountyMutations.mutate(formData);
                 } else {
                   toast.error(
