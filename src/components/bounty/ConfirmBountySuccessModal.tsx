@@ -144,7 +144,7 @@ export default function ConfirmBountySuccessModal({
       onClick={onClose}
     >
       <div
-        className='relative w-[calc(100vw-2rem)] sm:w-[520px] max-w-[520px] bg-poidhBlue/90 rounded-xl p-6 border border-[#D1ECFF] max-h-[90vh] overflow-y-auto'
+        className='relative w-[calc(100vw-2rem)] sm:w-[520px] max-w-[520px] bg-poidhBlue/90 dark:bg-[#132b47] rounded-xl p-6 border border-[#D1ECFF] max-h-[90vh] overflow-y-auto'
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -206,7 +206,7 @@ export default function ConfirmBountySuccessModal({
         </p>
 
         <div className='flex justify-center mt-2'>
-          <div className='bg-poidhBlue/80 px-6 pb-2 rounded-lg'>
+          <div className='bg-poidhBlue/80 dark:bg-[#0d1b2e] px-6 pb-2 rounded-lg'>
             <p className='font-family-pixeloid text-4xl text-poidhRed/95 font-semibold [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]'>
               {points > 0.01 ? points.toFixed(2) : '<0.01'}
             </p>
@@ -226,7 +226,7 @@ export default function ConfirmBountySuccessModal({
             </button>
             <button
               onClick={() => router.push(`/account/${bountyIssuer}`)}
-              className='basis-2/3 py-3 rounded-lg bg-[#7fb7ee] text-white font-semibold shadow-md hover:brightness-105 hover:scale-[1.01] transition-transform'
+              className='basis-2/3 py-3 rounded-lg bg-[#7fb7ee] dark:bg-[#132b47] text-white font-semibold shadow-md hover:brightness-105 hover:scale-[1.01] transition-transform'
             >
               view your profile
             </button>

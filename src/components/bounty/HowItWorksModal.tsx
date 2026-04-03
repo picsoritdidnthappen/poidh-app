@@ -21,7 +21,7 @@ export default function HowItWorksModal({ onClose }: { onClose: () => void }) {
       className='fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4'
       onClick={handleBackdropClick}
     >
-      <div className='bg-poidhBlue/90 border border-[#D1ECFF] rounded-[30px] shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col transform transition-all'>
+      <div className='bg-poidhBlue/90 dark:bg-[#132b47] border border-[#D1ECFF] rounded-[30px] shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col transform transition-all'>
         <div className='flex justify-end p-4 pb-2'>
           <button
             onClick={onClose}

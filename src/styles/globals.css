@@ -157,6 +157,10 @@ button {
   background: #80b4ebd8;
 }
 
+.dark .bg-whiteblue {
+  background: #132b47;
+}
+
 .button .normal {
   display: block;
 }
