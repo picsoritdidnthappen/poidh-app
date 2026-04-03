@@ -36,7 +36,7 @@ export default function CryptoWalletMobilePopup() {
       style={{ minHeight: '-webkit-fill-available' }}
     >
       <div
-        className='bg-poidhBlue/80 rounded-xl w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] p-6 relative animate-fadeIn border border-[#D1ECFF]'
+        className='bg-poidhBlue/80 dark:bg-[#132b47] rounded-xl w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] p-6 relative animate-fadeIn border border-[#D1ECFF]'
         onClick={(e) => e.stopPropagation()}
       >
         <button

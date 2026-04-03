@@ -119,6 +119,10 @@ body {
   background: linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5);
 }
 
+.dark body {
+  background: linear-gradient(to bottom, #0d1b2e, #1a3a5c, #15304f, #0d1b2e);
+}
+
 .aspect-w-1 {
   width: 100%;
 }
@@ -151,6 +155,10 @@ button {
 
 .bg-whiteblue {
   background: #80b4ebd8;
+}
+
+.dark .bg-whiteblue {
+  background: #132b47;
 }
 
 .button .normal {
@@ -227,6 +235,10 @@ button {
   border: 1px solid white !important;
   color: white !important;
   backdrop-filter: blur(4px) !important;
+}
+.dark .Toastify__toast-theme--light {
+  background-color: rgba(13, 27, 46, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 .Toastify__close-button > svg {
   fill: white !important;

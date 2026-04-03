@@ -36,10 +36,10 @@ function ClaimItem({ claim }: { claim: Claim }) {
           </div>
         )}
 
-        <div className='bg-poidhBlue w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
+        <div className='bg-poidhBlue dark:bg-[#132b47] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
           <div
             style={{ backgroundImage: `url(${claim.url})` }}
-            className='bg-poidhBlue bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+            className='bg-poidhBlue dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
           ></div>
         </div>
       </Link>

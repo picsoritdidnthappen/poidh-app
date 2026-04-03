@@ -215,7 +215,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
     <>
       <Dialog open={open} onClose={onClose} className='relative z-50'>
         <div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4'>
-          <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-3 bg-gradient-to-b from-[#2a81d5] to-[#70aae2]'>
+          <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-3 bg-gradient-to-b from-[#2a81d5] to-[#70aae2] dark:from-[#0d1b2e] dark:to-[#1a3a5c]'>
             <div className='bg-blur rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 border border-white/20'>
               <div
                 className='bg-blur-white rounded-lg p-2 h-48 sm:h-64 flex items-center justify-center cursor-pointer relative'

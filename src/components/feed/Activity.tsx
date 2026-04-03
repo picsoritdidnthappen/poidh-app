@@ -167,7 +167,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
 
   return (
     <div className='w-full max-w-full sm:max-w-3xl bg-white/5 border border-white/8 rounded-lg backdrop-blur-sm mt-4 sm:mt-5 overflow-hidden shadow-sm'>
-      <div className='px-4 py-3 sm:px-6 sm:py-4  bg-[#7fb7ee]'>
+      <div className='px-4 py-3 sm:px-6 sm:py-4  bg-[#7fb7ee] dark:bg-[#132b47]'>
         <div className='flex items-start justify-between gap-4'>
           <div className='flex items-center gap-3'>
             <DisplayAddress
@@ -207,11 +207,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
         <div className='border-t border-white/6 px-4 pb-4 pt-2'>
           {bountyId && chain && (
             <div
-              className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md'
-              style={{
-                background:
-                  'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)',
-              }}
+              className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md bg-gradient-to-b from-[#2a81d5] via-[#70aae2] to-[#2a81d5] dark:from-[#0d1b2e] dark:via-[#1a3a5c] dark:to-[#0d1b2e]'
             >
               <Link
                 href={`/${chain.slug}/bounty/${bountyId}`}

@@ -211,7 +211,7 @@ export default function FormBounty({
       fullWidth
       fullScreen={isMobile}
       PaperProps={{
-        className: 'bg-poidhBlue/90',
+        className: 'bg-poidhBlue/90 dark:!bg-[#132b47]',
         sx: {
           borderRadius: isMobile ? '0px' : '30px',
           color: 'white',
@@ -464,7 +464,7 @@ export default function FormBounty({
               }}
             />
             {showAlbumDropdown && album && albums && albums.length > 0 && (
-              <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
+              <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 dark:bg-[#132b47] border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
                 {albums.map((c) => (
                   <li
                     key={c.album}

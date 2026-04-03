@@ -36,7 +36,7 @@ export default function PastBountyCard({ bounty }: { bounty: Bounty }) {
               </div>
               <div
                 style={{ backgroundImage: `url(${claim.data.url})` }}
-                className='bg-poidhBlue bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+                className='bg-poidhBlue dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
               ></div>
               <div className='p-3'>
                 <div className='flex flex-col'>

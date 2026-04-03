@@ -16,7 +16,7 @@ export default function ClaimConfirm({
     <>
       <Dialog open={isOpen} onClose={onClose} className='relative z-50'>
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center p-4'>
-          <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-6 bg-poidhBlue border border-[#D1ECFF]'>
+          <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-6 bg-poidhBlue dark:bg-[#132b47] border border-[#D1ECFF]'>
             <DialogTitle className='font-mono text-2xl font-bold text-white mb-4 text-center'>
               Confirm Your Claim
             </DialogTitle>

@@ -128,7 +128,7 @@ export default function FormJoinBounty({
         className='relative z-50'
       >
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center p-4'>
-          <DialogPanel className='w-full max-w-xs rounded-lg p-6 bg-poidhBlue/90 border border-[#D1ECFF] text-white relative'>
+          <DialogPanel className='w-full max-w-xs rounded-lg p-6 bg-poidhBlue/90 dark:bg-[#132b47] border border-[#D1ECFF] text-white relative'>
             <button
               onClick={() => {
                 onClose();

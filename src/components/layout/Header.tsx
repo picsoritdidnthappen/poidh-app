@@ -19,6 +19,7 @@ import Logo from '../global/Logo';
 import { useAccount } from 'wagmi';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { trpc } from '@/trpc/client';
+import DarkModeToggle from '@/components/global/DarkModeToggle';
 
 export default function Header() {
   const account = useAccount();
@@ -70,6 +71,7 @@ export default function Header() {
           >
             <InfoIcon />
           </button>
+          <DarkModeToggle />
           {!isMobile && (
             <Link
               href='/explore'
