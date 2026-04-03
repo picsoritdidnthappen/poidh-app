@@ -10,6 +10,7 @@ import ClientLayout from '@/app/layout.client';
 import { Metadata } from 'next';
 import CryptoWalletMobilePopup from '@/components/global/CryptoWalletMobilePopup';
 import { Analytics } from '@vercel/analytics/next';
+import { ThemeProvider } from '@/context/ThemeContext';
 
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
@@ -94,20 +95,27 @@ export default function RootLayout({
   const url = referer ? String(referer) : '';
 
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <head>
         <link rel='canonical' href={url} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body className='bg-blue-300 text-white'>
-        <TRPCProvider>
-          <WalletProvider>
-            <LoadingLayout>
-              <ClientLayout>{children}</ClientLayout>
-              <ToastContainer />
-              <CryptoWalletMobilePopup />
-            </LoadingLayout>
-          </WalletProvider>
-        </TRPCProvider>
+        <ThemeProvider>
+          <TRPCProvider>
+            <WalletProvider>
+              <LoadingLayout>
+                <ClientLayout>{children}</ClientLayout>
+                <ToastContainer />
+                <CryptoWalletMobilePopup />
+              </LoadingLayout>
+            </WalletProvider>
+          </TRPCProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>
