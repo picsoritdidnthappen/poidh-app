@@ -53,7 +53,7 @@ export default function ShareModal({
       className='fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4'
       onClick={handleBackdropClick}
     >
-      <div className='bg-poidhBlue/90 border border-[#D1ECFF] rounded-[30px] shadow-2xl w-full max-w-sm mx-auto transform transition-all'>
+      <div className='bg-poidhBlue/90 dark:bg-[#132b47] border border-[#D1ECFF] rounded-[30px] shadow-2xl w-full max-w-sm mx-auto transform transition-all'>
         <div className='flex items-center justify-between p-6 border-b border-white/20'>
           <h2 className='text-xl font-semibold text-white'>{title}</h2>
           <button

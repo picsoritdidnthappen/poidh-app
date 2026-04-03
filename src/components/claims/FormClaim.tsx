@@ -237,7 +237,7 @@ export default function FormClaim({
         fullWidth
         fullScreen={isMobile}
         PaperProps={{
-          className: 'bg-poidhBlue/90 relative flex flex-col',
+          className: 'bg-poidhBlue/90 dark:!bg-[#132b47] relative flex flex-col',
           sx: {
             borderRadius: isMobile ? '0px' : '30px',
             color: 'white',

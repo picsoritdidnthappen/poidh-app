@@ -162,7 +162,7 @@ export default function ClaimFundsButton({ user }: { user: User }) {
         className='relative z-50'
       >
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center p-4'>
-          <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[550px] max-w-[550px] rounded-xl p-6 bg-poidhBlue border border-[#D1ECFF]'>
+          <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[550px] max-w-[550px] rounded-xl p-6 bg-poidhBlue dark:bg-[#132b47] border border-[#D1ECFF]'>
             <div className='relative mb-6'>
               <DialogTitle className="font-['PixeloidSans'] text-xl text-poidhRed text-center [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]">
                 claim your funds

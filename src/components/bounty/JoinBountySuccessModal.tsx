@@ -94,7 +94,7 @@ export default function JoinBountySuccessModal({
       onClick={onClose}
     >
       <div
-        className='relative w-full max-w-xs bg-poidhBlue/95 rounded-xl text-white border border-[#D1ECFF]'
+        className='relative w-full max-w-xs bg-poidhBlue/95 dark:bg-[#132b47] rounded-xl text-white border border-[#D1ECFF]'
         onClick={(e) => e.stopPropagation()}
       >
         <div className='relative p-6'>
@@ -171,7 +171,7 @@ export default function JoinBountySuccessModal({
                     window.location.href = `/account/${account.address}`;
                   }
                 }}
-                className='font-family-geist w-3/4 py-3 rounded-lg lowercase bg-[#7fb7ee] text-white shadow-md hover:bg-white/20 hover:scale-[1.01] transition-transform'
+                className='font-family-geist w-3/4 py-3 rounded-lg lowercase bg-[#7fb7ee] dark:bg-[#132b47] text-white shadow-md hover:bg-white/20 hover:scale-[1.01] transition-transform'
               >
                 view your profile
               </button>
@@ -184,7 +184,7 @@ export default function JoinBountySuccessModal({
               </p>
             </div>
 
-            <div className='bg-poidhBlue/80 px-6 pb-2 rounded-lg'>
+            <div className='bg-poidhBlue/80 dark:bg-[#0d1b2e] px-6 pb-2 rounded-lg'>
               <p className='font-family-pixeloid text-4xl text-poidhRed/95 font-semibold [text-shadow:-0.5px_-0.5px_0_white,0.5px_-0.5px_0_white,-0.5px_0.5px_0_white,0.5px_0.5px_0_white]'>
                 {computePoidhPoints(Number(joinedAmount), chain.currency) > 0.01
                   ? computePoidhPoints(

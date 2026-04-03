@@ -200,7 +200,7 @@ export default function ClaimItem({
         )}
         <div
           style={{ backgroundImage: `url(${claim.url})` }}
-          className='bg-[#12AAFF] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
           onClick={() => setOpenCard(true)}
         />
         <div className='p-3'>

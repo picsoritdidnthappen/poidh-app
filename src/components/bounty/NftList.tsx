@@ -40,10 +40,10 @@ function NftListItem({ NFT }: { NFT: NFT }) {
   return (
     <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl w-full'>
       <Link href={`/${chain.slug}/bounty/${NFT.bountyId}`}>
-        <div className='bg-poidhBlue aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
+        <div className='bg-poidhBlue dark:bg-[#132b47] aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
           <div
             style={{ backgroundImage: `url(${NFT.url})` }}
-            className='bg-poidhBlue bg-cover bg-center aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+            className='bg-poidhBlue dark:bg-[#132b47] bg-cover bg-center aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
           />
         </div>
       </Link>
