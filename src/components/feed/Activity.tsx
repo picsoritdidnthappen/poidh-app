@@ -207,11 +207,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
         <div className='border-t border-white/6 px-4 pb-4 pt-2'>
           {bountyId && chain && (
             <div
-              className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md'
-              style={{
-                background:
-                  'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)',
-              }}
+              className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md bg-gradient-to-b from-[#2a81d5] via-[#70aae2] to-[#2a81d5] dark:from-[#0d1b2e] dark:via-[#1a3a5c] dark:to-[#0d1b2e]'
             >
               <Link
                 href={`/${chain.slug}/bounty/${bountyId}`}
