@@ -48,6 +48,57 @@ export default function FormBounty({
   const [amount, setAmount] = useState('');
   const [album, setAlbum] = useState(prefilledAlbum);
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
+
+  // Session storage key for persisting form data across rejected transactions
+  const FORM_DATA_KEY = 'poidh_bounty_form_draft';
+
+  // Load saved form draft when dialog opens
+  useEffect(() => {
+    if (open) {
+      try {
+        const saved = sessionStorage.getItem(FORM_DATA_KEY);
+        if (saved) {
+          const { savedName, savedDescription, savedAmount, savedAlbum, savedChain } = JSON.parse(saved);
+          if (savedName) setName(savedName);
+          if (savedDescription) setDescription(savedDescription);
+          if (savedAmount) setAmount(savedAmount);
+          if (savedAlbum !== undefined) setAlbum(savedAlbum);
+          if (savedChain && savedChain !== currentChain.slug) {
+            const ch = chains[savedChain as Netname];
+            if (ch) setCurrentChain(ch);
+          }
+        }
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  }, [open]);
+
+  // Persist form data to sessionStorage whenever it changes
+  useEffect(() => {
+    if (open && (name || description || amount)) {
+      try {
+        sessionStorage.setItem(FORM_DATA_KEY, JSON.stringify({
+          savedName: name,
+          savedDescription: description,
+          savedAmount: amount,
+          savedAlbum: album,
+          savedChain: currentChain.slug,
+        }));
+      } catch {
+        // Ignore storage errors
+      }
+    }
+  }, [name, description, amount, album, currentChain.slug, open]);
+
+  // Clear saved form data after successful bounty creation
+  const clearFormDraft = () => {
+    try {
+      sessionStorage.removeItem(FORM_DATA_KEY);
+    } catch {
+      // Ignore storage errors
+    }
+  };
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -179,6 +230,7 @@ export default function FormBounty({
       setDescription('');
       setAmount('');
       setAlbum(prefilledAlbum);
+      clearFormDraft();
       setLoading({ isLoading: true, status: 'Redirecting...' });
       router.push(
         `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
@@ -187,6 +239,23 @@ export default function FormBounty({
     },
     onError: (error) => {
       toast.error('Failed to create bounty: ' + error.message);
+      // Restore form data from sessionStorage on rejection
+      try {
+        const saved = sessionStorage.getItem(FORM_DATA_KEY);
+        if (saved) {
+          const { savedName, savedDescription, savedAmount, savedAlbum, savedChain } = JSON.parse(saved);
+          if (savedName) setName(savedName);
+          if (savedDescription) setDescription(savedDescription);
+          if (savedAmount) setAmount(savedAmount);
+          if (savedAlbum !== undefined) setAlbum(savedAlbum);
+          if (savedChain && savedChain !== currentChain.slug) {
+            const ch = chains[savedChain as Netname];
+            if (ch) setCurrentChain(ch);
+          }
+        }
+      } catch {
+        // Ignore parse errors
+      }
     },
     onSettled: () => {
       setLoading({ isLoading: false, status: '' });
