@@ -2,13 +2,13 @@
 
 import { useTheme } from '@/context/ThemeContext';
 
-function SunIcon() {
+function SunIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
-      width={20}
-      height={20}
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
@@ -22,13 +22,13 @@ function SunIcon() {
   );
 }
 
-function MoonIcon() {
+function MoonIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       fill='none'
-      width={20}
-      height={20}
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
@@ -48,8 +48,12 @@ export default function DarkModeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20 transition-colors'
-      aria-label={theme === 'dark' ? 'switch to light mode' : 'switch to dark mode'}
+      className='rounded-lg backdrop-blur-sm bg-white/30 h-10 w-10 flex items-center justify-center mr-2 hover:bg-white/20 transition-colors'
+      aria-label={
+        theme === 'dark'
+          ? 'switch to light mode'
+          : 'switch to dark mode'
+      }
     >
       {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
     </button>
