@@ -80,19 +80,30 @@ async function loadFont(): Promise<ArrayBuffer> {
 
 async function loadFarcasterParticipants(addresses: string[]) {
   try {
-    const farcasterParticipantsResponse = await fetch(
-      `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${encodeURIComponent(
-        addresses.join(',')
-      )}`,
-      {
-        headers: {
-          'x-api-key': process.env.NEYNAR_API_KEY || '',
-          'Content-Type': 'application/json',
-        },
-      }
+    const res = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_APP_URL
+      }/api/trpc/neynar.usersData?input=${encodeURIComponent(
+        JSON.stringify({ json: { addresses } })
+      )}`
     );
-    const farcasterParticipants = await farcasterParticipantsResponse.json();
-    return farcasterParticipants;
+    const json = await res.json();
+    const users: Array<{
+      address: string;
+      farcasterTag: string | null;
+      pfpUrl: string | null;
+    }> = json?.result?.data?.json ?? [];
+    const result: {
+      [address: string]: Array<{ username: string; pfp_url: string }>;
+    } = {};
+    for (const user of users) {
+      if (user.farcasterTag) {
+        result[user.address] = [
+          { username: user.farcasterTag, pfp_url: user.pfpUrl ?? '' },
+        ];
+      }
+    }
+    return result;
   } catch (error) {
     return {};
   }
