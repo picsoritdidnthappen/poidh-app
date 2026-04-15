@@ -6,6 +6,7 @@ import BountyList from '@/components/bounty/BountyList';
 import { BountyDisplayType, ChainId } from '@/utils/types';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
 import Navbar from '@/components/global/Navbar';
+import InfiniteScroll from 'react-infinite-scroller';
 
 export default function Album({ params }: { params: { album: string } }) {
   const album = params.album ?? 'album';
@@ -13,10 +14,17 @@ export default function Album({ params }: { params: { album: string } }) {
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const bounties = trpc.bounties.fetchByAlbum.useQuery({
-    album: album.toLowerCase(),
-    status: display,
-  });
+  const bounties = trpc.bounties.fetchByAlbum.useInfiniteQuery(
+    {
+      album: album.toLowerCase(),
+      status: display,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  const allItems = bounties.data?.pages.flatMap((page) => page.items) ?? [];
 
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['open', 'progress', 'past'].indexOf(display);
@@ -90,32 +98,61 @@ export default function Album({ params }: { params: { album: string } }) {
         </div>
 
         <div className='pb-20 z-1 mt-7'>
-          {bounties.data && bounties.data.items.length > 0 ? (
+          {allItems.length > 0 ? (
             display !== 'past' ? (
-              <BountyList
-                key={`bounty-list-album-${bounties.data.nextCursor ?? -1}`}
-                bounties={bounties.data.items.map((bounty) => ({
-                  ...bounty,
-                  chainId: bounty.chainId as ChainId,
-                }))}
-                showChainIcon={true}
-              />
+              <InfiniteScroll
+                loadMore={() => bounties.fetchNextPage()}
+                hasMore={bounties.hasNextPage ?? false}
+                loader={
+                  <div
+                    key='loader'
+                    className='animate-pulse text-center py-4 text-white/60'
+                  >
+                    Loading more...
+                  </div>
+                }
+                threshold={500}
+              >
+                <BountyList
+                  bounties={allItems.map((bounty) => ({
+                    ...bounty,
+                    chainId: bounty.chainId as ChainId,
+                  }))}
+                  showChainIcon={true}
+                />
+              </InfiniteScroll>
             ) : (
-              <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
-                {bounties.data.items
-                  .filter((bounty) => !bounty.inProgress && !bounty.isCanceled)
-                  .map((bounty) => {
-                    return (
-                      <PastBountyCard
-                        key={`bounty-list-album-past-${bounty.id}`}
-                        bounty={{
-                          ...bounty,
-                          chainId: bounty.chainId as ChainId,
-                        }}
-                      />
-                    );
-                  })}
-              </div>
+              <InfiniteScroll
+                loadMore={() => bounties.fetchNextPage()}
+                hasMore={bounties.hasNextPage ?? false}
+                loader={
+                  <div
+                    key='loader'
+                    className='animate-pulse text-center py-4 text-white/60'
+                  >
+                    Loading more...
+                  </div>
+                }
+                threshold={500}
+              >
+                <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
+                  {allItems
+                    .filter(
+                      (bounty) => !bounty.inProgress && !bounty.isCanceled
+                    )
+                    .map((bounty) => {
+                      return (
+                        <PastBountyCard
+                          key={`bounty-list-album-past-${bounty.id}`}
+                          bounty={{
+                            ...bounty,
+                            chainId: bounty.chainId as ChainId,
+                          }}
+                        />
+                      );
+                    })}
+                </div>
+              </InfiniteScroll>
             )
           ) : (
             <div className='container mx-auto p-4 flex items-center justify-center mt-24'>
