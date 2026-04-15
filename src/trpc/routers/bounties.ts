@@ -324,7 +324,7 @@ export const bountiesRouter = {
 
       let nextCursor: number | undefined = undefined;
       if (items.length === input.limit) {
-        nextCursor = items[items.length - 1].id;
+        nextCursor = items[items.length - 1].createdAt.toNumber();
       }
 
       return {
