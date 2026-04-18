@@ -137,6 +137,7 @@ export default function Voting({
     },
     onSettled: () => {
       voting.refetch();
+      bounty.refetch();
     },
   });
 
