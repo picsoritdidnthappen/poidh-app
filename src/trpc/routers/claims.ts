@@ -110,6 +110,9 @@ export const claimsRouter = {
         },
         where: {
           ...input,
+          bounty: {
+            isVoting: true,
+          },
         },
         orderBy: { round: 'desc' },
         take: 1,
