@@ -86,9 +86,6 @@ export default function Voting({
     !userHasVoted.data &&
     !isAcceptedBounty;
 
-  const canResolve =
-    hasWallet && !!isBountyOwner && isVotingClosed && !isAcceptedBounty;
-
   const yesWei = BigInt(voting.data?.yes ?? 0);
   const noWei = BigInt(voting.data?.no ?? 0);
   const bountyAmountWei = BigInt(bounty.data?.amount ?? 0);
@@ -149,7 +146,6 @@ export default function Voting({
     mutationFn: async () => {
       if (!bounty.data) throw new Error('Bounty data not found');
       if (!account.address) throw new Error('Wallet not connected');
-      if (!canResolve) throw new Error('You cannot resolve this vote');
 
       await ensureCorrectChain();
 
@@ -328,7 +324,7 @@ export default function Voting({
               </div>
             )}
 
-          {canResolve && (
+          {isVotingClosed && (
             <button
               className='w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-blue-400/20 bg-gradient-to-r from-blue-500/70 to-blue-600/70 text-white hover:from-blue-500/85 hover:to-blue-600/85 hover:border-blue-400 active:scale-95 shadow-lg hover:shadow-blue-500/20'
               onClick={() => resolveVoteMutation.mutate()}
