@@ -113,15 +113,19 @@ model UsersExtra {
 }
 
 model Ban {
-  id       Int      @id @default(autoincrement())
-  chainId  Int      @map("chain_id")
-  bountyId Int?     @map("bounty_id")
-  claimId  Int?     @map("claim_id")
-  bannedAt DateTime @default(now()) @map("banned_at")
-  bannedBy String   @map("banned_by")
+  id              Int      @id @default(autoincrement())
+  chainId         Int      @map("chain_id")
+  bountyId        Int?     @map("bounty_id")
+  claimId         Int?     @map("claim_id")
+  /// On-chain claim id for this chain; stable when indexer internal id shifts.
+  claimOnChainId  Int?     @map("claim_on_chain_id")
+  bannedAt        DateTime @default(now()) @map("banned_at")
+  bannedBy        String   @map("banned_by")
 
   bounty Bounties? @relation(fields: [bountyId, chainId], references: [id, chainId])
   claim  Claims?   @relation(fields: [claimId, chainId], references: [id, chainId])
+
+  @@index([chainId, claimOnChainId])
 }
 
 model Transactions {

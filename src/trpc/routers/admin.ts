@@ -6,6 +6,7 @@ import prisma from 'prisma/prisma';
 import { TRPCError } from '@trpc/server';
 import { getBanSignatureFirstLine } from '@/utils/utils';
 import { chains } from '@/utils/config';
+import { invalidateClaimBanFilterCache } from '@/trpc/claimBanFilter';
 
 export const adminRouter = {
   isAdmin: baseProcedure
@@ -73,6 +74,7 @@ export const adminRouter = {
           bannedBy: input.address.toLowerCase(),
         },
       });
+      invalidateClaimBanFilterCache();
     }),
 
   banClaim: baseProcedure
@@ -129,13 +131,22 @@ export const adminRouter = {
         });
       }
 
+      const claim = await prisma.claims.findUniqueOrThrow({
+        where: {
+          id_chainId: { id: input.id, chainId: input.chainId },
+        },
+        select: { onChainId: true },
+      });
+
       await prisma.ban.create({
         data: {
           chainId: input.chainId,
           bannedBy: input.address.toLowerCase(),
           claimId: input.id,
+          claimOnChainId: claim.onChainId,
         },
       });
+      invalidateClaimBanFilterCache();
     }),
 
   banComment: baseProcedure

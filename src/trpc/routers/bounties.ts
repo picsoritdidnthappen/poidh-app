@@ -3,11 +3,13 @@ import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
 import { checkIsIssuer } from './admin';
+import { getClaimsNotBannedPrismaFilter } from '@/trpc/claimBanFilter';
 
 export const bountiesRouter = {
   fetch: baseProcedure
     .input(z.object({ id: z.number(), chainId: z.number() }))
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const bounty = await prisma.bounties.findUniqueOrThrow({
         where: {
           id_chainId: {
@@ -17,7 +19,7 @@ export const bountiesRouter = {
         include: {
           claims: {
             where: {
-              ban: { none: {} },
+              ...claimBanWhere,
             },
             select: { id: true },
             take: 1,
@@ -102,6 +104,7 @@ export const bountiesRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const sortByDate = input.sortType === 'date';
       const sortByValue = input.sortType === 'value';
 
@@ -141,9 +144,7 @@ export const bountiesRouter = {
                 claims: {
                   take: 1,
                   where: {
-                    ban: {
-                      none: {},
-                    },
+                    ...claimBanWhere,
                   },
                   orderBy: { isAccepted: 'desc' },
                 },
@@ -169,9 +170,7 @@ export const bountiesRouter = {
             claims: {
               take: 1,
               where: {
-                ban: {
-                  none: {},
-                },
+                ...claimBanWhere,
               },
               orderBy: { isAccepted: 'desc' },
             },
@@ -269,14 +268,13 @@ export const bountiesRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const items = await prisma.bounties.findMany({
         include: {
           claims: {
             take: 1,
             where: {
-              ban: {
-                none: {},
-              },
+              ...claimBanWhere,
             },
             orderBy: { isAccepted: 'desc' },
           },
@@ -361,12 +359,11 @@ export const bountiesRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       return await prisma.claims.count({
         where: {
           ...input,
-          ban: {
-            none: {},
-          },
+          ...claimBanWhere,
         },
       });
     }),
@@ -482,6 +479,7 @@ export const bountiesRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const q = input.keyword.trim();
 
       const items = await prisma.bounties.findMany({
@@ -489,9 +487,7 @@ export const bountiesRouter = {
           claims: {
             take: 1,
             where: {
-              ban: {
-                none: {},
-              },
+              ...claimBanWhere,
             },
           },
           participations: {

@@ -3,20 +3,16 @@ import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import axios from 'axios';
 import { tryCatchAsync } from '@/utils/utils';
+import { getClaimsNotBannedPrismaFilter } from '@/trpc/claimBanFilter';
 
 export const claimsRouter = {
   fetch: baseProcedure
     .input(z.object({ claimId: z.number(), chainId: z.number() }))
     .query(async ({ input }) => {
-      const claim = await prisma.claims.findUniqueOrThrow({
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
+      const claim = await prisma.claims.findFirstOrThrow({
         where: {
-          id_chainId: {
-            id: input.claimId,
-            chainId: input.chainId,
-          },
-          ban: {
-            none: {},
-          },
+          AND: [{ id: input.claimId, chainId: input.chainId }, claimBanWhere],
         },
       });
 
@@ -38,13 +34,12 @@ export const claimsRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const items = await prisma.claims.findMany({
         where: {
           bountyId: input.bountyId,
           chainId: input.chainId,
-          ban: {
-            none: {},
-          },
+          ...claimBanWhere,
           ...(input.cursor
             ? { isAccepted: false, id: { lt: input.cursor } }
             : {}),
@@ -78,13 +73,12 @@ export const claimsRouter = {
   fetchAcceptedClaimByBountyId: baseProcedure
     .input(z.object({ bountyId: z.number(), chainId: z.number() }))
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const claim = await prisma.claims.findFirst({
         where: {
           bountyId: input.bountyId,
           chainId: input.chainId,
-          ban: {
-            none: {},
-          },
+          ...claimBanWhere,
           isAccepted: true,
         },
       });
@@ -104,6 +98,7 @@ export const claimsRouter = {
   fetchVotingClaimByBountyId: baseProcedure
     .input(z.object({ bountyId: z.number(), chainId: z.number() }))
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const vote = await prisma.votes.findFirst({
         select: {
           claimId: true,
@@ -126,9 +121,7 @@ export const claimsRouter = {
         where: {
           id: vote.claimId,
           chainId: input.chainId,
-          ban: {
-            none: {},
-          },
+          ...claimBanWhere,
         },
       });
 

@@ -6,6 +6,7 @@ import { addressSchema } from '../serverTypes';
 import { formatEther } from 'viem';
 import { fetchPrice } from '@/utils/utils';
 import { fetchImageMetadata } from './claims';
+import { getClaimsNotBannedPrismaFilter } from '@/trpc/claimBanFilter';
 
 export function scoreETH({
   earned,
@@ -54,18 +55,13 @@ export const accountsRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const items = await prisma.claims.findMany({
         where: {
           owner: input.address.toLowerCase(),
+          ...claimBanWhere,
+          ...(input.cursor ? { id: { lt: input.cursor } } : {}),
         },
-        ...(input.cursor
-          ? {
-              where: {
-                owner: input.address.toLowerCase(),
-                id: { lt: input.cursor },
-              },
-            }
-          : {}),
         orderBy: { id: 'desc' },
         take: input.limit,
       });
@@ -101,10 +97,11 @@ export const accountsRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const items = await prisma.claims.findMany({
         where: {
           issuer: input.address.toLowerCase(),
-          ban: { none: {} },
+          ...claimBanWhere,
           ...(input.cursor ? { id: { lt: input.cursor } } : {}),
         },
         orderBy: { id: 'desc' },
@@ -141,6 +138,7 @@ export const accountsRouter = {
     )
     .query(async ({ input }) => {
       const addr = input.address.toLowerCase();
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
 
       const [
         nfts,
@@ -150,7 +148,7 @@ export const accountsRouter = {
         completedClaims,
       ] = await Promise.all([
         prisma.claims.count({ where: { owner: addr } }),
-        prisma.claims.count({ where: { issuer: addr, ban: { none: {} } } }),
+        prisma.claims.count({ where: { issuer: addr, ...claimBanWhere } }),
         prisma.bounties.findMany({
           where: { issuer: addr, ban: { none: {} } },
           select: { id: true, inProgress: true, isCanceled: true },
@@ -165,7 +163,7 @@ export const accountsRouter = {
           },
         }),
         prisma.claims.count({
-          where: { issuer: addr, isAccepted: true, ban: { none: {} } },
+          where: { issuer: addr, isAccepted: true, ...claimBanWhere },
         }),
       ]);
 
@@ -221,6 +219,7 @@ export const accountsRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const [createdBounties, contributed] = await Promise.all([
         prisma.bounties
           .findMany({
@@ -232,9 +231,7 @@ export const accountsRouter = {
               claims: {
                 take: 1,
                 where: {
-                  ban: {
-                    none: {},
-                  },
+                  ...claimBanWhere,
                 },
               },
               participations: {
@@ -269,9 +266,7 @@ export const accountsRouter = {
                   claims: {
                     take: 1,
                     where: {
-                      ban: {
-                        none: {},
-                      },
+                      ...claimBanWhere,
                     },
                   },
                   participations: {
@@ -522,6 +517,7 @@ export const accountsRouter = {
       })
     )
     .query(async ({ input }) => {
+      const claimBanWhere = await getClaimsNotBannedPrismaFilter();
       const txs = await prisma.transactions.findMany({
         include: {
           bounty: {
@@ -544,10 +540,7 @@ export const accountsRouter = {
               none: {},
             },
           },
-          OR: [
-            { claimId: { equals: null } },
-            { claim: { is: { ban: { none: {} } } } },
-          ],
+          OR: [{ claimId: { equals: null } }, { claim: { is: claimBanWhere } }],
           ...(input.address
             ? {
                 address: input.address.toLowerCase(),
