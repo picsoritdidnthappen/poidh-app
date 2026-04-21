@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import ClaimCard from './ClaimCard';
+import AcceptClaimConfirm from '../bounty/AcceptClaimConfirm';
 import SubmitVotingConfirm from '../bounty/SubmitVotingConfirm';
 import ConfirmBountySuccessModal from '../bounty/ConfirmBountySuccessModal';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -33,6 +34,7 @@ export default function ClaimItem({
   const utils = trpc.useUtils();
 
   const [openCard, setOpenCard] = useState(false);
+  const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
   const setLoading = useSetAtom(setLoadingAtom);
@@ -169,6 +171,17 @@ export default function ClaimItem({
           setShowVotingConfirm(false);
         }}
       />
+      <AcceptClaimConfirm
+        isOpen={showAcceptConfirm}
+        onClose={() => setShowAcceptConfirm(false)}
+        imageUrl={claim.url ? claim.url + '?q=50' : ''}
+        onConfirm={() => {
+          acceptClaimMutation.mutate({
+            claimId: BigInt(claim.id),
+        });
+        setShowAcceptConfirm(false);
+      }}
+    />
       <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
         <div className='left-5 top-5 absolute  flex flex-col text-white'>
           {bounty.data &&
@@ -182,9 +195,7 @@ export default function ClaimItem({
                   if (bounty.data.hasParticipants) {
                     setShowVotingConfirm(true);
                   } else {
-                    acceptClaimMutation.mutate({
-                      claimId: BigInt(claim.id),
-                    });
+                    setShowAcceptConfirm(true);
                   }
                 }}
               >
