@@ -268,9 +268,9 @@ export default function FormClaim({
             : {}
         }
       >
-        {isMobile ? (
+        {isMobile && (
           <div className='flex items-center justify-between w-full sticky'>
-            <div style={{ width: '40px' }} />{' '}
+            <div style={{ width: '40px' }} />
             <button
               onClick={onClose}
               style={{
@@ -286,33 +286,6 @@ export default function FormClaim({
               <CloseIcon size={14} />
             </button>
           </div>
-        ) : (
-          <button
-            onClick={onClose}
-            style={{
-              position: 'absolute',
-              right: 10,
-              top: 8,
-              color: 'white',
-              cursor: 'pointer',
-              padding: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '6px',
-              transition: 'background-color 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                'rgba(255, 255, 255, 0.15)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                'transparent';
-            }}
-          >
-            <CloseIcon size={12} />
-          </button>
         )}
         <DialogContent
           sx={{
@@ -329,6 +302,36 @@ export default function FormClaim({
             }),
           }}
         >
+          {/* Desktop close button — inside DialogContent so position:absolute offsets correctly */}
+          {!isMobile && (
+            <button
+              onClick={onClose}
+              style={{
+                position: 'absolute',
+                right: 10,
+                top: 8,
+                color: 'white',
+                cursor: 'pointer',
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '6px',
+                transition: 'background-color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  'rgba(255, 255, 255, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  'transparent';
+              }}
+            >
+              <CloseIcon size={12} />
+            </button>
+          )}
+
           <div
             {...getRootProps()}
             className={cn(
