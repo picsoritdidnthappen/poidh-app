@@ -428,8 +428,13 @@ export const accountsRouter = {
             },
           },
         }),
-        prisma.usersExtra.findUnique({
-          where: { address: input.address.toLowerCase() },
+        prisma.usersExtra.findFirst({
+          where: {
+            address: {
+              equals: input.address.toLowerCase(),
+              mode: 'insensitive',
+            },
+          },
           select: { extraPoints: true },
         }),
       ]);
