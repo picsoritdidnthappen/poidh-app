@@ -5,7 +5,12 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { cn } from '@/utils/utils';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useBalance,
+  useSwitchChain,
+  useWriteContract,
+} from 'wagmi';
 import abi from '@/constant/abi/abi';
 import Image from 'next/image';
 import { useMutation } from '@tanstack/react-query';
@@ -57,6 +62,10 @@ export default function FormClaim({
   const account = useAccount();
   const writeContract = useWriteContract({});
   const chain = useChainInfo();
+  const { data: balance } = useBalance({
+    address: account.address,
+    chainId: chain.id,
+  });
   const switchChain = useSwitchChain();
   const isMobile = useScreenSize();
 
@@ -237,7 +246,8 @@ export default function FormClaim({
         fullWidth
         fullScreen={isMobile}
         PaperProps={{
-          className: 'bg-poidhBlue/90 dark:!bg-[#132b47] relative flex flex-col',
+          className:
+            'bg-poidhBlue/90 dark:!bg-[#132b47] relative flex flex-col',
           sx: {
             borderRadius: isMobile ? '0px' : '30px',
             color: 'white',
@@ -434,14 +444,20 @@ export default function FormClaim({
               account.isDisconnected && 'opacity-50 cursor-not-allowed'
             )}
             onClick={() => {
-              if (title && description && imageURI) {
-                onClose();
-                setShowConfirm(true);
-              } else {
+              if (!title || !description || !imageURI) {
                 toast.error(
                   'Please fill in all fields and check wallet connection.'
                 );
+                return;
               }
+              if (balance && balance.value === BigInt(0)) {
+                toast.error(
+                  'your wallet needs gas to submit a claim, please add funds on the correct network'
+                );
+                return;
+              }
+              onClose();
+              setShowConfirm(true);
             }}
           >
             <div className='button'>
