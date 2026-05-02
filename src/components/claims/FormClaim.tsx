@@ -318,8 +318,8 @@ export default function FormClaim({
               onClick={onClose}
               style={{
                 position: 'absolute',
-                right: 10,
-                top: 8,
+                right: 4,
+                top: 0,
                 color: 'white',
                 cursor: 'pointer',
                 padding: '8px',
