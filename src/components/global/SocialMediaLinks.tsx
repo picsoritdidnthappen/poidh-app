@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { trpc } from '@/trpc/client';
 import { TwitterXIcon } from '@/components/global/Icons';
 import { getFlagForCountryCode, getCountryName } from '@/utils/utils';
+import FarcasterProfileLink from '@/components/global/FarcasterProfileLink';
 
 export const FARCASTER_URL = 'https://farcaster.xyz';
 export const TWITTER_URL = 'https://x.com';
@@ -39,10 +40,9 @@ export default function SocialMediaLinks({ address }: { address: string }) {
         </div>
       )}
       {user.farcasterTag && (
-        <a
-          href={`${FARCASTER_URL}/${user.farcasterTag}`}
-          target='_blank'
-          rel='noopener noreferrer'
+        <FarcasterProfileLink
+          farcasterTag={user.farcasterTag}
+          farcasterFid={user.farcasterFid}
           className='inline-block text-gray-400 hover:text-gray-200 transition-colors'
           aria-label={`Visit ${user.farcasterTag}'s Farcaster profile`}
         >
@@ -53,7 +53,7 @@ export default function SocialMediaLinks({ address }: { address: string }) {
             height={20}
             className='hover:opacity-80 transition-opacity'
           />
-        </a>
+        </FarcasterProfileLink>
       )}
       {user.twitterTag && (
         <a
