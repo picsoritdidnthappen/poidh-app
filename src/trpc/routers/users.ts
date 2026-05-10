@@ -28,6 +28,7 @@ export const usersRouter = {
         degenName: userExtra?.degenName ?? null,
         wei: userExtra?.wei ?? null,
         farcasterTag: userExtra?.farcasterTag ?? null,
+        farcasterFid: userExtra?.farcasterFid ?? null,
         twitterTag: userExtra?.twitterTag ?? null,
         zkpassportCountry: userExtra?.zkpassportCountry ?? null,
         lastUpdated: userExtra?.lastUpdated ?? null,

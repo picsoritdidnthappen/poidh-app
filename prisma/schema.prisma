@@ -101,6 +101,7 @@ model UsersExtra {
   degenName    String?  @map("degen_name")
   wei          String?
   farcasterTag       String?   @map("farcaster_tag")
+  farcasterFid       Int?      @map("farcaster_fid")
   twitterTag         String?   @map("twitter_tag")
   zkpassportCountry  String?   @map("zkpassport_country")
   zkpassportVerifiedAt DateTime? @map("zkpassport_verified_at")

@@ -17,7 +17,8 @@ import { type AppRouter } from '@/trpc/trpc';
 import { getChainById } from '@/utils/config';
 import { FarcasterIcon, TwitterXIcon } from '@/components/global/Icons';
 import { formatWalletAddress } from '@/utils/web3';
-import { FARCASTER_URL, TWITTER_URL } from '../global/SocialMediaLinks';
+import { TWITTER_URL } from '../global/SocialMediaLinks';
+import FarcasterProfileLink from '@/components/global/FarcasterProfileLink';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
@@ -504,15 +505,14 @@ function Comment({
           </span>
           <div className='flex items-center gap-2'>
             {comment.author?.farcasterTag ? (
-              <a
-                href={`${FARCASTER_URL}/${comment.author.farcasterTag}`}
-                target='_blank'
-                rel='noreferrer'
+              <FarcasterProfileLink
+                farcasterTag={comment.author.farcasterTag}
+                farcasterFid={comment.author.farcasterFid}
                 className='text-white/70 hover:text-white transition'
                 aria-label='Farcaster profile'
               >
                 <FarcasterIcon size={14} />
-              </a>
+              </FarcasterProfileLink>
             ) : null}
             {comment.author?.twitterTag ? (
               <a
