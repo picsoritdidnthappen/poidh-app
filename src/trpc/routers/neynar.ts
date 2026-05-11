@@ -88,6 +88,7 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
           address: data.address,
           pfpUrl: data.extra.pfp_url,
           farcasterTag: data.extra.username,
+          farcasterFid: data.extra.fid,
           twitterTag: data.extra.verified_accounts.find(
             (account) => account.platform === 'x'
           )?.username,
@@ -95,6 +96,7 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
         update: {
           pfpUrl: data.extra.pfp_url,
           farcasterTag: data.extra.username,
+          farcasterFid: data.extra.fid,
           twitterTag: data.extra.verified_accounts.find(
             (account) => account.platform === 'x'
           )?.username,

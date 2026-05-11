@@ -7,10 +7,8 @@ import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import {
-  FARCASTER_URL,
-  TWITTER_URL,
-} from '@/components/global/SocialMediaLinks';
+import { TWITTER_URL } from '@/components/global/SocialMediaLinks';
+import FarcasterProfileLink from '@/components/global/FarcasterProfileLink';
 import Navbar from '@/components/global/Navbar';
 import { UserData } from '@/utils/types';
 
@@ -239,10 +237,9 @@ export default function HighScoresPage() {
                       {usersQuery.data && (
                         <div className='flex items-center gap-3'>
                           {user.farcasterTag && (
-                            <a
-                              href={`${FARCASTER_URL}/${user.farcasterTag}`}
-                              target='_blank'
-                              rel='noopener noreferrer'
+                            <FarcasterProfileLink
+                              farcasterTag={user.farcasterTag}
+                              farcasterFid={user.farcasterFid}
                               className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
                               aria-label={`Visit ${user.farcasterTag}'s Warpcast profile`}
                             >
@@ -253,7 +250,7 @@ export default function HighScoresPage() {
                                 height={18}
                                 className='transition-all duration-200 group-hover:opacity-100 opacity-80'
                               />
-                            </a>
+                            </FarcasterProfileLink>
                           )}
                           {user?.twitterTag && (
                             <a
@@ -338,10 +335,9 @@ export default function HighScoresPage() {
                         {currentUser && (
                           <div className='flex items-center gap-3'>
                             {currentUser.farcasterTag && (
-                              <a
-                                href={`${FARCASTER_URL}/${currentUser.farcasterTag}`}
-                                target='_blank'
-                                rel='noopener noreferrer'
+                              <FarcasterProfileLink
+                                farcasterTag={currentUser.farcasterTag}
+                                farcasterFid={currentUser.farcasterFid}
                                 className='group inline-flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
                                 aria-label={`Visit ${currentUser.farcasterTag}'s Warpcast profile`}
                               >
@@ -352,7 +348,7 @@ export default function HighScoresPage() {
                                   height={18}
                                   className='transition-all duration-200 group-hover:opacity-100 opacity-80'
                                 />
-                              </a>
+                              </FarcasterProfileLink>
                             )}
                             {currentUser.twitterTag && (
                               <a
@@ -498,10 +494,9 @@ function LeaderboardCardMobile({
         {user && (
           <div className='flex items-center gap-2'>
             {user.farcasterTag && (
-              <a
-                href={`${FARCASTER_URL}/${user.farcasterTag}`}
-                target='_blank'
-                rel='noopener noreferrer'
+              <FarcasterProfileLink
+                farcasterTag={user.farcasterTag}
+                farcasterFid={user.farcasterFid}
                 className='group inline-flex items-center justify-center w-7 h-7 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 hover:scale-110'
                 aria-label={`Visit ${user.farcasterTag}'s Warpcast profile`}
               >
@@ -512,7 +507,7 @@ function LeaderboardCardMobile({
                   height={16}
                   className='transition-all duration-200 group-hover:opacity-100 opacity-80'
                 />
-              </a>
+              </FarcasterProfileLink>
             )}
             {user.farcasterTag && (
               <a
