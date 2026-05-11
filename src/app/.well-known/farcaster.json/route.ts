@@ -20,7 +20,7 @@ export async function GET() {
       version: '1', // subject to change
       name: 'poidh',
       iconUrl: 'https://poidh.xyz/icon.png',
-      splashImageUrl: 'https://poidh.xyz/splash.png',
+      splashImageUrl: 'https://poidh.xyz/mini-splash.png',
       splashBackgroundColor: '#6fa9e1',
       homeUrl: 'https://poidh.xyz/',
       heroImageUrl: 'https://poidh.xyz/images/poidh-preview-hero-v2.png',
