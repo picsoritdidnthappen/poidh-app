@@ -207,7 +207,25 @@ export default function FormClaim({
     },
     onError: (error) => {
       setLoading({ isLoading: false });
-      toast.error('Failed to create claim: ' + error.message);
+      const msg = (error as Error)?.message ?? '';
+      if (
+        msg.toLowerCase().includes('insufficient funds') ||
+        msg.toLowerCase().includes('not enough balance') ||
+        msg.toLowerCase().includes('gas required exceeds allowance')
+      ) {
+        const chainLabel =
+          chain.slug === 'degen'
+            ? 'Degen Chain'
+            : chain.slug === 'arbitrum'
+              ? 'the Arbitrum network'
+              : 'the Base network';
+        const token = chain.slug === 'degen' ? 'DEGEN' : 'ETH';
+        toast.error(
+          `please add ${token} on ${chainLabel} to your wallet to complete this transaction`
+        );
+      } else {
+        toast.error('Failed to create claim: ' + msg);
+      }
     },
     onSettled: () => {
       utils.claims.fetchBountyClaims.refetch();
