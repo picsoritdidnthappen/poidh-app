@@ -2,6 +2,7 @@ import {
   arbitrumPublicClient,
   basePublicClient,
   degenPublicClient,
+  mainnetPublicClient,
 } from '@/utils/publicClients';
 import { Chain, ChainId, Netname } from '@/utils/types';
 
@@ -43,6 +44,18 @@ export const chains: Record<Netname, Chain> = {
       nftContract: '0x27E117Cc9A8DA363442e7Bd0618939E3EEEACF6A',
     },
     explorer: 'https://basescan.org/tx/',
+  },
+  main: {
+    id: 1,
+    name: 'Ethereum',
+    slug: 'main',
+    currency: 'eth',
+    provider: mainnetPublicClient,
+    contracts: {
+      mainContract: '0xE731dFadBFf20542E10D09D26Fc71445C70d4232',
+      nftContract: '0x9c5F45D5e1382e4058D334d93C6c01442012a4D9',
+    },
+    explorer: 'https://etherscan.io/tx/',
   },
 };
 
