@@ -236,6 +236,11 @@ button {
   color: white !important;
   backdrop-filter: blur(4px) !important;
 }
+.Toastify {
+  top: 0 !important;
+  right: 0 !important;
+  width: fit-content;
+}
 .dark .Toastify__toast-theme--light {
   background-color: rgba(13, 27, 46, 0.7) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
