@@ -115,10 +115,19 @@ export default function AccountInfo({ address }: { address: string }) {
   }, [currentSection]);
 
   useEffect(() => {
-    updateSliderPosition();
+    // Double-rAF ensures the browser has painted the tabs before we
+    // measure their positions, preventing the crooked-slider bug (#1257).
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        updateSliderPosition();
+      });
+    });
 
     window.addEventListener('resize', updateSliderPosition);
-    return () => window.removeEventListener('resize', updateSliderPosition);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', updateSliderPosition);
+    };
   }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
 
   const isOwnPage = (account.address ?? '').toLowerCase() === address;
