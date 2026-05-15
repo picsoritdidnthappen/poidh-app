@@ -20,7 +20,12 @@ const verifyComment = middleware(async (opts) => {
   const schema = z.object({
     address: addressSchema,
     bountyId: z.number(),
-    chainId: z.union([z.literal(8453), z.literal(666666666), z.literal(42161)]),
+    chainId: z.union([
+      z.literal(8453),
+      z.literal(666666666),
+      z.literal(42161),
+      z.literal(1),
+    ]),
     signature: bytesSchema,
     signatureText: z.string(),
   });
@@ -85,7 +90,12 @@ const verifyComment = middleware(async (opts) => {
 const verifyReaction = middleware(async (opts) => {
   const schema = z.object({
     address: addressSchema,
-    chainId: z.union([z.literal(8453), z.literal(666666666), z.literal(42161)]),
+    chainId: z.union([
+      z.literal(8453),
+      z.literal(666666666),
+      z.literal(42161),
+      z.literal(1),
+    ]),
     commentId: z.number(),
     signature: bytesSchema,
     signatureText: z.string(),
@@ -153,6 +163,7 @@ export const commentsRouter = {
           z.literal(8453),
           z.literal(666666666),
           z.literal(42161),
+          z.literal(1),
         ]),
       })
     )
@@ -217,6 +228,7 @@ export const commentsRouter = {
           z.literal(8453),
           z.literal(666666666),
           z.literal(42161),
+          z.literal(1),
         ]),
         signature: bytesSchema,
         text: z.string(),
@@ -298,6 +310,7 @@ export const commentsRouter = {
           z.literal(8453),
           z.literal(666666666),
           z.literal(42161),
+          z.literal(1),
         ]),
         commentId: z.number(),
         signature: bytesSchema,

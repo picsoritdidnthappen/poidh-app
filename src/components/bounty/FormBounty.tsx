@@ -428,7 +428,11 @@ export default function FormBounty({
             {account.address && balance && (
               <p className='text-xs text-white/50 font-mono mb-1 mt-2'>
                 balance:{' '}
-                {Number(parseFloat(formatEther(balance.value)).toFixed(4))}{' '}
+                {Number(
+                  parseFloat(formatEther(balance.value)).toFixed(
+                    currentChain.slug === 'degen' ? 0 : 4
+                  )
+                )}{' '}
                 {balance.symbol.toLowerCase()}
               </p>
             )}
