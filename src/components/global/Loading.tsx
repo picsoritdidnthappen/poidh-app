@@ -10,7 +10,7 @@ export default function Loading({
   return (
     <div className='fixed top-0 left-0 right-0 z-50'>
       <Transition
-        show={open}
+        open={open}
         enter='transition-transform duration-500 ease-out'
         enterFrom='-translate-y-full'
         enterTo='translate-y-0'
