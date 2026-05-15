@@ -13,7 +13,7 @@ export const config = getDefaultConfig({
     [degen.id]: http(clientEnv.DEGEN_RPC_URL),
     [arbitrum.id]: http(clientEnv.ARBITRUM_RPC_URL),
     [base.id]: http(clientEnv.BASE_RPC_URL),
-    [mainnet.id]: http(clientEnv.BASE_RPC_URL),
+    [mainnet.id]: http(clientEnv.MAINNET_RPC_URL),
   },
   ssr: true,
 });
