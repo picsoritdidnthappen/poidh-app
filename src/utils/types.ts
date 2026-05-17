@@ -3,7 +3,7 @@ import { inferRouterOutputs } from '@trpc/server';
 
 export type Currency = 'eth' | 'degen';
 
-export type Netname = 'degen' | 'base' | 'arbitrum' | 'main';
+export type Netname = 'degen' | 'base' | 'arbitrum' | 'mainnet';
 
 export type ChainId = 666666666 | 42161 | 8453 | 1;
 
