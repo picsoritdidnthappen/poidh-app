@@ -21,7 +21,7 @@ export default function BountyClaims({ bountyId }: { bountyId: number }) {
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enabled: !!bountyId,
+      enabled: !isNaN(bountyId),
     }
   );
 
@@ -31,7 +31,7 @@ export default function BountyClaims({ bountyId }: { bountyId: number }) {
       chainId: chain.id,
     },
     {
-      enabled: !!bountyId,
+      enabled: !isNaN(bountyId),
     }
   );
 
