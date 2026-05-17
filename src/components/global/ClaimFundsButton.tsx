@@ -27,6 +27,7 @@ type User = {
   withdrawalBase: number;
   withdrawalArbitrum: number;
   withdrawalDegen: number;
+  withdrawalMainnet: number;
 };
 
 export default function ClaimFundsButton({ user }: { user: User }) {
@@ -95,7 +96,8 @@ export default function ClaimFundsButton({ user }: { user: User }) {
         if (
           (chain.slug === 'degen' && user?.withdrawalDegen === 0) ||
           (chain.slug === 'base' && user?.withdrawalBase === 0) ||
-          (chain.slug === 'arbitrum' && user?.withdrawalArbitrum === 0)
+          (chain.slug === 'arbitrum' && user?.withdrawalArbitrum === 0) ||
+          (chain.slug === 'mainnet' && user?.withdrawalMainnet === 0)
         ) {
           return;
         }
@@ -135,18 +137,24 @@ export default function ClaimFundsButton({ user }: { user: User }) {
         </button>
         <div className='text-xs text-white/60'>
           <>
-            {(user.withdrawalBase > 0 || user.withdrawalArbitrum > 0) && (
+            {(user.withdrawalBase > 0 ||
+              user.withdrawalArbitrum > 0 ||
+              user.withdrawalMainnet > 0) && (
               <span className='font-medium'>
                 {formatAmountShort({
-                  amount: user.withdrawalBase + user.withdrawalArbitrum,
+                  amount:
+                    user.withdrawalBase +
+                    user.withdrawalArbitrum +
+                    user.withdrawalMainnet,
                   precision: 5,
                 })}{' '}
                 ETH
               </span>
             )}
-            {user.withdrawalBase > 0 && user.withdrawalDegen > 0 && (
-              <span className='mx-2'>&</span>
-            )}
+            {(user.withdrawalBase > 0 ||
+              user.withdrawalArbitrum > 0 ||
+              user.withdrawalMainnet > 0) &&
+              user.withdrawalDegen > 0 && <span className='mx-2'>&</span>}
             {user.withdrawalDegen > 0 && (
               <span className='font-medium'>
                 {formatAmountShort({ amount: user.withdrawalDegen })} DEGEN
@@ -238,6 +246,14 @@ function getFundsToClaim(user: User): FundToClaim[] {
       chain: chains.degen,
       amount: user.withdrawalDegen,
       currency: 'DEGEN',
+    });
+  }
+
+  if (user.withdrawalMainnet > 0) {
+    claimOptions.push({
+      chain: chains.mainnet,
+      amount: user.withdrawalMainnet,
+      currency: 'ETH',
     });
   }
 

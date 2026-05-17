@@ -45,10 +45,10 @@ export const chains: Record<Netname, Chain> = {
     },
     explorer: 'https://basescan.org/tx/',
   },
-  main: {
+  mainnet: {
     id: 1,
     name: 'Ethereum',
-    slug: 'main',
+    slug: 'mainnet',
     currency: 'eth',
     provider: mainnetPublicClient,
     contracts: {
