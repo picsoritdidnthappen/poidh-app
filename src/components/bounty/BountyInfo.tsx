@@ -58,7 +58,7 @@ export default function BountyInfo({
       id: bountyId,
       chainId: chain.id,
     },
-    { enabled: !!bountyId }
+    { enabled: !isNaN(bountyId) }
   );
 
   const participants = trpc.bounties.participations.useQuery(
@@ -67,7 +67,7 @@ export default function BountyInfo({
       chainId: chain.id,
     },
     {
-      enabled: !!bountyId,
+      enabled: !isNaN(bountyId),
     }
   );
 
