@@ -377,8 +377,8 @@ export const accountsRouter = {
       })
     )
     .query(async ({ input }) => {
-      // ETH chains: Base (8453) + Arbitrum (42161)
-      const ethChainIds: ChainId[] = [8453, 42161] as ChainId[];
+      // ETH chains: Base (8453) + Arbitrum (42161) + Mainnet (1)
+      const ethChainIds: ChainId[] = [8453, 42161, 1] as ChainId[];
       const degenChainId: ChainId = 666666666 as ChainId;
 
       const [ethParticipationsInProgress, degenParticipationsInProgress] =

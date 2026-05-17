@@ -6,7 +6,7 @@ const chainPathName = {
   degen: '/degen',
   base: '/base',
   arbitrum: '/arbitrum',
-  main: '/main',
+  mainnet: '/mainnet',
 };
 
 export const useChainInfo = (): Chain => {

@@ -8,8 +8,8 @@ export const addressSchema = z
 
 export const chainNameSchema = z
   .string()
-  .regex(/^(degen|arbitrum|base)$/)
-  .transform((v) => v as 'degen' | 'arbitrum' | 'base');
+  .regex(/^(degen|arbitrum|base|mainnet)$/)
+  .transform((v) => v as 'degen' | 'arbitrum' | 'base' | 'mainnet');
 
 export const bytes32Schema = z
   .string()

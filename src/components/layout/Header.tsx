@@ -89,7 +89,8 @@ export default function Header() {
             >
               {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
                 (user?.data?.withdrawalBase ?? 0) > 0 ||
-                (user?.data?.withdrawalDegen ?? 0) > 0) && (
+                (user?.data?.withdrawalDegen ?? 0) > 0 ||
+                (user?.data?.withdrawalMainnet ?? 0) > 0) && (
                 <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
               )}
               <UserIcon />

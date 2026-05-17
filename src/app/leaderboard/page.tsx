@@ -100,7 +100,16 @@ function ScoreCell({
 export default function HighScoresPage() {
   const account = useAccount();
   const [allLeaderboardData, setAllLeaderboardData] = useState<
-    [string, { base: number; degen: number; arbitrum: number; total: number }][]
+    [
+      string,
+      {
+        base: number;
+        degen: number;
+        arbitrum: number;
+        mainnet: number;
+        total: number;
+      }
+    ][]
   >([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -187,12 +196,13 @@ export default function HighScoresPage() {
         </header>
 
         <main className='w-full'>
-          <div className='hidden md:grid grid-cols-12 items-center bg-poidhRed rounded-full px-6 py-3 text-lg mb-4'>
+          <div className='hidden md:grid grid-cols-[repeat(13,minmax(0,1fr))] items-center bg-poidhRed rounded-full px-6 py-3 text-lg mb-4'>
             <div className='col-span-1 text-center'>rank</div>
-            <div className='col-span-4 text-center pl-4'>address</div>
+            <div className='col-span-3 text-center pl-4'>address</div>
             <div className='col-span-2 text-center'>arbitrum</div>
             <div className='col-span-2 text-center'>base</div>
             <div className='col-span-2 text-center'>degen</div>
+            <div className='col-span-2 text-center'>mainnet</div>
             <div className='col-span-1 text-center'>total</div>
           </div>
 
@@ -213,7 +223,7 @@ export default function HighScoresPage() {
                   <div
                     className='
                     flex flex-col bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-3
-                    md:grid md:grid-cols-12 md:rounded-full md:px-4 md:py-2
+                    md:grid md:grid-cols-[repeat(13,minmax(0,1fr))] md:rounded-full md:px-4 md:py-2
                     transition-transform hover:shadow-xl hover:bg-white/30
                     ring-2 ring-poidhRed/50
                   '
@@ -223,19 +233,19 @@ export default function HighScoresPage() {
                         You
                       </div>
                     </div>
-                    <Link
-                      href={`/account/${user.address}`}
-                      className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
-                    >
-                      <UserDisplay
-                        user={user}
-                        address={user.address.toLowerCase()}
-                        isLoading={usersQuery.isLoading}
-                      />
-                    </Link>
-                    <div className='flex items-center justify-end md:mr-3'>
+                    <div className='md:col-span-3 flex items-center gap-2 pl-2 pr-3'>
+                      <Link
+                        href={`/account/${user.address}`}
+                        className='flex-1 flex items-center justify-start min-w-0'
+                      >
+                        <UserDisplay
+                          user={user}
+                          address={user.address.toLowerCase()}
+                          isLoading={usersQuery.isLoading}
+                        />
+                      </Link>
                       {usersQuery.data && (
-                        <div className='flex items-center gap-3'>
+                        <div className='flex items-center gap-2 flex-shrink-0'>
                           {user.farcasterTag && (
                             <FarcasterProfileLink
                               farcasterTag={user.farcasterTag}
@@ -295,6 +305,15 @@ export default function HighScoresPage() {
                         <span>{userRankData?.data?.[1]?.degen ?? 0}</span>
                       </ScoreCell>
                     </div>
+                    <div className='md:col-span-2 md:border-l border-white/30'>
+                      <ScoreCell
+                        address={user.address}
+                        className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                      >
+                        <span className='text-base md:hidden'>mainnet</span>
+                        <span>{userRankData?.data?.[1]?.mainnet ?? 0}</span>
+                      </ScoreCell>
+                    </div>
                     <div className='flex md:items-center justify-between text-poidhRed md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
                       <span className='text-base md:hidden'>total</span>
                       <span>{userRankData?.data?.[1]?.total ?? 0}</span>
@@ -312,7 +331,7 @@ export default function HighScoresPage() {
                       key={address}
                       className='
                     flex flex-col bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl px-4 py-3
-                    md:grid md:grid-cols-12 md:rounded-full md:px-4 md:py-2
+                    md:grid md:grid-cols-[repeat(13,minmax(0,1fr))] md:rounded-full md:px-4 md:py-2
                     transition-transform hover:shadow-xl hover:bg-white/30
                   '
                     >
@@ -321,19 +340,19 @@ export default function HighScoresPage() {
                           {rank}
                         </div>
                       </div>
-                      <Link
-                        href={`/account/${address}`}
-                        className='flex-1 flex items-center justify-start md:col-span-3 md:justify-start pl-2'
-                      >
-                        <UserDisplay
-                          user={currentUser}
-                          address={address}
-                          isLoading={usersQuery.isLoading}
-                        />
-                      </Link>
-                      <div className='flex items-center justify-end md:mr-4'>
+                      <div className='md:col-span-3 flex items-center gap-2 pl-2 pr-3'>
+                        <Link
+                          href={`/account/${address}`}
+                          className='flex-1 flex items-center justify-start min-w-0'
+                        >
+                          <UserDisplay
+                            user={currentUser}
+                            address={address}
+                            isLoading={usersQuery.isLoading}
+                          />
+                        </Link>
                         {currentUser && (
-                          <div className='flex items-center gap-3'>
+                          <div className='flex items-center gap-2 flex-shrink-0'>
                             {currentUser.farcasterTag && (
                               <FarcasterProfileLink
                                 farcasterTag={currentUser.farcasterTag}
@@ -393,6 +412,15 @@ export default function HighScoresPage() {
                           <span>{scores.degen}</span>
                         </ScoreCell>
                       </div>
+                      <div className='md:col-span-2 md:border-l border-white/30'>
+                        <ScoreCell
+                          address={address}
+                          className='flex justify-between md:justify-center md:text-center md:items-center p-2 md:p-0'
+                        >
+                          <span className='text-base md:hidden'>mainnet</span>
+                          <span>{scores.mainnet}</span>
+                        </ScoreCell>
+                      </div>
                       <div className='flex md:items-center justify-between text-poidhRed md:col-span-1 md:justify-center md:border-l border-white/30 md:text-center'>
                         <span className='text-base md:hidden'>total</span>
                         <span>{scores.total}</span>
@@ -413,6 +441,7 @@ export default function HighScoresPage() {
                     arbitrum: userRankData?.data?.[1]?.arbitrum ?? 0,
                     base: userRankData?.data?.[1]?.base ?? 0,
                     degen: userRankData?.data?.[1]?.degen ?? 0,
+                    mainnet: userRankData?.data?.[1]?.mainnet ?? 0,
                     total: userRankData?.data?.[1]?.total ?? 0,
                   }}
                   user={user}
@@ -461,6 +490,7 @@ function LeaderboardCardMobile({
     base: number;
     degen: number;
     arbitrum: number;
+    mainnet: number;
     total: number;
   };
   user?: UserData;
@@ -469,7 +499,7 @@ function LeaderboardCardMobile({
 }) {
   return (
     <div
-      className={`rounded-2xl border mb-4 ${
+      className={`rounded-2xl border mb-5 overflow-hidden ${
         isCurrentUser
           ? 'border-poidhRed bg-poidhRed/10'
           : 'border-white/20 bg-white/10'
@@ -547,7 +577,7 @@ function LeaderboardCardMobile({
             </ScoreCell>
           </div>
         </div>
-        <div className='flex items-center text-white text-lg'>
+        <div className='flex items-center text-white text-lg border-b border-white/20'>
           <div className='flex-1'>
             <ScoreCell
               address={address}
@@ -558,9 +588,20 @@ function LeaderboardCardMobile({
             </ScoreCell>
           </div>
           <div className='h-6 border-r border-white/30 mx-4' />
-          <div className='flex-1 flex items-center justify-between px-2'>
-            <span className='w-12 text-poidhRed'>total</span>
-            <span className='w-14 text-right text-poidhRed'>
+          <div className='flex-1'>
+            <ScoreCell
+              address={address}
+              className='flex items-center justify-between px-4 py-3'
+            >
+              <span className='w-12'>main</span>
+              <span className='w-14 text-right'>{scores.mainnet}</span>
+            </ScoreCell>
+          </div>
+        </div>
+        <div className='flex items-center text-white text-lg'>
+          <div className='flex-1 flex items-center justify-between px-4 py-3'>
+            <span className='text-poidhRed font-semibold'>total</span>
+            <span className='text-right text-poidhRed font-semibold'>
               {scores.total}
             </span>
           </div>

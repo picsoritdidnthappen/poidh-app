@@ -23,6 +23,7 @@ export const usersRouter = {
         withdrawalDegen: Number(user.withdrawalDegen),
         withdrawalBase: Number(user.withdrawalBase),
         withdrawalArbitrum: Number(user.withdrawalArbitrum),
+        withdrawalMainnet: Number(user.withdrawalMainnet),
         pfpUrl: userExtra?.pfpUrl ?? null,
         ens: userExtra?.ens ?? null,
         degenName: userExtra?.degenName ?? null,

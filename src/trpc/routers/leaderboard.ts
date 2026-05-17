@@ -58,12 +58,17 @@ export const leaderboardRouter = {
         return Array.from(uniq.values());
       };
 
-      const [leaderboardBase, leaderboardDegen, leaderboardArbitrum] =
-        await Promise.all([
-          buildLeaderboard(8453),
-          buildLeaderboard(666666666),
-          buildLeaderboard(42161),
-        ]);
+      const [
+        leaderboardBase,
+        leaderboardDegen,
+        leaderboardArbitrum,
+        leaderboardMainnet,
+      ] = await Promise.all([
+        buildLeaderboard(8453),
+        buildLeaderboard(666666666),
+        buildLeaderboard(42161),
+        buildLeaderboard(1),
+      ]);
 
       const leaderBoard = new Map<
         string,
@@ -71,59 +76,74 @@ export const leaderboardRouter = {
           degen: number | undefined;
           base: number | undefined;
           arbitrum: number | undefined;
+          mainnet: number | undefined;
           total: number;
         }
       >();
 
-      [...leaderboardBase, ...leaderboardDegen, ...leaderboardArbitrum].forEach(
-        (user) => {
-          const initialScore = leaderBoard.get(user.address.toLowerCase());
+      [
+        ...leaderboardBase,
+        ...leaderboardDegen,
+        ...leaderboardArbitrum,
+        ...leaderboardMainnet,
+      ].forEach((user) => {
+        const initialScore = leaderBoard.get(user.address.toLowerCase());
 
-          const chainScores: {
-            base: number | undefined;
-            degen: number | undefined;
-            arbitrum: number | undefined;
-          } = {
-            base:
-              initialScore?.base ??
-              (user.chainId === 8453
-                ? scoreETH({
-                    earned: user.earned,
-                    paid: user.paid,
-                    NFTheld: user.nfts,
-                  })
-                : initialScore?.base),
-            degen:
-              initialScore?.degen ??
-              (user.chainId === 666666666
-                ? scoreDegen({
-                    earned: user.earned,
-                    paid: user.paid,
-                    NFTheld: user.nfts,
-                  })
-                : initialScore?.degen),
-            arbitrum:
-              initialScore?.arbitrum ??
-              (user.chainId === 42161
-                ? scoreETH({
-                    earned: user.earned,
-                    paid: user.paid,
-                    NFTheld: user.nfts,
-                  })
-                : initialScore?.arbitrum),
-          };
+        const chainScores: {
+          base: number | undefined;
+          degen: number | undefined;
+          arbitrum: number | undefined;
+          mainnet: number | undefined;
+        } = {
+          base:
+            initialScore?.base ??
+            (user.chainId === 8453
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : initialScore?.base),
+          degen:
+            initialScore?.degen ??
+            (user.chainId === 666666666
+              ? scoreDegen({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : initialScore?.degen),
+          arbitrum:
+            initialScore?.arbitrum ??
+            (user.chainId === 42161
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : initialScore?.arbitrum),
+          mainnet:
+            initialScore?.mainnet ??
+            (user.chainId === 1
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : initialScore?.mainnet),
+        };
 
-          const newScore = {
-            ...chainScores,
-            total:
-              (chainScores.base ?? 0) +
-              (chainScores.degen ?? 0) +
-              (chainScores.arbitrum ?? 0),
-          };
+        const newScore = {
+          ...chainScores,
+          total:
+            (chainScores.base ?? 0) +
+            (chainScores.degen ?? 0) +
+            (chainScores.arbitrum ?? 0) +
+            (chainScores.mainnet ?? 0),
+        };
 
-          leaderBoard.set(user.address.toLowerCase(), newScore);
-        }
-      );
+        leaderBoard.set(user.address.toLowerCase(), newScore);
+      });
 
       const allAddresses = Array.from(leaderBoard.keys());
       const [extraPointsRows, extraPointsUsers] = await Promise.all([
@@ -154,7 +174,7 @@ export const leaderboardRouter = {
         const missingRows = await prisma.leaderboard.findMany({
           where: {
             address: { in: missingAddresses },
-            chainId: { in: [8453, 666666666, 42161] },
+            chainId: { in: [8453, 666666666, 42161, 1] },
           },
         });
 
@@ -188,11 +208,22 @@ export const leaderboardRouter = {
                   NFTheld: user.nfts,
                 })
               : undefined);
+          const mainnet =
+            existing?.mainnet ??
+            (user.chainId === 1
+              ? scoreETH({
+                  earned: user.earned,
+                  paid: user.paid,
+                  NFTheld: user.nfts,
+                })
+              : undefined);
           leaderBoard.set(addr, {
             base,
             degen,
             arbitrum,
-            total: (base ?? 0) + (degen ?? 0) + (arbitrum ?? 0),
+            mainnet,
+            total:
+              (base ?? 0) + (degen ?? 0) + (arbitrum ?? 0) + (mainnet ?? 0),
           });
         });
 
@@ -202,6 +233,7 @@ export const leaderboardRouter = {
               base: undefined,
               degen: undefined,
               arbitrum: undefined,
+              mainnet: undefined,
               total: 0,
             });
           }
@@ -217,13 +249,20 @@ export const leaderboardRouter = {
                 base: Math.round(scores.base ?? 0),
                 degen: Math.round(scores.degen ?? 0),
                 arbitrum: Math.round(scores.arbitrum ?? 0),
+                mainnet: Math.round(scores.mainnet ?? 0),
                 total: Math.round(
                   (scores.total ?? 0) + (extraPointsMap.get(address) ?? 0)
                 ),
               },
             ] as [
               string,
-              { base: number; degen: number; arbitrum: number; total: number }
+              {
+                base: number;
+                degen: number;
+                arbitrum: number;
+                mainnet: number;
+                total: number;
+              }
             ]
         )
         .sort((a, b) => b[1].total - a[1].total);
@@ -232,7 +271,13 @@ export const leaderboardRouter = {
         rank: number;
         data: [
           string,
-          { base: number; degen: number; arbitrum: number; total: number }
+          {
+            base: number;
+            degen: number;
+            arbitrum: number;
+            mainnet: number;
+            total: number;
+          }
         ];
       } | null = null;
 
@@ -240,7 +285,7 @@ export const leaderboardRouter = {
         const userRows = await prisma.leaderboard.findMany({
           where: {
             address: input.userAddress.toLowerCase(),
-            chainId: { in: [8453, 666666666, 42161] },
+            chainId: { in: [8453, 666666666, 42161, 1] },
           },
         });
 
@@ -248,6 +293,7 @@ export const leaderboardRouter = {
           let baseScore: number | undefined = undefined;
           let degenScore: number | undefined = undefined;
           let arbitrumScore: number | undefined = undefined;
+          let mainnetScore: number | undefined = undefined;
 
           for (const row of userRows) {
             if (row.chainId === 8453) {
@@ -268,6 +314,12 @@ export const leaderboardRouter = {
                 paid: row.paid,
                 NFTheld: row.nfts,
               });
+            } else if (row.chainId === 1) {
+              mainnetScore = scoreETH({
+                earned: row.earned,
+                paid: row.paid,
+                NFTheld: row.nfts,
+              });
             }
           }
 
@@ -280,12 +332,14 @@ export const leaderboardRouter = {
             (baseScore ?? 0) +
             (degenScore ?? 0) +
             (arbitrumScore ?? 0) +
+            (mainnetScore ?? 0) +
             Number(userExtra?.extraPoints ?? 0);
 
           const rounded = {
             base: Math.round(baseScore ?? 0),
             degen: Math.round(degenScore ?? 0),
             arbitrum: Math.round(arbitrumScore ?? 0),
+            mainnet: Math.round(mainnetScore ?? 0),
             total: Math.round(totalScore),
           };
 

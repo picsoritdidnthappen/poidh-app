@@ -1,4 +1,9 @@
-import { ArbitrumIcon, BaseIcon, DegenIcon } from '@/components/global/Icons';
+import {
+  ArbitrumIcon,
+  BaseIcon,
+  DegenIcon,
+  MainIcon,
+} from '@/components/global/Icons';
 import { Netname } from '@/utils/types';
 
 export default function DynamicChainIcon({
@@ -15,6 +20,8 @@ export default function DynamicChainIcon({
       return <BaseIcon size={size} />;
     case 'degen':
       return <DegenIcon size={size} />;
+    case 'mainnet':
+      return <MainIcon size={size} />;
     default:
       return null;
   }
