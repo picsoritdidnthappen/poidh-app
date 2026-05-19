@@ -27,12 +27,12 @@ type ActivityTx = {
 
 export default function Activity({ activity }: { activity: ActivityTx }) {
   const bountyId = activity.bounty?.id ?? activity.bountyId;
-  const chainId = activity.bounty?.chainId ?? activity.bountyId;
+  const chainId = activity.bounty?.chainId ?? activity.chainId;
   const chain = getChainById({ chainId: chainId as ChainId });
 
   const bountyData = trpc.bounties.fetch.useQuery(
     { id: bountyId ?? 0, chainId: chainId ?? 0 },
-    { enabled: Boolean(bountyId && chainId) }
+    { enabled: bountyId != null && Boolean(chainId) }
   );
 
   const priceData = trpc.web3.fetchPrice.useQuery(
@@ -205,10 +205,8 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
         </div>
       ) : (
         <div className='border-t border-white/6 px-4 pb-4 pt-2'>
-          {bountyId && chain && (
-            <div
-              className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md bg-gradient-to-b from-[#2a81d5] via-[#70aae2] to-[#2a81d5] dark:from-[#0d1b2e] dark:via-[#1a3a5c] dark:to-[#0d1b2e]'
-            >
+          {bountyId != null && chain && (
+            <div className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md bg-gradient-to-b from-[#2a81d5] via-[#70aae2] to-[#2a81d5] dark:from-[#0d1b2e] dark:via-[#1a3a5c] dark:to-[#0d1b2e]'>
               <Link
                 href={`/${chain.slug}/bounty/${bountyId}`}
                 className='flex items-center justify-between gap-4'

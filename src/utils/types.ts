@@ -8,7 +8,7 @@ export type Netname = 'degen' | 'base' | 'arbitrum' | 'mainnet';
 export type ChainId = 666666666 | 42161 | 8453 | 1;
 
 export type Chain = {
-  id: number;
+  id: ChainId;
   name: string;
   currency: Currency;
   slug: Netname;
