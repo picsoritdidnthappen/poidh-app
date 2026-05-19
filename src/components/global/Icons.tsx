@@ -874,7 +874,7 @@ export function ImageIcon({ size = 24 }: { size?: number }) {
 export function MainIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
-      width={size}
+      width={Math.round((size * 142) / 215)}
       height={size}
       viewBox='0 0 142 215'
       xmlns='http://www.w3.org/2000/svg'
