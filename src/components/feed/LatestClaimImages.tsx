@@ -68,7 +68,7 @@ export default function LatestClaimImages() {
   return (
     <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
       <div className='flex items-center justify-between mb-3'>
-        <span className='font-mono text-xs text-white/70 uppercase tracking-widest'>
+        <span className='font-mono text-xs text-white/70 tracking-widest'>
           latest claims
         </span>
         <Link
