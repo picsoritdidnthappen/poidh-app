@@ -21,6 +21,7 @@ function ClaimThumb({
 
   useEffect(() => {
     if (!claim?.url) return;
+
     fetch(claim.url)
       .then((r) => r.json())
       .then((data) => setImageUrl(data.image))
@@ -54,16 +55,39 @@ function ClaimThumb({
 export default function LatestClaimImages() {
   const activities = trpc.accounts.activities.useInfiniteQuery(
     { address: undefined },
-    { getNextPageParam: (lastPage) => lastPage.nextCursor }
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
   );
 
-  const latestClaims =
-    activities.data?.pages
-      .flatMap((page) => page.items)
-      .filter((tx: any) => tx.action === 'claim created' && tx.claim != null)
-      .slice(0, 10) ?? [];
+  const allItems =
+    activities.data?.pages.flatMap((page) => page.items) ?? [];
 
-  if (!activities.isLoading && latestClaims.length === 0) return null;
+  const latestClaims = allItems
+    .filter(
+      (tx: any) =>
+        tx.action === 'claim created' && tx.claim != null
+    )
+    .slice(0, 10);
+
+  useEffect(() => {
+    if (
+      latestClaims.length < 10 &&
+      activities.hasNextPage &&
+      !activities.isFetchingNextPage
+    ) {
+      activities.fetchNextPage();
+    }
+  }, [
+    latestClaims.length,
+    activities.hasNextPage,
+    activities.isFetchingNextPage,
+    activities.fetchNextPage,
+  ]);
+
+  if (!activities.isLoading && latestClaims.length === 0) {
+    return null;
+  }
 
   return (
     <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
@@ -71,6 +95,7 @@ export default function LatestClaimImages() {
         <span className='font-mono text-xs text-white/70 tracking-widest'>
           latest claims
         </span>
+
         <Link
           href='/feed'
           className='font-mono text-xs text-white/50 hover:text-white transition-colors underline underline-offset-2'
@@ -81,7 +106,10 @@ export default function LatestClaimImages() {
 
       <div
         className='flex gap-3 overflow-x-auto pb-2'
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
       >
         {activities.isLoading
           ? Array.from({ length: 10 }).map((_, i) => (
@@ -95,7 +123,8 @@ export default function LatestClaimImages() {
                 key={tx.tx + String(tx.index ?? '')}
                 claim={tx.claim}
                 bountyId={tx.bounty?.id ?? tx.bountyId}
-                chainId={(tx.bounty?.chainId ?? tx.chainId) as ChainId}
+                chainId={(tx.bounty?.chainId ??
+                  tx.chainId) as ChainId}
               />
             ))}
       </div>
