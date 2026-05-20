@@ -8,6 +8,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
 import { SortIcon } from '@/components/global/Icons';
+import LatestClaimImages from '@/components/feed/LatestClaimImages';
 import BountyList from '@/components/bounty/BountyList';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
 import Link from 'next/link';
@@ -107,6 +108,7 @@ export default function Home() {
           </span>
         </h3>
       </div>
+      <LatestClaimImages />
       <div>
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:py-8 sm:py-4 w-full items-center px-8'>
           <div className='hidden md:flex flex-1'></div>
