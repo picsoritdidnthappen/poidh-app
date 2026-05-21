@@ -8,7 +8,7 @@ export default function Loading({
   status: string;
 }) {
   return (
-    <div className='fixed top-0 left-0 right-0 z-50'>
+    <div className='fixed top-0 left-0 right-0 z-[2000] pointer-events-none'>
       <Transition
         show={open}
         enter='transition-transform duration-500 ease-out'
