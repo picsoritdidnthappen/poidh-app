@@ -3,7 +3,7 @@
 import { trpc } from '@/trpc/client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 
@@ -53,6 +53,14 @@ function ClaimThumb({
 }
 
 export default function LatestClaimImages() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const onWheel = (e: React.WheelEvent) => {
+    if (!scrollRef.current) return;
+    e.preventDefault();
+    scrollRef.current.scrollLeft += e.deltaY;
+  };
+
   const activities = trpc.accounts.activities.useInfiniteQuery(
     { address: undefined },
     {
@@ -105,8 +113,10 @@ export default function LatestClaimImages() {
       </div>
 
       <div
+        ref={scrollRef}
         className='flex flex-nowrap gap-3 overflow-x-auto pb-2'
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+        onWheel={onWheel}
       >
         {activities.isLoading
           ? Array.from({ length: 10 }).map((_, i) => (
