@@ -78,6 +78,16 @@ export default function LatestClaimImages() {
       .slice(0, 15) ?? [];
 
   // Show 15 skeletons while loading, then real items — never 0 items
+  useEffect(() => {
+    if (
+      activities.hasNextPage &&
+      !activities.isFetchingNextPage &&
+      latestClaims.length < 15
+    ) {
+      activities.fetchNextPage();
+    }
+  }, [latestClaims.length, activities.hasNextPage, activities.isFetchingNextPage]);
+
   if (!activities.isLoading && latestClaims.length === 0) return null;
 
   return (
@@ -103,7 +113,7 @@ export default function LatestClaimImages() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {activities.isLoading
+        {activities.isLoading || latestClaims.length === 0
           ? Array.from({ length: 15 }).map((_, i) => (
               <div
                 key={i}
