@@ -118,7 +118,7 @@ export default function LatestClaimImages() {
           return tx && tx.claim ? (
             <ClaimThumb
               key={tx.tx + String(tx.index ?? '')}
-              claim={tx.claim}
+              claim={tx.claim as Claim}
               bountyId={tx.bounty?.id ?? tx.bountyId}
               chainId={(tx.bounty?.chainId ?? tx.chainId) as ChainId}
             />
