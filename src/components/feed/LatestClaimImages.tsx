@@ -113,21 +113,22 @@ export default function LatestClaimImages() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {activities.isLoading || latestClaims.length === 0
-          ? Array.from({ length: 15 }).map((_, i) => (
-              <div
-                key={i}
-                className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
-              />
-            ))
-          : latestClaims.map((tx: any) => (
-              <ClaimThumb
-                key={tx.tx + String(tx.index ?? '')}
-                claim={tx.claim}
-                bountyId={tx.bounty?.id ?? tx.bountyId}
-                chainId={(tx.bounty?.chainId ?? tx.chainId) as ChainId}
-              />
-            ))}
+        {Array.from({ length: 15 }).map((_, i) => {
+          const tx = latestClaims[i];
+          return tx ? (
+            <ClaimThumb
+              key={tx.tx + String(tx.index ?? '')}
+              claim={tx.claim}
+              bountyId={tx.bounty?.id ?? tx.bountyId}
+              chainId={(tx.bounty?.chainId ?? tx.chainId) as ChainId}
+            />
+          ) : (
+            <div
+              key={i}
+              className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
+            />
+          );
+        })}
       </div>
     </div>
   );
