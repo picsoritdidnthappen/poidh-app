@@ -115,7 +115,7 @@ export default function LatestClaimImages() {
       >
         {Array.from({ length: 15 }).map((_, i) => {
           const tx = latestClaims[i];
-          return tx ? (
+          return tx && tx.claim ? (
             <ClaimThumb
               key={tx.tx + String(tx.index ?? '')}
               claim={tx.claim}
