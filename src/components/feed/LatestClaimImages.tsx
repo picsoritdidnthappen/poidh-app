@@ -3,7 +3,7 @@
 import { trpc } from '@/trpc/client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 
@@ -53,6 +53,19 @@ function ClaimThumb({
 }
 
 export default function LatestClaimImages() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
+
   const activities = trpc.accounts.activities.useInfiniteQuery(
     { address: undefined },
     {
@@ -68,7 +81,7 @@ export default function LatestClaimImages() {
       (tx: any) =>
         tx.action === 'claim created' && tx.claim != null
     )
-    .slice(0, 10);
+    .slice(0, 20);
 
   useEffect(() => {
     if (
@@ -90,7 +103,7 @@ export default function LatestClaimImages() {
   }
 
   return (
-    <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
+    <div className='w-full px-4 lg:px-20 pt-6 pb-2 overflow-hidden'>
       <div className='flex items-center justify-between mb-3'>
         <span className='font-mono text-xs text-white/70 tracking-widest'>
           latest claims
@@ -105,11 +118,9 @@ export default function LatestClaimImages() {
       </div>
 
       <div
-        className='flex gap-3 overflow-x-auto pb-2'
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
+        ref={scrollRef}
+        className='flex flex-nowrap gap-3 overflow-x-auto pb-2'
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {activities.isLoading
           ? Array.from({ length: 10 }).map((_, i) => (
