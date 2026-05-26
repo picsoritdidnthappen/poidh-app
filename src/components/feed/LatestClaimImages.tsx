@@ -55,11 +55,16 @@ function ClaimThumb({
 export default function LatestClaimImages() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const onWheel = (e: React.WheelEvent) => {
-    if (!scrollRef.current) return;
-    e.preventDefault();
-    scrollRef.current.scrollLeft += e.deltaY;
-  };
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
 
   const activities = trpc.accounts.activities.useInfiniteQuery(
     { address: undefined },
@@ -116,7 +121,6 @@ export default function LatestClaimImages() {
         ref={scrollRef}
         className='flex flex-nowrap gap-3 overflow-x-auto pb-2'
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-        onWheel={onWheel}
       >
         {activities.isLoading
           ? Array.from({ length: 10 }).map((_, i) => (
