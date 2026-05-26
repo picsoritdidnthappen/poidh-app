@@ -21,34 +21,34 @@ function ClaimThumb({
 
   useEffect(() => {
     if (!claim?.url) return;
-
     fetch(claim.url)
       .then((r) => r.json())
       .then((data) => setImageUrl(data.image))
       .catch(() => {});
   }, [claim?.url]);
 
-  if (!imageUrl) {
-    return (
-      <div className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse' />
-    );
-  }
-
+  // Always render the same sized box — swap skeleton for image in place
   return (
-    <Link
-      href={`/${chain.slug}/bounty/${bountyId}`}
-      className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative group ring-1 ring-white/10 hover:ring-white/40 transition-all duration-200'
-    >
-      <Image
-        src={imageUrl}
-        alt={claim.title || 'claim image'}
-        fill
-        className='object-cover group-hover:scale-105 transition-transform duration-300'
-        sizes='(max-width: 640px) 96px, (max-width: 768px) 112px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
-        unoptimized
-      />
-      <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
-    </Link>
+    <div className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'>
+      {imageUrl ? (
+        <Link
+          href={`/${chain.slug}/bounty/${bountyId}`}
+          className='block w-full h-full group'
+        >
+          <Image
+            src={imageUrl}
+            alt={claim.title || 'claim image'}
+            fill
+            className='object-cover group-hover:scale-105 transition-transform duration-300'
+            sizes='(max-width: 640px) 96px, (max-width: 768px) 112px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
+            unoptimized
+          />
+          <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
+        </Link>
+      ) : (
+        <div className='w-full h-full bg-white/10 animate-pulse' />
+      )}
+    </div>
   );
 }
 
@@ -68,39 +68,19 @@ export default function LatestClaimImages() {
 
   const activities = trpc.accounts.activities.useInfiniteQuery(
     { address: undefined },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
+    { getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
 
-  const allItems =
-    activities.data?.pages.flatMap((page) => page.items) ?? [];
+  const latestClaims =
+    activities.data?.pages
+      .flatMap((page) => page.items)
+      .filter((tx: any) => tx.action === 'claim created' && tx.claim != null)
+      .slice(0, 15) ?? [];
 
-  const latestClaims = allItems
-    .filter(
-      (tx: any) =>
-        tx.action === 'claim created' && tx.claim != null
-    )
-    .slice(0, 15);
+  // Show 15 skeletons while loading, then real items — never 0 items
+  const showSkeletons = activities.isLoading || latestClaims.length === 0;
 
-  useEffect(() => {
-    if (
-      latestClaims.length < 15 &&
-      activities.hasNextPage &&
-      !activities.isFetchingNextPage
-    ) {
-      activities.fetchNextPage();
-    }
-  }, [
-    latestClaims.length,
-    activities.hasNextPage,
-    activities.isFetchingNextPage,
-    activities.fetchNextPage,
-  ]);
-
-  if (!activities.isLoading && latestClaims.length === 0) {
-    return null;
-  }
+  if (!activities.isLoading && latestClaims.length === 0) return null;
 
   return (
     <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
@@ -108,7 +88,6 @@ export default function LatestClaimImages() {
         <span className='font-mono text-xs text-white/70 tracking-widest'>
           latest claims
         </span>
-
         <Link
           href='/feed'
           className='font-mono text-xs text-white/50 hover:text-white transition-colors underline underline-offset-2'
@@ -117,13 +96,16 @@ export default function LatestClaimImages() {
         </Link>
       </div>
 
-      <div className='overflow-hidden'>
       <div
         ref={scrollRef}
-        className='flex flex-nowrap gap-3 overflow-x-auto pb-2'
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+        className='flex flex-nowrap gap-3 overflow-x-scroll pb-2'
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch',
+        }}
       >
-        {activities.isLoading
+        {showSkeletons
           ? Array.from({ length: 15 }).map((_, i) => (
               <div
                 key={i}
@@ -135,11 +117,9 @@ export default function LatestClaimImages() {
                 key={tx.tx + String(tx.index ?? '')}
                 claim={tx.claim}
                 bountyId={tx.bounty?.id ?? tx.bountyId}
-                chainId={(tx.bounty?.chainId ??
-                  tx.chainId) as ChainId}
+                chainId={(tx.bounty?.chainId ?? tx.chainId) as ChainId}
               />
             ))}
-      </div>
       </div>
     </div>
   );
