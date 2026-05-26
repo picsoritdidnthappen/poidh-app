@@ -105,11 +105,8 @@ export default function LatestClaimImages() {
       </div>
 
       <div
-        className='flex gap-3 overflow-x-auto pb-2'
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
+        className='flex flex-nowrap gap-3 overflow-x-auto pb-2'
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {activities.isLoading
           ? Array.from({ length: 10 }).map((_, i) => (
