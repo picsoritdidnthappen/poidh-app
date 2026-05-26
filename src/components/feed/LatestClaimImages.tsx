@@ -90,7 +90,7 @@ export default function LatestClaimImages() {
   }
 
   return (
-    <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
+    <div className='w-full px-4 lg:px-20 pt-6 pb-2 overflow-hidden'>
       <div className='flex items-center justify-between mb-3'>
         <span className='font-mono text-xs text-white/70 tracking-widest'>
           latest claims
@@ -106,7 +106,7 @@ export default function LatestClaimImages() {
 
       <div
         className='flex flex-nowrap gap-3 overflow-x-auto pb-2'
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+        style={{ scrollbarWidth: 'auto', WebkitOverflowScrolling: 'touch' }}
       >
         {activities.isLoading
           ? Array.from({ length: 10 }).map((_, i) => (
