@@ -81,7 +81,7 @@ export default function LatestClaimImages() {
       (tx: any) =>
         tx.action === 'claim created' && tx.claim != null
     )
-    .slice(0, 10);
+    .slice(0, 20);
 
   useEffect(() => {
     if (
