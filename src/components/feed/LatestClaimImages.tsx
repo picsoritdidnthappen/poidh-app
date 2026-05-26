@@ -85,7 +85,7 @@ export default function LatestClaimImages() {
 
   useEffect(() => {
     if (
-      latestClaims.length < 10 &&
+      latestClaims.length < 15 &&
       activities.hasNextPage &&
       !activities.isFetchingNextPage
     ) {
@@ -124,7 +124,7 @@ export default function LatestClaimImages() {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {activities.isLoading
-          ? Array.from({ length: 10 }).map((_, i) => (
+          ? Array.from({ length: 15 }).map((_, i) => (
               <div
                 key={i}
                 className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
