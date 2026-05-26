@@ -78,8 +78,6 @@ export default function LatestClaimImages() {
       .slice(0, 15) ?? [];
 
   // Show 15 skeletons while loading, then real items — never 0 items
-  const showSkeletons = activities.isLoading || latestClaims.length === 0;
-
   if (!activities.isLoading && latestClaims.length === 0) return null;
 
   return (
@@ -105,7 +103,7 @@ export default function LatestClaimImages() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {showSkeletons
+        {activities.isLoading
           ? Array.from({ length: 15 }).map((_, i) => (
               <div
                 key={i}
