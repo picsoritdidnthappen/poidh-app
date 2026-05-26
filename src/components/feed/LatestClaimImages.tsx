@@ -103,7 +103,7 @@ export default function LatestClaimImages() {
   }
 
   return (
-    <div className='w-full px-4 lg:px-20 pt-6 pb-2 overflow-hidden'>
+    <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
       <div className='flex items-center justify-between mb-3'>
         <span className='font-mono text-xs text-white/70 tracking-widest'>
           latest claims
@@ -117,6 +117,7 @@ export default function LatestClaimImages() {
         </Link>
       </div>
 
+      <div className='overflow-hidden'>
       <div
         ref={scrollRef}
         className='flex flex-nowrap gap-3 overflow-x-auto pb-2'
@@ -138,6 +139,7 @@ export default function LatestClaimImages() {
                   tx.chainId) as ChainId}
               />
             ))}
+      </div>
       </div>
     </div>
   );
