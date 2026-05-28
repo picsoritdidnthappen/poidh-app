@@ -407,10 +407,12 @@ export default function FormBounty({
                     handleClose();
                   }}
                 >
-                  <DynamicChainIcon
-                    chain={netname as Netname}
-                    size={netname === 'base' ? 14 : 18}
-                  />
+                  <div className='flex items-center justify-center w-5 h-5'>
+                    <DynamicChainIcon
+                      chain={netname as Netname}
+                      size={netname === 'base' ? 14 : 18}
+                    />
+                  </div>
                   <p className='ml-4'>{netname}</p>
                 </MenuItem>
               ))}
