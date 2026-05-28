@@ -7,17 +7,17 @@ import {
 import { Chain, ChainId, Netname } from '@/utils/types';
 
 export const chains: Record<Netname, Chain> = {
-  degen: {
-    id: 666666666,
-    name: 'Degen Mainnet',
-    slug: 'degen',
-    currency: 'degen',
-    provider: degenPublicClient,
+  mainnet: {
+    id: 1,
+    name: 'Ethereum',
+    slug: 'mainnet',
+    currency: 'eth',
+    provider: mainnetPublicClient,
     contracts: {
-      mainContract: '0x18e5585ca7ce31b90bc8bb7aaf84152857ce243f',
-      nftContract: '0x39f04b7897dcaf9dc454e433f43fb1c3bb528e11',
+      mainContract: '0xE731dFadBFf20542E10D09D26Fc71445C70d4232',
+      nftContract: '0x9c5F45D5e1382e4058D334d93C6c01442012a4D9',
     },
-    explorer: 'https://explorer.degen.tips/tx/',
+    explorer: 'https://etherscan.io/tx/',
   },
   arbitrum: {
     id: 42161,
@@ -45,17 +45,17 @@ export const chains: Record<Netname, Chain> = {
     },
     explorer: 'https://basescan.org/tx/',
   },
-  mainnet: {
-    id: 1,
-    name: 'Ethereum',
-    slug: 'mainnet',
-    currency: 'eth',
-    provider: mainnetPublicClient,
+  degen: {
+    id: 666666666,
+    name: 'Degen Mainnet',
+    slug: 'degen',
+    currency: 'degen',
+    provider: degenPublicClient,
     contracts: {
-      mainContract: '0xE731dFadBFf20542E10D09D26Fc71445C70d4232',
-      nftContract: '0x9c5F45D5e1382e4058D334d93C6c01442012a4D9',
+      mainContract: '0x18e5585ca7ce31b90bc8bb7aaf84152857ce243f',
+      nftContract: '0x39f04b7897dcaf9dc454e433f43fb1c3bb528e11',
     },
-    explorer: 'https://etherscan.io/tx/',
+    explorer: 'https://explorer.degen.tips/tx/',
   },
 };
 
