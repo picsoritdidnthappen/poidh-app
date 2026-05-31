@@ -600,4 +600,84 @@ export const accountsRouter = {
 
       return !!tx;
     }),
+
+  hasClaimedRefund: baseProcedure
+    .input(
+      z.object({
+        address: addressSchema,
+        bountyId: z.number(),
+        chainId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const tx = await prisma.transactions.findFirst({
+        where: {
+          address: { equals: input.address, mode: 'insensitive' },
+          action: 'funds claimed',
+          bountyId: input.bountyId,
+          chainId: input.chainId,
+        },
+      });
+
+      return !!tx;
+    }),
+
+  pendingRefunds: baseProcedure
+    .input(z.object({ address: addressSchema }))
+    .query(async ({ input }) => {
+      const participations = await prisma.participationsBounties.findMany({
+        where: {
+          userAddress: input.address.toLowerCase(),
+          bounty: {
+            isCanceled: true,
+            isMultiplayer: true,
+            NOT: { issuer: input.address.toLowerCase() },
+            OR: [
+              { chainId: 1 },
+              { chainId: 42161, id: { gt: ARBITRUM_LAST_PRE_V3_BOUNTY } },
+              { chainId: 8453, id: { gt: BASE_LAST_PRE_V3_BOUNTY } },
+              { chainId: 666666666, id: { gt: DEGEN_LAST_PRE_V3_BOUNTY } },
+            ],
+          },
+        },
+        include: {
+          bounty: {
+            select: {
+              id: true,
+              onChainId: true,
+              chainId: true,
+              title: true,
+              description: true,
+            },
+          },
+        },
+      });
+
+      const claimedTxs = await prisma.transactions.findMany({
+        where: {
+          address: { equals: input.address, mode: 'insensitive' },
+          action: 'funds claimed',
+          bountyId: { in: participations.map((p) => p.bountyId) },
+          chainId: { in: participations.map((p) => p.chainId) },
+        },
+        select: { bountyId: true, chainId: true },
+      });
+
+      const claimedSet = new Set(
+        claimedTxs.map((tx) => `${tx.bountyId}-${tx.chainId}`)
+      );
+
+      return participations
+        .filter((p) => {
+          if (claimedSet.has(`${p.bountyId}-${p.chainId}`)) return false;
+          return true;
+        })
+        .map((p) => ({
+          bountyId: p.bountyId,
+          onChainId: p.bounty.onChainId,
+          chainId: p.bounty.chainId,
+          title: p.bounty.title,
+          description: p.bounty.description,
+        }));
+    }),
 };
