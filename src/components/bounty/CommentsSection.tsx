@@ -321,7 +321,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
             onCancel={() => setNewComment('')}
             submitLabel='Post comment'
             cancelLabel='Clear'
-            placeholder='What are your thoughts?'
+            placeholder='what are your thoughts?'
             actionsClassName='flex items-center gap-3 flex-wrap'
           />
         </div>
@@ -347,7 +347,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
               />
             ))
           ) : (
-            <div className='py-4 text-white/60 text-sm text-center mt-12'>
+            <div className='py-4 text-white/60 text-sm mt-12 text-center xl:w-[200%]'>
               Comments will appear here
             </div>
           )}

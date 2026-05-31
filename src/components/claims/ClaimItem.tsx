@@ -178,14 +178,15 @@ export default function ClaimItem({
         onConfirm={() => {
           acceptClaimMutation.mutate({
             claimId: BigInt(claim.id),
-        });
-        setShowAcceptConfirm(false);
-      }}
-    />
+          });
+          setShowAcceptConfirm(false);
+        }}
+      />
       <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
         <div className='left-5 top-5 absolute  flex flex-col text-white'>
           {bounty.data &&
             bounty.data.inProgress &&
+            !bounty.data.isCanceled &&
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&
             !claim.isVotingOrAcceptedBounty && (
