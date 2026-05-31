@@ -18,3 +18,7 @@ export const ALBUMS = [
 
 export const ETH_MIN_AMOUNT = 0.001;
 export const DEGEN_MIN_AMOUNT = 1;
+
+export const ARBITRUM_LAST_PRE_V3_BOUNTY = 180;
+export const DEGEN_LAST_PRE_V3_BOUNTY = 1197;
+export const BASE_LAST_PRE_V3_BOUNTY = 986;

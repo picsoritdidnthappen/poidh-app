@@ -17,6 +17,7 @@ import { ChainId } from '@/utils/types';
 import ShareAccountModal from '@/components/account/ShareAccountModal';
 import { useAccount } from 'wagmi';
 import ZkPassportVerify from '@/components/account/ZkPassportVerify';
+import PendingRefunds from '@/components/account/PendingRefunds';
 
 type Section = 'nfts' | 'bounties' | 'claims';
 const PAGE_SIZE = 9;
@@ -122,6 +123,15 @@ export default function AccountInfo({ address }: { address: string }) {
   }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
 
   const isOwnPage = (account.address ?? '').toLowerCase() === address;
+
+  const pendingRefunds = trpc.accounts.pendingRefunds.useQuery(
+    { address: address as `0x${string}` },
+    { enabled: isOwnPage }
+  );
+
+  const pendingRefundIds = new Set(
+    (pendingRefunds.data ?? []).map((r) => `${r.bountyId}-${r.chainId}`)
+  );
 
   return (
     <>
@@ -231,10 +241,11 @@ export default function AccountInfo({ address }: { address: string }) {
             </div>
           </div>
 
-          {user.data && isOwnPage && (
+          {isOwnPage && (
             <div className='flex justify-center px-6 lg:mt-0'>
-              <div className='w-full lg:w-[35%]'>
-                <ClaimFundsButton user={user.data} />
+              <div className='w-full lg:w-[35%] flex flex-col gap-2'>
+                {user.data && <ClaimFundsButton user={user.data} />}
+                <PendingRefunds address={address} />
               </div>
             </div>
           )}

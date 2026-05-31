@@ -6,6 +6,12 @@ import { addressSchema } from '../serverTypes';
 import { formatEther } from 'viem';
 import { fetchPrice } from '@/utils/utils';
 import { fetchImageMetadata } from './claims';
+import { isV3Bounty } from '@/utils/utils';
+import {
+  ARBITRUM_LAST_PRE_V3_BOUNTY,
+  BASE_LAST_PRE_V3_BOUNTY,
+  DEGEN_LAST_PRE_V3_BOUNTY,
+} from '@/utils/constants';
 
 export function scoreETH({
   earned,
@@ -212,7 +218,6 @@ export const accountsRouter = {
         limit: z.number().min(1).max(100).default(9),
         cursor: z
           .object({
-            id: z.number(),
             createdAt: z.coerce.number(),
             inProgress: z.boolean(),
             isCanceled: z.boolean(),
@@ -245,7 +250,11 @@ export const accountsRouter = {
                 select: { amountSort: true },
               },
             },
-            orderBy: { id: 'desc' },
+            orderBy: [
+              { isCanceled: 'asc' },
+              { inProgress: 'desc' },
+              { createdAt: 'desc' },
+            ],
           })
           .then((rows) =>
             rows.map(({ claims, participations, extra, ...b }) => ({
@@ -263,6 +272,11 @@ export const accountsRouter = {
               userAddress: input.address.toLowerCase(),
               bounty: { ban: { none: {} } },
             },
+            orderBy: [
+              { bounty: { isCanceled: 'asc' } },
+              { bounty: { inProgress: 'desc' } },
+              { bounty: { createdAt: 'desc' } },
+            ],
             include: {
               bounty: {
                 include: {
@@ -308,19 +322,15 @@ export const accountsRouter = {
         a: (typeof createdBounties)[number],
         b: (typeof createdBounties)[number]
       ) => {
-        const aIn = a.inProgress ? 1 : 0;
-        const bIn = b.inProgress ? 1 : 0;
-        if (aIn !== bIn) return bIn - aIn; // in_progress desc
-
         const aCanc = a.isCanceled ? 1 : 0;
         const bCanc = b.isCanceled ? 1 : 0;
-        if (aCanc !== bCanc) return aCanc - bCanc; // is_canceled asc
+        if (aCanc !== bCanc) return aCanc - bCanc; // isCanceled asc (open/completed first)
 
-        const aTs = a.createdAt;
-        const bTs = b.createdAt;
-        if (aTs !== bTs) return bTs - aTs; // created_at desc
+        const aIn = a.inProgress ? 1 : 0;
+        const bIn = b.inProgress ? 1 : 0;
+        if (aIn !== bIn) return bIn - aIn; // inProgress desc (open before completed)
 
-        return b.id - a.id;
+        return b.createdAt - a.createdAt; // createdAt desc
       };
 
       let merged = Array.from(mergedMap.values()).sort(compare);
@@ -328,18 +338,15 @@ export const accountsRouter = {
       if (input.cursor) {
         const c = input.cursor;
         merged = merged.filter((item) => {
-          const iIn = item.inProgress ? 1 : 0;
-          const cIn = c.inProgress ? 1 : 0;
-          if (iIn !== cIn) return iIn < cIn;
-
           const iCanc = item.isCanceled ? 1 : 0;
           const cCanc = c.isCanceled ? 1 : 0;
-          if (iCanc !== cCanc) return iCanc > cCanc;
+          if (iCanc !== cCanc) return iCanc > cCanc; // isCanceled asc: canceled comes after
 
-          const iTs = item.createdAt;
-          if (iTs !== c.createdAt) return iTs < c.createdAt;
+          const iIn = item.inProgress ? 1 : 0;
+          const cIn = c.inProgress ? 1 : 0;
+          if (iIn !== cIn) return iIn < cIn; // inProgress desc: not-in-progress comes after
 
-          return item.id < c.id;
+          return item.createdAt < c.createdAt; // createdAt desc: older comes after
         });
       }
 
@@ -348,7 +355,6 @@ export const accountsRouter = {
       let nextCursor:
         | {
             createdAt: number;
-            id: number;
             inProgress: boolean;
             isCanceled: boolean;
           }
@@ -358,7 +364,6 @@ export const accountsRouter = {
         const last = page[page.length - 1];
         nextCursor = {
           createdAt: last.createdAt,
-          id: last.id,
           inProgress: !!last.inProgress,
           isCanceled: !!last.isCanceled,
         };
@@ -594,5 +599,85 @@ export const accountsRouter = {
       });
 
       return !!tx;
+    }),
+
+  hasClaimedRefund: baseProcedure
+    .input(
+      z.object({
+        address: addressSchema,
+        bountyId: z.number(),
+        chainId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const tx = await prisma.transactions.findFirst({
+        where: {
+          address: { equals: input.address, mode: 'insensitive' },
+          action: 'funds claimed',
+          bountyId: input.bountyId,
+          chainId: input.chainId,
+        },
+      });
+
+      return !!tx;
+    }),
+
+  pendingRefunds: baseProcedure
+    .input(z.object({ address: addressSchema }))
+    .query(async ({ input }) => {
+      const participations = await prisma.participationsBounties.findMany({
+        where: {
+          userAddress: input.address.toLowerCase(),
+          bounty: {
+            isCanceled: true,
+            isMultiplayer: true,
+            NOT: { issuer: input.address.toLowerCase() },
+            OR: [
+              { chainId: 1 },
+              { chainId: 42161, id: { gt: ARBITRUM_LAST_PRE_V3_BOUNTY } },
+              { chainId: 8453, id: { gt: BASE_LAST_PRE_V3_BOUNTY } },
+              { chainId: 666666666, id: { gt: DEGEN_LAST_PRE_V3_BOUNTY } },
+            ],
+          },
+        },
+        include: {
+          bounty: {
+            select: {
+              id: true,
+              onChainId: true,
+              chainId: true,
+              title: true,
+              description: true,
+            },
+          },
+        },
+      });
+
+      const claimedTxs = await prisma.transactions.findMany({
+        where: {
+          address: { equals: input.address, mode: 'insensitive' },
+          action: 'funds claimed',
+          bountyId: { in: participations.map((p) => p.bountyId) },
+          chainId: { in: participations.map((p) => p.chainId) },
+        },
+        select: { bountyId: true, chainId: true },
+      });
+
+      const claimedSet = new Set(
+        claimedTxs.map((tx) => `${tx.bountyId}-${tx.chainId}`)
+      );
+
+      return participations
+        .filter((p) => {
+          if (claimedSet.has(`${p.bountyId}-${p.chainId}`)) return false;
+          return true;
+        })
+        .map((p) => ({
+          bountyId: p.bountyId,
+          onChainId: p.bounty.onChainId,
+          chainId: p.bounty.chainId,
+          title: p.bounty.title,
+          description: p.bounty.description,
+        }));
     }),
 };
