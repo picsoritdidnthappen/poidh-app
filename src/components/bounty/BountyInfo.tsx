@@ -11,12 +11,14 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
+import { isV3Bounty } from '@/utils/utils';
 import { cn } from '@/utils/utils';
 import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import BountyHistory from './BountyHistory';
 import Withdraw from './Withdraw';
+import ClaimRefund from './ClaimRefund';
 import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
@@ -185,6 +187,26 @@ export default function BountyInfo({
     !bounty.data?.isVoting &&
     isCurrentUserAParticipant;
 
+  const hasClaimedRefund = trpc.accounts.hasClaimedRefund.useQuery(
+    {
+      bountyId,
+      chainId: chain.id,
+      address: account.address as `0x${string}`,
+    },
+    {
+      enabled:
+        !isNaN(bountyId) && !!account.address && !!isCurrentUserAParticipant,
+    }
+  );
+
+  const canClaimRefund =
+    bounty.data?.isCanceled &&
+    bounty.data?.isMultiplayer &&
+    isCurrentUserAParticipant &&
+    !hasClaimedRefund.data &&
+    isV3Bounty(chain.id, bounty.data?.id) &&
+    account.address?.toLowerCase() !== bounty.data?.issuer.toLowerCase();
+
   if (!bounty.data) {
     return null;
   }
@@ -256,7 +278,8 @@ export default function BountyInfo({
           {bounty.data.inProgress ? (
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&
-            !bounty.data.isVoting && (
+            !bounty.data.isVoting &&
+            isV3Bounty(chain.id, bounty.data.id) && (
               <button
                 onClick={() => cancelMutation.mutate()}
                 disabled={!bounty.data.inProgress}
@@ -282,6 +305,12 @@ export default function BountyInfo({
       />
       <div className='flex flex-wrap items-center gap-4 my-8'>
         <div className='flex items-center gap-4'>
+          {canClaimRefund && (
+            <ClaimRefund
+              id={bounty.data.id}
+              onChainId={bounty.data.onChainId}
+            />
+          )}
           {bounty.data.isMultiplayer &&
             bounty.data.inProgress &&
             (canWithdraw ? (

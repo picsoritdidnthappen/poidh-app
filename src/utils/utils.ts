@@ -1,6 +1,11 @@
 import clsx, { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { Currency } from './types';
+import {
+  ARBITRUM_LAST_PRE_V3_BOUNTY,
+  BASE_LAST_PRE_V3_BOUNTY,
+  DEGEN_LAST_PRE_V3_BOUNTY,
+} from './constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -386,4 +391,17 @@ const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
 export function getCountryName(code: string) {
   const alpha2 = getAlpha2CountryCode(code).toUpperCase();
   return regionNames.of(alpha2) ?? code;
+}
+
+const LAST_V2_BOUNTY_BY_CHAIN: Record<number, number> = {
+  42161: ARBITRUM_LAST_PRE_V3_BOUNTY,
+  666666666: DEGEN_LAST_PRE_V3_BOUNTY,
+  8453: BASE_LAST_PRE_V3_BOUNTY,
+};
+
+export function isV3Bounty(chainId: number, onChainId: number): boolean {
+  if (chainId === 1) return true; // mainnet existed only on v3
+  const lastV2 = LAST_V2_BOUNTY_BY_CHAIN[chainId];
+  if (lastV2 === undefined) return false;
+  return onChainId > lastV2;
 }
