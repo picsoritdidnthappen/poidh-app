@@ -82,7 +82,7 @@ export default function Voting({
   const canVote =
     isVotingInProgress &&
     !!isBountyContributor &&
-    !userCanVote.data &&
+    !!userCanVote.data &&
     !isAcceptedBounty;
 
   const yesWei = BigInt(voting.data?.yes ?? 0);
@@ -312,11 +312,15 @@ export default function Voting({
             </div>
           )}
 
-          {isBountyContributor && userCanVote.data && !isAcceptedBounty && (
-            <div className='p-4 rounded-lg border text-center'>
-              <p className='text-sm font-medium'>✓ Thank you for your vote!</p>
-            </div>
-          )}
+          {isBountyContributor &&
+            userCanVote.data === false &&
+            !isAcceptedBounty && (
+              <div className='p-4 rounded-lg border text-center'>
+                <p className='text-sm font-medium'>
+                  ✓ Thank you for your vote!
+                </p>
+              </div>
+            )}
 
           {isVotingClosed && (
             <button
