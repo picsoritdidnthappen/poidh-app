@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { formatEther } from 'viem';
 
 import { UsersRoundIcon } from '@/components/global/Icons';
-import { formatSortAmount } from '@/utils/utils';
+import { formatSortAmount, stripMarkdown } from '@/utils/utils';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { getChainById } from '@/utils/config';
 import { Bounty } from '@/utils/types';
@@ -40,8 +40,8 @@ export default function BountyItem({
             <h3 className='normal-case text-nowrap overflow-ellipsis overflow-hidden'>
               {bounty.title}
             </h3>
-            <p className='my-5 normal-case w-full h-28 overflow-y-auto overflow-hidden overflow-ellipsis'>
-              {bounty.description}
+            <p className='my-5 normal-case w-full h-28 overflow-y-auto overflow-hidden overflow-ellipsis whitespace-pre-line text-left'>
+              {stripMarkdown(bounty.description)}
             </p>
             <div
               className={`flex items-end justify-between ${

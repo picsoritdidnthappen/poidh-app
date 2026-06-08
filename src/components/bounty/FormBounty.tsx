@@ -32,6 +32,7 @@ import { chains } from '@/utils/config';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { ETH_MIN_AMOUNT, DEGEN_MIN_AMOUNT } from '@/utils/constants';
+import MarkdownContent from '@/components/global/MarkdownContent';
 
 export default function FormBounty({
   open,
@@ -49,6 +50,7 @@ export default function FormBounty({
   const [album, setAlbum] = useState(prefilledAlbum);
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
   const [isOpenBounty, setIsOpenBounty] = useState(true);
+  const [descriptionPreview, setDescriptionPreview] = useState(false);
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
@@ -311,21 +313,65 @@ export default function FormBounty({
               isMobile ? 'text-base py-3' : ''
             }`}
           />
-          <span className={isMobile ? 'text-base mb-2' : ''}>description</span>
-          <textarea
-            ref={textareaRef}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className={`border py-3 px-3 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
-              isMobile
-                ? 'min-h-[150px] max-h-[400px] text-base'
-                : 'min-h-[100px] max-h-80'
-            } overflow-y-auto`}
-            placeholder='pro tip: be detailed and add a deadline'
-            style={{
-              resize: 'vertical',
-            }}
-          ></textarea>
+          <div className='flex items-center justify-between mb-1'>
+            <span className={isMobile ? 'text-base' : ''}>description</span>
+            <div className='flex text-xs border border-[#D1ECFF] rounded-md overflow-hidden'>
+              <button
+                type='button'
+                onClick={() => setDescriptionPreview(false)}
+                className={`px-3 py-1 transition-colors ${
+                  !descriptionPreview
+                    ? 'bg-[#D1ECFF]/20'
+                    : 'hover:bg-[#D1ECFF]/10'
+                }`}
+              >
+                write
+              </button>
+              <button
+                type='button'
+                onClick={() => setDescriptionPreview(true)}
+                className={`px-3 py-1 border-l border-[#D1ECFF] transition-colors ${
+                  descriptionPreview
+                    ? 'bg-[#D1ECFF]/20'
+                    : 'hover:bg-[#D1ECFF]/10'
+                }`}
+              >
+                preview
+              </button>
+            </div>
+          </div>
+          {descriptionPreview ? (
+            <div
+              className={`border rounded-md mb-4 px-3 py-3 border-[#D1ECFF] overflow-y-auto ${
+                isMobile
+                  ? 'min-h-[150px] max-h-[400px]'
+                  : 'min-h-[100px] max-h-80'
+              }`}
+            >
+              {description ? (
+                <MarkdownContent>{description}</MarkdownContent>
+              ) : (
+                <span className='text-slate-400 text-sm'>
+                  nothing to preview
+                </span>
+              )}
+            </div>
+          ) : (
+            <textarea
+              ref={textareaRef}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className={`border py-3 px-3 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
+                isMobile
+                  ? 'min-h-[150px] max-h-[400px] text-base'
+                  : 'min-h-[100px] max-h-80'
+              } overflow-y-auto`}
+              placeholder='pro tip: be detailed and add a deadline'
+              style={{
+                resize: 'vertical',
+              }}
+            ></textarea>
+          )}
 
           <span className={isMobile ? 'text-base mb-2' : ''}>reward</span>
           <div className='relative w-full'>

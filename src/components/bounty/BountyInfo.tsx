@@ -22,7 +22,7 @@ import ClaimRefund from './ClaimRefund';
 import JoinBounty from './JoinBounty';
 import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
-import TextWithLinks from '@/components/global/TextWithLinks';
+import MarkdownContent from '@/components/global/MarkdownContent';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import ShareBountyModal from '@/components/bounty/ShareBountyModal';
 import { ArrowIcon, QuestionIcon } from '@/components/global/Icons';
@@ -218,9 +218,9 @@ export default function BountyInfo({
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
           </p>
-          <p className='mt-5 normal-case break-words whitespace-pre-wrap'>
-            <TextWithLinks>{bounty.data.description}</TextWithLinks>
-          </p>
+          <div className='mt-5 normal-case break-words'>
+            <MarkdownContent>{bounty.data.description}</MarkdownContent>
+          </div>
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
             <div className='flex flex-row  items-center justify-end overflow-hidden'>
