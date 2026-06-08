@@ -580,25 +580,43 @@ export const accountsRouter = {
       };
     }),
 
-  hasVoted: baseProcedure
+  canVote: baseProcedure
     .input(
       z.object({
         address: addressSchema,
         bountyId: z.number(),
         chainId: z.number(),
+        currentRound: z.number(),
       })
     )
     .query(async ({ input }) => {
+      const votingStartedTxs = await prisma.transactions.findMany({
+        where: {
+          bountyId: input.bountyId,
+          chainId: input.chainId,
+          action: { contains: 'submitted for vote' },
+        },
+        orderBy: { timestamp: 'asc' },
+        take: input.currentRound,
+      });
+
+      const roundStartTx = votingStartedTxs[input.currentRound - 1];
+
+      if (!roundStartTx) {
+        return true;
+      }
+
       const tx = await prisma.transactions.findFirst({
         where: {
           address: input.address.toLowerCase(),
           action: 'voted',
           bountyId: input.bountyId,
           chainId: input.chainId,
+          timestamp: { gt: roundStartTx.timestamp },
         },
       });
 
-      return !!tx;
+      return !tx;
     }),
 
   hasClaimedRefund: baseProcedure
