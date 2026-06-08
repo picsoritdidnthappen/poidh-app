@@ -594,7 +594,7 @@ export const accountsRouter = {
         where: {
           bountyId: input.bountyId,
           chainId: input.chainId,
-          action: 'submitted for vote',
+          action: { contains: 'submitted for vote' },
         },
         orderBy: { timestamp: 'asc' },
         take: input.currentRound,
@@ -602,19 +602,21 @@ export const accountsRouter = {
 
       const roundStartTx = votingStartedTxs[input.currentRound - 1];
 
+      if (!roundStartTx) {
+        return true;
+      }
+
       const tx = await prisma.transactions.findFirst({
         where: {
           address: input.address.toLowerCase(),
           action: 'voted',
           bountyId: input.bountyId,
           chainId: input.chainId,
-          ...(roundStartTx
-            ? { timestamp: { gt: roundStartTx.timestamp } }
-            : {}),
+          timestamp: { gt: roundStartTx.timestamp },
         },
       });
 
-      return !!tx;
+      return !tx;
     }),
 
   hasClaimedRefund: baseProcedure
