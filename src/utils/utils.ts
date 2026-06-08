@@ -405,3 +405,21 @@ export function isV3Bounty(chainId: number, onChainId: number): boolean {
   if (lastV2 === undefined) return false;
   return onChainId > lastV2;
 }
+
+export function stripMarkdown(text: string): string {
+  return text
+    .replace(/^[-*_]{3,}\s*$/gm, '') // horizontal rules (---, ***, ___)
+    .replace(/#{1,6}\s+/g, '') // headings
+    .replace(/(\*\*|__)([\s\S]*?)\1/g, '$2') // bold
+    .replace(/(\*|_)([\s\S]*?)\1/g, '$2') // italic
+    .replace(/~~([\s\S]*?)~~/g, '$1') // strikethrough
+    .replace(/```[\s\S]*?```/g, '') // fenced code blocks
+    .replace(/`[^`]*`/g, '') // inline code
+    .replace(/!\[.*?\]\(.*?\)/g, '') // images
+    .replace(/\[([^\]]+)\]\(.*?\)/g, '$1') // links → label only
+    .replace(/^\s*[-*+]\s+/gm, '') // unordered list markers
+    .replace(/^\s*\d+\.\s+/gm, '') // ordered list markers
+    .replace(/^\s*>\s+/gm, '') // blockquotes
+    .replace(/\n{3,}/g, '\n\n') // max two consecutive newlines
+    .trim();
+}
