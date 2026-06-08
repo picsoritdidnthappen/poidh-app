@@ -50,14 +50,15 @@ export default function Voting({
     chainId: chain.id,
   });
 
-  const userHasVoted = trpc.accounts.hasVoted.useQuery(
+  const userCanVote = trpc.accounts.canVote.useQuery(
     {
       address: account.address?.toLowerCase() ?? '',
       bountyId: Number(bountyId),
       chainId: chain.id,
+      currentRound: voting.data?.round ?? 1,
     },
     {
-      enabled: !!account.address,
+      enabled: !!account.address && voting.isSuccess,
     }
   );
 
@@ -74,16 +75,14 @@ export default function Voting({
       contributor.userAddress.toLowerCase() === account.address?.toLowerCase()
   );
 
-  const hasWallet = !!account.address;
   const deadlineMs = (bounty.data?.deadline ?? 0) * 1000;
   const isVotingInProgress = deadlineMs > Date.now();
   const isVotingClosed = !!bounty.data && !isVotingInProgress;
 
   const canVote =
-    hasWallet &&
     isVotingInProgress &&
     !!isBountyContributor &&
-    !userHasVoted.data &&
+    !userCanVote.data &&
     !isAcceptedBounty;
 
   const yesWei = BigInt(voting.data?.yes ?? 0);
@@ -99,7 +98,7 @@ export default function Voting({
     await Promise.all([
       voting.refetch(),
       bounty.refetch(),
-      ...(account.address ? [userHasVoted.refetch()] : []),
+      ...(account.address ? [userCanVote.refetch()] : []),
     ]);
   };
 
@@ -313,16 +312,11 @@ export default function Voting({
             </div>
           )}
 
-          {hasWallet &&
-            isBountyContributor &&
-            userHasVoted.data &&
-            !isAcceptedBounty && (
-              <div className='p-4 rounded-lg border text-center'>
-                <p className='text-sm font-medium'>
-                  ✓ Thank you for your vote!
-                </p>
-              </div>
-            )}
+          {isBountyContributor && userCanVote.data && !isAcceptedBounty && (
+            <div className='p-4 rounded-lg border text-center'>
+              <p className='text-sm font-medium'>✓ Thank you for your vote!</p>
+            </div>
+          )}
 
           {isVotingClosed && (
             <button

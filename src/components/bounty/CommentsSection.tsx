@@ -425,7 +425,7 @@ function CommentThread({
           }}
           submitLabel='Reply'
           cancelLabel='Cancel'
-          placeholder='Reply...'
+          placeholder='reply...'
           actionsClassName='flex items-center gap-3 flex-wrap'
         />
       )}
