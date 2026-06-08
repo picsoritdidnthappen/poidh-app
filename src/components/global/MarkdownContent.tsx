@@ -56,7 +56,7 @@ export default function MarkdownContent({
   className?: string;
 }) {
   return (
-    <div className={className}>
+    <div className={`normal-case${className ? ` ${className}` : ''}`}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {children}
       </ReactMarkdown>
