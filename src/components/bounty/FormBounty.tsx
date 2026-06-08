@@ -366,7 +366,7 @@ export default function FormBounty({
                   ? 'min-h-[150px] max-h-[400px] text-base'
                   : 'min-h-[100px] max-h-80'
               } overflow-y-auto`}
-              placeholder='pro tip: be detailed and add a deadline'
+              placeholder='pro tip: be detailed and add a deadline — markdown supported'
               style={{
                 resize: 'vertical',
               }}
