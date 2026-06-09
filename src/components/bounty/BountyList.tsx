@@ -42,7 +42,7 @@ export default function BountyList({
             className={cn(
               bounty.inProgress && 'canceled',
               bounty.hasClaims ? 'pendingClaims' : 'noClaims',
-              'bountyItem lg:col-span-4'
+              'bountyItem lg:col-span-4 h-full'
             )}
             key={bounty.id}
             variants={{
