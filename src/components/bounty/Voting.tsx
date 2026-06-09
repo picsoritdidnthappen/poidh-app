@@ -322,7 +322,7 @@ export default function Voting({
               </div>
             )}
 
-          {isVotingClosed && (
+          {isVotingClosed && !isAcceptedBounty && (
             <button
               className='w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-blue-400/20 bg-gradient-to-r from-blue-500/70 to-blue-600/70 text-white hover:from-blue-500/85 hover:to-blue-600/85 hover:border-blue-400 active:scale-95 shadow-lg hover:shadow-blue-500/20'
               onClick={() => resolveVoteMutation.mutate()}
