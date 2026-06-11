@@ -1,6 +1,20 @@
 'use client';
 import ReactMarkdown, { type Components } from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
+
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames ?? []), 'video', 'source'],
+  attributes: {
+    ...defaultSchema.attributes,
+    video: ['src', 'controls', 'title', 'width', 'height'],
+    source: ['src', 'type'],
+  },
+};
+
+const VIDEO_EXTENSIONS = /\.(mp4|webm|ogg|mov)(\?.*)?$/i;
 
 const components: Components = {
   a: ({ href, children }) => (
@@ -43,6 +57,47 @@ const components: Components = {
       </code>
     );
   },
+  table: ({ children }) => (
+    <div className='overflow-x-auto mb-3'>
+      <table className='min-w-full border-collapse text-sm'>{children}</table>
+    </div>
+  ),
+  thead: ({ children }) => (
+    <thead className='border-b border-gray-400'>{children}</thead>
+  ),
+  tbody: ({ children }) => <tbody>{children}</tbody>,
+  tr: ({ children }) => (
+    <tr className='border-b border-gray-600 last:border-0'>{children}</tr>
+  ),
+  th: ({ children }) => (
+    <th className='px-3 py-2 text-left font-semibold'>{children}</th>
+  ),
+  td: ({ children }) => <td className='px-3 py-2'>{children}</td>,
+  img: ({ src, alt }) => {
+    if (src && VIDEO_EXTENSIONS.test(src)) {
+      return (
+        <video
+          src={src}
+          controls
+          className='max-w-full rounded-md mb-3'
+          title={alt}
+        />
+      );
+    }
+    return <img src={src} alt={alt} className='max-w-full rounded-md mb-3' />;
+  },
+  video: ({ src, title, width, height, children }) => (
+    <video
+      src={src}
+      controls
+      title={title}
+      width={width}
+      height={height}
+      className='max-w-full rounded-md mb-3'
+    >
+      {children}
+    </video>
+  ),
   strong: ({ children }) => <strong className='font-bold'>{children}</strong>,
   em: ({ children }) => <em className='italic'>{children}</em>,
   hr: () => <hr className='border-gray-400 my-4' />,
@@ -57,7 +112,11 @@ export default function MarkdownContent({
 }) {
   return (
     <div className={`normal-case${className ? ` ${className}` : ''}`}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+        components={components}
+      >
         {children}
       </ReactMarkdown>
     </div>
