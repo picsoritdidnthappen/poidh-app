@@ -66,6 +66,8 @@
     "react-markdown": "^10.1.0",
     "react-minimal-pie-chart": "^9.1.0",
     "react-toastify": "^10.0.6",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "superjson": "^2.2.2",
     "tailwind-merge": "^2.6.0",
