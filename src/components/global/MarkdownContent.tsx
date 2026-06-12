@@ -42,17 +42,20 @@ const components: Components = {
       {children}
     </blockquote>
   ),
+  pre: ({ children }) => (
+    <pre className='bg-black/30 rounded-md p-3 mb-3 max-w-full whitespace-pre-wrap break-words'>
+      {children}
+    </pre>
+  ),
   code: ({ children, className }) => {
-    const isBlock = className?.startsWith('language-');
+    const content = String(children).replace(/\n$/, '');
+    const isBlock =
+      className?.startsWith('language-') || content.includes('\n');
     if (isBlock) {
-      return (
-        <pre className='bg-black/30 rounded-md p-3 mb-3 overflow-x-auto'>
-          <code className='text-sm font-mono'>{children}</code>
-        </pre>
-      );
+      return <code className='text-sm font-mono'>{children}</code>;
     }
     return (
-      <code className='bg-black/30 rounded px-1 text-sm font-mono'>
+      <code className='bg-black/30 rounded px-1 text-sm font-mono break-words'>
         {children}
       </code>
     );
@@ -111,7 +114,11 @@ export default function MarkdownContent({
   className?: string;
 }) {
   return (
-    <div className={`normal-case${className ? ` ${className}` : ''}`}>
+    <div
+      className={`normal-case min-w-0 max-w-full${
+        className ? ` ${className}` : ''
+      }`}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
