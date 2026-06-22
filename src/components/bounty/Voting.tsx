@@ -131,6 +131,7 @@ export default function Voting({
     },
     onSuccess: () => {
       toast.success('Voted successfully');
+      window.location.reload();
     },
     onError: (error) => {
       toast.error('Failed to vote: ' + error.message);
@@ -164,6 +165,7 @@ export default function Voting({
         setShowConfirmSuccess(true);
       } else {
         toast.success('Vote resolved successfully');
+        window.location.reload();
       }
     },
     onError: (error) => {
