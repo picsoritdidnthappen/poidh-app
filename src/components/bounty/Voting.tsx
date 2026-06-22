@@ -10,7 +10,9 @@ import { useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { Claim } from '@/utils/types';
 import { useMemo, useState } from 'react';
+import { isV3Bounty } from '@/utils/utils';
 import ConfirmBountySuccessModal from './ConfirmBountySuccessModal';
+import LegacyVotingBreakdown from './LegacyVotingBreakdown';
 
 function formatDeadline(date: Date) {
   return date.toLocaleString('en-US', {
@@ -186,6 +188,24 @@ export default function Voting({
   }
 
   if (!voting.data || !bounty.data) {
+    // For legacy (v2) multiplayer bounties, no `votes` row exists because
+    // the voting flow ran entirely on-chain via the v2 contract. Render a
+    // contributor-based breakdown instead of the "unavailable" placeholder
+    // so the voting interface still shows. (Closes #1276)
+    if (
+      bounty.data &&
+      bounty.data.isMultiplayer &&
+      !isV3Bounty(chain.id, bounty.data.onChainId)
+    ) {
+      return (
+        <LegacyVotingBreakdown
+          bountyId={bountyId}
+          chainId={chain.id}
+          currency={chain.currency}
+          isAcceptedBounty={isAcceptedBounty}
+        />
+      );
+    }
     return (
       <div className='flex items-center justify-center h-40 bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 backdrop-blur-md'>
         <p className='text-sm text-white/50'>Voting data unavailable.</p>
