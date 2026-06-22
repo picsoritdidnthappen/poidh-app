@@ -312,7 +312,7 @@ export default function Voting({
             </div>
           )}
 
-          {isBountyContributor &&
+          {(isBountyContributor || isBountyOwner) &&
             userCanVote.data === false &&
             !isAcceptedBounty && (
               <div className='p-4 rounded-lg border text-center'>
