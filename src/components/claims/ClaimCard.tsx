@@ -121,6 +121,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
     },
     onError: (error) => {
       toast.error('Failed to ban claim: ' + error.message);
+    toast.success('Claim banned successfully');
     },
     onSettled: () => {
       utils.claims.fetchAcceptedClaimByBountyId.refetch();
