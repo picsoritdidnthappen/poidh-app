@@ -165,6 +165,7 @@ export default function BountyInfo({
     onSuccess: () => {
       setLoading({ isLoading: false });
       toast.success('Bounty canceled');
+      window.location.href = '/profile';
     },
     onError: (error) => {
       setLoading({ isLoading: false });
