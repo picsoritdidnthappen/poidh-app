@@ -102,7 +102,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
       if (account.address) {
         const signature = await signMessageAsync({ message }).catch(() => null);
         if (!signature) {
-          throw new Error('Failed to sign message');
+          throw new Error('Wallet signing failed. Please ensure you have enough gas to complete this transaction.');
         }
 
         await banClaimMutation.mutateAsync({
