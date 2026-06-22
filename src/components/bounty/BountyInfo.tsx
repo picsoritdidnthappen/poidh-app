@@ -165,6 +165,7 @@ export default function BountyInfo({
     onSuccess: () => {
       setLoading({ isLoading: false });
       toast.success('Bounty canceled');
+      router.push('/profile');
     },
     onError: (error) => {
       setLoading({ isLoading: false });
