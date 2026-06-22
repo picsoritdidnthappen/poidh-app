@@ -3,6 +3,11 @@ import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
 import { checkIsIssuer } from './admin';
+import {
+  nextBountyCursor,
+  valueSortCursorWhere,
+  valueSortOrderBy,
+} from './bountyPagination';
 
 export const bountiesRouter = {
   fetch: baseProcedure
@@ -97,6 +102,8 @@ export const bountiesRouter = {
             createdAt: z.coerce.number(),
             amountSort: z.number(),
             dates: z.array(z.number()),
+            bountyId: z.number().optional(),
+            chainId: z.number().optional(),
           })
           .nullish(),
       })
@@ -131,9 +138,7 @@ export const bountiesRouter = {
                 : {}),
             },
 
-            ...(input.cursor
-              ? { amountSort: { lt: input.cursor.amountSort } }
-              : {}),
+            ...valueSortCursorWhere(input.cursor),
           },
           select: {
             bounty: {
@@ -155,7 +160,7 @@ export const bountiesRouter = {
             },
             amountSort: true,
           },
-          orderBy: { amountSort: 'desc' },
+          orderBy: valueSortOrderBy(),
           take: input.limit,
         });
 
@@ -227,26 +232,11 @@ export const bountiesRouter = {
         }));
       }
 
-      let nextCursor:
-        | {
-            createdAt: number;
-            amountSort: number;
-            dates: number[];
-          }
-        | undefined = undefined;
-
-      if (items.length === input.limit) {
-        const last = items[items.length - 1];
-
-        nextCursor = {
-          createdAt: last.createdAt.toNumber(),
-          amountSort: last.amountSort,
-          dates: [
-            ...(input.cursor?.dates ?? []),
-            ...items.map((item) => Number(item?.createdAt)),
-          ],
-        };
-      }
+      const nextCursor = nextBountyCursor(
+        items,
+        input.limit,
+        input.cursor?.dates
+      );
 
       return {
         items: items.map(({ claims, participations, ...bounty }) => ({
