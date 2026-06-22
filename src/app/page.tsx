@@ -158,7 +158,7 @@ export default function Home() {
                 }}
                 className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
               >
-                past bounties
+                past-bounties
               </button>
             </div>
           </div>
