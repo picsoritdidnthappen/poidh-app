@@ -295,3 +295,8 @@ textarea.resize-y::-webkit-scrollbar-thumb {
     opacity: 1;
   }
 }
+/* Button motion feedback */
+button:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
