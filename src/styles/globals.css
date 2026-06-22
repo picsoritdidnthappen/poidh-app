@@ -73,6 +73,13 @@
 
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+button:active {
+  transform: scale(0.97);
+}
+
+button {
     @apply appearance-none;
   }
 
@@ -130,6 +137,13 @@ body {
 .aspect-h-1 {
   height: 0;
   padding-bottom: 100%;
+}
+
+button {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+button:active {
+  transform: scale(0.97);
 }
 
 button {
