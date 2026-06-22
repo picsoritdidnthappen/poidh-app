@@ -26,7 +26,9 @@ function formatDeadline(date: Date) {
 export default function Voting({
   bountyId,
   isAcceptedBounty,
+  isCompleted,
   votingClaim,
+  isCompleted?: boolean;
 }: {
   bountyId: number;
   isAcceptedBounty: boolean;
@@ -178,7 +180,8 @@ export default function Voting({
   const isInitialLoading = voting.isLoading || bounty.isLoading;
 
   if (isInitialLoading) {
-    return (
+    if (isCompleted) return null;
+  return (
       <div className='flex items-center justify-center h-40 animate-pulse bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 backdrop-blur-md'>
         <p className='text-sm text-white/50'>Loading voting data...</p>
       </div>
@@ -186,13 +189,15 @@ export default function Voting({
   }
 
   if (!voting.data || !bounty.data) {
-    return (
+    if (isCompleted) return null;
+  return (
       <div className='flex items-center justify-center h-40 bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 backdrop-blur-md'>
         <p className='text-sm text-white/50'>Voting data unavailable.</p>
       </div>
     );
   }
 
+  if (isCompleted) return null;
   return (
     <div className='w-full mt-5'>
       <div className='bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 p-6 backdrop-blur-md shadow-2xl'>
