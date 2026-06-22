@@ -262,16 +262,28 @@ export default function BountyInfo({
               </Link>
             </p>
           )}
-          <div className='text-lg mb-5 mt-1 font-bold flex items-center gap-2'>
-            {formatAmount({
-              amount: formatEther(BigInt(bounty.data.amount)),
-              currency: chain.currency,
-              price: price.toString(),
-            })}{' '}
-            <DynamicChainIcon
-              chain={chain.slug}
-              size={chain.slug === 'base' ? 18 : 24}
-            />
+          <div className='mt-1 mb-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4'>
+            <div className='text-xl font-bold flex items-center gap-2'>
+              {formatAmount({
+                amount: formatEther(BigInt(bounty.data.amount)),
+                currency: chain.currency,
+                price: price.toString(),
+              })}{' '}
+              <DynamicChainIcon
+                chain={chain.slug}
+                size={chain.slug === 'base' ? 18 : 24}
+              />
+            </div>
+            {bounty.data.isMultiplayer &&
+              bounty.data.inProgress &&
+              (canWithdraw ? (
+                <Withdraw
+                  id={bounty.data.id}
+                  onChainId={bounty.data.onChainId}
+                />
+              ) : (
+                !bounty.data.isVoting && <JoinBounty bountyId={bountyId} />
+              ))}
           </div>
         </div>
         <div className='flex flex-col space-between'>
@@ -311,13 +323,6 @@ export default function BountyInfo({
               onChainId={bounty.data.onChainId}
             />
           )}
-          {bounty.data.isMultiplayer &&
-            bounty.data.inProgress &&
-            (canWithdraw ? (
-              <Withdraw id={bounty.data.id} onChainId={bounty.data.onChainId} />
-            ) : (
-              !bounty.data.isVoting && <JoinBounty bountyId={bountyId} />
-            ))}
           <button
             type='button'
             onClick={() => onShareModalStateChange?.(true)}
