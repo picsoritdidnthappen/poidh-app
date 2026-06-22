@@ -29,6 +29,8 @@ import { ArrowIcon, QuestionIcon } from '@/components/global/Icons';
 import Link from 'next/link';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import { useEffect } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 export default function BountyInfo({
   bountyId,
@@ -51,6 +53,10 @@ export default function BountyInfo({
   const banBountyMutation = trpc.admin.banBounty.useMutation({});
   const { signMessageAsync } = useSignMessage();
   const setLoading = useSetAtom(setLoadingAtom);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isIndexing = searchParams.get('indexing') === 'true';
 
   const price =
     trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
@@ -60,8 +66,30 @@ export default function BountyInfo({
       id: bountyId,
       chainId: chain.id,
     },
-    { enabled: !isNaN(bountyId) }
+    {
+      enabled: !isNaN(bountyId),
+      // While the freshly-created bounty is still being indexed by the
+      // backend, keep polling until the row appears.
+      refetchInterval: isIndexing ? 1500 : false,
+    }
   );
+
+  // Show "Indexing..." loading bar after bounty creation redirects here.
+  // Clear it (and strip the URL flag) once the bounty data is available.
+  useEffect(() => {
+    if (!isIndexing) return;
+    if (!bounty.data) {
+      setLoading({ isLoading: true, status: 'Indexing...' });
+      return;
+    }
+    setLoading({ isLoading: false, status: '' });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('indexing');
+    router.replace(
+      params.toString() ? `${pathname}?${params.toString()}` : pathname,
+      { scroll: false }
+    );
+  }, [isIndexing, bounty.data, searchParams, router, pathname, setLoading]);
 
   const participants = trpc.bounties.participations.useQuery(
     {

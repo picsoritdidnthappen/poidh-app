@@ -181,7 +181,9 @@ export default function FormBounty({
       setDescription('');
       setAmount('');
       setAlbum(prefilledAlbum);
-      setLoading({ isLoading: true, status: 'Redirecting...' });
+      // Keep loading visible with "Indexing..." while the bounty page mounts
+      // and fetches data. BountyInfo will clear loading once data arrives.
+      setLoading({ isLoading: true, status: 'Indexing...' });
       router.push(
         `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
       );
@@ -189,8 +191,6 @@ export default function FormBounty({
     },
     onError: (error) => {
       toast.error('Failed to create bounty: ' + error.message);
-    },
-    onSettled: () => {
       setLoading({ isLoading: false, status: '' });
     },
   });
