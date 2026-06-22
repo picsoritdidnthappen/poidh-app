@@ -57,7 +57,11 @@ export default function HowItWorksModal({ onClose }: { onClose: () => void }) {
 
           <div>
             <h3 className='text-lg font-medium mb-3 text-white'>
-              🏆 how do I claim a bounty?
+              🏆 creating a bounty
+
+As a bounty creator, you set the rules: pick a title, description, reward amount, and whether it is solo or multiplayer. Once created, other users can add funds to increase the prize pool. When claims come in, you review and select the winner.
+
+how do I claim a bounty?
             </h3>
             <p className='text-white/80 leading-relaxed'>
               Find a bounty you like, connect your wallet, and click the big red
