@@ -112,6 +112,8 @@
 }
 
 body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   font-family: 'GeistMono-Regular';
   min-height: 100vh;
   background-size: cover;
@@ -120,6 +122,8 @@ body {
 }
 
 .dark body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   background: linear-gradient(to bottom, #0d1b2e, #1a3a5c, #15304f, #0d1b2e);
 }
 
