@@ -66,6 +66,10 @@ export default function Home() {
   useEffect(() => {
     updateSliderPosition();
 
+    document.fonts.ready.then(() => {
+      updateSliderPosition();
+    });
+
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [display, updateSliderPosition]);
