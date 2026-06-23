@@ -118,6 +118,10 @@ export default function AccountInfo({ address }: { address: string }) {
   useEffect(() => {
     updateSliderPosition();
 
+    document.fonts.ready.then(() => {
+      updateSliderPosition();
+    });
+
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [currentSection, updateSliderPosition, accountActivitiesCount.data]);
