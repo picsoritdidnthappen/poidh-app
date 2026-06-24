@@ -45,6 +45,10 @@ export default function Album({ params }: { params: { album: string } }) {
   useEffect(() => {
     updateSliderPosition();
 
+    document.fonts.ready.then(() => {
+      updateSliderPosition();
+    });
+
     window.addEventListener('resize', updateSliderPosition);
     return () => window.removeEventListener('resize', updateSliderPosition);
   }, [display, updateSliderPosition]);
