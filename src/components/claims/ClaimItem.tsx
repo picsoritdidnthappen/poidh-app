@@ -121,15 +121,33 @@ export default function ClaimItem({
         args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
         chainId: pollingChainId ?? chain.id,
       });
+
+      for (let i = 0; i < 60; i++) {
+        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
+        const submitted = await trpcClient.claims.isSubmittedForVote.query({
+          id: Number(claim.id),
+          chainId: pollingChainId ?? chain.id,
+        });
+        if (submitted) {
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1_000));
+      }
+
+      throw new Error('Failed to submit claim for vote');
     },
     onSuccess: () => {
+      setLoading({ isLoading: false });
       toast.success('Claim submitted for vote successfully');
       window.location.reload();
     },
     onError: (error) => {
+      setLoading({ isLoading: false });
       toast.error('Failed to submit claim for vote: ' + error.message);
     },
     onSettled: () => {
+      utils.claims.fetchBountyClaims.refetch();
+      setPollingChainId(null);
       setLoading({ isLoading: false, status: '' });
     },
   });

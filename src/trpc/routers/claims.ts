@@ -170,6 +170,19 @@ export const claimsRouter = {
         },
       });
     }),
+
+  isSubmittedForVote: baseProcedure
+    .input(z.object({ chainId: z.number(), id: z.number() }))
+    .query(async ({ input }) => {
+      return prisma.votes.findFirst({
+        where: {
+          claimId: input.id,
+          chainId: input.chainId,
+        },
+        orderBy: { round: 'desc' },
+        take: 1,
+      });
+    }),
 };
 
 export async function fetchImageMetadata(url: string) {
