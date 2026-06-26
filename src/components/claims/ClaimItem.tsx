@@ -84,7 +84,9 @@ export default function ClaimItem({
 
   useEffect(() => {
     if (!claim?.url) return;
+    console.log('ClaimItem claim.url:', claim.url);
     resolveMediaUrl(claim.url).then(({ mediaUrl, isVideo }) => {
+      console.log('ClaimItem resolved:', mediaUrl, isVideo);
       setMediaUrl(mediaUrl);
       setIsVideo(isVideo);
     });
