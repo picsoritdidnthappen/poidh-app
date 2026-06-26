@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -17,6 +17,44 @@ import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
+
+const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
+const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
+
+async function resolveMediaUrl(url: string): Promise<{ mediaUrl: string; isVideo: boolean }> {
+  try {
+    const response = await fetch(url);
+    const contentType = response.headers.get('content-type') ?? '';
+
+    if (contentType.startsWith('video/') || VIDEO_EXTENSIONS.test(url)) {
+      return { mediaUrl: url, isVideo: true };
+    }
+
+    if (contentType.startsWith('image/')) {
+      return { mediaUrl: url, isVideo: false };
+    }
+
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      if (data.image) {
+        return { mediaUrl: data.image, isVideo: VIDEO_EXTENSIONS.test(data.image) };
+      }
+    } catch {
+      // not JSON
+    }
+
+    const matches = text.match(IPFS_URL_PATTERN);
+    if (matches && matches.length > 0) {
+      const videoMatch = matches.find((m) => VIDEO_EXTENSIONS.test(m));
+      const chosen = videoMatch ?? matches[0];
+      return { mediaUrl: chosen, isVideo: !!videoMatch };
+    }
+  } catch {
+    // fetch failed
+  }
+  return { mediaUrl: url, isVideo: false };
+}
 
 export default function ClaimItem({
   claim,
@@ -40,6 +78,17 @@ export default function ClaimItem({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
+
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
+
+  useEffect(() => {
+    if (!claim?.url) return;
+    resolveMediaUrl(claim.url).then(({ mediaUrl, isVideo }) => {
+      setMediaUrl(mediaUrl);
+      setIsVideo(isVideo);
+    });
+  }, [claim?.url]);
 
   const accountStats = trpc.accounts.stats.useQuery({ address: claim.issuer });
 
@@ -154,7 +203,7 @@ export default function ClaimItem({
         <ConfirmBountySuccessModal
           open={showConfirmSuccess}
           onClose={() => setShowConfirmSuccess(false)}
-          claimImage={claim.url ?? ''}
+          claimImage={mediaUrl ?? claim.url ?? ''}
           claimTitle={claim.title}
           claimIssuer={claim.issuer}
           bountyTitle={bounty.data.title}
@@ -165,7 +214,7 @@ export default function ClaimItem({
       <SubmitVotingConfirm
         isOpen={showVotingConfirm}
         onClose={() => setShowVotingConfirm(false)}
-        imageUrl={claim.url ? claim.url + '?q=50' : ''}
+        imageUrl={mediaUrl ?? ''}
         onConfirm={() => {
           submitForVoteMutation.mutate();
           setShowVotingConfirm(false);
@@ -174,7 +223,7 @@ export default function ClaimItem({
       <AcceptClaimConfirm
         isOpen={showAcceptConfirm}
         onClose={() => setShowAcceptConfirm(false)}
-        imageUrl={claim.url ? claim.url + '?q=50' : ''}
+        imageUrl={mediaUrl ?? ''}
         onConfirm={() => {
           acceptClaimMutation.mutate({
             claimId: BigInt(claim.id),
@@ -182,8 +231,8 @@ export default function ClaimItem({
           setShowAcceptConfirm(false);
         }}
       />
-      <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
-        <div className='left-5 top-5 absolute  flex flex-col text-white'>
+      <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
+        <div className='left-5 top-5 absolute flex flex-col text-white'>
           {bounty.data &&
             bounty.data.inProgress &&
             !bounty.data.isCanceled &&
@@ -210,11 +259,30 @@ export default function ClaimItem({
             accepted
           </div>
         )}
+
         <div
-          style={{ backgroundImage: `url(${claim.url})` }}
-          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+          className='bg-[#12AAFF] dark:bg-[#132b47] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden cursor-pointer'
           onClick={() => setOpenCard(true)}
-        />
+        >
+          {isVideo && mediaUrl ? (
+            <video
+              src={mediaUrl}
+              className='w-full h-full object-cover'
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : mediaUrl ? (
+            <div
+              style={{ backgroundImage: `url(${mediaUrl})` }}
+              className='w-full h-full bg-cover bg-center'
+            />
+          ) : (
+            <div className='w-full h-full bg-[#12AAFF] dark:bg-[#132b47]' />
+          )}
+        </div>
+
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
@@ -226,7 +294,7 @@ export default function ClaimItem({
           </div>
           <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
             <span className='shrink-0 mr-2'>issuer&nbsp;</span>
-            <div className='flex flex-row  items-center w-full justify-end overflow-hidden'>
+            <div className='flex flex-row items-center w-full justify-end overflow-hidden'>
               <DisplayAddress address={claim.issuer} />
               <div className='ml-2'>
                 <CopyAddressButton address={claim.issuer} />
