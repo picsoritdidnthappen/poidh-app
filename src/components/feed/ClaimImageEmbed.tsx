@@ -39,8 +39,8 @@ export default function ClaimImageEmbed({
         const contentType = response.headers.get('content-type') ?? '';
 
         // Direct video file
-        if (contentType.startsWith('video/') || VIDEO_EXTENSIONS.test(claim.url)) {
-          setMediaUrl(claim.url);
+        if (contentType.startsWith('video/') || VIDEO_EXTENSIONS.test(claim.url as string)) {
+          setMediaUrl(claim.url as string);
           setIsVideo(true);
           setIsLoading(false);
           return;
