@@ -28,14 +28,14 @@ export default function ClaimImageEmbed({
   const chain = getChainById({ chainId });
 
   useEffect(() => {
-    if (!claim?.url) return;
+    if (!claim?.url || typeof claim.url !== 'string') return;
 
     const resolve = async () => {
       setIsLoading(true);
       setMediaError(false);
 
       try {
-        const response = await fetch(claim.url);
+        const response = await fetch(claim.url as string);
         const contentType = response.headers.get('content-type') ?? '';
 
         // Direct video file
