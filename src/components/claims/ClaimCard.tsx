@@ -36,6 +36,44 @@ export type ClaimCardProps = {
   onClose: () => void;
 };
 
+const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
+const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
+
+async function resolveMediaUrl(url: string): Promise<{ mediaUrl: string; isVideo: boolean }> {
+  try {
+    const response = await fetch(url);
+    const contentType = response.headers.get('content-type') ?? '';
+
+    if (contentType.startsWith('video/') || VIDEO_EXTENSIONS.test(url)) {
+      return { mediaUrl: url, isVideo: true };
+    }
+
+    if (contentType.startsWith('image/')) {
+      return { mediaUrl: url, isVideo: false };
+    }
+
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      if (data.image) {
+        return { mediaUrl: data.image, isVideo: VIDEO_EXTENSIONS.test(data.image) };
+      }
+    } catch {
+      // not JSON
+    }
+
+    const matches = text.match(IPFS_URL_PATTERN);
+    if (matches && matches.length > 0) {
+      const videoMatch = matches.find((m) => VIDEO_EXTENSIONS.test(m));
+      const chosen = videoMatch ?? matches[0];
+      return { mediaUrl: chosen, isVideo: !!videoMatch };
+    }
+  } catch {
+    // fetch failed
+  }
+  return { mediaUrl: url, isVideo: false };
+}
+
 export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const account = useAccount();
   const utils = trpc.useUtils();
@@ -48,6 +86,21 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const shareDropdownRef = useRef<HTMLDivElement>(null);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
+
+  // Resolved media state
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
+  const [mediaLoading, setMediaLoading] = useState(true);
+
+  useEffect(() => {
+    if (!claim?.url) return;
+    setMediaLoading(true);
+    resolveMediaUrl(claim.url).then(({ mediaUrl, isVideo }) => {
+      setMediaUrl(mediaUrl);
+      setIsVideo(isVideo);
+      setMediaLoading(false);
+    });
+  }, [claim?.url]);
 
   const banClaimMutation = trpc.admin.banClaim.useMutation({});
   const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
@@ -91,7 +144,6 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
     }) => {
       const chainId = await account.connector?.getChainId();
       if (chainId !== 8453) {
-        //arbitrum has a problem with message signing, so all confirmations are on base
         await switctChain.switchChainAsync({ chainId: 8453 });
       }
       const message = getBanSignatureFirstLine({
@@ -104,7 +156,6 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         if (!signature) {
           throw new Error('Failed to sign message');
         }
-
         await banClaimMutation.mutateAsync({
           id: Number(claimId),
           chainId: chain.id,
@@ -180,7 +231,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         '/api/generate-claim-card',
         window.location.origin
       );
-      if (claim.url) cardUrl.searchParams.set('image', claim.url);
+      if (mediaUrl) cardUrl.searchParams.set('image', mediaUrl);
       cardUrl.searchParams.set('title', claim.title.slice(0, 30));
       cardUrl.searchParams.set('issuer', claimIssuerUsername);
 
@@ -205,7 +256,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         embedImage: embedImageUrl,
       });
     } catch (error) {
-      await shareToFarcaster({ text, embedImage: claim.url ?? '' });
+      await shareToFarcaster({ text, embedImage: mediaUrl ?? claim.url ?? '' });
     } finally {
       setIsGeneratingCard(false);
     }
@@ -219,29 +270,38 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
             <div className='bg-blur rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 border border-white/20'>
               <div
                 className='bg-blur-white rounded-lg p-2 h-48 sm:h-64 flex items-center justify-center cursor-pointer relative'
-                onClick={() => claim.url && setIsImageFullscreen(true)}
+                onClick={() => !isVideo && mediaUrl && setIsImageFullscreen(true)}
               >
-                {claim.url && (
-                  <div
-                    className='absolute inset-0 rounded-lg opacity-30'
-                    style={{
-                      backgroundImage: `url(${claim.url})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
-                    }}
+                {mediaLoading ? (
+                  <div className='text-white/60 text-sm'>Loading...</div>
+                ) : mediaUrl && isVideo ? (
+                  <video
+                    src={mediaUrl}
+                    controls
+                    className='max-h-full max-w-full rounded-lg object-contain relative z-20'
                   />
-                )}
-                {claim.url ? (
-                  <Image
-                    src={claim.url}
-                    alt={claim.title}
-                    width={400}
-                    height={400}
-                    className='max-h-full max-w-full object-contain transition-transform relative z-20'
-                  />
+                ) : mediaUrl ? (
+                  <>
+                    <div
+                      className='absolute inset-0 rounded-lg opacity-30'
+                      style={{
+                        backgroundImage: `url(${mediaUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                      }}
+                    />
+                    <Image
+                      src={mediaUrl}
+                      alt={claim.title}
+                      width={400}
+                      height={400}
+                      className='max-h-full max-w-full object-contain transition-transform relative z-20'
+                      unoptimized
+                    />
+                  </>
                 ) : (
-                  <div className='text-white/60'>No Image</div>
+                  <div className='text-white/60'>No Media</div>
                 )}
               </div>
 
@@ -396,14 +456,15 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
             >
               <CloseIcon size={20} />
             </button>
-            {claim.url && (
+            {mediaUrl && !isVideo && (
               <Image
-                src={claim.url}
+                src={mediaUrl}
                 alt={claim.title}
                 width={400}
                 height={400}
                 className='max-w-full max-h-full object-contain transition-transform duration-200'
                 style={{ transform: `scale(${scale})` }}
+                unoptimized
               />
             )}
           </div>
