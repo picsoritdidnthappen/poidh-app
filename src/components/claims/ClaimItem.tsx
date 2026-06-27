@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -18,6 +19,9 @@ import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 
+const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
+const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
+
 export default function ClaimItem({
   claim,
 }: {
@@ -34,6 +38,10 @@ export default function ClaimItem({
   const utils = trpc.useUtils();
 
   const [openCard, setOpenCard] = useState(false);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mediaError, setMediaError] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
@@ -47,6 +55,75 @@ export default function ClaimItem({
     id: claim.bountyId,
     chainId: claim.chainId,
   });
+
+  useEffect(() => {
+  if (!claim?.url || typeof claim.url !== 'string') return;
+
+  const resolve = async () => {
+    setMediaUrl(null);
+    setIsVideo(false);
+    setMediaError(false);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(claim.url);
+      const contentType = response.headers.get('content-type') ?? '';
+
+      if (
+        contentType.startsWith('video/') ||
+        VIDEO_EXTENSIONS.test(claim.url)
+      ) {
+        setMediaUrl(claim.url);
+        setIsVideo(true);
+        setIsLoading(false);
+        return;
+      }
+
+      if (contentType.startsWith('image/')) {
+        setMediaUrl(claim.url);
+        setIsVideo(false);
+        setIsLoading(false);
+        return;
+      }
+
+      const text = await response.text();
+
+      try {
+        const data = JSON.parse(text);
+
+        if (data.image) {
+          setMediaUrl(data.image);
+          setIsVideo(VIDEO_EXTENSIONS.test(data.image));
+          setIsLoading(false);
+          return;
+        }
+      } catch {}
+
+      const matches = text.match(IPFS_URL_PATTERN);
+
+      if (matches?.length) {
+        const videoMatch = matches.find((m) =>
+          VIDEO_EXTENSIONS.test(m)
+        );
+
+        const chosen = videoMatch ?? matches[0];
+
+        setMediaUrl(chosen);
+        setIsVideo(!!videoMatch);
+        setIsLoading(false);
+        return;
+      }
+
+      setMediaError(true);
+      setIsLoading(false);
+    } catch {
+      setMediaError(true);
+      setIsLoading(false);
+    }
+  };
+
+    resolve();
+  }, [claim?.url]);
 
   const acceptClaimMutation = useMutation({
     mutationFn: async ({ claimId }: { claimId: bigint }) => {
@@ -211,10 +288,43 @@ export default function ClaimItem({
           </div>
         )}
         <div
-          style={{ backgroundImage: `url(${claim.url})` }}
-          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+          className='relative w-full aspect-square bg-[#12AAFF] dark:bg-[#132b47] rounded-[8px] overflow-hidden cursor-pointer'
           onClick={() => setOpenCard(true)}
-        />
+        >
+        {isLoading ? (
+          <div className='flex items-center justify-center w-full h-full text-white/60'>
+          Loading...
+          </div>
+        ) : mediaUrl ? (
+          isVideo ? (
+            <video
+              src={mediaUrl}
+              controls
+              className='w-full h-full object-cover'
+              onError={() => {
+                setMediaUrl(null);
+                setMediaError(true);
+              }}
+            />
+          ) : (
+            <Image
+              src={mediaUrl}
+              alt={claim.title || 'claim image'}
+              fill
+              className='object-cover'
+              unoptimized
+              onError={() => {
+                setMediaUrl(null);
+                setMediaError(true);
+              }}
+            />
+          )
+        ) : (
+          <div className='flex items-center justify-center w-full h-full text-white/60'>
+            {mediaError ? 'Error loading media' : 'No media'}
+          </div>
+        )}
+      </div>
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
