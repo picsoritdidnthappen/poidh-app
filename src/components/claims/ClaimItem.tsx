@@ -43,6 +43,12 @@ export default function ClaimItem({
 
   const effectiveUrl = claim.url ?? resolvedDescUrl ?? null;
   const isVideoUrl2 = claim.url ? isVideoUrl : isDescVideo;
+
+  console.log('descriptionUrl', descriptionUrl);
+  console.log('resolvedDescUrl', resolvedDescUrl);
+  console.log('isDescVideo', isDescVideo);
+  console.log('effectiveUrl', effectiveUrl);
+  console.log('isVideoUrl2', isVideoUrl2);
   
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
