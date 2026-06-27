@@ -66,8 +66,14 @@ export default function ClaimItem({
     setIsLoading(true);
 
     try {
+      console.log('claim.url', claim.url);
+
       const response = await fetch(claim.url as string);
-      const contentType = response.headers.get('content-type') ?? '';
+
+      console.log('status', response.status);
+      console.log('content-type', response.headers.get('content-type'));
+
+    const contentType = response.headers.get('content-type') ?? '';
 
       if (
         contentType.startsWith('video/') ||
