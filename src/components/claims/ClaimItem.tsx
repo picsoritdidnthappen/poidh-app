@@ -80,7 +80,7 @@ export default function ClaimItem({
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const [mediaUrl, setMediaUrl] = useState<string | null>(claim.url ?? null);
-  const [isVideo, setIsVideo] = useState(false);
+  const [isVideo, setIsVideo] = useState(VIDEO_EXTENSIONS.test(claim.url ?? ''));
 
   useEffect(() => {
     if (!claim?.url) return;
