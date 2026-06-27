@@ -119,7 +119,7 @@ export default function ClaimItem({
       setIsLoading(true);
       setMediaError(false);
 
-      const result = await resolveMedia(claim.url);
+      const result = await resolveMedia(claim.url as string);
 
       if (cancelled) return;
 
