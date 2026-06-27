@@ -66,21 +66,21 @@ export default function ClaimItem({
     setIsLoading(true);
 
     try {
-      const response = await fetch(claim.url);
+      const response = await fetch(claim.url as string);
       const contentType = response.headers.get('content-type') ?? '';
 
       if (
         contentType.startsWith('video/') ||
-        VIDEO_EXTENSIONS.test(claim.url)
+        VIDEO_EXTENSIONS.test(claim.url as string)
       ) {
-        setMediaUrl(claim.url);
+        setMediaUrl(claim.url as string);
         setIsVideo(true);
         setIsLoading(false);
         return;
       }
 
       if (contentType.startsWith('image/')) {
-        setMediaUrl(claim.url);
+        setMediaUrl(claim.url as string);
         setIsVideo(false);
         setIsLoading(false);
         return;
