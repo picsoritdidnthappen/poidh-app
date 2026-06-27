@@ -263,7 +263,7 @@ export default function ClaimItem({
         )}
 
         <div
-          className='bg-[#12AAFF] dark:bg-[#132b47] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden cursor-pointer'
+          className='bg-[#12AAFF] dark:bg-[#132b47] w-full aspect-w-1 aspect-h-1 aspect-square rounded-[8px] overflow-hidden cursor-pointer'
           onClick={() => setOpenCard(true)}
         >
           {isVideo && mediaUrl ? (
@@ -278,7 +278,7 @@ export default function ClaimItem({
           ) : mediaUrl ? (
             <div
               style={{ backgroundImage: `url(${mediaUrl})` }}
-              className='w-full h-full bg-cover bg-center'
+              className='w-full h-full min-h-[200px] bg-cover bg-center'
             />
           ) : (
             <div className='w-full h-full bg-[#12AAFF] dark:bg-[#132b47]' />
