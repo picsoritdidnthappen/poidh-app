@@ -35,6 +35,8 @@ export default function ClaimItem({
   const utils = trpc.useUtils();
 
   const { mediaUrl, isVideo } = useClaimMedia(claim.url);
+  console.log('claim.url', claim.url);
+  console.log('mediaUrl', mediaUrl);
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
