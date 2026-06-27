@@ -17,7 +17,6 @@ import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
-import { useClaimMedia } from '@/hooks/useClaimMedia';
 
 export default function ClaimItem({
   claim,
@@ -34,7 +33,8 @@ export default function ClaimItem({
 
   const utils = trpc.useUtils();
 
-  const { mediaUrl, isVideo } = useClaimMedia(claim.url);
+  const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
+  const isVideoUrl = claim.url ? VIDEO_EXTENSIONS.test(claim.url) : false;
   console.log('claim.url', claim.url);
   console.log('mediaUrl', mediaUrl);
   const [openCard, setOpenCard] = useState(false);
@@ -214,29 +214,18 @@ export default function ClaimItem({
             accepted
           </div>
         )}
+
         <div
-          className='bg-[#12AAFF] dark:bg-[#132b47] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden relative'
-          onClick={() => !isVideo && setOpenCard(true)}
+          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+          style={!isVideoUrl ? { backgroundImage: `url(${claim.url})` } : undefined}
+          onClick={() => !isVideoUrl && setOpenCard(true)}
         >
-          {isVideo && mediaUrl ? (
+          {isVideoUrl && (
             <video
-              src={mediaUrl}
+              src={claim.url!}
               controls
               onClick={(e) => e.stopPropagation()}
               className='w-full h-full object-cover'
-            />
-          ) : mediaUrl ? (
-            <img
-              src={mediaUrl}
-              alt={claim.title}
-              className='w-full h-full object-cover cursor-pointer'
-              onClick={() => setOpenCard(true)}
-            />
-          ) : (
-            <div
-              style={{ backgroundImage: `url(${claim.url})` }}
-              className='bg-cover bg-center w-full h-full cursor-pointer'
-              onClick={() => setOpenCard(true)}
             />
           )}
         </div>
