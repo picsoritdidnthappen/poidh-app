@@ -229,8 +229,12 @@ export default function ClaimItem({
         )}
 
         <div
-          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden min-h-[200px]'
-          style={!isVideoUrl2 && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : undefined}
+          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full rounded-[8px] overflow-hidden'
+          style={{
+            ...(!isVideoUrl2 && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : {}),
+            aspectRatio: isVideoUrl2 ? undefined : '1/1',
+            minHeight: '200px',
+          }}
           onClick={() => setOpenCard(true)}
         >
           {isVideoUrl2 && effectiveUrl && (
