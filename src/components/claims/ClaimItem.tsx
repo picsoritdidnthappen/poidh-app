@@ -17,6 +17,7 @@ import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
+import { useClaimMedia } from '@/hooks/useClaimMedia';
 
 export default function ClaimItem({
   claim,
@@ -36,8 +37,13 @@ export default function ClaimItem({
   const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
   const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
 
-  const effectiveUrl = claim.url ?? claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
-  const isVideoUrl = effectiveUrl ? VIDEO_EXTENSIONS.test(effectiveUrl) : false;
+  const descriptionUrl = claim.url ? null : claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
+  const isVideoUrl = claim.url ? VIDEO_EXTENSIONS.test(claim.url) : false;
+  const { mediaUrl: resolvedDescUrl, isVideo: isDescVideo } = useClaimMedia(descriptionUrl);
+
+  const effectiveUrl = claim.url ?? resolvedDescUrl ?? null;
+  const isVideoUrl2 = claim.url ? isVideoUrl : isDescVideo;
+  
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
@@ -218,10 +224,10 @@ export default function ClaimItem({
 
         <div
           className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
-          style={!isVideoUrl && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : undefined}
-          onClick={() => !isVideoUrl && setOpenCard(true)}
+          style={!isVideoUrl2 && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : undefined}
+          onClick={() => !isVideoUrl2 && setOpenCard(true)}
         >
-          {isVideoUrl && effectiveUrl && (
+          {isVideoUrl2 && effectiveUrl && (
             <video
               src={effectiveUrl}
               controls
