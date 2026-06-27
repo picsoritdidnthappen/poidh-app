@@ -5,93 +5,11 @@ import { useState, useEffect } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 
-const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
-const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
+import { useClaimMedia } from '@/hooks/useClaimMedia';
 
-function isVideo(url: string) {
-  return VIDEO_EXTENSIONS.test(url);
-}
-
-export default function ClaimImageEmbed({
-  claim,
-  bountyId,
-  chainId,
-}: {
-  claim: Claim;
-  bountyId: number;
-  chainId: ChainId;
-}) {
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
-  const [isVideo, setIsVideo] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [mediaError, setMediaError] = useState<boolean>(false);
+export default function ClaimImageEmbed(...) {
+  const { mediaUrl, isVideo, isLoading, mediaError } = useClaimMedia(claim?.url);
   const chain = getChainById({ chainId });
-
-  useEffect(() => {
-    if (!claim?.url || typeof claim.url !== 'string') return;
-
-    const resolve = async () => {
-      setIsLoading(true);
-      setMediaError(false);
-
-      try {
-        const response = await fetch(claim.url as string);
-        const contentType = response.headers.get('content-type') ?? '';
-
-        // Direct video file
-        if (contentType.startsWith('video/') || VIDEO_EXTENSIONS.test(claim.url as string)) {
-          setMediaUrl(claim.url as string);
-          setIsVideo(true);
-          setIsLoading(false);
-          return;
-        }
-
-        // Direct image file
-        if (contentType.startsWith('image/')) {
-          setMediaUrl(claim.url);
-          setIsVideo(false);
-          setIsLoading(false);
-          return;
-        }
-
-        // Try parsing as JSON metadata
-        const text = await response.text();
-        try {
-          const data = JSON.parse(text);
-          if (data.image) {
-            const url = data.image;
-            setMediaUrl(url);
-            setIsVideo(VIDEO_EXTENSIONS.test(url));
-            setIsLoading(false);
-            return;
-          }
-        } catch {
-          // Not JSON — fall through to IPFS URL extraction
-        }
-
-        // Extract first IPFS URL from raw text
-        const matches = text.match(IPFS_URL_PATTERN);
-        if (matches && matches.length > 0) {
-          // Prefer a video URL if present, otherwise use first match
-          const videoMatch = matches.find((m) => VIDEO_EXTENSIONS.test(m));
-          const chosen = videoMatch ?? matches[0];
-          setMediaUrl(chosen);
-          setIsVideo(!!videoMatch);
-          setIsLoading(false);
-          return;
-        }
-
-        // Nothing found
-        setMediaError(true);
-        setIsLoading(false);
-      } catch {
-        setMediaError(true);
-        setIsLoading(false);
-      }
-    };
-
-    resolve();
-  }, [claim?.url]);
 
   if (!claim) return null;
 
