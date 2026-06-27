@@ -7,7 +7,15 @@ import { ChainId, Claim } from '@/utils/types';
 
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 
-export default function ClaimImageEmbed(...) {
+export default function ClaimImageEmbed({
+  claim,
+  bountyId,
+  chainId,
+}: {
+  claim: Claim;
+  bountyId: number;
+  chainId: ChainId;
+}) {
   const { mediaUrl, isVideo, isLoading, mediaError } = useClaimMedia(claim?.url);
   const chain = getChainById({ chainId });
 
