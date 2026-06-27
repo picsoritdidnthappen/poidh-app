@@ -229,9 +229,9 @@ export default function ClaimItem({
         )}
 
         <div
-          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden min-h-[200px]'
           style={!isVideoUrl2 && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : undefined}
-          onClick={() => !isVideoUrl2 && setOpenCard(true)}
+          onClick={() => setOpenCard(true)}
         >
           {isVideoUrl2 && effectiveUrl && (
             <video
@@ -242,6 +242,7 @@ export default function ClaimItem({
             />
           )}
         </div>
+        
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
