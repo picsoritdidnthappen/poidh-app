@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 
@@ -17,6 +17,7 @@ export default function ClaimImageEmbed({
   chainId: ChainId;
 }) {
   const { mediaUrl, isVideo, isLoading, mediaError } = useClaimMedia(claim?.url);
+  const [renderError, setRenderError] = useState(false);
   const chain = getChainById({ chainId });
 
   if (!claim) return null;
@@ -25,17 +26,14 @@ export default function ClaimImageEmbed({
     <div className='p-3'>
       <Link href={`/${chain.slug}/bounty/${bountyId}`}>
         <div className='bg-poidhRed p-4 rounded-lg'>
-          {mediaUrl ? (
+          {mediaUrl && !renderError ? (
             <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
               {isVideo ? (
                 <video
                   src={mediaUrl}
                   controls
                   className='w-full h-full object-cover rounded-lg'
-                  onError={() => {
-                    setMediaUrl(null);
-                    setMediaError(true);
-                  }}
+                  onError={() => setRenderError(true)}
                 />
               ) : (
                 <Image
@@ -45,10 +43,7 @@ export default function ClaimImageEmbed({
                   className='object-cover'
                   sizes='(max-width: 768px) 100vw, 600px'
                   unoptimized
-                  onError={() => {
-                    setMediaUrl(null);
-                    setMediaError(true);
-                  }}
+                  onError={() => setRenderError(true)}
                 />
               )}
             </div>
