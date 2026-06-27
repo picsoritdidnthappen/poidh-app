@@ -35,8 +35,6 @@ export default function ClaimItem({
 
   const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
   const isVideoUrl = claim.url ? VIDEO_EXTENSIONS.test(claim.url) : false;
-  console.log('claim.url', claim.url);
-  console.log('mediaUrl', mediaUrl);
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
