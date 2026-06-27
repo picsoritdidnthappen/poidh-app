@@ -57,17 +57,19 @@ export default function ClaimItem({
   });
 
   useEffect(() => {
-  if (!claim?.url || typeof claim.url !== 'string') return;
+  console.log('ClaimItem useEffect');
+  console.log('claim.url value:', claim.url);
+  console.log('typeof:', typeof claim.url);
+
+  if (!claim?.url || typeof claim.url !== 'string') {
+    console.log('Returning early');
+    return;
+  }
 
   const resolve = async () => {
-    setMediaUrl(null);
-    setIsVideo(false);
-    setMediaError(false);
-    setIsLoading(true);
+    console.log('Starting fetch');
 
     try {
-      console.log('claim.url', claim.url);
-
       const response = await fetch(claim.url as string);
 
       console.log('status', response.status);
