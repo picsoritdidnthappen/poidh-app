@@ -17,6 +17,7 @@ import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
+import { useClaimMedia } from '@/hooks/useClaimMedia';
 
 export default function ClaimItem({
   claim,
@@ -33,6 +34,7 @@ export default function ClaimItem({
 
   const utils = trpc.useUtils();
 
+  const { mediaUrl, isVideo } = useClaimMedia(claim.url);
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
@@ -211,10 +213,31 @@ export default function ClaimItem({
           </div>
         )}
         <div
-          style={{ backgroundImage: `url(${claim.url})` }}
-          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
-          onClick={() => setOpenCard(true)}
-        />
+          className='bg-[#12AAFF] dark:bg-[#132b47] w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden relative'
+          onClick={() => !isVideo && setOpenCard(true)}
+        >
+          {isVideo && mediaUrl ? (
+            <video
+              src={mediaUrl}
+              controls
+              onClick={(e) => e.stopPropagation()}
+              className='w-full h-full object-cover'
+            />
+          ) : mediaUrl ? (
+            <img
+              src={mediaUrl}
+              alt={claim.title}
+              className='w-full h-full object-cover cursor-pointer'
+              onClick={() => setOpenCard(true)}
+            />
+          ) : (
+            <div
+              style={{ backgroundImage: `url(${claim.url})` }}
+              className='bg-cover bg-center w-full h-full cursor-pointer'
+              onClick={() => setOpenCard(true)}
+            />
+          )}
+        </div>
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
