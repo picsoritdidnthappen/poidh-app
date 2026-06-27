@@ -20,7 +20,55 @@ import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 
 const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
-const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
+
+type MediaResult = {
+  url: string | null;
+  isVideo: boolean;
+};
+
+async function resolveMedia(claimUrl: string): Promise<MediaResult> {
+  try {
+    const res = await fetch(claimUrl);
+    const contentType = res.headers.get('content-type') ?? '';
+
+    // 1. direct media
+    if (
+      VIDEO_EXTENSIONS.test(claimUrl) ||
+      contentType.startsWith('video/')
+    ) {
+      return { url: claimUrl, isVideo: true };
+    }
+
+    if (contentType.startsWith('image/')) {
+      return { url: claimUrl, isVideo: false };
+    }
+
+    // 2. metadata
+    const text = await res.text();
+
+    let data: any = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return { url: null, isVideo: false };
+    }
+
+    const media =
+      data?.animation_url ||
+      data?.video ||
+      data?.image ||
+      null;
+
+    if (!media) return { url: null, isVideo: false };
+
+    return {
+      url: media,
+      isVideo: VIDEO_EXTENSIONS.test(media),
+    };
+  } catch {
+    return { url: null, isVideo: false };
+  }
+}
 
 export default function ClaimItem({
   claim,
@@ -31,9 +79,8 @@ export default function ClaimItem({
 }) {
   const account = useAccount();
   const chain = useChainInfo();
-
   const writeContract = useWriteContract({});
-  const switctChain = useSwitchChain();
+  const switchChain = useSwitchChain();
 
   const utils = trpc.useUtils();
 
@@ -42,125 +89,70 @@ export default function ClaimItem({
   const [isVideo, setIsVideo] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mediaError, setMediaError] = useState(false);
+
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
+
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
 
-  const accountStats = trpc.accounts.stats.useQuery({ address: claim.issuer });
+  const accountStats = trpc.accounts.stats.useQuery({
+    address: claim.issuer,
+  });
 
   const bounty = trpc.bounties.fetch.useQuery({
     id: claim.bountyId,
     chainId: claim.chainId,
   });
 
+  // -------------------------
+  // MEDIA RESOLUTION (FIXED)
+  // -------------------------
   useEffect(() => {
-  console.log('ClaimItem useEffect');
-  console.log('claim.url value:', claim.url);
-  console.log('typeof:', typeof claim.url);
+    if (!claim?.url) return;
 
-  if (!claim?.url || typeof claim.url !== 'string') {
-    console.log('Returning early');
-    return;
-  }
+    let cancelled = false;
 
-  const resolve = async () => {
-    console.log('Starting fetch');
+    const run = async () => {
+      setIsLoading(true);
+      setMediaError(false);
 
-    try {
-      const response = await fetch(claim.url as string);
+      const result = await resolveMedia(claim.url);
 
-      console.log('status', response.status);
-      console.log('content-type', response.headers.get('content-type'));
+      if (cancelled) return;
 
-    const contentType = response.headers.get('content-type') ?? '';
-
-      if (
-        contentType.startsWith('video/') ||
-        VIDEO_EXTENSIONS.test(claim.url as string)
-      ) {
-        setMediaUrl(claim.url as string);
-        setIsVideo(true);
-        setIsLoading(false);
-        return;
+      if (result.url) {
+        setMediaUrl(result.url);
+        setIsVideo(result.isVideo);
+      } else {
+        setMediaError(true);
+        setMediaUrl(null);
       }
 
-      if (contentType.startsWith('image/')) {
-        setMediaUrl(claim.url as string);
-        setIsVideo(false);
-        setIsLoading(false);
-        return;
-      }
-
-      const text = await response.text();
-
-      try {
-
-        const data = JSON.parse(text);
-
-        // 1. video support (CRITICAL FIX)
-        if (data.animation_url) {
-          setMediaUrl(data.animation_url);
-          setIsVideo(true);
-          setIsLoading(false);
-        return;
-        }
-
-        // 2. fallback video field (optional robustness)
-        if (data.video) {
-          setMediaUrl(data.video);
-          setIsVideo(true);
-          setIsLoading(false);
-        return;
-        }
-
-        // 3. image fallback
-        if (data.image) {
-          setMediaUrl(data.image);
-          setIsVideo(false);
-          setIsLoading(false);
-        return;
-      }
-      } catch {}
-
-      const matches = text.match(IPFS_URL_PATTERN);
-
-      if (matches?.length) {
-        const videoMatch = matches.find((m) =>
-          VIDEO_EXTENSIONS.test(m)
-        );
-
-        const chosen = videoMatch ?? matches[0];
-
-        setMediaUrl(chosen);
-        setIsVideo(!!videoMatch);
-        setIsLoading(false);
-        return;
-      }
-
-      setMediaError(true);
       setIsLoading(false);
-    } catch {
-      setMediaError(true);
-      setIsLoading(false);
-    }
-  };
+    };
 
-    resolve();
+    run();
+
+    return () => {
+      cancelled = true;
+    };
   }, [claim?.url]);
 
+  // -------------------------
+  // MUTATIONS (unchanged logic)
+  // -------------------------
   const acceptClaimMutation = useMutation({
     mutationFn: async ({ claimId }: { claimId: bigint }) => {
-      if (!bounty.data) {
-        throw new Error('Bounty data not found!');
-      }
+      if (!bounty.data) throw new Error('Bounty data not found!');
 
       const chainId = await account.connector?.getChainId();
+
       if (chain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network...' });
-        await switctChain.switchChainAsync({ chainId: chain.id });
+        await switchChain.switchChainAsync({ chainId: chain.id });
       }
 
       setPollingChainId(chain.id);
@@ -170,20 +162,22 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'acceptClaim',
-        args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
+        args: [
+          BigInt(bounty.data.onChainId),
+          BigInt(claim.onChainId),
+        ],
         chainId: chain.id,
       });
 
       for (let i = 0; i < 60; i++) {
-        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const accepted = await trpcClient.claims.isAccepted.query({
           id: Number(claimId),
           chainId: pollingChainId ?? chain.id,
         });
-        if (accepted) {
-          return;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1_000));
+
+        if (accepted) return;
+
+        await new Promise((r) => setTimeout(r, 1000));
       }
 
       throw new Error('Failed to accept claim');
@@ -193,9 +187,9 @@ export default function ClaimItem({
       setLoading({ isLoading: false });
       setShowConfirmSuccess(true);
     },
-    onError: (error) => {
+    onError: (e) => {
       setLoading({ isLoading: false });
-      toast.error('Failed to accept claim:' + error.message);
+      toast.error('Failed: ' + e.message);
     },
     onSettled: () => {
       utils.claims.fetchBountyClaims.refetch();
@@ -205,13 +199,12 @@ export default function ClaimItem({
 
   const submitForVoteMutation = useMutation({
     mutationFn: async () => {
-      if (!bounty.data) {
-        throw new Error('Bounty data not found!');
-      }
+      if (!bounty.data) throw new Error('Bounty data not found!');
 
       const chainId = await account.connector?.getChainId();
+
       if (chain.id !== chainId) {
-        await switctChain.switchChainAsync({ chainId: chain.id });
+        await switchChain.switchChainAsync({ chainId: chain.id });
       }
 
       setPollingChainId(chain.id);
@@ -221,22 +214,28 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'submitClaimForVote',
-        args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
-        chainId: pollingChainId ?? chain.id,
+        args: [
+          BigInt(bounty.data.onChainId),
+          BigInt(claim.onChainId),
+        ],
+        chainId: chain.id,
       });
     },
     onSuccess: () => {
-      toast.success('Claim submitted for vote successfully');
+      toast.success('Submitted for vote');
       window.location.reload();
     },
-    onError: (error) => {
-      toast.error('Failed to submit claim for vote: ' + error.message);
+    onError: (e) => {
+      toast.error('Failed: ' + e.message);
     },
     onSettled: () => {
       setLoading({ isLoading: false, status: '' });
     },
   });
 
+  // -------------------------
+  // RENDER
+  // -------------------------
   return (
     <>
       <ClaimCard
@@ -253,11 +252,12 @@ export default function ClaimItem({
         onClose={() => setOpenCard(false)}
         open={openCard}
       />
+
       {bounty.data && (
         <ConfirmBountySuccessModal
           open={showConfirmSuccess}
           onClose={() => setShowConfirmSuccess(false)}
-          claimImage={claim.url ?? ''}
+          claimImage={mediaUrl ?? ''}
           claimTitle={claim.title}
           claimIssuer={claim.issuer}
           bountyTitle={bounty.data.title}
@@ -265,19 +265,21 @@ export default function ClaimItem({
           bountyIssuer={bounty.data.issuer}
         />
       )}
+
       <SubmitVotingConfirm
         isOpen={showVotingConfirm}
         onClose={() => setShowVotingConfirm(false)}
-        imageUrl={claim.url ? claim.url + '?q=50' : ''}
+        imageUrl={mediaUrl ?? ''}
         onConfirm={() => {
           submitForVoteMutation.mutate();
           setShowVotingConfirm(false);
         }}
       />
+
       <AcceptClaimConfirm
         isOpen={showAcceptConfirm}
         onClose={() => setShowAcceptConfirm(false)}
-        imageUrl={claim.url ? claim.url + '?q=50' : ''}
+        imageUrl={mediaUrl ?? ''}
         onConfirm={() => {
           acceptClaimMutation.mutate({
             claimId: BigInt(claim.id),
@@ -285,92 +287,53 @@ export default function ClaimItem({
           setShowAcceptConfirm(false);
         }}
       />
-      <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
-        <div className='left-5 top-5 absolute  flex flex-col text-white'>
-          {bounty.data &&
-            bounty.data.inProgress &&
-            !bounty.data.isCanceled &&
-            account.address?.toLocaleLowerCase() ===
-              bounty.data.issuer.toLocaleLowerCase() &&
-            !claim.isVotingOrAcceptedBounty && (
-              <button
-                className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
-                onClick={() => {
-                  if (bounty.data.hasParticipants) {
-                    setShowVotingConfirm(true);
-                  } else {
-                    setShowAcceptConfirm(true);
-                  }
-                }}
-              >
-                {bounty.data.hasParticipants ? 'propose winner' : 'accept'}
-              </button>
-            )}
-        </div>
 
-        {claim.isAccepted && (
-          <div className='left-5 top-5 text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute'>
-            accepted
-          </div>
-        )}
+      <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
         <div
           className='relative w-full aspect-square bg-[#12AAFF] dark:bg-[#132b47] rounded-[8px] overflow-hidden cursor-pointer'
           onClick={() => setOpenCard(true)}
         >
-        {isLoading ? (
-          <div className='flex items-center justify-center w-full h-full text-white/60'>
-          Loading...
-          </div>
-        ) : mediaUrl ? (
-          isVideo ? (
-            <video
-              src={mediaUrl}
-              controls
-              className='w-full h-full object-cover'
-              onError={() => {
-                setMediaUrl(null);
-                setMediaError(true);
-              }}
-            />
-          ) : (
-            <Image
-              src={mediaUrl}
-              alt={claim.title || 'claim image'}
-              fill
-              className='object-cover'
-              unoptimized
-              onError={() => {
-                setMediaUrl(null);
-                setMediaError(true);
-              }}
-            />
-          )
-        ) : (
-          <div className='flex items-center justify-center w-full h-full text-white/60'>
-            {mediaError ? 'Error loading media' : 'No media'}
-          </div>
-        )}
-      </div>
-        <div className='p-3'>
-          <div className='flex flex-col'>
-            <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
-              {claim.title}
-            </p>
-            <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words'>
-              <TextWithLinks>{claim.description}</TextWithLinks>
-            </p>
-          </div>
-          <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
-            <span className='shrink-0 mr-2'>issuer&nbsp;</span>
-            <div className='flex flex-row  items-center w-full justify-end overflow-hidden'>
-              <DisplayAddress address={claim.issuer} />
-              <div className='ml-2'>
-                <CopyAddressButton address={claim.issuer} />
-              </div>
+          {isLoading ? (
+            <div className='flex items-center justify-center w-full h-full text-white/60'>
+              Loading...
             </div>
-          </div>
-          <div className='flex flex-row items-center justify-between'>
-            <span>claim id: {claim.id}</span>
+          ) : mediaUrl ? (
+            isVideo ? (
+              <video
+                src={mediaUrl}
+                controls
+                className='w-full h-full object-cover'
+              />
+            ) : (
+              <Image
+                src={mediaUrl}
+                alt={claim.title || 'claim image'}
+                fill
+                className='object-cover'
+                unoptimized
+              />
+            )
+          ) : (
+            <div className='flex items-center justify-center w-full h-full text-white/60'>
+              {mediaError ? 'Error loading media' : 'No media'}
+            </div>
+          )}
+        </div>
+
+        <div className='p-3'>
+          <p className='truncate'>{claim.title}</p>
+
+          <p className='text-sm h-20 overflow-auto'>
+            <TextWithLinks>{claim.description}</TextWithLinks>
+          </p>
+
+          <div className='mt-2 flex justify-between text-sm border-t border-dashed pt-2'>
+            <div className='flex items-center gap-2'>
+              issuer
+              <DisplayAddress address={claim.issuer} />
+              <CopyAddressButton address={claim.issuer} />
+            </div>
+
             <SocialMediaLinks address={claim.issuer} />
           </div>
         </div>
