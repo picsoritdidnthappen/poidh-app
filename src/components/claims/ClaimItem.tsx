@@ -34,7 +34,10 @@ export default function ClaimItem({
   const utils = trpc.useUtils();
 
   const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
-  const isVideoUrl = claim.url ? VIDEO_EXTENSIONS.test(claim.url) : false;
+  const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
+
+  const effectiveUrl = claim.url ?? claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
+  const isVideoUrl = effectiveUrl ? VIDEO_EXTENSIONS.test(effectiveUrl) : false;
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
@@ -215,12 +218,12 @@ export default function ClaimItem({
 
         <div
           className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
-          style={!isVideoUrl ? { backgroundImage: `url(${claim.url})` } : undefined}
+          style={!isVideoUrl && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : undefined}
           onClick={() => !isVideoUrl && setOpenCard(true)}
         >
-          {isVideoUrl && (
+          {isVideoUrl && effectiveUrl && (
             <video
-              src={claim.url!}
+              src={effectiveUrl}
               controls
               onClick={(e) => e.stopPropagation()}
               className='w-full h-full object-cover'
