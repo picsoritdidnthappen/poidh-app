@@ -97,14 +97,32 @@ export default function ClaimItem({
       const text = await response.text();
 
       try {
+
         const data = JSON.parse(text);
 
+        // 1. video support (CRITICAL FIX)
+        if (data.animation_url) {
+          setMediaUrl(data.animation_url);
+          setIsVideo(true);
+          setIsLoading(false);
+        return;
+        }
+
+        // 2. fallback video field (optional robustness)
+        if (data.video) {
+          setMediaUrl(data.video);
+          setIsVideo(true);
+          setIsLoading(false);
+        return;
+        }
+
+        // 3. image fallback
         if (data.image) {
           setMediaUrl(data.image);
-          setIsVideo(VIDEO_EXTENSIONS.test(data.image));
+          setIsVideo(false);
           setIsLoading(false);
-          return;
-        }
+        return;
+      }
       } catch {}
 
       const matches = text.match(IPFS_URL_PATTERN);
