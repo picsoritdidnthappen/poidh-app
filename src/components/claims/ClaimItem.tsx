@@ -17,6 +17,7 @@ import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
+import { useClaimMedia } from '@/hooks/useClaimMedia';
 
 export default function ClaimItem({
   claim,
@@ -33,6 +34,16 @@ export default function ClaimItem({
 
   const utils = trpc.useUtils();
 
+  const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
+  const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
+
+  const descriptionUrl = claim.url ? null : claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
+  const isVideoUrl = claim.url ? VIDEO_EXTENSIONS.test(claim.url) : false;
+  const { mediaUrl: resolvedDescUrl, isVideo: isDescVideo } = useClaimMedia(descriptionUrl);
+
+  const effectiveUrl = claim.url ?? resolvedDescUrl ?? null;
+  const isVideoUrl2 = claim.url ? isVideoUrl : isDescVideo;
+  
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
@@ -210,11 +221,26 @@ export default function ClaimItem({
             accepted
           </div>
         )}
+
         <div
-          style={{ backgroundImage: `url(${claim.url})` }}
-          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+          className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full rounded-[8px] overflow-hidden'
+          style={{
+            ...(!isVideoUrl2 && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : {}),
+            aspectRatio: isVideoUrl2 ? undefined : '1/1',
+            minHeight: '200px',
+          }}
           onClick={() => setOpenCard(true)}
-        />
+        >
+          {isVideoUrl2 && effectiveUrl && (
+            <video
+              src={effectiveUrl}
+              controls
+              onClick={(e) => e.stopPropagation()}
+              className='w-full h-full object-cover'
+            />
+          )}
+        </div>
+        
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>

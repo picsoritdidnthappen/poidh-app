@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
+
+import { useClaimMedia } from '@/hooks/useClaimMedia';
 
 export default function ClaimImageEmbed({
   claim,
@@ -14,24 +16,9 @@ export default function ClaimImageEmbed({
   bountyId: number;
   chainId: ChainId;
 }) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [imageError, setImageError] = useState<boolean>(false);
+  const { mediaUrl, isVideo, isLoading, mediaError } = useClaimMedia(claim?.url);
+  const [renderError, setRenderError] = useState(false);
   const chain = getChainById({ chainId });
-
-  const fetchImageUrl = async (url: string) => {
-    setIsLoading(true);
-    const response = await fetch(url);
-    const data = await response.json();
-    setImageUrl(data.image);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    if (claim?.url) {
-      fetchImageUrl(claim.url);
-    }
-  }, [claim?.url]);
 
   if (!claim) return null;
 
@@ -39,30 +26,35 @@ export default function ClaimImageEmbed({
     <div className='p-3'>
       <Link href={`/${chain.slug}/bounty/${bountyId}`}>
         <div className='bg-poidhRed p-4 rounded-lg'>
-          {imageUrl ? (
+          {mediaUrl && !renderError ? (
             <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-              <Image
-                src={imageUrl}
-                alt={claim.title || 'claim image'}
-                fill
-                className='object-cover'
-                sizes='(max-width: 768px) 100vw, 600px'
-                unoptimized
-                onError={(e) => {
-                  console.error('Image failed to load:', imageUrl, e);
-                  setImageUrl(null);
-                  setImageError(true);
-                }}
-              />
+              {isVideo ? (
+                <video
+                  src={mediaUrl}
+                  controls
+                  className='w-full h-full object-cover rounded-lg'
+                  onError={() => setRenderError(true)}
+                />
+              ) : (
+                <Image
+                  src={mediaUrl}
+                  alt={claim.title || 'claim image'}
+                  fill
+                  className='object-cover'
+                  sizes='(max-width: 768px) 100vw, 600px'
+                  unoptimized
+                  onError={() => setRenderError(true)}
+                />
+              )}
             </div>
           ) : isLoading ? (
             <div className='w-full h-36 bg-white/10 rounded-lg border border-white/20 flex items-center justify-center'>
-              <div className='text-white/60 text-sm'>Loading image...</div>
+              <div className='text-white/60 text-sm'>Loading...</div>
             </div>
           ) : (
             <div className='w-full h-36 bg-white/10 rounded-lg border border-white/20 flex items-center justify-center'>
               <div className='text-white/60 text-sm'>
-                {imageError ? 'error loading image' : 'no image'}
+                {mediaError ? 'error loading media' : 'no media'}
               </div>
             </div>
           )}
