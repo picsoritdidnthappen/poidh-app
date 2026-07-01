@@ -211,6 +211,20 @@ export default function BountyInfo({
     return null;
   }
 
+  const amountStr = formatAmount({
+    amount: formatEther(BigInt(bounty.data.amount)),
+    currency: chain.currency,
+    price: price.toString(),
+  });
+  const splitIdx = amountStr.indexOf(' (');
+  const cryptoAmount = (
+    splitIdx > -1 ? amountStr.slice(0, splitIdx) : amountStr
+  ).toUpperCase();
+  const usdAmount =
+    splitIdx > -1
+      ? `($${amountStr.slice(splitIdx + 2, -1).toUpperCase()})`
+      : null;
+
   return (
     <>
       <div className='flex pt-6 flex-col justify-between lg:flex-row'>
@@ -262,16 +276,29 @@ export default function BountyInfo({
               </Link>
             </p>
           )}
-          <div className='text-lg mb-5 mt-1 font-bold flex items-center gap-2'>
-            {formatAmount({
-              amount: formatEther(BigInt(bounty.data.amount)),
-              currency: chain.currency,
-              price: price.toString(),
-            })}{' '}
-            <DynamicChainIcon
-              chain={chain.slug}
-              size={chain.slug === 'base' ? 18 : 24}
-            />
+          <div className='flex flex-col sm:flex-row sm:items-center gap-5 mb-0 mt-1 sm:gap-3 sm:mb-5'>
+            <div className='flex items-center gap-x-3'>
+              <div className='flex items-center gap-2'>
+                <span className='text-xl font-bold'>{cryptoAmount}</span>
+                <DynamicChainIcon
+                  chain={chain.slug}
+                  size={chain.slug === 'base' ? 22 : 28}
+                />
+              </div>
+              {usdAmount && (
+                <span className='text-base opacity-60'>{usdAmount}</span>
+              )}
+            </div>
+            {bounty.data.isMultiplayer &&
+              bounty.data.inProgress &&
+              (canWithdraw ? (
+                <Withdraw
+                  id={bounty.data.id}
+                  onChainId={bounty.data.onChainId}
+                />
+              ) : (
+                !bounty.data.isVoting && <JoinBounty bountyId={bountyId} />
+              ))}
           </div>
         </div>
         <div className='flex flex-col space-between'>
@@ -311,13 +338,6 @@ export default function BountyInfo({
               onChainId={bounty.data.onChainId}
             />
           )}
-          {bounty.data.isMultiplayer &&
-            bounty.data.inProgress &&
-            (canWithdraw ? (
-              <Withdraw id={bounty.data.id} onChainId={bounty.data.onChainId} />
-            ) : (
-              !bounty.data.isVoting && <JoinBounty bountyId={bountyId} />
-            ))}
           <button
             type='button'
             onClick={() => onShareModalStateChange?.(true)}
@@ -325,16 +345,14 @@ export default function BountyInfo({
           >
             share bounty <ArrowIcon size={16} />
           </button>
+          <button
+            type='button'
+            onClick={() => onHowItWorksModalStateChange?.(true)}
+            className='flex items-center gap-1 underline hover:no-underline w-fit'
+          >
+            how it works <QuestionIcon size={22} />
+          </button>
         </div>
-      </div>
-      <div className='my-6'>
-        <button
-          type='button'
-          onClick={() => onHowItWorksModalStateChange?.(true)}
-          className='flex items-center gap-1 underline hover:no-underline w-fit'
-        >
-          how it works <QuestionIcon size={22} />
-        </button>
       </div>
       {isShareModalOpen && (
         <ShareBountyModal

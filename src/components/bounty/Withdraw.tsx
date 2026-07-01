@@ -77,7 +77,7 @@ export default function Withdraw({
     <>
       <div className='w-fit'>
         <button
-          className='border border-white rounded-full px-5 py-2  backdrop-blur-sm bg-white/30 hover:bg-white/40'
+          className='flex items-center whitespace-nowrap gap-x-2 rounded-2xl px-5 py-2 text-sm font-semibold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all duration-200'
           onClick={() => {
             if (account.address) {
               withdrawFromOpenBountyMutation.mutate();
