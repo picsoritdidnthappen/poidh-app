@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ExpandMoreIcon } from '@/components/global/Icons';
+import { ArrowsRightLeftIcon, ExpandMoreIcon } from '@/components/global/Icons';
 import { cn } from '@/utils/utils';
 import CopyAddressButton from '../global/CopyAddressButton';
 import DisplayAddress from '../global/DisplayAddress';
@@ -27,7 +27,10 @@ export default function BountyHistory({
         onClick={() => setShowHistory((prev) => !prev)}
         className='w-full px-5 py-3 flex justify-between items-center hover:bg-[#D1ECFF]/10 transition-all'
       >
-        <span>{transactions.length} transactions</span>
+        <span className='flex items-center gap-2'>
+          <ArrowsRightLeftIcon size={18} />
+          {transactions.length} transactions
+        </span>
         <span
           className={cn(
             'transition-transform duration-200',

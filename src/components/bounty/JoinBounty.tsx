@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import FormJoinBounty from './FormJoinBounty';
-import ButtonCTA from '../global/ButtonCTA';
 import { PlusIcon } from '@/components/global/Icons';
 import { useAccount } from 'wagmi';
 import { trpc } from '@/trpc/client';
@@ -30,25 +29,21 @@ export default function JoinBounty({ bountyId }: { bountyId: number }) {
         open={showForm}
         onClose={() => setShowForm(false)}
       />
-      <div className='w-fit cursor-pointer'>
-        <div
-          onClick={() => {
-            if (
-              account.address?.toLowerCase() ===
-              bounty.data?.issuer.toLowerCase()
-            ) {
-              toast.error(
-                'bounty creators cannot add funds to their own bounty - if you must add funds, please do so via a separate wallet'
-              );
-              return;
-            }
-            setShowForm(true);
-          }}
-        >
-          <ButtonCTA>
-            add funds <PlusIcon size={15} />
-          </ButtonCTA>
-        </div>
+      <div
+        className='flex items-center whitespace-nowrap gap-x-2 rounded-2xl px-5 py-2 text-sm font-semibold cursor-pointer bg-gradient-to-r from-poidhRed/35 to-[#158ad6]/50 text-white border border-white/20 hover:from-poidhRed/45 hover:to-[#158ad6]/60 transition-all duration-200 w-fit'
+        onClick={() => {
+          if (
+            account.address?.toLowerCase() === bounty.data?.issuer.toLowerCase()
+          ) {
+            toast.error(
+              'bounty creators cannot add funds to their own bounty - if you must add funds, please do so via a separate wallet'
+            );
+            return;
+          }
+          setShowForm(true);
+        }}
+      >
+        <PlusIcon size={15} /> add funds
       </div>
     </>
   );

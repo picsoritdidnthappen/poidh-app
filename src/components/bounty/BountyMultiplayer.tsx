@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ExpandMoreIcon } from '@/components/global/Icons';
+import { ExpandMoreIcon, UsersRoundIcon } from '@/components/global/Icons';
 import { trpc } from '@/trpc/client';
 import { Chain } from '@/utils/types';
 import { formatEther } from 'viem';
@@ -33,7 +33,8 @@ export default function BountyMultiplayer({
         onClick={() => setShowParticipants(!showParticipants)}
         className='w-full px-5 py-3 flex justify-between items-center hover:bg-[#D1ECFF]/10 transition-all'
       >
-        <span>
+        <span className='flex items-center gap-2'>
+          <UsersRoundIcon size={18} />
           {participants.data
             ? `${participants.data.length} contributors`
             : 'Loading contributors...'}
