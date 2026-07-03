@@ -37,13 +37,16 @@ export default function ClaimItem({
   const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
   const IPFS_URL_PATTERN = /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
 
-  const descriptionUrl = claim.url ? null : claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
+  const descriptionUrl = claim.url
+    ? null
+    : claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
   const isVideoUrl = claim.url ? VIDEO_EXTENSIONS.test(claim.url) : false;
-  const { mediaUrl: resolvedDescUrl, isVideo: isDescVideo } = useClaimMedia(descriptionUrl);
+  const { mediaUrl: resolvedDescUrl, isVideo: isDescVideo } =
+    useClaimMedia(descriptionUrl);
 
   const effectiveUrl = claim.url ?? resolvedDescUrl ?? null;
   const isVideoUrl2 = claim.url ? isVideoUrl : isDescVideo;
-  
+
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
@@ -86,7 +89,7 @@ export default function ClaimItem({
         setLoading({ isLoading: true, status: `Indexing ${i}s...` });
         const accepted = await trpcClient.claims.isAccepted.query({
           id: Number(claimId),
-          chainId: pollingChainId ?? chain.id,
+          chainId: chain.id,
         });
         if (accepted) {
           return;
@@ -225,7 +228,9 @@ export default function ClaimItem({
         <div
           className='bg-[#12AAFF] dark:bg-[#132b47] bg-cover bg-center w-full rounded-[8px] overflow-hidden'
           style={{
-            ...(!isVideoUrl2 && effectiveUrl ? { backgroundImage: `url(${effectiveUrl})` } : {}),
+            ...(!isVideoUrl2 && effectiveUrl
+              ? { backgroundImage: `url(${effectiveUrl})` }
+              : {}),
             aspectRatio: isVideoUrl2 ? undefined : '1/1',
             minHeight: '200px',
           }}
@@ -240,7 +245,7 @@ export default function ClaimItem({
             />
           )}
         </div>
-        
+
         <div className='p-3'>
           <div className='flex flex-col'>
             <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-words'>
