@@ -224,6 +224,10 @@ export default function BountyInfo({
     splitIdx > -1
       ? `($${amountStr.slice(splitIdx + 2, -1).toUpperCase()})`
       : null;
+  const displayDescription =
+  bounty.data.id === 281
+    ? bounty.data.description.replaceAll("Kistmet.art", "Kismet.art")
+    : bounty.data.description;
 
   return (
     <>
@@ -233,7 +237,7 @@ export default function BountyInfo({
             {bounty.data.title}
           </p>
           <div className='mt-5 normal-case break-words'>
-            <MarkdownContent>{bounty.data.description}</MarkdownContent>
+            <MarkdownContent>{displayDescription}</MarkdownContent>
           </div>
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
