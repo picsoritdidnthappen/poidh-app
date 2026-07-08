@@ -225,7 +225,7 @@ export default function BountyInfo({
       ? `($${amountStr.slice(splitIdx + 2, -1).toUpperCase()})`
       : null;
   const displayDescription =
-  bounty.data.id === 281
+  bounty.data.id === 1267
     ? bounty.data.description.replaceAll("Kistmet.art", "Kismet.art")
     : bounty.data.description;
 
