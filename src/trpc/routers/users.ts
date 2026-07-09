@@ -28,6 +28,7 @@ export const usersRouter = {
         ens: userExtra?.ens ?? null,
         degenName: userExtra?.degenName ?? null,
         wei: userExtra?.wei ?? null,
+        gwei: userExtra?.gwei ?? null,
         farcasterTag: userExtra?.farcasterTag ?? null,
         farcasterFid: userExtra?.farcasterFid ?? null,
         twitterTag: userExtra?.twitterTag ?? null,
@@ -113,6 +114,7 @@ export const usersRouter = {
             ux."ens",
             ux."degen_name",
             ux."wei",
+            ux."gwei",
             ux."farcaster_tag",
             COALESCE(c.bounty_count, 0) AS bounty_count
           FROM "Users" u
@@ -124,6 +126,7 @@ export const usersRouter = {
             u."address" NOT IN (${Prisma.join(ignoreAddresses)})
             AND CASE
               WHEN ux."farcaster_tag" IS NOT NULL THEN ux."farcaster_tag" ILIKE ${search}
+              WHEN ux."gwei"         IS NOT NULL THEN ux."gwei"         ILIKE ${search}
               WHEN ux."wei"          IS NOT NULL THEN ux."wei"          ILIKE ${search}
               WHEN ux."ens"          IS NOT NULL THEN ux."ens"          ILIKE ${search}
               WHEN ux."degen_name"   IS NOT NULL THEN ux."degen_name"   ILIKE ${search}

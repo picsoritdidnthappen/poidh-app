@@ -2,7 +2,7 @@ import prisma from 'prisma/prisma';
 import { baseProcedure } from '../init';
 import { z } from 'zod';
 import { mainnetPublicClient, degenPublicClient } from '@/utils/publicClients';
-import { DEGENNAMERESABI, WEINAMESABI } from '@/constant';
+import { DEGENNAMERESABI, WEINAMESABI, GWEINAMESABI } from '@/constant';
 
 export const web3Router = {
   fetchPrice: baseProcedure
@@ -30,7 +30,7 @@ export const web3Router = {
         : Number(rate.ethUsd);
     }),
 
-  fetchWeiOrEnsOrDegenName: baseProcedure
+  fetchHumanReadableName: baseProcedure
     .input(
       z.object({
         address: z.string(),
@@ -44,6 +44,35 @@ export const web3Router = {
           address: input.address.toLowerCase(),
         },
       });
+
+      if (!user || !user.gwei || user.lastUpdated < tenDaysAgo) {
+        try {
+          const gweiName = await mainnetPublicClient.readContract({
+            abi: GWEINAMESABI,
+            address: '0x9D51D507BC7264d4fE8Ad1cf7Fe191933A0a81d6',
+            functionName: 'reverseResolve',
+            args: [input.address as `0x${string}`],
+          });
+
+          if (gweiName) {
+            await prisma.usersExtra.upsert({
+              where: { address: input.address.toLowerCase() },
+              update: { gwei: gweiName, lastUpdated: new Date() },
+              create: {
+                address: input.address.toLowerCase(),
+                gwei: gweiName,
+                lastUpdated: new Date(),
+              },
+            });
+
+            return gweiName;
+          }
+        } catch {}
+      }
+
+      if (user?.gwei) {
+        return user.gwei;
+      }
 
       if (!user || !user.wei || user.lastUpdated < tenDaysAgo) {
         try {
