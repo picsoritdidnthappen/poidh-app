@@ -67,6 +67,9 @@ export function getDisplayUsername(
   } else if (platform === 'twitter' && user?.twitterTag) {
     return `@${user.twitterTag}`;
   }
+  if (user?.gwei) {
+    return user.gwei;
+  }
   if (user?.wei) {
     return user.wei;
   }

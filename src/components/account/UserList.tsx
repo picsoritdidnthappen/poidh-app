@@ -8,12 +8,14 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 function getDisplayName(user: {
   farcaster_tag?: string | null;
+  gwei?: string | null;
   wei?: string | null;
   ens?: string | null;
   degen_name?: string | null;
   address?: string;
 }): string {
   if (user.farcaster_tag) return user.farcaster_tag;
+  if (user.gwei) return user.gwei;
   if (user.wei) return user.wei;
   if (user.ens) return user.ens;
   if (user.degen_name) return user.degen_name;
