@@ -17,7 +17,7 @@ export type FarcasterUser = {
   pfp_url: string;
 };
 
-async function resolveWeiOrEnsOrDegenNames(
+async function resolveHumanReadableNames(
   addresses: string[]
 ): Promise<{ [address: string]: string }> {
   const results: { [address: string]: string } = {};
@@ -26,7 +26,7 @@ async function resolveWeiOrEnsOrDegenNames(
       const res = await fetch(
         `${
           process.env.NEXT_PUBLIC_APP_URL
-        }/api/trpc/web3.fetchWeiOrEnsOrDegenName?input=${encodeURIComponent(
+        }/api/trpc/web3.fetchHumanReadableName?input=${encodeURIComponent(
           JSON.stringify({ json: { address: addr } })
         )}`
       );
@@ -57,7 +57,7 @@ export default async function BountyPreviewCard({
   const addressesWithoutFarcaster = bountyData.participants.filter(
     (p) => !farcasterParticipants[p]?.[0]?.username
   );
-  const resolvedNames = await resolveWeiOrEnsOrDegenNames(
+  const resolvedNames = await resolveHumanReadableNames(
     addressesWithoutFarcaster
   );
 

@@ -16,13 +16,13 @@ const formatUserName = (name: string) =>
   name.length >= 12 ? `${name.slice(0, 6)}…${name.slice(-5)}` : name;
 
 function ResolvedAddressCell({ address }: { address: string }) {
-  const weiOrEnsOrDegenName = trpc.web3.fetchWeiOrEnsOrDegenName.useQuery({
+  const humanReadableName = trpc.web3.fetchHumanReadableName.useQuery({
     address,
   });
   return (
     <span className='relative'>
       {formatUserName(
-        weiOrEnsOrDegenName.data?.slice(0, 12) ?? address.slice(0, 7)
+        humanReadableName.data?.slice(0, 12) ?? address.slice(0, 7)
       )}
     </span>
   );
@@ -34,6 +34,7 @@ function getDisplayName(user: UserData): string {
   }
 
   if (user.farcasterTag) return formatUserName(user.farcasterTag);
+  if (user.gwei) return formatUserName(user.gwei.slice(0, 12));
   if (user.wei) return formatUserName(user.wei.slice(0, 12));
   if (user.ens) return formatUserName(user.ens.slice(0, 12));
   if (user.degenName) return formatUserName(user.degenName.slice(0, 12));

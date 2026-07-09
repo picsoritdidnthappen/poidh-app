@@ -2,3 +2,4 @@ export { default as ABI } from './abi/abi';
 export { default as DEGENNAMERESABI } from './abi/abiDegenNameRes';
 export { default as NFTABI } from './abi/abiNFT';
 export { default as WEINAMESABI } from './abi/abiWeiNames';
+export { default as GWEINAMESABI } from './abi/abiGweiNames';

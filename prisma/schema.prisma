@@ -101,6 +101,7 @@ model UsersExtra {
   ens          String?
   degenName    String?  @map("degen_name")
   wei          String?
+  gwei         String?
   farcasterTag       String?   @map("farcaster_tag")
   farcasterFid       Int?      @map("farcaster_fid")
   twitterTag         String?   @map("twitter_tag")
