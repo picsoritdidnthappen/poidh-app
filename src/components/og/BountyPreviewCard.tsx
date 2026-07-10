@@ -2,6 +2,7 @@ import { formatAmount } from '@/utils/utils';
 import { formatEther } from 'viem';
 import { ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
+import { resolveHumanReadableNames } from '@/utils/web3';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 
 export type BountyPreviewData = {
@@ -16,32 +17,6 @@ export type FarcasterUser = {
   username: string;
   pfp_url: string;
 };
-
-async function resolveHumanReadableNames(
-  addresses: string[]
-): Promise<{ [address: string]: string }> {
-  const results: { [address: string]: string } = {};
-  const resolved = await Promise.allSettled(
-    addresses.map(async (addr) => {
-      const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_APP_URL
-        }/api/trpc/web3.fetchHumanReadableName?input=${encodeURIComponent(
-          JSON.stringify({ json: { address: addr } })
-        )}`
-      );
-      const json = await res.json();
-      const name = json?.result?.data?.json as string | null;
-      return { addr, name };
-    })
-  );
-  for (const result of resolved) {
-    if (result.status === 'fulfilled' && result.value.name) {
-      results[result.value.addr] = result.value.name;
-    }
-  }
-  return results;
-}
 
 export default async function BountyPreviewCard({
   bountyData,
