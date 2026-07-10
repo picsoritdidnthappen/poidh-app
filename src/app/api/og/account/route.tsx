@@ -1,6 +1,4 @@
-import { DEGENNAMERESABI } from '@/constant';
-import { degenPublicClient, mainnetPublicClient } from '@/utils/publicClients';
-import { formatWalletAddress } from '@/utils/web3';
+import { formatWalletAddress, resolveHumanReadableNames } from '@/utils/web3';
 import { ImageResponse } from '@vercel/og';
 
 const truncateName = (name: string, maxLength = 35) => {
@@ -30,7 +28,8 @@ export async function GET(req: Request) {
   }
 
   try {
-    const degenOrEnsName = await fetchEnsOrDegenName(address);
+    const resolvedNames = await resolveHumanReadableNames([address]);
+    const degenOrEnsName = resolvedNames[address] ?? null;
 
     const fontData = await fetch(
       new URL(
@@ -345,33 +344,6 @@ async function loadFarcasterProfile(address: string) {
   } catch (error) {
     return null;
   }
-}
-
-async function fetchEnsOrDegenName(address: string): Promise<string | null> {
-  try {
-    const ensName = await mainnetPublicClient.getEnsName({
-      address: address as `0x${string}`,
-    });
-
-    if (ensName) {
-      return ensName;
-    }
-  } catch {}
-
-  try {
-    const degenName = await degenPublicClient.readContract({
-      abi: DEGENNAMERESABI,
-      address: '0x4087fb91A1fBdef05761C02714335D232a2Bf3a1',
-      functionName: 'defaultNames',
-      args: [address as `0x${string}`],
-    });
-
-    if (degenName) {
-      return `${degenName}.degen`;
-    }
-  } catch {}
-
-  return null;
 }
 
 const getProfilePictureUrl = async (

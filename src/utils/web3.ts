@@ -55,3 +55,29 @@ export function calcId({
 export function formatWalletAddress(address: string): string {
   return address ? `${address.slice(0, 6)}…${address.slice(-4)}` : '';
 }
+
+export async function resolveHumanReadableNames(
+  addresses: string[]
+): Promise<{ [address: string]: string }> {
+  const results: { [address: string]: string } = {};
+  const resolved = await Promise.allSettled(
+    addresses.map(async (addr) => {
+      const res = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_APP_URL
+        }/api/trpc/web3.fetchHumanReadableName?input=${encodeURIComponent(
+          JSON.stringify({ json: { address: addr } })
+        )}`
+      );
+      const json = await res.json();
+      const name = json?.result?.data?.json as string | null;
+      return { addr, name };
+    })
+  );
+  for (const result of resolved) {
+    if (result.status === 'fulfilled' && result.value.name) {
+      results[result.value.addr] = result.value.name;
+    }
+  }
+  return results;
+}
