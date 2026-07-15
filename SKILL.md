@@ -1,6 +1,6 @@
 ---
 name: poidh-bounty
-description: Post bounties and evaluate/accept winning submissions on poidh (pics or it didn't happen) on Arbitrum, Base, or Degen Chain. Use this skill when the user wants to create a bounty on poidh.xyz, post a task with an ETH or DEGEN reward on-chain, evaluate photo submissions using vision, accept a winning claim on a solo bounty, or initiate/resolve voting on an open bounty.
+description: Post bounties and evaluate/accept winning submissions on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, Base, or Degen Chain. Use this skill when the user wants to create a bounty on poidh.xyz, post a task with an ETH or DEGEN reward on-chain, evaluate photo submissions using vision, accept a winning claim on a solo bounty, or initiate/resolve voting on an open bounty.
 metadata:
   clawdbot:
     env:
@@ -14,13 +14,15 @@ metadata:
 
 ## Overview
 
-This skill interacts with the PoidhV3 contracts on Arbitrum, Base, and Degen Chain to:
+This skill interacts with the PoidhV3 contracts on Ethereum Mainnet, Arbitrum, Base, and Degen Chain to:
 
 1. **Post bounties** (solo or open)
 2. **Evaluate claim submissions** using vision — fetch the image URI from each claim and compare against the bounty description
 3. **Accept the winning claim** (solo bounty) or **initiate + resolve a vote** (open bounty)
 
 **poidh** ("pics or it didn't happen") is a fully on-chain bounty protocol. Claimants submit photo proof, and the bounty issuer (or contributors via vote) accepts the best claim to release funds.
+
+The PoidhV3 contract is identical in logic across Ethereum Mainnet, Arbitrum, and Base — only the deployed address differs per chain. Degen Chain is the only deployment with contract-level differences (native token, minimum amounts).
 
 > ⚠️ The PoidhV3 contract enforces `msg.sender == tx.origin`. Only **EOA wallets** can create or accept bounties. Smart contract wallets (Safe, etc.) will revert with `ContractsCannotCreateBounties`.
 
@@ -32,7 +34,7 @@ This skill interacts with the PoidhV3 contracts on Arbitrum, Base, and Degen Cha
 | ------------- | ---------------------------------------------------------------------------- |
 | `PRIVATE_KEY` | Private key of the EOA signing transactions (hex, with or without 0x prefix) |
 | `RPC_URL`     | RPC URL for the target chain                                                 |
-| `POIDH_CHAIN` | Target chain: `arbitrum`, `base`, or `degen`                                 |
+| `POIDH_CHAIN` | Target chain: `mainnet`, `arbitrum`, `base`, or `degen`                      |
 
 `POIDH_CONTRACT_ADDRESS` is resolved automatically from `POIDH_CHAIN` — do not set it manually.
 
@@ -40,13 +42,14 @@ This skill interacts with the PoidhV3 contracts on Arbitrum, Base, and Degen Cha
 
 ## Supported Chains
 
-| Chain       | Contract Address                             | Explorer            |
-| ----------- | -------------------------------------------- | ------------------- |
-| Arbitrum    | `0x5555Fa783936C260f77385b4E153B9725feF1719` | arbiscan.io         |
-| Base        | `0x5555Fa783936C260f77385b4E153B9725feF1719` | basescan.org        |
-| Degen Chain | `0x18E5585ca7cE31b90Bc8BB7aAf84152857cE243f` | explorer.degen.tips |
+| Chain            | Contract Address                             | Explorer            |
+| ---------------- | --------------------------------------------- | -------------------- |
+| Ethereum Mainnet | `0xE731dFadBFf20542E10D09D26Fc71445C70d4232` | etherscan.io         |
+| Arbitrum         | `0x5555Fa783936C260f77385b4E153B9725feF1719` | arbiscan.io          |
+| Base             | `0x5555Fa783936C260f77385b4E153B9725feF1719` | basescan.org         |
+| Degen Chain      | `0x18E5585ca7cE31b90Bc8BB7aAf84152857cE243f` | explorer.degen.tips  |
 
-> ⚠️ Minimum amounts differ by chain. On **Arbitrum and Base**: `0.001 ETH` minimum bounty, `0.00001 ETH` minimum contribution. On **Degen Chain**: `1000 DEGEN` minimum bounty, `10 DEGEN` minimum contribution. Always verify on-chain before posting:
+> ⚠️ Minimum amounts differ by chain. On **Ethereum Mainnet, Arbitrum, and Base**: `0.001 ETH` minimum bounty, `0.00001 ETH` minimum contribution. On **Degen Chain**: `1000 DEGEN` minimum bounty, `10 DEGEN` minimum contribution. Always verify on-chain before posting:
 >
 > ```bash
 > cast call $POIDH_CONTRACT_ADDRESS "MIN_BOUNTY_AMOUNT()(uint256)" --rpc-url $RPC_URL
@@ -56,27 +59,48 @@ This skill interacts with the PoidhV3 contracts on Arbitrum, Base, and Degen Cha
 Resolve the contract address at the start of every session:
 
 ```bash
-if [ "$POIDH_CHAIN" = "degen" ]; then
-  POIDH_CONTRACT_ADDRESS="0x18E5585ca7cE31b90Bc8BB7aAf84152857cE243f"
-else
-  # arbitrum and base share the same address
-  POIDH_CONTRACT_ADDRESS="0x5555Fa783936C260f77385b4E153B9725feF1719"
-fi
+case "$POIDH_CHAIN" in
+  mainnet)
+    POIDH_CONTRACT_ADDRESS="0xE731dFadBFf20542E10D09D26Fc71445C70d4232"
+    ;;
+  arbitrum|base)
+    POIDH_CONTRACT_ADDRESS="0x5555Fa783936C260f77385b4E153B9725feF1719"
+    ;;
+  degen)
+    POIDH_CONTRACT_ADDRESS="0x18E5585ca7cE31b90Bc8BB7aAf84152857cE243f"
+    ;;
+  *)
+    echo "Unknown POIDH_CHAIN: '$POIDH_CHAIN' (expected mainnet, arbitrum, base, or degen)" >&2
+    exit 1
+    ;;
+esac
 ```
 
-The poidh.xyz URL also changes per chain:
+The poidh.xyz URL also changes per chain. Ethereum Mainnet has no V2 offset — poidh V2 never existed there, so bounty/frontend IDs are the same number:
 
 ```bash
-if [ "$POIDH_CHAIN" = "arbitrum" ]; then
-  POIDH_BASE_URL="https://poidh.xyz/arbitrum"
-  POIDH_V2_OFFSET=180
-elif [ "$POIDH_CHAIN" = "degen" ]; then
-  POIDH_BASE_URL="https://poidh.xyz/degen"
-  POIDH_V2_OFFSET=1197
-else
-  POIDH_BASE_URL="https://poidh.xyz/base"
-  POIDH_V2_OFFSET=986
-fi
+case "$POIDH_CHAIN" in
+  mainnet)
+    POIDH_BASE_URL="https://poidh.xyz/mainnet"
+    POIDH_V2_OFFSET=0
+    ;;
+  arbitrum)
+    POIDH_BASE_URL="https://poidh.xyz/arbitrum"
+    POIDH_V2_OFFSET=180
+    ;;
+  degen)
+    POIDH_BASE_URL="https://poidh.xyz/degen"
+    POIDH_V2_OFFSET=1197
+    ;;
+  base)
+    POIDH_BASE_URL="https://poidh.xyz/base"
+    POIDH_V2_OFFSET=986
+    ;;
+  *)
+    echo "Unknown POIDH_CHAIN: '$POIDH_CHAIN' (expected mainnet, arbitrum, base, or degen)" >&2
+    exit 1
+    ;;
+esac
 ```
 
 ---
@@ -370,7 +394,7 @@ cast receipt <TX_HASH> --rpc-url $RPC_URL --json | \
 import sys, json
 receipt = json.load(sys.stdin)
 for log in receipt['logs']:
-    if log['address'].lower() == '$POIDH_CONTRACT_ADDRESS'.lower() and len(log['topics']) >= 2:
+    if log['address'].lower() == '${POIDH_CONTRACT_ADDRESS}'.lower() and len(log['topics']) >= 2:
         claim_id = int(log['topics'][1], 16)
         print(f'Claim ID: {claim_id}')
         break
@@ -426,7 +450,7 @@ cast send $POIDH_CONTRACT_ADDRESS \
 
 ### Posting a Bounty
 
-1. Ask for: **name**, **description**, **amount** (ETH on Arbitrum/Base, DEGEN on Degen Chain), **type** (solo or open — default open)
+1. Ask for: **name**, **description**, **amount** (ETH on Ethereum Mainnet/Arbitrum/Base, DEGEN on Degen Chain), **type** (solo or open — default open)
 2. Confirm with user before sending — this spends real ETH (or DEGEN on Degen Chain)
 3. Run `createSoloBounty` or `createOpenBounty`
 4. Return tx hash and `$POIDH_BASE_URL/bounty/<bountyId + $POIDH_V2_OFFSET>`
@@ -462,13 +486,13 @@ cast send $POIDH_CONTRACT_ADDRESS \
 | 1000 DEGEN   | `1000ether`  |
 | 10 DEGEN     | `10ether`    |
 
-> `cast` uses `ether` as a unit label for any 18-decimal token. On Degen Chain, this means DEGEN, not ETH.
+> `cast` uses `ether` as a unit label for any 18-decimal token. On Degen Chain, this means DEGEN, not ETH. On Ethereum Mainnet, Arbitrum, and Base, it means ETH.
 
 ---
 
 ## Fee Note
 
-PoidhV3 takes a **2.5% fee** on accepted claim payouts, deducted only at acceptance. The full `msg.value` is held in escrow until then. The fee is paid in the chain's native token — ETH on Arbitrum and Base, DEGEN on Degen Chain.
+PoidhV3 takes a **2.5% fee** on accepted claim payouts, deducted only at acceptance. The full `msg.value` is held in escrow until then. The fee is paid in the chain's native token — ETH on Ethereum Mainnet, Arbitrum, and Base, DEGEN on Degen Chain.
 
 ---
 
@@ -477,7 +501,7 @@ PoidhV3 takes a **2.5% fee** on accepted claim payouts, deducted only at accepta
 | Error                             | Cause                                              | Fix                                                                  |
 | --------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
 | `ContractsCannotCreateBounties()` | Wallet is a smart contract                         | Use an EOA private key                                               |
-| `MinimumBountyNotMet()`           | Amount below `MIN_BOUNTY_AMOUNT`                   | Increase `--value` (0.001 ETH on Arbitrum/Base, 1000 DEGEN on Degen) |
+| `MinimumBountyNotMet()`           | Amount below `MIN_BOUNTY_AMOUNT`                   | Increase `--value` (0.001 ETH on Mainnet/Arbitrum/Base, 1000 DEGEN on Degen) |
 | `MinimumContributionNotMet()`     | Contribution below `MIN_CONTRIBUTION`              | Increase `--value` when joining open bounty                          |
 | `NoEther()`                       | `--value` was 0 or omitted                         | Add `--value`                                                        |
 | `WrongCaller()`                   | Not the bounty issuer                              | Use the issuer's private key                                         |
