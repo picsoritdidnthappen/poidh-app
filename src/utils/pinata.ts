@@ -7,16 +7,21 @@ export async function compressImage(
   const { maxDimension = 1280, quality = 0.8 } = options;
   if (typeof window === 'undefined') return file;
   if (!file.type.startsWith('image/')) return file;
-  if (file.size < 100 * 1024) return file;
+
+  // NOTE: we intentionally do NOT early-return on file.size or on
+  // scale === 1 anymore. Every image, regardless of size or dimensions,
+  // must pass through the canvas re-encode below — that step is what
+  // strips EXIF/GPS/camera metadata. Skipping it for "already small
+  // enough" images was letting metadata (including GPS coordinates)
+  // through unstripped for anything <100KB or already <=maxDimension.
 
   try {
     const bitmap = await createImageBitmap(file);
     const { width, height } = bitmap;
     const scale = Math.min(1, maxDimension / Math.max(width, height));
-    if (scale === 1) return file;
     const canvas = document.createElement('canvas');
-    canvas.width = width * scale;
-    canvas.height = height * scale;
+    canvas.width = Math.max(1, Math.round(width * scale));
+    canvas.height = Math.max(1, Math.round(height * scale));
     const ctx = canvas.getContext('2d');
     if (!ctx) return file;
     ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
