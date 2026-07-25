@@ -2,6 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from 'prisma/prisma';
 
+const CHAIN_SLUGS: Record<number, string> = {
+  1: 'mainnet',
+  42161: 'arbitrum',
+  8453: 'base',
+  666666666: 'degen',
+};
+
 export async function GET(req: NextRequest) {
   const limit = Math.min(
     Number(req.nextUrl.searchParams.get('limit')) || 20,
@@ -38,6 +45,7 @@ export async function GET(req: NextRequest) {
     hasClaims: claims.length > 0,
     hasParticipants: participations.length > 1,
     amountSort: extra.amountSort,
+    url: `https://poidh.xyz/${CHAIN_SLUGS[b.chainId]}/bounty/${b.id}`,
   }));
 
   const nextCursor =
