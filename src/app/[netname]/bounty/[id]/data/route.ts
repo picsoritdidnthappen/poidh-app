@@ -62,6 +62,7 @@ export async function GET(
       hasParticipants: participations.length > 1,
       amountSort,
       currency: CURRENCIES[slug],
+      url: `https://poidh.xyz/${slug}/bounty/${id}`,
     });
   } catch {
     return NextResponse.json({ error: 'not found' }, { status: 404 });
