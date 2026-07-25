@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
     hasClaims: claims.length > 0,
     hasParticipants: participations.length > 1,
     amountSort: extra.amountSort,
+    url: `https://poidh.xyz/${CHAIN_SLUGS[b.chainId]}/bounty/${b.id}`,
   }));
 
   const nextCursor =
