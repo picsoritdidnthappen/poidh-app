@@ -7,14 +7,16 @@ export async function compressImage(
   const { maxDimension = 1280, quality = 0.8 } = options;
   if (typeof window === 'undefined') return file;
   if (!file.type.startsWith('image/')) return file;
+  if (file.size < 100 * 1024) return file;
 
   try {
     const bitmap = await createImageBitmap(file);
     const { width, height } = bitmap;
     const scale = Math.min(1, maxDimension / Math.max(width, height));
+    if (scale === 1) return file;
     const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(width * scale));
-    canvas.height = Math.max(1, Math.round(height * scale));
+    canvas.width = width * scale;
+    canvas.height = height * scale;
     const ctx = canvas.getContext('2d');
     if (!ctx) return file;
     ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
