@@ -60,7 +60,7 @@ export async function GET(
       extra: extraData,
       hasClaims: claims.length > 0,
       hasParticipants: participations.length > 1,
-      amountSort,
+      priceUsd: amountSort,
       currency: CURRENCIES[slug],
       url: `https://poidh.xyz/${slug}/bounty/${id}`,
     });
