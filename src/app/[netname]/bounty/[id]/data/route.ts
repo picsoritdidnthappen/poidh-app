@@ -1,4 +1,4 @@
-// app/[chain]/bounty/[id]/data/route.ts
+// app/[netname]/bounty/[id]/data/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from 'prisma/prisma';
 import type { Netname, ChainId, Currency } from '@/utils/types';
@@ -19,9 +19,9 @@ const CURRENCIES: Record<Netname, Currency> = {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { chain: string; id: string } }
+  { params }: { params: { netname: string; id: string } }
 ) {
-  const slug = params.chain as Netname;
+  const slug = params.netname as Netname;
   const chainId = CHAIN_IDS[slug];
   const id = Number(params.id);
 
