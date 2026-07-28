@@ -4,6 +4,7 @@ import { ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
 import { resolveHumanReadableNames } from '@/utils/web3';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import PatternAvatar from '@/components/og/PatternAvatar';
 
 export type BountyPreviewData = {
   title: string;
@@ -93,41 +94,51 @@ export default async function BountyPreviewCard({
             }}
           >
             <span style={{ display: 'flex' }}>contributors:</span>
-            {bountyData.participants.map((p: string) => (
-              <span
-                key={p}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: imageFormat === 'preview' ? '6px' : '12px',
-                  lineHeight: 1.4,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <img
-                  src={
-                    (farcasterParticipants[p] &&
-                      farcasterParticipants[p][0]?.pfp_url) ||
-                    `${process.env.NEXT_PUBLIC_APP_URL}/images/unknown.png`
-                  }
-                  width={imageFormat === 'preview' ? 32 : 52}
-                  height={imageFormat === 'preview' ? 32 : 52}
-                  alt='participant avatar'
+            {bountyData.participants.map((p: string) => {
+              const pfpUrl = farcasterParticipants[p]?.[0]?.pfp_url;
+              const size = imageFormat === 'preview' ? 32 : 52;
+              const marginRight = imageFormat === 'preview' ? '6px' : '12px';
+
+              return (
+                <span
+                  key={p}
                   style={{
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                    marginRight: imageFormat === 'preview' ? '6px' : '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: imageFormat === 'preview' ? '6px' : '12px',
+                    lineHeight: 1.4,
+                    whiteSpace: 'nowrap',
                   }}
-                />
-                <span>
-                  {(farcasterParticipants[p] &&
-                    farcasterParticipants[p][0]?.username) ??
-                    resolvedNames[p] ??
-                    p.slice(0, 6)}
+                >
+                  {pfpUrl ? (
+                    <img
+                      src={pfpUrl}
+                      width={size}
+                      height={size}
+                      alt='participant avatar'
+                      style={{
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                        marginRight,
+                      }}
+                    />
+                  ) : (
+                    <PatternAvatar
+                      seed={p}
+                      size={size}
+                      marginRight={marginRight}
+                    />
+                  )}
+                  <span>
+                    {(farcasterParticipants[p] &&
+                      farcasterParticipants[p][0]?.username) ??
+                      resolvedNames[p] ??
+                      p.slice(0, 6)}
+                  </span>
                 </span>
-              </span>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
