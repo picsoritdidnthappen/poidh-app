@@ -72,7 +72,7 @@ export default function Album({ params }: { params: { album: string } }) {
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:pb-12 sm:pb-8 pt-4  w-full items-center justify-center px-8'>
           <div
             id='btn-container'
-            className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
+            className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-1 md:gap-4 md:text-base sm:text-sm text-[10px] bg-transparent overflow-hidden'
           >
             <div
               className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
@@ -86,27 +86,27 @@ export default function Album({ params }: { params: { album: string } }) {
                 tabRefs.current[0] = el;
               }}
               onClick={() => setDisplay('open')}
-              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-1.5 h-full flex items-center justify-center'
             >
-              active ({counts.open})
+              new bounties ({counts.open})
             </button>
             <button
               ref={(el) => {
                 tabRefs.current[1] = el;
               }}
               onClick={() => setDisplay('progress')}
-              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-1.5 h-full flex items-center justify-center'
             >
-              voting ({counts.progress})
+              voting in progress ({counts.progress})
             </button>
             <button
               ref={(el) => {
                 tabRefs.current[2] = el;
               }}
               onClick={() => setDisplay('past')}
-              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-1.5 h-full flex items-center justify-center'
             >
-              complete ({counts.past})
+              past bounties ({counts.past})
             </button>
           </div>
         </div>
