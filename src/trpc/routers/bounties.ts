@@ -339,6 +339,49 @@ export const bountiesRouter = {
       };
     }),
 
+  fetchAlbumCounts: baseProcedure
+    .input(
+      z.object({
+        album: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const baseWhere = {
+        extra: {
+          album: { equals: input.album, mode: 'insensitive' as const },
+        },
+        isCanceled: false,
+        ban: {
+          none: {},
+        },
+      };
+
+      const [open, progress, past] = await Promise.all([
+        prisma.bounties.count({
+          where: {
+            ...baseWhere,
+            inProgress: true,
+            isVoting: false,
+          },
+        }),
+        prisma.bounties.count({
+          where: {
+            ...baseWhere,
+            inProgress: true,
+            isVoting: true,
+          },
+        }),
+        prisma.bounties.count({
+          where: {
+            ...baseWhere,
+            inProgress: false,
+          },
+        }),
+      ]);
+
+      return { open, progress, past };
+    }),
+
   participations: baseProcedure
     .input(z.object({ bountyId: z.number(), chainId: z.number() }))
     .query(async ({ input }) => {
