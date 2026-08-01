@@ -24,6 +24,16 @@ export default function Album({ params }: { params: { album: string } }) {
     }
   );
 
+  const albumCounts = trpc.bounties.fetchAlbumCounts.useQuery({
+    album: album.toLowerCase(),
+  });
+
+  const counts = {
+    open: albumCounts.data?.open ?? 0,
+    progress: albumCounts.data?.progress ?? 0,
+    past: albumCounts.data?.past ?? 0,
+  };
+
   const allItems = bounties.data?.pages.flatMap((page) => page.items) ?? [];
 
   const updateSliderPosition = useCallback(() => {
@@ -78,7 +88,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('open')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              new bounties
+              new bounties ({counts.open})
             </button>
             <button
               ref={(el) => {
@@ -87,7 +97,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('progress')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              voting in progress
+              voting in progress ({counts.progress})
             </button>
             <button
               ref={(el) => {
@@ -96,7 +106,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('past')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              past bounties
+              past bounties ({counts.past})
             </button>
           </div>
         </div>
