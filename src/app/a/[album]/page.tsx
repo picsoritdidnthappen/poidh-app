@@ -88,7 +88,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('open')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              new ({counts.open})
+              active ({counts.open})
             </button>
             <button
               ref={(el) => {
@@ -106,7 +106,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('past')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              completed ({counts.past})
+              complete ({counts.past})
             </button>
           </div>
         </div>
