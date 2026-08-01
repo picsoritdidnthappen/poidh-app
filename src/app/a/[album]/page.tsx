@@ -88,7 +88,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('open')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              new bounties ({counts.open})
+              new ({counts.open})
             </button>
             <button
               ref={(el) => {
@@ -97,7 +97,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('progress')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              voting in progress ({counts.progress})
+              voting ({counts.progress})
             </button>
             <button
               ref={(el) => {
@@ -106,7 +106,7 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('past')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
             >
-              past bounties ({counts.past})
+              completed ({counts.past})
             </button>
           </div>
         </div>
