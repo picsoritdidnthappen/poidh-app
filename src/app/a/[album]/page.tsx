@@ -88,7 +88,9 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('open')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
-              new bounties <span className='block md:inline'>({counts.open})</span>
+              <span>
+                new bounties <span className='block md:inline'>({counts.open})</span>
+              </span>
             </button>
             <button
               ref={(el) => {
@@ -97,7 +99,9 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('progress')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
-              voting in progress <span className='block md:inline'>({counts.progress})</span>
+              <span>
+                voting in progress <span className='block md:inline'>({counts.progress})</span>
+              </span>
             </button>
             <button
               ref={(el) => {
@@ -106,7 +110,9 @@ export default function Album({ params }: { params: { album: string } }) {
               onClick={() => setDisplay('past')}
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
-              past bounties <span className='block md:inline'>({counts.past})</span>
+              <span>
+                past bounties <span className='block md:inline'>({counts.past})</span>
+              </span>
             </button>
           </div>
         </div>
