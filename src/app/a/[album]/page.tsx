@@ -72,7 +72,7 @@ export default function Album({ params }: { params: { album: string } }) {
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:pb-12 sm:pb-8 pt-4  w-full items-center justify-center px-8'>
           <div
             id='btn-container'
-            className='relative flex flex-nowrap border border-white rounded-full h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
+            className='relative flex flex-nowrap border border-white rounded-full h-[58px] md:h-[42px] gap-2 md:gap-4 md:text-base sm:text-sm text-xs bg-transparent overflow-hidden'
           >
             <div
               className='absolute top-0 h-full bg-poidhRed rounded-full transition-all duration-300 ease-in-out'
@@ -86,33 +86,67 @@ export default function Album({ params }: { params: { album: string } }) {
                 tabRefs.current[0] = el;
               }}
               onClick={() => setDisplay('open')}
-              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
-              new bounties ({counts.open})
+              <span>
+                new bounties{' '}
+                <span className='block md:inline'>
+                  {albumCounts.isLoading ? (
+                    <span className='inline-block animate-pulse'>(···)</span>
+                  ) : (
+                    `(${counts.open})`
+                  )}
+                </span>
+              </span>
             </button>
             <button
               ref={(el) => {
                 tabRefs.current[1] = el;
               }}
               onClick={() => setDisplay('progress')}
-              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
-              voting in progress ({counts.progress})
+              <span>
+                voting in progress{' '}
+                <span className='block md:inline'>
+                  {albumCounts.isLoading ? (
+                    <span className='inline-block animate-pulse'>(···)</span>
+                  ) : (
+                    `(${counts.progress})`
+                  )}
+                </span>
+              </span>
             </button>
             <button
               ref={(el) => {
                 tabRefs.current[2] = el;
               }}
               onClick={() => setDisplay('past')}
-              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+              className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
-              past bounties ({counts.past})
+              <span>
+                past bounties{' '}
+                <span className='block md:inline'>
+                  {albumCounts.isLoading ? (
+                    <span className='inline-block animate-pulse'>(···)</span>
+                  ) : (
+                    `(${counts.past})`
+                  )}
+                </span>
+              </span>
             </button>
           </div>
         </div>
 
         <div className='pb-20 z-1 mt-7'>
-          {allItems.length > 0 ? (
+          {bounties.isLoading ? (
+            <div className='container mx-auto p-4 flex items-center justify-center mt-24'>
+              <div className='flex items-center gap-3 text-white/60'>
+                <div className='h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin' />
+                <span>Loading bounties...</span>
+              </div>
+            </div>
+          ) : allItems.length > 0 ? (
             display !== 'past' ? (
               <InfiniteScroll
                 loadMore={() => bounties.fetchNextPage()}
