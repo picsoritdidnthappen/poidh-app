@@ -2,6 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from 'prisma/prisma';
 import type { Netname, ChainId, Currency } from '@/utils/types';
+import { fetchImageMetadata } from '@/trpc/routers/claims';
+import { getUsersDataOrFetchItFromNeynar } from '@/trpc/routers/neynar';
+import { getHumanReadableName } from '@/trpc/routers/web3';
 
 const CHAIN_IDS: Record<Netname, ChainId> = {
   mainnet: 1,
@@ -34,35 +37,62 @@ export async function GET(
 
   try {
     const bounty = await prisma.bounties.findUniqueOrThrow({
-      where: {
-        id_chainId: { id, chainId },
-      },
+      where: { id_chainId: { id, chainId } },
       include: {
-        claims: {
-          where: { ban: { none: {} } },
-          select: { id: true },
-          take: 1,
-        },
+        claims: { where: { ban: { none: {} } }, select: { id: true }, take: 1 },
         ban: { take: 1 },
-        participations: {
-          select: { userAddress: true },
-          take: 2,
-        },
+        participations: { select: { userAddress: true }, take: 2 },
         extra: true,
       },
     });
 
-    const { claims, participations, extra, ...bountyData } = bounty;
+    const { claims: claimsPreview, participations, extra, ...bountyData } = bounty;
     const { amountSort, ...extraData } = extra;
+
+    // Fetch all claims for this bounty
+    const claims = await prisma.claims.findMany({
+      where: { bountyId: id, chainId, ban: { none: {} } },
+      orderBy: [{ isAccepted: 'desc' }, { id: 'desc' }],
+    });
+
+    const uniqueIssuers = [...new Set(claims.map((c) => c.issuer.toLowerCase()))];
+
+    const [neynarUsers, ...names] = await Promise.all([
+      getUsersDataOrFetchItFromNeynar(uniqueIssuers),
+      ...uniqueIssuers.map((addr) => getHumanReadableName(addr)),
+    ]);
+
+    const nameByAddress = new Map(uniqueIssuers.map((addr, i) => [addr, names[i]]));
+    const neynarByAddress = new Map(neynarUsers.map((u) => [u.address, u]));
+
+    const claimsData = await Promise.all(
+      claims.map(async (claim) => {
+        const imageMetadata = await fetchImageMetadata(claim.url);
+        const issuerLower = claim.issuer.toLowerCase();
+        const neynarUser = neynarByAddress.get(issuerLower);
+
+        return {
+          claimId: claim.id,
+          imageUrl: imageMetadata.image,
+          issuerAddress: claim.issuer,
+          issuerName: nameByAddress.get(issuerLower) ?? null,
+          farcasterHandle: neynarUser?.farcasterTag ?? null,
+          twitterHandle: neynarUser?.twitterTag ?? null,
+          title: claim.title,
+          description: claim.description,
+        };
+      })
+    );
 
     return NextResponse.json({
       ...bountyData,
       extra: extraData,
-      hasClaims: claims.length > 0,
+      hasClaims: claimsPreview.length > 0,
       hasParticipants: participations.length > 1,
       priceUsd: amountSort,
       currency: CURRENCIES[slug],
       url: `https://poidh.xyz/${slug}/bounty/${id}`,
+      claims: claimsData,
     });
   } catch {
     return NextResponse.json({ error: 'not found' }, { status: 404 });
