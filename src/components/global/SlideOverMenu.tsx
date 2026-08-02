@@ -82,6 +82,10 @@ export default function SlideOverMenu({
         how it works 💡
       </button>
 
+      <MenuLink href='https://docs.poidh.xyz/' onClick={handleCloseWithDelay}>
+        docs ⚙️
+      </MenuLink>
+
       <button
         className='flex items-center gap-2 hover:text-gray-300 transition-colors'
         onClick={() => setIsResourcesExpanded(!isResourcesExpanded)}
@@ -103,12 +107,6 @@ export default function SlideOverMenu({
             onClick={handleCloseWithDelay}
           >
             github 🛠️
-          </MenuLink>
-          <MenuLink
-            href='https://docs.poidh.xyz'
-            onClick={handleCloseWithDelay}
-          >
-            docs ⚙️
           </MenuLink>
           <MenuLink
             href='https://words.poidh.xyz'
