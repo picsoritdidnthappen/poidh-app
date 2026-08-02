@@ -89,7 +89,14 @@ export default function Album({ params }: { params: { album: string } }) {
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
               <span>
-                new bounties <span className='block md:inline'>({counts.open})</span>
+                new bounties{' '}
+                <span className='block md:inline'>
+                  {albumCounts.isLoading ? (
+                    <span className='inline-block animate-pulse'>(···)</span>
+                  ) : (
+                    `(${counts.open})`
+                  )}
+                </span>
               </span>
             </button>
             <button
@@ -100,7 +107,14 @@ export default function Album({ params }: { params: { album: string } }) {
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
               <span>
-                voting in progress <span className='block md:inline'>({counts.progress})</span>
+                voting in progress{' '}
+                <span className='block md:inline'>
+                  {albumCounts.isLoading ? (
+                    <span className='inline-block animate-pulse'>(···)</span>
+                  ) : (
+                    `(${counts.progress})`
+                  )}
+                </span>
               </span>
             </button>
             <button
@@ -111,14 +125,28 @@ export default function Album({ params }: { params: { album: string } }) {
               className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center text-center'
             >
               <span>
-                past bounties <span className='block md:inline'>({counts.past})</span>
+                past bounties{' '}
+                <span className='block md:inline'>
+                  {albumCounts.isLoading ? (
+                    <span className='inline-block animate-pulse'>(···)</span>
+                  ) : (
+                    `(${counts.past})`
+                  )}
+                </span>
               </span>
             </button>
           </div>
         </div>
 
         <div className='pb-20 z-1 mt-7'>
-          {allItems.length > 0 ? (
+          {bounties.isLoading ? (
+            <div className='container mx-auto p-4 flex items-center justify-center mt-24'>
+              <div className='flex items-center gap-3 text-white/60'>
+                <div className='h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin' />
+                <span>Loading bounties...</span>
+              </div>
+            </div>
+          ) : allItems.length > 0 ? (
             display !== 'past' ? (
               <InfiniteScroll
                 loadMore={() => bounties.fetchNextPage()}
