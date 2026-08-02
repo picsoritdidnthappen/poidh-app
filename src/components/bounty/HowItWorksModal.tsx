@@ -76,27 +76,27 @@ export default function HowItWorksModal({ onClose }: { onClose: () => void }) {
             <p className='text-white/80 leading-relaxed'>
               When a bounty is funded, the prize pool is locked onchain until
               someone wins. For bounties with a single contributor, after a
-              claim is verified by the bounty creator, the payout is sent
-              directly to the claimant's wallet. For bounties with multiple
+              claim is verified by the bounty creator, the payout can be claimed 
+              via the winner's profile page. For bounties with multiple
               contributors, a 48 hour onchain voting period is required to allow
               all contributors to weigh in on the selection. If {'>'}50% of
               voting contributors (weighted by contribution amount) vote "no",
               the bounty will be reset and no payment will be made. If {'>'}50%
-              vote "yes", the payout is confirmed. Payments are instant and
-              transparent. However, poidh does take a 2.5% fee on completed
-              bounties.
+              vote "yes", the payout is confirmed, and funds can be claimed via
+              the winner's profile page. However, poidh does take a 2.5% fee on 
+              completed bounties.
             </p>
           </div>
           <div className='pb-6 pt-0'>
             <p className='text-white/80 leading-relaxed'>
               still need help?{' '}
               <Link
-                href='https://paragraph.com/@poidh/poidh-beginner-guide'
+                href='https://docs.poidh.xyz/'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='text-white hover:text-white/80 underline transition-colors'
               >
-                check out our beginner's guide
+                check out our docs
               </Link>
             </p>
           </div>
