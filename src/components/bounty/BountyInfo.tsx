@@ -227,7 +227,12 @@ export default function BountyInfo({
   const displayDescription =
   bounty.data.id === 1267
     ? bounty.data.description.replaceAll("Kistmet.art", "Kismet.art")
-    : bounty.data.description;
+    : bounty.data.id === 21
+      ? bounty.data.description.replace(
+          /Overall community enjoyment\r?\nReward/,
+          "Overall community enjoyment\n\nReward"
+        )
+      : bounty.data.description;
 
   return (
     <>
