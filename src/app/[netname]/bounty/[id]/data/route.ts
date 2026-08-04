@@ -1,4 +1,3 @@
-// app/[netname]/bounty/[id]/data/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from 'prisma/prisma';
 import type { Netname, ChainId, Currency } from '@/utils/types';
@@ -20,6 +19,19 @@ const CURRENCIES: Record<Netname, Currency> = {
   degen: 'degen',
 };
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+};
+
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, max-age=30, stale-while-revalidate=300',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { netname: string; id: string } }
@@ -29,10 +41,16 @@ export async function GET(
   const id = Number(params.id);
 
   if (!chainId) {
-    return NextResponse.json({ error: 'unknown chain' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'unknown chain' },
+      { status: 400, headers: CORS_HEADERS }
+    );
   }
   if (Number.isNaN(id)) {
-    return NextResponse.json({ error: 'invalid bounty id' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'invalid bounty id' },
+      { status: 400, headers: CORS_HEADERS }
+    );
   }
 
   try {
@@ -49,7 +67,6 @@ export async function GET(
     const { claims: claimsPreview, participations, extra, ...bountyData } = bounty;
     const { amountSort, ...extraData } = extra;
 
-    // Fetch all claims for this bounty
     const claims = await prisma.claims.findMany({
       where: { bountyId: id, chainId, ban: { none: {} } },
       orderBy: [{ isAccepted: 'desc' }, { id: 'desc' }],
@@ -84,17 +101,23 @@ export async function GET(
       })
     );
 
-    return NextResponse.json({
-      ...bountyData,
-      extra: extraData,
-      hasClaims: claimsPreview.length > 0,
-      hasParticipants: participations.length > 1,
-      priceUsd: amountSort,
-      currency: CURRENCIES[slug],
-      url: `https://poidh.xyz/${slug}/bounty/${id}`,
-      claims: claimsData,
-    });
+    return NextResponse.json(
+      {
+        ...bountyData,
+        extra: extraData,
+        hasClaims: claimsPreview.length > 0,
+        hasParticipants: participations.length > 1,
+        priceUsd: amountSort,
+        currency: CURRENCIES[slug],
+        url: `https://poidh.xyz/${slug}/bounty/${id}`,
+        claims: claimsData,
+      },
+      { headers: { ...CORS_HEADERS, ...CACHE_HEADERS } }
+    );
   } catch {
-    return NextResponse.json({ error: 'not found' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'not found' },
+      { status: 404, headers: CORS_HEADERS }
+    );
   }
 }
