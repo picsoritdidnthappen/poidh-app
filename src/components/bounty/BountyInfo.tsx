@@ -227,12 +227,17 @@ export default function BountyInfo({
   const displayDescription =
   bounty.data.id === 1267
     ? bounty.data.description.replaceAll("Kistmet.art", "Kismet.art")
-    : bounty.data.id === 21
+    : bounty.data.id === 1307
       ? bounty.data.description.replace(
-          /Overall community enjoyment\r?\nReward/,
-          "Overall community enjoyment\n\nReward"
+          "Be sure to share your claim in either the /poetry or the /postcards channels!",
+          "Be sure to share your claim in either the /poetry or the /postcards channels! Deadline to submit a claim is 17 August 2026."
         )
-      : bounty.data.description;
+      : bounty.data.id === 21
+        ? bounty.data.description.replace(
+            /Overall community enjoyment\r?\nReward/,
+            "Overall community enjoyment\n\nReward"
+          )
+        : bounty.data.description;
 
   return (
     <>
