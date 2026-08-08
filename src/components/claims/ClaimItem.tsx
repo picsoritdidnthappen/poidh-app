@@ -40,12 +40,11 @@ export default function ClaimItem({
   const descriptionUrl = claim.url
     ? null
     : claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
-  const isVideoUrl = claim.url ? VIDEO_EXTENSIONS.test(claim.url) : false;
   const { mediaUrl: resolvedDescUrl, isVideo: isDescVideo } =
-    useClaimMedia(descriptionUrl);
+    useClaimMedia(claim.url ?? descriptionUrl);
 
-  const effectiveUrl = claim.url ?? resolvedDescUrl ?? null;
-  const isVideoUrl2 = claim.url ? isVideoUrl : isDescVideo;
+  const effectiveUrl = resolvedDescUrl ?? null;
+  const isVideoUrl2 = isDescVideo;
 
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
