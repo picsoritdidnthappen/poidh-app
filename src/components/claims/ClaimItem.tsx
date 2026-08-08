@@ -50,6 +50,7 @@ export default function ClaimItem({
   console.log('resolvedDescUrl', resolvedDescUrl);
   console.log('effectiveUrl', effectiveUrl);
   console.log('isVideoUrl2', isVideoUrl2);
+  console.log('claim', JSON.stringify(claim));
 
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
