@@ -173,7 +173,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 />
                 <StatCard
                   title='active bounties'
-                  value={accountActivitiesCount.data?.bounties ?? 0}
+                  value={accountActivitiesCount.data?.activeBounties ?? 0}
                 />
                 <StatCard
                   title='completed claims'
