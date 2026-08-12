@@ -22,6 +22,7 @@ import {
   shareToFarcaster,
   shareToTwitter,
 } from '@/utils/share';
+import { uploadFile } from '@/utils/pinata';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -187,9 +188,21 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         cardUrl.searchParams.set('pfp', claimIssuer.data?.pfpUrl);
       }
 
+      const response = await fetch(cardUrl.toString());
+      if (!response.ok) {
+        throw new Error('Failed to generate claim card');
+      }
+
+      const imageBlob = await response.blob();
+      const uploadResult = await uploadFile(imageBlob);
+      if (!uploadResult?.IpfsHash) {
+        throw new Error('Failed to upload to Pinata');
+      }
+
+      const embedImageUrl = `https://gateway.pinata.cloud/ipfs/${uploadResult.IpfsHash}`;
       await shareToFarcaster({
         text,
-        embedImage: cardUrl.toString(),
+        embedImage: embedImageUrl,
       });
     } catch (error) {
       await shareToFarcaster({ text, embedImage: claim.url ?? '' });
