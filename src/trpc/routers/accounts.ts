@@ -159,14 +159,25 @@ export const accountsRouter = {
         prisma.claims.count({ where: { issuer: addr, ban: { none: {} } } }),
         prisma.bounties.findMany({
           where: { issuer: addr, ban: { none: {} } },
-          select: { id: true, inProgress: true, isCanceled: true },
+          select: {
+            id: true,
+            chainId: true,
+            inProgress: true,
+            isCanceled: true,
+          },
         }),
         prisma.participationsBounties.findMany({
           where: { userAddress: addr, bounty: { ban: { none: {} } } },
           select: {
             bountyId: true,
+            chainId: true,
             bounty: {
-              select: { id: true, inProgress: true, isCanceled: true },
+              select: {
+                id: true,
+                chainId: true,
+                inProgress: true,
+                isCanceled: true,
+              },
             },
           },
         }),
@@ -175,26 +186,30 @@ export const accountsRouter = {
         }),
       ]);
 
-      const uniqueBountyIds = new Set<number>();
-      createdBounties.forEach((b) => uniqueBountyIds.add(b.id));
-      contributedBounties.forEach((p) => uniqueBountyIds.add(p.bountyId));
+      const uniqueBountyIds = new Set<string>();
+      createdBounties.forEach((b) =>
+        uniqueBountyIds.add(`${b.id}-${b.chainId}`)
+      );
+      contributedBounties.forEach((p) =>
+        uniqueBountyIds.add(`${p.bountyId}-${p.chainId}`)
+      );
       const bounties = uniqueBountyIds.size;
 
-      const activeIds = new Set<number>();
-      const completedIds = new Set<number>();
+      const activeIds = new Set<string>();
+      const completedIds = new Set<string>();
 
       createdBounties.forEach((b) => {
         if (!b.isCanceled) {
-          if (b.inProgress) activeIds.add(b.id);
-          else completedIds.add(b.id);
+          if (b.inProgress) activeIds.add(`${b.id}-${b.chainId}`);
+          else completedIds.add(`${b.id}-${b.chainId}`);
         }
       });
 
       contributedBounties.forEach((p) => {
         const b = p.bounty;
         if (b && !b.isCanceled) {
-          if (b.inProgress) activeIds.add(b.id);
-          else completedIds.add(b.id);
+          if (b.inProgress) activeIds.add(`${b.id}-${b.chainId}`);
+          else completedIds.add(`${b.id}-${b.chainId}`);
         }
       });
 
@@ -313,9 +328,9 @@ export const accountsRouter = {
           ),
       ]);
 
-      const mergedMap = new Map<number, (typeof createdBounties)[number]>();
+      const mergedMap = new Map<string, (typeof createdBounties)[number]>();
       [...createdBounties, ...contributed].forEach((b) => {
-        if (b) mergedMap.set(b.id, b);
+        if (b) mergedMap.set(`${b.id}-${b.chainId}`, b);
       });
 
       const compare = (
