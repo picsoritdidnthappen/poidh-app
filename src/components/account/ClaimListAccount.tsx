@@ -3,8 +3,8 @@ import { ChainId, Claim } from '@/utils/types';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
-import TextWithLinks from '@/components/global/TextWithLinks';
 import { getChainById } from '@/utils/config';
+import MarkdownContent from '@/components/global/MarkdownContent';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   if (!claims || claims.length === 0) {
@@ -49,7 +49,7 @@ function ClaimItem({ claim }: { claim: Claim }) {
             {claim.title}
           </p>
           <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
-            <TextWithLinks>{claim.description}</TextWithLinks>
+            <MarkdownContent>{claim.description}</MarkdownContent>
           </p>
         </div>
         <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>

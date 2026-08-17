@@ -19,6 +19,7 @@ import { FarcasterIcon, TwitterXIcon } from '@/components/global/Icons';
 import { formatWalletAddress } from '@/utils/web3';
 import { TWITTER_URL } from '../global/SocialMediaLinks';
 import FarcasterProfileLink from '@/components/global/FarcasterProfileLink';
+import PatternAvatar from '@/components/global/PatternAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
@@ -486,14 +487,18 @@ function Comment({
     <div className='flex space-x-2 sm:space-x-3 p-2 sm:p-4 rounded-lg text-white'>
       <div className='flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 relative'>
         <div className='w-full h-full overflow-hidden rounded-full'>
-          <Image
-            src={comment.author?.pfpUrl ?? '/images/avatar.png'}
-            alt={comment.userAddress}
-            width={40}
-            height={40}
-            unoptimized
-            className='w-full h-full object-cover'
-          />
+          {comment.author?.pfpUrl ? (
+            <Image
+              src={comment.author.pfpUrl}
+              alt={comment.userAddress}
+              width={40}
+              height={40}
+              unoptimized
+              className='w-full h-full object-cover'
+            />
+          ) : (
+            <PatternAvatar seed={comment.userAddress} size={40} />
+          )}
         </div>
       </div>
 

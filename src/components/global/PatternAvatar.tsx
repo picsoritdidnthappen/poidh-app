@@ -1,7 +1,5 @@
-// boring-avatars' "bauhaus" palette/variant (https://boringavatars.com), the
-// component itself can't be used here because every variant calls
-// React.useId() internally and satori (the renderer behind ImageResponse)
-// has no hooks dispatcher, so this reproduces its geometry as plain SVG.
+// Reimplements boring-avatars' "bauhaus" variant as plain SVG, since its
+// use of React.useId() breaks the satori-based og renderer.
 const AVATAR_PALETTE = ['#0d0202', '#ffffff', '#ffd447', '#f15e5f', '#2a81d5'];
 
 const BAUHAUS_SIZE = 80;
@@ -55,7 +53,7 @@ export default function PatternAvatar({
 }: {
   seed: string;
   size: number;
-  marginRight: string;
+  marginRight?: string;
 }) {
   const pieces = generateBauhausPieces(seed);
   const center = BAUHAUS_SIZE / 2;

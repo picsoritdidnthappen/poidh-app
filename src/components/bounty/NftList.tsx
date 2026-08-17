@@ -2,9 +2,9 @@ import Link from 'next/link';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
-import TextWithLinks from '@/components/global/TextWithLinks';
 import { getChainById } from '@/utils/config';
 import { ChainId } from '@/utils/types';
+import MarkdownContent from '@/components/global/MarkdownContent';
 
 type NFT = {
   id: number;
@@ -53,7 +53,7 @@ function NftListItem({ NFT }: { NFT: NFT }) {
             {NFT.title}
           </p>
           <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
-            <TextWithLinks>{NFT.description}</TextWithLinks>
+            <MarkdownContent>{NFT.description}</MarkdownContent>
           </p>
         </div>
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>

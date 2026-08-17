@@ -15,7 +15,6 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from '../global/Icons';
-import TextWithLinks from '@/components/global/TextWithLinks';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import {
   getDisplayUsername,
@@ -23,6 +22,7 @@ import {
   shareToTwitter,
 } from '@/utils/share';
 import { uploadFile } from '@/utils/pinata';
+import MarkdownContent from '@/components/global/MarkdownContent';
 
 export type ClaimCardProps = {
   open: boolean;
@@ -258,7 +258,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
               >
                 <div className='pr-3'>
                   <p className='text-xs sm:text-sm text-white/90 break-words whitespace-pre-line'>
-                    <TextWithLinks>{claim.description}</TextWithLinks>
+                    <MarkdownContent>{claim.description}</MarkdownContent>
                   </p>
                 </div>
               </div>
