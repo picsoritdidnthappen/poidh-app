@@ -4,11 +4,11 @@ import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import { formatSortAmount } from '@/utils/utils';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
-import TextWithLinks from '@/components/global/TextWithLinks';
 import { UsersRoundIcon } from '@/components/global/Icons';
 import Link from 'next/link';
 import { trpc } from '@/trpc/client';
 import { getChainById } from '@/utils/config';
+import MarkdownContent from '@/components/global/MarkdownContent';
 
 export default function PastBountyCard({ bounty }: { bounty: Bounty }) {
   const claim = trpc.claims.fetchAcceptedClaimByBountyId.useQuery({
@@ -44,7 +44,7 @@ export default function PastBountyCard({ bounty }: { bounty: Bounty }) {
                     {claim.data.title}
                   </p>
                   <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words text-left'>
-                    <TextWithLinks>{claim.data.description}</TextWithLinks>
+                    <MarkdownContent>{claim.data.description}</MarkdownContent>
                   </p>
                 </div>
                 <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>

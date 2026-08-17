@@ -15,9 +15,9 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
-import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
+import MarkdownContent from '@/components/global/MarkdownContent';
 
 export default function ClaimItem({
   claim,
@@ -252,7 +252,7 @@ export default function ClaimItem({
               {claim.title}
             </p>
             <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words'>
-              <TextWithLinks>{claim.description}</TextWithLinks>
+              <MarkdownContent>{claim.description}</MarkdownContent>
             </p>
           </div>
           <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
