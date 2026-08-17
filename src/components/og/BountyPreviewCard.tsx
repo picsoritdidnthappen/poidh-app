@@ -4,7 +4,7 @@ import { ChainId } from '@/utils/types';
 import { getChainById } from '@/utils/config';
 import { resolveHumanReadableNames } from '@/utils/web3';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
-import PatternAvatar from '@/components/og/PatternAvatar';
+import PatternAvatar from '@/components/global/PatternAvatar';
 
 export type BountyPreviewData = {
   title: string;
