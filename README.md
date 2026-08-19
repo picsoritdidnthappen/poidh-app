@@ -1,12 +1,16 @@
+## Docs
+
+https://docs.poidh.xyz
+
 ## Contributing
 
-Thank you for your interest in contributing to POIDH! Before you start coding, please review this guide to ensure a smooth process from development to submitting a pull request.
+Thank you for your interest in contributing to poidh! Before you start coding, please review this guide to ensure a smooth process from development to submitting a pull request.
 
 If you're new or unsure where to begin, check the [Discussions](https://github.com/poidh/poidh-app/discussions) tab for ideas and help.
 
 ### Quick Start Guide
 
-This guide will help you set up your local environment for running and contributing to the POIDH app, including setting up automatic formatting and linting.
+This guide will help you set up your local environment for running and contributing to the poidh app, including setting up automatic formatting and linting.
 
 #### Overview
 
@@ -40,7 +44,7 @@ This guide will help you set up your local environment for running and contribut
 
 ### Installing Node.js and pnpm
 
-POIDH uses **pnpm** as a package manager and requires **Node.js v18.12 or higher**.
+poidh uses **pnpm** as a package manager and requires **Node.js v18.12 or higher**.
 
 1. Check your versions to confirm compatibility:
 
@@ -132,7 +136,7 @@ Ensure the database is properly set up before proceeding.
 
 ### Running the Project
 
-1. Start the POIDH app:
+1. Start the poidh app:
 
    ```bash
    pnpm start
@@ -156,7 +160,7 @@ Ensure the database is properly set up before proceeding.
 
 To contribute code, follow these steps:
 
-1. **Style Guide**: Please review the POIDH style guide to maintain consistency in the codebase.
+1. **Style Guide**: Please review the poidh style guide to maintain consistency in the codebase.
 
 2. **Code Check**: Before submitting, make sure your code is formatted and linted. GitHub Actions will automatically build, lint, and format your pull request, highlighting issues if they exist.
 
@@ -178,4 +182,4 @@ To contribute code, follow these steps:
 
 ### Thank You!
 
-We appreciate your contribution to POIDH. Happy coding and thank you for helping to make POIDH even better!
+We appreciate your contribution to poidh. Happy coding and thank you for helping to make poidh even better!
