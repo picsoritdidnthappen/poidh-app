@@ -232,12 +232,17 @@ export default function BountyInfo({
           "Be sure to share your claim in either the /poetry or the /postcards channels!",
           "Be sure to share your claim in either the /poetry or the /postcards channels! Deadline to submit a claim is 17 August 2026."
         )
-      : bounty.data.id === 21
+      : bounty.data.id === 1326
         ? bounty.data.description.replace(
-            /Overall community enjoyment\r?\nReward/,
-            "Overall community enjoyment\n\nReward"
+            "Bounty open until September 30th",
+            "Submissions open until September 4th @ 11:59 PM PST."
           )
-        : bounty.data.description;
+        : bounty.data.id === 21
+          ? bounty.data.description.replace(
+              /Overall community enjoyment\r?\nReward/,
+              "Overall community enjoyment\n\nReward"
+            )
+          : bounty.data.description;
 
   return (
     <>
