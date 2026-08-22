@@ -58,22 +58,10 @@ export const claimsRouter = {
         nextCursor = items[items.length - 1].id;
       }
 
-      const normalizedItems = await Promise.all(
-        items.map(async (claim) => {
-          const imageMetadata = await fetchImageMetadata(claim.url);
-
-          return {
-            ...claim,
-            url: imageMetadata.image,
-          };
-        })
-      );
-
       return {
-        items: normalizedItems,
+        items,
         nextCursor,
       };
-    }),
 
   fetchAcceptedClaimByBountyId: baseProcedure
     .input(z.object({ bountyId: z.number(), chainId: z.number() }))
