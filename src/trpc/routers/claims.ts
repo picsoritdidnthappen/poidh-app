@@ -49,28 +49,21 @@ export const claimsRouter = {
             ? { isAccepted: false, id: { lt: input.cursor } }
             : {}),
         },
-        orderBy: [!input.cursor ? { isAccepted: 'desc' } : {}, { id: 'desc' }],
+        orderBy: [
+          !input.cursor ? { isAccepted: 'desc' } : {},
+          { id: 'desc' },
+        ],
         take: input.limit,
       });
 
       let nextCursor: number | undefined = undefined;
+
       if (items.length === input.limit) {
         nextCursor = items[items.length - 1].id;
       }
 
-      const normalizedItems = await Promise.all(
-        items.map(async (claim) => {
-          const imageMetadata = await fetchImageMetadata(claim.url);
-
-          return {
-            ...claim,
-            url: imageMetadata.image,
-          };
-        })
-      );
-
       return {
-        items: normalizedItems,
+        items,
         nextCursor,
       };
     }),
