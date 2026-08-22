@@ -1,176 +1,202 @@
-'use client';
+import { z } from 'zod';
+import { baseProcedure } from '../init';
+import prisma from 'prisma/prisma';
+import axios from 'axios';
+import { tryCatchAsync } from '@/utils/utils';
 
-import { trpc } from '@/trpc/client';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useEffect, useRef } from 'react';
-import { getChainById } from '@/utils/config';
-import { ChainId, Claim } from '@/utils/types';
-import { useClaimMedia } from '@/hooks/useClaimMedia';
+export const claimsRouter = {
+  fetch: baseProcedure
+    .input(z.object({ claimId: z.number(), chainId: z.number() }))
+    .query(async ({ input }) => {
+      const claim = await prisma.claims.findUniqueOrThrow({
+        where: {
+          id_chainId: {
+            id: input.claimId,
+            chainId: input.chainId,
+          },
+          ban: {
+            none: {},
+          },
+        },
+      });
 
-function ClaimThumb({
-  claim,
-  bountyId,
-  chainId,
-}: {
-  claim: Claim;
-  bountyId: number;
-  chainId: ChainId;
-}) {
-  const chain = getChainById({ chainId });
+      const imageMetadata = await fetchImageMetadata(claim.url);
 
-  const {
-    mediaUrl,
-    isVideo,
-    isLoading,
-  } = useClaimMedia(claim.url);
+      return {
+        ...claim,
+        url: imageMetadata.image,
+      };
+    }),
 
-  return (
-    <div className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'>
-      {mediaUrl ? (
-        <Link
-          href={`/${chain.slug}/bounty/${bountyId}`}
-          className='block w-full h-full group relative'
-        >
-          {isVideo ? (
-            <video
-              src={mediaUrl}
-              muted
-              playsInline
-              preload='metadata'
-              className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-            />
-          ) : (
-            <Image
-              src={mediaUrl}
-              alt={claim.title || 'claim image'}
-              fill
-              className='object-cover group-hover:scale-105 transition-transform duration-300'
-              sizes='(max-width: 640px) 96px, (max-width: 768px) 112px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
-              unoptimized
-            />
-          )}
+  fetchBountyClaims: baseProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        chainId: z.number(),
+        limit: z.number().min(1).max(100).default(10),
+        cursor: z.number().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      const items = await prisma.claims.findMany({
+        where: {
+          bountyId: input.bountyId,
+          chainId: input.chainId,
+          ban: {
+            none: {},
+          },
+          ...(input.cursor
+            ? { isAccepted: false, id: { lt: input.cursor } }
+            : {}),
+        },
+        orderBy: [
+          !input.cursor ? { isAccepted: 'desc' } : {},
+          { id: 'desc' },
+        ],
+        take: input.limit,
+      });
 
-          <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
-        </Link>
-      ) : isLoading ? (
-        <div className='w-full h-full bg-white/10 animate-pulse' />
-      ) : (
-        <div className='w-full h-full bg-white/10' />
-      )}
-    </div>
-  );
-}
+      let nextCursor: number | undefined = undefined;
 
-export default function LatestClaimImages() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+      if (items.length === input.limit) {
+        nextCursor = items[items.length - 1].id;
+      }
 
-  useEffect(() => {
-    const el = scrollRef.current;
+      return {
+        items,
+        nextCursor,
+      };
+    }),
 
-    if (!el) return;
+  fetchAcceptedClaimByBountyId: baseProcedure
+    .input(z.object({ bountyId: z.number(), chainId: z.number() }))
+    .query(async ({ input }) => {
+      const claim = await prisma.claims.findFirst({
+        where: {
+          bountyId: input.bountyId,
+          chainId: input.chainId,
+          ban: {
+            none: {},
+          },
+          isAccepted: true,
+        },
+      });
 
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      el.scrollLeft += e.deltaY;
+      if (!claim) {
+        return null;
+      }
+
+      const imageMetadata = await fetchImageMetadata(claim.url);
+
+      return {
+        ...claim,
+        url: imageMetadata.image,
+      };
+    }),
+
+  fetchVotingClaimByBountyId: baseProcedure
+    .input(z.object({ bountyId: z.number(), chainId: z.number() }))
+    .query(async ({ input }) => {
+      const vote = await prisma.votes.findFirst({
+        select: {
+          claimId: true,
+        },
+        where: {
+          ...input,
+          bounty: {
+            isVoting: true,
+          },
+        },
+        orderBy: { round: 'desc' },
+        take: 1,
+      });
+
+      if (!vote) {
+        return null;
+      }
+
+      const claim = await prisma.claims.findFirst({
+        where: {
+          id: vote.claimId,
+          chainId: input.chainId,
+          ban: {
+            none: {},
+          },
+        },
+      });
+
+      if (!claim) {
+        return null;
+      }
+
+      const imageMetadata = await fetchImageMetadata(claim.url);
+
+      return {
+        ...claim,
+        url: imageMetadata.image,
+      };
+    }),
+
+  isCreated: baseProcedure
+    .input(z.object({ chainId: z.number(), id: z.number() }))
+    .query(async ({ input }) => {
+      return prisma.claims.findUnique({
+        where: {
+          id_chainId: {
+            id: input.id,
+            chainId: input.chainId,
+          },
+        },
+      });
+    }),
+
+  isAccepted: baseProcedure
+    .input(z.object({ chainId: z.number(), id: z.number() }))
+    .query(async ({ input }) => {
+      return prisma.claims.findUnique({
+        where: {
+          id_chainId: {
+            id: input.id,
+            chainId: input.chainId,
+          },
+          isAccepted: true,
+        },
+      });
+    }),
+};
+
+export async function fetchImageMetadata(url: string) {
+  const [response, _] = await tryCatchAsync(async () => axios.get(url));
+
+  if (!response?.data) {
+    return {
+      name: null,
+      description: null,
+      external_url: null,
+      image: null,
+      attributes: null,
     };
-
-    el.addEventListener('wheel', onWheel, {
-      passive: false,
-    });
-
-    return () => {
-      el.removeEventListener('wheel', onWheel);
-    };
-  }, []);
-
-  const activities = trpc.accounts.activities.useInfiniteQuery(
-    {
-      address: undefined,
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
-  );
-
-  const latestClaims =
-    activities.data?.pages
-      .flatMap((page) => page.items)
-      .filter(
-        (tx: any) =>
-          tx.action === 'claim created' &&
-          tx.claim != null
-      )
-      .slice(0, 15) ?? [];
-
-  useEffect(() => {
-    if (
-      activities.hasNextPage &&
-      !activities.isFetchingNextPage &&
-      latestClaims.length < 15
-    ) {
-      activities.fetchNextPage();
-    }
-  }, [
-    latestClaims.length,
-    activities.hasNextPage,
-    activities.isFetchingNextPage,
-  ]);
-
-  if (
-    !activities.isLoading &&
-    latestClaims.length === 0
-  ) {
-    return null;
   }
 
-  return (
-    <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
-      <div className='flex items-center justify-between mb-3'>
-        <span className='font-mono text-xs text-white/70 tracking-widest'>
-          latest claims
-        </span>
+  const responseSchema = z.object({
+    name: z.string(),
+    description: z.string(),
+    external_url: z.string(),
+    image: z.string(),
+    attributes: z.array(z.any()),
+  });
 
-        <Link
-          href='/feed'
-          className='font-mono text-xs text-white/50 hover:text-white transition-colors underline underline-offset-2'
-        >
-          see all
-        </Link>
-      </div>
+  const parsed = responseSchema.safeParse(response.data);
 
-      <div
-        ref={scrollRef}
-        className='flex flex-nowrap gap-3 overflow-x-scroll pb-2'
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch',
-        }}
-      >
-        {Array.from({ length: 15 }).map((_, i) => {
-          const tx = latestClaims[i];
+  if (!parsed.data) {
+    return {
+      name: null,
+      description: null,
+      external_url: null,
+      image: null,
+      attributes: null,
+    };
+  }
 
-          return tx && tx.claim ? (
-            <ClaimThumb
-              key={tx.tx + String(tx.index ?? '')}
-              claim={tx.claim as Claim}
-              bountyId={
-                tx.bounty?.id ?? tx.bountyId
-              }
-              chainId={
-                (tx.bounty?.chainId ??
-                  tx.chainId) as ChainId
-              }
-            />
-          ) : (
-            <div
-              key={i}
-              className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
+  return parsed.data;
 }
