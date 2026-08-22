@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -15,9 +16,9 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
+import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
-import MarkdownContent from '@/components/global/MarkdownContent';
 
 export default function ClaimItem({
   claim,
@@ -34,28 +35,27 @@ export default function ClaimItem({
 
   const utils = trpc.useUtils();
 
-  const IPFS_URL_PATTERN =
-    /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
-
-  // claim.url remains the indexed claim URL.
-  // If there is no indexed URL, preserve the existing description fallback.
-  const descriptionUrl =
-    claim.description?.match(IPFS_URL_PATTERN)?.[0] ?? null;
-
-  const mediaSource = claim.url ?? descriptionUrl;
-
-  // Resolve the NFT media independently from the rest of the indexed claim data.
+  /*
+   * IMPORTANT:
+   *
+   * This now works the same way as the feed.
+   *
+   * We pass claim.url directly through useClaimMedia instead of
+   * treating claim.url as an already-resolved image and putting
+   * it into a CSS background-image.
+   */
   const {
     mediaUrl,
     isVideo,
     isLoading: isMediaLoading,
     mediaError,
-  } = useClaimMedia(mediaSource);
+  } = useClaimMedia(claim.url);
 
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
+
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
@@ -112,10 +112,11 @@ export default function ClaimItem({
           status: `Indexing ${i}s...`,
         });
 
-        const accepted = await trpcClient.claims.isAccepted.query({
-          id: Number(claimId),
-          chainId: chain.id,
-        });
+        const accepted =
+          await trpcClient.claims.isAccepted.query({
+            id: Number(claimId),
+            chainId: chain.id,
+          });
 
         if (accepted) {
           return;
@@ -200,7 +201,8 @@ export default function ClaimItem({
 
     onError: (error) => {
       toast.error(
-        'Failed to submit claim for vote: ' + error.message
+        'Failed to submit claim for vote: ' +
+          error.message
       );
     },
 
@@ -225,7 +227,8 @@ export default function ClaimItem({
           bounty: bounty.data
             ? {
                 ...bounty.data,
-                chainId: bounty.data.chainId as ChainId,
+                chainId:
+                  bounty.data.chainId as ChainId,
               }
             : undefined,
         }}
@@ -236,7 +239,9 @@ export default function ClaimItem({
       {bounty.data && (
         <ConfirmBountySuccessModal
           open={showConfirmSuccess}
-          onClose={() => setShowConfirmSuccess(false)}
+          onClose={() =>
+            setShowConfirmSuccess(false)
+          }
           claimImage={mediaUrl ?? claim.url ?? ''}
           claimTitle={claim.title}
           claimIssuer={claim.issuer}
@@ -269,7 +274,7 @@ export default function ClaimItem({
         }}
       />
 
-      <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl '>
+      <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
         <div className='left-5 top-5 absolute z-10 flex flex-col text-white'>
           {bounty.data &&
             bounty.data.inProgress &&
@@ -280,7 +285,9 @@ export default function ClaimItem({
               <button
                 className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
                 onClick={() => {
-                  if (bounty.data.hasParticipants) {
+                  if (
+                    bounty.data.hasParticipants
+                  ) {
                     setShowVotingConfirm(true);
                   } else {
                     setShowAcceptConfirm(true);
@@ -300,37 +307,54 @@ export default function ClaimItem({
           </div>
         )}
 
+        {/*
+         * MEDIA
+         *
+         * Same basic pattern as the feed:
+         *
+         * claim.url
+         *   -> useClaimMedia()
+         *   -> Image or video
+         *
+         * Images are now real <img> elements through Next Image,
+         * not CSS background images.
+         */}
         <div
-          className='relative bg-[#12AAFF] dark:bg-[#132b47] w-full aspect-square rounded-[8px] overflow-hidden cursor-pointer'
+          className='relative w-full aspect-square bg-[#12AAFF] dark:bg-[#132b47] rounded-[8px] overflow-hidden cursor-pointer'
           onClick={() => setOpenCard(true)}
         >
-          {isMediaLoading ? (
-            <div className='absolute inset-0 flex items-center justify-center text-white/60 text-sm'>
-              Loading media...
-            </div>
-          ) : mediaUrl ? (
+          {mediaUrl ? (
             isVideo ? (
               <video
                 src={mediaUrl}
                 controls
                 playsInline
-                preload='metadata'
-                onClick={(e) => e.stopPropagation()}
-                className='absolute inset-0 w-full h-full object-cover'
+                className='w-full h-full object-cover'
+                onClick={(e) =>
+                  e.stopPropagation()
+                }
               />
             ) : (
-              <img
+              <Image
                 src={mediaUrl}
-                alt={claim.title || 'claim image'}
-                loading='lazy'
-                className='absolute inset-0 w-full h-full object-cover'
+                alt={
+                  claim.title || 'claim image'
+                }
+                fill
+                className='object-cover'
+                sizes='(max-width: 768px) 100vw, 600px'
+                unoptimized
               />
             )
+          ) : isMediaLoading ? (
+            <div className='flex items-center justify-center w-full h-full text-white/60 text-sm'>
+              Loading...
+            </div>
           ) : (
-            <div className='absolute inset-0 flex items-center justify-center text-white/60 text-sm'>
+            <div className='flex items-center justify-center w-full h-full text-white/60 text-sm'>
               {mediaError
-                ? 'Error loading media'
-                : 'No media'}
+                ? 'error loading media'
+                : 'no media'}
             </div>
           )}
         </div>
@@ -342,9 +366,9 @@ export default function ClaimItem({
             </p>
 
             <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words'>
-              <MarkdownContent>
+              <TextWithLinks>
                 {claim.description}
-              </MarkdownContent>
+              </TextWithLinks>
             </p>
           </div>
 
@@ -354,7 +378,9 @@ export default function ClaimItem({
             </span>
 
             <div className='flex flex-row items-center w-full justify-end overflow-hidden'>
-              <DisplayAddress address={claim.issuer} />
+              <DisplayAddress
+                address={claim.issuer}
+              />
 
               <div className='ml-2'>
                 <CopyAddressButton
@@ -365,7 +391,9 @@ export default function ClaimItem({
           </div>
 
           <div className='flex flex-row items-center justify-between'>
-            <span>claim id: {claim.id}</span>
+            <span>
+              claim id: {claim.id}
+            </span>
 
             <SocialMediaLinks
               address={claim.issuer}
