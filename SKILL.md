@@ -174,6 +174,50 @@ and assume those are different pages.
 
 They are not reliable pagination.
 
+### Instead: walk the index
+
+The public array getters are exact. Read the index from `0` until the call reverts out of
+bounds, then read each record by id:
+
+```solidity
+bountyClaims(uint256 bountyId, uint256 index) returns (uint256 claimId)
+claims(uint256 claimId) returns (
+    uint256 id, address issuer, uint256 bountyId, address bountyIssuer,
+    string name, string description, uint256 createdAt, bool accepted
+)
+```
+
+```js
+const ids = [];
+for (let i = 0; ; i++) {
+  try { ids.push(await poidh.bountyClaims(bountyId, i)); }
+  catch { break; }                   // out of bounds: the array ended
+}
+const claims = [];
+for (const id of ids) claims.push(await poidh.claims(id));
+```
+
+Verified against the deployed contracts on 2026-08-28: Base bounty `344` returns **4 of 4**
+claims, and Arbitrum bounty `143` returns **34 of 34** — the same bounty whose oldest claims
+`getClaimsByBountyId` cannot reach at any offset.
+
+The same shape replaces all four broken getters:
+
+| Do not use | Exact replacement |
+| --- | --- |
+| `getBounties(offset)` | `bountyCounter()`, then `bounties(id)` for each id |
+| `getClaimsByBountyId(bountyId, offset)` | `bountyClaims(bountyId, i)` walked to revert, then `claims(id)` |
+| `getBountiesByUser(user, offset)` | `userBounties(user, i)` walked to revert, then `bounties(id)` |
+| `getClaimsByUser(user, offset)` | `userClaims(user, i)` walked to revert, then `claims(id)` |
+
+### A returned row is not necessarily a record
+
+The same getters allocate a fixed array of 10 and never shrink it, so short results are
+**zero-padded**. `getClaimsByUser(0x1C7afa67130ee637765a8281E83342E307409D57, 0)` on Base returns
+10 rows for 8 claims; the last two are the zero struct. Never take `result.length` as a count.
+Drop any row whose `id` is `0` — and note that this makes an empty result and a 10-row result
+look alike, which is a second reason not to build enumeration on these getters.
+
 ---
 
 # Data Source Trust Hierarchy
