@@ -101,7 +101,7 @@ The NFT contract can also be resolved dynamically from the core contract:
 cast call $POIDH_CONTRACT_ADDRESS \
   "poidhNft()(address)" \
   --rpc-url $RPC_URL
-````
+```
 
 Prefer resolving it dynamically when interacting with a live contract.
 
@@ -191,8 +191,9 @@ claims(uint256 claimId) returns (
 const ids = [];
 for (let i = 0; ; i++) {
   try { ids.push(await poidh.bountyClaims(bountyId, i)); }
-  catch { break; }                   // out of bounds: the array ended
+  catch { break; } // out of bounds: the array ended
 }
+
 const claims = [];
 for (const id of ids) claims.push(await poidh.claims(id));
 ```
@@ -208,11 +209,11 @@ The same shape replaces all four broken getters:
 
 ### A returned row is not necessarily a record
 
-The same getters allocate a fixed array of 10 and never shrink it, so short results are
-**zero-padded**. `getClaimsByUser(0x1C7afa67130ee637765a8281E83342E307409D57, 0)` on Base returns
-10 rows for 8 claims; the last two are the zero struct. Never take `result.length` as a count.
-Drop any row whose `id` is `0` — and note that this makes an empty result and a 10-row result
-look alike, which is a second reason not to build enumeration on these getters.
+The same convenience getters allocate a fixed array of 10 and never shrink it, so short
+results are **zero-padded**. Never treat `result.length` as the number of real records, and do
+not attempt to repair these convenience getters by filtering their output.
+
+Use the exact index-based replacements above for enumeration instead.
 
 ---
 
@@ -240,18 +241,29 @@ For critical decisions, the contract is the source of truth.
 
 ---
 
-## 2. Onchain Events — Authoritative Historical Discovery
+## 2. Onchain Indexes and Events — Authoritative Historical Discovery
+
+For targeted exhaustive reads, prefer the contract's public index getters:
+
+* `bountyClaims(bountyId, i)` for claims on one bounty
+* `userBounties(user, i)` for bounties associated with one user
+* `userClaims(user, i)` for claims associated with one user
+* `bountyCounter()` + `bounties(id)` for the complete bounty registry
+* `claimCounter()` + `claims(id)` for the complete claim registry
+
+Walk array indexes from `0` until the call reverts out of bounds, then read the referenced
+record by id.
 
 Use contract events for:
 
-* exhaustive claim discovery
-* historical bounty discovery
 * proof URI discovery
+* historical event metadata
 * transaction history
+* alternative exhaustive discovery when a public index is unavailable or inconvenient
 
-Events are especially useful where a convenience getter is affected by the pagination bug.
-
-For evaluating a bounty, indexed `ClaimCreated` logs are generally the preferred targeted method for discovering every claim.
+For evaluating a single bounty, `bountyClaims(bountyId, i)` + `claims(id)` is the preferred
+authoritative claim-enumeration path. `ClaimCreated` events are especially useful for retrieving
+the submitted `imageUri`.
 
 ---
 
@@ -294,11 +306,11 @@ They are convenience endpoints, not the ultimate authority for critical contract
 
 # Required Environment Variables
 
-| Variable      | Description                                                           |
-| ------------- | --------------------------------------------------------------------- |
+| Variable | Description |
+| --- | --- |
 | `PRIVATE_KEY` | Private key of the EOA signing transactions, hex with or without `0x` |
-| `RPC_URL`     | RPC URL for the target chain                                          |
-| `POIDH_CHAIN` | `mainnet`, `arbitrum`, or `base`                                      |
+| `RPC_URL` | RPC URL for the target chain |
+| `POIDH_CHAIN` | `mainnet`, `arbitrum`, or `base` |
 
 Do not expose `PRIVATE_KEY` in output, logs, URLs, command history shown to the user, or error reports.
 
@@ -356,11 +368,11 @@ contract_bounty_id = frontend_id - POIDH_V2_OFFSET
 
 Current offsets:
 
-| Chain            | Offset |
-| ---------------- | -----: |
-| Ethereum Mainnet |    `0` |
-| Arbitrum         |  `180` |
-| Base             |  `986` |
+| Chain | Offset |
+| --- | ---: |
+| Ethereum Mainnet | `0` |
+| Arbitrum | `180` |
+| Base | `986` |
 
 Example:
 
@@ -869,7 +881,32 @@ It must never be used as the sole candidate set for winner selection.
 
 ---
 
-## Preferred Method: `ClaimCreated` Events
+## Preferred Method: Walk `bountyClaims`
+
+Enumerate the bounty's exact claim index:
+
+```solidity
+bountyClaims(uint256 bountyId, uint256 index) returns (uint256 claimId)
+```
+
+Read indexes starting at `0` until the call reverts out of bounds.
+
+For each returned claim ID, read current state with:
+
+```bash
+cast call $POIDH_CONTRACT_ADDRESS \
+  "claims(uint256)(uint256,address,uint256,address,string,string,uint256,bool)" \
+  <CLAIM_ID> \
+  --rpc-url $RPC_URL
+```
+
+This is the preferred authoritative method for enumerating every claim on a specific bounty.
+
+Do not stop after ten results.
+
+---
+
+## Alternative: `ClaimCreated` Events
 
 The event is:
 
@@ -887,20 +924,14 @@ event ClaimCreated(
 );
 ```
 
-`bountyId` is indexed.
+`bountyId` is indexed, so `ClaimCreated` logs can be filtered for the target bounty.
 
-Filter `ClaimCreated` logs for the target bounty ID.
+Events are useful for:
 
-Advantages:
-
-* retrieves all emitted claims for the bounty
-* does not rely on broken pagination
-* provides claim ID
-* provides claimant
-* provides title
-* provides description
-* provides creation timestamp
-* provides proof URI (`imageUri`)
+* alternative exhaustive claim discovery
+* retrieving the original proof URI (`imageUri`)
+* claim creation metadata
+* historical transaction context
 
 Despite its historical name, `imageUri` may contain proof that is not an image.
 
@@ -910,15 +941,15 @@ RPC providers may restrict:
 * returned log counts
 * large `eth_getLogs` requests
 
-If a log query fails, reduce the block range or use the claim registry fallback.
+If a log query fails, reduce the block range or use the public `bountyClaims` index.
 
 Do not treat an RPC error as evidence that no claims exist.
 
 ---
 
-## Fallback: Claim Registry
+## Last-Resort Fallback: Global Claim Registry
 
-Get:
+If targeted index reads and event queries are unavailable, get:
 
 ```bash
 cast call $POIDH_CONTRACT_ADDRESS \
@@ -935,19 +966,6 @@ cast call $POIDH_CONTRACT_ADDRESS \
   --rpc-url $RPC_URL
 ```
 
-Returns:
-
-```text
-id
-issuer
-bountyId
-bountyIssuer
-name
-description
-createdAt
-accepted
-```
-
 Retain every claim where:
 
 ```text
@@ -962,7 +980,7 @@ Batch RPC calls where appropriate.
 
 # Step 3: Verify Current Claim State
 
-Claims found through historical events should be checked against current contract state when their current state matters.
+Claims discovered through events should be checked against current contract state when their current state matters. Claims read through `bountyClaims(...)` + `claims(id)` already use current contract state.
 
 ```bash
 cast call $POIDH_CONTRACT_ADDRESS \
@@ -982,7 +1000,7 @@ Confirm:
 
 # Step 4: Obtain Proof URI
 
-When using `ClaimCreated`, use:
+When `ClaimCreated` data is available, use:
 
 ```text
 imageUri
@@ -990,7 +1008,7 @@ imageUri
 
 as the submitted proof URI.
 
-If it is unavailable, query the NFT contract.
+If the proof URI was not retrieved during enumeration, query the relevant `ClaimCreated` event or the NFT contract.
 
 Resolve NFT contract:
 
@@ -1477,12 +1495,12 @@ Do not assume this bug will change at the existing addresses.
 
 poidh uses ETH on every network supported by this skill.
 
-| Human amount | Cast value   |
-| ------------ | ------------ |
-| `0.001 ETH`  | `0.001ether` |
-| `0.01 ETH`   | `0.01ether`  |
-| `0.1 ETH`    | `0.1ether`   |
-| `1 ETH`      | `1ether`     |
+| Human amount | Cast value |
+| --- | --- |
+| `0.001 ETH` | `0.001ether` |
+| `0.01 ETH` | `0.01ether` |
+| `0.1 ETH` | `0.1ether` |
+| `1 ETH` | `1ether` |
 
 ---
 
@@ -1574,15 +1592,17 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 1. Resolve contract bounty ID.
 2. Read bounty rules.
 3. Enumerate every claim.
-4. Prefer indexed `ClaimCreated` logs.
-5. Fall back to `claimCounter()` + `claims(id)`.
-6. Never use paginated `getClaimsByBountyId` as the complete candidate list.
-7. Resolve every proof URI.
-8. Inspect every potentially eligible submission.
-9. Apply only the bounty's actual requirements.
-10. Account for deadlines and chronology.
-11. Present findings.
-12. Obtain user confirmation before accepting or nominating.
+4. Prefer `bountyClaims(bountyId, i)` walked from `0` until out-of-bounds revert.
+5. Read each returned claim ID with `claims(id)`.
+6. Use `ClaimCreated` logs to retrieve proof URIs or as an alternative exhaustive discovery path.
+7. Fall back to `claimCounter()` + `claims(id)` only when necessary.
+8. Never use paginated `getClaimsByBountyId` as the complete candidate list.
+9. Resolve every proof URI.
+10. Inspect every potentially eligible submission.
+11. Apply only the bounty's actual requirements.
+12. Account for deadlines and chronology.
+13. Present findings.
+14. Obtain user confirmation before accepting or nominating.
 
 ---
 
@@ -1630,26 +1650,26 @@ Evaluation and transaction execution are separate actions.
 
 # Error Reference
 
-| Error                             | Cause                         | Fix                                      |
-| --------------------------------- | ----------------------------- | ---------------------------------------- |
-| `ContractsCannotCreateBounties()` | Wallet is a smart contract    | Use an EOA                               |
-| `MinimumBountyNotMet()`           | Bounty below minimum          | Increase `--value`                       |
-| `MinimumContributionNotMet()`     | Contribution below minimum    | Increase contribution                    |
-| `NoEther()`                       | No ETH sent                   | Add `--value`                            |
-| `WrongCaller()`                   | Caller not authorized         | Use issuer wallet                        |
-| `VotingOngoing()`                 | Vote active                   | Wait or resolve after deadline           |
-| `VotingEnded()`                   | Voting window finished        | Resolve vote                             |
-| `NotSoloBounty()`                 | Direct acceptance unavailable | Use voting flow                          |
-| `ClaimAlreadyAccepted()`          | Claim already accepted        | No further action                        |
-| `BountyClaimed()`                 | Bounty finalized              | No further action                        |
-| `BountyClosed()`                  | Bounty cancelled              | No further action                        |
-| `BountyNotFound()`                | Wrong contract bounty ID      | Verify ID                                |
-| `ClaimNotFound()`                 | Invalid claim ID              | Verify claim                             |
-| `IssuerCannotClaim()`             | Issuer attempted own bounty   | Use different claimant wallet            |
-| `NotActiveParticipant()`          | Caller not active contributor | Verify contribution state                |
-| `MaxParticipantsReached()`        | Contributor cap reached       | Cannot join until slot becomes available |
-| `NothingToWithdraw()`             | No pending payout             | Check pending balance                    |
-| `VoteWouldPass()`                 | Attempted invalid vote reset  | Cannot override passing vote that way    |
+| Error | Cause | Fix |
+| --- | --- | --- |
+| `ContractsCannotCreateBounties()` | Wallet is a smart contract | Use an EOA |
+| `MinimumBountyNotMet()` | Bounty below minimum | Increase `--value` |
+| `MinimumContributionNotMet()` | Contribution below minimum | Increase contribution |
+| `NoEther()` | No ETH sent | Add `--value` |
+| `WrongCaller()` | Caller not authorized | Use issuer wallet |
+| `VotingOngoing()` | Vote active | Wait or resolve after deadline |
+| `VotingEnded()` | Voting window finished | Resolve vote |
+| `NotSoloBounty()` | Direct acceptance unavailable | Use voting flow |
+| `ClaimAlreadyAccepted()` | Claim already accepted | No further action |
+| `BountyClaimed()` | Bounty finalized | No further action |
+| `BountyClosed()` | Bounty cancelled | No further action |
+| `BountyNotFound()` | Wrong contract bounty ID | Verify ID |
+| `ClaimNotFound()` | Invalid claim ID | Verify claim |
+| `IssuerCannotClaim()` | Issuer attempted own bounty | Use different claimant wallet |
+| `NotActiveParticipant()` | Caller not active contributor | Verify contribution state |
+| `MaxParticipantsReached()` | Contributor cap reached | Cannot join until slot becomes available |
+| `NothingToWithdraw()` | No pending payout | Check pending balance |
+| `VoteWouldPass()` | Attempted invalid vote reset | Cannot override passing vote that way |
 
 ---
 
@@ -1661,7 +1681,7 @@ Evaluation and transaction execution are separate actions.
 4. **Treat poidh's deployed contracts as immutable.**
 5. **Never trust the four broken `offset` getters for exhaustive enumeration.**
 6. **Never evaluate only the newest 10 claims when choosing a winner.**
-7. **Use `ClaimCreated` logs or the claim registry for exhaustive claim discovery.**
+7. **Use `bountyClaims(bountyId, i)` + `claims(id)` as the preferred exhaustive claim-enumeration path. Use `ClaimCreated` logs as an alternative and for proof URI retrieval.**
 8. **Use `/bounties/data`, individual `/data` endpoints, or the indexer for convenient discovery.**
 9. **Treat indexer and frontend JSON data as derived convenience data, not final consensus state.**
 10. **Verify critical state directly onchain before any transaction.**
@@ -1671,6 +1691,3 @@ Evaluation and transaction execution are separate actions.
 14. **Never silently ignore an inaccessible claim.**
 15. **Confirm with the user before every state-changing transaction.**
 16. **Never reveal or log the user's private key.**
-
-```
-```
