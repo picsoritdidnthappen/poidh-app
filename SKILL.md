@@ -197,10 +197,6 @@ const claims = [];
 for (const id of ids) claims.push(await poidh.claims(id));
 ```
 
-Verified against the deployed contracts on 2026-08-28: Base bounty `344` returns **4 of 4**
-claims, and Arbitrum bounty `143` returns **34 of 34** — the same bounty whose oldest claims
-`getClaimsByBountyId` cannot reach at any offset.
-
 The same shape replaces all four broken getters:
 
 | Do not use | Exact replacement |
