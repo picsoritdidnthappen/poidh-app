@@ -1,4 +1,3 @@
-````markdown
 ---
 name: poidh-bounty
 description: Post bounties, discover and inspect bounties, submit claims, evaluate submissions, and accept or nominate winning claims on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, or Base. Use this skill when the user wants to create a bounty on poidh.xyz, find available bounties, post a task with an ETH reward on-chain, submit proof to an existing bounty, evaluate submissions using vision or other content tools, accept a winning claim on a solo bounty, initiate/resolve voting on an open bounty, query poidh data, or withdraw bounty winnings.
