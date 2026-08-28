@@ -26,45 +26,78 @@ function GenerativePlaceholder({
 }) {
   const hash = hashString(seed);
 
-  const hue1 = hash % 360;
-  const hue2 = (hash * 7 + 90) % 360;
-  const hue3 = (hash * 13 + 180) % 360;
+  const palette = [
+    '#F45B5B',
+    '#FFD166',
+    '#118AB2',
+    '#7B61FF',
+    '#06D6A0',
+    '#F4A261',
+  ];
 
-  const x1 = 20 + (hash % 60);
-  const y1 = 20 + ((hash >> 3) % 60);
-  const x2 = 20 + ((hash >> 5) % 60);
-  const y2 = 20 + ((hash >> 7) % 60);
+  const background =
+    palette[hash % palette.length];
+
+  const accent1 =
+    palette[(hash + 2) % palette.length];
+
+  const accent2 =
+    palette[(hash + 4) % palette.length];
+
+  const vertical =
+    28 + ((hash >> 2) % 38);
+
+  const horizontal =
+    30 + ((hash >> 4) % 36);
+
+  const smallBlockLeft =
+    8 + ((hash >> 6) % 58);
+
+  const smallBlockTop =
+    8 + ((hash >> 8) % 58);
 
   return (
     <div
-      className='absolute inset-0'
+      className='absolute inset-0 overflow-hidden'
       style={{
-        background: `
-          radial-gradient(
-            circle at ${x1}% ${y1}%,
-            hsl(${hue1} 85% 65%),
-            transparent 45%
-          ),
-          radial-gradient(
-            circle at ${x2}% ${y2}%,
-            hsl(${hue2} 85% 60%),
-            transparent 50%
-          ),
-          linear-gradient(
-            135deg,
-            hsl(${hue3} 70% 45%),
-            hsl(${hue1} 75% 30%)
-          )
-        `,
+        backgroundColor: background,
       }}
     >
-      <div className='absolute inset-0 bg-white/5' />
+      <div
+        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
+        style={{
+          left: `${vertical}%`,
+        }}
+      />
 
-      <div className='absolute inset-0 flex items-center justify-center'>
-        <span className='font-mono text-white/50 text-xl sm:text-2xl'>
-          📸
-        </span>
-      </div>
+      <div
+        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
+        style={{
+          top: `${horizontal}%`,
+        }}
+      />
+
+      <div
+        className='absolute'
+        style={{
+          left: `${vertical}%`,
+          top: 0,
+          right: 0,
+          height: `${horizontal}%`,
+          backgroundColor: accent1,
+        }}
+      />
+
+      <div
+        className='absolute border-[4px] border-[#102A43]'
+        style={{
+          left: `${smallBlockLeft}%`,
+          top: `${smallBlockTop}%`,
+          width: '24%',
+          height: '24%',
+          backgroundColor: accent2,
+        }}
+      />
     </div>
   );
 }
@@ -118,7 +151,9 @@ function ClaimThumb({
         ) : isLoading ? (
           <div className='absolute inset-0 bg-white/10 animate-pulse' />
         ) : (
-          <GenerativePlaceholder seed={placeholderSeed} />
+          <GenerativePlaceholder
+            seed={placeholderSeed}
+          />
         )}
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
@@ -215,28 +250,34 @@ export default function LatestClaimImages() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {Array.from({ length: 15 }).map((_, i) => {
-          const tx = latestClaims[i];
+        {Array.from({ length: 15 }).map(
+          (_, i) => {
+            const tx = latestClaims[i];
 
-          return tx && tx.claim ? (
-            <ClaimThumb
-              key={tx.tx + String(tx.index ?? '')}
-              claim={tx.claim as Claim}
-              bountyId={
-                tx.bounty?.id ?? tx.bountyId
-              }
-              chainId={
-                (tx.bounty?.chainId ??
-                  tx.chainId) as ChainId
-              }
-            />
-          ) : (
-            <div
-              key={i}
-              className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
-            />
-          );
-        })}
+            return tx && tx.claim ? (
+              <ClaimThumb
+                key={
+                  tx.tx +
+                  String(tx.index ?? '')
+                }
+                claim={tx.claim as Claim}
+                bountyId={
+                  tx.bounty?.id ??
+                  tx.bountyId
+                }
+                chainId={
+                  (tx.bounty?.chainId ??
+                    tx.chainId) as ChainId
+                }
+              />
+            ) : (
+              <div
+                key={i}
+                className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
+              />
+            );
+          }
+        )}
       </div>
     </div>
   );
