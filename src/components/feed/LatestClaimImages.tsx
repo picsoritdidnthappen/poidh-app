@@ -8,6 +8,67 @@ import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 
+function hashString(value: string) {
+  let hash = 0;
+
+  for (let i = 0; i < value.length; i++) {
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+}
+
+function GenerativePlaceholder({
+  seed,
+}: {
+  seed: string;
+}) {
+  const hash = hashString(seed);
+
+  const hue1 = hash % 360;
+  const hue2 = (hash * 7 + 90) % 360;
+  const hue3 = (hash * 13 + 180) % 360;
+
+  const x1 = 20 + (hash % 60);
+  const y1 = 20 + ((hash >> 3) % 60);
+  const x2 = 20 + ((hash >> 5) % 60);
+  const y2 = 20 + ((hash >> 7) % 60);
+
+  return (
+    <div
+      className='absolute inset-0'
+      style={{
+        background: `
+          radial-gradient(
+            circle at ${x1}% ${y1}%,
+            hsl(${hue1} 85% 65%),
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at ${x2}% ${y2}%,
+            hsl(${hue2} 85% 60%),
+            transparent 50%
+          ),
+          linear-gradient(
+            135deg,
+            hsl(${hue3} 70% 45%),
+            hsl(${hue1} 75% 30%)
+          )
+        `,
+      }}
+    >
+      <div className='absolute inset-0 bg-white/5' />
+
+      <div className='absolute inset-0 flex items-center justify-center'>
+        <span className='font-mono text-white/50 text-xl sm:text-2xl'>
+          📸
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function ClaimThumb({
   claim,
   bountyId,
@@ -25,20 +86,24 @@ function ClaimThumb({
     isLoading,
   } = useClaimMedia(claim.url);
 
+  const placeholderSeed =
+    `${chainId}-${claim.id}-${claim.issuer}`;
+
   return (
     <div className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'>
-      {mediaUrl ? (
-        <Link
-          href={`/${chain.slug}/bounty/${bountyId}`}
-          className='block w-full h-full group relative'
-        >
-          {isVideo ? (
+      <Link
+        href={`/${chain.slug}/bounty/${bountyId}`}
+        className='block relative w-full h-full group'
+        aria-label={`view bounty for ${claim.title || 'claim'}`}
+      >
+        {mediaUrl ? (
+          isVideo ? (
             <video
               src={mediaUrl}
               muted
               playsInline
               preload='metadata'
-              className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
+              className='absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
             />
           ) : (
             <Image
@@ -49,15 +114,15 @@ function ClaimThumb({
               sizes='(max-width: 640px) 96px, (max-width: 768px) 112px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
               unoptimized
             />
-          )}
+          )
+        ) : isLoading ? (
+          <div className='absolute inset-0 bg-white/10 animate-pulse' />
+        ) : (
+          <GenerativePlaceholder seed={placeholderSeed} />
+        )}
 
-          <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
-        </Link>
-      ) : isLoading ? (
-        <div className='w-full h-full bg-white/10 animate-pulse' />
-      ) : (
-        <div className='w-full h-full bg-white/10' />
-      )}
+        <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
+      </Link>
     </div>
   );
 }
@@ -84,14 +149,16 @@ export default function LatestClaimImages() {
     };
   }, []);
 
-  const activities = trpc.accounts.activities.useInfiniteQuery(
-    {
-      address: undefined,
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
-  );
+  const activities =
+    trpc.accounts.activities.useInfiniteQuery(
+      {
+        address: undefined,
+      },
+      {
+        getNextPageParam: (lastPage) =>
+          lastPage.nextCursor,
+      }
+    );
 
   const latestClaims =
     activities.data?.pages
