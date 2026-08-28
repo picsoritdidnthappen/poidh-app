@@ -68,10 +68,7 @@ export const bountiesRouter = {
         extra: extraData,
         hasClaims: claims.length > 0,
         hasParticipants,
-        mustUseVoteFlow: await readMustUseVoteFlow(
-          bountyData,
-          hasParticipants
-        ),
+        mustUseVoteFlow: await readMustUseVoteFlow(bountyData, hasParticipants),
         amountSort,
       };
     }),
