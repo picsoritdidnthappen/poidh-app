@@ -12,8 +12,9 @@ import { ChainId, Netname } from '@/utils/types';
  * looks solo from the indexed participation rows, but `acceptClaim` still reverts with
  * `NotSoloBounty()` and the issuer has to go through `submitClaimForVote`.
  *
- * Returns `null` when the chain is unreachable, or runs a contract with no such flag
- * (mainnet and degen are still on the older one), so callers can fall back.
+ * All four configured chains run this contract and expose the flag, so the only reason this
+ * returns `null` is that the read itself failed (RPC down, rate limited, wrong chain id).
+ * Callers fall back to the indexed count in that case.
  */
 export async function everHadExternalContributor({
   chainId,
