@@ -20,6 +20,100 @@ import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 
+function hashString(value: string) {
+  let hash = 0;
+
+  for (let i = 0; i < value.length; i++) {
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+}
+
+function GenerativePlaceholder({
+  seed,
+}: {
+  seed: string;
+}) {
+  const hash = hashString(seed);
+
+  const palette = [
+    '#F45B5B',
+    '#FFD166',
+    '#118AB2',
+    '#7B61FF',
+    '#06D6A0',
+    '#F4A261',
+  ];
+
+  const background =
+    palette[hash % palette.length];
+
+  const accent1 =
+    palette[(hash + 2) % palette.length];
+
+  const accent2 =
+    palette[(hash + 4) % palette.length];
+
+  const vertical =
+    28 + ((hash >> 2) % 38);
+
+  const horizontal =
+    30 + ((hash >> 4) % 36);
+
+  const smallBlockLeft =
+    8 + ((hash >> 6) % 58);
+
+  const smallBlockTop =
+    8 + ((hash >> 8) % 58);
+
+  return (
+    <div
+      className='absolute inset-0 overflow-hidden'
+      style={{
+        backgroundColor: background,
+      }}
+    >
+      <div
+        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
+        style={{
+          left: `${vertical}%`,
+        }}
+      />
+
+      <div
+        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
+        style={{
+          top: `${horizontal}%`,
+        }}
+      />
+
+      <div
+        className='absolute'
+        style={{
+          left: `${vertical}%`,
+          top: 0,
+          right: 0,
+          height: `${horizontal}%`,
+          backgroundColor: accent1,
+        }}
+      />
+
+      <div
+        className='absolute border-[4px] border-[#102A43]'
+        style={{
+          left: `${smallBlockLeft}%`,
+          top: `${smallBlockTop}%`,
+          width: '24%',
+          height: '24%',
+          backgroundColor: accent2,
+        }}
+      />
+    </div>
+  );
+}
+
 export default function ClaimItem({
   claim,
 }: {
@@ -50,6 +144,9 @@ export default function ClaimItem({
     isLoading: isMediaLoading,
     mediaError,
   } = useClaimMedia(claim.url);
+
+  const placeholderSeed =
+    `${claim.chainId}-${claim.id}-${claim.issuer}`;
 
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
@@ -310,14 +407,10 @@ export default function ClaimItem({
         {/*
          * MEDIA
          *
-         * Same basic pattern as the feed:
-         *
          * claim.url
          *   -> useClaimMedia()
-         *   -> Image or video
-         *
-         * Images are now real <img> elements through Next Image,
-         * not CSS background images.
+         *   -> Image / video
+         *   -> deterministic abstract placeholder on failure
          */}
         <div
           className='relative w-full aspect-square bg-[#12AAFF] dark:bg-[#132b47] rounded-[8px] overflow-hidden cursor-pointer'
@@ -351,11 +444,9 @@ export default function ClaimItem({
               Loading...
             </div>
           ) : (
-            <div className='flex items-center justify-center w-full h-full text-white/60 text-sm'>
-              {mediaError
-                ? 'error loading media'
-                : 'no media'}
-            </div>
+            <GenerativePlaceholder
+              seed={placeholderSeed}
+            />
           )}
         </div>
 
