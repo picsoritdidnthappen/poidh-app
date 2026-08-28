@@ -285,8 +285,10 @@ export default function ClaimItem({
               <button
                 className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
                 onClick={() => {
+                  // mustUseVoteFlow, not hasParticipants: the contract keeps rejecting
+                  // acceptClaim after every outside contributor has withdrawn.
                   if (
-                    bounty.data.hasParticipants
+                    bounty.data.mustUseVoteFlow
                   ) {
                     setShowVotingConfirm(true);
                   } else {
@@ -294,7 +296,7 @@ export default function ClaimItem({
                   }
                 }}
               >
-                {bounty.data.hasParticipants
+                {bounty.data.mustUseVoteFlow
                   ? 'propose winner'
                   : 'accept'}
               </button>
