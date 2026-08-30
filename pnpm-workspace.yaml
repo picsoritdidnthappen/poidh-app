@@ -1,0 +1,11 @@
+allowBuilds:
+  '@nestjs/core': false
+  '@openapitools/openapi-generator-cli': false
+  '@prisma/engines': true
+  bufferutil: false
+  esbuild: true
+  keccak: false
+  msgpackr-extract: false
+  prisma: true
+  protobufjs: false
+  utf-8-validate: false
