@@ -31,7 +31,7 @@ import { Chain, Netname } from '@/utils/types';
 import { chains } from '@/utils/config';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { useScreenSize } from '@/hooks/useScreenSize';
-import { ETH_MIN_AMOUNT, DEGEN_MIN_AMOUNT } from '@/utils/constants';
+import { ETH_MIN_AMOUNT } from '@/utils/constants';
 import MarkdownContent from '@/components/global/MarkdownContent';
 
 export default function FormBounty({
@@ -55,7 +55,9 @@ export default function FormBounty({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
   const chain = useChainInfo();
-  const [currentChain, setCurrentChain] = useState<Chain>(chain);
+  const [currentChain, setCurrentChain] = useState<Chain>(
+    chain.slug === 'degen' ? chains.base : chain
+  );
   const price =
     trpc.web3.fetchPrice.useQuery({ currency: currentChain.currency }).data ??
     0;
@@ -444,24 +446,26 @@ export default function FormBounty({
                 },
               }}
             >
-              {Object.entries(chains).map(([netname, ch]) => (
-                <MenuItem
-                  key={netname}
-                  className={cn('mx-1')}
-                  onClick={() => {
-                    setCurrentChain(ch);
-                    handleClose();
-                  }}
-                >
-                  <div className='flex items-center justify-center w-5 h-5'>
-                    <DynamicChainIcon
-                      chain={netname as Netname}
-                      size={netname === 'base' ? 14 : 18}
-                    />
-                  </div>
-                  <p className='ml-4'>{netname}</p>
-                </MenuItem>
-              ))}
+              {Object.entries(chains)
+                .filter(([netname]) => netname !== 'degen')
+                .map(([netname, ch]) => (
+                  <MenuItem
+                    key={netname}
+                    className={cn('mx-1')}
+                    onClick={() => {
+                      setCurrentChain(ch);
+                      handleClose();
+                    }}
+                  >
+                    <div className='flex items-center justify-center w-5 h-5'>
+                      <DynamicChainIcon
+                        chain={netname as Netname}
+                        size={netname === 'base' ? 14 : 18}
+                      />
+                    </div>
+                    <p className='ml-4'>{netname}</p>
+                  </MenuItem>
+                ))}
             </Menu>
             {usdPerToken !== null && (
               <span
@@ -566,10 +570,7 @@ export default function FormBounty({
               )}
               onClick={() => {
                 if (name && description && amount) {
-                  const minValue =
-                    currentChain.currency === 'degen'
-                      ? DEGEN_MIN_AMOUNT
-                      : ETH_MIN_AMOUNT;
+                  const minValue = ETH_MIN_AMOUNT;
 
                   if (Number(amount) < minValue) {
                     toast.error(
