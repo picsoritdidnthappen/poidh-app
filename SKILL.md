@@ -1,6 +1,6 @@
 ---
 name: poidh-bounty
-description: Post bounties, discover and inspect bounties, submit claims, evaluate submissions, and accept or nominate winning claims on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, or Base. Use this skill when the user wants to create a bounty on poidh.xyz, find available bounties, post a task with an ETH reward on-chain, submit proof to an existing bounty, evaluate submissions using vision or other content tools, accept a winning claim on a solo bounty, initiate/resolve voting on an open bounty, query poidh data, or withdraw bounty winnings.
+description: "Post bounties, discover and inspect bounties, submit claims, evaluate submissions, and accept or nominate winning claims on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, or Base. Use this skill when the user wants to create a bounty on poidh.xyz, find available bounties, post a task with an ETH reward on-chain, submit proof to an existing bounty, evaluate submissions using vision or other content tools, accept a winning claim on a solo bounty, initiate/resolve voting on an open bounty, query poidh data, or withdraw bounty winnings."
 metadata:
   clawdbot:
     env:
@@ -33,16 +33,16 @@ A bounty issuer escrows ETH and describes an outcome. Claimants submit proof tha
 
 Proof is freeform. A claim may point to:
 
-- an image
-- video
-- social post
-- webpage
-- GitHub repository or pull request
-- benchmark result
-- document
-- dataset
-- IPFS object
-- other verifiable evidence
+* an image
+* video
+* social post
+* webpage
+* GitHub repository or pull request
+* benchmark result
+* document
+* dataset
+* IPFS object
+* other verifiable evidence
 
 ---
 
@@ -67,21 +67,46 @@ Always verify which contract address is being used.
 
 The actively supported poidh networks for this skill are:
 
-- Ethereum Mainnet
-- Arbitrum
-- Base
+* Ethereum Mainnet
+* Arbitrum
+* Base
 
 All bounty funding and payouts on these networks use ETH.
 
 ---
 
+## Retired Network: Degen Chain
+
+Degen Chain (`chainId 666666666`) is retired and is **not a supported poidh network**.
+
+Historical poidh activity from Degen Chain may still appear:
+
+* on historical poidh.xyz bounty pages
+* in the poidh indexer
+* in profile and leaderboard data
+* in analytics
+* in historical datasets
+* in old links or documentation
+
+Treat all Degen Chain records as **historical, read-only data**.
+
+> 🚨 **DO NOT CREATE BOUNTIES, SUBMIT CLAIMS, CONTRIBUTE FUNDS, ACCEPT CLAIMS, VOTE, WITHDRAW FUNDS, OR ATTEMPT ANY OTHER WRITE OPERATION ON DEGEN CHAIN.**
+
+Do not attempt to switch the user's wallet to Degen Chain or request a Degen RPC URL.
+
+If an indexer or frontend endpoint returns a Degen Chain bounty, do not treat it as an actionable bounty even if its historical status appears open.
+
+If the user provides a historical Degen bounty URL, the skill may inspect available frontend or indexer data for historical purposes, but must clearly state that Degen Chain is retired and that no transaction can be performed through this skill.
+
+---
+
 ## poidh v3 Core Contracts
 
-| Chain | Core Contract | Explorer |
-| --- | --- | --- |
+| Chain            | Core Contract                                | Explorer                                                                  |
+| ---------------- | -------------------------------------------- | ------------------------------------------------------------------------- |
 | Ethereum Mainnet | `0xE731dFadBFf20542E10D09D26Fc71445C70d4232` | `https://etherscan.io/address/0xe731dfadbff20542e10d09d26fc71445c70d4232` |
-| Arbitrum | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://arbiscan.io/address/0x5555fa783936c260f77385b4e153b9725fef1719` |
-| Base | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://basescan.org/address/0x5555fa783936c260f77385b4e153b9725fef1719` |
+| Arbitrum         | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://arbiscan.io/address/0x5555fa783936c260f77385b4e153b9725fef1719`  |
+| Base             | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://basescan.org/address/0x5555fa783936c260f77385b4e153b9725fef1719` |
 
 ---
 
@@ -89,11 +114,11 @@ All bounty funding and payouts on these networks use ETH.
 
 Claim proof NFTs are minted through the poidh NFT contracts.
 
-| Chain | NFT Contract |
-| --- | --- |
+| Chain            | NFT Contract                                 |
+| ---------------- | -------------------------------------------- |
 | Ethereum Mainnet | `0x9c5f45d5e1382e4058d334d93c6c01442012a4d9` |
-| Arbitrum | `0x27e117cc9a8da363442e7bd0618939e3eeeacf6a` |
-| Base | `0x27e117cc9a8da363442e7bd0618939e3eeeacf6a` |
+| Arbitrum         | `0x27e117cc9a8da363442e7bd0618939e3eeeacf6a` |
+| Base             | `0x27e117cc9a8da363442e7bd0618939e3eeeacf6a` |
 
 The NFT contract can also be resolved dynamically from the core contract:
 
@@ -176,8 +201,8 @@ They are not reliable pagination.
 
 ### Instead: walk the index
 
-The public array getters are exact. Read the index from `0` until the call reverts out of
-bounds, then read each record by id:
+The public array getters are exact **when the RPC call succeeds**. Read indexes from `0`
+upward and read each referenced record by id:
 
 ```solidity
 bountyClaims(uint256 bountyId, uint256 index) returns (uint256 claimId)
@@ -187,25 +212,68 @@ claims(uint256 claimId) returns (
 )
 ```
 
-```js
-const ids = [];
-for (let i = 0; ; i++) {
-  try { ids.push(await poidh.bountyClaims(bountyId, i)); }
-  catch { break; } // out of bounds: the array ended
-}
+Do **not** treat a failed indexed read as proof that the array ended.
 
-const claims = [];
-for (const id of ids) claims.push(await poidh.claims(id));
+A provider may surface an out-of-bounds revert, rate limit, transport failure, unsupported
+method, or other RPC problem through the same generic client exception. A bare
+`catch { break; }` can therefore silently truncate an array or turn a non-empty array into
+an empty one.
+
+Use this rule:
+
+1. read `bountyClaims(bountyId, i)` from the current provider
+2. if it returns a claim ID, record it and continue
+3. if it fails, retry the **same exact `(bountyId, i)` read** through a genuinely independent RPC provider
+4. verify the second provider is healthy with at least one known-good read
+5. if the independent provider returns a claim ID, the first provider failed; continue the walk
+6. only treat index `i` as the end when a healthy independent provider also reports that the same index is unavailable
+7. if no independent provider is available, fail loudly and do not claim the enumeration was exhaustive
+
+Conceptual example:
+
+```js
+async function walkBountyClaims(primary, secondary, bountyId) {
+  const ids = [];
+
+  for (let i = 0; ; i++) {
+    try {
+      ids.push(await primary.bountyClaims(bountyId, i));
+      continue;
+    } catch (primaryError) {
+      // Confirm the exact same index through independent infrastructure.
+      // `knownGoodRead` must be a call whose successful result is already known.
+      await knownGoodRead(secondary);
+
+      try {
+        ids.push(await secondary.bountyClaims(bountyId, i));
+        continue; // primary failed; this index exists
+      } catch (secondaryError) {
+        // Both providers report this exact index unavailable.
+        // Treat this as the boundary only after the secondary provider passed
+        // the known-good health check above.
+        break;
+      }
+    }
+  }
+
+  return ids;
+}
 ```
+
+The independent provider must be genuinely independent infrastructure. A second URL or
+transport that ultimately reaches the same RPC host is not a meaningful second opinion.
+
+Apply the same boundary-confirmation rule to `userClaims(user, i)` and
+`userBounties(user, i)`.
 
 The same shape replaces all four broken getters:
 
-| Do not use | Exact replacement |
-| --- | --- |
-| `getBounties(offset)` | `bountyCounter()`, then `bounties(id)` for each id |
-| `getClaimsByBountyId(bountyId, offset)` | `bountyClaims(bountyId, i)` walked to revert, then `claims(id)` |
-| `getBountiesByUser(user, offset)` | `userBounties(user, i)` walked to revert, then `bounties(id)` |
-| `getClaimsByUser(user, offset)` | `userClaims(user, i)` walked to revert, then `claims(id)` |
+| Do not use                              | Exact replacement                                                                            |
+| --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `getBounties(offset)`                   | `bountyCounter()`, then `bounties(id)` for each id                                           |
+| `getClaimsByBountyId(bountyId, offset)` | `bountyClaims(bountyId, i)` walked to an independently confirmed boundary, then `claims(id)` |
+| `getBountiesByUser(user, offset)`       | `userBounties(user, i)` walked to an independently confirmed boundary, then `bounties(id)`   |
+| `getClaimsByUser(user, offset)`         | `userClaims(user, i)` walked to an independently confirmed boundary, then `claims(id)`       |
 
 ### A returned row is not necessarily a record
 
@@ -251,8 +319,9 @@ For targeted exhaustive reads, prefer the contract's public index getters:
 * `bountyCounter()` + `bounties(id)` for the complete bounty registry
 * `claimCounter()` + `claims(id)` for the complete claim registry
 
-Walk array indexes from `0` until the call reverts out of bounds, then read the referenced
-record by id.
+Walk array indexes from `0` upward. If an indexed read fails, confirm the **same exact
+index** through a healthy independent RPC provider before treating the failure as the end
+of the array. Then read each referenced record by id.
 
 Use contract events for:
 
@@ -306,11 +375,11 @@ They are convenience endpoints, not the ultimate authority for critical contract
 
 # Required Environment Variables
 
-| Variable | Description |
-| --- | --- |
+| Variable      | Description                                                           |
+| ------------- | --------------------------------------------------------------------- |
 | `PRIVATE_KEY` | Private key of the EOA signing transactions, hex with or without `0x` |
-| `RPC_URL` | RPC URL for the target chain |
-| `POIDH_CHAIN` | `mainnet`, `arbitrum`, or `base` |
+| `RPC_URL`     | RPC URL for the target chain                                          |
+| `POIDH_CHAIN` | `mainnet`, `arbitrum`, or `base`                                      |
 
 Do not expose `PRIVATE_KEY` in output, logs, URLs, command history shown to the user, or error reports.
 
@@ -368,11 +437,11 @@ contract_bounty_id = frontend_id - POIDH_V2_OFFSET
 
 Current offsets:
 
-| Chain | Offset |
-| --- | ---: |
-| Ethereum Mainnet | `0` |
-| Arbitrum | `180` |
-| Base | `986` |
+| Chain            | Offset |
+| ---------------- | -----: |
+| Ethereum Mainnet |    `0` |
+| Arbitrum         |  `180` |
+| Base             |  `986` |
 
 Example:
 
@@ -431,6 +500,16 @@ Use this endpoint for tasks such as:
 * "find bounties worth more than X"
 
 After identifying a bounty, inspect its individual data endpoint and/or verify the relevant state onchain.
+
+The frontend feed or indexer may contain historical Degen Chain records.
+
+When discovering actionable bounties, only return bounties on:
+
+* Ethereum Mainnet
+* Arbitrum
+* Base
+
+Exclude Degen Chain (`chainId 666666666`) from actionable bounty results even if a historical record appears open.
 
 ---
 
@@ -889,7 +968,7 @@ Enumerate the bounty's exact claim index:
 bountyClaims(uint256 bountyId, uint256 index) returns (uint256 claimId)
 ```
 
-Read indexes starting at `0` until the call reverts out of bounds.
+Read indexes starting at `0` and increasing by one.
 
 For each returned claim ID, read current state with:
 
@@ -900,9 +979,25 @@ cast call $POIDH_CONTRACT_ADDRESS \
   --rpc-url $RPC_URL
 ```
 
+A failed `bountyClaims(bountyId, i)` call is **not** by itself proof that index `i` is out of
+bounds. RPC failures and genuine contract reverts may be indistinguishable through some
+client libraries.
+
+Before declaring the array complete:
+
+1. retry the **same exact `bountyClaims(bountyId, i)`** through a genuinely independent RPC provider
+2. verify that provider is healthy with a known-good contract read
+3. if the second provider returns a claim ID, continue enumeration
+4. only accept the boundary if the healthy second provider also reports that exact index unavailable
+5. if an independent provider is unavailable or health cannot be verified, stop and report that exhaustive enumeration could not be confirmed
+
+Do not replace this with a same-provider canary alone. A provider can successfully answer
+one key while failing a different `(bountyId, index)` read.
+
 This is the preferred authoritative method for enumerating every claim on a specific bounty.
 
-Do not stop after ten results.
+Do not stop after ten results, and do not silently convert an RPC failure into a shorter
+claim list.
 
 ---
 
@@ -1495,12 +1590,12 @@ Do not assume this bug will change at the existing addresses.
 
 poidh uses ETH on every network supported by this skill.
 
-| Human amount | Cast value |
-| --- | --- |
-| `0.001 ETH` | `0.001ether` |
-| `0.01 ETH` | `0.01ether` |
-| `0.1 ETH` | `0.1ether` |
-| `1 ETH` | `1ether` |
+| Human amount | Cast value   |
+| ------------ | ------------ |
+| `0.001 ETH`  | `0.001ether` |
+| `0.01 ETH`   | `0.01ether`  |
+| `0.1 ETH`    | `0.1ether`   |
+| `1 ETH`      | `1ether`     |
 
 ---
 
@@ -1592,17 +1687,19 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 1. Resolve contract bounty ID.
 2. Read bounty rules.
 3. Enumerate every claim.
-4. Prefer `bountyClaims(bountyId, i)` walked from `0` until out-of-bounds revert.
-5. Read each returned claim ID with `claims(id)`.
-6. Use `ClaimCreated` logs to retrieve proof URIs or as an alternative exhaustive discovery path.
-7. Fall back to `claimCounter()` + `claims(id)` only when necessary.
-8. Never use paginated `getClaimsByBountyId` as the complete candidate list.
-9. Resolve every proof URI.
-10. Inspect every potentially eligible submission.
-11. Apply only the bounty's actual requirements.
-12. Account for deadlines and chronology.
-13. Present findings.
-14. Obtain user confirmation before accepting or nominating.
+4. Prefer `bountyClaims(bountyId, i)` walked from `0` upward.
+5. If an indexed read fails, confirm the **same exact index** through a healthy independent RPC provider before treating it as the array boundary.
+6. If no independent provider is available, do not claim exhaustive enumeration succeeded.
+7. Read each returned claim ID with `claims(id)`.
+8. Use `ClaimCreated` logs to retrieve proof URIs or as an alternative exhaustive discovery path.
+9. Fall back to `claimCounter()` + `claims(id)` only when necessary.
+10. Never use paginated `getClaimsByBountyId` as the complete candidate list.
+11. Resolve every proof URI.
+12. Inspect every potentially eligible submission.
+13. Apply only the bounty's actual requirements.
+14. Account for deadlines and chronology.
+15. Present findings.
+16. Obtain user confirmation before accepting or nominating.
 
 ---
 
@@ -1650,26 +1747,26 @@ Evaluation and transaction execution are separate actions.
 
 # Error Reference
 
-| Error | Cause | Fix |
-| --- | --- | --- |
-| `ContractsCannotCreateBounties()` | Wallet is a smart contract | Use an EOA |
-| `MinimumBountyNotMet()` | Bounty below minimum | Increase `--value` |
-| `MinimumContributionNotMet()` | Contribution below minimum | Increase contribution |
-| `NoEther()` | No ETH sent | Add `--value` |
-| `WrongCaller()` | Caller not authorized | Use issuer wallet |
-| `VotingOngoing()` | Vote active | Wait or resolve after deadline |
-| `VotingEnded()` | Voting window finished | Resolve vote |
-| `NotSoloBounty()` | Direct acceptance unavailable | Use voting flow |
-| `ClaimAlreadyAccepted()` | Claim already accepted | No further action |
-| `BountyClaimed()` | Bounty finalized | No further action |
-| `BountyClosed()` | Bounty cancelled | No further action |
-| `BountyNotFound()` | Wrong contract bounty ID | Verify ID |
-| `ClaimNotFound()` | Invalid claim ID | Verify claim |
-| `IssuerCannotClaim()` | Issuer attempted own bounty | Use different claimant wallet |
-| `NotActiveParticipant()` | Caller not active contributor | Verify contribution state |
-| `MaxParticipantsReached()` | Contributor cap reached | Cannot join until slot becomes available |
-| `NothingToWithdraw()` | No pending payout | Check pending balance |
-| `VoteWouldPass()` | Attempted invalid vote reset | Cannot override passing vote that way |
+| Error                             | Cause                         | Fix                                      |
+| --------------------------------- | ----------------------------- | ---------------------------------------- |
+| `ContractsCannotCreateBounties()` | Wallet is a smart contract    | Use an EOA                               |
+| `MinimumBountyNotMet()`           | Bounty below minimum          | Increase `--value`                       |
+| `MinimumContributionNotMet()`     | Contribution below minimum    | Increase contribution                    |
+| `NoEther()`                       | No ETH sent                   | Add `--value`                            |
+| `WrongCaller()`                   | Caller not authorized         | Use issuer wallet                        |
+| `VotingOngoing()`                 | Vote active                   | Wait or resolve after deadline           |
+| `VotingEnded()`                   | Voting window finished        | Resolve vote                             |
+| `NotSoloBounty()`                 | Direct acceptance unavailable | Use voting flow                          |
+| `ClaimAlreadyAccepted()`          | Claim already accepted        | No further action                        |
+| `BountyClaimed()`                 | Bounty finalized              | No further action                        |
+| `BountyClosed()`                  | Bounty cancelled              | No further action                        |
+| `BountyNotFound()`                | Wrong contract bounty ID      | Verify ID                                |
+| `ClaimNotFound()`                 | Invalid claim ID              | Verify claim                             |
+| `IssuerCannotClaim()`             | Issuer attempted own bounty   | Use different claimant wallet            |
+| `NotActiveParticipant()`          | Caller not active contributor | Verify contribution state                |
+| `MaxParticipantsReached()`        | Contributor cap reached       | Cannot join until slot becomes available |
+| `NothingToWithdraw()`             | No pending payout             | Check pending balance                    |
+| `VoteWouldPass()`                 | Attempted invalid vote reset  | Cannot override passing vote that way    |
 
 ---
 
@@ -1677,17 +1774,21 @@ Evaluation and transaction execution are separate actions.
 
 1. **Only interact with poidh v3 contracts.**
 2. **Never interact with poidh v2 contracts.**
-3. **Only use Ethereum Mainnet, Arbitrum, or Base.**
-4. **Treat poidh's deployed contracts as immutable.**
-5. **Never trust the four broken `offset` getters for exhaustive enumeration.**
-6. **Never evaluate only the newest 10 claims when choosing a winner.**
-7. **Use `bountyClaims(bountyId, i)` + `claims(id)` as the preferred exhaustive claim-enumeration path. Use `ClaimCreated` logs as an alternative and for proof URI retrieval.**
-8. **Use `/bounties/data`, individual `/data` endpoints, or the indexer for convenient discovery.**
-9. **Treat indexer and frontend JSON data as derived convenience data, not final consensus state.**
-10. **Verify critical state directly onchain before any transaction.**
-11. **Always distinguish frontend bounty IDs from v3 contract bounty IDs.**
-12. **Prefer `onChainId` from the individual JSON endpoint when available.**
-13. **Respect rules such as "first valid submission wins."**
-14. **Never silently ignore an inaccessible claim.**
-15. **Confirm with the user before every state-changing transaction.**
-16. **Never reveal or log the user's private key.**
+3. **Only use Ethereum Mainnet, Arbitrum, or Base for live poidh activity.**
+4. **Degen Chain (`666666666`) is retired. Treat Degen records as historical and never attempt transactions or wallet switching on Degen.**
+5. **Never treat a historical Degen bounty as actionable merely because frontend or indexer data reports it as open.**
+6. **Treat poidh's deployed contracts as immutable.**
+7. **Never trust the four broken `offset` getters for exhaustive enumeration.**
+8. **Never evaluate only the newest 10 claims when choosing a winner.**
+9. **Never treat a failed `bountyClaims`, `userClaims`, or `userBounties` indexed read as proof that the array ended without confirming the same exact index through a healthy independent RPC provider.**
+10. **If independent boundary confirmation is unavailable, fail loudly and do not claim exhaustive enumeration succeeded.**
+11. **Use `bountyClaims(bountyId, i)` + `claims(id)` as the preferred exhaustive claim-enumeration path. Use `ClaimCreated` logs as an alternative and for proof URI retrieval.**
+12. **Use `/bounties/data`, individual `/data` endpoints, or the indexer for convenient discovery.**
+13. **Treat indexer and frontend JSON data as derived convenience data, not final consensus state.**
+14. **Verify critical state directly onchain before any transaction.**
+15. **Always distinguish frontend bounty IDs from v3 contract bounty IDs.**
+16. **Prefer `onChainId` from the individual JSON endpoint when available.**
+17. **Respect rules such as "first valid submission wins."**
+18. **Never silently ignore an inaccessible claim.**
+19. **Confirm with the user before every state-changing transaction.**
+20. **Never reveal or log the user's private key.**
