@@ -296,6 +296,22 @@ async function confirmEmpty(others, bountyId) {
 }
 ```
 
+**Count the providers you actually have before trusting this.** `confirmEmpty` can only do its
+job if `others` is non-empty, and a chain configured with a single RPC silently has nothing to
+pass it — the guard degrades to "trust the one endpoint" without saying so. That is not
+hypothetical: my scanner ran Degen on one endpoint, so every Degen empty was a single provider's
+unchallenged word. Worse, the audit I wrote to find this class of bug inherited the same blind
+spot — it marked a row confirmed as soon as *any* endpoint reverted with its canary passing,
+which on a one-endpoint chain is the same-endpoint canary wearing a different hat.
+
+A second path to the same host does not count: `rpc.degen.tips/http` is not a second opinion
+about `rpc.degen.tips`. Find genuinely separate infrastructure, verify it answers the positive
+control, and make the single-provider case **fail loudly** rather than pass quietly:
+
+```js
+if (others.length === 0) throw new Error("cannot confirm an empty list with one provider");
+```
+
 Use one provider to detect the boundary and a different one to confirm it. Asking the same
 endpoint a second question only ever proves it is still talking to you.
 
