@@ -268,6 +268,37 @@ async function confirmEnd(poidh, bountyId, i) {
 If `confirmEnd` throws, the endpoint stopped answering — retry the whole walk on another
 provider. Do not record a count. The same rule applies to `userClaims` and `userBounties`.
 
+**The canary is a liveness check, not a proof about the key you asked for.** It reads a
+*different* `(bountyId, index)` pair, so it catches an endpoint that has stopped answering
+everything, and misses one that reverts a single key while serving the rest. That gap is
+real: a later scan of all 741 bounties across the four chains, run with the `confirmEnd`
+guard above, still recorded `no claims` for **2 of its 31 empties** — Arbitrum 125 (claim
+557, created 2026-06-15) and Arbitrum 146 (claim 622). Re-probing every endpoint showed both
+bounties answer `bountyClaims(id, 0)` normally. Since the guard only returns an empty list
+after the canary passes, the canary passed while the answer was wrong.
+
+So for the `i === 0` case — the one that produces an *empty* list, the costliest wrong answer
+here — confirm on a **different provider** rather than on the same one:
+
+```js
+// `others` must exclude the provider that reported the empty -- that is the whole point.
+async function confirmEmpty(others, bountyId) {
+  for (const p of others) {
+    try {
+      await p.bountyClaims(bountyId, 0);
+      return false;                                 // it reads: the list is NOT empty
+    } catch {
+      try { await canary(p); } catch { continue; }  // unhealthy: its revert proves nothing
+      return true;                                  // healthy and still reverts: genuinely empty
+    }
+  }
+  throw new Error("no healthy second provider could confirm the empty list");
+}
+```
+
+Use one provider to detect the boundary and a different one to confirm it. Asking the same
+endpoint a second question only ever proves it is still talking to you.
+
 ### A returned row is not necessarily a record
 
 The same convenience getters allocate a fixed array of 10 and never shrink it, so short
