@@ -77,7 +77,14 @@ export default function Voting({
 
   const deadlineMs = (bounty.data?.deadline ?? 0) * 1000;
   const isVotingInProgress = deadlineMs > Date.now();
-  const isVotingClosed = !!bounty.data && !isVotingInProgress;
+
+  const canResolveVote =
+    !!bounty.data &&
+    bounty.data.inProgress &&
+    bounty.data.isVoting &&
+    !isAcceptedBounty &&
+    deadlineMs > 0 &&
+    !isVotingInProgress;
 
   const canVote =
     isVotingInProgress &&
@@ -145,6 +152,16 @@ export default function Voting({
     mutationFn: async () => {
       if (!bounty.data) throw new Error('Bounty data not found');
       if (!account.address) throw new Error('Wallet not connected');
+
+      if (
+        !bounty.data.inProgress ||
+        !bounty.data.isVoting ||
+        isAcceptedBounty ||
+        deadlineMs <= 0 ||
+        deadlineMs > Date.now()
+      ) {
+        throw new Error('This vote is not ready to resolve');
+      }
 
       await ensureCorrectChain();
 
@@ -322,7 +339,7 @@ export default function Voting({
               </div>
             )}
 
-          {isVotingClosed && (
+          {canResolveVote && (
             <button
               className='w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 border border-blue-400/20 bg-gradient-to-r from-blue-500/70 to-blue-600/70 text-white hover:from-blue-500/85 hover:to-blue-600/85 hover:border-blue-400 active:scale-95 shadow-lg hover:shadow-blue-500/20'
               onClick={() => resolveVoteMutation.mutate()}
