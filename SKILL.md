@@ -190,13 +190,21 @@ claims(uint256 claimId) returns (
 ```js
 const ids = [];
 for (let i = 0; ; i++) {
-  try { ids.push(await poidh.bountyClaims(bountyId, i)); }
-  catch { break; } // out of bounds: the array ended
+  let id;
+  try {
+    id = await poidh.bountyClaims(bountyId, i);
+  } catch {
+    await confirmEnd(poidh, bountyId, i); // throws unless the array really ended
+    break;
+  }
+  ids.push(id);
 }
 
 const claims = [];
 for (const id of ids) claims.push(await poidh.claims(id));
 ```
+
+`confirmEnd` is not optional — see the next section for why, and for its implementation.
 
 The same shape replaces all four broken getters:
 
@@ -206,6 +214,59 @@ The same shape replaces all four broken getters:
 | `getClaimsByBountyId(bountyId, offset)` | `bountyClaims(bountyId, i)` walked to revert, then `claims(id)` |
 | `getBountiesByUser(user, offset)` | `userBounties(user, i)` walked to revert, then `bounties(id)` |
 | `getClaimsByUser(user, offset)` | `userClaims(user, i)` walked to revert, then `claims(id)` |
+
+### `catch { break }` is not a termination condition
+
+The walk above is only exact if the error that ends it really was an out-of-bounds read.
+Through a JSON-RPC provider it usually cannot be told apart from a failure:
+
+* Via ethers, a genuine out-of-bounds read and a throttled endpoint are **byte-identical** —
+  `code: "CALL_EXCEPTION"`, `data: null`, `shortMessage: "missing revert data"`. Measured
+  2026-09-02 on Base against the deployed v3 contract, the same on all of `base.drpc.org`,
+  `mainnet.base.org` and `base-rpc.publicnode.com`. There is no `Panic(0x32)` payload to
+  recognise, so no property of the error object separates the two cases.
+* A raw `eth_call` does distinguish them — out of bounds returns
+  `{"error":{"code":3,"message":"execution reverted"}}`, while a rate limit returns
+  `-32016` / `-32005` or HTTP 429 — but ethers discards the code on the way out.
+* It is not only rate limits. On the same day `base.meowrpc.com` answered
+  `{"code":-32000,"message":"The method eth_call is not supported."}` for *every* call,
+  including `claims(1)`. Through ethers that is, again, `missing revert data` — so a
+  provider that cannot perform the read at all reports "this bounty has no claims".
+
+So `catch { break }` turns a rate limit into "the array ended", and the walk returns a
+**short list, most often the empty one**. Nothing throws and nothing looks wrong. An empty
+list reads as *nobody has claimed this bounty*, which is the same wrong answer this section
+exists to prevent, arrived at from the other side.
+
+This is not hypothetical. A scan of the first 205 Base bounties written exactly as above
+classified 16 of them as having no claims; re-probing all 16 across three endpoints showed
+**9 of the 16 had at least one claim**. The visible symptom was nil — the run exited 0 with a
+plausible-looking table.
+
+**Never accept the terminating error on its own.** Make the same endpoint, asked immediately
+afterwards, answer a read of the same function whose result is already known:
+
+```js
+// Claim ids are global and increase, so claim #1 is element 0 of its own bounty's array,
+// and the arrays are push-only -- acceptance never removes an entry. So this is a call of
+// exactly the shape under test whose correct answer is permanent.
+let canaryBounty;
+async function canary(poidh) {
+  canaryBounty ??= (await poidh.claims(1)).bountyId;
+  if ((await poidh.bountyClaims(canaryBounty, 0)) !== 1n) throw new Error("canary mismatch");
+}
+
+async function confirmEnd(poidh, bountyId, i) {
+  if (i > 0) {
+    await poidh.bountyClaims(bountyId, i - 1); // must still read; throws if the endpoint died
+    return;
+  }
+  await canary(poidh); // no i-1 to fall back on: prove the endpoint can still answer at all
+}
+```
+
+If `confirmEnd` throws, the endpoint stopped answering — retry the whole walk on another
+provider. Do not record a count. The same rule applies to `userClaims` and `userBounties`.
 
 ### A returned row is not necessarily a record
 
