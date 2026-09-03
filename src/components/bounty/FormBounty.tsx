@@ -282,17 +282,6 @@ export default function FormBounty({
           <>
             <div className='mb-5 pr-8'>
               <h2 className='font-mono text-2xl'>create bounty</h2>
-              <p className='text-xs text-white/50 mt-1'>
-                questions?{' '}
-                <a
-                  href='https://docs.poidh.xyz/using-poidh/creating-a-bounty.html'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='underline hover:text-white'
-                >
-                  check out our bounty creation docs
-                </a>
-              </p>
             </div>
 
             <button
@@ -418,13 +407,7 @@ export default function FormBounty({
                 : 'flex flex-col min-h-0 h-full pl-2'
             }
           >
-            <div
-              className={
-                isMobile
-                  ? ''
-                  : 'flex flex-col justify-between flex-1 min-h-0 py-2'
-              }
-            >
+            <div className={isMobile ? '' : 'flex flex-col gap-6'}>
               <div>
                 <span className={isMobile ? 'text-base mb-2' : ''}>
                   reward
@@ -631,59 +614,73 @@ export default function FormBounty({
                   </span>
                 </div>
               </div>
+            </div>
 
-              <div
-                className={
-                  isMobile
-                    ? 'mt-6 flex flex-col items-center w-full'
-                    : 'flex flex-col items-center w-full pb-2'
-                }
-              >
-                <button
-                  className={cn(
-                    'flex flex-row items-center justify-center',
-                    account.isDisconnected && 'opacity-50 cursor-not-allowed'
-                  )}
-                  onClick={() => {
-                    if (name && description && amount) {
-                      const minValue = ETH_MIN_AMOUNT;
+            <div
+              className={
+                isMobile
+                  ? 'mt-6 flex flex-col items-center w-full'
+                  : 'mt-auto flex flex-col items-center w-full pb-2'
+              }
+            >
+              <button
+                className={cn(
+                  'flex flex-row items-center justify-center',
+                  account.isDisconnected && 'opacity-50 cursor-not-allowed'
+                )}
+                onClick={() => {
+                  if (name && description && amount) {
+                    const minValue = ETH_MIN_AMOUNT;
 
-                      if (Number(amount) < minValue) {
-                        toast.error(
-                          `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
-                        );
-                        return;
-                      }
-
-                      if (balance && parseEther(amount) > balance.value) {
-                        toast.error(
-                          'You do not have enough funds for this bounty'
-                        );
-                        return;
-                      }
-
-                      const formData = {
-                        name,
-                        description,
-                        amount,
-                        album,
-                      };
-
-                      createBountyMutations.mutate(formData);
-                    } else {
+                    if (Number(amount) < minValue) {
                       toast.error(
-                        'Please fill in all required fields and check wallet connection.'
+                        `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
                       );
+                      return;
                     }
-                  }}
-                  disabled={account.isDisconnected}
-                >
-                  <div className='button'>
-                    <GameButton />
-                    <p className='text-center mt-1'>create bounty</p>
-                  </div>
-                </button>
-              </div>
+
+                    if (balance && parseEther(amount) > balance.value) {
+                      toast.error(
+                        'You do not have enough funds for this bounty'
+                      );
+                      return;
+                    }
+
+                    const formData = {
+                      name,
+                      description,
+                      amount,
+                      album,
+                    };
+
+                    createBountyMutations.mutate(formData);
+                  } else {
+                    toast.error(
+                      'Please fill in all required fields and check wallet connection.'
+                    );
+                  }
+                }}
+                disabled={account.isDisconnected}
+              >
+                <div className='button'>
+                  <GameButton />
+                  <p className='text-center mt-1'>create bounty</p>
+                </div>
+              </button>
+
+              {!isMobile && (
+                <p className='text-xs text-white/50 mt-3 text-center'>
+                  questions?{' '}
+                  <a
+                    href='https://docs.poidh.xyz/using-poidh/creating-a-bounty.html'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='underline hover:text-white'
+                  >
+                    check out our bounty creation docs
+                  </a>
+                </p>
+              )}
             </div>
           </div>
         </Box>
