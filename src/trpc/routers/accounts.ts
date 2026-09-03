@@ -619,6 +619,7 @@ export const accountsRouter = {
         items: normalizedTxs,
         nextCursor,
       };
+          }),
   canVote: baseProcedure
     .input(
       z.object({
