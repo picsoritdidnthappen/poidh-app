@@ -282,6 +282,7 @@ export default function FormBounty({
           <>
             <div className='mb-5 pr-8'>
               <h2 className='font-mono text-2xl'>create bounty</h2>
+              <p className='text-sm text-white/60 mt-1'>define your outcome</p>
             </div>
 
             <button
@@ -333,7 +334,8 @@ export default function FormBounty({
               type='text'
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse ${
+              placeholder='name your bounty'
+              className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 ${
                 isMobile ? 'text-base py-3' : ''
               }`}
             />
@@ -404,190 +406,205 @@ export default function FormBounty({
             className={
               isMobile
                 ? ''
-                : 'flex flex-col min-h-0 h-full pl-2'
+                : 'flex flex-col min-h-0 h-full border-l border-white/15 pl-8'
             }
           >
-            <div className={isMobile ? '' : 'flex flex-col gap-6'}>
-              <div>
-                <span className={isMobile ? 'text-base mb-2' : ''}>
-                  reward
-                </span>
-                <div className='relative w-full'>
-                  <input
-                    ref={inputRef}
-                    type='number'
-                    step='any'
-                    placeholder={`amount in ${currentChain.currency}`}
-                    value={amount}
-                    maxLength={15}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw.split(/[.,]/)[0].length > 20) return;
+            {!isMobile && (
+              <div className='mb-5'>
+                <div className='font-semibold text-sm'>bounty settings</div>
+                <div className='text-xs text-white/50 mt-1'>
+                  choose the reward, chain, and bounty type
+                </div>
+              </div>
+            )}
 
-                      const value = Number(raw);
-                      setAmount(raw);
-                      if (!isNaN(value) && value > 0) {
-                        setUsdPerToken(
-                          parseFloat((value * price).toFixed(2))
-                        );
-                      } else {
-                        setUsdPerToken(null);
-                      }
-                    }}
-                    className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full overflow-hidden whitespace-nowrap text-ellipsis transition-colors duration-150 placeholder:text-slate-400 ${
-                      amount ? 'pr-40' : 'pr-28'
-                    } ${isMobile ? ' text-base py-3' : ''}`}
+            <div>
+              <span className={isMobile ? 'text-base mb-2' : 'font-semibold'}>
+                reward
+              </span>
+
+              <div className='relative w-full mt-2'>
+                <input
+                  ref={inputRef}
+                  type='number'
+                  step='any'
+                  placeholder={`amount in ${currentChain.currency}`}
+                  value={amount}
+                  maxLength={15}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    if (raw.split(/[.,]/)[0].length > 20) return;
+
+                    const value = Number(raw);
+                    setAmount(raw);
+                    if (!isNaN(value) && value > 0) {
+                      setUsdPerToken(parseFloat((value * price).toFixed(2)));
+                    } else {
+                      setUsdPerToken(null);
+                    }
+                  }}
+                  className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md w-full overflow-hidden whitespace-nowrap text-ellipsis transition-colors duration-150 placeholder:text-slate-400 ${
+                    amount ? 'pr-40' : 'pr-28'
+                  } ${isMobile ? ' text-base py-3' : ''}`}
+                />
+
+                <Button
+                  id='basic-button'
+                  aria-controls={menuOpen ? 'basic-menu' : undefined}
+                  aria-haspopup='true'
+                  aria-expanded={menuOpen ? 'true' : undefined}
+                  onClick={handleClick}
+                  className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/10 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
+                >
+                  <DynamicChainIcon
+                    chain={currentChain.slug}
+                    size={currentChain.slug === 'base' ? 15 : 20}
                   />
-                  <Button
-                    id='basic-button'
-                    aria-controls={menuOpen ? 'basic-menu' : undefined}
-                    aria-haspopup='true'
-                    aria-expanded={menuOpen ? 'true' : undefined}
-                    onClick={handleClick}
-                    className='absolute right-2 top-1/2 -translate-y-1/2 border-[#D1ECFF] border rounded-lg backdrop-blur-sm bg-white/10 p-1 h-9 w-9 flex items-center justify-center hover:bg-white/20'
+                  <span className='ml-1 color-white'>
+                    <ExpandMoreIcon size={12} />
+                  </span>
+                </Button>
+
+                <Menu
+                  id='basic-menu'
+                  anchorEl={anchorEl}
+                  open={menuOpen}
+                  onClose={handleClose}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                  sx={{
+                    '& .MuiPaper-root': {
+                      backdropFilter: 'blur(8px)',
+                      background:
+                        'linear-gradient(to top, rgba(209, 236, 255, 0.2) 10%, rgba(209, 236, 255, 0.1) 30%, rgba(209, 236, 255, 0.05) 50%)',
+                      color: '#FFF',
+                      marginTop: '0.25rem',
+                      fontFamily: 'GeistMono-Regular',
+                      fontSize: '0.875rem',
+                      transform: 'translateX(-12px)',
+                    },
+                    '& .MuiMenuItem-root': {
+                      fontFamily: 'GeistMono-Regular',
+                      fontSize: '0.875rem',
+                    },
+                    '& .MuiList-root': {
+                      gap: '1.25rem',
+                    },
+                  }}
+                >
+                  {Object.entries(chains)
+                    .filter(([netname]) => netname !== 'degen')
+                    .map(([netname, ch]) => (
+                      <MenuItem
+                        key={netname}
+                        className={cn('mx-1')}
+                        onClick={() => {
+                          setCurrentChain(ch);
+                          handleClose();
+                        }}
+                      >
+                        <div className='flex items-center justify-center w-5 h-5'>
+                          <DynamicChainIcon
+                            chain={netname as Netname}
+                            size={netname === 'base' ? 14 : 18}
+                          />
+                        </div>
+                        <p className='ml-4'>{netname}</p>
+                      </MenuItem>
+                    ))}
+                </Menu>
+
+                {usdPerToken !== null && (
+                  <span
+                    ref={usdRef}
+                    className='absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md right-16'
                   >
-                    <DynamicChainIcon
-                      chain={currentChain.slug}
-                      size={currentChain.slug === 'base' ? 15 : 20}
-                    />
-                    <span className='ml-1 color-white'>
-                      <ExpandMoreIcon size={12} />
-                    </span>
-                  </Button>
-                  <Menu
-                    id='basic-menu'
-                    anchorEl={anchorEl}
-                    open={menuOpen}
-                    onClose={handleClose}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
-                    sx={{
-                      '& .MuiPaper-root': {
-                        backdropFilter: 'blur(8px)',
-                        background:
-                          'linear-gradient(to top, rgba(209, 236, 255, 0.2) 10%, rgba(209, 236, 255, 0.1) 30%, rgba(209, 236, 255, 0.05) 50%)',
-                        color: '#FFF',
-                        marginTop: '0.25rem',
-                        fontFamily: 'GeistMono-Regular',
-                        fontSize: '0.875rem',
-                        transform: 'translateX(-12px)',
-                      },
-                      '& .MuiMenuItem-root': {
-                        fontFamily: 'GeistMono-Regular',
-                        fontSize: '0.875rem',
-                      },
-                      '& .MuiList-root': {
-                        gap: '1.25rem',
-                      },
-                    }}
-                  >
-                    {Object.entries(chains)
-                      .filter(([netname]) => netname !== 'degen')
-                      .map(([netname, ch]) => (
-                        <MenuItem
-                          key={netname}
-                          className={cn('mx-1')}
-                          onClick={() => {
-                            setCurrentChain(ch);
-                            handleClose();
+                    (${formatAmountShort({ amount: usdPerToken })})
+                  </span>
+                )}
+              </div>
+
+              <div className='min-h-[1px]'>
+                {account.address && balance && (
+                  <p className='text-xs text-white/50 font-mono mb-1 mt-2'>
+                    balance:{' '}
+                    {Number(
+                      parseFloat(formatEther(balance.value)).toFixed(
+                        currentChain.slug === 'degen' ? 0 : 4
+                      )
+                    )}{' '}
+                    {balance.symbol.toLowerCase()}
+                  </p>
+                )}
+              </div>
+
+              <div className='flex text-balance gap-2 text-xs mb-6 mt-2 items-center'>
+                <InfoIcon size={18} /> a 2.5% fee is deducted from completed
+                bounties
+              </div>
+            </div>
+
+            <div>
+              <span className={isMobile ? 'text-base mb-2' : 'font-semibold'}>
+                album
+              </span>
+
+              <div className='relative mt-2 mb-6'>
+                <input
+                  type='text'
+                  value={album}
+                  onChange={(e) => {
+                    if (!showAlbumDropdown) {
+                      setShowAlbumDropdown(true);
+                    }
+                    const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
+                    setAlbum(next.toLowerCase());
+                  }}
+                  onFocus={() => setShowAlbumDropdown(true)}
+                  onBlur={() => setShowAlbumDropdown(false)}
+                  className={`border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full ${
+                    isMobile ? 'text-base py-3' : ''
+                  }`}
+                  placeholder='optional'
+                  maxLength={30}
+                  onKeyDown={(e) => {
+                    if (/\s/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+
+                {showAlbumDropdown &&
+                  album &&
+                  albums &&
+                  albums.length > 0 && (
+                    <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 dark:bg-[#132b47] border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
+                      {albums.map((c) => (
+                        <li
+                          key={c.album}
+                          className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setAlbum(c.album);
+                            setShowAlbumDropdown(false);
                           }}
                         >
-                          <div className='flex items-center justify-center w-5 h-5'>
-                            <DynamicChainIcon
-                              chain={netname as Netname}
-                              size={netname === 'base' ? 14 : 18}
-                            />
-                          </div>
-                          <p className='ml-4'>{netname}</p>
-                        </MenuItem>
+                          {c.album.length > 20
+                            ? `${c.album.slice(0, 20)}…`
+                            : c.album}{' '}
+                          ({c.count.album})
+                        </li>
                       ))}
-                  </Menu>
-                  {usdPerToken !== null && (
-                    <span
-                      ref={usdRef}
-                      className='absolute top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none max-w-[120px] truncate text-right px-2 rounded-md right-16'
-                    >
-                      (${formatAmountShort({ amount: usdPerToken })})
-                    </span>
+                    </ul>
                   )}
-                </div>
-
-                <div className='min-h-[1px]'>
-                  {account.address && balance && (
-                    <p className='text-xs text-white/50 font-mono mb-1 mt-2'>
-                      balance:{' '}
-                      {Number(
-                        parseFloat(formatEther(balance.value)).toFixed(
-                          currentChain.slug === 'degen' ? 0 : 4
-                        )
-                      )}{' '}
-                      {balance.symbol.toLowerCase()}
-                    </p>
-                  )}
-                </div>
-
-                <div className='flex text-balance gap-2 text-xs mb-4 items-center'>
-                  <InfoIcon size={18} /> a 2.5% fee is deducted from completed
-                  bounties
-                </div>
               </div>
+            </div>
 
-              <div>
-                <span className={isMobile ? 'text-base mb-2' : ''}>album</span>
-                <div className='relative mb-4'>
-                  <input
-                    type='text'
-                    value={album}
-                    onChange={(e) => {
-                      if (!showAlbumDropdown) {
-                        setShowAlbumDropdown(true);
-                      }
-                      const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
-                      setAlbum(next.toLowerCase());
-                    }}
-                    onFocus={() => setShowAlbumDropdown(true)}
-                    onBlur={() => setShowAlbumDropdown(false)}
-                    className={`border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 w-full ${
-                      isMobile ? 'text-base py-3' : ''
-                    }`}
-                    placeholder='optional'
-                    maxLength={30}
-                    onKeyDown={(e) => {
-                      if (/\s/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                  />
-                  {showAlbumDropdown &&
-                    album &&
-                    albums &&
-                    albums.length > 0 && (
-                      <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 dark:bg-[#132b47] border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
-                        {albums.map((c) => (
-                          <li
-                            key={c.album}
-                            className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setAlbum(c.album);
-                              setShowAlbumDropdown(false);
-                            }}
-                          >
-                            {c.album.length > 20
-                              ? `${c.album.slice(0, 20)}…`
-                              : c.album}{' '}
-                            ({c.count.album})
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                </div>
-              </div>
-
-              <div>
+            {isMobile ? (
+              <>
                 <div className='flex items-center justify-start gap-2'>
                   <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
                   <Switch
@@ -605,6 +622,7 @@ export default function FormBounty({
                     }}
                   />
                 </div>
+
                 <div className='text-xs'>
                   <span className='flex gap-2 items-center max-w-md '>
                     <InfoIcon size={18} />
@@ -613,14 +631,58 @@ export default function FormBounty({
                       : 'you are the sole bounty contributor'}
                   </span>
                 </div>
-              </div>
-            </div>
+              </>
+            ) : (
+              <>
+                <div className='border border-white/15 rounded-lg p-4'>
+                  <div className='flex items-center justify-between gap-3'>
+                    <div>
+                      <div className='font-semibold text-sm'>
+                        {isOpenBounty ? 'open bounty' : 'solo bounty'}
+                      </div>
+                      <div className='text-xs text-white/60 mt-1'>
+                        {isOpenBounty
+                          ? 'anyone can contribute funds to your bounty'
+                          : 'you are the sole bounty contributor'}
+                      </div>
+                    </div>
+
+                    <Switch
+                      checked={isOpenBounty}
+                      onClick={() => setIsOpenBounty(!isOpenBounty)}
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      sx={{
+                        '& .MuiSwitch-thumb': {
+                          color: isOpenBounty ? '#F15E5F' : 'default',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                          {
+                            backgroundColor: '#fff',
+                          },
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <p className='text-xs text-white/50 mt-3'>
+                  questions?{' '}
+                  <a
+                    href='https://docs.poidh.xyz/using-poidh/creating-a-bounty.html'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='underline hover:text-white'
+                  >
+                    check out our bounty creation docs
+                  </a>
+                </p>
+              </>
+            )}
 
             <div
               className={
                 isMobile
                   ? 'mt-6 flex flex-col items-center w-full'
-                  : 'mt-auto flex flex-col items-center w-full pb-2'
+                  : 'mt-auto mb-4 flex flex-col items-center w-full'
               }
             >
               <button
@@ -667,20 +729,6 @@ export default function FormBounty({
                   <p className='text-center mt-1'>create bounty</p>
                 </div>
               </button>
-
-              {!isMobile && (
-                <p className='text-xs text-white/50 mt-3 text-center'>
-                  questions?{' '}
-                  <a
-                    href='https://docs.poidh.xyz/using-poidh/creating-a-bounty.html'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='underline hover:text-white'
-                  >
-                    check out our bounty creation docs
-                  </a>
-                </p>
-              )}
             </div>
           </div>
         </Box>
