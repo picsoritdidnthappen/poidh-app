@@ -324,7 +324,7 @@ export default function FormBounty({
             flexDirection: isMobile ? 'column' : undefined,
             gridTemplateColumns: isMobile
               ? undefined
-              : 'minmax(0, 3fr) minmax(300px, 2fr)',
+              : 'minmax(0, 7fr) minmax(300px, 3fr)',
             gap: isMobile ? 0 : 4,
           }}
         >
@@ -336,7 +336,7 @@ export default function FormBounty({
               onChange={(e) => setName(e.target.value)}
               placeholder='name your bounty'
               className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 ${
-                isMobile ? 'text-base py-3' : ''
+                isMobile ? 'text-base py-3' : 'py-3'
               }`}
             />
 
