@@ -102,11 +102,12 @@ Ensure the database is properly set up before proceeding.
    DATABASE_URL="postgresql://<username>:<password>@<host>:<port>/<database>"
    ADMINS="0x…,0x…,0x…"
    MAINNET_RPC_URL="https://eth-mainnet…"
-   DEGEN_RPC_URL="https://degen-mainnet…"
    ARBITRUM_RPC_URL="https://arbitrum-mainnet…"
    BASE_RPC_URL="https://base-mainnet…"
    NEYNAR_API_KEY="sk-…"
    ```
+
+> Degen Chain is retired and is no longer required for local development. Historical Degen data may still exist in the database and frontend, but new Degen Chain interactions are not supported.
 
 <div align="right">
 <a href="#quick-start-guide">↑ Back to Overview</a>

@@ -25,6 +25,100 @@ import {
 import { uploadFile } from '@/utils/pinata';
 import MarkdownContent from '@/components/global/MarkdownContent';
 
+function hashString(value: string) {
+  let hash = 0;
+
+  for (let i = 0; i < value.length; i++) {
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+}
+
+function GenerativePlaceholder({
+  seed,
+}: {
+  seed: string;
+}) {
+  const hash = hashString(seed);
+
+  const palette = [
+    '#F45B5B',
+    '#FFD166',
+    '#118AB2',
+    '#7B61FF',
+    '#06D6A0',
+    '#F4A261',
+  ];
+
+  const background =
+    palette[hash % palette.length];
+
+  const accent1 =
+    palette[(hash + 2) % palette.length];
+
+  const accent2 =
+    palette[(hash + 4) % palette.length];
+
+  const vertical =
+    28 + ((hash >> 2) % 38);
+
+  const horizontal =
+    30 + ((hash >> 4) % 36);
+
+  const smallBlockLeft =
+    8 + ((hash >> 6) % 58);
+
+  const smallBlockTop =
+    8 + ((hash >> 8) % 58);
+
+  return (
+    <div
+      className='absolute inset-0 overflow-hidden'
+      style={{
+        backgroundColor: background,
+      }}
+    >
+      <div
+        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
+        style={{
+          left: `${vertical}%`,
+        }}
+      />
+
+      <div
+        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
+        style={{
+          top: `${horizontal}%`,
+        }}
+      />
+
+      <div
+        className='absolute'
+        style={{
+          left: `${vertical}%`,
+          top: 0,
+          right: 0,
+          height: `${horizontal}%`,
+          backgroundColor: accent1,
+        }}
+      />
+
+      <div
+        className='absolute border-[4px] border-[#102A43]'
+        style={{
+          left: `${smallBlockLeft}%`,
+          top: `${smallBlockTop}%`,
+          width: '24%',
+          height: '24%',
+          backgroundColor: accent2,
+        }}
+      />
+    </div>
+  );
+}
+
 export type ClaimCardProps = {
   open: boolean;
   claim: Omit<Claim, 'issuer'> & {
@@ -55,6 +149,9 @@ export default function ClaimCard({
     mediaError,
   } = useClaimMedia(claim.url);
 
+  const placeholderSeed =
+    `${claim.chainId}-${claim.id}-${claim.issuer.address}`;
+
   const [scale, setScale] = useState(1);
   const [isImageFullscreen, setIsImageFullscreen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -62,6 +159,7 @@ export default function ClaimCard({
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
   const banClaimMutation = trpc.admin.banClaim.useMutation({});
+
   const isAdmin = trpc.admin.isAdmin.useQuery({
     address: account.address,
   });
@@ -323,26 +421,18 @@ export default function ClaimCard({
           <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-3 bg-gradient-to-b from-[#2a81d5] to-[#70aae2] dark:from-[#0d1b2e] dark:to-[#1a3a5c]'>
             <div className='bg-blur rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 border border-white/20'>
               <div
-                className='bg-blur-white rounded-lg p-2 h-48 sm:h-64 flex items-center justify-center cursor-pointer relative overflow-hidden'
+                className='bg-blur-white rounded-lg h-48 sm:h-64 flex items-center justify-center relative overflow-hidden'
                 onClick={() => {
-                  if (mediaUrl && !isVideo) {
+                  if (
+                    mediaUrl &&
+                    !isVideo &&
+                    !mediaError
+                  ) {
                     setIsImageFullscreen(true);
                   }
                 }}
               >
-                {mediaUrl && !isVideo && (
-                  <div
-                    className='absolute inset-0 rounded-lg opacity-30'
-                    style={{
-                      backgroundImage: `url(${mediaUrl})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
-                    }}
-                  />
-                )}
-
-                {mediaUrl ? (
+                {mediaUrl && !mediaError ? (
                   isVideo ? (
                     <video
                       src={mediaUrl}
@@ -355,25 +445,33 @@ export default function ClaimCard({
                       className='relative z-20 max-h-full max-w-full object-contain'
                     />
                   ) : (
-                    <Image
-                      src={mediaUrl}
-                      alt={claim.title}
-                      width={400}
-                      height={400}
-                      unoptimized
-                      className='max-h-full max-w-full object-contain transition-transform relative z-20'
-                    />
+                    <>
+                      <div
+                        className='absolute inset-0 rounded-lg opacity-30'
+                        style={{
+                          backgroundImage: `url(${mediaUrl})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                        }}
+                      />
+
+                      <Image
+                        src={mediaUrl}
+                        alt={claim.title}
+                        width={400}
+                        height={400}
+                        unoptimized
+                        className='max-h-full max-w-full object-contain transition-transform relative z-20'
+                      />
+                    </>
                   )
                 ) : isMediaLoading ? (
-                  <div className='text-white/60'>
-                    Loading media...
-                  </div>
+                  <div className='absolute inset-0 bg-white/10 animate-pulse' />
                 ) : (
-                  <div className='text-white/60'>
-                    {mediaError
-                      ? 'Error loading media'
-                      : 'No media'}
-                  </div>
+                  <GenerativePlaceholder
+                    seed={placeholderSeed}
+                  />
                 )}
               </div>
 
@@ -583,19 +681,21 @@ export default function ClaimCard({
               <CloseIcon size={20} />
             </button>
 
-            {mediaUrl && !isVideo && (
-              <Image
-                src={mediaUrl}
-                alt={claim.title}
-                width={1200}
-                height={1200}
-                unoptimized
-                className='max-w-full max-h-full object-contain transition-transform duration-200'
-                style={{
-                  transform: `scale(${scale})`,
-                }}
-              />
-            )}
+            {mediaUrl &&
+              !isVideo &&
+              !mediaError && (
+                <Image
+                  src={mediaUrl}
+                  alt={claim.title}
+                  width={1200}
+                  height={1200}
+                  unoptimized
+                  className='max-w-full max-h-full object-contain transition-transform duration-200'
+                  style={{
+                    transform: `scale(${scale})`,
+                  }}
+                />
+              )}
           </div>
         </div>
       </Dialog>

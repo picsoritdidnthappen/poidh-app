@@ -585,16 +585,41 @@ export const accountsRouter = {
       });
 
       let nextCursor: string | undefined = undefined;
+
       if (txs.length === input.limit) {
         nextCursor = txs[txs.length - 1].timestamp.toString();
       }
 
+      const normalizedTxs = await Promise.all(
+        txs.map(async (tx) => {
+          if (!tx.claim?.url) {
+            return tx;
+          }
+
+          const imageMetadata = await fetchImageMetadata(
+            tx.claim.url
+          );
+
+          return {
+            ...tx,
+            claim: {
+              ...tx.claim,
+
+              // Keep the original NFT/media URL intact.
+              url: tx.claim.url,
+
+              // Also provide the server-resolved image when available.
+              mediaUrl: imageMetadata.image,
+            },
+          };
+        })
+      );
+
       return {
-        items: txs,
+        items: normalizedTxs,
         nextCursor,
       };
-    }),
-
+          }),
   canVote: baseProcedure
     .input(
       z.object({
