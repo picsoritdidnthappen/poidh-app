@@ -467,8 +467,8 @@ export default function FormBounty({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder='name your bounty'
-                className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 ${
-                  isMobile ? 'text-base py-3' : 'py-3'
+                className={`border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 ${
+                  isMobile ? 'text-base py-3 mb-5' : 'py-3 mb-4'
                 }`}
               />
 
@@ -516,7 +516,9 @@ export default function FormBounty({
 
               {descriptionPreview ? (
                 <div
-                  className={`border rounded-md mb-4 px-3 py-3 border-[#D1ECFF] overflow-y-auto ${
+                  className={`border rounded-md px-3 py-3 border-[#D1ECFF] overflow-y-auto ${
+                    isMobile ? 'mb-5' : 'mb-4'
+                  } ${
                     isMobile
                       ? 'min-h-[150px]'
                       : 'flex-1 min-h-[300px]'
@@ -537,7 +539,11 @@ export default function FormBounty({
                   )}
                 </div>
               ) : (
-                <div className='relative mb-4'>
+                <div
+                  className={
+                    isMobile ? 'relative mb-5' : 'relative mb-4'
+                  }
+                >
                   <textarea
                     ref={textareaRef}
                     value={description}
@@ -565,7 +571,7 @@ export default function FormBounty({
                       onPointerMove={handleDescriptionResizeMove}
                       onPointerUp={handleDescriptionResizeEnd}
                       onPointerCancel={handleDescriptionResizeEnd}
-                      className='absolute bottom-1 right-1 w-8 h-8 cursor-ns-resize touch-none z-10 select-none flex items-end justify-end'
+                      className='absolute bottom-[6px] right-1 w-8 h-8 cursor-ns-resize touch-none z-10 select-none flex items-end justify-end'
                     >
                       <svg
                         width='18'
@@ -759,7 +765,7 @@ export default function FormBounty({
 
                 <div
                   className={`flex text-balance gap-2 text-xs mt-2 items-center ${
-                    isMobile ? 'mb-4' : 'mb-6'
+                    isMobile ? 'mb-5' : 'mb-6'
                   }`}
                 >
                   <InfoIcon size={18} /> a 2.5% fee is deducted from completed
@@ -776,7 +782,7 @@ export default function FormBounty({
 
                 <div
                   className={`relative mt-2 ${
-                    isMobile ? 'mb-4' : 'mb-6'
+                    isMobile ? 'mb-5' : 'mb-6'
                   }`}
                 >
                   <input
