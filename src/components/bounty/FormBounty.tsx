@@ -571,7 +571,7 @@ export default function FormBounty({
                       onPointerMove={handleDescriptionResizeMove}
                       onPointerUp={handleDescriptionResizeEnd}
                       onPointerCancel={handleDescriptionResizeEnd}
-                      className='absolute bottom-[20px] right-1 w-8 h-8 cursor-ns-resize touch-none z-10 select-none flex items-end justify-end'
+                      className='absolute bottom-[10px] right-1 w-8 h-8 cursor-ns-resize touch-none z-10 select-none flex items-end justify-end'
                     >
                       <svg
                         width='18'
