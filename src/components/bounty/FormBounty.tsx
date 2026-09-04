@@ -377,7 +377,7 @@ export default function FormBounty({
               gap: isMobile ? 0 : 4,
             }}
           >
-            <div className={isMobile ? '' : 'flex flex-col min-h-0'}>
+            <div className='flex flex-col min-h-0'>
               <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
               <input
                 type='text'
@@ -389,12 +389,12 @@ export default function FormBounty({
                 }`}
               />
 
-              <div className='flex items-center justify-between mb-1'>
+              <div className='flex items-center justify-between gap-2 mb-1'>
                 <span className={isMobile ? 'text-base' : ''}>
                   description
                 </span>
 
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-2 shrink-0'>
                   <button
                     type='button'
                     onClick={() => setGuideOpen(true)}
@@ -467,7 +467,7 @@ export default function FormBounty({
             <div
               className={
                 isMobile
-                  ? ''
+                  ? 'flex flex-col'
                   : 'flex flex-col min-h-0 h-full border-l border-white/15 pl-8'
               }
             >
@@ -811,10 +811,11 @@ export default function FormBounty({
         PaperProps={{
           className: 'bg-poidhBlue/95 dark:!bg-[#132b47]',
           sx: {
-            borderRadius: '20px',
+            borderRadius: isMobile ? '16px' : '20px',
             color: 'white',
             border: '1px solid #D1ECFF',
             m: 2,
+            maxHeight: isMobile ? 'calc(100dvh - 32px)' : undefined,
           },
         }}
       >
