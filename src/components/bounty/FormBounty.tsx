@@ -377,7 +377,7 @@ export default function FormBounty({
               gap: isMobile ? 0 : 4,
             }}
           >
-            <div className='flex flex-col min-h-0'>
+            <div className={isMobile ? 'flex flex-col min-h-0 mb-4' : 'flex flex-col min-h-0'}>
               <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
               <input
                 type='text'
