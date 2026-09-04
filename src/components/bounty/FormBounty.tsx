@@ -85,6 +85,9 @@ export default function FormBounty({
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [descriptionPreview, setDescriptionPreview] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [descriptionHeight, setDescriptionHeight] = useState<number | null>(
+    null
+  );
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
@@ -98,6 +101,10 @@ export default function FormBounty({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const usdRef = useRef<HTMLSpanElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const resizeStartRef = useRef<{
+    startY: number;
+    startHeight: number;
+  } | null>(null);
   const isMobile = useScreenSize();
 
   const { data: albums } = trpc.albums.fetch.useQuery(
@@ -226,6 +233,7 @@ export default function FormBounty({
       setUsdPerToken(null);
       setName('');
       setDescription('');
+      setDescriptionHeight(null);
       setAmount('');
       setAlbum(prefilledAlbum);
 
@@ -270,6 +278,50 @@ export default function FormBounty({
 
     setDescriptionPreview(false);
     setGuideOpen(false);
+  };
+
+  const handleDescriptionResizeStart = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (!isMobile) return;
+
+    const textarea = textareaRef.current;
+
+    if (!textarea) return;
+
+    e.preventDefault();
+
+    e.currentTarget.setPointerCapture(e.pointerId);
+
+    resizeStartRef.current = {
+      startY: e.clientY,
+      startHeight: textarea.getBoundingClientRect().height,
+    };
+  };
+
+  const handleDescriptionResizeMove = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (!resizeStartRef.current) return;
+
+    const nextHeight = Math.max(
+      150,
+      resizeStartRef.current.startHeight +
+        e.clientY -
+        resizeStartRef.current.startY
+    );
+
+    setDescriptionHeight(nextHeight);
+  };
+
+  const handleDescriptionResizeEnd = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    resizeStartRef.current = null;
+
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
   };
 
   return (
@@ -468,9 +520,15 @@ export default function FormBounty({
                 <div
                   className={`border rounded-md mb-4 px-3 py-3 border-[#D1ECFF] overflow-y-auto ${
                     isMobile
-                      ? 'min-h-[150px] max-h-[400px]'
+                      ? 'min-h-[150px]'
                       : 'flex-1 min-h-[300px]'
                   }`}
+                  style={{
+                    height:
+                      isMobile && descriptionHeight
+                        ? `${descriptionHeight}px`
+                        : undefined,
+                  }}
                 >
                   {description ? (
                     <MarkdownContent>{description}</MarkdownContent>
@@ -481,20 +539,42 @@ export default function FormBounty({
                   )}
                 </div>
               ) : (
-                <textarea
-                  ref={textareaRef}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className={`border py-3 px-3 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
-                    isMobile
-                      ? 'min-h-[150px] max-h-[400px] text-base'
-                      : 'flex-1 min-h-[300px] resize-none'
-                  } overflow-y-auto`}
-                  placeholder='pro tip: be detailed and add a deadline — markdown supported'
-                  style={{
-                    resize: isMobile ? 'vertical' : 'none',
-                  }}
-                ></textarea>
+                <div className='relative mb-4'>
+                  <textarea
+                    ref={textareaRef}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className={`border py-3 px-3 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 touch-manipulation w-full ${
+                      isMobile
+                        ? 'min-h-[150px] text-base pr-12 pb-10'
+                        : 'flex-1 min-h-[300px] resize-y'
+                    } overflow-y-auto`}
+                    placeholder='pro tip: be detailed and add a deadline — markdown supported'
+                    style={{
+                      resize: isMobile ? 'none' : 'vertical',
+                      height:
+                        isMobile && descriptionHeight
+                          ? `${descriptionHeight}px`
+                          : undefined,
+                    }}
+                  ></textarea>
+
+                  {isMobile && (
+                    <div
+                      role='separator'
+                      aria-label='resize description box'
+                      onPointerDown={handleDescriptionResizeStart}
+                      onPointerMove={handleDescriptionResizeMove}
+                      onPointerUp={handleDescriptionResizeEnd}
+                      onPointerCancel={handleDescriptionResizeEnd}
+                      className='absolute bottom-2 right-2 w-9 h-9 rounded-md border border-[#D1ECFF]/50 bg-poidhBlue/80 backdrop-blur-sm flex items-center justify-center cursor-ns-resize touch-none z-10 select-none'
+                    >
+                      <span className='text-[#D1ECFF] text-xl leading-none pointer-events-none'>
+                        ↘
+                      </span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
