@@ -541,9 +541,11 @@ export default function FormBounty({
               ) : (
                 <div
                   className={
-                    isMobile ? 'relative mb-5' : 'relative mb-4'
-                  }
-                >
+                    isMobile
+                      ? 'relative mb-5'
+                      : 'relative mb-4 flex-1 min-h-[300px]'
+                    }
+                  >
                   <textarea
                     ref={textareaRef}
                     value={description}
@@ -551,11 +553,11 @@ export default function FormBounty({
                     className={`border py-3 px-3 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 touch-manipulation w-full ${
                       isMobile
                         ? 'min-h-[150px] text-base pr-9 pb-8'
-                        : 'flex-1 min-h-[300px] resize-y'
+                        : 'h-full min-h-[300px] resize-none'
                     } overflow-y-auto`}
                     placeholder='pro tip: be detailed and add a deadline — markdown supported'
                     style={{
-                      resize: isMobile ? 'none' : 'vertical',
+                      resize: 'none',
                       height:
                         isMobile && descriptionHeight
                           ? `${descriptionHeight}px`
