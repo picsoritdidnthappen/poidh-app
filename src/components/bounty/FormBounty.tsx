@@ -457,9 +457,7 @@ export default function FormBounty({
           >
             <div
               className={
-                isMobile
-                  ? 'flex flex-col shrink-0 mb-4'
-                  : 'flex flex-col min-h-0'
+                isMobile ? 'flex flex-col shrink-0' : 'flex flex-col min-h-0'
               }
             >
               <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
@@ -546,7 +544,7 @@ export default function FormBounty({
                     onChange={(e) => setDescription(e.target.value)}
                     className={`border py-3 px-3 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 touch-manipulation w-full ${
                       isMobile
-                        ? 'min-h-[150px] text-base pr-12 pb-10'
+                        ? 'min-h-[150px] text-base pr-9 pb-8'
                         : 'flex-1 min-h-[300px] resize-y'
                     } overflow-y-auto`}
                     placeholder='pro tip: be detailed and add a deadline — markdown supported'
@@ -567,11 +565,35 @@ export default function FormBounty({
                       onPointerMove={handleDescriptionResizeMove}
                       onPointerUp={handleDescriptionResizeEnd}
                       onPointerCancel={handleDescriptionResizeEnd}
-                      className='absolute bottom-2 right-2 w-9 h-9 rounded-md border border-[#D1ECFF]/50 bg-poidhBlue/80 backdrop-blur-sm flex items-center justify-center cursor-ns-resize touch-none z-10 select-none'
+                      className='absolute bottom-1 right-1 w-8 h-8 cursor-ns-resize touch-none z-10 select-none flex items-end justify-end'
                     >
-                      <span className='text-[#D1ECFF] text-xl leading-none pointer-events-none'>
-                        ↘
-                      </span>
+                      <svg
+                        width='18'
+                        height='18'
+                        viewBox='0 0 18 18'
+                        fill='none'
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='text-[#D1ECFF]/70 pointer-events-none'
+                      >
+                        <path
+                          d='M16 6L6 16'
+                          stroke='currentColor'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                        />
+                        <path
+                          d='M16 10L10 16'
+                          stroke='currentColor'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                        />
+                        <path
+                          d='M16 14L14 16'
+                          stroke='currentColor'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                        />
+                      </svg>
                     </div>
                   )}
                 </div>
@@ -735,7 +757,11 @@ export default function FormBounty({
                   )}
                 </div>
 
-                <div className='flex text-balance gap-2 text-xs mb-6 mt-2 items-center'>
+                <div
+                  className={`flex text-balance gap-2 text-xs mt-2 items-center ${
+                    isMobile ? 'mb-4' : 'mb-6'
+                  }`}
+                >
                   <InfoIcon size={18} /> a 2.5% fee is deducted from completed
                   bounties
                 </div>
@@ -748,7 +774,11 @@ export default function FormBounty({
                   album
                 </span>
 
-                <div className='relative mt-2 mb-6'>
+                <div
+                  className={`relative mt-2 ${
+                    isMobile ? 'mb-4' : 'mb-6'
+                  }`}
+                >
                   <input
                     type='text'
                     value={album}
