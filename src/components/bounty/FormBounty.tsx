@@ -85,6 +85,9 @@ export default function FormBounty({
   const [isOpenBounty, setIsOpenBounty] = useState(true);
   const [descriptionPreview, setDescriptionPreview] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [descriptionHeight, setDescriptionHeight] = useState<number | null>(
+    null
+  );
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
@@ -98,6 +101,10 @@ export default function FormBounty({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const usdRef = useRef<HTMLSpanElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const resizeStartRef = useRef<{
+    startY: number;
+    startHeight: number;
+  } | null>(null);
   const isMobile = useScreenSize();
 
   const { data: albums } = trpc.albums.fetch.useQuery(
@@ -226,6 +233,7 @@ export default function FormBounty({
       setUsdPerToken(null);
       setName('');
       setDescription('');
+      setDescriptionHeight(null);
       setAmount('');
       setAlbum(prefilledAlbum);
 
@@ -270,6 +278,50 @@ export default function FormBounty({
 
     setDescriptionPreview(false);
     setGuideOpen(false);
+  };
+
+  const handleDescriptionResizeStart = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (!isMobile) return;
+
+    const textarea = textareaRef.current;
+
+    if (!textarea) return;
+
+    e.preventDefault();
+
+    e.currentTarget.setPointerCapture(e.pointerId);
+
+    resizeStartRef.current = {
+      startY: e.clientY,
+      startHeight: textarea.getBoundingClientRect().height,
+    };
+  };
+
+  const handleDescriptionResizeMove = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (!resizeStartRef.current) return;
+
+    const nextHeight = Math.max(
+      150,
+      resizeStartRef.current.startHeight +
+        e.clientY -
+        resizeStartRef.current.startY
+    );
+
+    setDescriptionHeight(nextHeight);
+  };
+
+  const handleDescriptionResizeEnd = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    resizeStartRef.current = null;
+
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
   };
 
   return (
@@ -405,9 +457,7 @@ export default function FormBounty({
           >
             <div
               className={
-                isMobile
-                  ? 'flex flex-col shrink-0 mb-4'
-                  : 'flex flex-col min-h-0'
+                isMobile ? 'flex flex-col shrink-0' : 'flex flex-col min-h-0'
               }
             >
               <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
@@ -417,8 +467,8 @@ export default function FormBounty({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder='name your bounty'
-                className={`border py-2 px-2 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 ${
-                  isMobile ? 'text-base py-3' : 'py-3'
+                className={`border py-2 px-2 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 ${
+                  isMobile ? 'text-base py-3 mb-5' : 'py-3 mb-4'
                 }`}
               />
 
@@ -466,11 +516,19 @@ export default function FormBounty({
 
               {descriptionPreview ? (
                 <div
-                  className={`border rounded-md mb-4 px-3 py-3 border-[#D1ECFF] overflow-y-auto ${
+                  className={`border rounded-md px-3 py-3 border-[#D1ECFF] overflow-y-auto ${
+                    isMobile ? 'mb-5' : 'mb-4'
+                  } ${
                     isMobile
-                      ? 'min-h-[150px] max-h-[400px]'
+                      ? 'min-h-[150px]'
                       : 'flex-1 min-h-[300px]'
                   }`}
+                  style={{
+                    height:
+                      isMobile && descriptionHeight
+                        ? `${descriptionHeight}px`
+                        : undefined,
+                  }}
                 >
                   {description ? (
                     <MarkdownContent>{description}</MarkdownContent>
@@ -481,20 +539,70 @@ export default function FormBounty({
                   )}
                 </div>
               ) : (
-                <textarea
-                  ref={textareaRef}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className={`border py-3 px-3 rounded-md mb-4 bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 resize-y touch-manipulation ${
-                    isMobile
-                      ? 'min-h-[150px] max-h-[400px] text-base'
-                      : 'flex-1 min-h-[300px] resize-none'
-                  } overflow-y-auto`}
-                  placeholder='pro tip: be detailed and add a deadline — markdown supported'
-                  style={{
-                    resize: isMobile ? 'vertical' : 'none',
-                  }}
-                ></textarea>
+                <div
+                  className={
+                    isMobile ? 'relative mb-5' : 'relative mb-4'
+                  }
+                >
+                  <textarea
+                    ref={textareaRef}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className={`border py-3 px-3 rounded-md bg-transparent border-[#D1ECFF] disabled:cursor-not-allowed disabled:animate-pulse placeholder:text-slate-400 touch-manipulation w-full ${
+                      isMobile
+                        ? 'min-h-[150px] text-base pr-9 pb-8'
+                        : 'flex-1 min-h-[300px] resize-y'
+                    } overflow-y-auto`}
+                    placeholder='pro tip: be detailed and add a deadline — markdown supported'
+                    style={{
+                      resize: isMobile ? 'none' : 'vertical',
+                      height:
+                        isMobile && descriptionHeight
+                          ? `${descriptionHeight}px`
+                          : undefined,
+                    }}
+                  ></textarea>
+
+                  {isMobile && (
+                    <div
+                      role='separator'
+                      aria-label='resize description box'
+                      onPointerDown={handleDescriptionResizeStart}
+                      onPointerMove={handleDescriptionResizeMove}
+                      onPointerUp={handleDescriptionResizeEnd}
+                      onPointerCancel={handleDescriptionResizeEnd}
+                      className='absolute bottom-[10px] right-1 w-8 h-8 cursor-ns-resize touch-none z-10 select-none flex items-end justify-end'
+                    >
+                      <svg
+                        width='18'
+                        height='18'
+                        viewBox='0 0 18 18'
+                        fill='none'
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='text-[#D1ECFF]/70 pointer-events-none'
+                      >
+                        <path
+                          d='M16 6L6 16'
+                          stroke='currentColor'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                        />
+                        <path
+                          d='M16 10L10 16'
+                          stroke='currentColor'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                        />
+                        <path
+                          d='M16 14L14 16'
+                          stroke='currentColor'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
@@ -565,7 +673,7 @@ export default function FormBounty({
                       size={currentChain.slug === 'base' ? 15 : 20}
                     />
 
-                    <span className='ml-1 color-white'>
+                    <span className='ml-1 text-white'>
                       <ExpandMoreIcon size={12} />
                     </span>
                   </Button>
@@ -655,7 +763,11 @@ export default function FormBounty({
                   )}
                 </div>
 
-                <div className='flex text-balance gap-2 text-xs mb-6 mt-2 items-center'>
+                <div
+                  className={`flex text-balance gap-2 text-xs mt-2 items-center ${
+                    isMobile ? 'mb-5' : 'mb-6'
+                  }`}
+                >
                   <InfoIcon size={18} /> a 2.5% fee is deducted from completed
                   bounties
                 </div>
@@ -668,7 +780,11 @@ export default function FormBounty({
                   album
                 </span>
 
-                <div className='relative mt-2 mb-6'>
+                <div
+                  className={`relative mt-2 ${
+                    isMobile ? 'mb-5' : 'mb-6'
+                  }`}
+                >
                   <input
                     type='text'
                     value={album}
