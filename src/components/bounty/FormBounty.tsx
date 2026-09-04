@@ -143,6 +143,7 @@ export default function FormBounty({
       album: string;
     }) => {
       const chainId = await account.connector?.getChainId();
+
       if (currentChain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network' });
         await switctChain.switchChainAsync({ chainId: currentChain.id });
@@ -161,17 +162,20 @@ export default function FormBounty({
         args: [formData.name, formData.description],
         chainId: currentChain.id,
       });
+
       setPollingChainId(currentChain.id);
 
       setLoading({
         isLoading: true,
         status: 'Waiting for receipt',
       });
+
       const receipt = await currentChain.provider.waitForTransactionReceipt({
         hash: tx,
       });
 
       const log = receipt.logs[0];
+
       if (!log) {
         throw new Error('No logs found');
       }
@@ -187,7 +191,11 @@ export default function FormBounty({
       }
 
       for (let i = 0; i < 60; i++) {
-        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
+        setLoading({
+          isLoading: true,
+          status: `Indexing ${i}s...`,
+        });
+
         const bounty = await trpcClient.bounties.isNewlyCreated.query({
           id: Number(data.args.id),
           chainId: currentChain.id,
@@ -200,34 +208,48 @@ export default function FormBounty({
             chainId: bounty.chainId,
           };
         }
+
         await new Promise((resolve) => setTimeout(resolve, 1_000));
       }
 
       throw new Error('Failed to index bounty');
     },
+
     onSuccess: async ({ bountyId, album, chainId }) => {
       await saveBountyAlbum.mutateAsync({
         bountyId,
         chainId,
         album,
       });
+
       onClose();
       setUsdPerToken(null);
       setName('');
       setDescription('');
       setAmount('');
       setAlbum(prefilledAlbum);
-      setLoading({ isLoading: true, status: 'Redirecting...' });
+
+      setLoading({
+        isLoading: true,
+        status: 'Redirecting...',
+      });
+
       router.push(
         `/${currentChain.slug}/bounty/${bountyId}?indexing=true&showSuccessCreationModal=true`
       );
+
       toast.success('Bounty created successfully');
     },
+
     onError: (error) => {
       toast.error('Failed to create bounty: ' + error.message);
     },
+
     onSettled: () => {
-      setLoading({ isLoading: false, status: '' });
+      setLoading({
+        isLoading: false,
+        status: '',
+      });
     },
   });
 
@@ -266,11 +288,13 @@ export default function FormBounty({
             borderRadius: isMobile ? '0px' : '30px',
             color: 'white',
             border: isMobile ? 'none' : '1px solid #D1ECFF',
+
             ...(isMobile
               ? {
                   m: 0,
                   height: '100vh',
                   maxHeight: '100vh',
+
                   '@supports (height: 100dvh)': {
                     height: '100dvh',
                     maxHeight: '100dvh',
@@ -309,8 +333,9 @@ export default function FormBounty({
           }}
         >
           {isMobile ? (
-            <div className='flex items-center justify-between w-full sticky'>
+            <div className='flex items-center justify-between w-full sticky shrink-0'>
               <div style={{ width: '40px' }} />{' '}
+
               <button
                 onClick={onClose}
                 style={{
@@ -329,6 +354,7 @@ export default function FormBounty({
             <>
               <div className='mb-5 pr-8'>
                 <h2 className='font-mono text-2xl'>create bounty</h2>
+
                 <p className='text-sm text-white/60 mt-1'>
                   define your outcome
                 </p>
@@ -367,8 +393,8 @@ export default function FormBounty({
           <Box
             width='100%'
             sx={{
-              flex: 1,
-              minHeight: 0,
+              flex: isMobile ? '0 0 auto' : 1,
+              minHeight: isMobile ? 'auto' : 0,
               display: isMobile ? 'flex' : 'grid',
               flexDirection: isMobile ? 'column' : undefined,
               gridTemplateColumns: isMobile
@@ -377,8 +403,15 @@ export default function FormBounty({
               gap: isMobile ? 0 : 4,
             }}
           >
-            <div className={isMobile ? 'flex flex-col min-h-0 mb-4' : 'flex flex-col min-h-0'}>
+            <div
+              className={
+                isMobile
+                  ? 'flex flex-col shrink-0 mb-4'
+                  : 'flex flex-col min-h-0'
+              }
+            >
               <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
+
               <input
                 type='text'
                 value={name}
@@ -415,6 +448,7 @@ export default function FormBounty({
                     >
                       write
                     </button>
+
                     <button
                       type='button'
                       onClick={() => setDescriptionPreview(true)}
@@ -467,13 +501,14 @@ export default function FormBounty({
             <div
               className={
                 isMobile
-                  ? 'flex flex-col'
+                  ? 'flex flex-col shrink-0'
                   : 'flex flex-col min-h-0 h-full border-l border-white/15 pl-8'
               }
             >
               {!isMobile && (
                 <div className='mb-5'>
                   <div className='font-semibold text-sm'>bounty settings</div>
+
                   <div className='text-xs text-white/50 mt-1'>
                     choose the reward, chain, and bounty type
                   </div>
@@ -497,10 +532,13 @@ export default function FormBounty({
                     maxLength={15}
                     onChange={(e) => {
                       const raw = e.target.value;
+
                       if (raw.split(/[.,]/)[0].length > 20) return;
 
                       const value = Number(raw);
+
                       setAmount(raw);
+
                       if (!isNaN(value) && value > 0) {
                         setUsdPerToken(
                           parseFloat((value * price).toFixed(2))
@@ -526,6 +564,7 @@ export default function FormBounty({
                       chain={currentChain.slug}
                       size={currentChain.slug === 'base' ? 15 : 20}
                     />
+
                     <span className='ml-1 color-white'>
                       <ExpandMoreIcon size={12} />
                     </span>
@@ -536,8 +575,14 @@ export default function FormBounty({
                     anchorEl={anchorEl}
                     open={menuOpen}
                     onClose={handleClose}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
                     MenuListProps={{
                       'aria-labelledby': 'basic-button',
                     }}
@@ -552,10 +597,12 @@ export default function FormBounty({
                         fontSize: '0.875rem',
                         transform: 'translateX(-12px)',
                       },
+
                       '& .MuiMenuItem-root': {
                         fontFamily: 'GeistMono-Regular',
                         fontSize: '0.875rem',
                       },
+
                       '& .MuiList-root': {
                         gap: '1.25rem',
                       },
@@ -578,6 +625,7 @@ export default function FormBounty({
                               size={netname === 'base' ? 14 : 18}
                             />
                           </div>
+
                           <p className='ml-4'>{netname}</p>
                         </MenuItem>
                       ))}
@@ -628,7 +676,9 @@ export default function FormBounty({
                       if (!showAlbumDropdown) {
                         setShowAlbumDropdown(true);
                       }
+
                       const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
+
                       setAlbum(next.toLowerCase());
                     }}
                     onFocus={() => setShowAlbumDropdown(true)}
@@ -675,14 +725,18 @@ export default function FormBounty({
                 <>
                   <div className='flex items-center justify-start gap-2'>
                     <span>{isOpenBounty ? 'Open Bounty' : 'Solo Bounty'}</span>
+
                     <Switch
                       checked={isOpenBounty}
                       onClick={() => setIsOpenBounty(!isOpenBounty)}
-                      inputProps={{ 'aria-label': 'controlled' }}
+                      inputProps={{
+                        'aria-label': 'controlled',
+                      }}
                       sx={{
                         '& .MuiSwitch-thumb': {
                           color: isOpenBounty ? '#F15E5F' : 'default',
                         },
+
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                           {
                             backgroundColor: '#fff',
@@ -694,6 +748,7 @@ export default function FormBounty({
                   <div className='text-xs'>
                     <span className='flex gap-2 items-center max-w-md '>
                       <InfoIcon size={18} />
+
                       {isOpenBounty
                         ? 'users can add additional funds to your bounty'
                         : 'you are the sole bounty contributor'}
@@ -708,6 +763,7 @@ export default function FormBounty({
                         <div className='font-semibold text-sm'>
                           {isOpenBounty ? 'open bounty' : 'solo bounty'}
                         </div>
+
                         <div className='text-xs text-white/60 mt-1'>
                           {isOpenBounty
                             ? 'anyone can contribute funds to your bounty'
@@ -718,11 +774,14 @@ export default function FormBounty({
                       <Switch
                         checked={isOpenBounty}
                         onClick={() => setIsOpenBounty(!isOpenBounty)}
-                        inputProps={{ 'aria-label': 'controlled' }}
+                        inputProps={{
+                          'aria-label': 'controlled',
+                        }}
                         sx={{
                           '& .MuiSwitch-thumb': {
                             color: isOpenBounty ? '#F15E5F' : 'default',
                           },
+
                           '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                             {
                               backgroundColor: '#fff',
@@ -749,7 +808,7 @@ export default function FormBounty({
               <div
                 className={
                   isMobile
-                    ? 'mt-6 flex flex-col items-center w-full'
+                    ? 'mt-6 flex flex-col items-center w-full shrink-0'
                     : 'mt-auto mb-4 flex flex-col items-center w-full'
                 }
               >
@@ -766,6 +825,7 @@ export default function FormBounty({
                         toast.error(
                           `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
                         );
+
                         return;
                       }
 
@@ -773,6 +833,7 @@ export default function FormBounty({
                         toast.error(
                           'You do not have enough funds for this bounty'
                         );
+
                         return;
                       }
 
@@ -794,6 +855,7 @@ export default function FormBounty({
                 >
                   <div className='button'>
                     <GameButton />
+
                     <p className='text-center mt-1'>create bounty</p>
                   </div>
                 </button>
@@ -852,6 +914,7 @@ export default function FormBounty({
           <div className='space-y-5 text-sm'>
             <div>
               <div className='font-semibold'>title</div>
+
               <p className='text-white/60 mt-1'>
                 A clear statement of the outcome you want someone to achieve.
               </p>
@@ -859,6 +922,7 @@ export default function FormBounty({
 
             <div>
               <div className='font-semibold'>why</div>
+
               <p className='text-white/60 mt-1'>
                 Briefly explain why you are creating the bounty and what you
                 hope it accomplishes.
@@ -867,6 +931,7 @@ export default function FormBounty({
 
             <div>
               <div className='font-semibold'>requirements</div>
+
               <p className='text-white/60 mt-1'>
                 Spell out the conditions a valid claim must meet. Bullet points
                 or numbered lists are usually easiest to follow.
@@ -875,6 +940,7 @@ export default function FormBounty({
 
             <div>
               <div className='font-semibold'>proof</div>
+
               <p className='text-white/60 mt-1'>
                 Explain exactly what evidence claimants need to submit to prove
                 they completed the bounty.
@@ -883,6 +949,7 @@ export default function FormBounty({
 
             <div>
               <div className='font-semibold'>selecting a winner</div>
+
               <p className='text-white/60 mt-1'>
                 poidh is designed so one winner takes the bounty prize. Make it
                 clear how that winner will be chosen.
@@ -898,6 +965,7 @@ export default function FormBounty({
 
             <div>
               <div className='font-semibold'>deadline</div>
+
               <p className='text-white/60 mt-1'>
                 Say when submissions close, especially if you are comparing
                 multiple entries before selecting a winner.
@@ -906,6 +974,7 @@ export default function FormBounty({
 
             <div>
               <div className='font-semibold'>anything else</div>
+
               <p className='text-white/60 mt-1'>
                 Add any extra context, restrictions, links, judging details, or
                 other information claimants should know.
