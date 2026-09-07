@@ -9,6 +9,7 @@ import { LoadingLayout } from '@/components/global/LoadingLayout';
 import ClientLayout from '@/app/layout.client';
 import { Metadata } from 'next';
 import CryptoWalletMobilePopup from '@/components/global/CryptoWalletMobilePopup';
+import KonamiCamera from '@/components/global/KonamiCamera';
 import { Analytics } from '@vercel/analytics/next';
 import { ThemeProvider } from '@/context/ThemeContext';
 
@@ -117,6 +118,7 @@ export default function RootLayout({
           </TRPCProvider>
         </ThemeProvider>
         <Analytics />
+        <KonamiCamera />
       </body>
     </html>
   );
