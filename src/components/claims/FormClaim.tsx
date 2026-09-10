@@ -163,15 +163,23 @@ export default function FormClaim({
       let actualChainId: number | null = null;
 
       for (let attempt = 0; attempt < 8; attempt++) {
-        const actualChainIdHex = await walletProvider.request({
+        const rawChainId = await walletProvider.request({
           method: 'eth_chainId',
         });
 
-        if (typeof actualChainIdHex !== 'string') {
+        if (
+          typeof rawChainId !== 'string' &&
+          typeof rawChainId !== 'number' &&
+          typeof rawChainId !== 'bigint'
+        ) {
           throw new Error('Unable to verify wallet network');
         }
 
-        actualChainId = Number.parseInt(actualChainIdHex, 16);
+        actualChainId = Number(rawChainId);
+
+        if (!Number.isSafeInteger(actualChainId) || actualChainId <= 0) {
+          throw new Error('Unable to verify wallet network');
+        }
 
         if (actualChainId === chain.id) {
           break;
