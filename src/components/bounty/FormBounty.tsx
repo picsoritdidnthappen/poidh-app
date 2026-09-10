@@ -173,6 +173,33 @@ export default function FormBounty({
         throw new Error('Unable to access wallet provider');
       }
 
+      const walletConnectProvider = walletProvider as typeof walletProvider & {
+        session?: {
+          peer?: {
+            metadata?: {
+              name?: string;
+              url?: string;
+            };
+          };
+        };
+      };
+
+      const peerMetadata = walletConnectProvider.session?.peer?.metadata;
+
+      const isWalletConnect =
+        account.connector.id.toLowerCase().includes('walletconnect') ||
+        account.connector.name.toLowerCase().includes('walletconnect');
+
+      const isAmbire =
+        peerMetadata?.name?.toLowerCase().includes('ambire') ||
+        peerMetadata?.url?.toLowerCase().includes('ambire');
+
+      if (isWalletConnect && isAmbire) {
+        throw new Error(
+          'Ambire via WalletConnect is temporarily unsupported due to a network verification issue. Please use another wallet or connection method.'
+        );
+      }
+
       // WalletConnect wallets can occasionally report a successful network switch
       // before the wallet is actually using that chain. Verify the chain directly
       // with the connected wallet before allowing a payable transaction.
