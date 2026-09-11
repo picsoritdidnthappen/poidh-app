@@ -98,13 +98,6 @@ function ClaimThumb({
 }) {
   const chain = getChainById({ chainId });
   const thumbRef = useRef<HTMLDivElement>(null);
-
-  /*
-   * Don't immediately resolve all 15 media URLs.
-   *
-   * Only start resolving thumbnails that are visible or close to
-   * becoming visible.
-   */
   const [shouldLoadMedia, setShouldLoadMedia] = useState(false);
 
   useEffect(() => {
@@ -139,7 +132,6 @@ function ClaimThumb({
   const {
     mediaUrl,
     isVideo,
-    isLoading,
     mediaError,
     setMediaError,
   } = useClaimMedia(claim.url, shouldLoadMedia);
@@ -181,10 +173,10 @@ function ClaimThumb({
               }}
             />
           )
-        ) : isLoading || !shouldLoadMedia ? (
-          <div className='absolute inset-0 bg-white/10 animate-pulse' />
-        ) : (
+        ) : mediaError ? (
           <GenerativePlaceholder seed={placeholderSeed} />
+        ) : (
+          <div className='absolute inset-0 bg-white/10 animate-pulse' />
         )}
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
@@ -215,13 +207,6 @@ export default function LatestClaimImages() {
     };
   }, []);
 
-  /*
-   * One lightweight query.
-   *
-   * No accounts.activities.
-   * No pagination loop.
-   * No server-side media resolution.
-   */
   const latestClaimsQuery = trpc.claims.fetchLatest.useQuery(
     {
       limit: 15,
