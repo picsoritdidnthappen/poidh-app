@@ -25,74 +25,34 @@ const links = [
 
 export default function Footer() {
   return (
-    <>
-      {/* Mobile */}
-      <footer className='lg:hidden border-t border-white/10 mt-12 bg-poidhBlue dark:bg-[#132b47]'>
-        <div className='px-5 py-5'>
-          <div className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/60'>
-            {links.map((link, index) => (
-              <div key={link.label} className='flex items-center gap-5'>
-                {link.external ? (
-                  <a
-                    href={link.href}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='hover:text-white transition-colors'
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    href={link.href}
-                    className='hover:text-white transition-colors'
-                  >
-                    {link.label}
-                  </Link>
-                )}
+    <footer className='hidden lg:flex fixed bottom-0 left-0 right-0 z-20 h-10 items-center justify-center border-t border-white/10 bg-poidhBlue dark:bg-[#132b47]'>
+      <div className='flex items-center gap-5 text-xs text-white/60'>
+        {links.map((link, index) => (
+          <div key={link.label} className='flex items-center gap-5'>
+            {link.external ? (
+              <a
+                href={link.href}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:text-white transition-colors'
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                href={link.href}
+                className='hover:text-white transition-colors'
+              >
+                {link.label}
+              </Link>
+            )}
 
-                {index < links.length - 1 && (
-                  <span className='text-white/25'>·</span>
-                )}
-              </div>
-            ))}
+            {index < links.length - 1 && (
+              <span className='text-white/25'>·</span>
+            )}
           </div>
-
-          <div className='mt-3 text-center text-[11px] text-white/35'>
-            poidh, inc. · pics or it didn&apos;t happen
-          </div>
-        </div>
-      </footer>
-
-      {/* Desktop */}
-      <footer className='hidden lg:flex fixed bottom-0 left-0 right-0 z-20 h-10 items-center justify-center border-t border-white/10 bg-poidhBlue dark:bg-[#132b47]'>
-        <div className='flex items-center gap-5 text-xs text-white/60'>
-          {links.map((link, index) => (
-            <div key={link.label} className='flex items-center gap-5'>
-              {link.external ? (
-                <a
-                  href={link.href}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='hover:text-white transition-colors'
-                >
-                  {link.label}
-                </a>
-              ) : (
-                <Link
-                  href={link.href}
-                  className='hover:text-white transition-colors'
-                >
-                  {link.label}
-                </Link>
-              )}
-
-              {index < links.length - 1 && (
-                <span className='text-white/25'>·</span>
-              )}
-            </div>
-          ))}
-        </div>
-      </footer>
-    </>
+        ))}
+      </div>
+    </footer>
   );
 }
