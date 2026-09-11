@@ -3,7 +3,7 @@
 import { trpc } from '@/trpc/client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
@@ -19,11 +19,7 @@ function hashString(value: string) {
   return Math.abs(hash);
 }
 
-function GenerativePlaceholder({
-  seed,
-}: {
-  seed: string;
-}) {
+function GenerativePlaceholder({ seed }: { seed: string }) {
   const hash = hashString(seed);
 
   const palette = [
@@ -35,26 +31,15 @@ function GenerativePlaceholder({
     '#F4A261',
   ];
 
-  const background =
-    palette[hash % palette.length];
+  const background = palette[hash % palette.length];
+  const accent1 = palette[(hash + 2) % palette.length];
+  const accent2 = palette[(hash + 4) % palette.length];
 
-  const accent1 =
-    palette[(hash + 2) % palette.length];
+  const vertical = 28 + ((hash >> 2) % 38);
+  const horizontal = 30 + ((hash >> 4) % 36);
 
-  const accent2 =
-    palette[(hash + 4) % palette.length];
-
-  const vertical =
-    28 + ((hash >> 2) % 38);
-
-  const horizontal =
-    30 + ((hash >> 4) % 36);
-
-  const smallBlockLeft =
-    8 + ((hash >> 6) % 58);
-
-  const smallBlockTop =
-    8 + ((hash >> 8) % 58);
+  const smallBlockLeft = 8 + ((hash >> 6) % 58);
+  const smallBlockTop = 8 + ((hash >> 8) % 58);
 
   return (
     <div
@@ -112,24 +97,66 @@ function ClaimThumb({
   chainId: ChainId;
 }) {
   const chain = getChainById({ chainId });
+  const thumbRef = useRef<HTMLDivElement>(null);
+
+  /*
+   * Don't immediately resolve all 15 media URLs.
+   *
+   * Only start resolving thumbnails that are visible or close to
+   * becoming visible.
+   */
+  const [shouldLoadMedia, setShouldLoadMedia] = useState(false);
+
+  useEffect(() => {
+    const el = thumbRef.current;
+
+    if (!el) return;
+
+    if (!('IntersectionObserver' in window)) {
+      setShouldLoadMedia(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldLoadMedia(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '300px',
+      }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const {
     mediaUrl,
     isVideo,
     isLoading,
-  } = useClaimMedia(claim.url);
+    mediaError,
+    setMediaError,
+  } = useClaimMedia(claim.url, shouldLoadMedia);
 
-  const placeholderSeed =
-    `${chainId}-${claim.id}-${claim.issuer}`;
+  const placeholderSeed = `${chainId}-${claim.id}-${claim.issuer}`;
 
   return (
-    <div className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'>
+    <div
+      ref={thumbRef}
+      className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'
+    >
       <Link
         href={`/${chain.slug}/bounty/${bountyId}`}
         className='block relative w-full h-full group'
         aria-label={`view bounty for ${claim.title || 'claim'}`}
       >
-        {mediaUrl ? (
+        {mediaUrl && !mediaError ? (
           isVideo ? (
             <video
               src={mediaUrl}
@@ -137,6 +164,9 @@ function ClaimThumb({
               playsInline
               preload='metadata'
               className='absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
+              onError={() => {
+                setMediaError(true);
+              }}
             />
           ) : (
             <Image
@@ -146,14 +176,15 @@ function ClaimThumb({
               className='object-cover group-hover:scale-105 transition-transform duration-300'
               sizes='(max-width: 640px) 96px, (max-width: 768px) 112px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
               unoptimized
+              onError={() => {
+                setMediaError(true);
+              }}
             />
           )
-        ) : isLoading ? (
+        ) : isLoading || !shouldLoadMedia ? (
           <div className='absolute inset-0 bg-white/10 animate-pulse' />
         ) : (
-          <GenerativePlaceholder
-            seed={placeholderSeed}
-          />
+          <GenerativePlaceholder seed={placeholderSeed} />
         )}
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
@@ -184,45 +215,26 @@ export default function LatestClaimImages() {
     };
   }, []);
 
-  const activities =
-    trpc.accounts.activities.useInfiniteQuery(
-      {
-        address: undefined,
-      },
-      {
-        getNextPageParam: (lastPage) =>
-          lastPage.nextCursor,
-      }
-    );
-
-  const latestClaims =
-    activities.data?.pages
-      .flatMap((page) => page.items)
-      .filter(
-        (tx: any) =>
-          tx.action === 'claim created' &&
-          tx.claim != null
-      )
-      .slice(0, 15) ?? [];
-
-  useEffect(() => {
-    if (
-      activities.hasNextPage &&
-      !activities.isFetchingNextPage &&
-      latestClaims.length < 15
-    ) {
-      activities.fetchNextPage();
+  /*
+   * One lightweight query.
+   *
+   * No accounts.activities.
+   * No pagination loop.
+   * No server-side media resolution.
+   */
+  const latestClaimsQuery = trpc.claims.fetchLatest.useQuery(
+    {
+      limit: 15,
+    },
+    {
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
     }
-  }, [
-    latestClaims.length,
-    activities.hasNextPage,
-    activities.isFetchingNextPage,
-  ]);
+  );
 
-  if (
-    !activities.isLoading &&
-    latestClaims.length === 0
-  ) {
+  const latestClaims = latestClaimsQuery.data ?? [];
+
+  if (!latestClaimsQuery.isLoading && latestClaims.length === 0) {
     return null;
   }
 
@@ -250,34 +262,21 @@ export default function LatestClaimImages() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {Array.from({ length: 15 }).map(
-          (_, i) => {
-            const tx = latestClaims[i];
-
-            return tx && tx.claim ? (
-              <ClaimThumb
-                key={
-                  tx.tx +
-                  String(tx.index ?? '')
-                }
-                claim={tx.claim as Claim}
-                bountyId={
-                  tx.bounty?.id ??
-                  tx.bountyId
-                }
-                chainId={
-                  (tx.bounty?.chainId ??
-                    tx.chainId) as ChainId
-                }
-              />
-            ) : (
+        {latestClaimsQuery.isLoading
+          ? Array.from({ length: 15 }).map((_, i) => (
               <div
                 key={i}
                 className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
               />
-            );
-          }
-        )}
+            ))
+          : latestClaims.map((item) => (
+              <ClaimThumb
+                key={`${item.chainId}-${item.claim.id}`}
+                claim={item.claim as Claim}
+                bountyId={item.bountyId}
+                chainId={item.chainId as ChainId}
+              />
+            ))}
       </div>
     </div>
   );
