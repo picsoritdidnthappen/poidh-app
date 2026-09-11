@@ -136,7 +136,7 @@ export default function FormBounty({
     address: account.address,
     chainId: currentChain.id,
   });
-  const switctChain = useSwitchChain();
+  const switchChain = useSwitchChain();
   const router = useRouter();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -149,11 +149,115 @@ export default function FormBounty({
       amount: string;
       album: string;
     }) => {
-      const chainId = await account.connector?.getChainId();
+      if (!account.connector) {
+        throw new Error('Wallet connector unavailable');
+      }
+
+      const chainId = await account.connector.getChainId();
 
       if (currentChain.id !== chainId) {
         setLoading({ isLoading: true, status: 'Switching network' });
-        await switctChain.switchChainAsync({ chainId: currentChain.id });
+        await switchChain.switchChainAsync({ chainId: currentChain.id });
+      }
+
+      const walletProvider = (await account.connector.getProvider()) as
+        | {
+            request: (args: {
+              method: string;
+              params?: readonly unknown[];
+            }) => Promise<unknown>;
+          }
+        | undefined;
+
+      if (!walletProvider) {
+        throw new Error('Unable to access wallet provider');
+      }
+
+      const walletConnectProvider = walletProvider as typeof walletProvider & {
+        session?: {
+          peer?: {
+            metadata?: {
+              name?: string;
+              url?: string;
+            };
+          };
+        };
+      };
+
+      const peerMetadata = walletConnectProvider.session?.peer?.metadata;
+
+      const isWalletConnect =
+        account.connector.id.toLowerCase().includes('walletconnect') ||
+        account.connector.name.toLowerCase().includes('walletconnect');
+
+      const isAmbire =
+        peerMetadata?.name?.toLowerCase().includes('ambire') ||
+        peerMetadata?.url?.toLowerCase().includes('ambire');
+
+      if (isWalletConnect && isAmbire) {
+        throw new Error(
+          'Ambire via WalletConnect is temporarily unsupported due to a network verification issue. Please use another wallet or connection method.'
+        );
+      }
+
+      // WalletConnect wallets can occasionally report a successful network switch
+      // before the wallet is actually using that chain. Verify the chain directly
+      // with the connected wallet before allowing a payable transaction.
+      let actualChainId: number | null = null;
+
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const rawChainId = await walletProvider.request({
+          method: 'eth_chainId',
+        });
+
+        if (
+          typeof rawChainId !== 'string' &&
+          typeof rawChainId !== 'number' &&
+          typeof rawChainId !== 'bigint'
+        ) {
+          throw new Error('Unable to verify wallet network');
+        }
+
+        actualChainId = Number(rawChainId);
+
+        if (!Number.isSafeInteger(actualChainId) || actualChainId <= 0) {
+          throw new Error('Unable to verify wallet network');
+        }
+
+        if (actualChainId === currentChain.id) {
+          break;
+        }
+
+        if (attempt < 7) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+      }
+
+      if (actualChainId !== currentChain.id) {
+        throw new Error(
+          `Wrong network selected in wallet. Please switch to ${currentChain.slug} and try again.`
+        );
+      }
+
+      // Final safety check: make sure the poidh contract actually exists on the
+      // network the connected wallet reports. This prevents ETH from being sent
+      // to the same address on a chain where no poidh contract is deployed.
+      const contractAddress =
+        currentChain.contracts.mainContract as `0x${string}`;
+
+      const contractCode = await walletProvider.request({
+        method: 'eth_getCode',
+        params: [contractAddress, 'latest'],
+      });
+
+      if (
+        typeof contractCode !== 'string' ||
+        contractCode === '0x' ||
+        /^0x0*$/.test(contractCode)
+      ) {
+        throw new Error(
+          `poidh contract not found on ${currentChain.slug}. Transaction cancelled.`
+        );
       }
 
       setLoading({
@@ -163,7 +267,7 @@ export default function FormBounty({
 
       const tx = await writeContract.writeContractAsync({
         abi,
-        address: currentChain.contracts.mainContract as `0x${string}`,
+        address: contractAddress,
         functionName: isOpenBounty ? 'createOpenBounty' : 'createSoloBounty',
         value: BigInt(parseEther(formData.amount)),
         args: [formData.name, formData.description],

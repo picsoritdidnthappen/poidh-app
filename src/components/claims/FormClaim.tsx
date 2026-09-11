@@ -132,10 +132,115 @@ export default function FormClaim({
   const createClaimMutations = useMutation({
     mutationFn: async () => {
       setShowConfirm(false);
-      const chainId = await account.connector?.getChainId();
-      if (chain.id !== chainId) {
+
+      if (!account.connector) {
+        throw new Error('Wallet connector unavailable');
+      }
+
+      const walletChainId = await account.connector.getChainId();
+
+      if (chain.id !== walletChainId) {
         setLoading({ isLoading: true, status: 'Switching network...' });
         await switchChain.switchChainAsync({ chainId: chain.id });
+      }
+
+      const walletProvider = (await account.connector.getProvider()) as
+        | {
+            request: (args: {
+              method: string;
+              params?: readonly unknown[];
+            }) => Promise<unknown>;
+          }
+        | undefined;
+
+      if (!walletProvider) {
+        throw new Error('Unable to access wallet provider');
+      }
+
+      const walletConnectProvider = walletProvider as typeof walletProvider & {
+        session?: {
+          peer?: {
+            metadata?: {
+              name?: string;
+              url?: string;
+            };
+          };
+        };
+      };
+
+      const peerMetadata = walletConnectProvider.session?.peer?.metadata;
+
+      const isWalletConnect =
+        account.connector.id.toLowerCase().includes('walletconnect') ||
+        account.connector.name.toLowerCase().includes('walletconnect');
+
+      const isAmbire =
+        peerMetadata?.name?.toLowerCase().includes('ambire') ||
+        peerMetadata?.url?.toLowerCase().includes('ambire');
+
+      if (isWalletConnect && isAmbire) {
+        throw new Error(
+          'Ambire via WalletConnect is temporarily unsupported due to a network verification issue. Please use another wallet or connection method.'
+        );
+      }
+
+      // WalletConnect wallets can occasionally report a successful network switch
+      // before the wallet is actually using that chain. Verify the chain directly
+      // with the connected wallet before allowing the claim transaction.
+      let actualChainId: number | null = null;
+
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const rawChainId = await walletProvider.request({
+          method: 'eth_chainId',
+        });
+
+        if (
+          typeof rawChainId !== 'string' &&
+          typeof rawChainId !== 'number' &&
+          typeof rawChainId !== 'bigint'
+        ) {
+          throw new Error('Unable to verify wallet network');
+        }
+
+        actualChainId = Number(rawChainId);
+
+        if (!Number.isSafeInteger(actualChainId) || actualChainId <= 0) {
+          throw new Error('Unable to verify wallet network');
+        }
+
+        if (actualChainId === chain.id) {
+          break;
+        }
+
+        if (attempt < 7) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+      }
+
+      if (actualChainId !== chain.id) {
+        throw new Error(
+          `Wrong network selected in wallet. Please switch to ${chain.slug} and try again.`
+        );
+      }
+
+      // Make sure the poidh contract actually exists on the network reported
+      // by the connected wallet before submitting any transaction.
+      const contractAddress =
+        chain.contracts.mainContract as `0x${string}`;
+
+      const contractCode = await walletProvider.request({
+        method: 'eth_getCode',
+        params: [contractAddress, 'latest'],
+      });
+
+      if (
+        typeof contractCode !== 'string' ||
+        contractCode === '0x' ||
+        /^0x0*$/.test(contractCode)
+      ) {
+        throw new Error(
+          `poidh contract not found on ${chain.slug}. Transaction cancelled.`
+        );
       }
 
       setLoading({ isLoading: true, status: 'Uploading metadata...' });
@@ -145,11 +250,13 @@ export default function FormClaim({
 
       setLoading({ isLoading: true, status: 'Creating claim...' });
       setPollingChainId(chain.id);
+
       const tx = await writeContract.writeContractAsync({
         abi,
-        address: chain.contracts.mainContract as `0x${string}`,
+        address: contractAddress,
         functionName: 'createClaim',
         args: [BigInt(onChainBountyId), title, description, uri],
+        chainId: chain.id,
       });
 
       setLoading({ isLoading: true, status: 'Waiting for receipt...' });
