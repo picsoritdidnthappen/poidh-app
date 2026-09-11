@@ -1,6 +1,41 @@
 import { ABI } from '@/constant';
-import { chains } from '@/utils/config';
-import { Netname } from '@/utils/types';
+import { chains, getChainById } from '@/utils/config';
+import { ChainId, Netname } from '@/utils/types';
+
+/**
+ * Reads the contract flag that decides whether a bounty can still be paid with a direct
+ * `acceptClaim`, or has to go through the vote flow. `true` means the vote flow.
+ *
+ * The gate on chain is the sticky `everHadExternalContributor` flag, not the number of
+ * contributors the bounty has right now: `withdrawFromOpenBounty` zeroes the contributor's
+ * slot and never clears the flag. So an open bounty whose only outside contributor has left
+ * looks solo from the indexed participation rows, but `acceptClaim` still reverts with
+ * `NotSoloBounty()` and the issuer has to go through `submitClaimForVote`.
+ *
+ * All four configured chains run this contract and expose the flag, so the only reason this
+ * returns `null` is that the read itself failed (RPC down, rate limited, wrong chain id).
+ * Callers fall back to the indexed count in that case.
+ */
+export async function everHadExternalContributor({
+  chainId,
+  onChainId,
+}: {
+  chainId: ChainId;
+  onChainId: number;
+}): Promise<boolean | null> {
+  try {
+    const chain = getChainById({ chainId });
+
+    return await chain.provider.readContract({
+      abi: ABI,
+      address: chain.contracts.mainContract as `0x${string}`,
+      functionName: 'everHadExternalContributor',
+      args: [BigInt(onChainId)],
+    });
+  } catch {
+    return null;
+  }
+}
 
 export async function bountyCurrentVotingClaim({
   chainName,

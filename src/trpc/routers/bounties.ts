@@ -3,6 +3,33 @@ import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
 import { checkIsIssuer } from './admin';
+import { everHadExternalContributor } from '@/utils/web3';
+import type { ChainId } from '@/utils/types';
+
+/**
+ * Which payout button the issuer should be offered.
+ *
+ * `hasParticipants` counts the participations that are still live, but the contract gates
+ * `acceptClaim` on the sticky `everHadExternalContributor` flag, so the two disagree for any
+ * open bounty whose outside contributors have all withdrawn. Branching the UI on the live
+ * count offers those issuers an "accept" that can only revert, with no route to the vote flow.
+ * The live count is the fallback when the chain read fails.
+ */
+async function readMustUseVoteFlow(
+  bounty: { onChainId: number; chainId: number; isMultiplayer: boolean },
+  hasParticipants: boolean
+): Promise<boolean> {
+  if (!bounty.isMultiplayer) {
+    return false;
+  }
+
+  const flag = await everHadExternalContributor({
+    chainId: bounty.chainId as ChainId,
+    onChainId: bounty.onChainId,
+  });
+
+  return flag ?? hasParticipants;
+}
 
 export const bountiesRouter = {
   fetch: baseProcedure
@@ -34,11 +61,14 @@ export const bountiesRouter = {
       const { claims, participations, extra, ...bountyData } = bounty;
       const { amountSort, ...extraData } = extra;
 
+      const hasParticipants = participations.length > 1;
+
       return {
         ...bountyData,
         extra: extraData,
         hasClaims: claims.length > 0,
-        hasParticipants: participations.length > 1,
+        hasParticipants,
+        mustUseVoteFlow: await readMustUseVoteFlow(bountyData, hasParticipants),
         amountSort,
       };
     }),
