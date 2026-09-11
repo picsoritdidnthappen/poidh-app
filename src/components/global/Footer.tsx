@@ -1,6 +1,17 @@
 import Link from 'next/link';
 
-const footerSections = [
+type FooterLink = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+type FooterSection = {
+  title: string;
+  links: FooterLink[];
+};
+
+const footerSections: FooterSection[] = [
   {
     title: 'product',
     links: [
