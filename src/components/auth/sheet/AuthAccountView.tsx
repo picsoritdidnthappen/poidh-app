@@ -14,7 +14,6 @@ import {
 import { CopyDoneIcon, CopyIcon } from '@/components/global/Icons';
 import { AlertCircle, ChevronRight, LogOut, X } from 'lucide-react';
 import { SUPPORTED_CHAINS } from '../types';
-import TurnkeyExportCard from '../TurnkeyExportCard';
 
 interface AuthAccountViewProps {
   onClose: () => void;
@@ -202,9 +201,6 @@ export default function AuthAccountView({
             </button>
           </div>
         </div>
-
-        {/* Turnkey Signer Export Card */}
-        <TurnkeyExportCard containerId='turnkey-export-container-account' />
       </SheetContent>
 
       <SheetFooter className='gap-2.5 pt-4'>
