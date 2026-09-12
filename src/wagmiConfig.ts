@@ -16,7 +16,7 @@ type WalletDetails = Parameters<Wallet['createConnector']>[0];
 type ConnectorConfig = Parameters<ReturnType<Wallet['createConnector']>>[0];
 
 export const zeroDevRainbowWallet = (): Wallet => ({
-  id: 'zerodev',
+  id: 'zerodev-wallet',
   name: 'ZeroDev',
   iconUrl: '/images/zerodev-logo.svg',
   iconBackground: '#19110B',
@@ -35,6 +35,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
       return {
         ...baseConnector,
         ...walletDetails,
+        id: 'zerodev-wallet',
         getProvider: async (params?: Record<string, unknown>) => {
           if (!originalGetProvider) return null;
           const provider = (await originalGetProvider(params)) as {
