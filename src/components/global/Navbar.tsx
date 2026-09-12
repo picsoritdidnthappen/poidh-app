@@ -59,6 +59,7 @@ export default function Navbar({
       setShowForm(true);
       return;
     }
+
     openConnectModal?.();
   };
 
@@ -92,7 +93,7 @@ export default function Navbar({
             </Link>
 
             <Link
-              href={`/leaderboard`}
+              href='/leaderboard'
               className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
             >
               <LeaderboardIcon size={24} />
@@ -106,6 +107,7 @@ export default function Navbar({
               >
                 <div className='relative w-[88px] h-[88px] flex items-center justify-center mx-auto'>
                   <div className='absolute inset-0 rounded-full ring-[5px] ring-white/40' />
+
                   {showForm ? (
                     <PlainGameButton hideShadow={true} />
                   ) : (
@@ -122,7 +124,7 @@ export default function Navbar({
             </div>
 
             <Link
-              href={`/feed`}
+              href='/feed'
               className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
             >
               <ImageIcon size={24} />
@@ -157,16 +159,17 @@ export default function Navbar({
 
   // Desktop view
   return (
-    <div className='fixed bottom-8 z-40 w-full flex justify-center items-center lg:flex-col how-it-works-hidden'>
+    <div className='fixed bottom-16 z-40 w-full flex justify-center items-center lg:flex-col how-it-works-hidden'>
       {!showForm && (
         <div
-          className='absolute button -bottom-3 flex cursor-pointer flex-col items-center justify-center'
+          className='absolute button bottom-0 flex cursor-pointer flex-col items-center justify-center'
           onClick={handleClick}
         >
           <GameButton />
           <ButtonCTA>create {type}</ButtonCTA>
         </div>
       )}
+
       {type === 'bounty' ? (
         <FormBounty open={showForm} onClose={() => setShowForm(false)} />
       ) : (
