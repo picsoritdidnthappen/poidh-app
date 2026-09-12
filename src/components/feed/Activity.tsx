@@ -10,13 +10,17 @@ import { ChainId, Claim } from '@/utils/types';
 type ActivityTx = {
   tx: string;
   index?: number;
+
   bounty?: {
     id: number;
     chainId: number;
     title: string;
     issuer: string;
+    amount: string;
   } | null;
+
   claim?: Claim | null;
+
   bountyId: number;
   claimId?: number;
   chainId: ChainId;
@@ -25,25 +29,48 @@ type ActivityTx = {
   timestamp: number | string;
 };
 
-export default function Activity({ activity }: { activity: ActivityTx }) {
-  const bountyId = activity.bounty?.id ?? activity.bountyId;
-  const chainId = activity.bounty?.chainId ?? activity.chainId;
-  const chain = getChainById({ chainId: chainId as ChainId });
+export default function Activity({
+  activity,
+}: {
+  activity: ActivityTx;
+}) {
+  const bountyId =
+    activity.bounty?.id ?? activity.bountyId;
 
-  const bountyData = trpc.bounties.fetch.useQuery(
-    { id: bountyId ?? 0, chainId: chainId ?? 0 },
-    { enabled: bountyId != null && Boolean(chainId) }
-  );
+  const chainId =
+    activity.bounty?.chainId ?? activity.chainId;
 
+  const chain = getChainById({
+    chainId: chainId as ChainId,
+  });
+
+  /*
+   * Price queries are shared/deduped by React Query when
+   * multiple cards request the same currency.
+   *
+   * We no longer need a separate bounties.fetch call for
+   * every activity row because accounts.activities already
+   * includes the bounty amount.
+   */
   const priceData = trpc.web3.fetchPrice.useQuery(
-    { currency: chain?.currency ?? 'eth' },
-    { enabled: Boolean(chain?.currency) }
+    {
+      currency: chain?.currency ?? 'eth',
+    },
+    {
+      enabled: Boolean(chain?.currency),
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    }
   );
 
   const bountyPrice =
-    bountyData.data && priceData.data
+    activity.bounty?.amount &&
+    priceData.data &&
+    chain
       ? formatAmount({
-          amount: formatEther(BigInt(bountyData.data.amount)),
+          amount: formatEther(
+            BigInt(activity.bounty.amount)
+          ),
           price: priceData.data.toString(),
           currency: chain.currency,
           precision: 4,
@@ -52,26 +79,47 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
 
   const dateTime = activity.timestamp
     ? (() => {
-        const dateObj = new Date(Number(activity.timestamp) * 1000);
-        const dateStr = dateObj.toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
-        const timeStr = dateObj.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        });
-        return { date: dateStr, time: timeStr };
+        const dateObj = new Date(
+          Number(activity.timestamp) * 1000
+        );
+
+        const dateStr = dateObj.toLocaleDateString(
+          'en-GB',
+          {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          }
+        );
+
+        const timeStr = dateObj.toLocaleTimeString(
+          'en-US',
+          {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+          }
+        );
+
+        return {
+          date: dateStr,
+          time: timeStr,
+        };
       })()
-    : { date: '', time: '' };
+    : {
+        date: '',
+        time: '',
+      };
 
   function renderText() {
     const action = activity.action || '';
 
     if (action === 'bounty created') {
-      return <div>a new bounty has been created 💰</div>;
+      return (
+        <div>
+          a new bounty has been created 💰
+        </div>
+      );
     }
 
     if (action === 'claim created') {
@@ -82,7 +130,8 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
             <span>
               <strong>
                 {` `}
-                {activity.bounty.title} {` `}
+                {activity.bounty.title}
+                {` `}
               </strong>
               valued at {` ${bountyPrice} `}
             </span>
@@ -99,7 +148,9 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
         <div>
           a claim has been accepted for{' '}
           {activity.bounty?.title ? (
-            <strong>{activity.bounty.title + ' 🏆'}</strong>
+            <strong>
+              {activity.bounty.title + ' 🏆'}
+            </strong>
           ) : (
             'this bounty 🏆'
           )}
@@ -113,19 +164,22 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       const prep = isAdd ? 'to' : 'from';
       const amountRaw = action.slice(1).trim();
 
-      const contribution = priceData?.data
-        ? formatAmount({
-            amount: amountRaw,
-            currency: chain.currency,
-            price: String(priceData.data),
-          })
-        : `${amountRaw} ${chain.currency}`;
+      const contribution =
+        priceData.data && chain
+          ? formatAmount({
+              amount: amountRaw,
+              currency: chain.currency,
+              price: String(priceData.data),
+            })
+          : `${amountRaw} ${chain.currency}`;
 
       return (
         <div>
           {verb} {contribution} {prep}{' '}
           {activity.bounty?.title ? (
-            <strong>{activity.bounty.title}</strong>
+            <strong>
+              {activity.bounty.title}
+            </strong>
           ) : (
             'this bounty'
           )}
@@ -133,11 +187,13 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       );
     }
 
-    if (action.includes('submitted for vote')) {
+    if (
+      action.includes('submitted for vote')
+    ) {
       return (
         <div>
-          a claim has been nominated for vote, contributors have 48 hours to
-          confirm
+          a claim has been nominated for vote,
+          contributors have 48 hours to confirm
         </div>
       );
     }
@@ -151,7 +207,9 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
           />{' '}
           has voted on a claim for{' '}
           {activity.bounty?.title ? (
-            <strong>{activity.bounty.title}</strong>
+            <strong>
+              {activity.bounty.title}
+            </strong>
           ) : (
             'this bounty'
           )}
@@ -163,18 +221,22 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
   }
 
   const text = renderText();
-  if (!text) return null;
+
+  if (!text) {
+    return null;
+  }
 
   return (
     <div className='w-full max-w-full sm:max-w-3xl bg-white/5 border border-white/8 rounded-lg backdrop-blur-sm mt-4 sm:mt-5 overflow-hidden shadow-sm'>
-      <div className='px-4 py-3 sm:px-6 sm:py-4  bg-[#7fb7ee] dark:bg-[#132b47]'>
+      <div className='px-4 py-3 sm:px-6 sm:py-4 bg-[#7fb7ee] dark:bg-[#132b47]'>
         <div className='flex items-start justify-between gap-4'>
           <div className='flex items-center gap-3'>
             <DisplayAddress
               address={
-                activity.action === 'claim accepted'
+                activity.action ===
+                'claim accepted'
                   ? activity.bounty?.issuer ?? ''
-                  : activity?.address
+                  : activity.address
                   ? activity.address
                   : ''
               }
@@ -213,14 +275,19 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
               >
                 <div className='flex flex-col flex-1 min-w-0'>
                   <span className='font-mono text-m mb-3 truncate'>
-                    {activity.bounty?.title ?? '???'}
+                    {activity.bounty?.title ??
+                      '???'}
                   </span>
-                  {bountyData.data?.amount && priceData.data && chain && (
-                    <span className='font-mono text-s text-white/70 mt-1'>
-                      {bountyPrice}
-                    </span>
-                  )}
+
+                  {activity.bounty?.amount &&
+                    priceData.data &&
+                    chain && (
+                      <span className='font-mono text-s text-white/70 mt-1'>
+                        {bountyPrice}
+                      </span>
+                    )}
                 </div>
+
                 <div className='text-xs text-white/60 hover:text-poidhRed shrink-0'>
                   Open
                 </div>

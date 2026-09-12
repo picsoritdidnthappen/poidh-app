@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
@@ -113,18 +113,64 @@ export default function ClaimImageEmbed({
   bountyId: number;
   chainId: ChainId;
 }) {
-  const [renderError, setRenderError] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [shouldLoadMedia, setShouldLoadMedia] =
+    useState(false);
+
+  const [renderError, setRenderError] =
+    useState(false);
 
   const chain = getChainById({ chainId });
 
   const mediaSource =
     claim?.mediaUrl ?? claim?.url;
 
+  /*
+   * Only start resolving media when this card is
+   * visible or close to becoming visible.
+   */
+  useEffect(() => {
+    const el = containerRef.current;
+
+    if (!el) return;
+
+    if (!('IntersectionObserver' in window)) {
+      setShouldLoadMedia(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries.some(
+            (entry) => entry.isIntersecting
+          )
+        ) {
+          setShouldLoadMedia(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '400px',
+      }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   const {
     mediaUrl,
     isVideo,
     isLoading,
-  } = useClaimMedia(mediaSource);
+  } = useClaimMedia(
+    mediaSource,
+    shouldLoadMedia
+  );
 
   if (!claim) return null;
 
@@ -135,8 +181,13 @@ export default function ClaimImageEmbed({
     `${chainId}-${claim.id}-${claim.issuer}`;
 
   return (
-    <div className='p-3'>
-      <Link href={`/${chain.slug}/bounty/${bountyId}`}>
+    <div
+      ref={containerRef}
+      className='p-3'
+    >
+      <Link
+        href={`/${chain.slug}/bounty/${bountyId}`}
+      >
         <div className='bg-poidhRed p-4 rounded-lg'>
           {hasMedia ? (
             <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
@@ -145,6 +196,7 @@ export default function ClaimImageEmbed({
                   src={mediaUrl}
                   controls
                   playsInline
+                  preload='metadata'
                   className='w-full h-full object-cover rounded-lg'
                   onError={() =>
                     setRenderError(true)
@@ -158,6 +210,7 @@ export default function ClaimImageEmbed({
                     'claim image'
                   }
                   fill
+                  loading='lazy'
                   className='object-cover'
                   sizes='(max-width: 768px) 100vw, 600px'
                   unoptimized
@@ -167,7 +220,14 @@ export default function ClaimImageEmbed({
                 />
               )}
             </div>
-          ) : isLoading ? (
+          ) : renderError ? (
+            <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
+              <GenerativePlaceholder
+                seed={placeholderSeed}
+              />
+            </div>
+          ) : isLoading ||
+            !shouldLoadMedia ? (
             <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden bg-white/10 animate-pulse' />
           ) : (
             <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
