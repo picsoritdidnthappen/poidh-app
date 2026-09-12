@@ -234,7 +234,7 @@ export default function Home() {
               threshold={300}
             >
               {display !== 'past' ? (
-                <div className='flex flex-col items-center justify-center gap-3 px-6 py-7 text-center'>
+                <div className='px-6 py-7'>
                   <BountyList
                     key={bounties.data.pages[0]?.items[0]?.id || 'empty-list'}
                     showChainIcon={true}
