@@ -25,6 +25,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
       const baseConnector = zeroDevWallet({
         projectId: clientEnv.ZERODEV_PROJECT_ID || '',
         chains: [arbitrum, base, degen, mainnet],
+        mode: '4337',
       })(config);
 
       const originalConnect = baseConnector.connect.bind(baseConnector);
@@ -57,12 +58,37 @@ export const zeroDevRainbowWallet = (): Wallet => ({
                   args.method === 'wallet_sendTransaction')
               ) {
                 const tx = (args.params as Record<string, unknown>[])?.[0];
+                if (tx?.__isSmartRoutingInternal) {
+                  return await originalRequest(args);
+                }
+
+                // Ensure chainId is accurately populated
+                let effectiveChainId = tx?.chainId;
+                if (!effectiveChainId) {
+                  try {
+                    const currentHex = (await originalRequest({
+                      method: 'eth_chainId',
+                    })) as string;
+                    effectiveChainId =
+                      typeof currentHex === 'string'
+                        ? parseInt(currentHex, 16)
+                        : Number(currentHex);
+                  } catch {
+                    // ignore
+                  }
+                }
+
+                const enrichedTx = {
+                  ...tx,
+                  chainId: effectiveChainId,
+                };
+
                 await new Promise<void>((resolve, reject) => {
                   window.dispatchEvent(
                     new CustomEvent('zerodev-request-approval', {
                       detail: {
                         type: 'transaction',
-                        tx,
+                        tx: enrichedTx,
                         resolve,
                         reject,
                       },
@@ -86,6 +112,46 @@ export const zeroDevRainbowWallet = (): Wallet => ({
                     })
                   );
                 });
+              } else if (args.method === 'eth_getCode') {
+                try {
+                  const chainIdHex = (await originalRequest({
+                    method: 'eth_chainId',
+                  })) as string;
+                  const chainId =
+                    typeof chainIdHex === 'string'
+                      ? parseInt(chainIdHex, 16)
+                      : Number(chainIdHex);
+                  const rpcMap: Record<number, string> = {
+                    [arbitrum.id]:
+                      clientEnv.ARBITRUM_RPC_URL ||
+                      'https://arb1.arbitrum.io/rpc',
+                    [base.id]:
+                      clientEnv.BASE_RPC_URL || 'https://mainnet.base.org',
+                    [mainnet.id]:
+                      clientEnv.MAINNET_RPC_URL ||
+                      'https://ethereum-rpc.publicnode.com',
+                    [degen.id]:
+                      clientEnv.DEGEN_RPC_URL || 'https://rpc.degen.tips',
+                  };
+                  const rpc =
+                    rpcMap[chainId] ||
+                    clientEnv.BASE_RPC_URL ||
+                    'https://mainnet.base.org';
+                  const res = await fetch(rpc, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      jsonrpc: '2.0',
+                      id: 1,
+                      method: 'eth_getCode',
+                      params: args.params,
+                    }),
+                  });
+                  const data = await res.json();
+                  return data.result || '0x';
+                } catch {
+                  return '0x';
+                }
               }
 
               return await originalRequest(args);
