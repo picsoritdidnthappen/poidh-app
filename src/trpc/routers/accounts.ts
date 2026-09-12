@@ -539,87 +539,99 @@ export const accountsRouter = {
     }),
 
   activities: baseProcedure
-    .input(
-      z.object({
-        address: z.string().optional(),
-        limit: z.number().min(1).max(200).default(10),
-        cursor: z.string().nullish(),
-      })
-    )
-    .query(async ({ input }) => {
-      const txs = await prisma.transactions.findMany({
-        include: {
-          bounty: {
-            select: { id: true, chainId: true, title: true, issuer: true },
-          },
-          claim: {
-            select: {
-              id: true,
-              chainId: true,
-              title: true,
-              url: true,
-              issuer: true,
-            },
+  .input(
+    z.object({
+      address: z.string().optional(),
+      limit: z.number().min(1).max(200).default(10),
+      cursor: z.string().nullish(),
+    })
+  )
+  .query(async ({ input }) => {
+    const txs = await prisma.transactions.findMany({
+      include: {
+        bounty: {
+          select: {
+            id: true,
+            chainId: true,
+            title: true,
+            issuer: true,
+            amount: true,
           },
         },
-        where: {
-          action: { not: 'bounty canceled' },
-          bounty: {
-            ban: {
-              none: {},
+        claim: {
+          select: {
+            id: true,
+            chainId: true,
+            title: true,
+            url: true,
+            issuer: true,
+          },
+        },
+      },
+
+      where: {
+        action: {
+          not: 'bounty canceled',
+        },
+
+        bounty: {
+          ban: {
+            none: {},
+          },
+        },
+
+        OR: [
+          {
+            claimId: {
+              equals: null,
             },
           },
-          OR: [
-            { claimId: { equals: null } },
-            { claim: { is: { ban: { none: {} } } } },
-          ],
-          ...(input.address
-            ? {
-                address: input.address.toLowerCase(),
-              }
-            : {}),
-          ...(input.cursor ? { timestamp: { lt: input.cursor } } : {}),
-        },
-        orderBy: { timestamp: 'desc' },
-        take: input.limit,
-      });
-
-      let nextCursor: string | undefined = undefined;
-
-      if (txs.length === input.limit) {
-        nextCursor = txs[txs.length - 1].timestamp.toString();
-      }
-
-      const normalizedTxs = await Promise.all(
-        txs.map(async (tx) => {
-          if (!tx.claim?.url) {
-            return tx;
-          }
-
-          const imageMetadata = await fetchImageMetadata(
-            tx.claim.url
-          );
-
-          return {
-            ...tx,
+          {
             claim: {
-              ...tx.claim,
-
-              // Keep the original NFT/media URL intact.
-              url: tx.claim.url,
-
-              // Also provide the server-resolved image when available.
-              mediaUrl: imageMetadata.image,
+              is: {
+                ban: {
+                  none: {},
+                },
+              },
             },
-          };
-        })
-      );
+          },
+        ],
 
-      return {
-        items: normalizedTxs,
-        nextCursor,
-      };
-          }),
+        ...(input.address
+          ? {
+              address: input.address.toLowerCase(),
+            }
+          : {}),
+
+        ...(input.cursor
+          ? {
+              timestamp: {
+                lt: input.cursor,
+              },
+            }
+          : {}),
+      },
+
+      orderBy: {
+        timestamp: 'desc',
+      },
+
+      take: input.limit,
+    });
+
+    let nextCursor: string | undefined = undefined;
+
+    if (txs.length === input.limit) {
+      nextCursor =
+        txs[txs.length - 1].timestamp.toString();
+    }
+
+    return {
+      items: txs,
+      nextCursor,
+    };
+  }),
+  
   canVote: baseProcedure
     .input(
       z.object({
