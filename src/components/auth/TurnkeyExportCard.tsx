@@ -134,7 +134,8 @@ export default function TurnkeyExportCard({
           address: signerAddress ? (signerAddress as `0x${string}`) : undefined,
           keyFormat: 'Hexadecimal',
           iframeStyles,
-          connector,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          connector: connector as any,
         });
         setExportSuccess(true);
         toast.success('Signer private key decrypted');
@@ -142,7 +143,8 @@ export default function TurnkeyExportCard({
         await exportWalletMutate({
           iframeContainerId: containerId,
           iframeStyles,
-          connector,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          connector: connector as any,
         });
         setExportSuccess(true);
         toast.success('Signer recovery phrase decrypted');

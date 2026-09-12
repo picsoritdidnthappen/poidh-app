@@ -638,7 +638,7 @@ export default function AuthApprovalView({
                       }`}
                     >
                       {isCopied ? (
-                        <CopyDoneIcon size={12} className='text-emerald-400' />
+                        <CopyDoneIcon size={12} />
                       ) : (
                         <CopyIcon size={12} />
                       )}
@@ -745,7 +745,7 @@ export default function AuthApprovalView({
                       }`}
                     >
                       {isCopied ? (
-                        <CopyDoneIcon size={12} className='text-emerald-400' />
+                        <CopyDoneIcon size={12} />
                       ) : (
                         <CopyIcon size={12} />
                       )}
@@ -801,7 +801,7 @@ export default function AuthApprovalView({
                       }`}
                     >
                       {isCopied ? (
-                        <CopyDoneIcon size={12} className='text-emerald-400' />
+                        <CopyDoneIcon size={12} />
                       ) : (
                         <CopyIcon size={12} />
                       )}

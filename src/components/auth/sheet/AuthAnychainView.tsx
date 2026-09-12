@@ -313,7 +313,7 @@ export default function AuthAnychainView({
 
       toast.success('All unbridged funds refunded to your smart account!');
       setUnbridgedDeposits([]);
-      anychain.refreshBalances();
+      anychain.refetch();
     } catch (err: unknown) {
       const e = err as Error;
       console.error('[handleRecoverUnbridged error]:', e);
