@@ -24,7 +24,7 @@ const APP_OG_IMAGE_URL =
 const APP_ICON_URL =
   `${process.env.NEXT_PUBLIC_URL}/icon.png` || 'https://poidh.xyz/icon.png';
 const APP_SPLASH_URL = `${APP_URL}/mini-splash-v2.png`;
-const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
+const APP_SPLASH_BACKGROUND_COLOR = '#6faae1';
 const APP_BUTTON_TEXT = 'launch poidh';
 
 export const revalidate = 300;
