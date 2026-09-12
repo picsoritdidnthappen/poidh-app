@@ -1,4 +1,5 @@
 'use client';
+
 import Link from 'next/link';
 import { formatEther } from 'viem';
 
@@ -27,52 +28,62 @@ export default function BountyItem({
   };
 
   return (
-    <>
-      <Link
-        href={`/${chain.slug}/bounty/${bounty.id}`}
-        className='block h-full'
-      >
-        <div className='relative p-[2px] h-full rounded-xl'>
-          <div className='p-5 flex flex-col justify-between relative z-20 h-full lg:col-span-4'>
-            <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px] bg-whiteblue'></div>
-            {showStatusEmoji && (
-              <div className='absolute top-4 right-4 z-30 text-xl'>
-                {getStatusEmoji()}
-              </div>
-            )}
-            <h3 className='normal-case text-nowrap overflow-ellipsis overflow-hidden'>
-              {bounty.title}
-            </h3>
-            <p className='my-5 normal-case w-full h-28 overflow-y-auto overflow-hidden overflow-ellipsis whitespace-pre-line text-left'>
-              {stripMarkdown(bounty.description)}
-            </p>
-            <div
-              className={`flex items-end justify-between ${
-                !showChainIcon ? 'mt-5' : 'mt-1'
-              }`}
-            >
-              <div className='flex gap-2 items-center'>
-                <div>
-                  {formatSortAmount({
-                    amount,
-                    usdAmount: bounty.amountSort,
-                    currency: chain.currency,
-                    precision: 5,
-                  })}
-                </div>
-                {bounty.isMultiplayer && <UsersRoundIcon />}
-              </div>
-              {showChainIcon && (
-                <DynamicChainIcon
-                  chain={chain.slug}
-                  size={chain.slug === 'base' ? 22 : 30}
-                />
-              )}
+    <Link
+      href={`/${chain.slug}/bounty/${bounty.id}`}
+      className='block h-full'
+    >
+      <div className='relative p-[2px] h-full rounded-xl'>
+        <div className='p-5 flex flex-col justify-between relative z-20 h-full lg:col-span-4'>
+          <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px] bg-whiteblue' />
+
+          {showStatusEmoji && (
+            <div className='absolute top-4 right-4 z-30 text-xl'>
+              {getStatusEmoji()}
             </div>
+          )}
+
+          <h3
+            className={`font-mono text-base sm:text-lg font-semibold leading-snug normal-case text-left line-clamp-2 min-h-[2.75rem] ${
+              showStatusEmoji ? 'pr-8' : ''
+            }`}
+            title={bounty.title}
+          >
+            {bounty.title}
+          </h3>
+
+          <p className='my-5 normal-case w-full h-28 overflow-y-auto overflow-hidden overflow-ellipsis whitespace-pre-line text-left'>
+            {stripMarkdown(bounty.description)}
+          </p>
+
+          <div
+            className={`flex items-end justify-between ${
+              !showChainIcon ? 'mt-5' : 'mt-1'
+            }`}
+          >
+            <div className='flex gap-2 items-center'>
+              <div>
+                {formatSortAmount({
+                  amount,
+                  usdAmount: bounty.amountSort,
+                  currency: chain.currency,
+                  precision: 5,
+                })}
+              </div>
+
+              {bounty.isMultiplayer && <UsersRoundIcon />}
+            </div>
+
+            {showChainIcon && (
+              <DynamicChainIcon
+                chain={chain.slug}
+                size={chain.slug === 'base' ? 22 : 30}
+              />
+            )}
           </div>
-          <div className='z-10 bg-gradient rounded-[8px] h-full w-full absolute top-0 right-0 bottom-0 left-0'></div>
         </div>
-      </Link>
-    </>
+
+        <div className='z-10 bg-gradient rounded-[8px] h-full w-full absolute top-0 right-0 bottom-0 left-0' />
+      </div>
+    </Link>
   );
 }
