@@ -267,6 +267,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 }}
               />
               <button
+                aria-pressed={currentSection === 'nfts'}
                 ref={(el) => {
                   tabRefs.current[0] = el;
                 }}
@@ -276,6 +277,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 NFTs({accountActivitiesCount.data?.nfts ?? 0})
               </button>
               <button
+                aria-pressed={currentSection === 'bounties'}
                 ref={(el) => {
                   tabRefs.current[1] = el;
                 }}
@@ -285,6 +287,7 @@ export default function AccountInfo({ address }: { address: string }) {
                 bounties ({accountActivitiesCount.data?.bounties ?? 0})
               </button>
               <button
+                aria-pressed={currentSection === 'claims'}
                 ref={(el) => {
                   tabRefs.current[2] = el;
                 }}

@@ -242,8 +242,8 @@ export default function FormBounty({
       // Final safety check: make sure the poidh contract actually exists on the
       // network the connected wallet reports. This prevents ETH from being sent
       // to the same address on a chain where no poidh contract is deployed.
-      const contractAddress =
-        currentChain.contracts.mainContract as `0x${string}`;
+      const contractAddress = currentChain.contracts
+        .mainContract as `0x${string}`;
 
       const contractCode = await walletProvider.request({
         method: 'eth_getCode',
@@ -470,8 +470,7 @@ export default function FormBounty({
             ? {
                 '& .MuiDialog-paper': {
                   transform: open ? 'translateY(0)' : 'translateY(100%)',
-                  transition:
-                    'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  transition: 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
                 },
               }
             : {}
@@ -491,7 +490,6 @@ export default function FormBounty({
           {isMobile ? (
             <div className='flex items-center justify-between w-full sticky shrink-0'>
               <div style={{ width: '40px' }} />{' '}
-
               <button
                 onClick={onClose}
                 style={{
@@ -577,9 +575,7 @@ export default function FormBounty({
               />
 
               <div className='flex items-center justify-between gap-2 mb-1'>
-                <span className={isMobile ? 'text-base' : ''}>
-                  description
-                </span>
+                <span className={isMobile ? 'text-base' : ''}>description</span>
 
                 <div className='flex items-center gap-2 shrink-0'>
                   <button
@@ -622,11 +618,7 @@ export default function FormBounty({
                 <div
                   className={`border rounded-md px-3 py-3 border-[#D1ECFF] overflow-y-auto ${
                     isMobile ? 'mb-5' : 'mb-4'
-                  } ${
-                    isMobile
-                      ? 'min-h-[150px]'
-                      : 'flex-1 min-h-[300px]'
-                  }`}
+                  } ${isMobile ? 'min-h-[150px]' : 'flex-1 min-h-[300px]'}`}
                   style={{
                     height:
                       isMobile && descriptionHeight
@@ -648,8 +640,8 @@ export default function FormBounty({
                     isMobile
                       ? 'relative mb-5'
                       : 'relative mb-4 flex-1 min-h-[300px]'
-                    }
-                  >
+                  }
+                >
                   <textarea
                     ref={textareaRef}
                     value={description}
@@ -730,9 +722,7 @@ export default function FormBounty({
               )}
 
               <div>
-                <span
-                  className={isMobile ? 'text-base mb-2' : 'font-semibold'}
-                >
+                <span className={isMobile ? 'text-base mb-2' : 'font-semibold'}>
                   reward
                 </span>
 
@@ -754,9 +744,7 @@ export default function FormBounty({
                       setAmount(raw);
 
                       if (!isNaN(value) && value > 0) {
-                        setUsdPerToken(
-                          parseFloat((value * price).toFixed(2))
-                        );
+                        setUsdPerToken(parseFloat((value * price).toFixed(2)));
                       } else {
                         setUsdPerToken(null);
                       }
@@ -880,17 +868,11 @@ export default function FormBounty({
               </div>
 
               <div>
-                <span
-                  className={isMobile ? 'text-base mb-2' : 'font-semibold'}
-                >
+                <span className={isMobile ? 'text-base mb-2' : 'font-semibold'}>
                   album
                 </span>
 
-                <div
-                  className={`relative mt-2 ${
-                    isMobile ? 'mb-5' : 'mb-6'
-                  }`}
-                >
+                <div className={`relative mt-2 ${isMobile ? 'mb-5' : 'mb-6'}`}>
                   <input
                     type='text'
                     value={album}
@@ -956,7 +938,9 @@ export default function FormBounty({
                       }}
                       sx={{
                         '& .MuiSwitch-thumb': {
-                          color: isOpenBounty ? '#F15E5F' : 'default',
+                          color: isOpenBounty
+                            ? 'var(--cyber-accent, #F15E5F)'
+                            : 'default',
                         },
 
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
@@ -1001,7 +985,9 @@ export default function FormBounty({
                         }}
                         sx={{
                           '& .MuiSwitch-thumb': {
-                            color: isOpenBounty ? '#F15E5F' : 'default',
+                            color: isOpenBounty
+                              ? 'var(--cyber-accent, #F15E5F)'
+                              : 'default',
                           },
 
                           '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
