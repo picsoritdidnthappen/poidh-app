@@ -119,6 +119,7 @@ export default function Explore() {
                 }}
               />
               <button
+                aria-pressed={display === 'albums'}
                 ref={(el) => {
                   tabRefs.current[0] = el;
                 }}
@@ -128,6 +129,7 @@ export default function Explore() {
                 albums
               </button>
               <button
+                aria-pressed={display === 'bounties'}
                 ref={(el) => {
                   tabRefs.current[1] = el;
                 }}
@@ -137,6 +139,7 @@ export default function Explore() {
                 bounties
               </button>
               <button
+                aria-pressed={display === 'users'}
                 ref={(el) => {
                   tabRefs.current[2] = el;
                 }}

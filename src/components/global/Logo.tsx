@@ -298,8 +298,8 @@ export default function Logo() {
             y2='37.5024'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint1_linear_1_10419'
@@ -309,8 +309,8 @@ export default function Logo() {
             y2='37.5024'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint2_linear_1_10419'
@@ -320,8 +320,8 @@ export default function Logo() {
             y2='37.5024'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint3_linear_1_10419'
@@ -331,8 +331,8 @@ export default function Logo() {
             y2='37.5024'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint4_linear_1_10419'
@@ -342,8 +342,8 @@ export default function Logo() {
             y2='37.5024'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint5_linear_1_10419'
@@ -353,8 +353,8 @@ export default function Logo() {
             y2='11.4778'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint6_linear_1_10419'
@@ -364,8 +364,8 @@ export default function Logo() {
             y2='7.25733'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint7_linear_1_10419'
@@ -376,7 +376,7 @@ export default function Logo() {
             gradientUnits='userSpaceOnUse'
           >
             <stop stopColor='white' />
-            <stop offset='1' stopColor='#F15E5F' />
+            <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
             id='paint8_linear_1_10419'
@@ -386,8 +386,8 @@ export default function Logo() {
             y2='6.13621'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint9_linear_1_10419'
@@ -397,9 +397,9 @@ export default function Logo() {
             y2='5.20018'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#D8393A' />
-            <stop offset='0.226722' stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#F89798' />
+            <stop stopColor='var(--cyber-accent-deep, #D8393A)' />
+            <stop offset='0.226722' stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
         </defs>
       </svg>

@@ -320,8 +320,7 @@ textarea.resize-y::-webkit-scrollbar-thumb {
   justify-content: center;
   align-items: flex-start;
 
-  animation:
-    konami-camera-enter 0.45s steps(6, end) forwards,
+  animation: konami-camera-enter 0.45s steps(6, end) forwards,
     konami-camera-shake 0.15s steps(2, end) 1.05s,
     konami-camera-exit 0.45s steps(6, end) 2.25s forwards;
 }
@@ -375,9 +374,7 @@ textarea.resize-y::-webkit-scrollbar-thumb {
   background: #303030;
   border: 6px solid #000;
 
-  box-shadow:
-    6px 6px 0 #000,
-    inset 0 -12px 0 rgba(0, 0, 0, 0.18);
+  box-shadow: 6px 6px 0 #000, inset 0 -12px 0 rgba(0, 0, 0, 0.18);
 }
 
 .konami-camera-viewfinder {
@@ -635,4 +632,154 @@ textarea.resize-y::-webkit-scrollbar-thumb {
   .konami-photo {
     animation-duration: 0.01ms;
   }
+}
+
+/* Cyber is a dark theme variant; all overrides are scoped to this selection. */
+html.cyber {
+  color-scheme: dark;
+  --poidh-red: 66 215 123;
+  --poidh-blue: 9 41 28;
+  --cyber-accent: #42d77b;
+  --cyber-nav-shadow: rgb(66 215 123 / 0.14);
+  --cyber-accent-deep: #20964d;
+  --cyber-accent-soft: #a1f4bc;
+}
+
+html.cyber body {
+  color: #dbebdc;
+  background: #03180f;
+}
+
+html.cyber .bg-whiteblue,
+html.cyber [class~='dark:bg-[#132b47]'],
+html.cyber [class~='dark:bg-[#0d1b2e]'],
+html.cyber [class~='dark:bg-[#0d1b2e]/50'] {
+  background-color: #09291c;
+}
+
+/* Existing dialog classes use !important to override Material UI. */
+html.cyber [class~='dark:!bg-[#132b47]'] {
+  background-color: #09291c !important;
+}
+
+html.cyber [class~='dark:bg-[#2a4a6b]'] {
+  background-color: #123b29;
+}
+
+html.cyber [class~='dark:from-[#0d1b2e]'] {
+  --tw-gradient-from: #03180f var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(3 24 15 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+html.cyber [class~='dark:via-[#1a3a5c]'] {
+  --tw-gradient-stops: var(--tw-gradient-from),
+    #123b29 var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+
+html.cyber [class~='dark:to-[#0d1b2e]'],
+html.cyber [class~='dark:to-[#132b47]'],
+html.cyber [class~='dark:to-[#15304f]'],
+html.cyber [class~='dark:to-[#1a3a5c]'] {
+  --tw-gradient-to: #09291c var(--tw-gradient-to-position);
+}
+
+html.cyber .border-white,
+html.cyber [class~='border-[#D1ECFF]'],
+html.cyber [class~='dark:border-[#4a7ab5]'] {
+  border-color: #315342;
+}
+
+html.cyber .text-white {
+  color: #dbebdc;
+}
+
+html.cyber .bg-blur,
+html.cyber .bg-blur-white,
+html.cyber [class~='bg-white/30'],
+html.cyber [class~='bg-white/20'],
+html.cyber [class~='bg-[#D1ECFF]/20'] {
+  background-color: rgb(66 215 123 / 0.12);
+}
+
+html.cyber [class~='hover:bg-white/20']:hover,
+html.cyber [class~='hover:bg-[#D1ECFF]/20']:hover {
+  background-color: rgb(66 215 123 / 0.2);
+}
+
+html.cyber .bountyItem.pendingClaims .bg-gradient {
+  background: linear-gradient(to right, #20964d, #42d77b);
+}
+
+html.cyber .bountyItem .borderBox {
+  border: 1px solid #315342 !important;
+}
+
+html.cyber .bountyItem:hover .borderBox {
+  background-color: #123b29;
+  border-color: #42d77b !important;
+  box-shadow: 0 0 12px rgb(66 215 123 / 0.12);
+}
+
+html.cyber .bountyItem p {
+  color: #91aa99;
+}
+
+html.cyber :is(button, a, input, textarea, select):focus-visible {
+  outline: 2px solid #42d77b;
+  outline-offset: 3px;
+}
+
+/* These surfaces can be rendered in portals outside the page container. */
+html.cyber .MuiDialog-paper,
+html.cyber .MuiDrawer-paper,
+html.cyber .MuiMenu-paper {
+  background: #09291c !important;
+  color: #dbebdc !important;
+  border-color: #315342 !important;
+}
+
+html.cyber .MuiSwitch-colorPrimary.Mui-checked {
+  color: #42d77b;
+}
+
+html.cyber .Toastify__toast-theme--light {
+  background-color: #09291c !important;
+  border-color: #315342 !important;
+  color: #dbebdc !important;
+}
+
+html.cyber * {
+  scrollbar-color: #315342 transparent;
+}
+
+html.cyber ::-webkit-scrollbar-thumb {
+  background-color: #315342;
+}
+
+/* Selected controls sit on the bright accent, so use dark foregrounds. */
+html.cyber #btn-container button[aria-pressed='true'],
+html.cyber .bg-poidhRed.text-white {
+  color: #03180f;
+}
+
+html.cyber [class~='bg-[#cf5d5d]'] {
+  background-color: #20964d;
+}
+html.cyber [class~='bg-[#102A43]'] {
+  background-color: #09291c;
+}
+html.cyber [class~='border-t-[#ff6e6e]'],
+html.cyber [class~='border-l-[#ff6e6e]'] {
+  border-top-color: #a1f4bc;
+  border-left-color: #a1f4bc;
+}
+html.cyber [class~='border-r-[#cf5d5d]'],
+html.cyber [class~='border-b-[#cf5d5d]'] {
+  border-right-color: #20964d;
+  border-bottom-color: #20964d;
+}
+html.cyber [class~='hover:bg-[#FF3737]']:hover {
+  background-color: #a1f4bc;
+  color: #03180f;
 }

@@ -129,6 +129,7 @@ export default function Home() {
                 }}
               />
               <button
+                aria-pressed={display === 'open'}
                 ref={(el) => {
                   tabRefs.current[0] = el;
                 }}
@@ -141,6 +142,7 @@ export default function Home() {
                 new bounties
               </button>
               <button
+                aria-pressed={display === 'progress'}
                 ref={(el) => {
                   tabRefs.current[1] = el;
                 }}
@@ -153,6 +155,7 @@ export default function Home() {
                 voting in progress
               </button>
               <button
+                aria-pressed={display === 'past'}
                 ref={(el) => {
                   tabRefs.current[2] = el;
                 }}
