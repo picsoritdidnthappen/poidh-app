@@ -45,17 +45,27 @@ function MoonIcon({ size = 24 }: { size?: number }) {
 export default function DarkModeToggle() {
   const { theme, toggleTheme } = useTheme();
 
+  const nextTheme =
+    theme === 'light' ? 'night' : theme === 'dark' ? 'cyber' : 'day';
+  const label = `switch to ${nextTheme} mode`;
+
   return (
     <button
+      type='button'
+      title={label}
       onClick={toggleTheme}
       className='rounded-lg backdrop-blur-sm bg-white/30 h-10 w-10 flex items-center justify-center mr-2 hover:bg-white/20 transition-colors'
-      aria-label={
-        theme === 'dark'
-          ? 'switch to light mode'
-          : 'switch to dark mode'
-      }
+      aria-label={label}
     >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      {theme === 'light' ? (
+        <MoonIcon />
+      ) : theme === 'dark' ? (
+        <span aria-hidden='true' className='font-mono text-lg'>
+          &gt;_
+        </span>
+      ) : (
+        <SunIcon />
+      )}
     </button>
   );
 }

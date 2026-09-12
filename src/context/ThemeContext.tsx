@@ -8,7 +8,12 @@ import {
   type ReactNode,
 } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'cyber';
+
+function applyTheme(theme: Theme) {
+  document.documentElement.classList.toggle('dark', theme !== 'light');
+  document.documentElement.classList.toggle('cyber', theme === 'cyber');
+}
 
 interface ThemeContextType {
   theme: Theme;
@@ -17,29 +22,42 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'light',
-  toggleTheme: () => {},
+  toggleTheme: () => undefined,
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme') as Theme | null;
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem('theme');
+    } catch {
+      // The toggle still works when browser storage is unavailable.
+    }
     const prefersDark = window.matchMedia(
       '(prefers-color-scheme: dark)'
     ).matches;
-    const initial = stored ?? (prefersDark ? 'dark' : 'light');
+    const initial: Theme =
+      stored === 'light' || stored === 'dark' || stored === 'cyber'
+        ? stored
+        : prefersDark
+        ? 'dark'
+        : 'light';
     setTheme(initial);
-    document.documentElement.classList.toggle('dark', initial === 'dark');
+    applyTheme(initial);
   }, []);
 
   const toggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === 'light' ? 'dark' : 'light';
+    const next: Theme =
+      theme === 'light' ? 'dark' : theme === 'dark' ? 'cyber' : 'light';
+    applyTheme(next);
+    setTheme(next);
+    try {
       localStorage.setItem('theme', next);
-      document.documentElement.classList.toggle('dark', next === 'dark');
-      return next;
-    });
+    } catch {
+      // Keep the selected theme for this session when storage is unavailable.
+    }
   };
 
   return (
