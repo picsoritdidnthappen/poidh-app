@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import {
@@ -20,6 +20,7 @@ import { useAccount } from 'wagmi';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { trpc } from '@/trpc/client';
 import DarkModeToggle from '@/components/global/DarkModeToggle';
+import ZeroDevAuthModal from '@/components/auth/ZeroDevAuthModal';
 
 export default function Header() {
   const account = useAccount();
@@ -107,6 +108,19 @@ export default function Header() {
 }
 
 function ConnectWalletButton() {
+  const [isZeroDevModalOpen, setIsZeroDevModalOpen] = useState(false);
+  const { connector } = useAccount();
+
+  useEffect(() => {
+    const handleOpen = () => setIsZeroDevModalOpen(true);
+    window.addEventListener('open-zerodev-auth', handleOpen);
+    window.addEventListener('zerodev-request-approval', handleOpen);
+    return () => {
+      window.removeEventListener('open-zerodev-auth', handleOpen);
+      window.removeEventListener('zerodev-request-approval', handleOpen);
+    };
+  }, []);
+
   return (
     <ConnectButton.Custom>
       {({
@@ -114,6 +128,7 @@ function ConnectWalletButton() {
         chain,
         openAccountModal,
         openConnectModal,
+        openChainModal,
         authenticationStatus,
         mounted,
       }) => {
@@ -139,7 +154,17 @@ function ConnectWalletButton() {
               return (
                 <div className='flex gap-2'>
                   <button
-                    onClick={openAccountModal}
+                    onClick={() => {
+                      const isZeroDev =
+                        connector?.id?.includes('zerodev') ||
+                        connector?.name?.toLowerCase().includes('zerodev');
+
+                      if (isZeroDev) {
+                        setIsZeroDevModalOpen(true);
+                      } else {
+                        openAccountModal();
+                      }
+                    }}
                     className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-1 hover:bg-white/20 flex items-center gap-1 relative'
                   >
                     <div className='relative'>
@@ -166,6 +191,14 @@ function ConnectWalletButton() {
                 </div>
               );
             })()}
+            <ZeroDevAuthModal
+              open={isZeroDevModalOpen}
+              onClose={() => setIsZeroDevModalOpen(false)}
+              openRainbowKitModal={
+                connected ? openAccountModal : openConnectModal
+              }
+              openChainModal={openChainModal}
+            />
           </>
         );
       }}
