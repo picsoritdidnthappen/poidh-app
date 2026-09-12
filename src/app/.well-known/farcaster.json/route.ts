@@ -20,8 +20,8 @@ export async function GET() {
       version: '1', // subject to change
       name: 'poidh',
       iconUrl: 'https://poidh.xyz/icon.png',
-      splashImageUrl: 'https://poidh.xyz/mini-splash.png',
-      splashBackgroundColor: '#6fa9e1',
+      splashImageUrl: 'https://poidh.xyz/mini-splash-v2.png',
+      splashBackgroundColor: '#6faae1',
       homeUrl: 'https://poidh.xyz/',
       heroImageUrl: 'https://poidh.xyz/images/poidh-preview-hero-v2.png',
       webhookUrl: `https://api.neynar.com/f/app/${process.env.NEYNAR_CLIENT_ID}/event`,
