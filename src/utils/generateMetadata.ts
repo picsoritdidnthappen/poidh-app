@@ -11,7 +11,7 @@ const APP_URL = (
 ).replace(/\/$/, '');
 
 const APP_ICON_URL = `${APP_URL}/icon.png`;
-const APP_SPLASH_URL = `${APP_URL}/Logo_poidh.svg`;
+const APP_SPLASH_URL = `${APP_URL}/mini-splash-v2.png`;
 const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
 const APP_OG_IMAGE_URL = `${APP_URL}/images/poidh-preview-hero-v2.png`;
 const APP_NAME = 'poidh';
