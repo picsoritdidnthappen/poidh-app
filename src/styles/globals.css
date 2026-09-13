@@ -763,6 +763,28 @@ html.cyber .bg-poidhRed.text-white {
   color: #03180f;
 }
 
+html.cyber .text-poidhRed {
+  color: var(--cyber-accent) !important;
+}
+
+html.cyber .border-poidhRed {
+  border-color: var(--cyber-accent) !important;
+}
+
+html.cyber .bg-poidhRed {
+  background-color: var(--cyber-accent) !important;
+  color: #03180f !important;
+}
+
+html.cyber [class~='text-[#f15e5f]'] {
+  color: var(--cyber-accent) !important;
+}
+
+html.cyber [class~='bg-[#f15e5f]'] {
+  background-color: var(--cyber-accent) !important;
+  color: #03180f !important;
+}
+
 html.cyber [class~='bg-[#cf5d5d]'] {
   background-color: #20964d;
 }
