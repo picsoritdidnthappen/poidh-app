@@ -43,7 +43,7 @@ export default function BountyItem({
           )}
 
           <h3
-            className={`font-mono text-base sm:text-lg font-semibold leading-snug normal-case text-left line-clamp-2 min-h-[2.75rem] ${
+            className={`font-mono text-base sm:text-lg font-bold leading-snug normal-case text-left line-clamp-2 min-h-[2.75rem] ${
               showStatusEmoji ? 'pr-8' : ''
             }`}
             title={bounty.title}
