@@ -29,6 +29,7 @@ export const leaderboardRouter = {
         '0x4200ac338555e25b20c8fe82ac02a5c8d4e5a5b4',
         '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
         '0x5555fa783936c260f77385b4e153b9725fef1719',
+        '0xe731dfadbff20542e10d09d26fc71445c70d4232',
       ];
 
       const fetchTop = (
