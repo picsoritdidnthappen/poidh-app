@@ -776,6 +776,18 @@ html.cyber .bg-poidhRed {
   color: #03180f !important;
 }
 
+/*
+ * Bright cyber-green surfaces need dark text for readability.
+ * This also catches child links/items that carry their own text-white class,
+ * such as the main navigation drawer.
+ */
+html.cyber .bg-poidhRed .text-white,
+html.cyber .bg-poidhRed a,
+html.cyber [class~='bg-[#f15e5f]'] .text-white,
+html.cyber [class~='bg-[#f15e5f]'] a {
+  color: #03180f !important;
+}
+
 html.cyber [class~='text-[#f15e5f]'] {
   color: var(--cyber-accent) !important;
 }
