@@ -7,7 +7,7 @@ import {
   Wallet,
 } from '@rainbow-me/rainbowkit';
 import { http } from 'viem';
-import { arbitrum, base, degen, mainnet } from 'wagmi/chains';
+import { arbitrum, base, mainnet } from 'wagmi/chains';
 import { zeroDevWallet } from '@zerodev/wallet-react';
 
 const { wallets } = getDefaultWallets();
@@ -29,7 +29,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
       }
       const baseConnector = zeroDevWallet({
         projectId: clientEnv.ZERODEV_PROJECT_ID,
-        chains: [arbitrum, base, degen, mainnet],
+        chains: [arbitrum, base, mainnet],
         mode: '4337',
       })(config);
 
@@ -133,8 +133,6 @@ export const zeroDevRainbowWallet = (): Wallet => ({
                     [mainnet.id]:
                       clientEnv.MAINNET_RPC_URL ||
                       'https://ethereum-rpc.publicnode.com',
-                    [degen.id]:
-                      clientEnv.DEGEN_RPC_URL || 'https://rpc.degen.tips',
                   };
                   const rpc =
                     rpcMap[chainId] ||
@@ -207,7 +205,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
 export const config = getDefaultConfig({
   appName: 'poidh',
   projectId: '784d6347a43d3f6e89f58b177f1b27f2',
-  chains: [mainnet, degen, arbitrum, base],
+  chains: [mainnet, arbitrum, base],
   wallets: [
     {
       groupName: 'Smart Accounts',
@@ -216,7 +214,6 @@ export const config = getDefaultConfig({
     ...wallets,
   ],
   transports: {
-    [degen.id]: http(clientEnv.DEGEN_RPC_URL),
     [arbitrum.id]: http(clientEnv.ARBITRUM_RPC_URL),
     [base.id]: http(clientEnv.BASE_RPC_URL),
     [mainnet.id]: http(clientEnv.MAINNET_RPC_URL),
