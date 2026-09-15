@@ -777,15 +777,27 @@ html.cyber .bg-poidhRed {
 }
 
 /*
- * Bright cyber-green surfaces need dark text for readability.
- * This also catches child links/items that carry their own text-white class,
- * such as the main navigation drawer.
+ * Bright cyber-green surfaces always use dark foregrounds.
+ * The wildcard catches labels such as "issuer:" that have their
+ * own text-color utility instead of text-white.
  */
-html.cyber .bg-poidhRed .text-white,
-html.cyber .bg-poidhRed a,
-html.cyber [class~='bg-[#f15e5f]'] .text-white,
-html.cyber [class~='bg-[#f15e5f]'] a {
+html.cyber .bg-poidhRed,
+html.cyber .bg-poidhRed *,
+html.cyber [class~='bg-[#f15e5f]'],
+html.cyber [class~='bg-[#f15e5f]'] * {
   color: #03180f !important;
+}
+
+/* Icons on bright cyber-green surfaces should also use the dark foreground. */
+html.cyber .bg-poidhRed .fill-white,
+html.cyber .bg-poidhRed svg [fill='white'],
+html.cyber .bg-poidhRed svg [fill='#fff'],
+html.cyber .bg-poidhRed svg [fill='#ffffff'],
+html.cyber [class~='bg-[#f15e5f]'] .fill-white,
+html.cyber [class~='bg-[#f15e5f]'] svg [fill='white'],
+html.cyber [class~='bg-[#f15e5f]'] svg [fill='#fff'],
+html.cyber [class~='bg-[#f15e5f]'] svg [fill='#ffffff'] {
+  fill: #03180f !important;
 }
 
 html.cyber [class~='text-[#f15e5f]'] {
