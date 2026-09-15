@@ -165,9 +165,7 @@ export default function AuthAccountView({
               ? `${anychain.totalCombinedEthFormatted} ETH`
               : `${current?.formatted ?? '0.0000'} ETH`;
             const heroCaption = combined
-              ? `Combined across ${SUPPORTED_CHAINS.map((c) => c.name).join(
-                  ', '
-                )}`
+              ? 'Combined Anychain balance'
               : (current?.name ?? 'Current chain') + ' balance';
             return (
               <>
