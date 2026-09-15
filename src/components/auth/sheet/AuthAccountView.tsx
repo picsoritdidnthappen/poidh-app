@@ -172,7 +172,7 @@ export default function AuthAccountView({
                 <div className='text-3xl text-white font-mono font-semibold tracking-tight tabular-nums mt-1.5'>
                   <span
                     className={
-                      anychain.isDisclosed ? undefined : 'blur-sm select-none'
+                      anychain.isDisclosed ? undefined : 'blur-md select-none'
                     }
                   >
                     {heroAmount}
