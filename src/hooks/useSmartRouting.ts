@@ -87,6 +87,8 @@ export interface SmartRoutingResult {
   smartRoutingAddress?: string;
   smartRoutingAddresses: Record<number, string>;
   isCreatingAddress?: boolean;
+  feesLive: boolean;
+  isRoutingConfigured: boolean;
 }
 
 // In-memory cache for created smart routing addresses by owner address + destination chain ID
@@ -98,7 +100,7 @@ const routingAddressCache = new Map<string, string>();
  */
 export async function fetchSmartRoutingStatus(
   smartRoutingAddress: string
-): Promise<DepositedToken[]> {
+): Promise<DepositedToken[] | null> {
   if (!smartRoutingAddress) return [];
   try {
     const res = await getSmartRoutingAddressStatus({
@@ -108,8 +110,34 @@ export async function fetchSmartRoutingStatus(
     return res.deposits || [];
   } catch (err) {
     console.warn('ZeroDev getSmartRoutingAddressStatus note:', err);
-    return [];
+    // Null means "could not check"; callers must not treat this as empty.
+    return null;
   }
+}
+
+/**
+ * Check every known routing address, not just one. Each deposit is tagged
+ * with the address it was reported under so callers verify on-chain
+ * balances against the right contract. Null when every query failed.
+ */
+export async function fetchSmartRoutingStatusMulti(
+  smartRoutingAddresses: string[]
+): Promise<{ deposit: DepositedToken; routingAddress: string }[] | null> {
+  const addrs = [...new Set(smartRoutingAddresses.filter(Boolean))];
+  if (!addrs.length) return [];
+  const results = await Promise.all(
+    addrs.map(async (addr) => ({
+      addr,
+      deposits: await fetchSmartRoutingStatus(addr),
+    }))
+  );
+  if (results.every((r) => r.deposits === null)) return null;
+  return results.flatMap((r) =>
+    (r.deposits || []).map((deposit) => ({
+      deposit,
+      routingAddress: r.addr,
+    }))
+  );
 }
 
 /**
@@ -211,6 +239,9 @@ export function useSmartRouting({
   const [ethPrice, setEthPrice] = useState<number>(cachedEthPrice);
   const [solverFees, setSolverFees] =
     useState<Record<number, SolverFeeDetails>>(cachedSolverFees);
+  // True only after a live fee fetch succeeds; until then every fee,
+  // minimum, and USD figure derived from them is an estimate.
+  const [feesLive, setFeesLive] = useState(false);
   const [smartRoutingAddress, setSmartRoutingAddress] = useState<
     string | undefined
   >(() => {
@@ -234,6 +265,8 @@ export function useSmartRouting({
     return res;
   });
   const [isCreatingAddress, setIsCreatingAddress] = useState(false);
+  const projectId = clientEnv.ZERODEV_PROJECT_ID;
+  const isRoutingConfigured = !!projectId;
 
   // Fetch live ETH price from CoinGecko or fallback
   useEffect(() => {
@@ -275,7 +308,7 @@ export function useSmartRouting({
 
   // Initialize or retrieve official ZeroDev Smart Routing Addresses across chains
   useEffect(() => {
-    if (!enabled || !userAddress) return;
+    if (!enabled || !userAddress || !projectId) return;
 
     const activeChainId = targetChainId || arbitrum.id;
     const cacheKey = `${userAddress.toLowerCase()}-${activeChainId}`;
@@ -427,7 +460,7 @@ export function useSmartRouting({
 
   // Dynamically refresh solver fee estimates & minimum deposits directly from ZeroDev
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !projectId) return;
     const activeChainId = targetChainId || arbitrum.id;
     const addr = smartRoutingAddresses[activeChainId] || smartRoutingAddress;
     if (!addr) return;
@@ -478,12 +511,14 @@ export function useSmartRouting({
           }
           cachedSolverFees = updatedFees;
           setSolverFees(updatedFees);
+          setFeesLive(true);
         }
       } catch (err) {
         console.warn(
           'ZeroDev getSmartRoutingAddressFeeEstimates update note:',
           err
         );
+        if (isMounted) setFeesLive(false);
       }
     };
 
@@ -590,6 +625,8 @@ export function useSmartRouting({
         smartRoutingAddress,
         smartRoutingAddresses,
         isCreatingAddress,
+        feesLive,
+        isRoutingConfigured,
       };
     }
 
@@ -892,24 +929,25 @@ export function useSmartRouting({
       anychainEnabled &&
       remainingDeficitEth <= 0.0001 &&
       recommendedRoute.length > 0;
-    const shortfallEth = isSufficientAcrossAllChains
-      ? 0
-      : Math.max(0, requiredEth - totalPortfolioEth);
-    const shortfallUsd = shortfallEth * ethPrice;
-
     // Total solver fee summed across actual route steps
     const totalSolverFeeEth = recommendedRoute.reduce(
       (sum, r) => sum + (r.solverFeeEth || 0),
       0
     );
     const totalSolverFeeUsd = totalSolverFeeEth * ethPrice;
+    // Shortfall covers amount plus the route fee, so the quoted figure is
+    // actually enough to complete the transfer.
+    const shortfallEth = isSufficientAcrossAllChains
+      ? 0
+      : Math.max(0, requiredEth + totalSolverFeeEth - totalPortfolioEth);
+    const shortfallUsd = shortfallEth * ethPrice;
     const allSponsored =
       recommendedRoute.length > 0 &&
       recommendedRoute.every((r) => r.isSponsored);
 
     let totalRouteFeeEst = '$0.00';
     if (allSponsored) {
-      totalRouteFeeEst = 'Free (Sponsored by ZeroDev)';
+      totalRouteFeeEst = 'Free (Sponsored)';
     } else if (totalSolverFeeEth > 0) {
       totalRouteFeeEst = `~$${totalSolverFeeUsd.toFixed(
         2
@@ -949,6 +987,8 @@ export function useSmartRouting({
       smartRoutingAddress,
       smartRoutingAddresses,
       isCreatingAddress,
+      feesLive,
+      isRoutingConfigured,
     };
   }, [
     requiredValue,
@@ -961,5 +1001,7 @@ export function useSmartRouting({
     smartRoutingAddresses,
     isCreatingAddress,
     anychainEnabled,
+    feesLive,
+    isRoutingConfigured,
   ]);
 }
