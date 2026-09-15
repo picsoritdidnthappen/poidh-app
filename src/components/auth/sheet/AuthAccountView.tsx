@@ -158,20 +158,34 @@ export default function AuthAccountView({
               {anychain.isDisclosed ? <Eye size={12} /> : <EyeOff size={12} />}
             </button>
           </div>
-          <div className='text-3xl text-white font-mono font-semibold tracking-tight tabular-nums mt-1.5'>
-            <span
-              className={
-                anychain.isDisclosed ? undefined : 'blur-sm select-none'
-              }
-            >
-              {`${anychain.totalEthFormatted} ETH`}
-            </span>
-          </div>
-          <div className='text-[11px] text-white/50 mt-1.5 normal-case'>
-            {`Combined across ${SUPPORTED_CHAINS.map((c) => c.name).join(
-              ', '
-            )}`}
-          </div>
+          {(() => {
+            const combined = anychain.anychainEnabled;
+            const current = anychain.chainList.find((c) => c.isCurrent);
+            const heroAmount = combined
+              ? `${anychain.totalEthFormatted} ETH`
+              : `${current?.formatted ?? '0.0000'} ETH`;
+            const heroCaption = combined
+              ? `Combined across ${SUPPORTED_CHAINS.map((c) => c.name).join(
+                  ', '
+                )}`
+              : (current?.name ?? 'Current chain') + ' balance';
+            return (
+              <>
+                <div className='text-3xl text-white font-mono font-semibold tracking-tight tabular-nums mt-1.5'>
+                  <span
+                    className={
+                      anychain.isDisclosed ? undefined : 'blur-sm select-none'
+                    }
+                  >
+                    {heroAmount}
+                  </span>
+                </div>
+                <div className='text-[11px] text-white/50 mt-1.5 normal-case'>
+                  {heroCaption}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
         {/* Identity + network */}
