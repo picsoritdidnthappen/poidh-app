@@ -776,6 +776,38 @@ html.cyber .bg-poidhRed {
   color: #03180f !important;
 }
 
+/*
+ * Bright cyber-green surfaces always use dark foregrounds.
+ * The wildcard catches labels such as "issuer:" that have their
+ * own text-color utility instead of text-white.
+ */
+html.cyber .bg-poidhRed,
+html.cyber .bg-poidhRed *,
+html.cyber [class~='bg-[#f15e5f]'],
+html.cyber [class~='bg-[#f15e5f]'] * {
+  color: #03180f !important;
+}
+
+/* Icons on bright cyber-green surfaces should also use the dark foreground. */
+html.cyber .bg-poidhRed .fill-white,
+html.cyber .bg-poidhRed svg [fill='white'],
+html.cyber .bg-poidhRed svg [fill='#fff'],
+html.cyber .bg-poidhRed svg [fill='#ffffff'],
+html.cyber [class~='bg-[#f15e5f]'] .fill-white,
+html.cyber [class~='bg-[#f15e5f]'] svg [fill='white'],
+html.cyber [class~='bg-[#f15e5f]'] svg [fill='#fff'],
+html.cyber [class~='bg-[#f15e5f]'] svg [fill='#ffffff'] {
+  fill: #03180f !important;
+}
+
+/* Farcaster image asset on bright cyber-green surfaces. */
+html.cyber .bg-poidhRed img[src*='farcaster' i],
+html.cyber .bg-poidhRed a[href*='farcaster' i] img,
+html.cyber [class~='bg-[#f15e5f]'] img[src*='farcaster' i],
+html.cyber [class~='bg-[#f15e5f]'] a[href*='farcaster' i] img {
+  filter: brightness(0) saturate(100%) !important;
+}
+
 html.cyber [class~='text-[#f15e5f]'] {
   color: var(--cyber-accent) !important;
 }

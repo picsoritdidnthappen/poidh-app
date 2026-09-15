@@ -3,7 +3,6 @@ import { baseProcedure } from '../init';
 import { z } from 'zod';
 import { addressSchema } from '../serverTypes';
 import { scoreDegen, scoreETH } from './accounts';
-import { Leaderboard } from 'generated/prisma/client';
 
 export const leaderboardRouter = {
   fetch: baseProcedure
@@ -21,6 +20,7 @@ export const leaderboardRouter = {
       const limit = input?.limit ?? 10;
       const maxUsers = 100;
       const offset = (page - 1) * limit;
+
       const ignoreAddresses = [
         '0x574da84cb149f9424fcf3dd21ebeef1e160cd2bf',
         '0x0e7f38ee61156d57b2b8ab4baa1648b0daa40217',
@@ -29,218 +29,155 @@ export const leaderboardRouter = {
         '0x4200ac338555e25b20c8fe82ac02a5c8d4e5a5b4',
         '0x10fc964ef70c8467cd8c53e9ed9347422adf96a8',
         '0x5555fa783936c260f77385b4e153b9725fef1719',
+        '0xe731dfadbff20542e10d09d26fc71445c70d4232',
       ];
 
-      const fetchTop = (
-        chainId: number,
-        orderCol: 'paid' | 'earned' | 'nfts',
-        take = 50
-      ) =>
-        prisma.leaderboard.findMany({
-          where: {
-            AND: [{ chainId }, { address: { not: { in: ignoreAddresses } } }],
-          },
-          orderBy: { [orderCol]: 'desc' },
-          take,
-        });
+      const supportedChainIds = [8453, 666666666, 42161, 1];
 
-      const buildLeaderboard = async (chainId: number) => {
-        const [byPaid, byEarned, byNfts] = await Promise.all([
-          fetchTop(chainId, 'paid'),
-          fetchTop(chainId, 'earned'),
-          fetchTop(chainId, 'nfts'),
-        ]);
-
-        const uniq = new Map<string, Leaderboard>();
-        [...byPaid, ...byEarned, ...byNfts].forEach((row) =>
-          uniq.set(row.address.toLowerCase(), row)
-        );
-
-        return Array.from(uniq.values());
+      type ScoreBreakdown = {
+        degen: number | undefined;
+        base: number | undefined;
+        arbitrum: number | undefined;
+        mainnet: number | undefined;
+        total: number;
       };
 
-      const [
-        leaderboardBase,
-        leaderboardDegen,
-        leaderboardArbitrum,
-        leaderboardMainnet,
-      ] = await Promise.all([
-        buildLeaderboard(8453),
-        buildLeaderboard(666666666),
-        buildLeaderboard(42161),
-        buildLeaderboard(1),
-      ]);
+      /*
+       * Fetch complete leaderboard data for every wallet across every
+       * supported chain before calculating rankings.
+       *
+       * Previously this endpoint only fetched the top 50 wallets by paid,
+       * earned, and NFTs on each individual chain. That meant a wallet could
+       * qualify for the overall leaderboard because of activity on one chain
+       * while smaller scores on another chain were omitted entirely.
+       */
+      const leaderboardRows = await prisma.leaderboard.findMany({
+        where: {
+          AND: [
+            { chainId: { in: supportedChainIds } },
+            { address: { not: { in: ignoreAddresses } } },
+          ],
+        },
+      });
 
-      const leaderBoard = new Map<
-        string,
-        {
-          degen: number | undefined;
-          base: number | undefined;
-          arbitrum: number | undefined;
-          mainnet: number | undefined;
-          total: number;
+      const leaderBoard = new Map<string, ScoreBreakdown>();
+
+      leaderboardRows.forEach((user) => {
+        const address = user.address.toLowerCase();
+
+        const existing = leaderBoard.get(address) ?? {
+          base: undefined,
+          degen: undefined,
+          arbitrum: undefined,
+          mainnet: undefined,
+          total: 0,
+        };
+
+        let base = existing.base;
+        let degen = existing.degen;
+        let arbitrum = existing.arbitrum;
+        let mainnet = existing.mainnet;
+
+        if (user.chainId === 8453) {
+          base = scoreETH({
+            earned: user.earned,
+            paid: user.paid,
+            NFTheld: user.nfts,
+          });
+        } else if (user.chainId === 666666666) {
+          degen = scoreDegen({
+            earned: user.earned,
+            paid: user.paid,
+            NFTheld: user.nfts,
+          });
+        } else if (user.chainId === 42161) {
+          arbitrum = scoreETH({
+            earned: user.earned,
+            paid: user.paid,
+            NFTheld: user.nfts,
+          });
+        } else if (user.chainId === 1) {
+          mainnet = scoreETH({
+            earned: user.earned,
+            paid: user.paid,
+            NFTheld: user.nfts,
+          });
         }
-      >();
 
-      [
-        ...leaderboardBase,
-        ...leaderboardDegen,
-        ...leaderboardArbitrum,
-        ...leaderboardMainnet,
-      ].forEach((user) => {
-        const initialScore = leaderBoard.get(user.address.toLowerCase());
-
-        const chainScores: {
-          base: number | undefined;
-          degen: number | undefined;
-          arbitrum: number | undefined;
-          mainnet: number | undefined;
-        } = {
-          base:
-            initialScore?.base ??
-            (user.chainId === 8453
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : initialScore?.base),
-          degen:
-            initialScore?.degen ??
-            (user.chainId === 666666666
-              ? scoreDegen({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : initialScore?.degen),
-          arbitrum:
-            initialScore?.arbitrum ??
-            (user.chainId === 42161
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : initialScore?.arbitrum),
-          mainnet:
-            initialScore?.mainnet ??
-            (user.chainId === 1
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : initialScore?.mainnet),
-        };
-
-        const newScore = {
-          ...chainScores,
+        leaderBoard.set(address, {
+          base,
+          degen,
+          arbitrum,
+          mainnet,
           total:
-            (chainScores.base ?? 0) +
-            (chainScores.degen ?? 0) +
-            (chainScores.arbitrum ?? 0) +
-            (chainScores.mainnet ?? 0),
-        };
-
-        leaderBoard.set(user.address.toLowerCase(), newScore);
+            (base ?? 0) +
+            (degen ?? 0) +
+            (arbitrum ?? 0) +
+            (mainnet ?? 0),
+        });
       });
 
       const allAddresses = Array.from(leaderBoard.keys());
+
+      /*
+       * Load extra points for:
+       * 1. wallets already present in the leaderboard table
+       * 2. wallets that have extra points but no normal leaderboard data
+       */
       const [extraPointsRows, extraPointsUsers] = await Promise.all([
         prisma.usersExtra.findMany({
-          where: { address: { in: allAddresses } },
-          select: { address: true, extraPoints: true },
+          where: {
+            address: { in: allAddresses },
+          },
+          select: {
+            address: true,
+            extraPoints: true,
+          },
         }),
         prisma.usersExtra.findMany({
           where: {
             extraPoints: { gt: 0 },
-            address: { notIn: allAddresses },
+            address: {
+              notIn: [...allAddresses, ...ignoreAddresses],
+            },
           },
-          select: { address: true, extraPoints: true },
+          select: {
+            address: true,
+            extraPoints: true,
+          },
         }),
       ]);
 
       const extraPointsMap = new Map(
-        [...extraPointsRows, ...extraPointsUsers].map((r) => [
-          r.address.toLowerCase(),
-          Number(r.extraPoints),
+        [...extraPointsRows, ...extraPointsUsers].map((row) => [
+          row.address.toLowerCase(),
+          Number(row.extraPoints),
         ])
       );
 
-      if (extraPointsUsers.length > 0) {
-        const missingAddresses = extraPointsUsers.map((r) =>
-          r.address.toLowerCase()
-        );
-        const missingRows = await prisma.leaderboard.findMany({
-          where: {
-            address: { in: missingAddresses },
-            chainId: { in: [8453, 666666666, 42161, 1] },
-          },
-        });
+      /*
+       * A wallet can theoretically have only manually assigned extra points
+       * and no rows in the leaderboard table. Add those wallets so they can
+       * still qualify for the top 100.
+       */
+      extraPointsUsers.forEach((user) => {
+        const address = user.address.toLowerCase();
 
-        missingRows.forEach((user) => {
-          const addr = user.address.toLowerCase();
-          const existing = leaderBoard.get(addr);
-          const base =
-            existing?.base ??
-            (user.chainId === 8453
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : undefined);
-          const degen =
-            existing?.degen ??
-            (user.chainId === 666666666
-              ? scoreDegen({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : undefined);
-          const arbitrum =
-            existing?.arbitrum ??
-            (user.chainId === 42161
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : undefined);
-          const mainnet =
-            existing?.mainnet ??
-            (user.chainId === 1
-              ? scoreETH({
-                  earned: user.earned,
-                  paid: user.paid,
-                  NFTheld: user.nfts,
-                })
-              : undefined);
-          leaderBoard.set(addr, {
-            base,
-            degen,
-            arbitrum,
-            mainnet,
-            total:
-              (base ?? 0) + (degen ?? 0) + (arbitrum ?? 0) + (mainnet ?? 0),
+        if (!leaderBoard.has(address)) {
+          leaderBoard.set(address, {
+            base: undefined,
+            degen: undefined,
+            arbitrum: undefined,
+            mainnet: undefined,
+            total: 0,
           });
-        });
+        }
+      });
 
-        missingAddresses.forEach((addr) => {
-          if (!leaderBoard.has(addr)) {
-            leaderBoard.set(addr, {
-              base: undefined,
-              degen: undefined,
-              arbitrum: undefined,
-              mainnet: undefined,
-              total: 0,
-            });
-          }
-        });
-      }
-
+      /*
+       * Calculate final totals after all chain scores and extra points have
+       * been loaded, then rank globally.
+       */
       const sortedLeaderboard = Array.from(leaderBoard.entries())
         .map(
           ([address, scores]) =>
@@ -268,6 +205,11 @@ export const leaderboardRouter = {
         )
         .sort((a, b) => b[1].total - a[1].total);
 
+      /*
+       * If a connected wallet is supplied, calculate its score directly from
+       * all of its chain rows so we can show its rank even when it falls
+       * outside the visible top 100.
+       */
       let userData: {
         rank: number;
         data: [
@@ -283,14 +225,29 @@ export const leaderboardRouter = {
       } | null = null;
 
       if (input?.userAddress) {
+        const userAddress = input.userAddress.toLowerCase();
+
         const userRows = await prisma.leaderboard.findMany({
           where: {
-            address: input.userAddress.toLowerCase(),
-            chainId: { in: [8453, 666666666, 42161, 1] },
+            address: userAddress,
+            chainId: { in: supportedChainIds },
           },
         });
 
-        if (userRows.length > 0) {
+        const userExtra = await prisma.usersExtra.findUnique({
+          where: {
+            address: userAddress,
+          },
+          select: {
+            extraPoints: true,
+          },
+        });
+
+        /*
+         * Preserve the existing behavior for normal leaderboard users,
+         * while also allowing an extra-points-only wallet to have userData.
+         */
+        if (userRows.length > 0 || Number(userExtra?.extraPoints ?? 0) > 0) {
           let baseScore: number | undefined = undefined;
           let degenScore: number | undefined = undefined;
           let arbitrumScore: number | undefined = undefined;
@@ -324,11 +281,6 @@ export const leaderboardRouter = {
             }
           }
 
-          const userExtra = await prisma.usersExtra.findUnique({
-            where: { address: input.userAddress.toLowerCase() },
-            select: { extraPoints: true },
-          });
-
           const totalScore =
             (baseScore ?? 0) +
             (degenScore ?? 0) +
@@ -345,8 +297,9 @@ export const leaderboardRouter = {
           };
 
           const higherCount = sortedLeaderboard.filter(
-            ([, s]) => s.total > rounded.total
+            ([, scores]) => scores.total > rounded.total
           ).length;
+
           const rank = higherCount + 1;
 
           userData = {
@@ -356,7 +309,13 @@ export const leaderboardRouter = {
         }
       }
 
+      /*
+       * The public leaderboard still contains at most 100 wallets.
+       * Pagination remains 10 per page by default, so /leaderboard can
+       * continue loading pages 1 through 10 exactly as before.
+       */
       const limitedLeaderboard = sortedLeaderboard.slice(0, maxUsers);
+
       const paginatedLeaderboard = limitedLeaderboard.slice(
         offset,
         offset + limit

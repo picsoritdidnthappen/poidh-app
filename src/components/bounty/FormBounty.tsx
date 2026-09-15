@@ -183,17 +183,17 @@ export default function FormBounty({
           };
         };
       };
-
+      
       const peerMetadata = walletConnectProvider.session?.peer?.metadata;
-
+      
       const isWalletConnect =
         account.connector.id.toLowerCase().includes('walletconnect') ||
         account.connector.name.toLowerCase().includes('walletconnect');
-
+      
       const isAmbire =
         peerMetadata?.name?.toLowerCase().includes('ambire') ||
         peerMetadata?.url?.toLowerCase().includes('ambire');
-
+      
       if (isWalletConnect && isAmbire) {
         throw new Error(
           'Ambire via WalletConnect is temporarily unsupported due to a network verification issue. Please use another wallet or connection method.'
