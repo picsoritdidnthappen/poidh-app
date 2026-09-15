@@ -271,7 +271,7 @@ export default function AuthApprovalView({
       .map((r) => `${r.amountFormatted} ${r.tokenSymbol} from ${r.chainName}`)
       .join(' + ');
     setRoutingStatusText(`Initiating transfers: ${routeChainsDesc}...`);
-    toast.info(`Routing funds via ZeroDev: ${routeChainsDesc}`);
+    toast.info(`Routing funds: ${routeChainsDesc}`);
 
     let sourceTxHashes: string[] = [];
 
@@ -728,10 +728,12 @@ export default function AuthApprovalView({
 
                   <div className='flex items-center justify-between rounded-xl bg-black/40 border border-red-500/20 px-2.5 py-2 text-xs font-sans'>
                     <span className='text-[11px] text-white/50'>Deficit</span>
-                    <span className='font-mono font-semibold tabular-nums text-red-300'>
-                      - {smartRouting.shortfallEth.toFixed(4)} ETH (≈ $
-                      {smartRouting.shortfallUsd.toFixed(2)})
-                    </span>
+                    {smartRouting.shortfallEth > 0.0001 && (
+                      <span className='font-mono font-semibold tabular-nums text-red-300'>
+                        - {smartRouting.shortfallEth.toFixed(4)} ETH (≈ $
+                        {smartRouting.shortfallUsd.toFixed(2)})
+                      </span>
+                    )}
                   </div>
 
                   <div className='flex items-center justify-between pt-1 border-t border-white/5 text-xs font-sans'>
@@ -858,6 +860,10 @@ export default function AuthApprovalView({
                         <span>Total route fee</span>
                         <span className='font-mono font-medium text-emerald-400'>
                           {smartRouting.totalRouteFeeEst}
+                          {!smartRouting.feesLive &&
+                            smartRouting.totalRouteFeeEst !==
+                              'Free (Sponsored)' &&
+                            ' est.'}
                         </span>
                       </div>
                     )}
@@ -869,7 +875,7 @@ export default function AuthApprovalView({
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center gap-2 text-xs font-semibold text-emerald-400'>
                     <Loader2 size={14} className='animate-spin' />
-                    <span>ZeroDev Smart Route In Progress</span>
+                    <span>Smart Route In Progress</span>
                   </div>
                   <span className='text-[10px] font-mono uppercase text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30'>
                     {routingStage}
