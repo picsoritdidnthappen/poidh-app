@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
 import { arbitrum } from 'viem/chains';
@@ -91,6 +91,9 @@ export default function AuthApprovalView({
   const { chain, connector } = useAccount();
 
   const [isRouting, setIsRouting] = useState(false);
+  // Sync guard: state updates land async, so rapid clicks could each fire a
+  // real on-chain pull before the button disables. Refs flip immediately.
+  const routingRef = useRef(false);
   const [routingStage, setRoutingStage] = useState<
     'idle' | 'initiating' | 'routing' | 'settled'
   >('idle');
@@ -129,6 +132,9 @@ export default function AuthApprovalView({
   };
 
   const handleApprove = async () => {
+    // Sync re-entry guard: flips immediately, unlike state.
+    if (routingRef.current) return;
+    routingRef.current = true;
     if (smartRouting.hasDeficit) {
       if (!anychain.anychainEnabled) {
         toast.error(`Insufficient balance on ${smartRouting.targetChainName}`);
@@ -160,6 +166,7 @@ export default function AuthApprovalView({
         setApprovalError(null);
         // keepOpen callers (e.g. Manage Tokens) show their own pending →
         // sent states, so the sheet must stay open for them.
+        routingRef.current = false;
         if (pendingApproval.keepOpen) return;
         toast.info('Please confirm with your passkey');
         onClose();
@@ -167,6 +174,7 @@ export default function AuthApprovalView({
         const e = err as Error;
         setApprovalError(e?.message || 'Approval failed');
       }
+      routingRef.current = false;
       return;
     }
 
@@ -176,6 +184,7 @@ export default function AuthApprovalView({
 
     const routesToExecute = smartRouting.recommendedRoute;
     if (routesToExecute.length === 0) {
+      routingRef.current = false;
       setIsRouting(false);
       setApprovalError('No viable cross-chain funding route available.');
       return;
@@ -187,6 +196,7 @@ export default function AuthApprovalView({
       smartRouting.smartRoutingAddress;
 
     if (!routingAddr) {
+      routingRef.current = false;
       setIsRouting(false);
       setApprovalError(
         `Smart Routing Address not yet available for ${smartRouting.targetChainName}. Please wait a moment and try again.`
@@ -207,6 +217,7 @@ export default function AuthApprovalView({
         );
         const availableRaw = usdcToken?.raw || BigInt(0);
         if (availableRaw < pullUnits) {
+          routingRef.current = false;
           setIsRouting(false);
           const available = parseFloat(formatUnits(availableRaw, 6)).toFixed(2);
           const errMsg = `Insufficient USDC balance on ${r.chainName}: Account has ${available} USDC, but route requires ${r.amountFormatted} USDC.`;
@@ -219,6 +230,7 @@ export default function AuthApprovalView({
         const sourceBal = nativeBalanceFor(anychain.balances, r.chainId);
 
         if (sourceBal < pullWei) {
+          routingRef.current = false;
           setIsRouting(false);
           const available = parseFloat(formatEther(sourceBal)).toFixed(6);
           const errMsg = `Insufficient balance on ${r.chainName}: Account has ${available} ETH, but route requires ${r.amountFormatted} ETH.`;
@@ -235,6 +247,7 @@ export default function AuthApprovalView({
         if (isUsdc && feeInfo?.minDepositUsdc) {
           const pullAmount = parseFloat(r.amountFormatted);
           if (pullAmount < feeInfo.minDepositUsdc) {
+            routingRef.current = false;
             setIsRouting(false);
             const errMsg = `Transfer amount on ${
               r.chainName
@@ -248,6 +261,7 @@ export default function AuthApprovalView({
         } else if (!isUsdc && feeInfo?.minDepositEth) {
           const pullAmount = parseFloat(r.amountFormatted);
           if (pullAmount < feeInfo.minDepositEth) {
+            routingRef.current = false;
             setIsRouting(false);
             const errMsg = `Transfer amount on ${
               r.chainName
@@ -434,10 +448,12 @@ export default function AuthApprovalView({
         pendingApproval.resolve();
         onResolve();
         setApprovalError(null);
+        routingRef.current = false;
         setIsRouting(false);
         setRoutingStage('idle');
         onClose();
       } else {
+        routingRef.current = false;
         setIsRouting(false);
         setRoutingStage('idle');
         setApprovalError(
@@ -446,6 +462,7 @@ export default function AuthApprovalView({
       }
     } catch (err: unknown) {
       const e = err as Error;
+      routingRef.current = false;
       setIsRouting(false);
       setRoutingStage('idle');
       let msg = e?.message || 'Smart Routing failed';
