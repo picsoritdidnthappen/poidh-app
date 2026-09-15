@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAccount } from 'wagmi';
 import { arbitrum, base, mainnet } from 'viem/chains';
-import { formatEther, formatUnits, isAddress, erc20Abi } from 'viem';
+import { formatEther, formatUnits, erc20Abi } from 'viem';
 import {
   arbitrumPublicClient,
   basePublicClient,
@@ -30,27 +30,77 @@ export interface ChainBalanceInfo {
   tokens: CustomToken[];
 }
 
-const DEFAULT_TOKENS: Omit<CustomToken, 'raw' | 'formatted'>[] = [
+// Fixed token list: the token addresses supported on Anychain for our 3 chains
+// (native ETH is tracked separately as the chain balance).
+const SUPPORTED_TOKENS: Omit<CustomToken, 'raw' | 'formatted'>[] = [
+  // Arbitrum
   {
     chainId: arbitrum.id,
-    address: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    symbol: 'WETH',
+    decimals: 18,
+  },
+  {
+    chainId: arbitrum.id,
+    address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
     symbol: 'USDC',
     decimals: 6,
-    isCustom: false,
+  },
+  {
+    chainId: arbitrum.id,
+    address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    symbol: 'USDT',
+    decimals: 6,
+  },
+  {
+    chainId: arbitrum.id,
+    address: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
+    symbol: 'WBTC',
+    decimals: 8,
+  },
+  // Base (no WBTC supported)
+  {
+    chainId: base.id,
+    address: '0x4200000000000000000000000000000000000006',
+    symbol: 'WETH',
+    decimals: 18,
   },
   {
     chainId: base.id,
     address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     symbol: 'USDC',
     decimals: 6,
-    isCustom: false,
+  },
+  {
+    chainId: base.id,
+    address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
+    symbol: 'USDT',
+    decimals: 6,
+  },
+  // Ethereum
+  {
+    chainId: mainnet.id,
+    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    symbol: 'WETH',
+    decimals: 18,
   },
   {
     chainId: mainnet.id,
     address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     symbol: 'USDC',
     decimals: 6,
-    isCustom: false,
+  },
+  {
+    chainId: mainnet.id,
+    address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    symbol: 'USDT',
+    decimals: 6,
+  },
+  {
+    chainId: mainnet.id,
+    address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    symbol: 'WBTC',
+    decimals: 8,
   },
 ];
 
@@ -82,13 +132,14 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
   const [tokenBalances, setTokenBalances] = useState<
     Record<string, { raw: bigint; formatted: string }>
   >({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
+  const [balancesFailed, setBalancesFailed] = useState(false);
   const [anychainEnabled, setAnychainEnabled] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('poidh_anychain_enabled');
-      return stored === null ? true : stored === 'true';
+      return stored === null ? false : stored === 'true';
     }
-    return true;
+    return false;
   });
 
   const [isDisclosed, setIsDisclosed] = useState<boolean>(() => {
@@ -97,33 +148,6 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
       return stored === null ? true : stored === 'true';
     }
     return true;
-  });
-
-  const [customTokens, setCustomTokens] = useState<CustomToken[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('poidh_custom_tokens');
-        if (stored) {
-          const parsed = JSON.parse(stored) as CustomToken[];
-          const merged = [...DEFAULT_TOKENS.map((t) => ({ ...t }))];
-          for (const item of parsed) {
-            if (
-              !merged.some(
-                (m) =>
-                  m.chainId === item.chainId &&
-                  m.address.toLowerCase() === item.address.toLowerCase()
-              )
-            ) {
-              merged.push(item);
-            }
-          }
-          return merged;
-        }
-      } catch (e) {
-        console.error('Failed to parse custom tokens from localStorage', e);
-      }
-    }
-    return DEFAULT_TOKENS.map((t) => ({ ...t }));
   });
 
   const toggleDisclose = useCallback((disclose?: boolean) => {
@@ -162,9 +186,14 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
         base: baseBal.status === 'fulfilled' ? baseBal.value : BigInt(0),
         mainnet: mainBal.status === 'fulfilled' ? mainBal.value : BigInt(0),
       });
+      setBalancesFailed(
+        arbBal.status === 'rejected' &&
+          baseBal.status === 'rejected' &&
+          mainBal.status === 'rejected'
+      );
 
       const tokenResults = await Promise.allSettled(
-        customTokens.map(async (t) => {
+        SUPPORTED_TOKENS.map(async (t) => {
           const client = getPublicClientForChain(t.chainId);
           const bal = (await client.readContract({
             address: t.address,
@@ -202,115 +231,13 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
     } finally {
       setIsLoading(false);
     }
-  }, [address, customTokens]);
+  }, [address]);
 
   useEffect(() => {
     if (enabled) {
       fetchBalances();
     }
   }, [enabled, fetchBalances]);
-
-  const addCustomToken = useCallback(
-    async (targetChainId: number, tokenAddr: string) => {
-      const trimmed = tokenAddr.trim();
-      if (!isAddress(trimmed)) {
-        throw new Error('Invalid Ethereum contract address');
-      }
-      const cleanAddr = trimmed.toLowerCase() as `0x${string}`;
-      const existing = customTokens.find(
-        (t) =>
-          t.chainId === targetChainId && t.address.toLowerCase() === cleanAddr
-      );
-      if (existing) {
-        throw new Error(`Token ${existing.symbol} is already added`);
-      }
-
-      const client = getPublicClientForChain(targetChainId);
-      let symbol: string;
-      let decimals: number;
-      try {
-        const [symResult, decResult] = await Promise.all([
-          client.readContract({
-            address: cleanAddr,
-            abi: erc20Abi,
-            functionName: 'symbol',
-          }),
-          client.readContract({
-            address: cleanAddr,
-            abi: erc20Abi,
-            functionName: 'decimals',
-          }),
-        ]);
-        symbol = symResult as string;
-        decimals = Number(decResult);
-      } catch (err) {
-        console.error('Failed to query ERC-20 details:', err);
-        throw new Error('Contract is not a valid ERC-20 token on this chain');
-      }
-
-      const newToken: CustomToken = {
-        chainId: targetChainId,
-        address: cleanAddr,
-        symbol,
-        decimals: Number(decimals),
-        isCustom: true,
-      };
-
-      const updated = [...customTokens, newToken];
-      setCustomTokens(updated);
-      if (typeof window !== 'undefined') {
-        const onlyCustom = updated.filter((t) => t.isCustom);
-        localStorage.setItem('poidh_custom_tokens', JSON.stringify(onlyCustom));
-      }
-
-      if (address) {
-        try {
-          const bal = (await client.readContract({
-            address: cleanAddr,
-            abi: erc20Abi,
-            functionName: 'balanceOf',
-            args: [address as `0x${string}`],
-          })) as bigint;
-          setTokenBalances((prev) => ({
-            ...prev,
-            [`${targetChainId}-${cleanAddr}`]: {
-              raw: bal,
-              formatted: Number(formatUnits(bal, decimals)).toLocaleString(
-                undefined,
-                {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }
-              ),
-            },
-          }));
-        } catch (e) {
-          console.error('Error fetching new token balance:', e);
-        }
-      }
-
-      return newToken;
-    },
-    [address, customTokens]
-  );
-
-  const removeCustomToken = useCallback(
-    (targetChainId: number, tokenAddr: string) => {
-      const cleanAddr = tokenAddr.toLowerCase();
-      const updated = customTokens.filter(
-        (t) =>
-          !(
-            t.chainId === targetChainId && t.address.toLowerCase() === cleanAddr
-          )
-      );
-      setCustomTokens(updated);
-      if (typeof window !== 'undefined') {
-        const onlyCustom = updated.filter((t) => t.isCustom);
-        localStorage.setItem('poidh_custom_tokens', JSON.stringify(onlyCustom));
-      }
-    },
-    [customTokens]
-  );
 
   // Total ETH across Arbitrum + Base + Mainnet
   const totalEthRaw = balances.arbitrum + balances.base + balances.mainnet;
@@ -337,9 +264,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
       raw: balances.arbitrum,
       formatted: Number(formatEther(balances.arbitrum)).toFixed(4),
       isCurrent: (chainId || arbitrum.id) === arbitrum.id,
-      tokens: customTokens
-        .filter((t) => t.chainId === arbitrum.id)
-        .map((t) => ({
+      tokens: SUPPORTED_TOKENS.filter((t) => t.chainId === arbitrum.id).map(
+        (t) => ({
           ...t,
           raw:
             tokenBalances[`${t.chainId}-${t.address.toLowerCase()}`]?.raw ??
@@ -347,7 +273,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
           formatted:
             tokenBalances[`${t.chainId}-${t.address.toLowerCase()}`]
               ?.formatted ?? '0.00',
-        })),
+        })
+      ),
     },
     {
       chainId: base.id,
@@ -356,9 +283,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
       raw: balances.base,
       formatted: Number(formatEther(balances.base)).toFixed(4),
       isCurrent: chainId === base.id,
-      tokens: customTokens
-        .filter((t) => t.chainId === base.id)
-        .map((t) => ({
+      tokens: SUPPORTED_TOKENS.filter((t) => t.chainId === base.id).map(
+        (t) => ({
           ...t,
           raw:
             tokenBalances[`${t.chainId}-${t.address.toLowerCase()}`]?.raw ??
@@ -366,7 +292,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
           formatted:
             tokenBalances[`${t.chainId}-${t.address.toLowerCase()}`]
               ?.formatted ?? '0.00',
-        })),
+        })
+      ),
     },
     {
       chainId: mainnet.id,
@@ -375,9 +302,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
       raw: balances.mainnet,
       formatted: Number(formatEther(balances.mainnet)).toFixed(4),
       isCurrent: chainId === mainnet.id,
-      tokens: customTokens
-        .filter((t) => t.chainId === mainnet.id)
-        .map((t) => ({
+      tokens: SUPPORTED_TOKENS.filter((t) => t.chainId === mainnet.id).map(
+        (t) => ({
           ...t,
           raw:
             tokenBalances[`${t.chainId}-${t.address.toLowerCase()}`]?.raw ??
@@ -385,7 +311,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
           formatted:
             tokenBalances[`${t.chainId}-${t.address.toLowerCase()}`]
               ?.formatted ?? '0.00',
-        })),
+        })
+      ),
     },
   ];
 
@@ -400,9 +327,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
     toggleAnychain,
     isDisclosed,
     toggleDisclose,
-    addCustomToken,
-    removeCustomToken,
     isLoading,
+    balancesFailed,
     refetch: fetchBalances,
   };
 }
