@@ -201,13 +201,13 @@ export default function SendFundsView({
     setIsSending(true);
     try {
       const store = await (connector as any)?.getStore?.();
-      const kernelClient =
-        (await getOrInitKernelClient(store, activeChain.chainId)) ||
-        store?.getState?.()?.kernelClients?.get(activeChain.chainId);
-      if (!kernelClient) {
-        throw new Error(
-          `Smart account unavailable for ${activeChain.name}. Please check wallet.`
-        );
+      let kernelClient = null;
+      try {
+        kernelClient =
+          (await getOrInitKernelClient(store, activeChain.chainId)) ||
+          store?.getState?.()?.kernelClients?.get(activeChain.chainId);
+      } catch {
+        kernelClient = null;
       }
       const to = recipient as `0x${string}`;
       const tx =
@@ -242,10 +242,33 @@ export default function SendFundsView({
           })
         );
       });
-      const hash = (await (kernelClient as any).sendTransaction({
-        ...tx,
-        calls: [{ to: tx.to, value: tx.value, data: tx.data }],
-      })) as string;
+      let hash: string;
+      if (kernelClient) {
+        hash = (await (kernelClient as any).sendTransaction({
+          ...tx,
+          calls: [{ to: tx.to, value: tx.value, data: tx.data }],
+        })) as string;
+      } else {
+        // No smart account (e.g. MetaMask EOA): send directly from the
+        // connected wallet. The approval sheet above already confirmed it.
+        const provider = (await (connector as any)?.getProvider?.()) as any;
+        if (!provider?.request) {
+          throw new Error(
+            `Smart account unavailable for ${activeChain.name} and no wallet provider found. Please reconnect.`
+          );
+        }
+        const valueHex = `0x${tx.value.toString(16)}`;
+        hash = (await provider.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              to: tx.to,
+              value: valueHex,
+              data: tx.data,
+            },
+          ],
+        })) as string;
+      }
       setSent({
         amount,
         symbol: selectedToken.symbol,
