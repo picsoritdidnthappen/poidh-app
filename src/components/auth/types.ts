@@ -37,8 +37,5 @@ export const SUPPORTED_CHAINS: SupportedChain[] = [
   { id: mainnet.id, name: 'Ethereum', Icon: MainIcon },
 ];
 
-export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
-  [arbitrum.id]: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
-  [base.id]: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-  [mainnet.id]: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-};
+// Re-exported here so existing imports keep working; chains.ts owns it.
+export { USDC_ADDRESSES } from './chains';

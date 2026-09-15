@@ -9,6 +9,15 @@ import {
   basePublicClient,
   mainnetPublicClient,
 } from '@/utils/publicClients';
+import {
+  SUPPORTED_TOKENS,
+  publicClientFor,
+  tokenEthValue,
+} from '@/components/auth/chains';
+
+// Cached USD prices so balance refetches don't hammer the price API.
+let cachedPrices = { eth: 2500, btc: 100000, ts: 0 };
+const PRICE_TTL_MS = 5 * 60 * 1000;
 
 export interface CustomToken {
   chainId: number;
@@ -29,93 +38,6 @@ export interface ChainBalanceInfo {
   isCurrent: boolean;
   tokens: CustomToken[];
 }
-
-// Fixed token list: the token addresses supported on Anychain for our 3 chains
-// (native ETH is tracked separately as the chain balance).
-const SUPPORTED_TOKENS: Omit<CustomToken, 'raw' | 'formatted'>[] = [
-  // Arbitrum
-  {
-    chainId: arbitrum.id,
-    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-    symbol: 'WETH',
-    decimals: 18,
-  },
-  {
-    chainId: arbitrum.id,
-    address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
-    symbol: 'USDC',
-    decimals: 6,
-  },
-  {
-    chainId: arbitrum.id,
-    address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-    symbol: 'USDT',
-    decimals: 6,
-  },
-  {
-    chainId: arbitrum.id,
-    address: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
-    symbol: 'WBTC',
-    decimals: 8,
-  },
-  // Base (no WBTC supported)
-  {
-    chainId: base.id,
-    address: '0x4200000000000000000000000000000000000006',
-    symbol: 'WETH',
-    decimals: 18,
-  },
-  {
-    chainId: base.id,
-    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    symbol: 'USDC',
-    decimals: 6,
-  },
-  {
-    chainId: base.id,
-    address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-    symbol: 'USDT',
-    decimals: 6,
-  },
-  // Ethereum
-  {
-    chainId: mainnet.id,
-    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    symbol: 'WETH',
-    decimals: 18,
-  },
-  {
-    chainId: mainnet.id,
-    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    symbol: 'USDC',
-    decimals: 6,
-  },
-  {
-    chainId: mainnet.id,
-    address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-    symbol: 'USDT',
-    decimals: 6,
-  },
-  {
-    chainId: mainnet.id,
-    address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-    symbol: 'WBTC',
-    decimals: 8,
-  },
-];
-
-const getPublicClientForChain = (targetChainId: number) => {
-  switch (targetChainId) {
-    case arbitrum.id:
-      return arbitrumPublicClient;
-    case base.id:
-      return basePublicClient;
-    case mainnet.id:
-      return mainnetPublicClient;
-    default:
-      return arbitrumPublicClient;
-  }
-};
 
 export function useAnychainBalances(options?: { enabled?: boolean }) {
   const enabled = options?.enabled ?? true;
@@ -194,7 +116,7 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
 
       const tokenResults = await Promise.allSettled(
         SUPPORTED_TOKENS.map(async (t) => {
-          const client = getPublicClientForChain(t.chainId);
+          const client = publicClientFor(t.chainId);
           const bal = (await client.readContract({
             address: t.address,
             abi: erc20Abi,
@@ -242,6 +164,60 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
   // Total ETH across Arbitrum + Base + Mainnet
   const totalEthRaw = balances.arbitrum + balances.base + balances.mainnet;
   const totalEthFormatted = Number(formatEther(totalEthRaw)).toFixed(4);
+
+  // Combined routable value: native ETH plus every supported token
+  // converted to ETH, so the hero reflects what routing can actually use.
+  const [prices, setPrices] = useState({
+    eth: cachedPrices.eth,
+    btc: cachedPrices.btc,
+  });
+  useEffect(() => {
+    if (!enabled) return;
+    if (Date.now() - cachedPrices.ts < PRICE_TTL_MS) {
+      setPrices({ eth: cachedPrices.eth, btc: cachedPrices.btc });
+      return;
+    }
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,bitcoin&vs_currencies=usd',
+          { headers: { Accept: 'application/json' } }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const eth = Number(data?.ethereum?.usd);
+          const btc = Number(data?.bitcoin?.usd);
+          if (eth > 0 && btc > 0 && alive) {
+            cachedPrices = { eth, btc, ts: Date.now() };
+            setPrices({ eth, btc });
+          }
+        }
+      } catch {
+        // Keep last cached prices; token conversion stays approximate.
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [enabled]);
+
+  const totalCombinedEth =
+    Number(formatEther(totalEthRaw)) +
+    SUPPORTED_TOKENS.reduce(
+      (sum, t) =>
+        sum +
+        tokenEthValue(
+          t.symbol,
+          tokenBalances[`${t.chainId}-${t.address.toLowerCase()}`]?.raw ??
+            BigInt(0),
+          t.decimals,
+          prices.eth,
+          prices.btc
+        ),
+      0
+    );
+  const totalCombinedEthFormatted = totalCombinedEth.toFixed(4);
 
   // Other chains ETH excluding active chain
   const getOtherChainsEth = useCallback(
@@ -322,6 +298,8 @@ export function useAnychainBalances(options?: { enabled?: boolean }) {
     chainList,
     totalEthRaw,
     totalEthFormatted,
+    totalCombinedEth,
+    totalCombinedEthFormatted,
     getOtherChainsEth,
     anychainEnabled,
     toggleAnychain,

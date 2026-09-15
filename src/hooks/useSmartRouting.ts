@@ -14,6 +14,7 @@ import {
   type DepositedToken,
 } from '@zerodev/smart-routing-address';
 import { ChainBalanceInfo, CustomToken } from '@/hooks/useAnychainBalances';
+import { isNativeToken, nativeBalanceFor } from '@/components/auth/chains';
 import clientEnv from '@/utils/clientEnv';
 
 export interface RouteStep {
@@ -399,8 +400,7 @@ export function useSmartRouting({
                   const ethFeeData = feeGroup.data?.find(
                     (d) =>
                       d.name?.toLowerCase().includes('eth') ||
-                      d.token?.toLowerCase() ===
-                        '0x0000000000000000000000000000000000000000'
+                      (d.token ? isNativeToken(d.token) : false)
                   );
                   const usdcFeeData = feeGroup.data?.find((d) =>
                     d.name?.toLowerCase().includes('usdc')
@@ -480,8 +480,7 @@ export function useSmartRouting({
             const ethFeeData = feeGroup.data?.find(
               (d) =>
                 d.name?.toLowerCase().includes('eth') ||
-                d.token?.toLowerCase() ===
-                  '0x0000000000000000000000000000000000000000'
+                (d.token ? isNativeToken(d.token) : false)
             );
             const usdcFeeData = feeGroup.data?.find((d) =>
               d.name?.toLowerCase().includes('usdc')
@@ -577,15 +576,9 @@ export function useSmartRouting({
       tag: 'Current Chain',
     };
 
-    // 3. Current chain balance
-    let currentChainBalanceWei = BigInt(0);
-    if (activeChainId === base.id) {
-      currentChainBalanceWei = balances.base;
-    } else if (activeChainId === mainnet.id) {
-      currentChainBalanceWei = balances.mainnet;
-    } else {
-      currentChainBalanceWei = balances.arbitrum;
-    }
+    // 3. Current chain balance (throws on unknown chains: never read
+    // another chain's balance for a sufficiency check)
+    const currentChainBalanceWei = nativeBalanceFor(balances, activeChainId);
 
     const currentChainBalanceEth = Number(formatEther(currentChainBalanceWei));
 
