@@ -54,8 +54,12 @@ export async function getOrInitKernelClient(store: any, targetChainId: number) {
     state?.setKernelAccount?.(targetChainId, kernelAccount);
   }
 
-  const projectId =
-    clientEnv.ZERODEV_PROJECT_ID || 'd577c9aa-a50c-40b3-adb9-2232e7f8edd1';
+  const projectId = clientEnv.ZERODEV_PROJECT_ID;
+  if (!projectId) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_ZERODEV_PROJECT_ID: set it to your ZeroDev project ID.'
+    );
+  }
   const bundlerUrl = `https://rpc.zerodev.app/api/v3/${projectId}/chain/${targetChainId}?provider=ULTRA_RELAY`;
 
   const kernelClient = createKernelAccountClient({
