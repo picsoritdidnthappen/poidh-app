@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
-import { base, mainnet } from 'viem/chains';
 import { erc20Abi, formatEther, formatUnits } from 'viem';
 import {
   SheetHeader,
@@ -21,10 +20,10 @@ import {
   getRefundCalls,
 } from '@/hooks/useSmartRouting';
 import {
-  arbitrumPublicClient,
-  basePublicClient,
-  mainnetPublicClient,
-} from '@/utils/publicClients';
+  chainNameFor,
+  isNativeToken,
+  publicClientFor,
+} from '@/components/auth/chains';
 import { getOrInitKernelClient } from '../kernelClient';
 
 interface AuthAnychainViewProps {
@@ -69,20 +68,6 @@ export default function AuthAnychainView({
     }[]
   >([]);
 
-  const chainNameFor = (chainId: number) =>
-    chainId === base.id
-      ? 'Base'
-      : chainId === mainnet.id
-      ? 'Ethereum'
-      : 'Arbitrum';
-
-  const publicClientFor = (chainId: number) =>
-    chainId === base.id
-      ? basePublicClient
-      : chainId === mainnet.id
-      ? mainnetPublicClient
-      : arbitrumPublicClient;
-
   const allRoutingAddresses = () => [
     ...new Set(
       [
@@ -122,9 +107,7 @@ export default function AuthAnychainView({
 
         await Promise.all(
           candidateDeposits.map(async ({ deposit: d, routingAddress }) => {
-            const isEth =
-              d.deposit.token.toLowerCase() ===
-              '0x0000000000000000000000000000000000000000';
+            const isEth = isNativeToken(d.deposit.token);
             const chainName = chainNameFor(d.deposit.chainId);
             const client = publicClientFor(d.deposit.chainId);
 
@@ -467,7 +450,7 @@ export default function AuthAnychainView({
               <div className='flex items-center gap-1.5'>
                 <span className='text-xs text-white font-mono font-semibold'>
                   {anychain.isDisclosed
-                    ? `${anychain.totalEthFormatted} ETH`
+                    ? `${anychain.totalCombinedEthFormatted} ETH`
                     : '•••• ETH'}
                 </span>
                 <button

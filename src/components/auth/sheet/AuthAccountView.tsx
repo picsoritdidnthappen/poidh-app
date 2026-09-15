@@ -162,7 +162,7 @@ export default function AuthAccountView({
             const combined = anychain.anychainEnabled;
             const current = anychain.chainList.find((c) => c.isCurrent);
             const heroAmount = combined
-              ? `${anychain.totalEthFormatted} ETH`
+              ? `${anychain.totalCombinedEthFormatted} ETH`
               : `${current?.formatted ?? '0.0000'} ETH`;
             const heroCaption = combined
               ? `Combined across ${SUPPORTED_CHAINS.map((c) => c.name).join(

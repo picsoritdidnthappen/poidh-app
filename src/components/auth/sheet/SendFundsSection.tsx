@@ -27,18 +27,7 @@ import {
 import { useAnychainBalances } from '@/hooks/useAnychainBalances';
 import { SUPPORTED_CHAINS } from '../types';
 import { getOrInitKernelClient } from '../kernelClient';
-import {
-  arbitrumPublicClient,
-  basePublicClient,
-  mainnetPublicClient,
-} from '@/utils/publicClients';
-
-const getPublicClientForChain = (targetChainId: number) => {
-  if (targetChainId === basePublicClient.chain.id) return basePublicClient;
-  if (targetChainId === mainnetPublicClient.chain.id)
-    return mainnetPublicClient;
-  return arbitrumPublicClient;
-};
+import { publicClientFor as getPublicClientForChain } from '@/components/auth/chains';
 
 interface SendFundsViewProps {
   anychain: ReturnType<typeof useAnychainBalances>;

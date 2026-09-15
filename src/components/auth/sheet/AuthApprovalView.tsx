@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
-import { arbitrum, base, mainnet } from 'viem/chains';
+import { arbitrum } from 'viem/chains';
 import {
   encodeFunctionData,
   erc20Abi,
@@ -38,13 +38,13 @@ import {
   useSmartRouting,
   fetchSmartRoutingStatus,
 } from '@/hooks/useSmartRouting';
-import {
-  arbitrumPublicClient,
-  basePublicClient,
-  mainnetPublicClient,
-} from '@/utils/publicClients';
 import { getOrInitKernelClient } from '../kernelClient';
-import { ApprovalDetail, SUPPORTED_CHAINS, USDC_ADDRESSES } from '../types';
+import { ApprovalDetail, SUPPORTED_CHAINS } from '../types';
+import {
+  USDC_ADDRESSES,
+  nativeBalanceFor,
+  publicClientFor,
+} from '@/components/auth/chains';
 
 interface AuthApprovalViewProps {
   pendingApproval: ApprovalDetail;
@@ -216,12 +216,7 @@ export default function AuthApprovalView({
         }
       } else {
         const pullWei = parseEther(r.amountFormatted);
-        const sourceBal =
-          r.chainId === base.id
-            ? anychain.balances.base
-            : r.chainId === mainnet.id
-            ? anychain.balances.mainnet
-            : anychain.balances.arbitrum;
+        const sourceBal = nativeBalanceFor(anychain.balances, r.chainId);
 
         if (sourceBal < pullWei) {
           setIsRouting(false);
@@ -354,12 +349,7 @@ export default function AuthApprovalView({
       );
 
       // 3. Track settlement on target chain
-      const targetChainPublicClient =
-        destChainId === base.id
-          ? basePublicClient
-          : destChainId === mainnet.id
-          ? mainnetPublicClient
-          : arbitrumPublicClient;
+      const targetChainPublicClient = publicClientFor(destChainId);
 
       const requiredWei = smartRouting.requiredWei;
       const userAddr = address as `0x${string}`;
