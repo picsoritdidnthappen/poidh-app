@@ -194,9 +194,6 @@ function ConnectWalletButton() {
             <ZeroDevAuthModal
               open={isZeroDevModalOpen}
               onClose={() => setIsZeroDevModalOpen(false)}
-              openRainbowKitModal={
-                connected ? openAccountModal : openConnectModal
-              }
               openChainModal={openChainModal}
             />
           </>

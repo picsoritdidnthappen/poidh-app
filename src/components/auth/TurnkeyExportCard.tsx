@@ -4,7 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { useExportPrivateKey, useExportWallet } from '@zerodev/wallet-react';
 import { toast } from 'react-toastify';
-import { AlertCircle, Fingerprint, KeyRound, Loader2, X } from 'lucide-react';
+import {
+  AlertCircle,
+  ChevronRight,
+  ChevronUp,
+  Fingerprint,
+  KeyRound,
+  Loader2,
+  X,
+} from 'lucide-react';
 import { CopyDoneIcon, CopyIcon } from '@/components/global/Icons';
 
 export interface TurnkeyExportCardProps {
@@ -24,6 +32,7 @@ export default function TurnkeyExportCard({
   const [signerAddress, setSignerAddress] = useState<string | null>(null);
   const [copiedSigner, setCopiedSigner] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [activeExport, setActiveExport] = useState<'key' | 'wallet' | null>(
     null
   );
@@ -177,17 +186,45 @@ export default function TurnkeyExportCard({
     );
   }
 
+  if (!expanded) {
+    return (
+      <div className='p-4 rounded-2xl bg-white/[0.04] border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
+        <button
+          type='button'
+          onClick={() => setExpanded(true)}
+          className='w-full flex items-center justify-between text-white/70 hover:text-white transition-colors normal-case'
+        >
+          <span className='flex items-center gap-1.5'>
+            <KeyRound size={14} className='text-white/50' />
+            <span className='text-xs font-semibold'>Signer Credentials</span>
+          </span>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className='p-4 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
-      <div className='text-left'>
-        <div className='text-xs font-bold text-white normal-case'>
-          Export Signer Credentials
+      <div className='flex items-start justify-between gap-2 text-left'>
+        <div>
+          <div className='text-xs font-bold text-white normal-case'>
+            Export Signer Credentials
+          </div>
+          <p className='text-[11px] text-white/70 mt-1.5 leading-relaxed normal-case'>
+            Export your underlying signer credentials for use in external
+            wallets like MetaMask or Rabby. Because smart accounts are
+            contract-based, external wallets will display this signer address.
+          </p>
         </div>
-        <p className='text-[11px] text-white/70 mt-1.5 leading-relaxed normal-case'>
-          Export your underlying signer credentials for use in external wallets
-          like MetaMask or Rabby. Because smart accounts are contract-based,
-          external wallets will display this signer address.
-        </p>
+        <button
+          type='button'
+          onClick={() => setExpanded(false)}
+          className='text-white/40 hover:text-white p-1 rounded transition-colors shrink-0'
+          aria-label='Collapse signer credentials'
+        >
+          <ChevronUp size={14} />
+        </button>
       </div>
 
       {signerAddress && (
