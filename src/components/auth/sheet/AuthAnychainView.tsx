@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
-import { arbitrum, base, mainnet } from 'viem/chains';
+import { base, mainnet } from 'viem/chains';
 import { erc20Abi, formatEther, formatUnits } from 'viem';
 import {
   SheetHeader,
@@ -17,7 +17,7 @@ import { AlertTriangle, ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAnychainBalances } from '@/hooks/useAnychainBalances';
 import {
   useSmartRouting,
-  fetchSmartRoutingStatus,
+  fetchSmartRoutingStatusMulti,
   getRefundCalls,
 } from '@/hooks/useSmartRouting';
 import {
@@ -56,19 +56,60 @@ export default function AuthAnychainView({
     }[]
   >([]);
   const [isRecovering, setIsRecovering] = useState(false);
+  const [statusCheckFailed, setStatusCheckFailed] = useState(false);
+  // Refund calls fetched from the router, awaiting explicit user confirm.
+  // Nothing executes until Confirm is pressed.
+  const [pendingRefund, setPendingRefund] = useState<
+    {
+      routingAddress: string;
+      chainId: number;
+      chainName: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      calls: any[];
+    }[]
+  >([]);
+
+  const chainNameFor = (chainId: number) =>
+    chainId === base.id
+      ? 'Base'
+      : chainId === mainnet.id
+      ? 'Ethereum'
+      : 'Arbitrum';
+
+  const publicClientFor = (chainId: number) =>
+    chainId === base.id
+      ? basePublicClient
+      : chainId === mainnet.id
+      ? mainnetPublicClient
+      : arbitrumPublicClient;
+
+  const allRoutingAddresses = () => [
+    ...new Set(
+      [
+        ...Object.values(smartRouting.smartRoutingAddresses),
+        smartRouting.smartRoutingAddress,
+      ].filter(Boolean) as string[]
+    ),
+  ];
 
   useEffect(() => {
     if (!address) return;
     let isMounted = true;
     const checkStuck = async () => {
-      const routingAddr =
-        smartRouting.smartRoutingAddresses[arbitrum.id] ||
-        smartRouting.smartRoutingAddress;
-      if (!routingAddr) return;
+      const addrs = allRoutingAddresses();
+      if (!addrs.length) return;
       try {
-        const deposits = await fetchSmartRoutingStatus(routingAddr);
-        const candidateDeposits = deposits.filter(
-          (d) => d.error || (!d.bridge && !d.execution)
+        const tagged = await fetchSmartRoutingStatusMulti(addrs);
+        if (!isMounted) return;
+        if (tagged === null) {
+          // Status check failed: say so, never report "all good".
+          setStatusCheckFailed(true);
+          setUnbridgedDeposits([]);
+          return;
+        }
+        setStatusCheckFailed(false);
+        const candidateDeposits = tagged.filter(
+          ({ deposit: d }) => d.error || (!d.bridge && !d.execution)
         );
 
         const stuck: {
@@ -80,36 +121,25 @@ export default function AuthAnychainView({
         }[] = [];
 
         await Promise.all(
-          candidateDeposits.map(async (d) => {
+          candidateDeposits.map(async ({ deposit: d, routingAddress }) => {
             const isEth =
               d.deposit.token.toLowerCase() ===
               '0x0000000000000000000000000000000000000000';
-            const chainName =
-              d.deposit.chainId === base.id
-                ? 'Base'
-                : d.deposit.chainId === mainnet.id
-                ? 'Ethereum'
-                : 'Arbitrum';
-
-            const client =
-              d.deposit.chainId === base.id
-                ? basePublicClient
-                : d.deposit.chainId === mainnet.id
-                ? mainnetPublicClient
-                : arbitrumPublicClient;
+            const chainName = chainNameFor(d.deposit.chainId);
+            const client = publicClientFor(d.deposit.chainId);
 
             let onChainBal = BigInt(0);
             try {
               if (isEth) {
                 onChainBal = await client.getBalance({
-                  address: routingAddr as `0x${string}`,
+                  address: routingAddress as `0x${string}`,
                 });
               } else {
                 onChainBal = await client.readContract({
                   address: d.deposit.token as `0x${string}`,
                   abi: erc20Abi,
                   functionName: 'balanceOf',
-                  args: [routingAddr as `0x${string}`],
+                  args: [routingAddress as `0x${string}`],
                 });
               }
             } catch {
@@ -148,11 +178,17 @@ export default function AuthAnychainView({
     smartRouting.smartRoutingAddresses,
   ]);
 
+  // Step 1: gather the router's withdrawal plan across every routing
+  // address and show it for review. Nothing executes here.
   const handleRecoverUnbridged = async () => {
-    const routingAddr =
-      smartRouting.smartRoutingAddresses[arbitrum.id] ||
-      smartRouting.smartRoutingAddress;
-    if (!routingAddr) {
+    if (!smartRouting.isRoutingConfigured) {
+      toast.error(
+        'Routing unavailable: the ZeroDev project ID is not configured.'
+      );
+      return;
+    }
+    const addrs = allRoutingAddresses();
+    if (!addrs.length) {
       toast.error('Routing address not yet available. Please try again.');
       return;
     }
@@ -160,10 +196,17 @@ export default function AuthAnychainView({
       setIsRecovering(true);
       toast.info('Checking for unbridged deposits...');
 
-      // 1. Fetch live deposits
-      const rawDeposits = await fetchSmartRoutingStatus(routingAddr);
-      const stuck = rawDeposits.filter(
-        (d) => d.error || (!d.bridge && !d.execution)
+      const tagged = await fetchSmartRoutingStatusMulti(addrs);
+      if (tagged === null) {
+        toast.error(
+          "Couldn't check for unbridged deposits. Check your connection and try again."
+        );
+        setStatusCheckFailed(true);
+        return;
+      }
+      setStatusCheckFailed(false);
+      const stuck = tagged.filter(
+        ({ deposit: d }) => d.error || (!d.bridge && !d.execution)
       );
 
       if (!stuck.length) {
@@ -172,33 +215,65 @@ export default function AuthAnychainView({
         return;
       }
 
-      const tokensToWithdraw = stuck.map((d) => ({
-        chainId: d.deposit.chainId,
-        token: d.deposit.token as `0x${string}`,
-      }));
+      // Group tokens by the routing address that holds them.
+      const byAddr = new Map<
+        string,
+        { chainId: number; token: `0x${string}` }[]
+      >();
+      for (const { deposit: d, routingAddress } of stuck) {
+        const list = byAddr.get(routingAddress) || [];
+        list.push({
+          chainId: d.deposit.chainId,
+          token: d.deposit.token as `0x${string}`,
+        });
+        byAddr.set(routingAddress, list);
+      }
 
-      // 2. Query withdrawal calls from ZeroDev solver
-      const refundCallsRes = await getRefundCalls(
-        routingAddr,
-        tokensToWithdraw
-      );
-      if (!refundCallsRes?.data?.length) {
+      // 2. Query withdrawal calls per routing address.
+      const plan: {
+        routingAddress: string;
+        chainId: number;
+        chainName: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        calls: any[];
+      }[] = [];
+      for (const [addr, tokens] of byAddr) {
+        const refundCallsRes = await getRefundCalls(addr, tokens);
+        for (const item of refundCallsRes?.data || []) {
+          plan.push({
+            routingAddress: addr,
+            chainId: item.chainId,
+            chainName: chainNameFor(item.chainId),
+            calls: item.calls,
+          });
+        }
+      }
+      if (!plan.length) {
         toast.info('No withdrawal calls returned by router.');
         return;
       }
+      setPendingRefund(plan);
+    } catch (err: unknown) {
+      const e = err as Error;
+      console.error('[handleRecoverUnbridged error]:', e);
+      toast.error(e?.message || 'Failed to refund unbridged deposits');
+    } finally {
+      setIsRecovering(false);
+    }
+  };
 
-      // 3. Obtain store and execute on each chain
+  // Step 2: run the reviewed plan. Each item goes through the shared
+  // approval sheet first, so every transfer is previewed and confirmed.
+  const executeRefund = async () => {
+    if (!pendingRefund.length) return;
+    const plan = pendingRefund;
+    setPendingRefund([]);
+    try {
+      setIsRecovering(true);
       const store = await (connector as any)?.getStore?.();
 
-      for (const item of refundCallsRes.data) {
-        const chainName =
-          item.chainId === base.id
-            ? 'Base'
-            : item.chainId === mainnet.id
-            ? 'Ethereum'
-            : 'Arbitrum';
-
-        toast.info(`Submitting refund on ${chainName}...`);
+      for (const item of plan) {
+        toast.info(`Submitting refund on ${item.chainName}...`);
 
         const formattedCalls = item.calls.map((c: any) => ({
           to: c.to as `0x${string}`,
@@ -206,10 +281,31 @@ export default function AuthAnychainView({
           value: typeof c.value === 'bigint' ? c.value : BigInt(c.value || 0),
         }));
 
+        // Preview + confirm each refund before it is signed.
+        await new Promise<void>((resolve, reject) => {
+          window.dispatchEvent(
+            new CustomEvent('zerodev-request-approval', {
+              detail: {
+                type: 'transaction',
+                keepOpen: true,
+                tx: {
+                  to: formattedCalls[0]?.to,
+                  value: formattedCalls[0]?.value ?? BigInt(0),
+                  data: formattedCalls[0]?.data ?? '0x',
+                  chainId: item.chainId,
+                },
+                message: `Refund ${formattedCalls.length} transfer(s) on ${item.chainName} to your smart account`,
+                resolve,
+                reject,
+              },
+            })
+          );
+        });
+
         const kClient = await getOrInitKernelClient(store, item.chainId);
         if (!kClient) {
           throw new Error(
-            `Smart account unavailable for chain ${chainName} (${item.chainId})`
+            `Smart account unavailable for chain ${item.chainName} (${item.chainId})`
           );
         }
         const txHash = (await (kClient as any).sendTransaction({
@@ -220,7 +316,7 @@ export default function AuthAnychainView({
           `[Refund] Refunded on chain ${item.chainId}, hash:`,
           txHash
         );
-        toast.success(`Successfully refunded on ${chainName}!`);
+        toast.success(`Successfully refunded on ${item.chainName}!`);
       }
 
       toast.success('All unbridged funds refunded to your smart account!');
@@ -228,8 +324,11 @@ export default function AuthAnychainView({
       anychain.refetch();
     } catch (err: unknown) {
       const e = err as Error;
-      console.error('[handleRecoverUnbridged error]:', e);
-      toast.error(e?.message || 'Failed to refund unbridged deposits');
+      // Cancel (reject) backs out quietly; real errors surface.
+      if (e?.message !== 'User rejected the transaction') {
+        console.error('[executeRefund error]:', e);
+        toast.error(e?.message || 'Failed to refund unbridged deposits');
+      }
     } finally {
       setIsRecovering(false);
     }
@@ -393,6 +492,26 @@ export default function AuthAnychainView({
           )}
         </div>
 
+        {/* Routing unavailable: project ID missing */}
+        {!smartRouting.isRoutingConfigured && (
+          <div className='p-4 rounded-2xl bg-red-500/10 border border-red-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
+            <p className='text-[11px] text-red-300 leading-relaxed font-sans'>
+              Routing unavailable: the ZeroDev project ID is not configured.
+              Balances still show, but sends and recovery are disabled.
+            </p>
+          </div>
+        )}
+
+        {/* Status check failed: never report "all good" */}
+        {statusCheckFailed && unbridgedDeposits.length === 0 && (
+          <div className='p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
+            <p className='text-[11px] text-amber-300 leading-relaxed font-sans'>
+              Couldn't check for unbridged deposits. Check your connection and
+              try again.
+            </p>
+          </div>
+        )}
+
         {/* Unbridged Deposits Recovery Tool */}
         {unbridgedDeposits.length > 0 && (
           <div className='p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
@@ -423,21 +542,71 @@ export default function AuthAnychainView({
                 </div>
               ))}
             </div>
-            <button
-              type='button'
-              onClick={handleRecoverUnbridged}
-              disabled={isRecovering}
-              className='w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs transition active:scale-[0.99] disabled:opacity-50 font-sans'
-            >
-              {isRecovering ? (
-                <>
-                  <Loader2 size={13} className='animate-spin' />
-                  <span>Refunding to Wallet...</span>
-                </>
-              ) : (
-                <span>Withdraw Unbridged Funds to Wallet</span>
-              )}
-            </button>
+            {pendingRefund.length > 0 ? (
+              <div className='space-y-2 rounded-xl bg-black/40 border border-amber-500/20 p-3'>
+                <div className='text-[11px] font-semibold text-white font-sans'>
+                  Review refund plan
+                </div>
+                <div className='space-y-1.5'>
+                  {pendingRefund.map((p, idx) => (
+                    <div
+                      key={idx}
+                      className='flex items-center justify-between text-[11px] font-mono text-white/70'
+                    >
+                      <span>{p.chainName}</span>
+                      <span>
+                        {p.calls.length} transfer
+                        {p.calls.length === 1 ? '' : 's'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className='text-[11px] text-white/50 leading-relaxed font-sans'>
+                  Each transfer asks for your approval before it is signed.
+                </p>
+                <div className='flex gap-2'>
+                  <button
+                    type='button'
+                    onClick={() => setPendingRefund([])}
+                    disabled={isRecovering}
+                    className='flex-1 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs py-2 px-4 transition active:scale-[0.99] disabled:opacity-50 font-sans'
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type='button'
+                    onClick={executeRefund}
+                    disabled={isRecovering || !smartRouting.isRoutingConfigured}
+                    className='flex-1 flex items-center justify-center gap-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs py-2 px-4 transition active:scale-[0.99] disabled:opacity-50 font-sans'
+                  >
+                    {isRecovering ? (
+                      <>
+                        <Loader2 size={13} className='animate-spin' />
+                        <span>Refunding...</span>
+                      </>
+                    ) : (
+                      <span>Confirm Refund</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type='button'
+                onClick={handleRecoverUnbridged}
+                disabled={isRecovering || !smartRouting.isRoutingConfigured}
+                className='w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs transition active:scale-[0.99] disabled:opacity-50 font-sans'
+              >
+                {isRecovering ? (
+                  <>
+                    <Loader2 size={13} className='animate-spin' />
+                    <span>Refunding to Wallet...</span>
+                  </>
+                ) : (
+                  <span>Withdraw Unbridged Funds to Wallet</span>
+                )}
+              </button>
+            )}
           </div>
         )}
       </SheetContent>
