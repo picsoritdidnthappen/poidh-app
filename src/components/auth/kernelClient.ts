@@ -18,12 +18,21 @@ export async function getOrInitKernelClient(store: any, targetChainId: number) {
   const eoaAccount = state?.eoaAccount;
   if (!eoaAccount) return null;
 
+  // Never coerce an unknown chain into a known one: sending through the
+  // wrong chain's client puts funds at risk. Fail closed instead.
   const chainObj =
     targetChainId === base.id
       ? base
       : targetChainId === mainnet.id
       ? mainnet
-      : arbitrum;
+      : targetChainId === arbitrum.id
+      ? arbitrum
+      : null;
+  if (!chainObj) {
+    throw new Error(
+      `Unsupported chain for smart account sends: ${targetChainId}. Supported chains are Arbitrum, Base, and Ethereum.`
+    );
+  }
 
   const rpcUrl =
     targetChainId === base.id

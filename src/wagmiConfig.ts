@@ -22,8 +22,13 @@ export const zeroDevRainbowWallet = (): Wallet => ({
   iconBackground: '#19110B',
   createConnector:
     (walletDetails: WalletDetails) => (config: ConnectorConfig) => {
+      if (!clientEnv.ZERODEV_PROJECT_ID) {
+        throw new Error(
+          'Missing NEXT_PUBLIC_ZERODEV_PROJECT_ID: set it to your ZeroDev project ID.'
+        );
+      }
       const baseConnector = zeroDevWallet({
-        projectId: clientEnv.ZERODEV_PROJECT_ID || '',
+        projectId: clientEnv.ZERODEV_PROJECT_ID,
         chains: [arbitrum, base, degen, mainnet],
         mode: '4337',
       })(config);
