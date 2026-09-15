@@ -139,7 +139,7 @@ export default function AuthApprovalView({
         if (smartRouting.isBelowBridgeMinimum) {
           toast.error(
             smartRouting.bridgeMinimumNotice ||
-              'Cross-chain funds are below the bridge minimum. Please deposit directly on the target chain.'
+              'Cross-chain funds are below the minimum. Please deposit directly on the target chain.'
           );
         } else {
           toast.error(
@@ -158,6 +158,9 @@ export default function AuthApprovalView({
         pendingApproval.resolve();
         onResolve();
         setApprovalError(null);
+        // keepOpen callers (e.g. Manage Tokens) show their own pending →
+        // sent states, so the sheet must stay open for them.
+        if (pendingApproval.keepOpen) return;
         toast.info('Please confirm with your passkey');
         onClose();
       } catch (err: unknown) {
@@ -240,7 +243,7 @@ export default function AuthApprovalView({
             setIsRouting(false);
             const errMsg = `Transfer amount on ${
               r.chainName
-            } (${pullAmount} USDC) is below the bridge solver minimum of ${feeInfo.minDepositUsdc.toFixed(
+            } (${pullAmount} USDC) is below the route minimum of ${feeInfo.minDepositUsdc.toFixed(
               2
             )} USDC.`;
             setApprovalError(errMsg);
@@ -253,7 +256,7 @@ export default function AuthApprovalView({
             setIsRouting(false);
             const errMsg = `Transfer amount on ${
               r.chainName
-            } (${pullAmount} ETH) is below the bridge solver minimum of ${feeInfo.minDepositEth.toFixed(
+            } (${pullAmount} ETH) is below the route minimum of ${feeInfo.minDepositEth.toFixed(
               4
             )} ETH.`;
             setApprovalError(errMsg);
@@ -274,7 +277,6 @@ export default function AuthApprovalView({
 
     try {
       const store = await (connector as any)?.getStore?.();
-      const provider = (await (connector as any)?.getProvider?.()) as any;
 
       // Pre-initialize kernel clients for all source chains so both exist in the store
       for (const r of routesToExecute) {
@@ -315,43 +317,26 @@ export default function AuthApprovalView({
             callDataHex = '0x';
           }
 
-          if (sourceKernelClient) {
-            console.log(
-              `[SmartRouting] Sending ${r.amountFormatted} ${r.tokenSymbol} on ${r.chainName} (${r.chainId}) via Kernel client...`
+          if (!sourceKernelClient) {
+            throw new Error(
+              `Smart account unavailable for ${r.chainName}. Please check wallet.`
             );
-            return (await (sourceKernelClient as any).sendTransaction({
-              to: toAddress,
-              value: valueBigInt,
-              data: callDataHex,
-              calls: [
-                {
-                  to: toAddress,
-                  value: valueBigInt,
-                  data: callDataHex,
-                },
-              ],
-            })) as string;
           }
-
-          if (provider?.request) {
-            return (await provider.request({
-              method: 'eth_sendTransaction',
-              params: [
-                {
-                  from: address,
-                  to: toAddress,
-                  value: `0x${valueBigInt.toString(16)}`,
-                  data: callDataHex,
-                  chainId: `0x${r.chainId.toString(16)}`,
-                  __isSmartRoutingInternal: true,
-                },
-              ],
-            })) as string;
-          }
-
-          throw new Error(
-            `Unable to initiate transfer from ${r.chainName}. Please check wallet.`
+          console.log(
+            `[SmartRouting] Sending ${r.amountFormatted} ${r.tokenSymbol} on ${r.chainName} (${r.chainId}) via Kernel client...`
           );
+          return (await (sourceKernelClient as any).sendTransaction({
+            to: toAddress,
+            value: valueBigInt,
+            data: callDataHex,
+            calls: [
+              {
+                to: toAddress,
+                value: valueBigInt,
+                data: callDataHex,
+              },
+            ],
+          })) as string;
         })
       );
 
@@ -362,7 +347,7 @@ export default function AuthApprovalView({
       setRoutingStage('routing');
       const hashSnippets = sourceTxHashes.map((h) => h.slice(0, 8)).join(', ');
       setRoutingStatusText(
-        `Funds sent (${hashSnippets})! ZeroDev solver is bridging to ${smartRouting.targetChainName}...`
+        `Funds sent (${hashSnippets})! Route moving funds to ${smartRouting.targetChainName}...`
       );
       toast.success(
         `Deposits sent! Bridging to ${smartRouting.targetChainName}...`
@@ -419,7 +404,7 @@ export default function AuthApprovalView({
               } else if (match.bridge) {
                 setRoutingStage('routing');
                 setRoutingStatusText(
-                  `ZeroDev solver bridging funds (${match.bridge.transactionHash.slice(
+                  `Route moving funds (${match.bridge.transactionHash.slice(
                     0,
                     8
                   )}...)`
@@ -427,12 +412,12 @@ export default function AuthApprovalView({
               } else if (match.deposit) {
                 setRoutingStage('routing');
                 setRoutingStatusText(
-                  `Deposit detected. Solver bridging to ${smartRouting.targetChainName}...`
+                  `Deposit detected. Route moving funds to ${smartRouting.targetChainName}...`
                 );
               }
             } else {
               setRoutingStatusText(
-                `Waiting for solver fulfillment on ${
+                `Waiting for funds to arrive on ${
                   smartRouting.targetChainName
                 }... (${(attempt + 1) * 2}s)`
               );
@@ -440,7 +425,7 @@ export default function AuthApprovalView({
           }
         } catch {
           setRoutingStatusText(
-            `Routing in progress via ZeroDev solver... (${(attempt + 1) * 2}s)`
+            `Routing in progress... (${(attempt + 1) * 2}s)`
           );
         }
 
@@ -466,7 +451,7 @@ export default function AuthApprovalView({
         setIsRouting(false);
         setRoutingStage('idle');
         setApprovalError(
-          `Fulfillment still in progress. Funds were sent to router. ZeroDev solver will deliver shortly.`
+          `Fulfillment still in progress. Funds were sent to router and will arrive shortly.`
         );
       }
     } catch (err: unknown) {
@@ -528,14 +513,15 @@ export default function AuthApprovalView({
                   {formatTxValue(pendingApproval.tx.value)}{' '}
                   <span className='text-sm font-normal text-white/60'>ETH</span>
                 </div>
-                {smartRouting.hasDeficit && (
-                  <div className='mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 font-sans'>
-                    <span>Deficit:</span>
-                    <span className='font-mono font-semibold'>
-                      {smartRouting.deficitEth.toFixed(4)} ETH
-                    </span>
-                  </div>
-                )}
+                {smartRouting.hasDeficit &&
+                  smartRouting.shortfallEth > 0.0001 && (
+                    <div className='mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 font-sans'>
+                      <span>Deficit:</span>
+                      <span className='font-mono font-semibold'>
+                        {smartRouting.shortfallEth.toFixed(4)} ETH
+                      </span>
+                    </div>
+                  )}
               </div>
             ) : null}
 
@@ -569,14 +555,6 @@ export default function AuthApprovalView({
                   <span>{targetChain.name}</span>
                 </div>
               </div>
-
-              {/* Gas Sponsorship */}
-              <div className='flex items-center justify-between pt-2 border-t border-white/5'>
-                <span className='text-xs text-white/50'>Gas Fee</span>
-                <span className='text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full'>
-                  ⚡ Sponsored by ZeroDev
-                </span>
-              </div>
             </div>
 
             {/* Smart Routing & Deficit Advisor (3 States: Red, Yellow, Green) */}
@@ -592,196 +570,165 @@ export default function AuthApprovalView({
               ) : !anychain.anychainEnabled &&
                 smartRouting.totalPortfolioEth >= smartRouting.requiredEth ? (
                 /* STATE 2: YELLOW - Have enough total across chains, but Anychain Smart Routing is disabled */
-                <div className='p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]'>
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-1.5 text-xs font-semibold text-amber-400 font-sans'>
-                      <AlertTriangle
-                        size={15}
-                        className='shrink-0 text-amber-400'
-                      />
-                      <span>Anychain Smart Routing Disabled</span>
+                <div className='rounded-2xl border border-amber-400/20 bg-amber-500/[0.07] p-4 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'>
+                  <div className='flex items-start gap-3'>
+                    <span className='mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-400/25 bg-amber-400/15'>
+                      <AlertTriangle size={16} className='text-amber-300' />
+                    </span>
+                    <div className='min-w-0 font-sans'>
+                      <div className='text-[13px] font-semibold tracking-tight text-white'>
+                        Anychain routing is off
+                      </div>
+                      <p className='text-[11px] leading-relaxed text-white/50'>
+                        You hold{' '}
+                        <span className='font-mono tabular-nums text-white/80'>
+                          {smartRouting.totalPortfolioEth.toFixed(4)} ETH / $
+                          {smartRouting.totalPortfolioUsd.toFixed(2)}
+                        </span>{' '}
+                        across chains.
+                      </p>
                     </div>
-                    <span className='text-[10px] uppercase tracking-wider font-semibold text-amber-400/90 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 font-sans'>
-                      Action Required
-                    </span>
                   </div>
 
-                  <p className='text-xs text-white/80 leading-relaxed font-sans'>
-                    Your combined balance across chains (
-                    <span className='font-mono font-semibold text-white'>
-                      {smartRouting.totalPortfolioEth.toFixed(4)} ETH / $
-                      {smartRouting.totalPortfolioUsd.toFixed(2)}
-                    </span>
-                    ) covers this transaction, but{' '}
-                    <span className='text-amber-300 font-medium'>
-                      Anychain Smart Routing is disabled
-                    </span>
-                    . Enable it to automatically route and bridge your funds to{' '}
-                    {smartRouting.targetChainName}, or deposit directly.
-                  </p>
-
-                  <div className='flex items-center justify-between pt-1 border-t border-white/5 text-xs font-sans'>
-                    <button
-                      type='button'
-                      onClick={() => anychain.toggleAnychain(true)}
-                      className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-black font-semibold text-xs transition active:scale-[0.99]'
-                    >
-                      <span>Enable Anychain Routing</span>
-                    </button>
-                    <button
-                      type='button'
-                      onClick={handleCopy}
-                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-[11px] font-medium transition active:scale-[0.98] ${
-                        isCopied
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                          : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/30'
-                      }`}
-                    >
-                      {isCopied ? (
-                        <CopyDoneIcon size={12} />
-                      ) : (
-                        <CopyIcon size={12} />
-                      )}
-                      <span>{isCopied ? 'Copied!' : 'Copy Address'}</span>
-                    </button>
-                  </div>
+                  <button
+                    type='button'
+                    onClick={() => anychain.toggleAnychain(true)}
+                    className='flex w-full items-center justify-center gap-1.5 rounded-full bg-amber-500 py-2.5 text-xs font-semibold text-black transition hover:bg-amber-400 active:scale-[0.99]'
+                  >
+                    <ArrowRightLeft size={13} />
+                    <span>Enable routing</span>
+                  </button>
                 </div>
               ) : smartRouting.isBelowBridgeMinimum ? (
                 /* STATE 2: YELLOW - Have enough total across chains, but below solver bridge minimum */
-                <div className='p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]'>
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-1.5 text-xs font-semibold text-amber-400 font-sans'>
-                      <AlertTriangle
-                        size={15}
-                        className='shrink-0 text-amber-400'
-                      />
-                      <span>Bridge Minimum Not Met</span>
-                    </div>
-                    <span className='text-[10px] uppercase tracking-wider font-semibold text-amber-400/90 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 font-sans'>
-                      Solver Threshold
+                <div className='rounded-2xl border border-amber-400/20 bg-amber-500/[0.07] p-4 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'>
+                  <div className='flex items-start gap-3'>
+                    <span className='mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-400/25 bg-amber-400/15'>
+                      <AlertTriangle size={16} className='text-amber-300' />
                     </span>
+                    <div className='min-w-0 font-sans'>
+                      <div className='text-[13px] font-semibold tracking-tight text-white'>
+                        Below the minimum
+                      </div>
+                      <p className='text-[11px] leading-relaxed text-white/50'>
+                        {smartRouting.totalPortfolioEth >=
+                        smartRouting.requiredEth ? (
+                          <>
+                            {smartRouting.chainBridgeMinimums.some(
+                              (cm) => cm.isEthMet || cm.isUsdcMet
+                            ) ? (
+                              <>
+                                Your{' '}
+                                <span className='font-mono tabular-nums text-white/80'>
+                                  {smartRouting.totalPortfolioEth.toFixed(4)}{' '}
+                                  ETH / $
+                                  {smartRouting.totalPortfolioUsd.toFixed(2)}
+                                </span>{' '}
+                                is spread too thin. The chains that meet the
+                                minimum don't hold enough.
+                              </>
+                            ) : (
+                              <>
+                                Your{' '}
+                                <span className='font-mono tabular-nums text-white/80'>
+                                  {smartRouting.totalPortfolioEth.toFixed(4)}{' '}
+                                  ETH / $
+                                  {smartRouting.totalPortfolioUsd.toFixed(2)}
+                                </span>{' '}
+                                is spread too thin to meet any router minimum
+                                deposit.
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            Your other chains are below the minimum to route to{' '}
+                            {smartRouting.targetChainName}.
+                          </>
+                        )}
+                      </p>
+                    </div>
                   </div>
-
-                  <p className='text-xs text-white/80 leading-relaxed font-sans'>
-                    {smartRouting.totalPortfolioEth >=
-                    smartRouting.requiredEth ? (
-                      <>
-                        Your combined balance across chains (
-                        <span className='font-mono font-semibold text-white'>
-                          {smartRouting.totalPortfolioEth.toFixed(4)} ETH / $
-                          {smartRouting.totalPortfolioUsd.toFixed(2)}
-                        </span>
-                        ) covers this transaction cost, but your funds on
-                        individual source chains are below the{' '}
-                        <span className='text-amber-300 font-medium'>
-                          cross-chain bridge solver minimum
-                        </span>
-                        .
-                      </>
-                    ) : (
-                      <>
-                        Your funds on other chains are below the{' '}
-                        <span className='text-amber-300 font-medium'>
-                          cross-chain bridge solver minimum
-                        </span>{' '}
-                        required by solvers to settle on{' '}
-                        {smartRouting.targetChainName}.
-                      </>
-                    )}
-                  </p>
 
                   {/* Dynamic Bridge Minimums Breakdown Table */}
                   {smartRouting.chainBridgeMinimums.length > 0 && (
                     <div className='rounded-xl bg-black/40 border border-amber-500/20 p-2.5 space-y-2 text-xs font-sans'>
                       <div className='text-[10px] font-semibold text-amber-300/80 uppercase tracking-wider'>
-                        Dynamic Solver Minimums (Live via ZeroDev)
+                        Router minimum deposit per chain
                       </div>
                       <div className='space-y-1.5'>
                         {smartRouting.chainBridgeMinimums.map((cm) => (
                           <div
                             key={cm.chainId}
-                            className='flex items-center justify-between text-[11px] py-1 px-2 rounded-lg bg-white/[0.02] border border-white/5 font-sans'
+                            className='text-[11px] py-1 px-2 rounded-lg bg-white/[0.02] border border-white/5 font-sans'
                           >
-                            <div>
-                              <span className='font-semibold text-white'>
-                                {cm.chainName}:{' '}
-                              </span>
-                              <span className='text-white/60 font-mono'>
-                                Min ${cm.minUsdc.toFixed(2)} USDC /{' '}
-                                {cm.minEth.toFixed(4)} ETH
-                              </span>
-                            </div>
-                            <div className='text-right font-mono'>
-                              <span className='text-amber-400 text-[11px]'>
-                                {cm.userUsdcAvailable > 0
-                                  ? `$${cm.userUsdcAvailable.toFixed(2)} USDC`
-                                  : cm.userEthAvailable > 0
-                                  ? `${cm.userEthAvailable.toFixed(4)} ETH`
-                                  : '$0.00'}
-                              </span>
-                              <span className='text-[9px] text-white/40 block'>
-                                {cm.isUsdcMet || cm.isEthMet
-                                  ? '✓ Met'
-                                  : 'Below Min'}
-                              </span>
-                            </div>
+                            <span className='font-semibold text-white'>
+                              {cm.chainName}:{' '}
+                            </span>
+                            <span className='text-white/60 font-mono'>
+                              Min ${cm.minUsdc.toFixed(2)} USDC /{' '}
+                              {cm.minEth.toFixed(4)} ETH
+                            </span>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
-
-                  <div className='flex items-center justify-between pt-1 border-t border-white/5 text-xs font-sans'>
-                    <span className='text-[11px] text-white/60'>
-                      Direct deposits have no bridge minimums:
+                </div>
+              ) : anychain.balancesFailed ? (
+                /* Balances unreachable: never show a deficit computed from zeros */
+                <div className='rounded-2xl border border-amber-400/20 bg-amber-500/[0.07] p-4 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'>
+                  <div className='flex items-start gap-3'>
+                    <span className='mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-400/25 bg-amber-400/15'>
+                      <AlertTriangle size={16} className='text-amber-300' />
                     </span>
-                    <button
-                      type='button'
-                      onClick={handleCopy}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition active:scale-[0.98] ${
-                        isCopied
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                          : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/30'
-                      }`}
-                    >
-                      {isCopied ? (
-                        <CopyDoneIcon size={12} />
-                      ) : (
-                        <CopyIcon size={12} />
-                      )}
-                      <span>{isCopied ? 'Copied!' : 'Copy Address'}</span>
-                    </button>
+                    <div className='min-w-0 font-sans'>
+                      <div className='text-[13px] font-semibold tracking-tight text-white'>
+                        Couldn't load balances
+                      </div>
+                      <p className='text-[11px] leading-relaxed text-white/50'>
+                        Check your connection and try again.
+                      </p>
+                    </div>
                   </div>
+                  <button
+                    type='button'
+                    onClick={() => anychain.refetch()}
+                    className='flex w-full items-center justify-center gap-1.5 rounded-full bg-amber-500 py-2.5 text-xs font-semibold text-black transition hover:bg-amber-400 active:scale-[0.99]'
+                  >
+                    <span>Retry</span>
+                  </button>
                 </div>
               ) : !smartRouting.isSufficientAcrossAllChains ? (
                 /* STATE 1: RED - Actually don't even have enough funds across all chains */
-                <div className='p-4 rounded-2xl bg-red-500/10 border border-red-500/20 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]'>
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-1.5 text-xs font-semibold text-red-400 font-sans'>
-                      <AlertCircle size={15} className='shrink-0' />
-                      <span>Insufficient Total Funds</span>
-                    </div>
-                    <span className='text-[10px] uppercase tracking-wider font-semibold text-red-400/80 bg-red-500/20 px-2 py-0.5 rounded-full border border-red-500/30 font-sans'>
-                      Deficit
+                <div className='rounded-2xl border border-red-400/20 bg-red-500/[0.07] p-4 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'>
+                  <div className='flex items-start gap-3'>
+                    <span className='mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-red-400/25 bg-red-400/15'>
+                      <AlertCircle size={16} className='text-red-300' />
                     </span>
+                    <div className='min-w-0 font-sans'>
+                      <div className='text-[13px] font-semibold tracking-tight text-white'>
+                        Insufficient total funds
+                      </div>
+                      <p className='text-[11px] leading-relaxed text-white/50'>
+                        You need{' '}
+                        <span className='font-mono tabular-nums text-white/80'>
+                          {smartRouting.requiredEth.toFixed(4)} ETH / $
+                          {smartRouting.requiredUsd.toFixed(2)}
+                        </span>{' '}
+                        but hold{' '}
+                        <span className='font-mono tabular-nums text-white/80'>
+                          {smartRouting.totalPortfolioEth.toFixed(4)} ETH / $
+                          {smartRouting.totalPortfolioUsd.toFixed(2)}
+                        </span>{' '}
+                        across chains.
+                      </p>
+                    </div>
                   </div>
 
-                  <p className='text-xs text-white/70 leading-relaxed font-sans'>
-                    You need{' '}
-                    <span className='font-mono font-semibold text-white'>
-                      {smartRouting.requiredEth.toFixed(4)} ETH
-                    </span>{' '}
-                    (≈ ${smartRouting.requiredUsd.toFixed(2)}), but your
-                    combined balance across all chains is only{' '}
-                    <span className='font-mono font-semibold text-white'>
-                      {smartRouting.totalPortfolioEth.toFixed(4)} ETH
-                    </span>{' '}
-                    (≈ ${smartRouting.totalPortfolioUsd.toFixed(2)}).
-                  </p>
-
-                  <div className='p-2.5 rounded-xl bg-black/30 border border-red-500/20 flex items-center justify-between text-xs font-sans'>
-                    <span className='text-white/50'>Deficit</span>
-                    <span className='font-mono font-bold text-red-400'>
+                  <div className='flex items-center justify-between rounded-xl bg-black/40 border border-red-500/20 px-2.5 py-2 text-xs font-sans'>
+                    <span className='text-[11px] text-white/50'>Deficit</span>
+                    <span className='font-mono font-semibold tabular-nums text-red-300'>
                       - {smartRouting.shortfallEth.toFixed(4)} ETH (≈ $
                       {smartRouting.shortfallUsd.toFixed(2)})
                     </span>
@@ -794,10 +741,10 @@ export default function AuthApprovalView({
                     <button
                       type='button'
                       onClick={handleCopy}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition active:scale-[0.98] ${
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[11px] font-medium transition active:scale-[0.98] ${
                         isCopied
                           ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                          : 'bg-red-500/20 hover:bg-red-500/30 text-red-300 border-red-500/30'
+                          : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/20'
                       }`}
                     >
                       {isCopied ? (
@@ -811,28 +758,32 @@ export default function AuthApprovalView({
                 </div>
               ) : (
                 /* STATE 3: GREEN - Have enough and pass bridge minimum (Optimal Route Ready) */
-                <div className='p-4 rounded-2xl bg-gradient-to-b from-emerald-500/[0.08] to-emerald-500/[0.02] border border-emerald-500/30 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-1.5 text-xs font-semibold text-emerald-400 font-sans'>
-                      <ArrowRightLeft size={15} className='shrink-0' />
-                      <span>Cross-Chain Smart Route</span>
+                <div className='rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.07] p-4 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'>
+                  <div className='flex items-start gap-3'>
+                    <span className='mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-emerald-400/15'>
+                      <ArrowRightLeft size={16} className='text-emerald-300' />
+                    </span>
+                    <div className='min-w-0 font-sans'>
+                      <div className='text-[13px] font-semibold tracking-tight text-white'>
+                        Cross-chain smart route
+                      </div>
+                      <p className='text-[11px] leading-relaxed text-white/50'>
+                        Routing{' '}
+                        <span className='font-mono tabular-nums text-white/80'>
+                          {smartRouting.deficitEth.toFixed(4)} ETH (≈ $
+                          {smartRouting.deficitUsd.toFixed(2)})
+                        </span>{' '}
+                        to {smartRouting.targetChainName} · lowest fee first.{' '}
+                        {[
+                          ...new Set(
+                            smartRouting.recommendedRoute.map(
+                              (s) => s.chainName
+                            )
+                          ),
+                        ].join(' + ') || 'Your other chains'}{' '}
+                        will cover it.
+                      </p>
                     </div>
-                    <span className='text-[10px] font-medium text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-full font-sans'>
-                      Lowest Fee First
-                    </span>
-                  </div>
-
-                  <div className='text-xs text-white/70 leading-relaxed font-sans'>
-                    <span>Available on {smartRouting.targetChainName}: </span>
-                    <span className='font-mono font-medium text-white'>
-                      {smartRouting.currentChainBalanceEth.toFixed(4)} ETH
-                    </span>
-                    <br />
-                    <span className='text-emerald-400/90 font-medium'>
-                      Routing {smartRouting.deficitEth.toFixed(4)} ETH (≈ $
-                      {smartRouting.deficitUsd.toFixed(2)}) from your other
-                      chains:
-                    </span>
                   </div>
 
                   {/* Route steps */}
@@ -846,39 +797,46 @@ export default function AuthApprovalView({
                           key={`${step.chainId}-${step.tokenSymbol}-${idx}`}
                           className='p-2.5 rounded-xl bg-black/30 border border-white/5 text-xs font-sans space-y-2'
                         >
-                          <div className='flex items-center justify-between'>
-                            <div className='flex items-center gap-2'>
+                          <div className='flex items-center justify-between gap-2'>
+                            <div className='flex items-center gap-2 min-w-0'>
                               <ChainIcon size={16} />
-                              <div>
+                              <div className='min-w-0'>
                                 <div className='font-medium text-white'>
-                                  Pull {step.amountFormatted} {step.tokenSymbol}
+                                  {step.amountFormatted} {step.tokenSymbol} from{' '}
+                                  {step.chainName}
                                 </div>
                                 <div className='text-[10px] text-white/40'>
-                                  from {step.chainName}{' '}
                                   {step.tokenSymbol !== 'ETH' &&
-                                    `(≈ ${step.amountEthEquivalent.toFixed(
+                                    `≈ ${step.amountEthEquivalent.toFixed(
                                       4
-                                    )} ETH)`}
+                                    )} ETH · `}
+                                  ${step.amountUsd}
                                 </div>
                               </div>
                             </div>
-                            <div className='text-right'>
-                              <div className='text-[10px] text-emerald-400 font-medium'>
-                                {step.tag}
+                            <div className='shrink-0 text-right'>
+                              <div className='text-[10px] text-white/40'>
+                                Route fee
                               </div>
-                              <div className='text-[10px] text-white/40 font-mono'>
-                                ≈ ${step.amountUsd}
-                              </div>
+                              {step.isSponsored ? (
+                                <div className='text-[11px] font-medium text-emerald-400'>
+                                  Free
+                                </div>
+                              ) : (
+                                <div className='font-mono text-[11px] text-white/70'>
+                                  ~{(step.solverFeeEth || 0).toFixed(6)} ETH
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           {step.isMinimumEnforced && (
                             <div className='p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-white/80 leading-relaxed font-sans'>
                               <div className='font-semibold text-emerald-400 flex items-center gap-1 mb-0.5'>
-                                <span>⚡ Bridge Minimum Applied</span>
+                                <span>Minimum Applied</span>
                               </div>
                               <span>
-                                Solvers enforce a minimum transfer of{' '}
+                                Routes enforce a minimum transfer of{' '}
                                 {step.amountFormatted} {step.tokenSymbol}.{' '}
                                 {smartRouting.deficitEth.toFixed(4)} ETH covers
                                 this transaction, and the surplus (~
@@ -897,7 +855,7 @@ export default function AuthApprovalView({
                   {smartRouting.totalRouteFeeEst &&
                     smartRouting.totalRouteFeeEst !== '$0.00' && (
                       <div className='flex items-center justify-between pt-1 text-[11px] text-white/50 border-t border-white/5 font-sans'>
-                        <span>Estimated Solver Fee</span>
+                        <span>Total route fee</span>
                         <span className='font-mono font-medium text-emerald-400'>
                           {smartRouting.totalRouteFeeEst}
                         </span>

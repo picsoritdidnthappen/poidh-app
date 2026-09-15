@@ -59,9 +59,6 @@ export const zeroDevRainbowWallet = (): Wallet => ({
                   args.method === 'wallet_sendTransaction')
               ) {
                 const tx = (args.params as Record<string, unknown>[])?.[0];
-                if (tx?.__isSmartRoutingInternal) {
-                  return await originalRequest(args);
-                }
 
                 // Ensure chainId is accurately populated
                 let effectiveChainId = tx?.chainId;

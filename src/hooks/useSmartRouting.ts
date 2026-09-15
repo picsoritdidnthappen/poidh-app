@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { erc20Abi, formatEther, formatUnits } from 'viem';
-import { arbitrum, base, mainnet, optimism } from 'viem/chains';
+import { arbitrum, base, mainnet } from 'viem/chains';
 import {
   createSmartRoutingAddress,
   createCall,
@@ -90,20 +90,7 @@ export interface SmartRoutingResult {
 }
 
 // In-memory cache for created smart routing addresses by owner address + destination chain ID
-const routingAddressCache = new Map<string, string>([
-  [
-    '0xd38ce0315673d5d27d6662fbe47f292e9b7dfb80-42161',
-    '0xb5De12E2f04B17e7c7485377feD405B3a753adc6',
-  ],
-  [
-    '0xd38ce0315673d5d27d6662fbe47f292e9b7dfb80-8453',
-    '0xB58bDc74C9204A02854D46E18cB7A010f6Cb7De6',
-  ],
-  [
-    '0xd38ce0315673d5d27d6662fbe47f292e9b7dfb80-1',
-    '0xA3aF2A26aB026AE1eDcf726d97E40f0326958D2d',
-  ],
-]);
+const routingAddressCache = new Map<string, string>();
 
 /**
  * Check the full lifecycle of deposits sent to a ZeroDev smart routing address:
@@ -219,7 +206,7 @@ export function useSmartRouting({
   balances,
   enabled = true,
   userAddress,
-  anychainEnabled = true,
+  anychainEnabled = false,
 }: UseSmartRoutingParams): SmartRoutingResult {
   const [ethPrice, setEthPrice] = useState<number>(cachedEthPrice);
   const [solverFees, setSolverFees] =
@@ -344,8 +331,6 @@ export function useSmartRouting({
                   { tokenType: 'USDC', chain: arbitrum },
                   { tokenType: 'NATIVE', chain: mainnet },
                   { tokenType: 'USDC', chain: mainnet },
-                  { tokenType: 'NATIVE', chain: optimism },
-                  { tokenType: 'USDC', chain: optimism },
                 ],
                 actions: {
                   NATIVE: {
@@ -444,11 +429,8 @@ export function useSmartRouting({
   useEffect(() => {
     if (!enabled) return;
     const activeChainId = targetChainId || arbitrum.id;
-    const addr =
-      smartRoutingAddresses[activeChainId] ||
-      smartRoutingAddress ||
-      '0xb5De12E2f04B17e7c7485377feD405B3a753adc6';
-
+    const addr = smartRoutingAddresses[activeChainId] || smartRoutingAddress;
+    if (!addr) return;
     let isMounted = true;
     const updateDynamicFees = async () => {
       try {
@@ -712,7 +694,7 @@ export function useSmartRouting({
             feeTier: candidate.feeTier,
             estFee: estFeeStr,
             tag: isMinimumEnforced
-              ? `${candidate.tag} • Bridge Min`
+              ? `${candidate.tag} • Minimum`
               : candidate.tag,
             solverFeeEth: isSponsored ? 0 : feeEth,
             solverFeeUsd: isSponsored ? 0 : feeUsd,
@@ -772,8 +754,8 @@ export function useSmartRouting({
               feeTier: candidate.feeTier,
               estFee: estFeeStr,
               tag: isMinimumEnforced
-                ? `${candidate.tag} • Bridge Min`
-                : `${candidate.tag} • USDC Solver Route`,
+                ? `${candidate.tag} • Minimum`
+                : `${candidate.tag} • USDC Route`,
               solverFeeEth: isSponsored ? 0 : feeEth,
               solverFeeUsd: isSponsored ? 0 : feeUsd,
               isSponsored,
@@ -892,17 +874,17 @@ export function useSmartRouting({
       }
 
       if (parts.length > 0) {
-        bridgeMinimumNotice = `Funds on your other chains are below the cross-chain bridge solver minimums (${parts.join(
+        bridgeMinimumNotice = `Funds on your other chains are below the cross-chain route minimums (${parts.join(
           '; '
-        )}). Bridge solvers require this minimum to cover cross-chain settlement.`;
+        )}). Routes require this minimum to cover cross-chain settlement.`;
       } else {
         const minBaseUsdc = solverFees[base.id]?.minDepositUsdc || 10.44;
         const minBaseEth = solverFees[base.id]?.minDepositEth || 0.0045;
-        bridgeMinimumNotice = `Funds on other chains are below the cross-chain bridge minimum (e.g. Base: min $${minBaseUsdc.toFixed(
+        bridgeMinimumNotice = `Funds on other chains are below the cross-chain minimum (e.g. Base: min $${minBaseUsdc.toFixed(
           2
         )} USDC / ${minBaseEth.toFixed(
           4
-        )} ETH). Bridge solvers require this minimum to cover cross-chain settlement.`;
+        )} ETH). Routes require this minimum to cover cross-chain settlement.`;
       }
     }
 
