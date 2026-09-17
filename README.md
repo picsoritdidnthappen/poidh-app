@@ -115,6 +115,21 @@ Ensure the database is properly set up before proceeding.
 
 ---
 
+### Image and metadata uploads
+
+Uploads use the Railway IPFS service, not the legacy Google Cloud Function. Configure these **build-time** variables in local `.env` and your frontend hosting environment:
+
+```plaintext
+NEXT_PUBLIC_IPFS_API_URL="https://poidh-ipfs-service-production.up.railway.app"
+NEXT_PUBLIC_IPFS_API_TOKEN="<same value as the service's API_BEARER_TOKEN>"
+```
+
+Restart the dev server or rebuild/redeploy production after changing them. The URL defaults to Railway, including in development; to run the upload service locally, override it with `http://localhost:3001` (the frontend uses port 3000). For local development against Railway, its `ALLOWED_ORIGINS` must explicitly include `http://localhost:3000`; production origins need `https://poidh.xyz,https://*.poidh.xyz` as appropriate.
+
+**The API token is public in a browser build.** This is compatibility with the service's current shared-key authentication, not a secure user-login mechanism. Never supply `PINATA_JWT`, `PINATA_KEY`, or `PINATA_SECRET` here. An authenticated short-lived token flow or an authenticated server-side proxy is required to keep a permanent API credential private. Missing API tokens fail before sending uploads.
+
+Both image and metadata uploads send the Bearer header through `src/utils/pinata.ts`. Claim creation and generated share cards use this utility. Existing IPFS gateway URLs are unchanged because they serve already-pinned content. Image compression is only a client optimization; validation remains the upload service's responsibility. Upload errors stop claim submission (share cards retain their existing fallback), and pins are not automatically retried because a timeout may occur after storage succeeded.
+
 ### Database Migration
 
 1. After indexer finished indexing, run the following command:
