@@ -199,7 +199,7 @@ export default function FormBounty({
           'Ambire via WalletConnect is temporarily unsupported due to a network verification issue. Please use another wallet or connection method.'
         );
       }
-
+      
       // WalletConnect wallets can occasionally report a successful network switch
       // before the wallet is actually using that chain. Verify the chain directly
       // with the connected wallet before allowing a payable transaction.

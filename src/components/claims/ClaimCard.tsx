@@ -339,7 +339,7 @@ export default function ClaimCard({
       isClaimIssuer
         ? 'my'
         : `${claimIssuerUsername}'s`
-    } claim on ${bountyIssuerUsername}'s @poidhxyz bounty`;
+    } claim on ${bountyIssuerUsername}'s bounty`;
 
     setIsGeneratingCard(true);
 

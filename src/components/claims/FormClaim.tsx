@@ -92,32 +92,12 @@ export default function FormClaim({
     },
   });
 
-  const retryUpload = async (file: File): Promise<string> => {
-    const MAX_RETRIES = 6;
-    const RETRY_DELAY = 3000;
-
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        const cid = await uploadFile(file);
-        return cid.IpfsHash;
-      } catch (error) {
-        if (attempt === MAX_RETRIES) {
-          throw error;
-        }
-        console.log(
-          `Attempt ${attempt} failed, retrying in ${RETRY_DELAY}ms...`
-        );
-        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
-      }
-    }
-    throw new Error('All attempts failed');
-  };
-
   useEffect(() => {
     const uploadImage = async () => {
       if (file) {
         try {
-          const cid = await retryUpload(file);
+          // Do not blindly retry pins: failures may still have stored the image.
+          const { IpfsHash: cid } = await uploadFile(file);
           setImageURI(`${LINK_IPFS}/${cid}`);
         } catch (error) {
           console.error('Error uploading file:', error);
@@ -225,8 +205,7 @@ export default function FormClaim({
 
       // Make sure the poidh contract actually exists on the network reported
       // by the connected wallet before submitting any transaction.
-      const contractAddress =
-        chain.contracts.mainContract as `0x${string}`;
+      const contractAddress = chain.contracts.mainContract as `0x${string}`;
 
       const contractCode = await walletProvider.request({
         method: 'eth_getCode',
