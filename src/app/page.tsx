@@ -129,6 +129,7 @@ export default function Home() {
                 }}
               />
               <button
+                aria-pressed={display === 'open'}
                 ref={(el) => {
                   tabRefs.current[0] = el;
                 }}
@@ -141,6 +142,7 @@ export default function Home() {
                 new bounties
               </button>
               <button
+                aria-pressed={display === 'progress'}
                 ref={(el) => {
                   tabRefs.current[1] = el;
                 }}
@@ -153,6 +155,7 @@ export default function Home() {
                 voting in progress
               </button>
               <button
+                aria-pressed={display === 'past'}
                 ref={(el) => {
                   tabRefs.current[2] = el;
                 }}
@@ -231,18 +234,16 @@ export default function Home() {
               threshold={300}
             >
               {display !== 'past' ? (
-                <div className='flex flex-col items-center justify-center gap-3 px-6 py-7 text-center'>
-                  <BountyList
-                    key={bounties.data.pages[0]?.items[0]?.id || 'empty-list'}
-                    showChainIcon={true}
-                    bounties={bounties.data.pages.flatMap((page) =>
-                      page.items.map((bounty) => ({
-                        ...bounty,
-                        chainId: bounty.chainId as ChainId,
-                      }))
-                    )}
-                  />
-                </div>
+                <BountyList
+                  key={bounties.data.pages[0]?.items[0]?.id || 'empty-list'}
+                  showChainIcon={true}
+                  bounties={bounties.data.pages.flatMap((page) =>
+                    page.items.map((bounty) => ({
+                      ...bounty,
+                      chainId: bounty.chainId as ChainId,
+                    }))
+                  )}
+                />
               ) : (
                 <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
                   {bounties.data.pages.flatMap((page) =>

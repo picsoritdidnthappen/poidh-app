@@ -1,8 +1,15 @@
+'use client';
+
+import { useTheme } from '@/context/ThemeContext';
+
 export default function GameButton({
   hideShadow: hideGradient = false,
 }: {
   hideShadow?: boolean;
 }) {
+  const { theme } = useTheme();
+  const isCyber = theme === 'cyber';
+
   return (
     <div className='flex justify-center items-center'>
       <svg
@@ -20,7 +27,7 @@ export default function GameButton({
                 cx='79'
                 cy='79.5'
                 r='58'
-                fill='#E2EFFB'
+                fill='var(--cyber-accent-soft, #E2EFFB)'
                 filter='url(#bgShadow)'
               />
               <rect
@@ -29,7 +36,7 @@ export default function GameButton({
                 width='125'
                 height='125'
                 rx='62.5'
-                fill='#E2EFFB'
+                fill='var(--cyber-accent-soft, #E2EFFB)'
                 fillOpacity='0.5'
               />
               <rect
@@ -38,7 +45,7 @@ export default function GameButton({
                 width='124.062'
                 height='124.062'
                 rx='62.0312'
-                stroke='#D1ECFF'
+                stroke='var(--cyber-accent, #D1ECFF)'
                 strokeWidth='0.9375'
               />
             </>
@@ -100,7 +107,11 @@ export default function GameButton({
             <feGaussianBlur stdDeviation='4.375' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.362061 0 0 0 0 0.598517 0 0 0 0 0.825879 0 0 0 0.5 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.258824 0 0 0 0 0.843137 0 0 0 0 0.482353 0 0 0 0.5 0'
+                  : '0 0 0 0 0.362061 0 0 0 0 0.598517 0 0 0 0 0.825879 0 0 0 0.5 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -116,7 +127,11 @@ export default function GameButton({
             <feGaussianBlur stdDeviation='5' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.818424 0 0 0 0 0.9251 0 0 0 0 1 0 0 0 0.5 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.5 0'
+                  : '0 0 0 0 0.818424 0 0 0 0 0.9251 0 0 0 0 1 0 0 0 0.5 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -162,7 +177,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -179,7 +198,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -202,7 +225,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -270,7 +297,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.37 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.37 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.37 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -287,7 +318,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.2 0'
+                  : '0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -321,7 +356,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.17 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -337,8 +376,8 @@ export default function GameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint1_linear_615_3757'
@@ -348,8 +387,8 @@ export default function GameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='white' />
-            <stop offset='1' stopColor='#F15E5F' />
+            <stop stopColor='var(--cyber-accent-soft, white)' />
+            <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
             id='paint2_linear_615_3757'
@@ -359,8 +398,8 @@ export default function GameButton({
             y2='125.581'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint3_linear_615_3757'
@@ -370,9 +409,9 @@ export default function GameButton({
             y2='118.551'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#D8393A' />
-            <stop offset='0.226722' stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#F89798' />
+            <stop stopColor='var(--cyber-accent-deep, #D8393A)' />
+            <stop offset='0.226722' stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
         </defs>
       </svg>
@@ -390,7 +429,7 @@ export default function GameButton({
             cx='79'
             cy='79.5'
             r='58'
-            fill='#E2EFFB'
+            fill='var(--cyber-accent-soft, #E2EFFB)'
             filter='url(#bgShadow)'
           />
           <rect
@@ -399,7 +438,7 @@ export default function GameButton({
             width='125'
             height='125'
             rx='62.5'
-            fill='#E2EFFB'
+            fill='var(--cyber-accent-soft, #E2EFFB)'
             fillOpacity='0.5'
           />
           <rect
@@ -408,7 +447,7 @@ export default function GameButton({
             width='124.062'
             height='124.062'
             rx='62.0312'
-            stroke='#D1ECFF'
+            stroke='var(--cyber-accent, #D1ECFF)'
             strokeWidth='0.9375'
           />
           <g filter='url(#filter1_iii_513_1935)'>
@@ -521,7 +560,11 @@ export default function GameButton({
             <feGaussianBlur stdDeviation='4.375' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.362061 0 0 0 0 0.598517 0 0 0 0 0.825879 0 0 0 0.5 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.258824 0 0 0 0 0.843137 0 0 0 0 0.482353 0 0 0 0.5 0'
+                  : '0 0 0 0 0.362061 0 0 0 0 0.598517 0 0 0 0 0.825879 0 0 0 0.5 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -537,7 +580,11 @@ export default function GameButton({
             <feGaussianBlur stdDeviation='5' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.818424 0 0 0 0 0.9251 0 0 0 0 1 0 0 0 0.5 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.5 0'
+                  : '0 0 0 0 0.818424 0 0 0 0 0.9251 0 0 0 0 1 0 0 0 0.5 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -583,7 +630,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -600,7 +651,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -623,7 +678,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -691,7 +750,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.37 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.37 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.37 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -708,7 +771,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.2 0'
+                  : '0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -742,7 +809,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.17 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -776,7 +847,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.2 0'
+                  : '0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -816,7 +891,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -833,7 +912,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -856,7 +939,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -890,7 +977,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.17 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -964,7 +1055,11 @@ export default function GameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.17 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -980,8 +1075,8 @@ export default function GameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint1_linear_513_1935'
@@ -991,8 +1086,8 @@ export default function GameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='white' />
-            <stop offset='1' stopColor='#F15E5F' />
+            <stop stopColor='var(--cyber-accent-soft, white)' />
+            <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
             id='paint2_linear_513_1935'
@@ -1002,8 +1097,8 @@ export default function GameButton({
             y2='125.581'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint3_linear_513_1935'
@@ -1013,9 +1108,9 @@ export default function GameButton({
             y2='118.551'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#D8393A' />
-            <stop offset='0.226722' stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#F89798' />
+            <stop stopColor='var(--cyber-accent-deep, #D8393A)' />
+            <stop offset='0.226722' stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
           <linearGradient
             id='paint4_linear_513_1935'
@@ -1025,8 +1120,8 @@ export default function GameButton({
             y2='91.9808'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='white' />
-            <stop offset='1' stopColor='#FF9495' />
+            <stop stopColor='var(--cyber-accent-soft, white)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #FF9495)' />
           </linearGradient>
           <linearGradient
             id='paint5_linear_513_1935'
@@ -1036,8 +1131,8 @@ export default function GameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint6_linear_513_1935'
@@ -1047,8 +1142,8 @@ export default function GameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='white' />
-            <stop offset='1' stopColor='#F15E5F' />
+            <stop stopColor='var(--cyber-accent-soft, white)' />
+            <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
             id='paint7_linear_513_1935'
@@ -1058,9 +1153,9 @@ export default function GameButton({
             y2='118.551'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#D8393A' />
-            <stop offset='0.226722' stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#F89798' />
+            <stop stopColor='var(--cyber-accent-deep, #D8393A)' />
+            <stop offset='0.226722' stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
           <linearGradient
             id='paint8_linear_513_1935'
@@ -1070,8 +1165,8 @@ export default function GameButton({
             y2='125.581'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint9_linear_513_1935'
@@ -1081,9 +1176,9 @@ export default function GameButton({
             y2='125.581'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#D8393A' />
-            <stop offset='0.9999' stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#F89798' />
+            <stop stopColor='var(--cyber-accent-deep, #D8393A)' />
+            <stop offset='0.9999' stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
           <linearGradient
             id='paint10_linear_513_1935'
@@ -1093,9 +1188,9 @@ export default function GameButton({
             y2='118.552'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#CC2E2F' />
-            <stop offset='0.9999' stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#F89798' />
+            <stop stopColor='var(--cyber-accent-deep, #CC2E2F)' />
+            <stop offset='0.9999' stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
         </defs>
       </svg>
@@ -1108,6 +1203,9 @@ export function PlainGameButton({
 }: {
   hideShadow?: boolean;
 }) {
+  const { theme } = useTheme();
+  const isCyber = theme === 'cyber';
+
   return (
     <div className='flex justify-center items-center'>
       <svg
@@ -1125,7 +1223,7 @@ export function PlainGameButton({
                 cx='79'
                 cy='79.5'
                 r='58'
-                fill='#E2EFFB'
+                fill='var(--cyber-accent-soft, #E2EFFB)'
                 filter='url(#bgShadow)'
               />
               <rect
@@ -1134,7 +1232,7 @@ export function PlainGameButton({
                 width='125'
                 height='125'
                 rx='62.5'
-                fill='#E2EFFB'
+                fill='var(--cyber-accent-soft, #E2EFFB)'
                 fillOpacity='0.5'
               />
               <rect
@@ -1143,7 +1241,7 @@ export function PlainGameButton({
                 width='124.062'
                 height='124.062'
                 rx='62.0312'
-                stroke='#D1ECFF'
+                stroke='var(--cyber-accent, #D1ECFF)'
                 strokeWidth='0.9375'
               />
             </>
@@ -1205,7 +1303,11 @@ export function PlainGameButton({
             <feGaussianBlur stdDeviation='4.375' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.362061 0 0 0 0 0.598517 0 0 0 0 0.825879 0 0 0 0.5 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.258824 0 0 0 0 0.843137 0 0 0 0 0.482353 0 0 0 0.5 0'
+                  : '0 0 0 0 0.362061 0 0 0 0 0.598517 0 0 0 0 0.825879 0 0 0 0.5 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1221,7 +1323,11 @@ export function PlainGameButton({
             <feGaussianBlur stdDeviation='5' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.818424 0 0 0 0 0.9251 0 0 0 0 1 0 0 0 0.5 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.5 0'
+                  : '0 0 0 0 0.818424 0 0 0 0 0.9251 0 0 0 0 1 0 0 0 0.5 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1267,7 +1373,11 @@ export function PlainGameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.608057 0 0 0 0 0.154864 0 0 0 0 0.157715 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1284,7 +1394,11 @@ export function PlainGameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.972549 0 0 0 0 0.592157 0 0 0 0 0.596078 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1307,7 +1421,11 @@ export function PlainGameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.12549 0 0 0 0 0.588235 0 0 0 0 0.301961 0 0 0 1 0'
+                  : '0 0 0 0 0.847059 0 0 0 0 0.223529 0 0 0 0 0.227451 0 0 0 1 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1375,7 +1493,11 @@ export function PlainGameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.37 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.37 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.37 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1392,7 +1514,11 @@ export function PlainGameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.2 0'
+                  : '0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1426,7 +1552,11 @@ export function PlainGameButton({
             <feComposite in2='hardAlpha' operator='arithmetic' k2='-1' k3='1' />
             <feColorMatrix
               type='matrix'
-              values='0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              values={
+                isCyber
+                  ? '0 0 0 0 0.631373 0 0 0 0 0.956863 0 0 0 0 0.737255 0 0 0 0.17 0'
+                  : '0 0 0 0 0.929167 0 0 0 0 0.937667 0 0 0 0 1 0 0 0 0.17 0'
+              }
             />
             <feBlend
               mode='normal'
@@ -1442,8 +1572,8 @@ export function PlainGameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint1_linear_615_3757'
@@ -1453,8 +1583,8 @@ export function PlainGameButton({
             y2='134'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='white' />
-            <stop offset='1' stopColor='#F15E5F' />
+            <stop stopColor='var(--cyber-accent-soft, white)' />
+            <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
             id='paint2_linear_615_3757'
@@ -1464,8 +1594,8 @@ export function PlainGameButton({
             y2='125.581'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#D8393A' />
+            <stop stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
             id='paint3_linear_615_3757'
@@ -1475,9 +1605,9 @@ export function PlainGameButton({
             y2='118.551'
             gradientUnits='userSpaceOnUse'
           >
-            <stop stopColor='#D8393A' />
-            <stop offset='0.226722' stopColor='#F15E5F' />
-            <stop offset='1' stopColor='#F89798' />
+            <stop stopColor='var(--cyber-accent-deep, #D8393A)' />
+            <stop offset='0.226722' stopColor='var(--cyber-accent, #F15E5F)' />
+            <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
         </defs>
       </svg>

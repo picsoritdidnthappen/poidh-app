@@ -82,6 +82,7 @@ export default function Album({ params }: { params: { album: string } }) {
               }}
             />
             <button
+              aria-pressed={display === 'open'}
               ref={(el) => {
                 tabRefs.current[0] = el;
               }}
@@ -100,6 +101,7 @@ export default function Album({ params }: { params: { album: string } }) {
               </span>
             </button>
             <button
+              aria-pressed={display === 'progress'}
               ref={(el) => {
                 tabRefs.current[1] = el;
               }}
@@ -118,6 +120,7 @@ export default function Album({ params }: { params: { album: string } }) {
               </span>
             </button>
             <button
+              aria-pressed={display === 'past'}
               ref={(el) => {
                 tabRefs.current[2] = el;
               }}

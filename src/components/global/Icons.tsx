@@ -518,7 +518,7 @@ export function ArrowIcon({ size = 24 }: { size?: number }) {
       fill='none'
       viewBox='0 0 24 24'
       strokeWidth={1.5}
-      stroke='rgb(241, 94, 95)'
+      stroke='rgb(var(--poidh-red, 241 94 95))'
       className='size-6'
     >
       <path
@@ -537,7 +537,7 @@ export function ShareIcon({ size = 24 }: { size?: number }) {
       width={size}
       height={size}
       viewBox='0 0 50 50'
-      fill='rgb(241, 94, 95)'
+      fill='rgb(var(--poidh-red, 241 94 95))'
       style={{ overflow: 'visible' }}
     >
       <path
@@ -599,7 +599,7 @@ export function QuestionIcon({ size = 24 }: { size?: number }) {
       fill='none'
       viewBox='0 0 24 24'
       strokeWidth={1.5}
-      stroke='#F15E5F'
+      stroke='rgb(var(--poidh-red, 241 94 95))'
       height={size}
       width={size}
     >

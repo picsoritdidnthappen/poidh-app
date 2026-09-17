@@ -23,10 +23,8 @@ const APP_OG_IMAGE_URL =
   `https://poidh.xyz/images/poidh-preview-hero-v2.png`;
 const APP_ICON_URL =
   `${process.env.NEXT_PUBLIC_URL}/icon.png` || 'https://poidh.xyz/icon.png';
-const APP_SPLASH_URL =
-  `${process.env.NEXT_PUBLIC_URL}/Logo_poidh.svg` ||
-  'https://poidh.xyz/Logo_poidh.svg';
-const APP_SPLASH_BACKGROUND_COLOR = '#2a81d5';
+const APP_SPLASH_URL = `${APP_URL}/mini-splash-v2.png`;
+const APP_SPLASH_BACKGROUND_COLOR = '#6faae1';
 const APP_BUTTON_TEXT = 'launch poidh';
 
 export const revalidate = 300;
@@ -102,7 +100,7 @@ export default function RootLayout({
         <link rel='canonical' href={url} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');var valid=t==='light'||t==='dark'||t==='cyber';var dark=t==='dark'||t==='cyber'||(!valid&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dark);document.documentElement.classList.toggle('cyber',t==='cyber');}catch(e){}})();`,
           }}
         />
       </head>

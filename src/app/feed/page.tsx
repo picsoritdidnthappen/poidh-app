@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/utils/utils';
 import { EarthIcon, YouIcon } from '@/components/global/Icons';
 import Activity from '@/components/feed/Activity';
@@ -11,28 +11,43 @@ import Navbar from '@/components/global/Navbar';
 
 export default function Feed() {
   const [display, setDisplay] = useState<'all' | 'you'>('all');
-  const [address, setAddress] = useState<string | undefined>(undefined);
   const account = useAccount();
+
+  const isYouFeed = display === 'you';
+  const canLoadFeed = !isYouFeed || !!account.address;
+
+  /*
+   * Derive the address directly instead of storing it separately.
+   *
+   * This avoids:
+   * - an unnecessary state update/effect
+   * - accidentally fetching the global feed while "you" is selected
+   *   but no wallet is connected
+   */
+  const address = isYouFeed ? account.address : undefined;
 
   const activities = trpc.accounts.activities.useInfiniteQuery(
     {
       address,
     },
     {
-      getNextPageParam: (lastPage) => {
-        return lastPage.nextCursor;
-      },
+      enabled: canLoadFeed,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
     }
   );
 
-  useEffect(() => {
-    if (display === 'all') {
-      setAddress(undefined);
+  const handleLoadMore = async () => {
+    if (
+      !activities.hasNextPage ||
+      activities.isFetchingNextPage
+    ) {
+      return;
     }
-    if (display === 'you') {
-      setAddress(account.address);
-    }
-  }, [account, display]);
+
+    await activities.fetchNextPage();
+  };
 
   return (
     <div className='min-h-screen pb-20'>
@@ -59,8 +74,11 @@ export default function Feed() {
                   )}
                 >
                   <EarthIcon size={20} />
-                  <span className='font-mono text-xs text-white mt-1'>all</span>
+                  <span className='font-mono text-xs text-white mt-1'>
+                    all
+                  </span>
                 </div>
+
                 {display === 'all' && (
                   <div className='absolute -bottom-2 left-1/2 -translate-x-1/2 h-1 w-12 bg-poidhRed rounded-full' />
                 )}
@@ -80,8 +98,11 @@ export default function Feed() {
                   )}
                 >
                   <YouIcon size={20} />
-                  <span className='font-mono text-xs text-white mt-1'>you</span>
+                  <span className='font-mono text-xs text-white mt-1'>
+                    you
+                  </span>
                 </div>
+
                 {display === 'you' && (
                   <div className='absolute -bottom-2 left-1/2 -translate-x-1/2 h-1 w-12 bg-poidhRed rounded-full' />
                 )}
@@ -94,19 +115,31 @@ export default function Feed() {
       <div className='py-4 container mx-auto px-4 sm:px-6'>
         <div className='w-full max-w-5xl mx-auto backdrop-blur-md rounded-xl p-4 sm:p-6'>
           <div className='flex flex-col items-center'>
-            {display === 'you' && !account.address ? (
+            {isYouFeed && !account.address ? (
               <div className='text-white/60 text-center py-8'>
                 Please connect your wallet to see your activities
               </div>
-            ) : !activities.isLoading &&
-              (!activities.data?.pages?.length ||
-                activities.data.pages[0]?.items?.length === 0) ? (
-              <div className='text-white/60'>No recent activity</div>
-            ) : activities.data && activities.data.pages.length > 0 ? (
+            ) : activities.isLoading ? (
+              <div className='text-white/60 py-8'>
+                Loading...
+              </div>
+            ) : activities.isError ? (
+              <div className='text-white/60 py-8'>
+                Error loading activities.
+              </div>
+            ) : !activities.data?.pages?.length ||
+              activities.data.pages[0]?.items?.length === 0 ? (
+              <div className='text-white/60 py-8'>
+                No recent activity
+              </div>
+            ) : (
               <div className='w-full'>
                 <InfiniteScroll
-                  loadMore={async () => await activities.fetchNextPage()}
-                  hasMore={activities.hasNextPage ?? false}
+                  loadMore={handleLoadMore}
+                  hasMore={
+                    !!activities.hasNextPage &&
+                    !activities.isFetchingNextPage
+                  }
                   loader={
                     <div
                       key='loader'
@@ -129,14 +162,17 @@ export default function Feed() {
                   </div>
                 </InfiniteScroll>
               </div>
-            ) : activities.isLoading ? (
-              <div className='text-white/60'>Loading...</div>
-            ) : (
-              <div className='text-white/60'>Error loading activities.</div>
+            )}
+
+            {activities.isFetchingNextPage && (
+              <div className='animate-pulse text-center py-4 text-white/60'>
+                Loading more...
+              </div>
             )}
           </div>
         </div>
       </div>
+
       <Navbar type='bounty' />
     </div>
   );
