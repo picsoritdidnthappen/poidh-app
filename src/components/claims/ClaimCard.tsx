@@ -153,10 +153,20 @@ export default function ClaimCard({
     `${claim.chainId}-${claim.id}-${claim.issuer.address}`;
 
   const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({
+    x: 0,
+    y: 0,
+  });
   const [isImageFullscreen, setIsImageFullscreen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const shareDropdownRef = useRef<HTMLDivElement>(null);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
+
+  const lastTouchDistance = useRef<number | null>(null);
+  const lastTouchPoint = useRef<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   const banClaimMutation = trpc.admin.banClaim.useMutation({});
 
@@ -191,18 +201,144 @@ export default function ClaimCard({
   const isClaimIssuer =
     account.address?.toLowerCase() === claim.issuer.address;
 
+  const resetImageTransform = () => {
+    setScale(1);
+    setTranslate({
+      x: 0,
+      y: 0,
+    });
+    lastTouchDistance.current = null;
+    lastTouchPoint.current = null;
+  };
+
   const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.5, 3));
+    setScale((prev) => Math.min(prev + 0.5, 4));
   };
 
   const handleZoomOut = () => {
-    setScale((prev) => Math.max(prev - 0.5, 0.5));
+    setScale((prev) => {
+      const next = Math.max(prev - 0.5, 1);
+
+      if (next === 1) {
+        setTranslate({
+          x: 0,
+          y: 0,
+        });
+      }
+
+      return next;
+    });
+  };
+
+  const getTouchDistance = (touches: React.TouchList) => {
+    const firstTouch = touches[0];
+    const secondTouch = touches[1];
+
+    return Math.hypot(
+      secondTouch.clientX - firstTouch.clientX,
+      secondTouch.clientY - firstTouch.clientY
+    );
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 2) {
+      lastTouchDistance.current =
+        getTouchDistance(e.touches);
+      lastTouchPoint.current = null;
+      return;
+    }
+
+    if (e.touches.length === 1 && scale > 1) {
+      lastTouchPoint.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (
+      e.touches.length === 2 &&
+      lastTouchDistance.current !== null
+    ) {
+      e.preventDefault();
+
+      const distance =
+        getTouchDistance(e.touches);
+
+      const ratio =
+        distance / lastTouchDistance.current;
+
+      setScale((prev) =>
+        Math.min(
+          Math.max(prev * ratio, 1),
+          4
+        )
+      );
+
+      lastTouchDistance.current = distance;
+      lastTouchPoint.current = null;
+
+      return;
+    }
+
+    if (
+      e.touches.length === 1 &&
+      scale > 1 &&
+      lastTouchPoint.current
+    ) {
+      e.preventDefault();
+
+      const touch = e.touches[0];
+
+      const dx =
+        touch.clientX -
+        lastTouchPoint.current.x;
+
+      const dy =
+        touch.clientY -
+        lastTouchPoint.current.y;
+
+      setTranslate((prev) => ({
+        x: prev.x + dx,
+        y: prev.y + dy,
+      }));
+
+      lastTouchPoint.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+      };
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 0) {
+      lastTouchDistance.current = null;
+      lastTouchPoint.current = null;
+    } else if (
+      e.touches.length === 1 &&
+      scale > 1
+    ) {
+      lastTouchDistance.current = null;
+      lastTouchPoint.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+    }
+
+    if (scale <= 1) {
+      setScale(1);
+      setTranslate({
+        x: 0,
+        y: 0,
+      });
+    }
   };
 
   const handleBackgroundClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       setIsImageFullscreen(false);
-      setScale(1);
+      resetImageTransform();
     }
   };
 
@@ -640,7 +776,7 @@ export default function ClaimCard({
         open={isImageFullscreen}
         onClose={() => {
           setIsImageFullscreen(false);
-          setScale(1);
+          resetImageTransform();
         }}
         className='relative z-[60]'
       >
@@ -648,7 +784,13 @@ export default function ClaimCard({
           className='fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center'
           onClick={handleBackgroundClick}
         >
-          <div className='relative w-full h-full flex items-center justify-center p-4'>
+          <div
+            className='relative w-full h-full flex items-center justify-center p-4 overflow-hidden touch-none'
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+          >
             <div className='absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10'>
               <div className='bg-blur rounded-lg border border-white/20 flex items-center'>
                 <button
@@ -674,7 +816,7 @@ export default function ClaimCard({
             <button
               onClick={() => {
                 setIsImageFullscreen(false);
-                setScale(1);
+                resetImageTransform();
               }}
               className='absolute z-50 top-4 right-4 text-white/80 hover:text-white p-2 bg-blur rounded-lg border border-white/20'
             >
@@ -690,9 +832,11 @@ export default function ClaimCard({
                   width={1200}
                   height={1200}
                   unoptimized
-                  className='max-w-full max-h-full object-contain transition-transform duration-200'
+                  draggable={false}
+                  className='max-w-full max-h-full object-contain select-none'
                   style={{
-                    transform: `scale(${scale})`,
+                    transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
+                    transformOrigin: 'center center',
                   }}
                 />
               )}
