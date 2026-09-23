@@ -211,8 +211,14 @@ export default function BountyInfo({
     return null;
   }
 
+  const rawAmount = formatEther(BigInt(bounty.data.amount));
+  const [whole, decimals] = rawAmount.split('.');
+  const displayAmount = decimals
+    ? `${whole}.${decimals.slice(0, 5)}`.replace(/\.?0+$/, '')
+    : whole;
+  
   const amountStr = formatAmount({
-    amount: formatEther(BigInt(bounty.data.amount)),
+    amount: displayAmount,
     currency: chain.currency,
     price: price.toString(),
   });
