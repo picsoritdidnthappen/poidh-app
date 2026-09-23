@@ -43,6 +43,7 @@ export default function ConfirmBountySuccessModal({
   const router = useRouter();
   const chain = useChainInfo();
   const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -73,19 +74,25 @@ export default function ConfirmBountySuccessModal({
       ) {
         return;
       }
+
       setShareOpen(false);
     }
 
     if (shareOpen) {
       document.addEventListener('mousedown', handleDocClick);
     }
-    return () => document.removeEventListener('mousedown', handleDocClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleDocClick);
+    };
   }, [shareOpen]);
 
   const handleShareTwitter = () => {
     const claimIssuerUsername = getDisplayUsername(claimIssuerData, 'twitter');
     const pointsDisplay = points > 0.01 ? points.toFixed(2) : '<0.01';
+
     const text = `I just collected this NFT from ${claimIssuerUsername} and earned ${pointsDisplay} points by confirming my bounty ${bountyTitle} on @poidhxyz 📸`;
+
     shareToTwitter(text);
   };
 
@@ -94,25 +101,31 @@ export default function ConfirmBountySuccessModal({
       claimIssuerData,
       'farcaster'
     );
+
     const pointsDisplay = points > 0.01 ? points.toFixed(2) : '<0.01';
+
     const text = `I just collected this NFT from ${claimIssuerUsername} and earned ${pointsDisplay} points by confirming my bounty ${bountyTitle} on /poidh 📸`;
 
     setIsGeneratingCard(true);
+
     try {
       const cardUrl = new URL(
         '/api/generate-claim-card',
         window.location.origin
       );
+
       cardUrl.searchParams.set('image', claimImage);
       cardUrl.searchParams.set('title', claimTitle.slice(0, 30));
       cardUrl.searchParams.set('issuer', claimIssuerUsername);
 
       const claimIssuerPfp = claimIssuerData?.pfpUrl;
+
       if (claimIssuerPfp) {
         cardUrl.searchParams.set('pfp', claimIssuerPfp);
       }
 
       const response = await fetch(cardUrl.toString());
+
       if (!response.ok) {
         throw new Error('Failed to generate claim card');
       }
@@ -130,10 +143,41 @@ export default function ConfirmBountySuccessModal({
       });
     } catch (error) {
       console.error('Error sharing to Farcaster:', error);
-      await shareToFarcaster({ text, embedImage: claimImage });
+
+      await shareToFarcaster({
+        text,
+        embedImage: claimImage,
+      });
     } finally {
       setIsGeneratingCard(false);
     }
+  };
+
+  const handleCopyLink = async () => {
+    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+
+    try {
+      await navigator.clipboard.writeText(cleanUrl);
+    } catch {
+      const textArea = document.createElement('textarea');
+
+      textArea.value = cleanUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    setCopied(true);
+
+    window.setTimeout(() => {
+      setCopied(false);
+    }, 1500);
   };
 
   if (!open) return null;
@@ -168,7 +212,7 @@ export default function ConfirmBountySuccessModal({
         </button>
 
         <p className='font-family-geist text-sm text-white/90 font-bold text-center'>
-          congrats on confirming your poidh bounty!{' '}
+          bounty successfully finalized!{' '}
           <span className='bounce-emoji'>🎉</span>
         </p>
 
@@ -183,7 +227,7 @@ export default function ConfirmBountySuccessModal({
                 src={claimImage}
                 alt='Collected NFT'
                 fill
-                className='object-cover'
+                className='object-contain'
               />
             ) : (
               <div className='w-full h-48 bg-white/5 flex items-center justify-center text-white/60'>
@@ -193,7 +237,10 @@ export default function ConfirmBountySuccessModal({
           </div>
 
           <div className='mt-3 text-white text-sm leading-relaxed'>
-            <div className='font-semibold text-lg'>{claimTitle}</div>
+            <div className='font-semibold text-lg'>
+              {claimTitle}
+            </div>
+
             <div className='mt-2 opacity-90 flex items-center gap-2'>
               <span>issuer:</span>
               <DisplayAddress address={claimIssuer.toLowerCase()} />
@@ -213,22 +260,16 @@ export default function ConfirmBountySuccessModal({
           </div>
         </div>
 
-        <div className='mt-4 flex flex-col gap-3'>
-          <div className='flex gap-3 relative items-start'>
+        <div className='mt-4 flex flex-col gap-2 items-center'>
+          <div className='relative w-3/4'>
             <button
               ref={shareBtnRef}
               onClick={() => setShareOpen((v) => !v)}
-              className='basis-1/3 py-3 rounded-lg bg-poidhRed text-white font-medium hover:brightness-110 transition'
+              className='w-full py-3 rounded-lg bg-poidhRed text-white font-medium hover:brightness-110 hover:scale-[1.01] transition-transform'
               aria-expanded={shareOpen}
               aria-haspopup='menu'
             >
               share
-            </button>
-            <button
-              onClick={() => router.push(`/account/${bountyIssuer}`)}
-              className='basis-2/3 py-3 rounded-lg bg-[#7fb7ee] dark:bg-[#132b47] text-white font-semibold shadow-md hover:brightness-105 hover:scale-[1.01] transition-transform'
-            >
-              view your profile
             </button>
 
             {shareOpen && (
@@ -236,7 +277,7 @@ export default function ConfirmBountySuccessModal({
                 ref={dropdownRef}
                 role='menu'
                 aria-label='share menu'
-                className='absolute left-0 bottom-[calc(100%+2px)] z-40 p-2 rounded-xl shadow-lg min-w-[200px] ring-1 ring-white/5 bg-gradient-to-br from-[#4aa0ff]/80 via-[#3fb0e9]/70 to-[#2f8fd9]/60 backdrop-blur-md border border-white/10'
+                className='absolute left-1/2 -translate-x-1/2 bottom-[calc(100%+8px)] z-40 p-2 rounded-xl shadow-lg min-w-[200px] ring-1 ring-white/5 bg-poidhBlue/95 dark:bg-[#132b47] backdrop-blur-md border border-[#D1ECFF]'
               >
                 <div className='flex flex-col font-mono text-sm text-white'>
                   <button
@@ -249,10 +290,12 @@ export default function ConfirmBountySuccessModal({
                       alt='farcaster'
                       className='w-5 h-5 filter brightness-200'
                     />
+
                     <span>
                       {isGeneratingCard ? 'generating...' : 'farcaster'}
                     </span>
                   </button>
+
                   <button
                     onClick={handleShareTwitter}
                     className='w-full text-left px-4 py-2 rounded-md hover:bg-white/5 flex items-center gap-3 text-white'
@@ -264,6 +307,20 @@ export default function ConfirmBountySuccessModal({
               </div>
             )}
           </div>
+
+          <button
+            onClick={handleCopyLink}
+            className='font-family-geist w-3/4 py-3 rounded-lg lowercase bg-[#7fb7ee] dark:bg-[#2a4a6b] dark:border dark:border-[#4a7ab5] text-white shadow-md hover:scale-[1.01] transition-transform'
+          >
+            {copied ? 'copied!' : 'copy link'}
+          </button>
+
+          <button
+            onClick={() => router.push(`/account/${bountyIssuer}`)}
+            className='font-family-geist w-3/4 py-3 rounded-lg lowercase bg-[#7fb7ee] dark:bg-[#2a4a6b] dark:border dark:border-[#4a7ab5] text-white shadow-md hover:scale-[1.01] transition-transform'
+          >
+            view your profile
+          </button>
         </div>
       </div>
     </div>
