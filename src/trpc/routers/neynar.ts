@@ -38,7 +38,11 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
   const existingAddresses = new Set(users.map((user) => user.address));
 
   const usersToUpdate = users
-    .filter((user) => user.lastUpdated < sevenDaysAgo)
+    .filter(
+      (user) =>
+        user.lastUpdated < sevenDaysAgo ||
+        (user.farcasterTag && /^!\d+$/.test(user.farcasterTag))
+    )
     .map((user) => user.address);
 
   const missingAddresses = normalizedAddresses.filter(
