@@ -2,116 +2,20 @@ import { formatWalletAddress } from '@/utils/web3';
 import Link from 'next/link';
 import { trpc } from '@/trpc/client';
 import Image from 'next/image';
-
-function hashString(value: string) {
-  let hash = 0;
-
-  for (let i = 0; i < value.length; i++) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-    hash |= 0;
-  }
-
-  return Math.abs(hash);
-}
-
-function GeneratedPfp({
-  seed,
-  size,
-}: {
-  seed: string;
-  size: number;
-}) {
-  const hash = hashString(seed.toLowerCase());
-
-  const palette = [
-    '#F45B5B',
-    '#FFD166',
-    '#118AB2',
-    '#7B61FF',
-    '#06D6A0',
-    '#F4A261',
-    '#1498FF',
-    '#FF4FD8',
-  ];
-
-  const background =
-    palette[hash % palette.length];
-
-  const circle1 =
-    palette[(hash + 2) % palette.length];
-
-  const circle2 =
-    palette[(hash + 4) % palette.length];
-
-  const circle3 =
-    palette[(hash + 6) % palette.length];
-
-  const x1 = -20 + (hash % 20);
-  const y1 = -10 + ((hash >> 3) % 25);
-
-  const x2 = 45 + ((hash >> 5) % 20);
-  const y2 = 35 + ((hash >> 7) % 20);
-
-  const x3 = 35 + ((hash >> 9) % 25);
-  const y3 = -10 + ((hash >> 11) % 20);
-
-  return (
-    <span
-      aria-hidden='true'
-      className='relative flex-shrink-0 overflow-hidden rounded-full'
-      style={{
-        width: size,
-        height: size,
-        marginRight: 8,
-        backgroundColor: background,
-      }}
-    >
-      <span
-        className='absolute rounded-full'
-        style={{
-          width: '78%',
-          height: '78%',
-          left: `${x1}%`,
-          top: `${y1}%`,
-          backgroundColor: circle1,
-        }}
-      />
-
-      <span
-        className='absolute rounded-full'
-        style={{
-          width: '62%',
-          height: '62%',
-          left: `${x2}%`,
-          top: `${y2}%`,
-          backgroundColor: circle2,
-        }}
-      />
-
-      <span
-        className='absolute rounded-full'
-        style={{
-          width: '38%',
-          height: '38%',
-          left: `${x3}%`,
-          top: `${y3}%`,
-          backgroundColor: circle3,
-        }}
-      />
-    </span>
-  );
-}
+import PatternAvatar from '@/components/global/PatternAvatar';
 
 export default function DisplayAddress({
   address,
   showPfpIfExists = true,
   showFallbackPfp = false,
+  showLoadingSkeleton = false,
   pfpSize = 20,
   linkToProfile = true,
 }: {
   address: string;
   showPfpIfExists?: boolean;
   showFallbackPfp?: boolean;
+  showLoadingSkeleton?: boolean;
   pfpSize?: number;
   linkToProfile?: boolean;
 }) {
@@ -119,28 +23,63 @@ export default function DisplayAddress({
     addresses: [address],
   });
 
-  const humanReadableName =
-    trpc.web3.fetchHumanReadableName.useQuery({
-      address,
-    });
+  const humanReadableName = trpc.web3.fetchHumanReadableName.useQuery({
+    address,
+  });
 
   const user = userQuery.data?.[0];
 
-  const displayName = userQuery.isLoading
-    ? formatWalletAddress(address)
-    : user?.farcasterTag
-      ? user.farcasterTag
-      : humanReadableName.isLoading
-        ? formatWalletAddress(address)
-        : humanReadableName.data
-          ? humanReadableName.data
-          : formatWalletAddress(address);
+  /*
+   * We cannot know which identity to display until:
+   *
+   * 1. Farcaster data has loaded, and
+   * 2. if there is no Farcaster username, the human-readable
+   *    wallet name lookup has also finished.
+   *
+   * Showing a skeleton here prevents the UI from briefly flashing
+   * an abbreviated 0x address before the real name is available.
+   */
+  const identityIsLoading =
+    userQuery.isLoading ||
+    (!user?.farcasterTag && humanReadableName.isLoading);
 
-  return (
-    <span className='inline-flex items-center whitespace-nowrap max-w-full min-w-0'>
+  const displayName = user?.farcasterTag
+    ? user.farcasterTag
+    : humanReadableName.data
+      ? humanReadableName.data
+      : formatWalletAddress(address);
+
+  if (showLoadingSkeleton && identityIsLoading) {
+    return (
+      <span
+        className='inline-flex items-center whitespace-nowrap max-w-full min-w-0'
+        aria-label='loading creator identity'
+      >
+        {showPfpIfExists && (
+          <span
+            aria-hidden='true'
+            className='flex-shrink-0 rounded-full bg-white/20 animate-pulse'
+            style={{
+              width: pfpSize,
+              height: pfpSize,
+              marginRight: 8,
+            }}
+          />
+        )}
+
+        <span
+          aria-hidden='true'
+          className='h-4 w-24 max-w-[45vw] rounded bg-white/20 animate-pulse'
+        />
+      </span>
+    );
+  }
+
+  const identity = (
+    <>
       {showPfpIfExists &&
         (user?.pfpUrl ? (
-          <span
+          <div
             style={{
               width: pfpSize,
               height: pfpSize,
@@ -156,26 +95,35 @@ export default function DisplayAddress({
               unoptimized
               className='w-full h-full object-cover'
             />
-          </span>
+          </div>
         ) : showFallbackPfp ? (
-          <GeneratedPfp
+          <PatternAvatar
             seed={address}
             size={pfpSize}
+            marginRight='8px'
           />
         ) : null)}
 
-      {linkToProfile ? (
-        <Link
-          href={`/account/${address}`}
-          className='hover:text-gray-200 truncate overflow-ellipsis m-0 p-0 max-w-full'
-        >
-          {displayName}
-        </Link>
-      ) : (
-        <span className='truncate overflow-ellipsis m-0 p-0 max-w-full'>
-          {displayName}
-        </span>
-      )}
-    </span>
+      <span className='truncate overflow-ellipsis m-0 p-0 max-w-full'>
+        {displayName}
+      </span>
+    </>
+  );
+
+  if (!linkToProfile) {
+    return (
+      <span className='inline-flex items-center whitespace-nowrap max-w-full min-w-0'>
+        {identity}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={`/account/${address}`}
+      className='inline-flex items-center whitespace-nowrap max-w-full min-w-0 hover:text-gray-200'
+    >
+      {identity}
+    </Link>
   );
 }
