@@ -161,6 +161,10 @@ button {
   background: #132b47;
 }
 
+.recent-payout-price {
+  background-color: #cf5d5d;
+}
+
 .button .normal {
   display: block;
 }
