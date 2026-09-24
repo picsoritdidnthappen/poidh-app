@@ -661,6 +661,10 @@ html.cyber [class~='dark:bg-[#0d1b2e]/50'] {
   background-color: #09291c;
 }
 
+html.cyber .recent-payout-price {
+  background-color: #123b29;
+}
+
 /* Existing dialog classes use !important to override Material UI. */
 html.cyber [class~='dark:!bg-[#132b47]'] {
   background-color: #09291c !important;
