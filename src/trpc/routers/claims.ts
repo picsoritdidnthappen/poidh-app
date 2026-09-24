@@ -112,6 +112,86 @@ export const claimsRouter = {
       });
     }),
 
+    fetchRecentPayouts: baseProcedure
+      .input(
+        z.object({
+          limit: z.number().min(1).max(30).default(12),
+        })
+      )
+      .query(async ({ input }) => {
+        const txs = await prisma.transactions.findMany({
+          where: {
+            action: 'claim accepted',
+            claimId: {
+              not: null,
+            },
+            bounty: {
+              isCanceled: false,
+              ban: {
+                none: {},
+              },
+            },
+            claim: {
+              is: {
+                isAccepted: true,
+                ban: {
+                  none: {},
+                },
+              },
+            },
+          },
+          select: {
+            bountyId: true,
+            chainId: true,
+            timestamp: true,
+  
+            claim: {
+              select: {
+                id: true,
+                chainId: true,
+                title: true,
+                url: true,
+                issuer: true,
+              },
+            },
+  
+            bounty: {
+              select: {
+                id: true,
+                chainId: true,
+                amount: true,
+                extra: {
+                  select: {
+                    amountSort: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            timestamp: 'desc',
+          },
+          take: input.limit,
+        });
+
+      return txs.flatMap((tx) => {
+        if (!tx.claim || !tx.bounty) {
+          return [];
+        }
+
+        return [
+          {
+            claim: tx.claim,
+            bountyId: tx.bounty.id ?? tx.bountyId,
+            chainId: tx.bounty.chainId ?? tx.chainId,
+            amount: tx.bounty.amount,
+            amountUsd: tx.bounty.extra.amountSort,
+            timestamp: tx.timestamp.toString(),
+          },
+        ];
+      });
+    }),
+
   fetchBountyClaims: baseProcedure
     .input(
       z.object({
