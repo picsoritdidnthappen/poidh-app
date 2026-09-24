@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { formatEther } from 'viem';
 
-import { UsersRoundIcon } from '@/components/global/Icons';
 import { formatSortAmount, stripMarkdown } from '@/utils/utils';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import DisplayAddress from '@/components/global/DisplayAddress';
 import { getChainById } from '@/utils/config';
 import { Bounty } from '@/utils/types';
 
@@ -18,8 +18,19 @@ export default function BountyItem({
   showStatusEmoji?: boolean;
   showChainIcon?: boolean;
 }) {
-  const chain = getChainById({ chainId: bounty.chainId });
-  const amount = formatEther(BigInt(bounty.amount)).toString();
+  const chain = getChainById({
+    chainId: bounty.chainId,
+  });
+
+  const amount =
+    formatEther(BigInt(bounty.amount)).toString();
+
+  const rewardDisplay = formatSortAmount({
+    amount,
+    usdAmount: bounty.amountSort,
+    currency: chain.currency,
+    precision: 5,
+  }).toUpperCase();
 
   const getStatusEmoji = () => {
     if (bounty.isCanceled) return '❌';
@@ -32,8 +43,8 @@ export default function BountyItem({
       href={`/${chain.slug}/bounty/${bounty.id}`}
       className='block h-full'
     >
-      <div className='relative p-[2px] h-full rounded-xl'>
-        <div className='p-5 flex flex-col justify-between relative z-20 h-full lg:col-span-4'>
+      <div className='relative p-[2px] h-full min-h-[390px] sm:min-h-[410px] rounded-xl'>
+        <div className='p-5 flex flex-col relative z-20 h-full lg:col-span-4'>
           <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px] bg-whiteblue' />
 
           {showStatusEmoji && (
@@ -42,42 +53,57 @@ export default function BountyItem({
             </div>
           )}
 
-          <h3
-            className={`font-mono text-base sm:text-lg font-bold leading-snug normal-case text-left line-clamp-2 min-h-[2.75rem] ${
+          <div
+            className={`mb-4 min-w-0 font-mono text-sm font-semibold opacity-80 ${
               showStatusEmoji ? 'pr-8' : ''
             }`}
+          >
+            <DisplayAddress
+              address={bounty.issuer}
+              pfpSize={22}
+              showPfpIfExists
+              showFallbackPfp
+              linkToProfile={false}
+            />
+          </div>
+
+          <h3
+            className='font-mono text-base sm:text-lg font-bold leading-snug normal-case text-left line-clamp-2 min-h-[2.75rem]'
             title={bounty.title}
           >
             {bounty.title}
           </h3>
 
-          <p className='my-5 normal-case w-full h-28 overflow-y-auto overflow-hidden overflow-ellipsis whitespace-pre-line text-left'>
-            {stripMarkdown(bounty.description)}
-          </p>
-
           <div
-            className={`flex items-end justify-between ${
-              !showChainIcon ? 'mt-5' : 'mt-1'
-            }`}
+            className='mt-4 mb-5 h-32 sm:h-36 w-full overflow-y-auto overflow-x-hidden overscroll-y-contain touch-pan-y pr-2'
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor:
+                'rgba(255, 255, 255, 0.25) transparent',
+              WebkitOverflowScrolling: 'touch',
+            }}
           >
-            <div className='flex gap-2 items-center'>
-              <div>
-                {formatSortAmount({
-                  amount,
-                  usdAmount: bounty.amountSort,
-                  currency: chain.currency,
-                  precision: 5,
-                })}
-              </div>
+            <p className='normal-case whitespace-pre-line text-left leading-6 opacity-90'>
+              {stripMarkdown(bounty.description)}
+            </p>
+          </div>
 
-              {bounty.isMultiplayer && <UsersRoundIcon />}
+          <div className='mt-auto pt-3 flex items-center justify-between gap-3'>
+            <div className='font-mono text-xl sm:text-2xl font-bold leading-none tracking-tight whitespace-nowrap'>
+              {rewardDisplay}
             </div>
 
             {showChainIcon && (
-              <DynamicChainIcon
-                chain={chain.slug}
-                size={chain.slug === 'base' ? 22 : 30}
-              />
+              <div className='flex-shrink-0'>
+                <DynamicChainIcon
+                  chain={chain.slug}
+                  size={
+                    chain.slug === 'base'
+                      ? 22
+                      : 28
+                  }
+                />
+              </div>
             )}
           </div>
         </div>
