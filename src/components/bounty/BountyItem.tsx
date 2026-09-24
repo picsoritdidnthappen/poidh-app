@@ -95,7 +95,7 @@ export default function BountyItem({
           </div>
 
           {/* Reward */}
-          <div className='mt-3 flex-shrink-0 flex items-center justify-between gap-3'>
+          <div className='mt-5 flex-shrink-0 flex items-center justify-between gap-3'>
             <div className='min-w-0 font-mono text-xl font-bold leading-none tracking-tight whitespace-nowrap'>
               {rewardDisplay}
             </div>
