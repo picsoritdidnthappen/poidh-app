@@ -134,7 +134,6 @@ export const claimsRouter = {
             claims: {
               some: {
                 isAccepted: true,
-                isVoting: false,
   
                 ban: {
                   none: {},
@@ -164,7 +163,6 @@ export const claimsRouter = {
               claims: {
                 where: {
                   isAccepted: true,
-                  isVoting: false,
   
                   ban: {
                     none: {},
