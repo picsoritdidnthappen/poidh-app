@@ -240,7 +240,7 @@ function ClaimThumb({
         )}
 
         <div
-          className='absolute right-2 bottom-2 z-20 rounded-full bg-black/70 p-[2px] shadow-md'
+          className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-20 rounded-full bg-black/70 p-[2px] shadow-md scale-[0.7] sm:scale-100 origin-bottom-right'
           title='claim issuer'
         >
           <ClaimantAvatar
