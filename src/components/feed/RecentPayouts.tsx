@@ -25,6 +25,100 @@ type RecentPayout = {
   timestamp: string;
 };
 
+function hashString(value: string) {
+  let hash = 0;
+
+  for (let i = 0; i < value.length; i++) {
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+}
+
+function GenerativePlaceholder({
+  seed,
+}: {
+  seed: string;
+}) {
+  const hash = hashString(seed);
+
+  const palette = [
+    '#F45B5B',
+    '#FFD166',
+    '#118AB2',
+    '#7B61FF',
+    '#06D6A0',
+    '#F4A261',
+  ];
+
+  const background =
+    palette[hash % palette.length];
+
+  const accent1 =
+    palette[(hash + 2) % palette.length];
+
+  const accent2 =
+    palette[(hash + 4) % palette.length];
+
+  const vertical =
+    28 + ((hash >> 2) % 38);
+
+  const horizontal =
+    30 + ((hash >> 4) % 36);
+
+  const smallBlockLeft =
+    8 + ((hash >> 6) % 58);
+
+  const smallBlockTop =
+    8 + ((hash >> 8) % 58);
+
+  return (
+    <div
+      className='absolute inset-0 overflow-hidden'
+      style={{
+        backgroundColor: background,
+      }}
+    >
+      <div
+        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
+        style={{
+          left: `${vertical}%`,
+        }}
+      />
+
+      <div
+        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
+        style={{
+          top: `${horizontal}%`,
+        }}
+      />
+
+      <div
+        className='absolute'
+        style={{
+          left: `${vertical}%`,
+          top: 0,
+          right: 0,
+          height: `${horizontal}%`,
+          backgroundColor: accent1,
+        }}
+      />
+
+      <div
+        className='absolute border-[4px] border-[#102A43]'
+        style={{
+          left: `${smallBlockLeft}%`,
+          top: `${smallBlockTop}%`,
+          width: '24%',
+          height: '24%',
+          backgroundColor: accent2,
+        }}
+      />
+    </div>
+  );
+}
+
 function EarnerAvatar({
   address,
   size = 30,
@@ -104,8 +198,13 @@ function PayoutThumb({
     chainId: payout.chainId as ChainId,
   });
 
-  const thumbRef = useRef<HTMLDivElement>(null);
-  const [shouldLoadMedia, setShouldLoadMedia] = useState(false);
+  const thumbRef =
+    useRef<HTMLDivElement>(null);
+
+  const [
+    shouldLoadMedia,
+    setShouldLoadMedia,
+  ] = useState(false);
 
   useEffect(() => {
     const el = thumbRef.current;
@@ -119,7 +218,11 @@ function PayoutThumb({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
+        if (
+          entries.some(
+            (entry) => entry.isIntersecting
+          )
+        ) {
           setShouldLoadMedia(true);
           observer.disconnect();
         }
@@ -150,6 +253,9 @@ function PayoutThumb({
     payout.amountUsd
   );
 
+  const placeholderSeed =
+    `${payout.chainId}-${payout.claim.id}-${payout.claim.issuer}`;
+
   return (
     <div
       ref={thumbRef}
@@ -175,7 +281,10 @@ function PayoutThumb({
           ) : (
             <Image
               src={mediaUrl}
-              alt={payout.claim.title || 'paid claim'}
+              alt={
+                payout.claim.title ||
+                'paid claim'
+              }
               fill
               unoptimized
               className='object-cover group-hover:scale-105 transition-transform duration-300'
@@ -186,24 +295,21 @@ function PayoutThumb({
             />
           )
         ) : mediaError ? (
-          <div className='absolute inset-0 flex items-center justify-center bg-[#132b47] text-2xl'>
-            📸
-          </div>
+          <GenerativePlaceholder
+            seed={placeholderSeed}
+          />
         ) : (
           <div className='absolute inset-0 bg-white/10 animate-pulse' />
         )}
 
-        {/* Bottom readability gradient */}
         <div className='absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/75 via-black/30 to-transparent pointer-events-none' />
 
-        {/* Dollar payout */}
         <div className='absolute left-2 bottom-2 z-20'>
           <div className='recent-payout-price rounded-md backdrop-blur-sm border border-white/15 px-2 py-1 font-mono text-xs sm:text-sm font-bold text-white shadow-md'>
             {payoutLabel}
           </div>
         </div>
 
-        {/* Earner */}
         <div
           className='absolute right-2 bottom-2 z-20 rounded-full bg-black/70 p-[2px] shadow-md'
           title='bounty earner'
@@ -221,7 +327,8 @@ function PayoutThumb({
 }
 
 export default function RecentPayouts() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef =
+    useRef<HTMLDivElement>(null);
 
   const recentPayoutsQuery =
     trpc.claims.fetchRecentPayouts.useQuery(
@@ -239,8 +346,13 @@ export default function RecentPayouts() {
 
     if (!el) return;
 
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) {
+    const onWheel = (
+      e: WheelEvent
+    ) => {
+      if (
+        Math.abs(e.deltaY) <=
+        Math.abs(e.deltaX)
+      ) {
         return;
       }
 
@@ -248,17 +360,25 @@ export default function RecentPayouts() {
       el.scrollLeft += e.deltaY;
     };
 
-    el.addEventListener('wheel', onWheel, {
-      passive: false,
-    });
+    el.addEventListener(
+      'wheel',
+      onWheel,
+      {
+        passive: false,
+      }
+    );
 
     return () => {
-      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener(
+        'wheel',
+        onWheel
+      );
     };
   }, []);
 
   const payouts =
-    (recentPayoutsQuery.data ?? []) as RecentPayout[];
+    (recentPayoutsQuery.data ??
+      []) as RecentPayout[];
 
   if (
     !recentPayoutsQuery.isLoading &&
@@ -292,20 +412,22 @@ export default function RecentPayouts() {
         }}
       >
         {recentPayoutsQuery.isLoading
-          ? Array.from({ length: 12 }).map(
-              (_, i) => (
-                <div
-                  key={i}
-                  className='flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
+          ? Array.from({
+              length: 12,
+            }).map((_, i) => (
+              <div
+                key={i}
+                className='flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
+              />
+            ))
+          : payouts.map(
+              (payout) => (
+                <PayoutThumb
+                  key={`${payout.chainId}-${payout.claim.id}`}
+                  payout={payout}
                 />
               )
-            )
-          : payouts.map((payout) => (
-              <PayoutThumb
-                key={`${payout.chainId}-${payout.claim.id}`}
-                payout={payout}
-              />
-            ))}
+            )}
       </div>
     </div>
   );
