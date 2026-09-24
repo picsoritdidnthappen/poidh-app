@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
+import PatternAvatar from '@/components/global/PatternAvatar';
 
 function hashString(value: string) {
   let hash = 0;
@@ -84,6 +85,65 @@ function GenerativePlaceholder({ seed }: { seed: string }) {
         }}
       />
     </div>
+  );
+}
+
+function ClaimantAvatar({
+  address,
+  size = 28,
+}: {
+  address: string;
+  size?: number;
+}) {
+  const userQuery = trpc.neynar.usersData.useQuery(
+    {
+      addresses: [address],
+    },
+    {
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const user = userQuery.data?.[0];
+
+  if (userQuery.isLoading) {
+    return (
+      <div
+        className='rounded-full bg-white/20 animate-pulse'
+        style={{
+          width: size,
+          height: size,
+        }}
+      />
+    );
+  }
+
+  if (user?.pfpUrl) {
+    return (
+      <div
+        className='relative overflow-hidden rounded-full'
+        style={{
+          width: size,
+          height: size,
+        }}
+      >
+        <Image
+          src={user.pfpUrl}
+          alt={user.farcasterTag ?? 'claim issuer'}
+          fill
+          unoptimized
+          className='object-cover'
+        />
+      </div>
+    );
+  }
+
+  return (
+    <PatternAvatar
+      seed={address}
+      size={size}
+    />
   );
 }
 
@@ -178,6 +238,16 @@ function ClaimThumb({
         ) : (
           <div className='absolute inset-0 bg-white/10 animate-pulse' />
         )}
+
+        <div
+          className='absolute right-2 bottom-2 z-20 rounded-full bg-black/70 p-[2px] shadow-md'
+          title='claim issuer'
+        >
+          <ClaimantAvatar
+            address={claim.issuer}
+            size={28}
+          />
+        </div>
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
       </Link>
