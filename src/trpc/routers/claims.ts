@@ -121,18 +121,21 @@ export const claimsRouter = {
     .query(async ({ input }) => {
       const txs = await prisma.transactions.findMany({
         where: {
-          action: {
-            in: ['claim accepted', 'voting resolved'],
-          },
+          action: 'claim accepted',
+  
           bounty: {
             inProgress: false,
             isCanceled: false,
+  
             ban: {
               none: {},
             },
+  
             claims: {
               some: {
                 isAccepted: true,
+                isVoting: false,
+  
                 ban: {
                   none: {},
                 },
@@ -161,10 +164,13 @@ export const claimsRouter = {
               claims: {
                 where: {
                   isAccepted: true,
+                  isVoting: false,
+  
                   ban: {
                     none: {},
                   },
                 },
+  
                 select: {
                   id: true,
                   chainId: true,
@@ -172,6 +178,7 @@ export const claimsRouter = {
                   url: true,
                   issuer: true,
                 },
+  
                 take: 1,
               },
             },
@@ -204,7 +211,7 @@ export const claimsRouter = {
         ];
       });
     }),
-
+  
   fetchBountyClaims: baseProcedure
     .input(
       z.object({
