@@ -198,7 +198,7 @@ function PayoutThumb({
 
         {/* Dollar payout */}
         <div className='absolute left-2 bottom-2 z-20'>
-          <div className='rounded-md bg-black/75 backdrop-blur-sm border border-white/15 px-2 py-1 font-mono text-xs sm:text-sm font-bold text-white shadow-md'>
+          <div className='recent-payout-price rounded-md backdrop-blur-sm border border-white/15 px-2 py-1 font-mono text-xs sm:text-sm font-bold text-white shadow-md'>
             {payoutLabel}
           </div>
         </div>
