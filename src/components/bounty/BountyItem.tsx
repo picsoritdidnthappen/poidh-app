@@ -43,10 +43,10 @@ export default function BountyItem({
   return (
     <Link
       href={`/${chain.slug}/bounty/${bounty.id}`}
-      className='block'
+      className='block h-[300px] sm:h-[310px]'
     >
-      <div className='relative p-[2px] rounded-xl'>
-        <div className='p-5 flex flex-col relative z-20 lg:col-span-4'>
+      <div className='relative p-[2px] rounded-xl h-full'>
+        <div className='p-5 flex flex-col relative z-20 h-full lg:col-span-4'>
           <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px] bg-whiteblue' />
 
           {showStatusEmoji && (
@@ -55,8 +55,9 @@ export default function BountyItem({
             </div>
           )}
 
+          {/* Creator */}
           <div
-            className={`mb-3 min-w-0 font-mono text-sm font-semibold opacity-80 ${
+            className={`h-5 mb-3 min-w-0 font-mono text-sm font-semibold opacity-80 ${
               showStatusEmoji ? 'pr-8' : ''
             }`}
           >
@@ -70,15 +71,17 @@ export default function BountyItem({
             />
           </div>
 
+          {/* Title always reserves exactly two lines */}
           <h3
-            className='font-mono text-base sm:text-lg font-bold leading-snug normal-case text-left line-clamp-2 min-h-[2.75rem]'
+            className='font-mono text-base sm:text-lg font-bold leading-snug normal-case text-left line-clamp-2 h-[44px] sm:h-[50px] overflow-hidden flex-shrink-0'
             title={bounty.title}
           >
             {bounty.title}
           </h3>
 
+          {/* Description takes the remaining available space */}
           <div
-            className='mt-3 h-28 w-full overflow-y-auto overflow-x-hidden overscroll-y-contain touch-pan-y pr-2'
+            className='mt-3 flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-y-contain touch-pan-y pr-2'
             style={{
               scrollbarWidth: 'thin',
               scrollbarColor:
@@ -91,7 +94,8 @@ export default function BountyItem({
             </p>
           </div>
 
-          <div className='mt-3 flex items-center justify-between gap-3'>
+          {/* Reward */}
+          <div className='mt-3 flex-shrink-0 flex items-center justify-between gap-3'>
             <div className='min-w-0 font-mono text-xl font-bold leading-none tracking-tight whitespace-nowrap'>
               {rewardDisplay}
             </div>
