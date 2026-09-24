@@ -112,27 +112,26 @@ export const claimsRouter = {
       });
     }),
 
-    fetchRecentPayouts: baseProcedure
-      .input(
-        z.object({
-          limit: z.number().min(1).max(30).default(12),
-        })
-      )
-      .query(async ({ input }) => {
-        const txs = await prisma.transactions.findMany({
-          where: {
-            action: 'claim accepted',
-            claimId: {
-              not: null,
+  fetchRecentPayouts: baseProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(30).default(12),
+      })
+    )
+    .query(async ({ input }) => {
+      const txs = await prisma.transactions.findMany({
+        where: {
+          action: {
+            in: ['claim accepted', 'voting resolved'],
+          },
+          bounty: {
+            inProgress: false,
+            isCanceled: false,
+            ban: {
+              none: {},
             },
-            bounty: {
-              isCanceled: false,
-              ban: {
-                none: {},
-              },
-            },
-            claim: {
-              is: {
+            claims: {
+              some: {
                 isAccepted: true,
                 ban: {
                   none: {},
@@ -140,50 +139,64 @@ export const claimsRouter = {
               },
             },
           },
-          select: {
-            bountyId: true,
-            chainId: true,
-            timestamp: true,
+        },
   
-            claim: {
-              select: {
-                id: true,
-                chainId: true,
-                title: true,
-                url: true,
-                issuer: true,
-              },
-            },
+        select: {
+          bountyId: true,
+          chainId: true,
+          timestamp: true,
   
-            bounty: {
-              select: {
-                id: true,
-                chainId: true,
-                amount: true,
-                extra: {
-                  select: {
-                    amountSort: true,
-                  },
+          bounty: {
+            select: {
+              id: true,
+              chainId: true,
+              amount: true,
+  
+              extra: {
+                select: {
+                  amountSort: true,
                 },
               },
+  
+              claims: {
+                where: {
+                  isAccepted: true,
+                  ban: {
+                    none: {},
+                  },
+                },
+                select: {
+                  id: true,
+                  chainId: true,
+                  title: true,
+                  url: true,
+                  issuer: true,
+                },
+                take: 1,
+              },
             },
           },
-          orderBy: {
-            timestamp: 'desc',
-          },
-          take: input.limit,
-        });
-
+        },
+  
+        orderBy: {
+          timestamp: 'desc',
+        },
+  
+        take: input.limit,
+      });
+  
       return txs.flatMap((tx) => {
-        if (!tx.claim || !tx.bounty) {
+        const claim = tx.bounty.claims[0];
+  
+        if (!claim) {
           return [];
         }
-
+  
         return [
           {
-            claim: tx.claim,
-            bountyId: tx.bounty.id ?? tx.bountyId,
-            chainId: tx.bounty.chainId ?? tx.chainId,
+            claim,
+            bountyId: tx.bounty.id,
+            chainId: tx.bounty.chainId,
             amount: tx.bounty.amount,
             amountUsd: tx.bounty.extra.amountSort,
             timestamp: tx.timestamp.toString(),
