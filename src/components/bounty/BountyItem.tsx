@@ -22,29 +22,31 @@ export default function BountyItem({
     chainId: bounty.chainId,
   });
 
-  const amount =
-    formatEther(BigInt(bounty.amount)).toString();
+  const amount = formatEther(
+    BigInt(bounty.amount)
+  ).toString();
 
   const rewardDisplay = formatSortAmount({
     amount,
     usdAmount: bounty.amountSort,
     currency: chain.currency,
     precision: 5,
-  }).toUpperCase();
+  });
 
   const getStatusEmoji = () => {
     if (bounty.isCanceled) return '❌';
     if (bounty.inProgress === false) return '✅';
+
     return '💰';
   };
 
   return (
     <Link
       href={`/${chain.slug}/bounty/${bounty.id}`}
-      className='block h-full'
+      className='block'
     >
-      <div className='relative p-[2px] h-full min-h-[390px] sm:min-h-[410px] rounded-xl'>
-        <div className='p-5 flex flex-col relative z-20 h-full lg:col-span-4'>
+      <div className='relative p-[2px] rounded-xl'>
+        <div className='p-5 flex flex-col relative z-20 lg:col-span-4'>
           <div className='z-[-1] absolute w-full h-full left-0 top-0 borderBox rounded-[6px] bg-whiteblue' />
 
           {showStatusEmoji && (
@@ -54,15 +56,16 @@ export default function BountyItem({
           )}
 
           <div
-            className={`mb-4 min-w-0 font-mono text-sm font-semibold opacity-80 ${
+            className={`mb-3 min-w-0 font-mono text-sm font-semibold opacity-80 ${
               showStatusEmoji ? 'pr-8' : ''
             }`}
           >
             <DisplayAddress
               address={bounty.issuer}
-              pfpSize={22}
+              pfpSize={20}
               showPfpIfExists
               showFallbackPfp
+              showLoadingSkeleton
               linkToProfile={false}
             />
           </div>
@@ -75,11 +78,11 @@ export default function BountyItem({
           </h3>
 
           <div
-            className='mt-4 mb-5 h-32 sm:h-36 w-full overflow-y-auto overflow-x-hidden overscroll-y-contain touch-pan-y pr-2'
+            className='mt-3 h-28 w-full overflow-y-auto overflow-x-hidden overscroll-y-contain touch-pan-y pr-2'
             style={{
               scrollbarWidth: 'thin',
               scrollbarColor:
-                'rgba(255, 255, 255, 0.25) transparent',
+                'rgba(255, 255, 255, 0.22) transparent',
               WebkitOverflowScrolling: 'touch',
             }}
           >
@@ -88,8 +91,8 @@ export default function BountyItem({
             </p>
           </div>
 
-          <div className='mt-auto pt-3 flex items-center justify-between gap-3'>
-            <div className='font-mono text-xl sm:text-2xl font-bold leading-none tracking-tight whitespace-nowrap'>
+          <div className='mt-3 flex items-center justify-between gap-3'>
+            <div className='min-w-0 font-mono text-xl font-bold leading-none tracking-tight whitespace-nowrap'>
               {rewardDisplay}
             </div>
 
