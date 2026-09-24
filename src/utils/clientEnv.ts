@@ -4,6 +4,7 @@ const clientEnv = {
   ARBITRUM_RPC_URL: process.env.ARBITRUM_RPC_URL,
   BASE_RPC_URL: process.env.BASE_RPC_URL,
   ADMINS: process.env.ADMINS,
+  ZERODEV_PROJECT_ID: process.env.NEXT_PUBLIC_ZERODEV_PROJECT_ID,
 };
 
 export default clientEnv;
