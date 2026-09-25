@@ -172,7 +172,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <div className='w-full md:w-auto flex justify-center md:justify-end mt-2 md:mt-0 md:flex-1 ml-3'>
+          <div className='w-full md:w-auto flex justify-center md:justify-end mt-2 md:mt-0 md:flex-1 md:ml-3'>
             <FormControl className='h-[36px] md:h-[42px]'>
               <Select
                 id='sort-select'
