@@ -31,7 +31,9 @@ export default function Navbar({
   const isMobile = useScreenSize();
 
   const user = trpc.users.fetchByAddress.useQuery(
-    { address: account.address as `0x${string}` },
+    {
+      address: account.address as `0x${string}`,
+    },
     {
       enabled: !!account.address,
     }
@@ -69,7 +71,7 @@ export default function Navbar({
         <nav className='fixed bottom-0 left-0 right-0 h-20 z-40 how-it-works-hidden shadow-[0_4px_24px_0_var(--cyber-nav-shadow,rgba(80,160,220,0.14))] android:pb-10 pb-4'>
           <div className='absolute inset-0 rounded-t-3xl bg-gradient-to-b from-[#7db3e0] to-[#b3d8f7] dark:from-[#0d1b2e] dark:to-[#132b47] backdrop-blur-sm' />
 
-          <div className='relative h-full flex items-center justify-between pt-2'>
+          <div className='relative h-full grid grid-cols-[1fr_1fr_1.5fr_1fr_1fr] items-center pt-2'>
             <Link
               href={account.address ? `/account/${account.address}` : '#'}
               onClick={(e) => {
@@ -78,10 +80,11 @@ export default function Navbar({
                   openConnectModal?.();
                 }
               }}
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              className='flex flex-col items-center justify-center gap-1 text-white z-10'
             >
               <div className='relative'>
                 <ProfileIcon size={24} />
+
                 {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
                   (user?.data?.withdrawalBase ?? 0) > 0 ||
                   (user?.data?.withdrawalDegen ?? 0) > 0 ||
@@ -89,60 +92,77 @@ export default function Navbar({
                   <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
                 )}
               </div>
-              <span className='text-[10px] whitespace-nowrap'>profile</span>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                profile
+              </span>
             </Link>
 
             <Link
               href='/leaderboard'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              className='flex flex-col items-center justify-center gap-1 text-white z-10'
             >
               <LeaderboardIcon size={24} />
-              <span className='text-[10px] whitespace-nowrap'>scores</span>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                scores
+              </span>
             </Link>
 
-            <div className='relative flex flex-col items-center justify-center gap-1 z-20 w-24'>
-              <div
-                onClick={handleClick}
-                className='cursor-pointer scale-75 -mt-16'
-              >
-                <div className='relative w-[88px] h-[88px] flex items-center justify-center mx-auto'>
-                  <div className='absolute inset-0 rounded-full ring-[5px] ring-white/40' />
+            {/* center slot keeps create label aligned with other nav labels */}
+            <div className='flex flex-col items-center justify-center gap-1 text-white z-10'>
+              <div className='w-6 h-6' />
 
-                  {showForm ? (
-                    <PlainGameButton hideShadow={true} />
-                  ) : (
-                    <div className='button'>
-                      <GameButton hideShadow={true} />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <span className='text-[10px] whitespace-nowrap text-white'>
+              <span className='text-[10px] whitespace-nowrap'>
                 create {type}
               </span>
             </div>
 
             <Link
               href='/feed'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              className='flex flex-col items-center justify-center gap-1 text-white z-10'
             >
               <ImageIcon size={24} />
-              <span className='text-[10px] whitespace-nowrap'>feed</span>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                feed
+              </span>
             </Link>
 
             <Link
               href='/explore'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              className='flex flex-col items-center justify-center gap-1 text-white z-10'
             >
               <MagnifyingGlassIcon size={24} />
-              <span className='text-[10px] whitespace-nowrap'>explore</span>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                explore
+              </span>
             </Link>
+
+            {/* floating create button — center sits exactly on navbar top edge */}
+            <div className='absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 z-30'>
+              <div
+                onClick={handleClick}
+                className='cursor-pointer flex items-center justify-center scale-75 origin-center'
+              >
+                {showForm ? (
+                  <PlainGameButton hideShadow={true} />
+                ) : (
+                  <div className='button flex items-center justify-center'>
+                    <GameButton hideShadow={true} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </nav>
 
         {type === 'bounty' ? (
-          <FormBounty open={showForm} onClose={() => setShowForm(false)} />
+          <FormBounty
+            open={showForm}
+            onClose={() => setShowForm(false)}
+          />
         ) : (
           bounty.data && (
             <FormClaim
@@ -157,7 +177,6 @@ export default function Navbar({
     );
   }
 
-  // Desktop view
   return (
     <div className='fixed bottom-16 z-40 w-full flex justify-center items-center lg:flex-col how-it-works-hidden'>
       {!showForm && (
@@ -166,12 +185,17 @@ export default function Navbar({
           onClick={handleClick}
         >
           <GameButton />
-          <ButtonCTA>create {type}</ButtonCTA>
+          <ButtonCTA>
+            create {type}
+          </ButtonCTA>
         </div>
       )}
 
       {type === 'bounty' ? (
-        <FormBounty open={showForm} onClose={() => setShowForm(false)} />
+        <FormBounty
+          open={showForm}
+          onClose={() => setShowForm(false)}
+        />
       ) : (
         bounty.data && (
           <FormClaim
