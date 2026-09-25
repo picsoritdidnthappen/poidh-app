@@ -139,10 +139,10 @@ export default function Navbar({
             </Link>
 
             {/* floating create button, centered independently */}
-            <div className='absolute left-1/2 -translate-x-1/2 -top-[38px] z-30'>
+            <div className='absolute left-1/2 -translate-x-1/2 -top-[27px] z-30'>
               <div
                 onClick={handleClick}
-                className='cursor-pointer flex items-center justify-center'
+                className='cursor-pointer flex items-center justify-center scale-75 origin-center'
               >
                 {showForm ? (
                   <PlainGameButton hideShadow={true} />
@@ -153,8 +153,6 @@ export default function Navbar({
                 )}
               </div>
             </div>
-          </div>
-        </nav>
 
         {type === 'bounty' ? (
           <FormBounty
