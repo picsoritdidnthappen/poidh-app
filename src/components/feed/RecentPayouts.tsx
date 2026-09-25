@@ -278,17 +278,17 @@ function PayoutThumb({
           </div>
         </div>
 
-        {/* frosted bottom fade */}
+        {/* white frosted bottom fade */}
         <div className='absolute inset-x-0 bottom-0 h-12 sm:h-14 z-10 pointer-events-none'>
-          <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent' />
-          <div className='absolute inset-x-0 bottom-0 h-8 sm:h-10 backdrop-blur-[2px] bg-black/10' />
+          <div className='absolute inset-0 bg-gradient-to-t from-black/25 via-white/10 to-transparent' />
+          <div className='absolute inset-x-0 bottom-0 h-8 sm:h-10 backdrop-blur-[8px] bg-white/[0.18] border-t border-white/20' />
         </div>
 
-        {/* BOUNTY title */}
+        {/* bounty title */}
         {payout.bountyTitle && (
           <div className='absolute left-2 right-10 sm:right-12 bottom-2 z-20 min-w-0'>
             <div
-              className='truncate font-mono text-[9px] sm:text-[11px] font-semibold text-white leading-tight drop-shadow-md'
+              className='truncate font-mono text-[9px] sm:text-[11px] font-semibold text-white leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]'
               title={payout.bountyTitle}
             >
               {payout.bountyTitle}
