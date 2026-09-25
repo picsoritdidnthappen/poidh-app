@@ -1,5 +1,5 @@
 import GameButton, { PlainGameButton } from '@/components/global/GameButton';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import FormBounty from '../bounty/FormBounty';
 import FormClaim from '../claims/FormClaim';
@@ -25,6 +25,8 @@ export default function Navbar({
   bountyId?: string;
 }) {
   const [showForm, setShowForm] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
   const chain = useChainInfo();
@@ -49,6 +51,10 @@ export default function Navbar({
     }
   );
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleClick = () => {
     if (type === 'claim' && !bounty.data?.inProgress) {
       toast.error(
@@ -64,6 +70,12 @@ export default function Navbar({
 
     openConnectModal?.();
   };
+
+  // Prevent the desktop GameButton from flashing before
+  // the client knows whether this is a mobile viewport.
+  if (!mounted) {
+    return null;
+  }
 
   if (isMobile) {
     return (
@@ -109,7 +121,7 @@ export default function Navbar({
               </span>
             </Link>
 
-            {/* center slot keeps create label aligned with other nav labels */}
+            {/* center slot keeps label aligned with other nav items */}
             <div className='flex flex-col items-center justify-center gap-1 text-white z-10'>
               <div className='w-6 h-6' />
 
@@ -140,7 +152,8 @@ export default function Navbar({
               </span>
             </Link>
 
-            {/* floating create button — center sits exactly on navbar top edge */}
+            {/* floating create button:
+                its center sits exactly on the navbar's top edge */}
             <div className='absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 z-30'>
               <div
                 onClick={handleClick}
@@ -177,6 +190,7 @@ export default function Navbar({
     );
   }
 
+  // Desktop view
   return (
     <div className='fixed bottom-16 z-40 w-full flex justify-center items-center lg:flex-col how-it-works-hidden'>
       {!showForm && (
