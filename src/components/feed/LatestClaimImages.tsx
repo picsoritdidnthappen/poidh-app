@@ -198,7 +198,7 @@ function ClaimThumb({
   return (
     <div
       ref={thumbRef}
-      className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'
+      className='flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'
     >
       <Link
         href={`/${chain.slug}/bounty/${bountyId}`}
@@ -227,7 +227,7 @@ function ClaimThumb({
               alt={claim.title || 'claim image'}
               fill
               className='object-cover group-hover:scale-105 transition-transform duration-300'
-              sizes='(max-width: 640px) 96px, (max-width: 768px) 112px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
+              sizes='(max-width: 640px) 112px, (max-width: 768px) 128px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
               unoptimized
               onError={() => {
                 setMediaError(true);
@@ -341,7 +341,7 @@ export default function LatestClaimImages() {
           ? Array.from({ length: 15 }).map((_, i) => (
               <div
                 key={i}
-                className='flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
+                className='flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
               />
             ))
           : latestClaims.map((item) => (
