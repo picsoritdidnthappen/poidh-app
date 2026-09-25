@@ -13,7 +13,10 @@ import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { isV3Bounty } from '@/utils/utils';
 import { cn } from '@/utils/utils';
-import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
+import {
+  formatAmount,
+  getBanSignatureFirstLine,
+} from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import BountyHistory from './BountyHistory';
@@ -25,10 +28,43 @@ import { setLoadingAtom } from '@/store/loading';
 import MarkdownContent from '@/components/global/MarkdownContent';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import ShareBountyModal from '@/components/bounty/ShareBountyModal';
-import { ArrowIcon, QuestionIcon } from '@/components/global/Icons';
+import {
+  ArrowIcon,
+  QuestionIcon,
+} from '@/components/global/Icons';
 import Link from 'next/link';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+
+function BountyInfoSkeleton() {
+  return (
+    <div className='flex pt-6 flex-col justify-between lg:flex-row animate-pulse'>
+      <div className='flex flex-col lg:w-[50%]'>
+        <div className='h-10 lg:h-12 w-[80%] max-w-[420px] rounded-lg bg-white/10' />
+
+        <div className='mt-5 space-y-3'>
+          <div className='h-4 w-full rounded bg-white/10' />
+          <div className='h-4 w-[92%] rounded bg-white/10' />
+          <div className='h-4 w-[75%] rounded bg-white/10' />
+          <div className='h-4 w-[85%] rounded bg-white/10' />
+        </div>
+
+        <div className='flex items-center mt-5 mb-4 gap-2'>
+          <div className='h-4 w-24 rounded bg-white/10' />
+
+          <div className='h-5 w-5 rounded-full bg-white/15' />
+
+          <div className='h-4 w-28 rounded bg-white/10' />
+        </div>
+
+        <div className='flex items-center gap-3 mt-1 mb-5'>
+          <div className='h-7 w-28 rounded bg-white/10' />
+          <div className='h-5 w-20 rounded bg-white/10' />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function BountyInfo({
   bountyId,
@@ -40,54 +76,105 @@ export default function BountyInfo({
   bountyId: number;
   isShareModalOpen: boolean;
   isHowItWorksModalOpen: boolean;
-  onShareModalStateChange?: (modalOpen: boolean) => void;
-  onHowItWorksModalStateChange?: (modalOpen: boolean) => void;
+  onShareModalStateChange?: (
+    modalOpen: boolean
+  ) => void;
+  onHowItWorksModalStateChange?: (
+    modalOpen: boolean
+  ) => void;
 }) {
   const chain = useChainInfo();
   const account = useAccount();
   const writeContract = useWriteContract({});
   const switctChain = useSwitchChain();
-  const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
-  const banBountyMutation = trpc.admin.banBounty.useMutation({});
   const { signMessageAsync } = useSignMessage();
   const setLoading = useSetAtom(setLoadingAtom);
 
-  const price =
-    trpc.web3.fetchPrice.useQuery({ currency: chain.currency }).data ?? 0;
+  const validBountyId = !isNaN(bountyId);
+
+  const isAdmin = trpc.admin.isAdmin.useQuery(
+    {
+      address: account.address,
+    },
+    {
+      enabled: !!account.address,
+      staleTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const banBountyMutation =
+    trpc.admin.banBounty.useMutation({});
+
+  const priceQuery =
+    trpc.web3.fetchPrice.useQuery(
+      {
+        currency: chain.currency,
+      },
+      {
+        enabled: Boolean(chain.currency),
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
+      }
+    );
+
+  const price = priceQuery.data ?? 0;
 
   const bounty = trpc.bounties.fetch.useQuery(
     {
       id: bountyId,
       chainId: chain.id,
     },
-    { enabled: !isNaN(bountyId) }
-  );
-
-  const participants = trpc.bounties.participations.useQuery(
     {
-      bountyId: bountyId,
-      chainId: chain.id,
-    },
-    {
-      enabled: !isNaN(bountyId),
+      enabled: validBountyId,
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
     }
   );
 
-  const transactions = trpc.bounties.fetchTransactions.useQuery({
-    bountyId,
-    chainId: chain.id,
-  });
+  const participants =
+    trpc.bounties.participations.useQuery(
+      {
+        bountyId,
+        chainId: chain.id,
+      },
+      {
+        enabled: validBountyId,
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+      }
+    );
+
+  const transactions =
+    trpc.bounties.fetchTransactions.useQuery(
+      {
+        bountyId,
+        chainId: chain.id,
+      },
+      {
+        enabled: validBountyId,
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+      }
+    );
 
   const signMutation = useMutation({
     mutationFn: async () => {
       if (!bounty.data) {
-        throw new Error('Bounty data not found!');
+        throw new Error(
+          'Bounty data not found!'
+        );
       }
 
-      //arbitrum has a problem with message signing, so all confirmations are on base
-      const chainId = await account.connector?.getChainId();
+      // arbitrum has a problem with message signing,
+      // so all confirmations are on base
+      const chainId =
+        await account.connector?.getChainId();
+
       if (chainId !== 8453) {
-        await switctChain.switchChainAsync({ chainId: 8453 });
+        await switctChain.switchChainAsync({
+          chainId: 8453,
+        });
       }
 
       const message =
@@ -95,28 +182,50 @@ export default function BountyInfo({
           id: Number(bounty.data.id),
           chainId: bounty.data.chainId,
           type: 'bounty',
-        }) + JSON.stringify(bounty.data, undefined, 2);
+        }) +
+        JSON.stringify(
+          bounty.data,
+          undefined,
+          2
+        );
+
       if (account.address) {
-        const signature = await signMessageAsync({ message }).catch(() => null);
+        const signature =
+          await signMessageAsync({
+            message,
+          }).catch(() => null);
+
         if (!signature) {
-          throw new Error('Failed to sign message');
+          throw new Error(
+            'Failed to sign message'
+          );
         }
-        await banBountyMutation.mutateAsync({
-          id: Number(bounty.data.id),
-          chainId: bounty.data.chainId,
-          address: account.address,
-          chainName: chain.slug,
-          message,
-          signature,
-        });
+
+        await banBountyMutation.mutateAsync(
+          {
+            id: Number(bounty.data.id),
+            chainId:
+              bounty.data.chainId,
+            address: account.address,
+            chainName: chain.slug,
+            message,
+            signature,
+          }
+        );
       }
     },
+
     onSuccess: () => {
       toast.success('Bounty banned');
     },
+
     onError: (error) => {
-      toast.error('Failed to ban bounty: ' + error.message);
+      toast.error(
+        'Failed to ban bounty: ' +
+          error.message
+      );
     },
+
     onSettled: () => {
       bounty.refetch();
     },
@@ -125,61 +234,117 @@ export default function BountyInfo({
   const cancelMutation = useMutation({
     mutationFn: async () => {
       if (!bounty.data) {
-        throw new Error('Bounty data not found!');
+        throw new Error(
+          'Bounty data not found!'
+        );
       }
 
-      const chainId = await account.connector?.getChainId();
+      const chainId =
+        await account.connector?.getChainId();
+
       if (chain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Switching network...' });
-        await switctChain.switchChainAsync({ chainId: chain.id });
+        setLoading({
+          isLoading: true,
+          status: 'Switching network...',
+        });
+
+        await switctChain.switchChainAsync({
+          chainId: chain.id,
+        });
       }
 
       if (!bounty.data) {
-        throw new Error('Bounty data not found');
+        throw new Error(
+          'Bounty data not found'
+        );
       }
 
-      setLoading({ isLoading: true, status: 'Waiting approval' });
-      await writeContract.writeContractAsync({
-        abi,
-        address: chain.contracts.mainContract as `0x${string}`,
-        functionName: bounty.data.isMultiplayer
-          ? 'cancelOpenBounty'
-          : 'cancelSoloBounty',
-        args: [BigInt(bounty.data.onChainId)],
-        chainId: chain.id,
+      setLoading({
+        isLoading: true,
+        status: 'Waiting approval',
       });
 
-      for (let i = 0; i < 60; i++) {
-        setLoading({ isLoading: true, status: `Indexing ${i}s...` });
-        const canceled = await trpcClient.bounties.isCanceled.query({
-          id: Number(bounty.data.id),
+      await writeContract.writeContractAsync(
+        {
+          abi,
+          address:
+            chain.contracts
+              .mainContract as `0x${string}`,
+          functionName:
+            bounty.data.isMultiplayer
+              ? 'cancelOpenBounty'
+              : 'cancelSoloBounty',
+          args: [
+            BigInt(
+              bounty.data.onChainId
+            ),
+          ],
           chainId: chain.id,
+        }
+      );
+
+      for (let i = 0; i < 60; i++) {
+        setLoading({
+          isLoading: true,
+          status: `Indexing ${i}s...`,
         });
+
+        const canceled =
+          await trpcClient.bounties.isCanceled.query(
+            {
+              id: Number(
+                bounty.data.id
+              ),
+              chainId: chain.id,
+            }
+          );
+
         if (canceled) {
           return;
         }
-        await new Promise((resolve) => setTimeout(resolve, 1_000));
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, 1_000)
+        );
       }
-      throw new Error('Failed to cancel bounty');
+
+      throw new Error(
+        'Failed to cancel bounty'
+      );
     },
+
     onSuccess: () => {
-      setLoading({ isLoading: false });
-      toast.success('Bounty canceled');
+      setLoading({
+        isLoading: false,
+      });
+
+      toast.success(
+        'Bounty canceled'
+      );
     },
+
     onError: (error) => {
-      setLoading({ isLoading: false });
-      toast.error('Failed to cancel bounty: ' + error.message);
+      setLoading({
+        isLoading: false,
+      });
+
+      toast.error(
+        'Failed to cancel bounty: ' +
+          error.message
+      );
     },
+
     onSettled: () => {
       bounty.refetch();
     },
   });
 
-  const isCurrentUserAParticipant = participants.data?.some(
-    (participant) =>
-      participant.userAddress.toLocaleLowerCase() ===
-      account.address?.toLocaleLowerCase()
-  );
+  const isCurrentUserAParticipant =
+    participants.data?.some(
+      (participant) =>
+        participant.userAddress.toLocaleLowerCase() ===
+        account.address?.toLocaleLowerCase()
+    );
 
   const canWithdraw =
     account.address?.toLocaleLowerCase() !==
@@ -187,154 +352,284 @@ export default function BountyInfo({
     !bounty.data?.isVoting &&
     isCurrentUserAParticipant;
 
-  const hasClaimedRefund = trpc.accounts.hasClaimedRefund.useQuery(
-    {
-      bountyId,
-      chainId: chain.id,
-      address: account.address as `0x${string}`,
-    },
-    {
-      enabled:
-        !isNaN(bountyId) && !!account.address && !!isCurrentUserAParticipant,
-    }
-  );
+  const hasClaimedRefund =
+    trpc.accounts.hasClaimedRefund.useQuery(
+      {
+        bountyId,
+        chainId: chain.id,
+        address:
+          account.address as `0x${string}`,
+      },
+      {
+        enabled:
+          validBountyId &&
+          !!account.address &&
+          !!isCurrentUserAParticipant,
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+      }
+    );
 
   const canClaimRefund =
     bounty.data?.isCanceled &&
     bounty.data?.isMultiplayer &&
     isCurrentUserAParticipant &&
     !hasClaimedRefund.data &&
-    isV3Bounty(chain.id, bounty.data?.id) &&
-    account.address?.toLowerCase() !== bounty.data?.issuer.toLowerCase();
+    isV3Bounty(
+      chain.id,
+      bounty.data?.id
+    ) &&
+    account.address?.toLowerCase() !==
+      bounty.data?.issuer.toLowerCase();
 
-  if (!bounty.data) {
-    return null;
+  if (bounty.isError) {
+    return (
+      <div className='pt-6 text-white/60'>
+        Error loading bounty.
+      </div>
+    );
   }
 
-  const rawAmount = formatEther(BigInt(bounty.data.amount));
-  const [whole, decimals] = rawAmount.split('.');
+  if (!bounty.data) {
+    return <BountyInfoSkeleton />;
+  }
+
+  const rawAmount = formatEther(
+    BigInt(bounty.data.amount)
+  );
+
+  const [whole, decimals] =
+    rawAmount.split('.');
+
   const displayAmount = decimals
-    ? `${whole}.${decimals.slice(0, 5)}`.replace(/\.?0+$/, '')
+    ? `${whole}.${decimals
+        .slice(0, 5)}`.replace(
+        /\.?0+$/,
+        ''
+      )
     : whole;
-  
+
   const amountStr = formatAmount({
     amount: displayAmount,
     currency: chain.currency,
     price: price.toString(),
   });
-  const splitIdx = amountStr.indexOf(' (');
+
+  const splitIdx =
+    amountStr.indexOf(' (');
+
   const cryptoAmount = (
-    splitIdx > -1 ? amountStr.slice(0, splitIdx) : amountStr
+    splitIdx > -1
+      ? amountStr.slice(
+          0,
+          splitIdx
+        )
+      : amountStr
   ).toUpperCase();
+
   const usdAmount =
     splitIdx > -1
-      ? `($${amountStr.slice(splitIdx + 2, -1).toUpperCase()})`
-      : null;
-  const displayDescription =
-  bounty.data.id === 1267
-    ? bounty.data.description.replaceAll("Kistmet.art", "Kismet.art")
-    : bounty.data.id === 1307
-      ? bounty.data.description.replace(
-          "Be sure to share your claim in either the /poetry or the /postcards channels!",
-          "Be sure to share your claim in either the /poetry or the /postcards channels! Deadline to submit a claim is 17 August 2026."
-        )
-      : bounty.data.id === 1326
-        ? bounty.data.description.replace(
-            "Bounty open until September 30th",
-            "Submissions open until September 4th @ 11:59 PM PST."
+      ? `($${amountStr
+          .slice(
+            splitIdx + 2,
+            -1
           )
-        : bounty.data.id === 21
+          .toUpperCase()})`
+      : null;
+
+  const displayDescription =
+    bounty.data.id === 1267
+      ? bounty.data.description.replaceAll(
+          'Kistmet.art',
+          'Kismet.art'
+        )
+      : bounty.data.id === 1307
+        ? bounty.data.description.replace(
+            'Be sure to share your claim in either the /poetry or the /postcards channels!',
+            'Be sure to share your claim in either the /poetry or the /postcards channels! Deadline to submit a claim is 17 August 2026.'
+          )
+        : bounty.data.id === 1326
           ? bounty.data.description.replace(
-              /Overall community enjoyment\r?\nReward/,
-              "Overall community enjoyment\n\nReward"
+              'Bounty open until September 30th',
+              'Submissions open until September 4th @ 11:59 PM PST.'
             )
-          : bounty.data.description;
+          : bounty.data.id === 21
+            ? bounty.data.description.replace(
+                /Overall community enjoyment\r?\nReward/,
+                'Overall community enjoyment\n\nReward'
+              )
+            : bounty.data.description;
 
   return (
     <>
       <div className='flex pt-6 flex-col justify-between lg:flex-row'>
-        <div className='flex flex-col  lg:w-[50%]'>
+        <div className='flex flex-col lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
             {bounty.data.title}
           </p>
+
           <div className='mt-5 normal-case break-words'>
-            <MarkdownContent>{displayDescription}</MarkdownContent>
+            <MarkdownContent>
+              {displayDescription}
+            </MarkdownContent>
           </div>
+
           <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             bounty issuer:&nbsp;
-            <div className='flex flex-row  items-center justify-end overflow-hidden'>
-              <DisplayAddress address={bounty.data.issuer} />
+
+            <div className='flex flex-row items-center justify-end overflow-hidden'>
+              <DisplayAddress
+                address={
+                  bounty.data.issuer
+                }
+                pfpSize={20}
+                showPfpIfExists
+                showFallbackPfp
+                showLoadingSkeleton
+              />
+
               <div className='ml-2 mr-2'>
-                <CopyAddressButton address={bounty.data.issuer} />
+                <CopyAddressButton
+                  address={
+                    bounty.data.issuer
+                  }
+                />
               </div>
-              <SocialMediaLinks address={bounty.data.issuer} />
+
+              <SocialMediaLinks
+                address={
+                  bounty.data.issuer
+                }
+              />
             </div>
           </div>
+
           {isAdmin.data && (
             <button
               onClick={() => {
-                if (isAdmin.data) {
+                if (
+                  isAdmin.data
+                ) {
                   signMutation.mutate();
                 } else {
-                  toast.error('You are not an admin');
+                  toast.error(
+                    'You are not an admin'
+                  );
                 }
               }}
-              disabled={bounty.data.ban.length > 0 || false}
+              disabled={
+                bounty.data.ban
+                  .length > 0 ||
+                false
+              }
               className={cn(
                 'border border-poidhRed w-fit rounded-md py-2 px-5 mt-5',
-                bounty.data.ban.length > 0
+                bounty.data.ban
+                  .length > 0
                   ? 'bg-red-400 text-white'
                   : 'hover:bg-red-400 hover:text-white'
               )}
             >
-              {bounty.data.ban.length > 0 ? 'banned' : 'ban'}
+              {bounty.data.ban
+                .length > 0
+                ? 'banned'
+                : 'ban'}
             </button>
           )}
-          {bounty.data?.extra?.album && (
+
+          {bounty.data?.extra
+            ?.album && (
             <p className='text-white mb-3'>
               📸{' '}
               <Link
                 href={`${window.location.origin}/a/${bounty.data.extra.album}`}
                 className='underline hover:opacity-80 cursor-pointer'
               >
-                {bounty.data.extra.album}
+                {
+                  bounty.data.extra
+                    .album
+                }
               </Link>
             </p>
           )}
+
           <div className='flex flex-col sm:flex-row sm:items-center gap-5 mb-0 mt-1 sm:gap-3 sm:mb-5'>
             <div className='flex items-center gap-x-3'>
               <div className='flex items-center gap-2'>
-                <span className='text-xl font-bold'>{cryptoAmount}</span>
+                <span className='text-xl font-bold'>
+                  {
+                    cryptoAmount
+                  }
+                </span>
+
                 <DynamicChainIcon
-                  chain={chain.slug}
-                  size={chain.slug === 'base' ? 22 : 28}
+                  chain={
+                    chain.slug
+                  }
+                  size={
+                    chain.slug ===
+                    'base'
+                      ? 22
+                      : 28
+                  }
                 />
               </div>
+
               {usdAmount && (
-                <span className='text-base opacity-60'>{usdAmount}</span>
+                <span className='text-base opacity-60'>
+                  {
+                    usdAmount
+                  }
+                </span>
               )}
             </div>
-            {bounty.data.isMultiplayer &&
-              bounty.data.inProgress &&
+
+            {bounty.data
+              .isMultiplayer &&
+              bounty.data
+                .inProgress &&
               (canWithdraw ? (
                 <Withdraw
-                  id={bounty.data.id}
-                  onChainId={bounty.data.onChainId}
+                  id={
+                    bounty.data.id
+                  }
+                  onChainId={
+                    bounty.data
+                      .onChainId
+                  }
                 />
               ) : (
-                !bounty.data.isVoting && <JoinBounty bountyId={bountyId} />
+                !bounty.data
+                  .isVoting && (
+                  <JoinBounty
+                    bountyId={
+                      bountyId
+                    }
+                  />
+                )
               ))}
           </div>
         </div>
+
         <div className='flex flex-col space-between'>
-          {bounty.data.inProgress ? (
+          {bounty.data
+            .inProgress ? (
             account.address?.toLocaleLowerCase() ===
               bounty.data.issuer.toLocaleLowerCase() &&
-            !bounty.data.isVoting &&
-            isV3Bounty(chain.id, bounty.data.id) && (
+            !bounty.data
+              .isVoting &&
+            isV3Bounty(
+              chain.id,
+              bounty.data.id
+            ) && (
               <button
-                onClick={() => cancelMutation.mutate()}
-                disabled={!bounty.data.inProgress}
+                onClick={() =>
+                  cancelMutation.mutate()
+                }
+                disabled={
+                  !bounty.data
+                    .inProgress
+                }
                 className='border border-poidhRed rounded-md w-fit py-2 px-5 mt-5 hover:bg-red-400 hover:text-white'
               >
                 cancel
@@ -342,54 +637,107 @@ export default function BountyInfo({
             )
           ) : (
             <span className='border border-poidhRed w-fit rounded-md py-2 px-5 mt-5 bg-poidhRed text-white'>
-              {bounty.data.isCanceled ? 'canceled' : 'accepted'}
+              {bounty.data
+                .isCanceled
+                ? 'canceled'
+                : 'accepted'}
             </span>
           )}
         </div>
       </div>
-      {bounty.data.isMultiplayer && (
-        <BountyMultiplayer chain={chain} bountyId={bountyId} />
+
+      {bounty.data
+        .isMultiplayer && (
+        <BountyMultiplayer
+          chain={chain}
+          bountyId={bountyId}
+        />
       )}
+
       <BountyHistory
-        transactions={(transactions.data ?? []).map((transaction) => {
-          return { ...transaction, timestamp: Number(transaction.timestamp) };
-        })}
+        transactions={(
+          transactions.data ?? []
+        ).map(
+          (
+            transaction
+          ) => {
+            return {
+              ...transaction,
+              timestamp:
+                Number(
+                  transaction.timestamp
+                ),
+            };
+          }
+        )}
       />
+
       <div className='flex flex-wrap items-center gap-4 my-8'>
         <div className='flex items-center gap-4'>
           {canClaimRefund && (
             <ClaimRefund
-              id={bounty.data.id}
-              onChainId={bounty.data.onChainId}
+              id={
+                bounty.data.id
+              }
+              onChainId={
+                bounty.data
+                  .onChainId
+              }
             />
           )}
+
           <button
             type='button'
-            onClick={() => onShareModalStateChange?.(true)}
+            onClick={() =>
+              onShareModalStateChange?.(
+                true
+              )
+            }
             className='flex items-center gap-1 underline hover:no-underline w-fit'
           >
-            share bounty <ArrowIcon size={16} />
+            share bounty{' '}
+            <ArrowIcon
+              size={16}
+            />
           </button>
+
           <button
             type='button'
-            onClick={() => onHowItWorksModalStateChange?.(true)}
+            onClick={() =>
+              onHowItWorksModalStateChange?.(
+                true
+              )
+            }
             className='flex items-center gap-1 underline hover:no-underline w-fit'
           >
-            how it works <QuestionIcon size={22} />
+            how it works{' '}
+            <QuestionIcon
+              size={22}
+            />
           </button>
         </div>
       </div>
+
       {isShareModalOpen && (
         <ShareBountyModal
           onClose={() => {
-            onShareModalStateChange?.(false);
+            onShareModalStateChange?.(
+              false
+            );
           }}
-          bountyIssuerAddress={bounty.data.issuer}
+          bountyIssuerAddress={
+            bounty.data.issuer
+          }
         />
       )}
+
       {isHowItWorksModalOpen && (
         <HowItWorksModal
-          onClose={() => onHowItWorksModalStateChange?.(false)}
+          onClose={() =>
+            onHowItWorksModalStateChange?.(
+              false
+            )
+          }
         />
       )}
     </>
