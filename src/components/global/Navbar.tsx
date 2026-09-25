@@ -107,8 +107,14 @@ export default function Navbar({
               </span>
             </Link>
 
-            {/* reserve the true center column */}
-            <div aria-hidden='true' />
+            {/* normal center nav slot keeps the label aligned */}
+            <div className='flex flex-col items-center justify-center gap-1 text-white z-10'>
+              <div className='w-6 h-6' />
+
+              <span className='text-[10px] whitespace-nowrap'>
+                create {type}
+              </span>
+            </div>
 
             <Link
               href='/feed'
@@ -132,28 +138,20 @@ export default function Navbar({
               </span>
             </Link>
 
-            {/* explicitly centered create action */}
-            <div className='absolute left-1/2 -translate-x-1/2 top-0 z-20 flex flex-col items-center'>
+            {/* floating create button, centered independently */}
+            <div className='absolute left-1/2 -translate-x-1/2 -top-[38px] z-30'>
               <div
                 onClick={handleClick}
-                className='cursor-pointer scale-75 -translate-y-9'
+                className='cursor-pointer flex items-center justify-center'
               >
-                <div className='relative w-[88px] h-[88px] flex items-center justify-center'>
-                  <div className='absolute inset-0 rounded-full ring-[5px] ring-white/40' />
-
-                  {showForm ? (
-                    <PlainGameButton hideShadow={true} />
-                  ) : (
-                    <div className='button'>
-                      <GameButton hideShadow={true} />
-                    </div>
-                  )}
-                </div>
+                {showForm ? (
+                  <PlainGameButton hideShadow={true} />
+                ) : (
+                  <div className='button flex items-center justify-center'>
+                    <GameButton hideShadow={true} />
+                  </div>
+                )}
               </div>
-
-              <span className='absolute top-[52px] text-[10px] whitespace-nowrap text-white'>
-                create {type}
-              </span>
             </div>
           </div>
         </nav>
@@ -177,7 +175,6 @@ export default function Navbar({
     );
   }
 
-  // Desktop view
   return (
     <div className='fixed bottom-16 z-40 w-full flex justify-center items-center lg:flex-col how-it-works-hidden'>
       {!showForm && (
