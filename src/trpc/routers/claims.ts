@@ -154,6 +154,7 @@ export const claimsRouter = {
             select: {
               id: true,
               chainId: true,
+              title: true,
               amount: true,
   
               extra: {
@@ -204,6 +205,7 @@ export const claimsRouter = {
             claim,
             bountyId: tx.bounty.id,
             chainId: tx.bounty.chainId,
+            bountyTitle: tx.bounty.title,
             amount: tx.bounty.amount,
             amountUsd: tx.bounty.extra.amountSort,
             timestamp: tx.timestamp.toString(),
