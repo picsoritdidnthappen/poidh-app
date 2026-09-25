@@ -204,6 +204,7 @@ export default function Activity({
           <DisplayAddress
             address={activity.address ?? ''}
             showPfpIfExists={false}
+            showLoadingSkeleton
           />{' '}
           has voted on a claim for{' '}
           {activity.bounty?.title ? (
@@ -230,7 +231,7 @@ export default function Activity({
     <div className='w-full max-w-full sm:max-w-3xl bg-white/5 border border-white/8 rounded-lg backdrop-blur-sm mt-4 sm:mt-5 overflow-hidden shadow-sm'>
       <div className='px-4 py-3 sm:px-6 sm:py-4 bg-[#7fb7ee] dark:bg-[#132b47]'>
         <div className='flex items-start justify-between gap-4'>
-          <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-3 min-w-0'>
             <DisplayAddress
               address={
                 activity.action ===
@@ -241,6 +242,9 @@ export default function Activity({
                   : ''
               }
               pfpSize={36}
+              showPfpIfExists
+              showFallbackPfp
+              showLoadingSkeleton
             />
           </div>
 
