@@ -147,6 +147,7 @@ export default function ClaimCard({
     isVideo,
     isLoading: isMediaLoading,
     mediaError,
+    setMediaError,
   } = useClaimMedia(claim.url);
 
   const placeholderSeed =
@@ -578,6 +579,9 @@ export default function ClaimCard({
                       onClick={(e) =>
                         e.stopPropagation()
                       }
+                      onError={() => {
+                        setMediaError(true);
+                      }}
                       className='relative z-20 max-h-full max-w-full object-contain'
                     />
                   ) : (
@@ -598,6 +602,9 @@ export default function ClaimCard({
                         width={400}
                         height={400}
                         unoptimized
+                        onError={() => {
+                          setMediaError(true);
+                        }}
                         className='max-h-full max-w-full object-contain transition-transform relative z-20'
                       />
                     </>
@@ -833,6 +840,9 @@ export default function ClaimCard({
                   height={1200}
                   unoptimized
                   draggable={false}
+                  onError={() => {
+                    setMediaError(true);
+                  }}
                   className='max-w-full max-h-full object-contain select-none'
                   style={{
                     transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
