@@ -31,18 +31,126 @@ It can:
 
 A bounty issuer escrows ETH and describes an outcome. Claimants submit proof that they completed the bounty. The issuer — or contributors through weighted voting — can accept a winning claim and release the bounty payout.
 
-Proof is freeform. A claim may point to:
+## Claim Proof and the URI Field
 
-* an image
-* video
-* social post
-* webpage
-* GitHub repository or pull request
-* benchmark result
-* document
-* dataset
-* IPFS object
-* other verifiable evidence
+A poidh claim contains:
+
+1. a **name**
+2. a **description**
+3. a **proof URI**
+
+The **proof URI is the value poidh.xyz uses to resolve the media attached to the claim**.
+
+Do not treat the URI field as a generic evidence-link field.
+
+Links to supporting material such as:
+
+* X / Twitter posts
+* Farcaster posts
+* GitHub repositories or pull requests
+* webpages
+* benchmark pages
+* documentation
+* transaction explorer pages
+
+should normally be placed in the **claim description**.
+
+The smart contract accepts an arbitrary string for the URI field, but that does **not** mean an arbitrary URL will display properly on poidh.xyz.
+
+### Media Types Supported by poidh.xyz
+
+The poidh smart contract does not enforce a file type for the claim URI. The frontend determines whether the URI can actually be displayed.
+
+#### Images uploaded through poidh.xyz
+
+The normal poidh.xyz claim form currently accepts:
+
+* `.jpg`
+* `.jpeg`
+* `.png`
+* `.gif`
+* `.webp`
+
+The normal poidh.xyz upload flow:
+
+1. uploads the image file to IPFS
+2. creates metadata containing the uploaded image URI
+3. uploads that metadata to IPFS
+4. submits the resulting IPFS-hosted metadata URI to the poidh contract
+
+Therefore, a claim created through the normal poidh.xyz interface will commonly have a URI pointing to **metadata**, not directly to the image file.
+
+Do not invent or reconstruct this URI. Use the URI actually returned by the upload flow.
+
+#### Claims submitted directly through the contract
+
+Direct contract submissions do not have to use the poidh.xyz upload flow or IPFS.
+
+The current poidh.xyz frontend knows how to display the following claim media:
+
+**Direct images**
+
+A directly accessible URL whose HTTP `Content-Type` begins with:
+
+```text
+image/
+```
+
+For maximum compatibility, prefer the same image formats accepted by the native poidh.xyz uploader:
+
+```text
+.jpg
+.jpeg
+.png
+.gif
+.webp
+```
+
+**Direct videos**
+
+A directly accessible URL whose HTTP `Content-Type` begins with:
+
+```text
+video/
+```
+
+The frontend also explicitly recognizes these video extensions:
+
+```text
+.mp4
+.mov
+.webm
+.ogg
+```
+
+**JSON metadata**
+
+The frontend can resolve JSON metadata containing an `image` field:
+
+```json
+{
+  "image": "<MEDIA_URL>"
+}
+```
+
+The media URL referenced by that field should itself resolve to displayable image or video media.
+
+The current frontend should **not** be assumed to render arbitrary PDFs, documents, GitHub pages, social posts, ordinary HTML pages, benchmark pages, or other generic URLs as claim media.
+
+Those resources may still be valid supporting evidence, but their links belong in the claim description unless they resolve to supported media as described above.
+
+### URI Rule
+
+> **Contract-valid is not the same thing as frontend-displayable.**
+
+Before submitting a claim directly through the contract:
+
+1. choose a real, accessible URI
+2. verify that it resolves to supported media or supported JSON metadata
+3. verify that poidh.xyz can display the resulting claim media
+4. put non-media supporting links in `CLAIM_DESCRIPTION`
+
+Never invent, guess, or use a placeholder URI.
 
 ---
 
@@ -105,8 +213,8 @@ If the user provides a historical Degen bounty URL, the skill may inspect availa
 | Chain            | Core Contract                                | Explorer                                                                  |
 | ---------------- | -------------------------------------------- | ------------------------------------------------------------------------- |
 | Ethereum Mainnet | `0xE731dFadBFf20542E10D09D26Fc71445C70d4232` | `https://etherscan.io/address/0xe731dfadbff20542e10d09d26fc71445c70d4232` |
-| Arbitrum         | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://arbiscan.io/address/0x5555fa783936c260f77385b4e153b9725fef1719`  |
-| Base             | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://basescan.org/address/0x5555fa783936c260f77385b4e153b9725fef1719` |
+| Arbitrum         | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://arbiscan.io/address/0x5555fa783936c260f77385b4E153B9725fef1719`  |
+| Base             | `0x5555Fa783936C260f77385b4E153B9725feF1719` | `https://basescan.org/address/0x5555fa783936c260f77385b4E153B9725fef1719` |
 
 ---
 
@@ -870,20 +978,106 @@ Explanation of how the claimant completed the bounty.
 
 ### `PROOF_URI`
 
-The submitted evidence.
+The URI used by poidh.xyz to resolve the media attached to the claim.
 
-It may be:
+See **Media Types Supported by poidh.xyz** above before choosing this value.
 
-* IPFS URI
-* image URL
-* video URL
-* tweet
-* Farcaster post
-* GitHub URL
-* webpage
-* document
-* benchmark evidence
-* another proof source
+The contract accepts an arbitrary string, but that does **not** mean an arbitrary URL will display properly on poidh.xyz.
+
+#### Normal poidh.xyz uploads
+
+The normal poidh.xyz claim form accepts:
+
+```text
+.jpg
+.jpeg
+.png
+.gif
+.webp
+```
+
+When using that flow, poidh.xyz:
+
+1. uploads the image to IPFS
+2. builds metadata containing the image URI, title, and description
+3. uploads the metadata to IPFS
+4. submits the resulting metadata URI to `createClaim`
+
+Use the URI returned by that upload flow.
+
+Do **not** manually invent an IPFS CID, metadata URI, or gateway URL.
+
+#### Direct contract submissions
+
+A caller interacting directly with:
+
+```solidity
+createClaim(
+    uint256 bountyId,
+    string name,
+    string description,
+    string imageUri
+)
+```
+
+may provide another URI.
+
+For the current poidh.xyz frontend to display it reliably, use one of these forms:
+
+* a direct image URL returning `Content-Type: image/*`
+* a direct video URL returning `Content-Type: video/*`
+* a direct video URL ending in `.mp4`, `.mov`, `.webm`, or `.ogg`
+* JSON metadata containing an `image` field whose value points to displayable media
+
+For direct images, prefer:
+
+```text
+.jpg
+.jpeg
+.png
+.gif
+.webp
+```
+
+Do **not** use the URI field for generic supporting links.
+
+If completion is demonstrated by a GitHub repository, social post, webpage, transaction, benchmark page, documentation, PDF, or another external resource, put that link in `CLAIM_DESCRIPTION` and use supported media for `PROOF_URI`.
+
+Example:
+
+```text
+CLAIM_NAME:
+Offline Android AI submission
+
+CLAIM_DESCRIPTION:
+Built and tested the app on GrapheneOS.
+Repository: https://github.com/example/project
+Demo notes: https://example.com/results
+
+PROOF_URI:
+https://example.com/proof.png
+```
+
+or:
+
+```text
+PROOF_URI:
+https://example.com/claim-metadata.json
+```
+
+where the metadata contains:
+
+```json
+{
+  "image": "https://example.com/proof.png"
+}
+```
+
+> 🚨 **Never invent a URI.**
+>
+> Do not put placeholder text, a local filesystem path, an inaccessible temporary URL, or an arbitrary webpage into `PROOF_URI`.
+>
+> Before submitting the transaction, verify that the URI resolves to a supported media form that poidh.xyz can display.
 
 ---
 
@@ -1124,7 +1318,61 @@ cast call $NFT_ADDRESS \
 
 ---
 
-# Step 5: Resolve URI
+# Step 5: Validate and Resolve the Proof URI
+
+Before evaluating a claim, distinguish between:
+
+```text
+claim.description
+```
+
+and:
+
+```text
+proof URI / imageUri
+```
+
+The description may contain arbitrary supporting links and explanatory text.
+
+The proof URI is the value poidh.xyz uses to resolve the claim's display media.
+
+The Solidity/event field is historically named `imageUri`, but supported media is not limited to images.
+
+Do not assume:
+
+* every claim URI uses IPFS
+* every URL in the claim description is the claim URI
+* a GitHub, social, benchmark, PDF, document, or webpage link belongs in the URI field
+* every contract-valid URI is displayable by poidh.xyz
+* `imageUri` must literally point directly to an image file
+
+### Current frontend resolution behavior
+
+The current poidh.xyz frontend can resolve:
+
+1. direct responses with `Content-Type: image/*`
+2. direct responses with `Content-Type: video/*`
+3. URLs ending in `.mp4`, `.mov`, `.webm`, or `.ogg`
+4. JSON containing an `image` field
+5. poidh's normal IPFS-hosted claim metadata flow
+
+The native poidh.xyz uploader accepts:
+
+```text
+.jpg
+.jpeg
+.png
+.gif
+.webp
+```
+
+When validating a direct contract submission, prefer these known-supported forms.
+
+### Resolve the URI
+
+The URI may be an IPFS gateway URL, another HTTP(S) URL, or another retrievable URI used by existing poidh claim metadata.
+
+If an `ipfs://` URI is encountered, it may be resolved through an IPFS gateway for inspection:
 
 ```python
 uri = "<URI>"
@@ -1135,57 +1383,72 @@ if uri.startswith("ipfs://"):
         "https://ipfs.io/ipfs/",
         1
     )
-elif uri.startswith("ar://"):
-    url = uri.replace(
-        "ar://",
-        "https://arweave.net/",
-        1
-    )
 else:
     url = uri
 ```
 
-A `tokenURI` may return ERC-721 metadata.
+Then inspect the response.
 
-Example:
+Conceptually:
 
 ```python
 import requests
 
 response = requests.get(url, timeout=30)
+content_type = response.headers.get("content-type", "").lower()
 
-try:
-    meta = response.json()
-
-    content_url = (
-        meta.get("animation_url")
-        or meta.get("image")
-        or url
-    )
-
-    if content_url.startswith("ipfs://"):
-        content_url = content_url.replace(
-            "ipfs://",
-            "https://ipfs.io/ipfs/",
-            1
-        )
-
-    elif content_url.startswith("ar://"):
-        content_url = content_url.replace(
-            "ar://",
-            "https://arweave.net/",
-            1
-        )
-
-except Exception:
+if content_type.startswith("image/"):
     content_url = url
+    media_type = "image"
+
+elif content_type.startswith("video/"):
+    content_url = url
+    media_type = "video"
+
+elif url.lower().split("?", 1)[0].endswith(
+    (".mp4", ".mov", ".webm", ".ogg")
+):
+    content_url = url
+    media_type = "video"
+
+else:
+    text = response.text
+
+    try:
+        meta = response.json()
+    except Exception:
+        meta = None
+
+    if isinstance(meta, dict) and meta.get("image"):
+        content_url = meta["image"]
+        media_type = "metadata"
+    else:
+        content_url = None
+        media_type = None
 ```
+
+If JSON metadata contains:
+
+```json
+{
+  "image": "<MEDIA_URL>"
+}
+```
+
+resolve and inspect that media URL as well.
+
+Do not automatically treat an arbitrary successful HTTP response as valid claim media.
+
+A `200 OK` response from a GitHub page, social post, PDF, documentation page, or ordinary HTML webpage does **not** mean poidh.xyz can display it as claim media.
+
+If the URI cannot be resolved to a supported media form, report the claim media as invalid or inaccessible.
 
 Do not assume:
 
-* every token URI is JSON
+* every URI is JSON metadata
 * every proof URI is an image
 * every claim uses IPFS
+* PDFs or generic documents are supported claim media
 
 ---
 
@@ -1199,7 +1462,9 @@ Inspect visually.
 
 ### Webpage / social post
 
-Open and read it.
+Open and read it when it is supplied as supporting evidence in the claim description or otherwise referenced by the bounty/submission.
+
+Do not infer that a webpage or social-post URL is a valid claim media URI merely because it is useful evidence.
 
 ### GitHub repository / PR
 
@@ -1224,7 +1489,9 @@ Inspect available:
 
 ### PDF / document
 
-Read the document.
+Read the document when it is linked as supporting evidence in the claim description or bounty rules.
+
+Do not assume a PDF/document URL is a supported `PROOF_URI` for frontend display.
 
 ### Benchmark or dataset
 
@@ -1792,3 +2059,9 @@ Evaluation and transaction execution are separate actions.
 18. **Never silently ignore an inaccessible claim.**
 19. **Confirm with the user before every state-changing transaction.**
 20. **Never reveal or log the user's private key.**
+21. **Treat the claim URI as the value poidh.xyz uses to resolve claim display media, not as a generic evidence-link field.**
+22. **The native poidh.xyz claim uploader accepts `.jpg`, `.jpeg`, `.png`, `.gif`, and `.webp`, uploads the image to IPFS, then submits IPFS-hosted metadata containing the image URI.**
+23. **For direct contract submissions, use media the current frontend can resolve: `image/*`, `video/*`, `.mp4`, `.mov`, `.webm`, `.ogg`, or JSON metadata containing an `image` field.**
+24. **Do not assume arbitrary PDFs, documents, GitHub pages, social posts, ordinary webpages, benchmark pages, or other generic URLs will display as claim media. Put those links in the claim description.**
+25. **Contract-valid is not the same thing as frontend-displayable. Verify the URI resolves to supported media before creating a claim.**
+26. **Never invent, guess, or submit a placeholder proof URI.**
