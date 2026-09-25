@@ -71,7 +71,7 @@ export default function Navbar({
         <nav className='fixed bottom-0 left-0 right-0 h-20 z-40 how-it-works-hidden shadow-[0_4px_24px_0_var(--cyber-nav-shadow,rgba(80,160,220,0.14))] android:pb-10 pb-4'>
           <div className='absolute inset-0 rounded-t-3xl bg-gradient-to-b from-[#7db3e0] to-[#b3d8f7] dark:from-[#0d1b2e] dark:to-[#132b47] backdrop-blur-sm' />
 
-          <div className='relative h-full grid grid-cols-5 items-center pt-2'>
+          <div className='relative h-full grid grid-cols-[1fr_1fr_1.5fr_1fr_1fr] items-center pt-2'>
             <Link
               href={account.address ? `/account/${account.address}` : '#'}
               onClick={(e) => {
