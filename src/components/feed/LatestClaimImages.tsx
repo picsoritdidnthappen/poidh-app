@@ -139,22 +139,19 @@ function ClaimantAvatar({
     );
   }
 
-  return (
-    <PatternAvatar
-      seed={address}
-      size={size}
-    />
-  );
+  return <PatternAvatar seed={address} size={size} />;
 }
 
 function ClaimThumb({
   claim,
   bountyId,
   chainId,
+  bountyTitle,
 }: {
   claim: Claim;
   bountyId: number;
   chainId: ChainId;
+  bountyTitle: string;
 }) {
   const chain = getChainById({ chainId });
   const thumbRef = useRef<HTMLDivElement>(null);
@@ -206,7 +203,11 @@ function ClaimThumb({
       <Link
         href={`/${chain.slug}/bounty/${bountyId}`}
         className='block relative w-full h-full group'
-        aria-label={`view bounty for ${claim.title || 'claim'}`}
+        aria-label={
+          bountyTitle
+            ? `view bounty: ${bountyTitle}`
+            : 'view bounty'
+        }
       >
         {mediaUrl && !mediaError ? (
           isVideo ? (
@@ -239,8 +240,27 @@ function ClaimThumb({
           <div className='absolute inset-0 bg-white/10 animate-pulse' />
         )}
 
+        {/* frosted bottom fade */}
+        <div className='absolute inset-x-0 bottom-0 h-12 sm:h-14 z-10 pointer-events-none'>
+          <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent' />
+          <div className='absolute inset-x-0 bottom-0 h-8 sm:h-10 backdrop-blur-[2px] bg-black/10' />
+        </div>
+
+        {/* BOUNTY title */}
+        {bountyTitle && (
+          <div className='absolute left-2 right-8 sm:right-12 bottom-2 z-20 min-w-0'>
+            <div
+              className='truncate font-mono text-[9px] sm:text-[11px] font-semibold text-white leading-tight drop-shadow-md'
+              title={bountyTitle}
+            >
+              {bountyTitle}
+            </div>
+          </div>
+        )}
+
+        {/* claimant PFP */}
         <div
-          className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-20 rounded-full bg-black/70 p-[2px] shadow-md scale-[0.7] sm:scale-100 origin-bottom-right'
+          className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-30 rounded-full bg-black/70 p-[2px] shadow-md scale-[0.7] sm:scale-100 origin-bottom-right'
           title='claim issuer'
         >
           <ClaimantAvatar
@@ -249,7 +269,7 @@ function ClaimThumb({
           />
         </div>
 
-        <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200' />
+        <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 z-10 pointer-events-none' />
       </Link>
     </div>
   );
@@ -330,6 +350,7 @@ export default function LatestClaimImages() {
                 claim={item.claim as Claim}
                 bountyId={item.bountyId}
                 chainId={item.chainId as ChainId}
+                bountyTitle={item.bountyTitle}
               />
             ))}
       </div>
