@@ -145,7 +145,6 @@ export default function ClaimCard({
   const {
     mediaUrl,
     isVideo,
-    isLoading: isMediaLoading,
     mediaError,
     setMediaError,
   } = useClaimMedia(claim.url);
@@ -154,16 +153,19 @@ export default function ClaimCard({
     `${claim.chainId}-${claim.id}-${claim.issuer.address}`;
 
   const [scale, setScale] = useState(1);
+
   const [translate, setTranslate] = useState({
     x: 0,
     y: 0,
   });
+
   const [isImageFullscreen, setIsImageFullscreen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const shareDropdownRef = useRef<HTMLDivElement>(null);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
   const lastTouchDistance = useRef<number | null>(null);
+
   const lastTouchPoint = useRef<{
     x: number;
     y: number;
@@ -204,10 +206,12 @@ export default function ClaimCard({
 
   const resetImageTransform = () => {
     setScale(1);
+
     setTranslate({
       x: 0,
       y: 0,
     });
+
     lastTouchDistance.current = null;
     lastTouchPoint.current = null;
   };
@@ -245,7 +249,9 @@ export default function ClaimCard({
     if (e.touches.length === 2) {
       lastTouchDistance.current =
         getTouchDistance(e.touches);
+
       lastTouchPoint.current = null;
+
       return;
     }
 
@@ -321,6 +327,7 @@ export default function ClaimCard({
       scale > 1
     ) {
       lastTouchDistance.current = null;
+
       lastTouchPoint.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
@@ -329,6 +336,7 @@ export default function ClaimCard({
 
     if (scale <= 1) {
       setScale(1);
+
       setTranslate({
         x: 0,
         y: 0,
@@ -486,7 +494,7 @@ export default function ClaimCard({
         window.location.origin
       );
 
-      if (mediaUrl) {
+      if (mediaUrl && !mediaError) {
         cardUrl.searchParams.set(
           'image',
           mediaUrl
@@ -521,6 +529,7 @@ export default function ClaimCard({
       }
 
       const imageBlob = await response.blob();
+
       const uploadResult =
         await uploadFile(imageBlob);
 
@@ -540,7 +549,10 @@ export default function ClaimCard({
     } catch {
       await shareToFarcaster({
         text,
-        embedImage: mediaUrl ?? claim.url ?? '',
+        embedImage:
+          !mediaError
+            ? mediaUrl ?? claim.url ?? ''
+            : '',
       });
     } finally {
       setIsGeneratingCard(false);
@@ -569,7 +581,11 @@ export default function ClaimCard({
                   }
                 }}
               >
-                {mediaUrl && !mediaError ? (
+                {mediaError ? (
+                  <GenerativePlaceholder
+                    seed={placeholderSeed}
+                  />
+                ) : mediaUrl ? (
                   isVideo ? (
                     <video
                       src={mediaUrl}
@@ -609,12 +625,8 @@ export default function ClaimCard({
                       />
                     </>
                   )
-                ) : isMediaLoading ? (
-                  <div className='absolute inset-0 bg-white/10 animate-pulse' />
                 ) : (
-                  <GenerativePlaceholder
-                    seed={placeholderSeed}
-                  />
+                  <div className='absolute inset-0 bg-white/10 animate-pulse' />
                 )}
               </div>
 
@@ -648,10 +660,11 @@ export default function ClaimCard({
                   </span>
 
                   <DisplayAddress
-                    address={
-                      claim.issuer.address
-                    }
+                    address={claim.issuer.address}
                     pfpSize={18}
+                    showPfpIfExists
+                    showFallbackPfp
+                    showLoadingSkeleton
                   />
                 </div>
 
@@ -842,6 +855,8 @@ export default function ClaimCard({
                   draggable={false}
                   onError={() => {
                     setMediaError(true);
+                    setIsImageFullscreen(false);
+                    resetImageTransform();
                   }}
                   className='max-w-full max-h-full object-contain select-none'
                   style={{
