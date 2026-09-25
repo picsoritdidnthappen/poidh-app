@@ -278,17 +278,17 @@ function PayoutThumb({
           </div>
         </div>
 
-        {/* strong white frosted bottom fade */}
+        {/* softer white frosted bottom fade */}
         <div className='absolute inset-x-0 bottom-0 h-12 sm:h-14 z-10 pointer-events-none'>
-          <div className='absolute inset-0 bg-gradient-to-t from-black/20 via-white/[0.15] to-transparent' />
-          <div className='absolute inset-x-0 bottom-0 h-8 sm:h-10 backdrop-blur-[12px] bg-white/[0.28] border-t border-white/30' />
+          <div className='absolute inset-0 bg-gradient-to-t from-black/20 via-white/[0.08] to-transparent' />
+          <div className='absolute inset-x-0 bottom-0 h-8 sm:h-10 backdrop-blur-[7px] bg-white/[0.14]' />
         </div>
 
         {/* bounty title */}
         {payout.bountyTitle && (
           <div className='absolute left-2 right-8 sm:right-10 bottom-2 z-20 min-w-0'>
             <div
-              className='truncate font-mono text-[9px] sm:text-[11px] font-semibold text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]'
+              className='truncate font-mono text-[9px] sm:text-[11px] font-semibold text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]'
               title={payout.bountyTitle}
             >
               {payout.bountyTitle}
@@ -298,7 +298,7 @@ function PayoutThumb({
 
         {/* earner PFP */}
         <div
-          className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-30 rounded-full bg-black/70 p-[2px] shadow-md scale-[0.7] sm:scale-[0.75] origin-bottom-right'
+          className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-30 scale-[0.7] sm:scale-[0.75] origin-bottom-right'
           title='bounty earner'
         >
           <EarnerAvatar
