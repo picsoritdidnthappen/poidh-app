@@ -31,7 +31,9 @@ export default function Navbar({
   const isMobile = useScreenSize();
 
   const user = trpc.users.fetchByAddress.useQuery(
-    { address: account.address as `0x${string}` },
+    {
+      address: account.address as `0x${string}`,
+    },
     {
       enabled: !!account.address,
     }
@@ -107,7 +109,7 @@ export default function Navbar({
               </span>
             </Link>
 
-            {/* normal center nav slot keeps the label aligned */}
+            {/* center slot keeps create label aligned with other nav labels */}
             <div className='flex flex-col items-center justify-center gap-1 text-white z-10'>
               <div className='w-6 h-6' />
 
@@ -138,7 +140,7 @@ export default function Navbar({
               </span>
             </Link>
 
-            {/* floating create button, centered independently */}
+            {/* floating create button */}
             <div className='absolute left-1/2 -translate-x-1/2 -top-[27px] z-30'>
               <div
                 onClick={handleClick}
@@ -153,6 +155,8 @@ export default function Navbar({
                 )}
               </div>
             </div>
+          </div>
+        </nav>
 
         {type === 'bounty' ? (
           <FormBounty
