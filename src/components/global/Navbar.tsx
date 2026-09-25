@@ -140,8 +140,8 @@ export default function Navbar({
               </span>
             </Link>
 
-            {/* floating create button */}
-            <div className='absolute left-1/2 -translate-x-1/2 -top-[27px] z-30'>
+            {/* floating create button — center sits exactly on navbar top edge */}
+            <div className='absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 z-30'>
               <div
                 onClick={handleClick}
                 className='cursor-pointer flex items-center justify-center scale-75 origin-center'
