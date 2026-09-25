@@ -88,6 +88,7 @@ export const claimsRouter = {
             select: {
               id: true,
               chainId: true,
+              title: true,
             },
           },
         },
@@ -107,6 +108,7 @@ export const claimsRouter = {
             claim: tx.claim,
             bountyId: tx.bounty?.id ?? tx.bountyId,
             chainId: tx.bounty?.chainId ?? tx.chainId,
+            bountyTitle: tx.bounty?.title ?? '',
           },
         ];
       });
