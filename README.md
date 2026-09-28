@@ -199,3 +199,34 @@ To contribute code, follow these steps:
 ### Thank You!
 
 We appreciate your contribution to poidh. Happy coding and thank you for helping to make poidh even better!
+
+## Passkey smart accounts + cross-chain deposits (ZeroDev)
+
+poidh supports logging in with a **device passkey** (no seed phrase, no
+browser extension). A passkey creates a ZeroDev Kernel v3.1 smart
+account on **Arbitrum One** — the destination chain — and the account
+appears as a wallet option in the RainbowKit modal ("Passkey (smart
+account)") as well as via the 🔑 passkey button in the header.
+
+- **Passkey login** — WebAuthn register/login via the ZeroDev passkey
+  server; the smart account signs every transaction as an ERC-4337
+  user operation. `wallet_sendCalls` (EIP-5792) batches several
+  contract calls into one operation.
+- **Cross-chain deposits** — the "fund on Arbitrum from any chain"
+  widget quotes Relay (relay.link) and lets a user bridge ETH from
+  Ethereum, Base, or Degen into their poidh account on Arbitrum in one
+  signed transaction on the origin chain.
+- **Gas** — users pay gas from the smart account; no paymaster policy
+  is required from the maintainer. Sponsorship can be layered on later
+  via the paymaster URL in `src/zerodev/config.ts`.
+
+### Setup
+
+1. Create a free project at https://dashboard.zerodev.app
+2. Set `NEXT_PUBLIC_ZERODEV_PROJECT_ID=<project id>` in your env.
+   Without it the passkey option is hidden and everything else is
+   unchanged.
+
+Relevant code: `src/zerodev/` (config, passkeySmartAccount,
+zerodevConnector, PasskeyConnectButton, CrossChainDeposit) and
+`src/wagmiConfig.ts`. Tests: `src/zerodev/__tests__/zerodev.test.ts`.

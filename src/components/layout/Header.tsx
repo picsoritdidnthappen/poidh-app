@@ -14,6 +14,8 @@ import {
 } from '@/components/global/Icons';
 import { Drawer } from '@mui/material';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { PasskeyConnectButton } from '@/zerodev/PasskeyConnectButton';
+import { CrossChainDeposit } from '@/zerodev/CrossChainDeposit';
 import Image from 'next/image';
 import Logo from '../global/Logo';
 import { useAccount } from 'wagmi';
@@ -128,16 +130,20 @@ function ConnectWalletButton() {
             {(() => {
               if (!connected) {
                 return (
-                  <button
-                    onClick={openConnectModal}
-                    className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-2 hover:bg-white/20 h-10'
-                  >
-                    connect
-                  </button>
+                  <div className='flex gap-2'>
+                    <button
+                      onClick={openConnectModal}
+                      className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-2 hover:bg-white/20 h-10'
+                    >
+                      connect
+                    </button>
+                    <PasskeyConnectButton />
+                  </div>
                 );
               }
               return (
-                <div className='flex gap-2'>
+                <div className='flex gap-2 items-center'>
+                  <CrossChainDeposit />
                   <button
                     onClick={openAccountModal}
                     className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-1 hover:bg-white/20 flex items-center gap-1 relative'
