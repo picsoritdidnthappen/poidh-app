@@ -170,7 +170,7 @@ export default function Activity({
           </div>
 
           {activity.comment?.body && (
-            <div className='mt-3 rounded-md border border-white/10 bg-black/10 px-3 py-2 text-white/90 whitespace-pre-wrap break-words'>
+            <div className='feed-comment-body mt-3 rounded-md border px-3 py-2 text-white/90 whitespace-pre-wrap break-words'>
               <TextWithLinks>
                 {
                   activity.comment
