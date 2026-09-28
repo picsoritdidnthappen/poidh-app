@@ -6,10 +6,7 @@ import { getChainById } from '@/utils/config';
 import { trpc } from '@/trpc/client';
 import { formatAmount } from '@/utils/utils';
 import { formatEther } from 'viem';
-import {
-  ChainId,
-  Claim,
-} from '@/utils/types';
+import { ChainId, Claim } from '@/utils/types';
 
 type ActivityTx = {
   tx: string;
@@ -46,192 +43,129 @@ export default function Activity({
   activity: ActivityTx;
 }) {
   const bountyId =
-    activity.bounty?.id ??
-    activity.bountyId;
+    activity.bounty?.id ?? activity.bountyId;
 
   const chainId =
-    activity.bounty?.chainId ??
-    activity.chainId;
+    activity.bounty?.chainId ?? activity.chainId;
 
   const chain = getChainById({
-    chainId:
-      chainId as ChainId,
+    chainId: chainId as ChainId,
   });
 
-  const priceData =
-    trpc.web3.fetchPrice.useQuery(
-      {
-        currency:
-          chain?.currency ??
-          'eth',
-      },
-      {
-        enabled:
-          Boolean(
-            chain?.currency
-          ),
-
-        staleTime:
-          60_000,
-
-        refetchOnWindowFocus:
-          false,
-      }
-    );
+  const priceData = trpc.web3.fetchPrice.useQuery(
+    {
+      currency: chain?.currency ?? 'eth',
+    },
+    {
+      enabled: Boolean(chain?.currency),
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const bountyPrice =
-    activity.bounty
-      ?.amount &&
+    activity.bounty?.amount &&
     priceData.data &&
     chain
       ? formatAmount({
-          amount:
-            formatEther(
-              BigInt(
-                activity
-                  .bounty
-                  .amount
-              )
-            ),
-
-          price:
-            priceData.data.toString(),
-
-          currency:
-            chain.currency,
-
+          amount: formatEther(
+            BigInt(activity.bounty.amount)
+          ),
+          price: priceData.data.toString(),
+          currency: chain.currency,
           precision: 4,
         })
       : '...';
 
-  const dateTime =
-    activity.timestamp
-      ? (() => {
-          const dateObj =
-            new Date(
-              Number(
-                activity.timestamp
-              ) *
-                1000
-            );
+  const dateTime = activity.timestamp
+    ? (() => {
+        const dateObj = new Date(
+          Number(activity.timestamp) * 1000
+        );
 
-          const dateStr =
-            dateObj.toLocaleDateString(
-              'en-GB',
-              {
-                day:
-                  '2-digit',
+        const dateStr =
+          dateObj.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          });
 
-                month:
-                  '2-digit',
+        const timeStr =
+          dateObj.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+          });
 
-                year:
-                  'numeric',
-              }
-            );
-
-          const timeStr =
-            dateObj.toLocaleTimeString(
-              'en-US',
-              {
-                hour:
-                  'numeric',
-
-                minute:
-                  '2-digit',
-
-                hour12:
-                  true,
-              }
-            );
-
-          return {
-            date:
-              dateStr,
-
-            time:
-              timeStr,
-          };
-        })()
-      : {
-          date: '',
-          time: '',
+        return {
+          date: dateStr,
+          time: timeStr,
         };
+      })()
+    : {
+        date: '',
+        time: '',
+      };
 
   function renderText() {
-    const action =
-      activity.action ||
-      '';
+    const action = activity.action || '';
 
     /*
      * COMMENTS / REPLIES
      */
     if (
-      action ===
-        'comment created' ||
-      action ===
-        'reply created'
+      action === 'comment created' ||
+      action === 'reply created'
     ) {
       const isReply =
-        action ===
-        'reply created';
+        action === 'reply created';
 
       return (
         <div>
-          <div className='flex flex-wrap items-center gap-x-1'>
+          <div className='flex flex-wrap items-center'>
             {isReply ? (
               <>
-                <span>
+                <span className='mr-1'>
                   replied to
                 </span>
 
-                {activity
-                  .comment
+                {activity.comment
                   ?.replyToAddress ? (
-                  <span className='inline-flex items-center max-w-full'>
+                  <span className='inline-flex items-center mr-1'>
+                    <span>@</span>
+
                     <DisplayAddress
                       address={
-                        activity
-                          .comment
+                        activity.comment
                           .replyToAddress
                       }
-                      showPfpIfExists={
-                        false
-                      }
+                      showPfpIfExists={false}
                       showLoadingSkeleton
-                      linkToProfile={
-                        false
-                      }
+                      linkToProfile={false}
                     />
                   </span>
                 ) : (
-                  <span>
-                    someone
+                  <span className='mr-1'>
+                    @someone
                   </span>
                 )}
 
-                <span>
+                <span className='mr-1'>
                   on
                 </span>
               </>
             ) : (
-              <span>
+              <span className='mr-1'>
                 commented on
               </span>
             )}
 
-            {activity
-              .bounty
-              ?.title ? (
-              <strong>
-                {
-                  activity
-                    .bounty
-                    .title
-                }
+            {activity.bounty?.title ? (
+              <strong className='mr-1'>
+                {activity.bounty.title}
               </strong>
             ) : (
-              <span>
+              <span className='mr-1'>
                 a bounty
               </span>
             )}
@@ -239,16 +173,10 @@ export default function Activity({
             <span>💬</span>
           </div>
 
-          {activity
-            .comment
-            ?.body && (
+          {activity.comment?.body && (
             <div className='feed-comment-body mt-3 rounded-md border px-3 py-2 text-white/90 whitespace-pre-wrap break-words'>
               <TextWithLinks>
-                {
-                  activity
-                    .comment
-                    .body
-                }
+                {activity.comment.body}
               </TextWithLinks>
             </div>
           )}
@@ -256,36 +184,29 @@ export default function Activity({
       );
     }
 
-    if (
-      action ===
-      'bounty created'
-    ) {
+    /*
+     * BOUNTY CREATED
+     */
+    if (action === 'bounty created') {
       return (
         <div>
-          a new bounty has
-          been created 💰
+          a new bounty has been created 💰
         </div>
       );
     }
 
-    if (
-      action ===
-      'claim created'
-    ) {
+    /*
+     * CLAIM CREATED
+     */
+    if (action === 'claim created') {
       return (
         <div>
           new claim on
-          {activity
-            .bounty
-            ?.title ? (
+          {activity.bounty?.title ? (
             <span>
               <strong>
                 {` `}
-                {
-                  activity
-                    .bounty
-                    .title
-                }
+                {activity.bounty.title}
                 {` `}
               </strong>
 
@@ -302,22 +223,16 @@ export default function Activity({
       );
     }
 
-    if (
-      action ===
-      'claim accepted'
-    ) {
+    /*
+     * CLAIM ACCEPTED
+     */
+    if (action === 'claim accepted') {
       return (
         <div>
-          a claim has been
-          accepted for{' '}
-          {activity
-            .bounty
-            ?.title ? (
+          a claim has been accepted for{' '}
+          {activity.bounty?.title ? (
             <strong>
-              {activity
-                .bounty
-                .title +
-                ' 🏆'}
+              {activity.bounty.title + ' 🏆'}
             </strong>
           ) : (
             'this bounty 🏆'
@@ -326,49 +241,38 @@ export default function Activity({
       );
     }
 
+    /*
+     * FUNDS ADDED / REMOVED
+     */
     if (
-      action[0] ===
-        '+' ||
-      action[0] ===
-        '-'
+      action.startsWith('+') ||
+      action.startsWith('-')
     ) {
       const isAdd =
-        action[0] ===
-        '+';
+        action.startsWith('+');
 
-      const verb =
-        isAdd
-          ? 'added'
-          : 'removed';
+      const verb = isAdd
+        ? 'added'
+        : 'removed';
 
-      const prep =
-        isAdd
-          ? 'to'
-          : 'from';
+      const prep = isAdd
+        ? 'to'
+        : 'from';
 
       const amountRaw =
-        action
-          .slice(1)
-          .trim();
+        action.slice(1).trim();
 
       const contribution =
-        priceData.data &&
-        chain
+        priceData.data && chain
           ? formatAmount({
-              amount:
-                amountRaw,
-
-              currency:
-                chain.currency,
-
-              price:
-                String(
-                  priceData.data
-                ),
+              amount: amountRaw,
+              currency: chain.currency,
+              price: String(
+                priceData.data
+              ),
             })
           : `${amountRaw} ${
-              chain?.currency ??
-              ''
+              chain?.currency ?? ''
             }`;
 
       return (
@@ -376,15 +280,9 @@ export default function Activity({
           {verb}{' '}
           {contribution}{' '}
           {prep}{' '}
-          {activity
-            .bounty
-            ?.title ? (
+          {activity.bounty?.title ? (
             <strong>
-              {
-                activity
-                  .bounty
-                  .title
-              }
+              {activity.bounty.title}
             </strong>
           ) : (
             'this bounty'
@@ -393,6 +291,9 @@ export default function Activity({
       );
     }
 
+    /*
+     * SUBMITTED FOR VOTE
+     */
     if (
       action.includes(
         'submitted for vote'
@@ -400,42 +301,30 @@ export default function Activity({
     ) {
       return (
         <div>
-          a claim has been
-          nominated for
-          vote, contributors
-          have 48 hours to
-          confirm
+          a claim has been nominated for
+          vote, contributors have 48 hours
+          to confirm
         </div>
       );
     }
 
-    if (
-      action ===
-      'voted'
-    ) {
+    /*
+     * VOTED
+     */
+    if (action === 'voted') {
       return (
         <div>
           <DisplayAddress
             address={
-              activity.address ??
-              ''
+              activity.address ?? ''
             }
-            showPfpIfExists={
-              false
-            }
+            showPfpIfExists={false}
             showLoadingSkeleton
           />{' '}
-          has voted on a
-          claim for{' '}
-          {activity
-            .bounty
-            ?.title ? (
+          has voted on a claim for{' '}
+          {activity.bounty?.title ? (
             <strong>
-              {
-                activity
-                  .bounty
-                  .title
-              }
+              {activity.bounty.title}
             </strong>
           ) : (
             'this bounty'
@@ -447,8 +336,7 @@ export default function Activity({
     return null;
   }
 
-  const text =
-    renderText();
+  const text = renderText();
 
   if (!text) {
     return null;
@@ -463,17 +351,11 @@ export default function Activity({
               address={
                 activity.action ===
                 'claim accepted'
-                  ? activity
-                      .bounty
-                      ?.issuer ??
-                    ''
-                  : activity.address
-                    ? activity.address
-                    : ''
+                  ? activity.bounty
+                      ?.issuer ?? ''
+                  : activity.address ?? ''
               }
-              pfpSize={
-                36
-              }
+              pfpSize={36}
               showPfpIfExists
               showFallbackPfp
               showLoadingSkeleton
@@ -482,15 +364,11 @@ export default function Activity({
 
           <div className='text-xs sm:text-sm text-white/60 whitespace-nowrap ml-auto text-right'>
             <div>
-              {
-                dateTime.date
-              }
+              {dateTime.date}
             </div>
 
             <div>
-              {
-                dateTime.time
-              }
+              {dateTime.time}
             </div>
           </div>
         </div>
@@ -505,12 +383,8 @@ export default function Activity({
       {activity.claim ? (
         <div className='border-t border-white/6'>
           <ClaimImageEmbed
-            claim={
-              activity.claim
-            }
-            bountyId={
-              bountyId
-            }
+            claim={activity.claim}
+            bountyId={bountyId}
             chainId={
               chainId as ChainId
             }
@@ -518,8 +392,7 @@ export default function Activity({
         </div>
       ) : (
         <div className='border-t border-white/6 px-4 pb-4 pt-2'>
-          {bountyId !=
-            null &&
+          {bountyId != null &&
             chain && (
               <div className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md bg-gradient-to-b from-[#2a81d5] via-[#70aae2] to-[#2a81d5] dark:from-[#0d1b2e] dark:via-[#1a3a5c] dark:to-[#0d1b2e]'>
                 <Link
@@ -528,27 +401,22 @@ export default function Activity({
                 >
                   <div className='flex flex-col flex-1 min-w-0'>
                     <span className='font-mono text-m mb-3 truncate'>
-                      {activity
-                        .bounty
-                        ?.title ??
-                        '???'}
+                      {activity.bounty
+                        ?.title ?? '???'}
                     </span>
 
-                    {activity
-                      .bounty
+                    {activity.bounty
                       ?.amount &&
                       priceData.data &&
                       chain && (
                         <span className='font-mono text-s text-white/70 mt-1'>
-                          {
-                            bountyPrice
-                          }
+                          {bountyPrice}
                         </span>
                       )}
                   </div>
 
                   <div className='text-xs text-white/60 hover:text-poidhRed shrink-0'>
-                    Open
+                    open
                   </div>
                 </Link>
               </div>
