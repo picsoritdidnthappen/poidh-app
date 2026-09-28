@@ -122,18 +122,15 @@ export default function Activity({
 
       return (
         <div>
-          <div className='flex flex-wrap items-center'>
+          <div className='leading-relaxed'>
             {isReply ? (
               <>
-                <span className='mr-1'>
-                  replied to
-                </span>
+                replied to{' '}
 
                 {activity.comment
                   ?.replyToAddress ? (
-                  <span className='inline-flex items-center mr-1'>
+                  <span className='inline-flex items-center align-baseline'>
                     <span>@</span>
-
                     <DisplayAddress
                       address={
                         activity.comment
@@ -145,32 +142,24 @@ export default function Activity({
                     />
                   </span>
                 ) : (
-                  <span className='mr-1'>
-                    @someone
-                  </span>
+                  <span>@someone</span>
                 )}
 
-                <span className='mr-1'>
-                  on
-                </span>
+                {' '}on{' '}
               </>
             ) : (
-              <span className='mr-1'>
-                commented on
-              </span>
+              <>commented on{' '}</>
             )}
 
             {activity.bounty?.title ? (
-              <strong className='mr-1'>
+              <strong>
                 {activity.bounty.title}
               </strong>
             ) : (
-              <span className='mr-1'>
-                a bounty
-              </span>
+              <span>a bounty</span>
             )}
 
-            <span>💬</span>
+            {' '}💬
           </div>
 
           {activity.comment?.body && (
@@ -209,7 +198,6 @@ export default function Activity({
                 {activity.bounty.title}
                 {` `}
               </strong>
-
               valued at
               {` ${bountyPrice} `}
             </span>
