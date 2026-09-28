@@ -539,98 +539,343 @@ export const accountsRouter = {
     }),
 
   activities: baseProcedure
-  .input(
-    z.object({
-      address: z.string().optional(),
-      limit: z.number().min(1).max(200).default(10),
-      cursor: z.string().nullish(),
-    })
-  )
-  .query(async ({ input }) => {
-    const txs = await prisma.transactions.findMany({
-      include: {
-        bounty: {
-          select: {
-            id: true,
-            chainId: true,
-            title: true,
-            issuer: true,
-            amount: true,
-          },
-        },
-        claim: {
-          select: {
-            id: true,
-            chainId: true,
-            title: true,
-            url: true,
-            issuer: true,
-          },
-        },
-      },
-
-      where: {
-        action: {
-          not: 'bounty canceled',
-        },
-
-        bounty: {
-          ban: {
-            none: {},
-          },
-        },
-
-        OR: [
-          {
-            claimId: {
-              equals: null,
+    .input(
+      z.object({
+        address: z.string().optional(),
+        limit: z.number().min(1).max(200).default(10),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ input }) => {
+      const normalizedAddress =
+        input.address?.toLowerCase();
+  
+      const cursorTimestamp = input.cursor
+        ? Number(input.cursor)
+        : null;
+  
+      const commentCursorDate =
+        cursorTimestamp !== null &&
+        Number.isFinite(cursorTimestamp)
+          ? new Date(cursorTimestamp * 1000)
+          : undefined;
+  
+      /*
+       * Pull one page from each activity source.
+       *
+       * We merge + sort them below, so a page can contain:
+       * - bounty created
+       * - claim created
+       * - funds added/removed
+       * - votes
+       * - accepted claims
+       * - comments
+       * - replies
+       */
+      const [txs, comments] = await Promise.all([
+        prisma.transactions.findMany({
+          include: {
+            bounty: {
+              select: {
+                id: true,
+                chainId: true,
+                title: true,
+                issuer: true,
+                amount: true,
+              },
+            },
+  
+            claim: {
+              select: {
+                id: true,
+                chainId: true,
+                title: true,
+                url: true,
+                issuer: true,
+              },
             },
           },
-          {
-            claim: {
-              is: {
+  
+          where: {
+            action: {
+              not: 'bounty canceled',
+            },
+  
+            bounty: {
+              ban: {
+                none: {},
+              },
+            },
+  
+            OR: [
+              {
+                claimId: {
+                  equals: null,
+                },
+              },
+              {
+                claim: {
+                  is: {
+                    ban: {
+                      none: {},
+                    },
+                  },
+                },
+              },
+            ],
+  
+            ...(normalizedAddress
+              ? {
+                  address: normalizedAddress,
+                }
+              : {}),
+  
+            ...(input.cursor
+              ? {
+                  timestamp: {
+                    lt: input.cursor,
+                  },
+                }
+              : {}),
+          },
+  
+          orderBy: {
+            timestamp: 'desc',
+          },
+  
+          take: input.limit,
+        }),
+  
+        prisma.comments.findMany({
+          where: {
+            deletedAt: null,
+  
+            ...(normalizedAddress
+              ? {
+                  userAddress: normalizedAddress,
+                }
+              : {}),
+  
+            ...(commentCursorDate
+              ? {
+                  createdAt: {
+                    lt: commentCursorDate,
+                  },
+                }
+              : {}),
+          },
+  
+          select: {
+            id: true,
+            body: true,
+            parentId: true,
+            bountyId: true,
+            chainId: true,
+            userAddress: true,
+            createdAt: true,
+          },
+  
+          orderBy: {
+            createdAt: 'desc',
+          },
+  
+          take: input.limit,
+        }),
+      ]);
+  
+      /*
+       * Comments don't currently load their bounty relation in
+       * comments.ts, so resolve the bounty data here.
+       *
+       * This also lets us omit comments belonging to banned bounties.
+       */
+      const uniqueBountyKeys = Array.from(
+        new Map(
+          comments.map((comment) => [
+            `${comment.chainId}-${comment.bountyId}`,
+            {
+              id: comment.bountyId,
+              chainId: comment.chainId,
+            },
+          ])
+        ).values()
+      );
+  
+      const commentBounties =
+        uniqueBountyKeys.length > 0
+          ? await prisma.bounties.findMany({
+              where: {
+                OR: uniqueBountyKeys,
+  
                 ban: {
                   none: {},
                 },
               },
-            },
-          },
-        ],
-
-        ...(input.address
-          ? {
-              address: input.address.toLowerCase(),
-            }
-          : {}),
-
-        ...(input.cursor
-          ? {
-              timestamp: {
-                lt: input.cursor,
+  
+              select: {
+                id: true,
+                chainId: true,
+                title: true,
+                issuer: true,
+                amount: true,
               },
-            }
-          : {}),
-      },
-
-      orderBy: {
-        timestamp: 'desc',
-      },
-
-      take: input.limit,
-    });
-
-    let nextCursor: string | undefined = undefined;
-
-    if (txs.length === input.limit) {
-      nextCursor =
-        txs[txs.length - 1].timestamp.toString();
-    }
-
-    return {
-      items: txs,
-      nextCursor,
-    };
-  }),
+            })
+          : [];
+  
+      const bountyMap = new Map(
+        commentBounties.map((bounty) => [
+          `${bounty.chainId}-${bounty.id}`,
+          bounty,
+        ])
+      );
+  
+      /*
+       * Preserve the feed's existing media normalization.
+       */
+      const normalizedTxs = await Promise.all(
+        txs.map(async (tx) => {
+          if (!tx.claim?.url) {
+            return {
+              ...tx,
+              timestamp: tx.timestamp.toString(),
+              comment: null,
+            };
+          }
+  
+          const imageMetadata =
+            await fetchImageMetadata(
+              tx.claim.url
+            );
+  
+          return {
+            ...tx,
+  
+            timestamp:
+              tx.timestamp.toString(),
+  
+            claim: {
+              ...tx.claim,
+  
+              // Keep original URI.
+              url: tx.claim.url,
+  
+              // Also expose server-resolved media.
+              mediaUrl:
+                imageMetadata.image,
+            },
+  
+            comment: null,
+          };
+        })
+      );
+  
+      const commentActivities = comments
+        .map((comment) => {
+          const bounty = bountyMap.get(
+            `${comment.chainId}-${comment.bountyId}`
+          );
+  
+          /*
+           * Do not surface comments from a missing/banned bounty.
+           */
+          if (!bounty) {
+            return null;
+          }
+  
+          const timestamp = Math.floor(
+            comment.createdAt.getTime() /
+              1000
+          ).toString();
+  
+          return {
+            /*
+             * Activity.tsx already expects a tx-shaped object,
+             * so give offchain comments a deterministic synthetic id.
+             */
+            tx: `comment-${comment.chainId}-${comment.id}`,
+  
+            index: comment.id,
+  
+            bounty,
+  
+            claim: null,
+  
+            bountyId:
+              comment.bountyId,
+  
+            claimId: null,
+  
+            chainId:
+              comment.chainId,
+  
+            address:
+              comment.userAddress,
+  
+            action:
+              comment.parentId !== null
+                ? 'reply created'
+                : 'comment created',
+  
+            timestamp,
+  
+            comment: {
+              id: comment.id,
+              body: comment.body,
+              parentId:
+                comment.parentId,
+            },
+          };
+        })
+        .filter(
+          (
+            item
+          ): item is NonNullable<
+            typeof item
+          > => item !== null
+        );
+  
+      /*
+       * One actual chronological feed.
+       */
+      const merged = [
+        ...normalizedTxs,
+        ...commentActivities,
+      ].sort(
+        (a, b) =>
+          Number(b.timestamp) -
+          Number(a.timestamp)
+      );
+  
+      const items = merged.slice(
+        0,
+        input.limit
+      );
+  
+      /*
+       * There may still be another page if:
+       * - merging left extra events, or
+       * - either source returned a full source page.
+       *
+       * Worst case this produces one harmless empty final fetch,
+       * rather than prematurely ending infinite scroll.
+       */
+      const hasMore =
+        merged.length > input.limit ||
+        txs.length === input.limit ||
+        comments.length === input.limit;
+  
+      const nextCursor =
+        hasMore && items.length > 0
+          ? items[
+              items.length - 1
+            ].timestamp.toString()
+          : undefined;
+  
+      return {
+        items,
+        nextCursor,
+      };
+    }),
   
   canVote: baseProcedure
     .input(
