@@ -654,7 +654,7 @@ function Comment({
       id={`comment-${comment.id}`}
       className={`scroll-mt-24 flex space-x-2 sm:space-x-3 p-2 sm:p-4 rounded-lg text-white transition-all duration-700 ${
         isHighlighted
-          ? 'bg-[#f15e5f]/20 ring-2 ring-[#f15e5f]/80 shadow-[0_0_24px_rgba(241,94,95,0.28)]'
+          ? 'bg-white/10 ring-2 ring-white/80 shadow-[0_0_24px_rgba(255,255,255,0.22)]'
           : ''
       }`}
     >
