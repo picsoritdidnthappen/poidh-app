@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useAtomValue, Provider } from 'jotai';
-import { loadingAtom, getStore } from '@/store/loading';
+import { useAtomValue } from 'jotai';
+import { loadingAtom } from '@/store/loading';
 import Loading from '@/components/global/Loading';
+import { Provider } from 'jotai';
+import { getStore } from '@/store/loading';
 
 export function LoadingLayout({ children }: { children: React.ReactNode }) {
   const store = getStore();
@@ -18,21 +18,11 @@ export function LoadingLayout({ children }: { children: React.ReactNode }) {
 
 function LoadingLayoutContent({ children }: { children: React.ReactNode }) {
   const { isLoading, status } = useAtomValue(loadingAtom);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <>
       {children}
-
-      {mounted &&
-        createPortal(
-          <Loading open={isLoading} status={status} />,
-          document.body
-        )}
+      <Loading open={isLoading} status={status} />
     </>
   );
 }
