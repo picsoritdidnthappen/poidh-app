@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   FormEvent,
   useState,
@@ -66,6 +67,8 @@ export default function Activity({
 }: {
   activity: ActivityTx;
 }) {
+  const router = useRouter();
+
   const [replyOpen, setReplyOpen] =
     useState(false);
 
@@ -73,8 +76,10 @@ export default function Activity({
     useState('');
 
   const account = useAccount();
+
   const { signMessageAsync } =
     useSignMessage();
+
   const switchChain =
     useSwitchChain();
 
@@ -129,6 +134,7 @@ export default function Activity({
 
         await Promise.all([
           utils.accounts.activities.invalidate(),
+
           utils.comments.fetch.invalidate(
             {
               bountyId,
@@ -157,7 +163,10 @@ export default function Activity({
         enabled: Boolean(
           chain?.currency
         ),
-        staleTime: 60_000,
+
+        staleTime:
+          60_000,
+
         refetchOnWindowFocus:
           false,
       }
@@ -174,10 +183,13 @@ export default function Activity({
                 .amount
             )
           ),
+
           price:
             priceData.data.toString(),
+
           currency:
             chain.currency,
+
           precision: 4,
         })
       : '...';
@@ -213,8 +225,11 @@ export default function Activity({
             );
 
           return {
-            date: dateStr,
-            time: timeStr,
+            date:
+              dateStr,
+
+            time:
+              timeStr,
           };
         })()
       : {
@@ -225,13 +240,17 @@ export default function Activity({
   async function ensureWalletOnBase() {
     if (!account.address) {
       openConnectModal?.();
+
       return null;
     }
 
     const walletChainId =
       await account.connector?.getChainId();
 
-    if (walletChainId !== 8453) {
+    if (
+      walletChainId !==
+      8453
+    ) {
       if (
         switchChain?.switchChainAsync
       ) {
@@ -318,16 +337,69 @@ export default function Activity({
     await commentMutation.mutateAsync(
       {
         address,
+
         bountyId,
+
         chainId:
           chainId as ChainId,
+
         signature,
+
         signatureText:
           message,
-        text: body,
+
+        text:
+          body,
+
         parrentId:
           activity.comment.id,
       }
+    );
+  }
+
+  function handleCommentCardClick(
+    event: React.MouseEvent<HTMLDivElement>
+  ) {
+    if (
+      bountyHref === '#'
+    ) {
+      return;
+    }
+
+    const target =
+      event.target as HTMLElement;
+
+    /*
+     * Do not hijack elements that already have
+     * their own interaction/navigation.
+     */
+    if (
+      target.closest(
+        'a, button, textarea, input, select, option, [data-no-card-nav]'
+      )
+    ) {
+      return;
+    }
+
+    /*
+     * Allow users to highlight/copy comment text
+     * without accidentally opening the bounty.
+     */
+    const selection =
+      window.getSelection();
+
+    if (
+      selection &&
+      selection
+        .toString()
+        .trim()
+        .length > 0
+    ) {
+      return;
+    }
+
+    router.push(
+      bountyHref
     );
   }
 
@@ -360,19 +432,24 @@ export default function Activity({
       return (
         <div>
           new claim on
+
           {activity.bounty
             ?.title ? (
             <span>
               <strong>
                 {` `}
+
                 {
                   activity
                     .bounty
                     .title
                 }
+
                 {` `}
               </strong>
+
               valued at
+
               {` ${bountyPrice} `}
             </span>
           ) : (
@@ -380,6 +457,7 @@ export default function Activity({
               {` `} bounty
             </span>
           )}
+
           📸
         </div>
       );
@@ -396,6 +474,7 @@ export default function Activity({
         <div>
           a claim has been
           accepted for{' '}
+
           {activity.bounty
             ?.title ? (
             <strong>
@@ -447,8 +526,10 @@ export default function Activity({
           ? formatAmount({
               amount:
                 amountRaw,
+
               currency:
                 chain.currency,
+
               price:
                 String(
                   priceData.data
@@ -462,8 +543,11 @@ export default function Activity({
       return (
         <div>
           {verb}{' '}
+
           {contribution}{' '}
+
           {prep}{' '}
+
           {activity.bounty
             ?.title ? (
             <strong>
@@ -502,7 +586,8 @@ export default function Activity({
      * VOTED
      */
     if (
-      action === 'voted'
+      action ===
+      'voted'
     ) {
       return (
         <div>
@@ -511,13 +596,17 @@ export default function Activity({
               activity.address ??
               ''
             }
+
             showPfpIfExists={
               false
             }
+
             showLoadingSkeleton
           />{' '}
+
           has voted on a claim
           for{' '}
+
           {activity.bounty
             ?.title ? (
             <strong>
@@ -550,29 +639,52 @@ export default function Activity({
   return (
     <div className='w-full max-w-full sm:max-w-3xl bg-white/5 border border-white/8 rounded-lg backdrop-blur-sm mt-4 sm:mt-5 overflow-hidden shadow-sm'>
       {isCommentActivity ? (
-        <div className='px-4 py-3 sm:px-6 sm:py-4 bg-[#7fb7ee] dark:bg-[#132b47]'>
+        <div
+          onClick={
+            handleCommentCardClick
+          }
+          className='px-4 py-3 sm:px-6 sm:py-4 bg-[#7fb7ee] dark:bg-[#132b47] cursor-pointer'
+        >
           <div className='flex items-start justify-between gap-4'>
             <div className='text-sm sm:text-base text-white/90 font-mono leading-relaxed min-w-0'>
-              {isReplyActivity
-                ? 'reply on '
-                : 'comment on '}
+              new comment on{' '}
 
               {activity.bounty
                 ?.title ? (
-                <strong>
-                  {
-                    activity
-                      .bounty
-                      .title
+                <Link
+                  href={
+                    bountyHref
                   }
-                </strong>
+                  className='hover:underline underline-offset-2'
+                >
+                  <strong>
+                    {
+                      activity
+                        .bounty
+                        .title
+                    }
+                  </strong>
+                </Link>
               ) : (
                 <span>
                   a bounty
                 </span>
               )}
 
-              {' '}💬
+              {activity.bounty
+                ?.amount &&
+                priceData.data &&
+                chain && (
+                  <>
+                    {' '}
+                    valued at{' '}
+                    {
+                      bountyPrice
+                    }
+                  </>
+                )}
+
+              {' '}📸
             </div>
 
             <div className='text-xs sm:text-sm text-white/60 whitespace-nowrap ml-auto text-right'>
@@ -605,11 +717,15 @@ export default function Activity({
                           .parent
                           .address
                       }
+
                       pfpSize={
                         36
                       }
+
                       showPfpIfExists
+
                       showFallbackPfp
+
                       showLoadingSkeleton
                     />
                   </div>
@@ -648,16 +764,20 @@ export default function Activity({
                     activity.address ??
                     ''
                   }
+
                   pfpSize={36}
+
                   showPfpIfExists
+
                   showFallbackPfp
+
                   showLoadingSkeleton
                 />
               </div>
 
               {activity.comment
                 ?.body && (
-                <div className='feed-comment-body ml-12 mt-2 rounded-md border px-3 py-2 text-sm sm:text-base text-white/90 whitespace-pre-wrap break-words'>
+                <div className='feed-comment-body mt-2 rounded-md border px-3 py-2 text-sm sm:text-base text-white/90 whitespace-pre-wrap break-words'>
                   <TextWithLinks>
                     {
                       activity
@@ -668,15 +788,17 @@ export default function Activity({
                 </div>
               )}
 
-              <div className='ml-12 mt-2'>
+              <div className='mt-2'>
                 {!replyOpen ? (
                   <button
                     type='button'
+
                     onClick={() =>
                       setReplyOpen(
                         true
                       )
                     }
+
                     className='text-xs sm:text-sm font-mono text-white/60 hover:text-white transition-colors'
                   >
                     reply
@@ -686,12 +808,14 @@ export default function Activity({
                     onSubmit={
                       handleReplySubmit
                     }
+
                     className='space-y-2'
                   >
                     <textarea
                       value={
                         replyDraft
                       }
+
                       onChange={(
                         event
                       ) =>
@@ -701,21 +825,27 @@ export default function Activity({
                             .value
                         )
                       }
+
                       placeholder='write a reply...'
+
                       disabled={
                         commentMutation.isPending
                       }
+
                       autoFocus
+
                       className='w-full min-h-[80px] resize-y rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 disabled:opacity-60'
                     />
 
                     <div className='flex items-center gap-3'>
                       <button
                         type='submit'
+
                         disabled={
                           commentMutation.isPending ||
                           !replyDraft.trim()
                         }
+
                         className='bg-[#f15e5f] hover:bg-[#cf5d5d] disabled:opacity-60 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-full transition'
                       >
                         {commentMutation.isPending
@@ -725,9 +855,11 @@ export default function Activity({
 
                       <button
                         type='button'
+
                         disabled={
                           commentMutation.isPending
                         }
+
                         onClick={() => {
                           setReplyOpen(
                             false
@@ -737,6 +869,7 @@ export default function Activity({
                             ''
                           );
                         }}
+
                         className='text-xs sm:text-sm text-white/60 hover:text-white disabled:opacity-60 transition-colors'
                       >
                         cancel
@@ -763,9 +896,13 @@ export default function Activity({
                     : activity.address ??
                       ''
                 }
+
                 pfpSize={36}
+
                 showPfpIfExists
+
                 showFallbackPfp
+
                 showLoadingSkeleton
               />
             </div>
@@ -799,15 +936,17 @@ export default function Activity({
             claim={
               activity.claim
             }
+
             bountyId={
               bountyId
             }
+
             chainId={
               chainId as ChainId
             }
           />
         </div>
-      ) : (
+      ) : !isCommentActivity ? (
         <div className='border-t border-white/6 px-4 pb-4 pt-2'>
           {bountyId != null &&
             chain && (
@@ -816,6 +955,7 @@ export default function Activity({
                   href={
                     bountyHref
                   }
+
                   className='flex items-center justify-between gap-4'
                 >
                   <div className='flex flex-col flex-1 min-w-0'>
@@ -846,7 +986,7 @@ export default function Activity({
               </div>
             )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
