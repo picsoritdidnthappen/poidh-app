@@ -96,9 +96,9 @@ export default function Navbar({
   const mobileNavClass = (active: boolean, pending: boolean) =>
     [
       'relative flex flex-col items-center justify-center gap-1 text-white z-10',
-      'rounded-xl py-2 transition-all duration-150',
+      'py-2 transition-all duration-150',
       'active:scale-90 active:opacity-70',
-      active ? 'bg-white/10' : '',
+      active ? 'font-bold drop-shadow-[0_0_5px_rgba(255,255,255,0.75)]' : '',
       pending ? 'opacity-80' : '',
     ]
       .filter(Boolean)
