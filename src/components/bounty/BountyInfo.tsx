@@ -261,7 +261,7 @@ export default function BountyInfo({
 
       setLoading({
         isLoading: true,
-        status: 'Waiting approval',
+        status: 'Waiting for approval',
       });
 
       await writeContract.writeContractAsync(
