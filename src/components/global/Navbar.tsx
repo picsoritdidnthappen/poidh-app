@@ -106,14 +106,22 @@ export default function Navbar({
 
   const MobileIcon = ({
     pending,
+    active,
     children,
   }: {
     pending: boolean;
+    active: boolean;
     children: React.ReactNode;
   }) => (
-    <div className='relative w-6 h-6 flex items-center justify-center'>
+    <div
+      className={`relative w-6 h-6 flex items-center justify-center transition-all duration-150 ${
+        active
+          ? 'scale-110 drop-shadow-[0_0_4px_rgba(255,255,255,0.85)]'
+          : ''
+      }`}
+    >
       {children}
-
+  
       {pending && (
         <div className='absolute -inset-1.5 rounded-full border-2 border-white/25 border-t-white animate-spin pointer-events-none' />
       )}
