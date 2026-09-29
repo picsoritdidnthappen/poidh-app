@@ -52,6 +52,19 @@ export default function Activity({
     chainId: chainId as ChainId,
   });
 
+  const isCommentActivity =
+    activity.action === 'comment created' ||
+    activity.action === 'reply created';
+
+  const bountyHref =
+    chain && bountyId != null
+      ? `/${chain.slug}/bounty/${bountyId}${
+          isCommentActivity && activity.comment?.id
+            ? `#comment-${activity.comment.id}`
+            : ''
+        }`
+      : '#';
+
   const priceData = trpc.web3.fetchPrice.useQuery(
     {
       currency: chain?.currency ?? 'eth',
@@ -126,11 +139,11 @@ export default function Activity({
             {isReply ? (
               <>
                 replied to{' '}
-
                 {activity.comment
                   ?.replyToAddress ? (
                   <span className='inline-flex items-center align-baseline'>
                     <span>@</span>
+
                     <DisplayAddress
                       address={
                         activity.comment
@@ -144,7 +157,6 @@ export default function Activity({
                 ) : (
                   <span>@someone</span>
                 )}
-
                 {' '}on{' '}
               </>
             ) : (
@@ -198,6 +210,7 @@ export default function Activity({
                 {activity.bounty.title}
                 {` `}
               </strong>
+
               valued at
               {` ${bountyPrice} `}
             </span>
@@ -384,7 +397,7 @@ export default function Activity({
             chain && (
               <div className='mt-3 p-3 sm:p-4 border border-white/6 rounded-md bg-gradient-to-b from-[#2a81d5] via-[#70aae2] to-[#2a81d5] dark:from-[#0d1b2e] dark:via-[#1a3a5c] dark:to-[#0d1b2e]'>
                 <Link
-                  href={`/${chain.slug}/bounty/${bountyId}`}
+                  href={bountyHref}
                   className='flex items-center justify-between gap-4'
                 >
                   <div className='flex flex-col flex-1 min-w-0'>
