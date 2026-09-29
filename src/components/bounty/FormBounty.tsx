@@ -262,7 +262,7 @@ export default function FormBounty({
 
       setLoading({
         isLoading: true,
-        status: 'Waiting approval',
+        status: 'Waiting for approval',
       });
 
       const tx = await writeContract.writeContractAsync({

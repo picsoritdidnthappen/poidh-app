@@ -316,7 +316,7 @@ export default function Voting({
         setLoading({
           isLoading: true,
           status:
-            'Waiting approval',
+            'Waiting for approval',
         });
 
         const tx =
@@ -442,7 +442,7 @@ export default function Voting({
         setLoading({
           isLoading: true,
           status:
-            'Waiting approval',
+            'Waiting for approval',
         });
 
         const tx =
