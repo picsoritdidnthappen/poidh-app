@@ -199,3 +199,39 @@ To contribute code, follow these steps:
 ### Thank You!
 
 We appreciate your contribution to poidh. Happy coding and thank you for helping to make poidh even better!
+
+## Smart-account login + cross-chain deposits (ZeroDev)
+
+poidh supports logging in **without a seed phrase or browser extension**.
+Two login options create a ZeroDev Kernel v3.1 smart account on
+**Arbitrum One** (the destination chain) and appear as wallets in the
+RainbowKit modal under "Smart accounts", plus as one-click buttons in
+the header:
+
+- **🔑 Passkey login** — WebAuthn register/login via the ZeroDev passkey
+  server. The smart account signs every transaction as an ERC-4337 user
+  operation through the ZeroDev bundler.
+- **🔵 Google login** — Google OAuth via the ZeroDev social validator
+  (Magic-powered embedded signer). OAuth is a full-page redirect; the
+  `/social-callback` route finishes the flow and the app auto-connects.
+  In ZeroDev dev mode social login works on `localhost` only — a public
+  deployment needs Social Auth approved on the ZeroDev dashboard.
+- **Cross-chain deposits** — the "fund on Arbitrum from any chain"
+  widget (shown once connected) quotes Relay (relay.link) and lets a
+  user bridge ETH from Ethereum, Base, or Degen into their poidh
+  account on Arbitrum with one signed transaction on the origin chain.
+- **Gas** — users pay gas from the smart account itself; no paymaster
+  policy is required from the maintainer. `wallet_sendCalls` (EIP-5792)
+  batches several contract calls into a single user operation.
+
+### Setup
+
+1. Create a free project at https://dashboard.zerodev.app
+2. Set `NEXT_PUBLIC_ZERODEV_PROJECT_ID=<project id>` in your env.
+   Without it the smart-account options stay hidden and everything else
+   is unchanged.
+
+Relevant code: `src/zerodev/` (config, passkeySmartAccount,
+socialSmartAccount, zerodevConnector, PasskeyConnectButton,
+SocialConnectButton, CrossChainDeposit), `src/app/social-callback/`,
+and `src/wagmiConfig.ts`. Tests: `src/zerodev/__tests__/zerodev.test.ts`.
