@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { ChainId } from '@/utils/types';
@@ -93,6 +93,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const [replyDraft, setReplyDraft] = useState('');
+  const [highlightedCommentId, setHighlightedCommentId] = useState<number | null>(
+    null
+  );
   const account = useAccount();
   const { signMessageAsync } = useSignMessage();
   const switchChain = useSwitchChain();
@@ -173,6 +176,44 @@ export default function CommentsSection(props: CommentsSectionProps) {
   }
 
   const topLevelComments = (commentsByParent['root'] || []).sort(sorting);
+
+  useEffect(() => {
+    if (!commentsQuery.data?.length) {
+      return;
+    }
+
+    const match = window.location.hash.match(/^#comment-(\d+)$/);
+    if (!match) {
+      return;
+    }
+
+    const commentId = Number(match[1]);
+    const element = document.getElementById(`comment-${commentId}`);
+
+    if (!element) {
+      return;
+    }
+
+    setHighlightedCommentId(commentId);
+
+    const frame = window.requestAnimationFrame(() => {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
+
+    const timeout = window.setTimeout(() => {
+      setHighlightedCommentId((current) =>
+        current === commentId ? null : current
+      );
+    }, 2600);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
+  }, [commentsQuery.data]);
 
   async function ensureWalletOnBase() {
     if (!account.address) {
@@ -397,6 +438,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
                 onBanComment={handleBanComment}
                 canBan={!!isAdmin.data}
                 isBanning={banCommentMutation.isPending}
+                highlightedCommentId={highlightedCommentId}
               />
             ))
           ) : (
@@ -425,6 +467,7 @@ function CommentThread({
   onBanComment,
   canBan,
   isBanning,
+  highlightedCommentId,
 }: {
   comment: CommentType;
   replies: CommentType[];
@@ -450,6 +493,7 @@ function CommentThread({
   ) => Promise<void>;
   canBan: boolean;
   isBanning: boolean;
+  highlightedCommentId: number | null;
 }) {
   const isReplyingHere =
     activeReplyId === comment.id;
@@ -480,6 +524,7 @@ function CommentThread({
         }
         canBan={canBan}
         isBanLoading={isBanning}
+        isHighlighted={highlightedCommentId === comment.id}
       />
 
       {isReplyingHere && (
@@ -543,6 +588,7 @@ function CommentThread({
           isBanning={
             isBanning
           }
+          highlightedCommentId={highlightedCommentId}
         />
       ))}
     </div>
@@ -558,6 +604,7 @@ function Comment({
   onBan,
   isBanLoading,
   canBan,
+  isHighlighted,
 }: {
   comment: CommentType;
   onReplyClick?: () => void;
@@ -569,6 +616,7 @@ function Comment({
   onBan?: () => void;
   isBanLoading?: boolean;
   canBan?: boolean;
+  isHighlighted?: boolean;
 }) {
   const timestamp =
     comment.createdAt
@@ -602,7 +650,14 @@ function Comment({
     `/account/${comment.userAddress}`;
 
   return (
-    <div className='flex space-x-2 sm:space-x-3 p-2 sm:p-4 rounded-lg text-white'>
+    <div
+      id={`comment-${comment.id}`}
+      className={`scroll-mt-24 flex space-x-2 sm:space-x-3 p-2 sm:p-4 rounded-lg text-white transition-all duration-700 ${
+        isHighlighted
+          ? 'bg-[#f15e5f]/20 ring-2 ring-[#f15e5f]/80 shadow-[0_0_24px_rgba(241,94,95,0.28)]'
+          : ''
+      }`}
+    >
       <Link
         href={accountHref}
         className='flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 relative rounded-full group'
