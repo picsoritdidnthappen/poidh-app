@@ -1,7 +1,13 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import { useEffect, useRef, useState } from 'react';
+import {
+  KeyboardEvent,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useRouter } from 'next/navigation';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
@@ -14,7 +20,10 @@ function hashString(value: string) {
   let hash = 0;
 
   for (let i = 0; i < value.length; i++) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+    hash =
+      value.charCodeAt(i) +
+      ((hash << 5) - hash);
+
     hash |= 0;
   }
 
@@ -38,31 +47,44 @@ function GenerativePlaceholder({
   ];
 
   const background =
-    palette[hash % palette.length];
+    palette[
+      hash % palette.length
+    ];
 
   const accent1 =
-    palette[(hash + 2) % palette.length];
+    palette[
+      (hash + 2) %
+        palette.length
+    ];
 
   const accent2 =
-    palette[(hash + 4) % palette.length];
+    palette[
+      (hash + 4) %
+        palette.length
+    ];
 
   const vertical =
-    28 + ((hash >> 2) % 38);
+    28 +
+    ((hash >> 2) % 38);
 
   const horizontal =
-    30 + ((hash >> 4) % 36);
+    30 +
+    ((hash >> 4) % 36);
 
   const smallBlockLeft =
-    8 + ((hash >> 6) % 58);
+    8 +
+    ((hash >> 6) % 58);
 
   const smallBlockTop =
-    8 + ((hash >> 8) % 58);
+    8 +
+    ((hash >> 8) % 58);
 
   return (
     <div
       className='absolute inset-0 overflow-hidden'
       style={{
-        backgroundColor: background,
+        backgroundColor:
+          background,
       }}
     >
       <div
@@ -86,18 +108,22 @@ function GenerativePlaceholder({
           top: 0,
           right: 0,
           height: `${horizontal}%`,
-          backgroundColor: accent1,
+          backgroundColor:
+            accent1,
         }}
       />
 
       <div
         className='absolute border-[4px] border-[#102A43]'
         style={{
-          left: `${smallBlockLeft}%`,
-          top: `${smallBlockTop}%`,
+          left:
+            `${smallBlockLeft}%`,
+          top:
+            `${smallBlockTop}%`,
           width: '24%',
           height: '24%',
-          backgroundColor: accent2,
+          backgroundColor:
+            accent2,
         }}
       />
     </div>
@@ -113,48 +139,86 @@ export default function ClaimImageEmbed({
   bountyId: number;
   chainId: ChainId;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  const [shouldLoadMedia, setShouldLoadMedia] =
-    useState(false);
+  const containerRef =
+    useRef<HTMLDivElement>(
+      null
+    );
 
-  const [renderError, setRenderError] =
-    useState(false);
+  const [
+    shouldLoadMedia,
+    setShouldLoadMedia,
+  ] = useState(false);
 
-  const chain = getChainById({ chainId });
+  const [
+    renderError,
+    setRenderError,
+  ] = useState(false);
+
+  const [
+    isNavigating,
+    setIsNavigating,
+  ] = useState(false);
+
+  const chain =
+    getChainById({
+      chainId,
+    });
 
   const mediaSource =
-    claim?.mediaUrl ?? claim?.url;
+    claim?.mediaUrl ??
+    claim?.url;
+
+  const bountyHref =
+    `/${chain.slug}/bounty/${bountyId}`;
 
   /*
    * Only start resolving media when this card is
    * visible or close to becoming visible.
    */
   useEffect(() => {
-    const el = containerRef.current;
+    const el =
+      containerRef.current;
 
-    if (!el) return;
-
-    if (!('IntersectionObserver' in window)) {
-      setShouldLoadMedia(true);
+    if (!el) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries.some(
-            (entry) => entry.isIntersecting
-          )
-        ) {
-          setShouldLoadMedia(true);
-          observer.disconnect();
+    if (
+      !(
+        'IntersectionObserver' in
+        window
+      )
+    ) {
+      setShouldLoadMedia(
+        true
+      );
+
+      return;
+    }
+
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          if (
+            entries.some(
+              (entry) =>
+                entry.isIntersecting
+            )
+          ) {
+            setShouldLoadMedia(
+              true
+            );
+
+            observer.disconnect();
+          }
+        },
+        {
+          rootMargin:
+            '400px',
         }
-      },
-      {
-        rootMargin: '400px',
-      }
-    );
+      );
 
     observer.observe(el);
 
@@ -172,90 +236,201 @@ export default function ClaimImageEmbed({
     shouldLoadMedia
   );
 
-  if (!claim) return null;
+  if (!claim) {
+    return null;
+  }
 
   const hasMedia =
-    !!mediaUrl && !renderError;
+    !!mediaUrl &&
+    !renderError;
 
   const placeholderSeed =
     `${chainId}-${claim.id}-${claim.issuer}`;
+
+  function navigateToBounty() {
+    if (isNavigating) {
+      return;
+    }
+
+    setIsNavigating(true);
+
+    router.push(
+      bountyHref
+    );
+  }
+
+  function handleCardClick(
+    event: MouseEvent<HTMLDivElement>
+  ) {
+    const target =
+      event.target as HTMLElement;
+
+    /*
+     * Don't hijack controls or links inside the card.
+     *
+     * This keeps video controls and issuer/profile links
+     * behaving normally.
+     */
+    if (
+      target.closest(
+        'a, button, video, input, textarea, select, [data-no-card-nav]'
+      )
+    ) {
+      return;
+    }
+
+    const selection =
+      window.getSelection();
+
+    if (
+      selection &&
+      selection
+        .toString()
+        .trim()
+    ) {
+      return;
+    }
+
+    navigateToBounty();
+  }
+
+  function handleCardKeyDown(
+    event: KeyboardEvent<HTMLDivElement>
+  ) {
+    if (
+      event.target !==
+      event.currentTarget
+    ) {
+      return;
+    }
+
+    if (
+      event.key ===
+        'Enter' ||
+      event.key === ' '
+    ) {
+      event.preventDefault();
+
+      navigateToBounty();
+    }
+  }
 
   return (
     <div
       ref={containerRef}
       className='p-3'
     >
-      <Link
-        href={`/${chain.slug}/bounty/${bountyId}`}
+      <div
+        role='link'
+        tabIndex={0}
+        aria-label={`Open ${claim.title || 'claim'} bounty`}
+        aria-busy={
+          isNavigating
+        }
+        onClick={
+          handleCardClick
+        }
+        onKeyDown={
+          handleCardKeyDown
+        }
+        className={`relative bg-poidhRed p-4 rounded-lg cursor-pointer overflow-hidden transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-white/60 ${
+          isNavigating
+            ? 'scale-[0.99]'
+            : 'active:scale-[0.99]'
+        }`}
       >
-        <div className='bg-poidhRed p-4 rounded-lg'>
-          {hasMedia ? (
-            <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-              {isVideo ? (
-                <video
-                  src={mediaUrl}
-                  controls
-                  playsInline
-                  preload='metadata'
-                  className='w-full h-full object-cover rounded-lg'
-                  onError={() =>
-                    setRenderError(true)
-                  }
-                />
-              ) : (
-                <Image
-                  src={mediaUrl}
-                  alt={
-                    claim.title ||
-                    'claim image'
-                  }
-                  fill
-                  loading='lazy'
-                  className='object-cover'
-                  sizes='(max-width: 768px) 100vw, 600px'
-                  unoptimized
-                  onError={() =>
-                    setRenderError(true)
-                  }
-                />
-              )}
-            </div>
-          ) : renderError ? (
-            <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-              <GenerativePlaceholder
-                seed={placeholderSeed}
+        {hasMedia ? (
+          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
+            {isVideo ? (
+              <video
+                src={mediaUrl}
+                controls
+                playsInline
+                preload='metadata'
+                className='w-full h-full object-cover rounded-lg'
+                onError={() =>
+                  setRenderError(
+                    true
+                  )
+                }
               />
-            </div>
-          ) : isLoading ||
-            !shouldLoadMedia ? (
-            <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden bg-white/10 animate-pulse' />
-          ) : (
-            <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-              <GenerativePlaceholder
-                seed={placeholderSeed}
+            ) : (
+              <Image
+                src={mediaUrl}
+                alt={
+                  claim.title ||
+                  'claim image'
+                }
+                fill
+                loading='lazy'
+                className='object-cover'
+                sizes='(max-width: 768px) 100vw, 600px'
+                unoptimized
+                onError={() =>
+                  setRenderError(
+                    true
+                  )
+                }
               />
-            </div>
-          )}
-
-          <div className='mt-3'>
-            <h3 className='text-white text-lg font-bold truncate'>
-              {claim.title || '???'}
-            </h3>
+            )}
           </div>
-
-          <div className='mt-2 text-white/80 text-sm flex items-center gap-1'>
-            <span>issuer:</span>
-
-            <DisplayAddress
-              address={
-                claim.issuer || '???'
+        ) : renderError ? (
+          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
+            <GenerativePlaceholder
+              seed={
+                placeholderSeed
               }
-              showPfpIfExists={true}
-              pfpSize={16}
             />
           </div>
+        ) : isLoading ||
+          !shouldLoadMedia ? (
+          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden bg-white/10 animate-pulse' />
+        ) : (
+          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
+            <GenerativePlaceholder
+              seed={
+                placeholderSeed
+              }
+            />
+          </div>
+        )}
+
+        <div className='mt-3'>
+          <h3 className='text-white text-lg font-bold truncate'>
+            {claim.title ||
+              '???'}
+          </h3>
         </div>
-      </Link>
+
+        <div className='mt-2 text-white/80 text-sm flex items-center gap-1'>
+          <span>
+            issuer:
+          </span>
+
+          <DisplayAddress
+            address={
+              claim.issuer ||
+              '???'
+            }
+            showPfpIfExists={
+              true
+            }
+            pfpSize={16}
+          />
+        </div>
+
+        {isNavigating && (
+          <div className='absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-[1px] pointer-events-none'>
+            <div className='flex items-center gap-2 rounded-md bg-black/35 px-4 py-2 text-white shadow-lg'>
+              <div className='h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white' />
+
+              <span className='font-mono text-sm font-medium'>
+                opening...
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1212,10 +1212,10 @@ export const accountsRouter = {
       ]);
 
       /*
-       * Resolve the parent-comment authors for replies.
+       * Resolve the direct parent comments for replies.
        *
-       * Activity.tsx can then use DisplayAddress to resolve:
-       * Farcaster -> ENS/WNS/etc -> shortened wallet.
+       * Feed activity can then show the actual conversation:
+       * parent author + parent comment -> reply author + reply.
        */
       const parentIds =
         Array.from(
@@ -1242,10 +1242,12 @@ export const accountsRouter = {
                   id: {
                     in: parentIds,
                   },
+                  deletedAt: null,
                 },
 
                 select: {
                   id: true,
+                  body: true,
                   userAddress:
                     true,
                 },
@@ -1253,12 +1255,17 @@ export const accountsRouter = {
             )
           : [];
 
-      const parentAuthorMap =
+      const parentCommentMap =
         new Map(
           parentComments.map(
             (comment) => [
               comment.id,
-              comment.userAddress,
+              {
+                id: comment.id,
+                body: comment.body,
+                address:
+                  comment.userAddress,
+              },
             ]
           )
         );
@@ -1387,6 +1394,13 @@ export const accountsRouter = {
                 return null;
               }
 
+              const parent =
+                comment.parentId !== null
+                  ? parentCommentMap.get(
+                      comment.parentId
+                    ) ?? null
+                  : null;
+
               const timestamp =
                 Math.floor(
                   comment.createdAt.getTime() /
@@ -1436,13 +1450,10 @@ export const accountsRouter = {
                     comment.parentId,
 
                   replyToAddress:
-                    comment.parentId !==
-                    null
-                      ? parentAuthorMap.get(
-                          comment.parentId
-                        ) ??
-                        null
-                      : null,
+                    parent?.address ??
+                    null,
+
+                  parent,
                 },
               };
             }
