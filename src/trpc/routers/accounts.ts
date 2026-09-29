@@ -1085,8 +1085,168 @@ export const accountsRouter = {
           : undefined;
 
       /*
+       * When an address is supplied, "You" means activity
+       * relevant to that wallet, not just activity performed
+       * by that wallet.
+       *
+       * Relevant bounties are bounties the wallet created
+       * or contributed funds to.
+       *
+       * We also collect comments written by the wallet so
+       * direct replies can appear in the personalized feed.
+       */
+      const [
+        createdBounties,
+        fundedBounties,
+        authoredComments,
+      ] = normalizedAddress
+        ? await Promise.all([
+            prisma.bounties.findMany({
+              where: {
+                issuer:
+                  normalizedAddress,
+
+                ban: {
+                  none: {},
+                },
+              },
+
+              select: {
+                id: true,
+                chainId: true,
+              },
+            }),
+
+            prisma.participationsBounties.findMany({
+              where: {
+                userAddress:
+                  normalizedAddress,
+
+                bounty: {
+                  ban: {
+                    none: {},
+                  },
+                },
+              },
+
+              select: {
+                bountyId: true,
+                chainId: true,
+              },
+            }),
+
+            prisma.comments.findMany({
+              where: {
+                userAddress:
+                  normalizedAddress,
+
+                deletedAt: null,
+              },
+
+              select: {
+                id: true,
+              },
+            }),
+          ])
+        : [
+            [],
+            [],
+            [],
+          ];
+
+      /*
+       * Group relevant bounty IDs by chain so we can use
+       * the same relationship filters for transactions
+       * and comments.
+       */
+      const relevantBountyIdsByChain =
+        new Map<
+          number,
+          Set<number>
+        >();
+
+      const addRelevantBounty = (
+        chainId: number,
+        bountyId: number
+      ) => {
+        const existing =
+          relevantBountyIdsByChain.get(
+            chainId
+          );
+
+        if (existing) {
+          existing.add(
+            bountyId
+          );
+
+          return;
+        }
+
+        relevantBountyIdsByChain.set(
+          chainId,
+          new Set([
+            bountyId,
+          ])
+        );
+      };
+
+      createdBounties.forEach(
+        (bounty) => {
+          addRelevantBounty(
+            bounty.chainId,
+            bounty.id
+          );
+        }
+      );
+
+      fundedBounties.forEach(
+        (participation) => {
+          addRelevantBounty(
+            participation.chainId,
+            participation.bountyId
+          );
+        }
+      );
+
+      const relevantBountyFilters =
+        Array.from(
+          relevantBountyIdsByChain.entries()
+        ).map(
+          ([
+            chainId,
+            bountyIds,
+          ]) => ({
+            chainId,
+
+            bountyId: {
+              in:
+                Array.from(
+                  bountyIds
+                ),
+            },
+          })
+        );
+
+      const authoredCommentIds =
+        authoredComments.map(
+          (comment) =>
+            comment.id
+        );
+
+      /*
        * Pull transactions and comments independently,
        * then merge them into one chronological feed.
+       *
+       * Global feed:
+       * - no address supplied -> unchanged
+       *
+       * "You" feed:
+       * - activity performed by the wallet
+       * - activity on a bounty the wallet created
+       * - activity on a bounty the wallet funded
+       * - activity affecting a claim submitted by the wallet
+       * - comments written by the wallet
+       * - replies directly to comments written by the wallet
        */
       const [
         txs,
@@ -1127,29 +1287,63 @@ export const accountsRouter = {
               },
             },
 
-            OR: [
+            AND: [
               {
-                claimId: {
-                  equals: null,
-                },
-              },
-              {
-                claim: {
-                  is: {
-                    ban: {
-                      none: {},
+                OR: [
+                  {
+                    claimId: {
+                      equals:
+                        null,
                     },
                   },
-                },
+                  {
+                    claim: {
+                      is: {
+                        ban: {
+                          none: {},
+                        },
+                      },
+                    },
+                  },
+                ],
               },
-            ],
 
-            ...(normalizedAddress
-              ? {
-                  address:
-                    normalizedAddress,
-                }
-              : {}),
+              ...(normalizedAddress
+                ? [
+                    {
+                      OR: [
+                        /*
+                         * Things I did.
+                         */
+                        {
+                          address:
+                            normalizedAddress,
+                        },
+
+                        /*
+                         * Anything happening on a bounty
+                         * I created or funded.
+                         */
+                        ...relevantBountyFilters,
+
+                        /*
+                         * Things affecting a claim
+                         * I submitted, even if the bounty
+                         * isn't otherwise one of mine.
+                         */
+                        {
+                          claim: {
+                            is: {
+                              issuer:
+                                normalizedAddress,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  ]
+                : []),
+            ],
 
             ...(input.cursor
               ? {
@@ -1176,8 +1370,37 @@ export const accountsRouter = {
 
             ...(normalizedAddress
               ? {
-                  userAddress:
-                    normalizedAddress,
+                  OR: [
+                    /*
+                     * Comments I wrote.
+                     */
+                    {
+                      userAddress:
+                        normalizedAddress,
+                    },
+
+                    /*
+                     * Any comment on a bounty
+                     * I created or funded.
+                     */
+                    ...relevantBountyFilters,
+
+                    /*
+                     * Direct replies to comments
+                     * I wrote.
+                     */
+                    ...(authoredCommentIds.length >
+                    0
+                      ? [
+                          {
+                            parentId: {
+                              in:
+                                authoredCommentIds,
+                            },
+                          },
+                        ]
+                      : []),
+                  ],
                 }
               : {}),
 
@@ -1242,6 +1465,7 @@ export const accountsRouter = {
                   id: {
                     in: parentIds,
                   },
+
                   deletedAt: null,
                 },
 
