@@ -737,6 +737,7 @@ export default function Activity({
                           .comment
                           .parent
                           .body
+                          .trimEnd()
                       }
                     </TextWithLinks>
                   </div>
@@ -783,6 +784,7 @@ export default function Activity({
                       activity
                         .comment
                         .body
+                        .trimEnd()
                     }
                   </TextWithLinks>
                 </div>

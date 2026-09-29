@@ -3,6 +3,7 @@ import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
 import { checkIsIssuer } from './admin';
+import { getEverHadExternalContributor } from './web3';
 
 export const bountiesRouter = {
   fetch: baseProcedure
@@ -34,11 +35,22 @@ export const bountiesRouter = {
       const { claims, participations, extra, ...bountyData } = bounty;
       const { amountSort, ...extraData } = extra;
 
+      const everHadExternalContributor = bounty.isMultiplayer
+        ? await getEverHadExternalContributor({
+            chainId: bounty.chainId,
+            bountyId: bounty.onChainId,
+          })
+        : false;
+
+      const mustUseVoteFlow =
+        everHadExternalContributor ?? participations.length > 1;
+
       return {
         ...bountyData,
         extra: extraData,
         hasClaims: claims.length > 0,
         hasParticipants: participations.length > 1,
+        mustUseVoteFlow,
         amountSort,
       };
     }),
