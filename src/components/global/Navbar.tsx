@@ -15,6 +15,7 @@ import {
   MagnifyingGlassIcon,
 } from '@/components/global/Icons';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { toast } from 'react-toastify';
 
 export default function Navbar({
@@ -26,11 +27,13 @@ export default function Navbar({
 }) {
   const [showForm, setShowForm] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
   const chain = useChainInfo();
   const isMobile = useScreenSize();
+  const pathname = usePathname();
 
   const user = trpc.users.fetchByAddress.useQuery(
     {
@@ -55,6 +58,10 @@ export default function Navbar({
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    setPendingHref(null);
+  }, [pathname]);
+
   const handleClick = () => {
     if (type === 'claim' && !bounty.data?.inProgress) {
       toast.error(
@@ -71,6 +78,48 @@ export default function Navbar({
     openConnectModal?.();
   };
 
+  const handleNavigationStart = (href: string) => {
+    if (pathname === href) {
+      return;
+    }
+
+    setPendingHref(href);
+  };
+
+  const profileHref = account.address
+    ? `/account/${account.address}`
+    : '#';
+
+  const isProfileActive =
+    !!account.address && pathname === profileHref;
+
+  const mobileNavClass = (active: boolean, pending: boolean) =>
+    [
+      'relative flex flex-col items-center justify-center gap-1 text-white z-10',
+      'rounded-xl py-2 transition-all duration-150',
+      'active:scale-90 active:opacity-70',
+      active ? 'bg-white/10' : '',
+      pending ? 'opacity-80' : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+  const MobileIcon = ({
+    pending,
+    children,
+  }: {
+    pending: boolean;
+    children: React.ReactNode;
+  }) => (
+    <div className='relative w-6 h-6 flex items-center justify-center'>
+      {children}
+
+      {pending && (
+        <div className='absolute -inset-1.5 rounded-full border-2 border-white/25 border-t-white animate-spin pointer-events-none' />
+      )}
+    </div>
+  );
+
   // Prevent the desktop GameButton from flashing before
   // the client knows whether this is a mobile viewport.
   if (!mounted) {
@@ -78,6 +127,11 @@ export default function Navbar({
   }
 
   if (isMobile) {
+    const profilePending = pendingHref === profileHref;
+    const leaderboardPending = pendingHref === '/leaderboard';
+    const feedPending = pendingHref === '/feed';
+    const explorePending = pendingHref === '/explore';
+
     return (
       <>
         <nav className='fixed bottom-0 left-0 right-0 h-20 z-40 how-it-works-hidden shadow-[0_4px_24px_0_var(--cyber-nav-shadow,rgba(80,160,220,0.14))] android:pb-10 pb-4'>
@@ -85,16 +139,22 @@ export default function Navbar({
 
           <div className='relative h-full grid grid-cols-[1fr_1fr_1.5fr_1fr_1fr] items-center pt-2'>
             <Link
-              href={account.address ? `/account/${account.address}` : '#'}
+              href={profileHref}
               onClick={(e) => {
                 if (!account.address) {
                   e.preventDefault();
                   openConnectModal?.();
+                  return;
                 }
+
+                handleNavigationStart(profileHref);
               }}
-              className='flex flex-col items-center justify-center gap-1 text-white z-10'
+              className={mobileNavClass(
+                isProfileActive,
+                profilePending
+              )}
             >
-              <div className='relative'>
+              <MobileIcon pending={profilePending}>
                 <ProfileIcon size={24} />
 
                 {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
@@ -103,21 +163,27 @@ export default function Navbar({
                   (user?.data?.withdrawalMainnet ?? 0) > 0) && (
                   <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
                 )}
-              </div>
+              </MobileIcon>
 
               <span className='text-[10px] whitespace-nowrap'>
-                profile
+                {profilePending ? 'loading...' : 'profile'}
               </span>
             </Link>
 
             <Link
               href='/leaderboard'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10'
+              onClick={() => handleNavigationStart('/leaderboard')}
+              className={mobileNavClass(
+                pathname === '/leaderboard',
+                leaderboardPending
+              )}
             >
-              <LeaderboardIcon size={24} />
+              <MobileIcon pending={leaderboardPending}>
+                <LeaderboardIcon size={24} />
+              </MobileIcon>
 
               <span className='text-[10px] whitespace-nowrap'>
-                scores
+                {leaderboardPending ? 'loading...' : 'scores'}
               </span>
             </Link>
 
@@ -132,23 +198,32 @@ export default function Navbar({
 
             <Link
               href='/feed'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10'
+              onClick={() => handleNavigationStart('/feed')}
+              className={mobileNavClass(pathname === '/feed', feedPending)}
             >
-              <ImageIcon size={24} />
+              <MobileIcon pending={feedPending}>
+                <ImageIcon size={24} />
+              </MobileIcon>
 
               <span className='text-[10px] whitespace-nowrap'>
-                feed
+                {feedPending ? 'loading...' : 'feed'}
               </span>
             </Link>
 
             <Link
               href='/explore'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10'
+              onClick={() => handleNavigationStart('/explore')}
+              className={mobileNavClass(
+                pathname === '/explore',
+                explorePending
+              )}
             >
-              <MagnifyingGlassIcon size={24} />
+              <MobileIcon pending={explorePending}>
+                <MagnifyingGlassIcon size={24} />
+              </MobileIcon>
 
               <span className='text-[10px] whitespace-nowrap'>
-                explore
+                {explorePending ? 'loading...' : 'explore'}
               </span>
             </Link>
 
@@ -157,7 +232,7 @@ export default function Navbar({
             <div className='absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 z-30'>
               <div
                 onClick={handleClick}
-                className='cursor-pointer flex items-center justify-center scale-75 origin-center'
+                className='cursor-pointer flex items-center justify-center scale-75 origin-center active:scale-[0.70] transition-transform duration-100'
               >
                 {showForm ? (
                   <PlainGameButton hideShadow={true} />
@@ -199,6 +274,7 @@ export default function Navbar({
           onClick={handleClick}
         >
           <GameButton />
+
           <ButtonCTA>
             create {type}
           </ButtonCTA>
