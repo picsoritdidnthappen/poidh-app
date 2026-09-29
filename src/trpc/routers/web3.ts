@@ -3,6 +3,9 @@ import { baseProcedure } from '../init';
 import { z } from 'zod';
 import { mainnetPublicClient, degenPublicClient } from '@/utils/publicClients';
 import { DEGENNAMERESABI, WEINAMESABI, GWEINAMESABI } from '@/constant';
+import abi from '@/constant/abi/abi';
+import { getChainById } from '@/utils/config';
+import { ChainId } from '@/utils/types';
 
 export const web3Router = {
   fetchPrice: baseProcedure
@@ -40,6 +43,31 @@ export const web3Router = {
       return getHumanReadableName(input.address);
     }),
 };
+
+export async function getEverHadExternalContributor({
+  chainId,
+  bountyId,
+}: {
+  chainId: number;
+  bountyId: number;
+}): Promise<boolean | null> {
+  try {
+    const chain = getChainById({
+      chainId: chainId as ChainId,
+    });
+
+    return await chain.provider.readContract({
+      abi,
+      address: chain.contracts.mainContract as `0x${string}`,
+      functionName: 'everHadExternalContributor',
+      args: [BigInt(bountyId)],
+    });
+  } catch {
+    // A failed RPC read should not break the bounty page. The caller can
+    // fall back to the current live-participant behavior instead.
+    return null;
+  }
+}
 
 export async function getHumanReadableName(address: string) {
   const tenDays = 10 * 24 * 60 * 60 * 1000;
