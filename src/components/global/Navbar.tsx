@@ -1,5 +1,5 @@
 import GameButton, { PlainGameButton } from '@/components/global/GameButton';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAccount } from 'wagmi';
 import FormBounty from '../bounty/FormBounty';
 import FormClaim from '../claims/FormClaim';
@@ -98,7 +98,9 @@ export default function Navbar({
       'relative flex flex-col items-center justify-center gap-1 text-white z-10',
       'py-2 transition-all duration-150',
       'active:scale-90 active:opacity-70',
-      active ? 'font-bold drop-shadow-[0_0_5px_rgba(255,255,255,0.75)]' : '',
+      active
+        ? 'font-bold drop-shadow-[0_0_5px_rgba(255,255,255,0.75)]'
+        : '',
       pending ? 'opacity-80' : '',
     ]
       .filter(Boolean)
@@ -111,7 +113,7 @@ export default function Navbar({
   }: {
     pending: boolean;
     active: boolean;
-    children: React.ReactNode;
+    children: ReactNode;
   }) => (
     <div
       className={`relative w-6 h-6 flex items-center justify-center transition-all duration-150 ${
@@ -121,7 +123,7 @@ export default function Navbar({
       }`}
     >
       {children}
-  
+
       {pending && (
         <div className='absolute -inset-1.5 rounded-full border-2 border-white/25 border-t-white animate-spin pointer-events-none' />
       )}
@@ -162,7 +164,10 @@ export default function Navbar({
                 profilePending
               )}
             >
-              <MobileIcon pending={profilePending}>
+              <MobileIcon
+                pending={profilePending}
+                active={isProfileActive}
+              >
                 <ProfileIcon size={24} />
 
                 {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
@@ -186,7 +191,10 @@ export default function Navbar({
                 leaderboardPending
               )}
             >
-              <MobileIcon pending={leaderboardPending}>
+              <MobileIcon
+                pending={leaderboardPending}
+                active={pathname === '/leaderboard'}
+              >
                 <LeaderboardIcon size={24} />
               </MobileIcon>
 
@@ -207,9 +215,15 @@ export default function Navbar({
             <Link
               href='/feed'
               onClick={() => handleNavigationStart('/feed')}
-              className={mobileNavClass(pathname === '/feed', feedPending)}
+              className={mobileNavClass(
+                pathname === '/feed',
+                feedPending
+              )}
             >
-              <MobileIcon pending={feedPending}>
+              <MobileIcon
+                pending={feedPending}
+                active={pathname === '/feed'}
+              >
                 <ImageIcon size={24} />
               </MobileIcon>
 
@@ -226,7 +240,10 @@ export default function Navbar({
                 explorePending
               )}
             >
-              <MobileIcon pending={explorePending}>
+              <MobileIcon
+                pending={explorePending}
+                active={pathname === '/explore'}
+              >
                 <MagnifyingGlassIcon size={24} />
               </MobileIcon>
 
