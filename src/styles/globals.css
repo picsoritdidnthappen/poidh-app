@@ -867,3 +867,22 @@ html.cyber .feed-comment-body {
     0 4px 14px rgba(0, 0, 0, 0.22),
     inset 0 0 0 1px rgba(66, 215, 123, 0.06);
 }
+
+/* Toast notifications flush with top of viewport */
+:root {
+  --toastify-toast-offset: 0px;
+}
+
+.Toastify__toast-container--top-left,
+.Toastify__toast-container--top-center,
+.Toastify__toast-container--top-right {
+  top: 0 !important;
+}
+
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    top: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
