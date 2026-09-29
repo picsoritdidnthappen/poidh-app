@@ -165,7 +165,7 @@ export default function FormJoinBounty({
         );
       }
 
-      setLoading({ isLoading: true, status: 'Waiting approval' });
+      setLoading({ isLoading: true, status: 'Waiting for approval' });
       setPollingChainId(chain.id);
 
       await writeContract.writeContractAsync({
