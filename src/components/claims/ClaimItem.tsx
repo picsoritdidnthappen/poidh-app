@@ -181,7 +181,7 @@ export default function ClaimItem({
 
       setLoading({
         isLoading: true,
-        status: 'Waiting approval',
+        status: 'Waiting for approval',
       });
 
       await writeContract.writeContractAsync({
@@ -265,7 +265,7 @@ export default function ClaimItem({
 
       setLoading({
         isLoading: true,
-        status: 'Waiting approval',
+        status: 'Waiting for approval',
       });
 
       await writeContract.writeContractAsync({
