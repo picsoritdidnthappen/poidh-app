@@ -71,18 +71,18 @@ export default function Header() {
       <div className='flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
         <div className='flex'>
           <button
-            onClick={() =>
-              setIsOpen(true)
-            }
-            className='relative mr-2 hover:text-poidhRed'
+            onClick={() => setIsOpen(true)}
+            className='mr-2 hover:text-poidhRed'
           >
-            <MenuIcon size={30} />
-
-            {!isMobile &&
-              account.address &&
-              hasUnseenYouActivity && (
-                <div className='absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
-              )}
+            <div className='relative w-[30px] h-[30px]'>
+              <MenuIcon size={30} />
+          
+              {!isMobile &&
+                account.address &&
+                hasUnseenYouActivity && (
+                  <div className='absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 w-2.5 h-2.5 bg-red-500 rounded-full ring-1 ring-white' />
+                )}
+            </div>
           </button>
 
           <Link href='/'>
