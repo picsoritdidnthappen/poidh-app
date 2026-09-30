@@ -170,11 +170,7 @@ function formatPayoutUsd(amount: number) {
   })}`;
 }
 
-function PayoutThumb({
-  payout,
-}: {
-  payout: RecentPayout;
-}) {
+function PayoutThumb({ payout }: { payout: RecentPayout }) {
   const chain = getChainById({
     chainId: payout.chainId as ChainId,
   });
@@ -211,22 +207,14 @@ function PayoutThumb({
     };
   }, []);
 
-  const {
-    mediaUrl,
-    isVideo,
-    mediaError,
-    setMediaError,
-  } = useClaimMedia(
+  const { mediaUrl, isVideo, mediaError, setMediaError } = useClaimMedia(
     payout.claim.url,
     shouldLoadMedia
   );
 
-  const payoutLabel = formatPayoutUsd(
-    payout.amountUsd
-  );
+  const payoutLabel = formatPayoutUsd(payout.amountUsd);
 
-  const placeholderSeed =
-    `${payout.chainId}-${payout.claim.id}-${payout.claim.issuer}`;
+  const placeholderSeed = `${payout.chainId}-${payout.claim.id}-${payout.claim.issuer}`;
 
   return (
     <div
@@ -264,9 +252,7 @@ function PayoutThumb({
             />
           )
         ) : mediaError ? (
-          <GenerativePlaceholder
-            seed={placeholderSeed}
-          />
+          <GenerativePlaceholder seed={placeholderSeed} />
         ) : (
           <div className='absolute inset-0 bg-white/10 animate-pulse' />
         )}
@@ -301,10 +287,7 @@ function PayoutThumb({
           className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-30 scale-[0.7] sm:scale-[0.75] origin-bottom-right'
           title='bounty earner'
         >
-          <EarnerAvatar
-            address={payout.claim.issuer}
-            size={28}
-          />
+          <EarnerAvatar address={payout.claim.issuer} size={28} />
         </div>
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 z-10 pointer-events-none' />
@@ -316,16 +299,15 @@ function PayoutThumb({
 export default function RecentPayouts() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const recentPayoutsQuery =
-    trpc.claims.fetchRecentPayouts.useQuery(
-      {
-        limit: 12,
-      },
-      {
-        staleTime: 30_000,
-        refetchOnWindowFocus: false,
-      }
-    );
+  const recentPayoutsQuery = trpc.claims.fetchRecentPayouts.useQuery(
+    {
+      limit: 12,
+    },
+    {
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -350,13 +332,9 @@ export default function RecentPayouts() {
     };
   }, []);
 
-  const payouts =
-    (recentPayoutsQuery.data ?? []) as RecentPayout[];
+  const payouts = (recentPayoutsQuery.data ?? []) as RecentPayout[];
 
-  if (
-    !recentPayoutsQuery.isLoading &&
-    payouts.length === 0
-  ) {
+  if (!recentPayoutsQuery.isLoading && payouts.length === 0) {
     return null;
   }
 

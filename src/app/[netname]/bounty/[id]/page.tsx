@@ -78,8 +78,8 @@ export default function Bounty({
                 </h1>
 
                 <p className='text-lg leading-relaxed mb-6'>
-                  This is a historical poidh bounty originally created on
-                  Degen Chain. Degen Chain has since been retired, and poidh is
+                  This is a historical poidh bounty originally created on Degen
+                  Chain. Degen Chain has since been retired, and poidh is
                   currently restoring its legacy bounty data.
                 </p>
 
@@ -95,8 +95,7 @@ export default function Bounty({
                   rel='noopener noreferrer'
                   className='underline font-semibold'
                 >
-                  read the full story of the Degen Chain kickflip world record
-                  →
+                  read the full story of the Degen Chain kickflip world record →
                 </a>
               </>
             ) : (

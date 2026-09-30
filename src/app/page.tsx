@@ -115,7 +115,7 @@ export default function Home() {
       </div>
       <LatestClaimImages />
       <RecentPayouts />
-      
+
       <div>
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:py-8 sm:py-4 w-full items-center px-8'>
           <div className='hidden md:flex flex-1'></div>

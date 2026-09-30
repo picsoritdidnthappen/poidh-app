@@ -237,9 +237,7 @@ export default function ConfirmBountySuccessModal({
           </div>
 
           <div className='mt-3 text-white text-sm leading-relaxed'>
-            <div className='font-semibold text-lg'>
-              {claimTitle}
-            </div>
+            <div className='font-semibold text-lg'>{claimTitle}</div>
 
             <div className='mt-2 opacity-90 flex items-center gap-2'>
               <span>issuer:</span>

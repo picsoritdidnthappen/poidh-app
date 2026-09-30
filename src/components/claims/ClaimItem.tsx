@@ -31,11 +31,7 @@ function hashString(value: string) {
   return Math.abs(hash);
 }
 
-function GenerativePlaceholder({
-  seed,
-}: {
-  seed: string;
-}) {
+function GenerativePlaceholder({ seed }: { seed: string }) {
   const hash = hashString(seed);
 
   const palette = [
@@ -47,26 +43,19 @@ function GenerativePlaceholder({
     '#F4A261',
   ];
 
-  const background =
-    palette[hash % palette.length];
+  const background = palette[hash % palette.length];
 
-  const accent1 =
-    palette[(hash + 2) % palette.length];
+  const accent1 = palette[(hash + 2) % palette.length];
 
-  const accent2 =
-    palette[(hash + 4) % palette.length];
+  const accent2 = palette[(hash + 4) % palette.length];
 
-  const vertical =
-    28 + ((hash >> 2) % 38);
+  const vertical = 28 + ((hash >> 2) % 38);
 
-  const horizontal =
-    30 + ((hash >> 4) % 36);
+  const horizontal = 30 + ((hash >> 4) % 36);
 
-  const smallBlockLeft =
-    8 + ((hash >> 6) % 58);
+  const smallBlockLeft = 8 + ((hash >> 6) % 58);
 
-  const smallBlockTop =
-    8 + ((hash >> 8) % 58);
+  const smallBlockTop = 8 + ((hash >> 8) % 58);
 
   return (
     <div
@@ -137,8 +126,7 @@ export default function ClaimItem({
     setMediaError,
   } = useClaimMedia(claim.url);
 
-  const placeholderSeed =
-    `${claim.chainId}-${claim.id}-${claim.issuer}`;
+  const placeholderSeed = `${claim.chainId}-${claim.id}-${claim.issuer}`;
 
   const [openCard, setOpenCard] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
@@ -188,10 +176,7 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'acceptClaim',
-        args: [
-          BigInt(bounty.data.onChainId),
-          BigInt(claim.onChainId),
-        ],
+        args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
         chainId: chain.id,
       });
 
@@ -201,19 +186,16 @@ export default function ClaimItem({
           status: `Indexing ${i}s...`,
         });
 
-        const accepted =
-          await trpcClient.claims.isAccepted.query({
-            id: Number(claimId),
-            chainId: chain.id,
-          });
+        const accepted = await trpcClient.claims.isAccepted.query({
+          id: Number(claimId),
+          chainId: chain.id,
+        });
 
         if (accepted) {
           return;
         }
 
-        await new Promise((resolve) =>
-          setTimeout(resolve, 1_000)
-        );
+        await new Promise((resolve) => setTimeout(resolve, 1_000));
       }
 
       throw new Error('Failed to accept claim');
@@ -232,9 +214,7 @@ export default function ClaimItem({
         isLoading: false,
       });
 
-      toast.error(
-        'Failed to accept claim:' + error.message
-      );
+      toast.error('Failed to accept claim:' + error.message);
     },
 
     onSettled: () => {
@@ -272,27 +252,19 @@ export default function ClaimItem({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'submitClaimForVote',
-        args: [
-          BigInt(bounty.data.onChainId),
-          BigInt(claim.onChainId),
-        ],
+        args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
         chainId: pollingChainId ?? chain.id,
       });
     },
 
     onSuccess: () => {
-      toast.success(
-        'Claim submitted for vote successfully'
-      );
+      toast.success('Claim submitted for vote successfully');
 
       window.location.reload();
     },
 
     onError: (error) => {
-      toast.error(
-        'Failed to submit claim for vote: ' +
-          error.message
-      );
+      toast.error('Failed to submit claim for vote: ' + error.message);
     },
 
     onSettled: () => {
@@ -303,10 +275,7 @@ export default function ClaimItem({
     },
   });
 
-  const resolvedClaimImage =
-    !mediaError
-      ? mediaUrl ?? claim.url ?? ''
-      : '';
+  const resolvedClaimImage = !mediaError ? mediaUrl ?? claim.url ?? '' : '';
 
   return (
     <>
@@ -315,14 +284,12 @@ export default function ClaimItem({
           ...claim,
           issuer: {
             address: claim.issuer.toLowerCase(),
-            scorePoidh:
-              Number(accountStats.data?.poidhScore) ?? 0,
+            scorePoidh: Number(accountStats.data?.poidhScore) ?? 0,
           },
           bounty: bounty.data
             ? {
                 ...bounty.data,
-                chainId:
-                  bounty.data.chainId as ChainId,
+                chainId: bounty.data.chainId as ChainId,
               }
             : undefined,
         }}
@@ -333,9 +300,7 @@ export default function ClaimItem({
       {bounty.data && (
         <ConfirmBountySuccessModal
           open={showConfirmSuccess}
-          onClose={() =>
-            setShowConfirmSuccess(false)
-          }
+          onClose={() => setShowConfirmSuccess(false)}
           claimImage={resolvedClaimImage}
           claimTitle={claim.title}
           claimIssuer={claim.issuer}
@@ -379,18 +344,14 @@ export default function ClaimItem({
               <button
                 className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
                 onClick={() => {
-                  if (
-                    bounty.data.mustUseVoteFlow
-                  ) {
+                  if (bounty.data.mustUseVoteFlow) {
                     setShowVotingConfirm(true);
                   } else {
                     setShowAcceptConfirm(true);
                   }
                 }}
               >
-                {bounty.data.mustUseVoteFlow
-                  ? 'propose winner'
-                  : 'accept'}
+                {bounty.data.mustUseVoteFlow ? 'propose winner' : 'accept'}
               </button>
             )}
         </div>
@@ -406,9 +367,7 @@ export default function ClaimItem({
           onClick={() => setOpenCard(true)}
         >
           {mediaError ? (
-            <GenerativePlaceholder
-              seed={placeholderSeed}
-            />
+            <GenerativePlaceholder seed={placeholderSeed} />
           ) : mediaUrl ? (
             isVideo ? (
               <video
@@ -416,9 +375,7 @@ export default function ClaimItem({
                 controls
                 playsInline
                 className='w-full h-full object-cover'
-                onClick={(e) =>
-                  e.stopPropagation()
-                }
+                onClick={(e) => e.stopPropagation()}
                 onError={() => {
                   setMediaError(true);
                 }}
@@ -426,9 +383,7 @@ export default function ClaimItem({
             ) : (
               <Image
                 src={mediaUrl}
-                alt={
-                  claim.title || 'claim image'
-                }
+                alt={claim.title || 'claim image'}
                 fill
                 className='object-cover'
                 sizes='(max-width: 768px) 100vw, 600px'
@@ -441,9 +396,7 @@ export default function ClaimItem({
           ) : isMediaLoading ? (
             <div className='absolute inset-0 bg-white/10 animate-pulse' />
           ) : (
-            <GenerativePlaceholder
-              seed={placeholderSeed}
-            />
+            <GenerativePlaceholder seed={placeholderSeed} />
           )}
         </div>
 
@@ -454,16 +407,12 @@ export default function ClaimItem({
             </p>
 
             <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words'>
-              <TextWithLinks>
-                {claim.description}
-              </TextWithLinks>
+              <TextWithLinks>{claim.description}</TextWithLinks>
             </p>
           </div>
 
           <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
-            <span className='shrink-0 mr-2'>
-              issuer&nbsp;
-            </span>
+            <span className='shrink-0 mr-2'>issuer&nbsp;</span>
 
             <div className='flex flex-row items-center w-full justify-end overflow-hidden'>
               <DisplayAddress
@@ -475,21 +424,15 @@ export default function ClaimItem({
               />
 
               <div className='ml-2'>
-                <CopyAddressButton
-                  address={claim.issuer}
-                />
+                <CopyAddressButton address={claim.issuer} />
               </div>
             </div>
           </div>
 
           <div className='flex flex-row items-center justify-between'>
-            <span>
-              claim id: {claim.id}
-            </span>
+            <span>claim id: {claim.id}</span>
 
-            <SocialMediaLinks
-              address={claim.issuer}
-            />
+            <SocialMediaLinks address={claim.issuer} />
           </div>
         </div>
       </div>

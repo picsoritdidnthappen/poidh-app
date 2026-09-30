@@ -186,12 +186,10 @@ function ClaimThumb({
     };
   }, []);
 
-  const {
-    mediaUrl,
-    isVideo,
-    mediaError,
-    setMediaError,
-  } = useClaimMedia(claim.url, shouldLoadMedia);
+  const { mediaUrl, isVideo, mediaError, setMediaError } = useClaimMedia(
+    claim.url,
+    shouldLoadMedia
+  );
 
   const placeholderSeed = `${chainId}-${claim.id}-${claim.issuer}`;
 
@@ -203,11 +201,7 @@ function ClaimThumb({
       <Link
         href={`/${chain.slug}/bounty/${bountyId}`}
         className='block relative w-full h-full group'
-        aria-label={
-          bountyTitle
-            ? `view bounty: ${bountyTitle}`
-            : 'view bounty'
-        }
+        aria-label={bountyTitle ? `view bounty: ${bountyTitle}` : 'view bounty'}
       >
         {mediaUrl && !mediaError ? (
           isVideo ? (
@@ -263,10 +257,7 @@ function ClaimThumb({
           className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-30 scale-[0.7] sm:scale-[0.75] origin-bottom-right'
           title='claim issuer'
         >
-          <ClaimantAvatar
-            address={claim.issuer}
-            size={28}
-          />
+          <ClaimantAvatar address={claim.issuer} size={28} />
         </div>
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 z-10 pointer-events-none' />
