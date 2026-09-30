@@ -32,9 +32,9 @@ export default function AcceptClaimConfirm({
 
             <div className='max-h-[100px] overflow-y-auto custom-scrollbar'>
               <p className='text-white text-sm'>
-                you are about to accept this claim. this action cannot be undone.
-                once accepted, the bounty funds will be immediately claimable by
-                the submitting wallet.
+                you are about to accept this claim. this action cannot be
+                undone. once accepted, the bounty funds will be immediately
+                claimable by the submitting wallet.
               </p>
             </div>
 

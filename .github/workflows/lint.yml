@@ -20,7 +20,7 @@ jobs:
       - name: 🤌 Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10
 
       - name: ⎔ Setup node
         uses: actions/setup-node@v3
@@ -29,7 +29,10 @@ jobs:
           cache: 'pnpm'
 
       - name: 📥 Download deps
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: 🗄️ Generate Prisma client
+        run: pnpm run generate
 
       - name: 🔬 Lint
         run: pnpm run lint:strict
@@ -37,8 +40,8 @@ jobs:
       - name: 🔎 Type check
         run: pnpm run typecheck
 
-      - name: 💅 Prettier format
-        run: pnpm run format
-
       - name: 🔍 Prettier check
         run: pnpm run format:check
+
+      - name: 🃏 Test
+        run: pnpm run test --runInBand

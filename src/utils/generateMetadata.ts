@@ -39,9 +39,7 @@ function getSocialDescription(
     return fallback;
   }
 
-  const cleanDescription = description
-    .replace(/\s+/g, ' ')
-    .trim();
+  const cleanDescription = description.replace(/\s+/g, ' ').trim();
 
   if (cleanDescription.length <= 200) {
     return cleanDescription;
@@ -67,10 +65,7 @@ function getAbsoluteUrl(url: string): string {
  * Supplying dimensions, MIME type, and alt text removes ambiguity
  * for crawlers such as X/Twitter, Discord, Slack, etc.
  */
-function getOgImage(
-  url: string,
-  alt: string
-) {
+function getOgImage(url: string, alt: string) {
   return {
     url: getAbsoluteUrl(url),
     width: OG_WIDTH,
@@ -88,18 +83,15 @@ export const generateMetadataForBounty = async ({
     netname: Netname;
   };
 }): Promise<Metadata> => {
-  const chain =
-    chains[params.netname as keyof typeof chains];
+  const chain = chains[params.netname as keyof typeof chains];
 
   const id = Number(params.id);
 
-  const canonicalUrl =
-    `${APP_URL}/${params.netname}/bounty/${params.id}`;
+  const canonicalUrl = `${APP_URL}/${params.netname}/bounty/${params.id}`;
 
-  const price: number | undefined =
-    await trpcCaller.web3.fetchPrice({
-      currency: chain.currency,
-    });
+  const price: number | undefined = await trpcCaller.web3.fetchPrice({
+    currency: chain.currency,
+  });
 
   let bounty = null;
 
@@ -144,10 +136,7 @@ export const generateMetadataForBounty = async ({
         siteName: APP_NAME,
         url: canonicalUrl,
         images: [
-          getOgImage(
-            APP_OG_IMAGE_URL,
-            'poidh - pics or it did not happen'
-          ),
+          getOgImage(APP_OG_IMAGE_URL, 'poidh - pics or it did not happen'),
         ],
         type: 'website',
         locale: 'en_US',
@@ -166,17 +155,14 @@ export const generateMetadataForBounty = async ({
     } satisfies Metadata;
   }
 
-  const socialDescription =
-    getSocialDescription(bounty.description);
+  const socialDescription = getSocialDescription(bounty.description);
 
   const bountyDataObject = {
     title: bounty.title.slice(0, 100),
     amount: bounty.amount,
     chainId: chain.id,
     currencyRate: price,
-    participants: getSortedParticipants(
-      bounty.participations
-    ),
+    participants: getSortedParticipants(bounty.participations),
   };
 
   /**
@@ -220,12 +206,7 @@ export const generateMetadataForBounty = async ({
       description: socialDescription,
       siteName: APP_NAME,
       url: canonicalUrl,
-      images: [
-        getOgImage(
-          ogImageUrl,
-          `${bounty.title} on poidh`
-        ),
-      ],
+      images: [getOgImage(ogImageUrl, `${bounty.title} on poidh`)],
       type: 'website',
       locale: 'en_US',
     },
@@ -252,14 +233,11 @@ export const generateMetadataForAccountPage = async ({
 }): Promise<Metadata> => {
   const address = params.address;
 
-  const canonicalUrl =
-    `${APP_URL}/account/${address}`;
+  const canonicalUrl = `${APP_URL}/account/${address}`;
 
-  const fallbackTitle =
-    `Account ${address}`;
+  const fallbackTitle = `Account ${address}`;
 
-  const fallbackDescription =
-    `Account ${address} details`;
+  const fallbackDescription = `Account ${address} details`;
 
   const frame = {
     version: 'next',
@@ -272,31 +250,26 @@ export const generateMetadataForAccountPage = async ({
         url: canonicalUrl,
         splashImageUrl: APP_SPLASH_URL,
         iconUrl: APP_ICON_URL,
-        splashBackgroundColor:
-          APP_SPLASH_BACKGROUND_COLOR,
+        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
       },
     },
   };
 
   try {
-    const split =
-      await trpcCaller.accounts.stats({
-        address,
-      });
+    const split = await trpcCaller.accounts.stats({
+      address,
+    });
 
-    const accountActivitiesCount =
-      await trpcCaller.accounts.activitiesCount({
-        address,
-      });
+    const accountActivitiesCount = await trpcCaller.accounts.activitiesCount({
+      address,
+    });
 
     const accountDataObject = {
       address,
       chain: 'base',
       poidhScore: split.poidhScore,
-      totalBounties:
-        accountActivitiesCount.bounties,
-      totalClaims:
-        accountActivitiesCount.claims,
+      totalBounties: accountActivitiesCount.bounties,
+      totalClaims: accountActivitiesCount.claims,
     };
 
     const ogImageUrl = getAbsoluteUrl(
@@ -331,12 +304,7 @@ export const generateMetadataForAccountPage = async ({
         description: fallbackDescription,
         siteName: APP_NAME,
         url: canonicalUrl,
-        images: [
-          getOgImage(
-            ogImageUrl,
-            `${fallbackTitle} on poidh`
-          ),
-        ],
+        images: [getOgImage(ogImageUrl, `${fallbackTitle} on poidh`)],
         type: 'website',
         locale: 'en_US',
       },
@@ -369,10 +337,7 @@ export const generateMetadataForAccountPage = async ({
         siteName: APP_NAME,
         url: canonicalUrl,
         images: [
-          getOgImage(
-            APP_OG_IMAGE_URL,
-            'poidh - pics or it did not happen'
-          ),
+          getOgImage(APP_OG_IMAGE_URL, 'poidh - pics or it did not happen'),
         ],
         type: 'website',
         locale: 'en_US',
@@ -392,70 +357,60 @@ export const generateMetadataForAccountPage = async ({
   }
 };
 
-export const generateMetadataForLeaderboardPage =
-  (): Metadata => {
-    const title =
-      "poidh leaderboard - pics or it didn't happen";
+export const generateMetadataForLeaderboardPage = (): Metadata => {
+  const title = "poidh leaderboard - pics or it didn't happen";
 
-    const description =
-      "view the top performers on poidh - see who's leading in bounty completions and earnings across all chains";
+  const description =
+    "view the top performers on poidh - see who's leading in bounty completions and earnings across all chains";
 
-    const canonicalUrl =
-      `${APP_URL}/leaderboard`;
+  const canonicalUrl = `${APP_URL}/leaderboard`;
 
-    return {
-      metadataBase: new URL(APP_URL),
+  return {
+    metadataBase: new URL(APP_URL),
 
+    title,
+    description,
+
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    openGraph: {
       title,
       description,
+      siteName: APP_NAME,
+      url: canonicalUrl,
+      images: [getOgImage(APP_OG_IMAGE_URL, 'poidh leaderboard')],
+      type: 'website',
+      locale: 'en_US',
+    },
 
-      alternates: {
-        canonical: canonicalUrl,
-      },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [APP_OG_IMAGE_URL],
+    },
 
-      openGraph: {
-        title,
-        description,
-        siteName: APP_NAME,
-        url: canonicalUrl,
-        images: [
-          getOgImage(
-            APP_OG_IMAGE_URL,
-            'poidh leaderboard'
-          ),
-        ],
-        type: 'website',
-        locale: 'en_US',
-      },
-
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [APP_OG_IMAGE_URL],
-      },
-
-      other: {
-        'fc:frame': JSON.stringify({
-          version: 'next',
-          imageUrl: APP_OG_IMAGE_URL,
-          button: {
-            title: 'view leaderboard',
-            action: {
-              type: 'launch_frame',
-              name: APP_NAME,
-              url: canonicalUrl,
-              splashImageUrl:
-                APP_SPLASH_URL,
-              iconUrl: APP_ICON_URL,
-              splashBackgroundColor:
-                APP_SPLASH_BACKGROUND_COLOR,
-            },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title: 'view leaderboard',
+          action: {
+            type: 'launch_frame',
+            name: APP_NAME,
+            url: canonicalUrl,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
           },
-        }),
-      },
-    } satisfies Metadata;
-  };
+        },
+      }),
+    },
+  } satisfies Metadata;
+};
 
 export const generateMetadataForAlbumPage = ({
   params,
@@ -464,24 +419,19 @@ export const generateMetadataForAlbumPage = ({
     album: string;
   };
 }): Metadata => {
-  const title =
-    `${params.album} bounties on poidh`;
+  const title = `${params.album} bounties on poidh`;
 
-  const description =
-    `view ${params.album} bounties on poidh - see all current bounties, view all past bounties, or create a new bounty within the ${params.album} album`;
+  const description = `view ${params.album} bounties on poidh - see all current bounties, view all past bounties, or create a new bounty within the ${params.album} album`;
 
-  const canonicalUrl =
-    `${APP_URL}/a/${params.album}`;
+  const canonicalUrl = `${APP_URL}/a/${params.album}`;
 
-  const ogImageUrl =
-    `${APP_URL}/api/og/album?album=${encodeURIComponent(
-      params.album
-    )}&imageFormat=og`;
+  const ogImageUrl = `${APP_URL}/api/og/album?album=${encodeURIComponent(
+    params.album
+  )}&imageFormat=og`;
 
-  const previewImageUrl =
-    `${APP_URL}/api/og/album?album=${encodeURIComponent(
-      params.album
-    )}&imageFormat=preview`;
+  const previewImageUrl = `${APP_URL}/api/og/album?album=${encodeURIComponent(
+    params.album
+  )}&imageFormat=preview`;
 
   return {
     metadataBase: new URL(APP_URL),
@@ -499,14 +449,8 @@ export const generateMetadataForAlbumPage = ({
       siteName: APP_NAME,
       url: canonicalUrl,
       images: [
-        getOgImage(
-          ogImageUrl,
-          `${params.album} bounties on poidh`
-        ),
-        getOgImage(
-          APP_OG_IMAGE_URL,
-          'poidh'
-        ),
+        getOgImage(ogImageUrl, `${params.album} bounties on poidh`),
+        getOgImage(APP_OG_IMAGE_URL, 'poidh'),
       ],
       type: 'website',
       locale: 'en_US',
@@ -529,11 +473,9 @@ export const generateMetadataForAlbumPage = ({
             type: 'launch_frame',
             name: 'view album',
             url: canonicalUrl,
-            splashImageUrl:
-              APP_SPLASH_URL,
+            splashImageUrl: APP_SPLASH_URL,
             iconUrl: APP_ICON_URL,
-            splashBackgroundColor:
-              APP_SPLASH_BACKGROUND_COLOR,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
           },
         },
       }),
@@ -541,133 +483,115 @@ export const generateMetadataForAlbumPage = ({
   } satisfies Metadata;
 };
 
-export const generateMetadaForFeedPage =
-  (): Metadata => {
-    const title =
-      'poidh feed - view activity as it happens';
+export const generateMetadaForFeedPage = (): Metadata => {
+  const title = 'poidh feed - view activity as it happens';
 
-    const description =
-      'view the complete poidh activity feed - see new bounties, new claims, and winner announcements as they happen';
+  const description =
+    'view the complete poidh activity feed - see new bounties, new claims, and winner announcements as they happen';
 
-    const canonicalUrl = `${APP_URL}/feed`;
+  const canonicalUrl = `${APP_URL}/feed`;
 
-    return {
-      metadataBase: new URL(APP_URL),
+  return {
+    metadataBase: new URL(APP_URL),
 
+    title,
+    description,
+
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    openGraph: {
       title,
       description,
+      siteName: APP_NAME,
+      url: canonicalUrl,
+      images: [getOgImage(APP_OG_IMAGE_URL, 'poidh activity feed')],
+      type: 'website',
+      locale: 'en_US',
+    },
 
-      alternates: {
-        canonical: canonicalUrl,
-      },
-
-      openGraph: {
-        title,
-        description,
-        siteName: APP_NAME,
-        url: canonicalUrl,
-        images: [
-          getOgImage(
-            APP_OG_IMAGE_URL,
-            'poidh activity feed'
-          ),
-        ],
-        type: 'website',
-        locale: 'en_US',
-      },
-
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [APP_OG_IMAGE_URL],
-      },
-
-      other: {
-        'fc:frame': JSON.stringify({
-          version: 'next',
-          imageUrl: APP_OG_IMAGE_URL,
-          button: {
-            title: 'view the feed',
-            action: {
-              type: 'launch_frame',
-              name: APP_NAME,
-              url: canonicalUrl,
-              splashImageUrl:
-                APP_SPLASH_URL,
-              iconUrl: APP_ICON_URL,
-              splashBackgroundColor:
-                APP_SPLASH_BACKGROUND_COLOR,
-            },
-          },
-        }),
-      },
-    } satisfies Metadata;
-  };
-
-export const generateMetadaForExplorePage =
-  (): Metadata => {
-    const title =
-      'explore poidh bounties & albums';
-
-    const description =
-      'search poidh bounties and albums by keyword - from silly meme contests to robust public goods funding, poidh has content across a diverse range of topics';
-
-    const canonicalUrl = `${APP_URL}/explore`;
-
-    return {
-      metadataBase: new URL(APP_URL),
-
+    twitter: {
+      card: 'summary_large_image',
       title,
       description,
+      images: [APP_OG_IMAGE_URL],
+    },
 
-      alternates: {
-        canonical: canonicalUrl,
-      },
-
-      openGraph: {
-        title,
-        description,
-        siteName: APP_NAME,
-        url: canonicalUrl,
-        images: [
-          getOgImage(
-            APP_OG_IMAGE_URL,
-            'explore poidh'
-          ),
-        ],
-        type: 'website',
-        locale: 'en_US',
-      },
-
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [APP_OG_IMAGE_URL],
-      },
-
-      other: {
-        'fc:frame': JSON.stringify({
-          version: 'next',
-          imageUrl: APP_OG_IMAGE_URL,
-          button: {
-            title: 'explore poidh',
-            action: {
-              type: 'launch_frame',
-              name: APP_NAME,
-              url: canonicalUrl,
-              splashImageUrl:
-                APP_SPLASH_URL,
-              iconUrl: APP_ICON_URL,
-              splashBackgroundColor:
-                APP_SPLASH_BACKGROUND_COLOR,
-            },
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title: 'view the feed',
+          action: {
+            type: 'launch_frame',
+            name: APP_NAME,
+            url: canonicalUrl,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
           },
-        }),
-      },
-    } satisfies Metadata;
-  };
+        },
+      }),
+    },
+  } satisfies Metadata;
+};
+
+export const generateMetadaForExplorePage = (): Metadata => {
+  const title = 'explore poidh bounties & albums';
+
+  const description =
+    'search poidh bounties and albums by keyword - from silly meme contests to robust public goods funding, poidh has content across a diverse range of topics';
+
+  const canonicalUrl = `${APP_URL}/explore`;
+
+  return {
+    metadataBase: new URL(APP_URL),
+
+    title,
+    description,
+
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    openGraph: {
+      title,
+      description,
+      siteName: APP_NAME,
+      url: canonicalUrl,
+      images: [getOgImage(APP_OG_IMAGE_URL, 'explore poidh')],
+      type: 'website',
+      locale: 'en_US',
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [APP_OG_IMAGE_URL],
+    },
+
+    other: {
+      'fc:frame': JSON.stringify({
+        version: 'next',
+        imageUrl: APP_OG_IMAGE_URL,
+        button: {
+          title: 'explore poidh',
+          action: {
+            type: 'launch_frame',
+            name: APP_NAME,
+            url: canonicalUrl,
+            splashImageUrl: APP_SPLASH_URL,
+            iconUrl: APP_ICON_URL,
+            splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+          },
+        },
+      }),
+    },
+  } satisfies Metadata;
+};
 
 function getSortedParticipants(
   participations: {
@@ -682,12 +606,8 @@ function getSortedParticipants(
   return [...participations]
     .sort(
       (a, b) =>
-        Number(
-          formatEther(BigInt(b.amount))
-        ) -
-        Number(
-          formatEther(BigInt(a.amount))
-        )
+        Number(formatEther(BigInt(b.amount))) -
+        Number(formatEther(BigInt(a.amount)))
     )
     .slice(0, 8)
     .map((p) => p.userAddress);
@@ -705,9 +625,7 @@ function buildFrame({
 }) {
   return {
     version: 'next',
-    imageUrl: getAbsoluteUrl(
-      previewImageUrl
-    ),
+    imageUrl: getAbsoluteUrl(previewImageUrl),
     button: {
       title: 'view bounty',
       action: {
@@ -716,8 +634,7 @@ function buildFrame({
         url: `${APP_URL}/${params.netname}/bounty/${params.id}`,
         splashImageUrl: APP_SPLASH_URL,
         iconUrl: APP_ICON_URL,
-        splashBackgroundColor:
-          APP_SPLASH_BACKGROUND_COLOR,
+        splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
       },
     },
   };

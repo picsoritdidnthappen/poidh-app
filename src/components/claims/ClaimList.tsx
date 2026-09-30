@@ -48,8 +48,8 @@ export default function ClaimList({
           .filter((claim) => claim.id !== votingClaim?.id)
           .map((claim) => (
             <div
-            key={`${claim.chainId}-${claim.id}`}
-            className='lg:col-span-4 otherClaims'
+              key={`${claim.chainId}-${claim.id}`}
+              className='lg:col-span-4 otherClaims'
             >
               <ClaimItem claim={{ ...claim, isVotingOrAcceptedBounty }} />
             </div>

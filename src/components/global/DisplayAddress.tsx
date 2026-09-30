@@ -40,14 +40,13 @@ export default function DisplayAddress({
    * an abbreviated 0x address before the real name is available.
    */
   const identityIsLoading =
-    userQuery.isLoading ||
-    (!user?.farcasterTag && humanReadableName.isLoading);
+    userQuery.isLoading || (!user?.farcasterTag && humanReadableName.isLoading);
 
   const displayName = user?.farcasterTag
     ? user.farcasterTag
     : humanReadableName.data
-      ? humanReadableName.data
-      : formatWalletAddress(address);
+    ? humanReadableName.data
+    : formatWalletAddress(address);
 
   if (showLoadingSkeleton && identityIsLoading) {
     return (
@@ -97,11 +96,7 @@ export default function DisplayAddress({
             />
           </div>
         ) : showFallbackPfp ? (
-          <PatternAvatar
-            seed={address}
-            size={pfpSize}
-            marginRight='8px'
-          />
+          <PatternAvatar seed={address} size={pfpSize} marginRight='8px' />
         ) : null)}
 
       <span className='truncate overflow-ellipsis m-0 p-0 max-w-full'>
