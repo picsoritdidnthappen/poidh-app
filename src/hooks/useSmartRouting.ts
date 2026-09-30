@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { erc20Abi, formatEther, formatUnits } from 'viem';
-import { arbitrum, base, mainnet } from 'viem/chains';
+import { arbitrum, base, mainnet, robinhood } from 'viem/chains';
 import {
   createSmartRoutingAddress,
   createCall,
   FLEX,
+  SMART_ROUTING_ADDRESS_V1_0_0,
   SMART_ROUTING_ADDRESS_SERVER_URL,
   getSmartRoutingAddressStatus,
   getSmartRoutingAddressFeeEstimates,
@@ -356,6 +357,7 @@ export function useSmartRouting({
             try {
               const res = await createSmartRoutingAddress({
                 owner,
+                projectId,
                 destChain: chain,
                 slippage: 100, // 1% max slippage
                 srcTokens: [
@@ -365,23 +367,18 @@ export function useSmartRouting({
                   { tokenType: 'USDC', chain: arbitrum },
                   { tokenType: 'NATIVE', chain: mainnet },
                   { tokenType: 'USDC', chain: mainnet },
+                  { tokenType: 'NATIVE', chain: robinhood },
                 ],
                 actions: {
                   NATIVE: {
                     action: [nativeCall],
-                    fallBack: [],
                   },
                   USDC: {
                     action: [erc20Call],
-                    fallBack: [],
                   },
                 },
                 allowPartialRoutes: true,
-                config: clientEnv.ZERODEV_PROJECT_ID
-                  ? {
-                      baseUrl: `${SMART_ROUTING_ADDRESS_SERVER_URL}/${clientEnv.ZERODEV_PROJECT_ID}`,
-                    }
-                  : undefined,
+                version: SMART_ROUTING_ADDRESS_V1_0_0,
               });
 
               if (res?.smartRoutingAddress) {
@@ -410,13 +407,13 @@ export function useSmartRouting({
                     : cachedSolverFees[chainId]?.feeEth || 0.00004;
                   const minDepositEth = ethFeeData
                     ? Number(
-                        formatEther(BigInt(ethFeeData.minDeposit || '0x0'))
-                      )
+                      formatEther(BigInt(ethFeeData.minDeposit || '0x0'))
+                    )
                     : cachedSolverFees[chainId]?.minDepositEth || 0.0045;
                   const minDepositUsdc = usdcFeeData
                     ? Number(
-                        formatUnits(BigInt(usdcFeeData.minDeposit || '0x0'), 6)
-                      )
+                      formatUnits(BigInt(usdcFeeData.minDeposit || '0x0'), 6)
+                    )
                     : cachedSolverFees[chainId]?.minDepositUsdc || 10.44;
 
                   updatedFees[chainId] = {
@@ -493,11 +490,11 @@ export function useSmartRouting({
               : cachedSolverFees[chainId]?.minDepositEth || 0.0045;
             const minDepositUsdc = usdcFeeData?.minDeposit
               ? Number(
-                  formatUnits(
-                    BigInt(usdcFeeData.minDeposit),
-                    usdcFeeData.decimal || 6
-                  )
+                formatUnits(
+                  BigInt(usdcFeeData.minDeposit),
+                  usdcFeeData.decimal || 6
                 )
+              )
               : cachedSolverFees[chainId]?.minDepositUsdc || 10.44;
 
             updatedFees[chainId] = {
@@ -568,8 +565,8 @@ export function useSmartRouting({
         activeChainId === base.id
           ? 'Base'
           : activeChainId === mainnet.id
-          ? 'Ethereum'
-          : 'Arbitrum',
+            ? 'Ethereum'
+            : 'Arbitrum',
       priority: 2,
       feeTier: 'low' as const,
       estFee: '~ $0.02',
@@ -684,9 +681,8 @@ export function useSmartRouting({
       const isSponsored = feeInfo?.isSponsored || false;
       const estFeeStr = isSponsored
         ? 'Free (Sponsored)'
-        : `~${
-            feeEth < 0.0001 ? feeEth.toFixed(6) : feeEth.toFixed(4)
-          } ETH ($${feeUsd.toFixed(2)})`;
+        : `~${feeEth < 0.0001 ? feeEth.toFixed(6) : feeEth.toFixed(4)
+        } ETH ($${feeUsd.toFixed(2)})`;
 
       const nativeEthAvailable = Number(formatEther(chainInfo.raw));
       totalPortfolioEth += nativeEthAvailable;
