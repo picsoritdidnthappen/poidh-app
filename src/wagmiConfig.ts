@@ -172,10 +172,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           ).getStore;
           const store = storeGetter ? await storeGetter() : null;
           const state = store?.getState?.();
-          if (!state?.eoaAccount) {
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('open-zerodev-auth'));
-            }
+          if (!state?.eoaAccount && !params?.isReconnecting) {
             await new Promise<void>((resolve, reject) => {
               const onAuthSuccess = () => {
                 cleanup();
@@ -194,6 +191,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
               };
               window.addEventListener('zerodev-auth-success', onAuthSuccess);
               window.addEventListener('zerodev-auth-cancel', onAuthCancel);
+              window.dispatchEvent(new CustomEvent('open-zerodev-auth'));
             });
           }
           return await originalConnect(params);
@@ -207,10 +205,9 @@ export const config = getDefaultConfig({
   projectId: '784d6347a43d3f6e89f58b177f1b27f2',
   chains: [mainnet, arbitrum, base],
   wallets: [
-    {
-      groupName: 'Smart Accounts',
-      wallets: [zeroDevRainbowWallet],
-    },
+    ...(clientEnv.ZERODEV_PROJECT_ID
+      ? [{ groupName: 'Smart Accounts', wallets: [zeroDevRainbowWallet] }]
+      : []),
     ...wallets,
   ],
   transports: {
