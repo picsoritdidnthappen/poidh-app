@@ -27,9 +27,46 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           'Missing NEXT_PUBLIC_ZERODEV_PROJECT_ID: set it to your ZeroDev project ID.'
         );
       }
+      
+      // ZeroDev-specific RPCs.
+      // These are used only by the ZeroDev connector. Normal poidh wallets
+      // continue using the existing Wagmi transports below.
+      const zeroDevRpcFor = (chainId: number) =>
+        `https://rpc.zerodev.app/api/v3/${clientEnv.ZERODEV_PROJECT_ID}/chain/${chainId}`;
+      
+      const zeroDevArbitrum = {
+        ...arbitrum,
+        rpcUrls: {
+          ...arbitrum.rpcUrls,
+          default: {
+            http: [zeroDevRpcFor(arbitrum.id)],
+          },
+        },
+      };
+      
+      const zeroDevBase = {
+        ...base,
+        rpcUrls: {
+          ...base.rpcUrls,
+          default: {
+            http: [zeroDevRpcFor(base.id)],
+          },
+        },
+      };
+      
+      const zeroDevMainnet = {
+        ...mainnet,
+        rpcUrls: {
+          ...mainnet.rpcUrls,
+          default: {
+            http: [zeroDevRpcFor(mainnet.id)],
+          },
+        },
+      };
+      
       const baseConnector = zeroDevWallet({
         projectId: clientEnv.ZERODEV_PROJECT_ID,
-        chains: [arbitrum, base, mainnet],
+        chains: [zeroDevArbitrum, zeroDevBase, zeroDevMainnet],
         mode: '4337',
       })(config);
 
@@ -125,19 +162,16 @@ export const zeroDevRainbowWallet = (): Wallet => ({
                       ? parseInt(chainIdHex, 16)
                       : Number(chainIdHex);
                   const rpcMap: Record<number, string> = {
-                    [arbitrum.id]:
-                      clientEnv.ARBITRUM_RPC_URL ||
-                      'https://arb1.arbitrum.io/rpc',
-                    [base.id]:
-                      clientEnv.BASE_RPC_URL || 'https://mainnet.base.org',
-                    [mainnet.id]:
-                      clientEnv.MAINNET_RPC_URL ||
-                      'https://ethereum-rpc.publicnode.com',
+                    [arbitrum.id]: zeroDevRpcFor(arbitrum.id),
+                    [base.id]: zeroDevRpcFor(base.id),
+                    [mainnet.id]: zeroDevRpcFor(mainnet.id),
                   };
-                  const rpc =
-                    rpcMap[chainId] ||
-                    clientEnv.BASE_RPC_URL ||
-                    'https://mainnet.base.org';
+                  
+                  const rpc = rpcMap[chainId];
+                  
+                  if (!rpc) {
+                    return '0x';
+                  }
                   const res = await fetch(rpc, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
