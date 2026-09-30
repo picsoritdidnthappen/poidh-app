@@ -6,6 +6,8 @@ import {
   useAuthenticateOAuth,
   useLoginPasskey,
   useRegisterPasskey,
+  useSendOTP,
+  useVerifyOTP,
 } from '@zerodev/wallet-react';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
@@ -27,14 +29,23 @@ export default function AuthSignInView({ onClose }: AuthSignInViewProps) {
   const loginPasskey = useLoginPasskey();
   const registerPasskey = useRegisterPasskey();
   const authenticateOAuth = useAuthenticateOAuth();
+  const sendOTP = useSendOTP();
+  const verifyOTP = useVerifyOTP();
 
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpId, setOtpId] = useState<string | null>(null);
+  const [otpBundle, setOtpBundle] = useState<string | null>(null);
+
   const isPending =
     loginPasskey.isPending ||
     registerPasskey.isPending ||
-    authenticateOAuth.isPending;
+    authenticateOAuth.isPending ||
+    sendOTP.isPending ||
+    verifyOTP.isPending;
 
   const handlePasskeyLogin = async () => {
     setAuthError(null);
@@ -105,6 +116,60 @@ export default function AuthSignInView({ onClose }: AuthSignInViewProps) {
     }
   };
 
+  const handleSendOTP = async () => {
+    setAuthError(null);
+
+    try {
+      setActiveAction('email-send');
+
+      const result = await sendOTP.mutateAsync({
+        email: email.trim(),
+      });
+
+      setOtpId(result.otpId);
+      setOtpBundle(result.otpEncryptionTargetBundle);
+
+      toast.success('Verification code sent');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      const msg = e?.message || 'Failed to send verification code';
+      setAuthError(msg);
+      toast.error(msg);
+    } finally {
+      setActiveAction(null);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otpId || !otpBundle) return;
+
+    setAuthError(null);
+
+    try {
+      setActiveAction('email-verify');
+
+      await verifyOTP.mutateAsync({
+        otpId,
+        otpEncryptionTargetBundle: otpBundle,
+        code: otp.trim(),
+      });
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('zerodev-auth-success'));
+      }
+
+      toast.success('Logged in with email');
+      onClose();
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      const msg = e?.message || 'Verification failed';
+      setAuthError(msg);
+      toast.error(msg);
+    } finally {
+      setActiveAction(null);
+    }
+  };
+
   return (
     <>
       <SheetHeader className='pb-5'>
@@ -114,7 +179,7 @@ export default function AuthSignInView({ onClose }: AuthSignInViewProps) {
               Sign In
             </SheetTitle>
             <SheetDescription className='text-xs text-white/50 mt-1 font-normal normal-case'>
-              Choose a passkey or social account to continue
+              Choose a passkey, Google, or email to continue
             </SheetDescription>
           </div>
           <SheetClose onClick={onClose} />
@@ -204,6 +269,69 @@ export default function AuthSignInView({ onClose }: AuthSignInViewProps) {
               : 'Continue with Google'}
           </span>
         </button>
+
+        {/* Email OTP */}
+        {!otpId ? (
+          <div className='space-y-2'>
+            <input
+              type='email'
+              autoComplete='email'
+              placeholder='Email address'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isPending}
+              className='w-full rounded-full border border-white/20 bg-white/5 text-white placeholder:text-white/40 px-4 py-2.5 text-sm outline-none'
+            />
+
+            <button
+              type='button'
+              onClick={handleSendOTP}
+              disabled={isPending || !email.trim()}
+              className='w-full flex items-center justify-center rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/40 text-white font-semibold text-sm px-4 py-2.5 transition active:scale-[0.99] disabled:opacity-50 normal-case'
+            >
+              {activeAction === 'email-send'
+                ? 'Sending Code...'
+                : 'Continue with Email'}
+            </button>
+          </div>
+        ) : (
+          <div className='space-y-2'>
+            <input
+              type='text'
+              inputMode='numeric'
+              autoComplete='one-time-code'
+              placeholder='Verification code'
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              disabled={isPending}
+              className='w-full rounded-full border border-white/20 bg-white/5 text-white placeholder:text-white/40 px-4 py-2.5 text-sm outline-none'
+            />
+
+            <button
+              type='button'
+              onClick={handleVerifyOTP}
+              disabled={isPending || !otp.trim()}
+              className='w-full flex items-center justify-center rounded-full bg-[#f15e5f] hover:bg-[#cf5d5d] text-white font-semibold text-sm px-4 py-2.5 transition active:scale-[0.99] disabled:opacity-50 normal-case'
+            >
+              {activeAction === 'email-verify'
+                ? 'Verifying...'
+                : 'Verify Email'}
+            </button>
+
+            <button
+              type='button'
+              onClick={() => {
+                setOtpId(null);
+                setOtpBundle(null);
+                setOtp('');
+              }}
+              disabled={isPending}
+              className='w-full text-xs text-white/50 hover:text-white/80 normal-case'
+            >
+              Use a different email
+            </button>
+          </div>
+        )}
       </SheetContent>
     </>
   );
