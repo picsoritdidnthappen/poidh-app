@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
 import { erc20Abi, formatEther, formatUnits } from 'viem';
+import { arbitrum, base, mainnet, robinhood } from 'viem/chains';
 import {
   SheetHeader,
   SheetTitle,
@@ -12,7 +13,7 @@ import {
   SheetFooter,
   SheetClose,
 } from '@/components/ui/Sheet';
-import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { ArrowLeft, Copy, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAnychainBalances } from '@/hooks/useAnychainBalances';
 import {
   useSmartRouting,
@@ -44,6 +45,34 @@ export default function AuthAnychainView({
   address,
 }: AuthAnychainViewProps) {
   const { connector } = useAccount();
+
+  const isZeroDev = connector?.id === 'zerodev-wallet';
+
+  const robinhoodFee = smartRouting.solverFees[robinhood.id];
+
+  const depositDestinations = [
+    {
+      chainId: base.id,
+      name: 'Base',
+    },
+    {
+      chainId: arbitrum.id,
+      name: 'Arbitrum',
+    },
+    {
+      chainId: mainnet.id,
+      name: 'Ethereum',
+    },
+  ];
+
+  const copyRoutingAddress = async (routingAddress: string) => {
+    try {
+      await navigator.clipboard.writeText(routingAddress);
+      toast.success('deposit address copied');
+    } catch {
+      toast.error('could not copy deposit address');
+    }
+  };
 
   const [unbridgedDeposits, setUnbridgedDeposits] = useState<
     {
@@ -589,6 +618,93 @@ export default function AuthAnychainView({
             />
           </button>
         </div>
+
+        {/* Cross-chain deposit funding */}
+        {isConnected && isZeroDev && smartRouting.isRoutingConfigured && (
+          <div className='p-4 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
+            <div className='text-left'>
+              <div className='text-xs font-bold text-white normal-case'>
+                Add funds from Robinhood Chain
+              </div>
+
+              <p className='text-[11px] text-white/70 mt-1.5 leading-relaxed normal-case'>
+                Send ETH from Robinhood Chain to one of these deposit addresses.
+                ZeroDev will route it automatically to your poidh account on the
+                destination chain you choose.
+              </p>
+            </div>
+
+            {smartRouting.isCreatingAddress ? (
+              <div className='flex items-center gap-2 py-2 text-[11px] text-white/50'>
+                <Loader2 size={13} className='animate-spin' />
+                <span>Creating deposit addresses...</span>
+              </div>
+            ) : (
+              <div className='space-y-2'>
+                {depositDestinations.map((destination) => {
+                  const routingAddress =
+                    smartRouting.smartRoutingAddresses[destination.chainId];
+
+                  return (
+                    <div
+                      key={destination.chainId}
+                      className='p-3 rounded-2xl bg-white/[0.02] border border-white/5'
+                    >
+                      <div className='flex items-center justify-between gap-3'>
+                        <div className='min-w-0'>
+                          <div className='text-[11px] text-white/50 normal-case'>
+                            Deposit ETH → {destination.name}
+                          </div>
+
+                          {routingAddress ? (
+                            <div className='text-[11px] font-mono text-white/90 mt-1 truncate'>
+                              {routingAddress}
+                            </div>
+                          ) : (
+                            <div className='text-[11px] text-white/40 mt-1'>
+                              Address unavailable
+                            </div>
+                          )}
+                        </div>
+
+                        {routingAddress && (
+                          <button
+                            type='button'
+                            onClick={() => copyRoutingAddress(routingAddress)}
+                            className='shrink-0 flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-white text-[11px] font-semibold py-1.5 px-3 transition active:scale-[0.99]'
+                            aria-label={`Copy Robinhood deposit address for ${destination.name}`}
+                          >
+                            <Copy size={12} />
+                            Copy
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className='pt-2 border-t border-white/5 space-y-1'>
+              <p className='text-[10px] text-white/50 leading-relaxed normal-case'>
+                Send native ETH on Robinhood Chain only. Do not send funds on
+                another network to these addresses.
+              </p>
+
+              {robinhoodFee?.minDepositEth && (
+                <p className='text-[10px] text-amber-300/80 leading-relaxed normal-case'>
+                  Current minimum route amount: approximately{' '}
+                  {robinhoodFee.minDepositEth.toFixed(4)} ETH.
+                </p>
+              )}
+
+              <p className='text-[10px] text-white/40 leading-relaxed normal-case'>
+                Deposits below the routing minimum may need to be recovered
+                manually.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Multi-Chain Balances */}
         <div className='p-4 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
