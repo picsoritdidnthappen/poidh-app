@@ -136,35 +136,37 @@ export default function Navbar({
     ) {
       return;
     }
-
+  
+    const address = account.address;
+  
     const handleYouFeedSeen = () => {
       const newestActivity =
         latestYouActivity.data?.items?.[0];
-
+  
       const newestActivityKey =
         getActivityKey(newestActivity);
-
+  
       if (!newestActivityKey) {
         setHasUnseenYouActivity(false);
         return;
       }
-
+  
       const storageKey =
-        getYouFeedStorageKey(account.address);
-
+        getYouFeedStorageKey(address);
+  
       const lastSeenActivityKey =
         window.localStorage.getItem(storageKey);
-
+  
       setHasUnseenYouActivity(
         lastSeenActivityKey !== newestActivityKey
       );
     };
-
+  
     window.addEventListener(
       'poidh-you-feed-seen',
       handleYouFeedSeen
     );
-
+  
     return () => {
       window.removeEventListener(
         'poidh-you-feed-seen',
