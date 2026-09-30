@@ -129,20 +129,12 @@ export default function ClaimItem({
 
   const utils = trpc.useUtils();
 
-  /*
-   * IMPORTANT:
-   *
-   * This now works the same way as the feed.
-   *
-   * We pass claim.url directly through useClaimMedia instead of
-   * treating claim.url as an already-resolved image and putting
-   * it into a CSS background-image.
-   */
   const {
     mediaUrl,
     isVideo,
     isLoading: isMediaLoading,
     mediaError,
+    setMediaError,
   } = useClaimMedia(claim.url);
 
   const placeholderSeed =
@@ -189,7 +181,7 @@ export default function ClaimItem({
 
       setLoading({
         isLoading: true,
-        status: 'Waiting approval',
+        status: 'Waiting for approval',
       });
 
       await writeContract.writeContractAsync({
@@ -273,7 +265,7 @@ export default function ClaimItem({
 
       setLoading({
         isLoading: true,
-        status: 'Waiting approval',
+        status: 'Waiting for approval',
       });
 
       await writeContract.writeContractAsync({
@@ -311,6 +303,11 @@ export default function ClaimItem({
     },
   });
 
+  const resolvedClaimImage =
+    !mediaError
+      ? mediaUrl ?? claim.url ?? ''
+      : '';
+
   return (
     <>
       <ClaimCard
@@ -339,7 +336,7 @@ export default function ClaimItem({
           onClose={() =>
             setShowConfirmSuccess(false)
           }
-          claimImage={mediaUrl ?? claim.url ?? ''}
+          claimImage={resolvedClaimImage}
           claimTitle={claim.title}
           claimIssuer={claim.issuer}
           bountyTitle={bounty.data.title}
@@ -351,7 +348,7 @@ export default function ClaimItem({
       <SubmitVotingConfirm
         isOpen={showVotingConfirm}
         onClose={() => setShowVotingConfirm(false)}
-        imageUrl={mediaUrl ?? claim.url ?? ''}
+        imageUrl={resolvedClaimImage}
         onConfirm={() => {
           submitForVoteMutation.mutate();
           setShowVotingConfirm(false);
@@ -361,7 +358,7 @@ export default function ClaimItem({
       <AcceptClaimConfirm
         isOpen={showAcceptConfirm}
         onClose={() => setShowAcceptConfirm(false)}
-        imageUrl={mediaUrl ?? claim.url ?? ''}
+        imageUrl={resolvedClaimImage}
         onConfirm={() => {
           acceptClaimMutation.mutate({
             claimId: BigInt(claim.id),
@@ -383,7 +380,7 @@ export default function ClaimItem({
                 className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
                 onClick={() => {
                   if (
-                    bounty.data.hasParticipants
+                    bounty.data.mustUseVoteFlow
                   ) {
                     setShowVotingConfirm(true);
                   } else {
@@ -391,7 +388,7 @@ export default function ClaimItem({
                   }
                 }}
               >
-                {bounty.data.hasParticipants
+                {bounty.data.mustUseVoteFlow
                   ? 'propose winner'
                   : 'accept'}
               </button>
@@ -404,19 +401,15 @@ export default function ClaimItem({
           </div>
         )}
 
-        {/*
-         * MEDIA
-         *
-         * claim.url
-         *   -> useClaimMedia()
-         *   -> Image / video
-         *   -> deterministic abstract placeholder on failure
-         */}
         <div
           className='relative w-full aspect-square bg-[#12AAFF] dark:bg-[#132b47] rounded-[8px] overflow-hidden cursor-pointer'
           onClick={() => setOpenCard(true)}
         >
-          {mediaUrl ? (
+          {mediaError ? (
+            <GenerativePlaceholder
+              seed={placeholderSeed}
+            />
+          ) : mediaUrl ? (
             isVideo ? (
               <video
                 src={mediaUrl}
@@ -426,6 +419,9 @@ export default function ClaimItem({
                 onClick={(e) =>
                   e.stopPropagation()
                 }
+                onError={() => {
+                  setMediaError(true);
+                }}
               />
             ) : (
               <Image
@@ -437,12 +433,13 @@ export default function ClaimItem({
                 className='object-cover'
                 sizes='(max-width: 768px) 100vw, 600px'
                 unoptimized
+                onError={() => {
+                  setMediaError(true);
+                }}
               />
             )
           ) : isMediaLoading ? (
-            <div className='flex items-center justify-center w-full h-full text-white/60 text-sm'>
-              Loading...
-            </div>
+            <div className='absolute inset-0 bg-white/10 animate-pulse' />
           ) : (
             <GenerativePlaceholder
               seed={placeholderSeed}
@@ -471,6 +468,10 @@ export default function ClaimItem({
             <div className='flex flex-row items-center w-full justify-end overflow-hidden'>
               <DisplayAddress
                 address={claim.issuer}
+                pfpSize={20}
+                showPfpIfExists
+                showFallbackPfp
+                showLoadingSkeleton
               />
 
               <div className='ml-2'>

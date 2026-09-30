@@ -1,162 +1,183 @@
 import { useEffect, useState } from 'react';
 
-const VIDEO_EXTENSIONS = /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
-const IMAGE_EXTENSIONS =
-  /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
+const VIDEO_EXTENSIONS =
+  /\.(mp4|mov|webm|ogg)(\?.*)?$/i;
 
-function isVideoUrl(url: string) {
-  return VIDEO_EXTENSIONS.test(url);
-}
-
-function isImageUrl(url: string) {
-  return IMAGE_EXTENSIONS.test(url);
-}
+const IPFS_URL_PATTERN =
+  /https?:\/\/[^\s"]+\/ipfs\/[a-zA-Z0-9]+[^\s"]*/g;
 
 export function useClaimMedia(
   url: string | null | undefined,
   enabled = true
 ) {
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
-  const [isVideo, setIsVideo] = useState(false);
-  const [isLoading, setIsLoading] = useState(enabled && !!url);
-  const [mediaError, setMediaError] = useState(false);
+  const [mediaUrl, setMediaUrl] =
+    useState<string | null>(null);
+
+  const [isVideo, setIsVideo] =
+    useState(false);
+
+  const [isLoading, setIsLoading] =
+    useState(true);
+
+  const [mediaError, setMediaError] =
+    useState(false);
 
   useEffect(() => {
-    if (!enabled) {
+    const normalizedUrl =
+      typeof url === 'string'
+        ? url.trim()
+        : '';
+
+    /*
+     * An empty URI is not something we need to resolve.
+     *
+     * Treat it exactly like failed/invalid media so every
+     * consumer can immediately render its geometric fallback
+     * instead of getting stuck in a loading state forever.
+     */
+    if (!normalizedUrl) {
+      setMediaUrl(null);
+      setIsVideo(false);
       setIsLoading(false);
+      setMediaError(true);
       return;
     }
 
-    if (!url || typeof url !== 'string') {
+    /*
+     * Allows components such as LatestClaimImages to defer
+     * media resolution until the thumbnail is near/in view.
+     */
+    if (!enabled) {
       setMediaUrl(null);
       setIsVideo(false);
+      setIsLoading(true);
       setMediaError(false);
-      setIsLoading(false);
       return;
     }
 
     let cancelled = false;
-    const controller = new AbortController();
 
     const resolve = async () => {
       setMediaUrl(null);
-      setMediaError(false);
+      setIsVideo(false);
       setIsLoading(true);
+      setMediaError(false);
 
-      /*
-       * Fast path:
-       * normal direct image/video URLs need zero probing.
-       */
-      if (isVideoUrl(url)) {
-        if (!cancelled) {
-          setMediaUrl(url);
-          setIsVideo(true);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      if (isImageUrl(url)) {
-        if (!cancelled) {
-          setMediaUrl(url);
-          setIsVideo(false);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      /*
-       * Ambiguous URLs — usually extensionless IPFS URLs.
-       *
-       * Try HEAD first so we can inspect content-type without
-       * downloading the whole image/video.
-       */
       try {
-        const timeout = window.setTimeout(() => {
-          controller.abort();
-        }, 2500);
+        const response =
+          await fetch(normalizedUrl);
 
-        const headResponse = await fetch(url, {
-          method: 'HEAD',
-          signal: controller.signal,
-        });
-
-        window.clearTimeout(timeout);
+        if (cancelled) {
+          return;
+        }
 
         const contentType =
-          headResponse.headers.get('content-type')?.toLowerCase() ?? '';
+          response.headers.get(
+            'content-type'
+          ) ?? '';
 
-        if (contentType.startsWith('video/')) {
-          if (!cancelled) {
-            setMediaUrl(url);
-            setIsVideo(true);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        if (contentType.startsWith('image/')) {
-          if (!cancelled) {
-            setMediaUrl(url);
-            setIsVideo(false);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        /*
-         * If HEAD tells us it's JSON, fetch the metadata body.
-         */
         if (
-          contentType.includes('json') ||
-          contentType.startsWith('text/')
+          contentType.startsWith(
+            'video/'
+          ) ||
+          VIDEO_EXTENSIONS.test(
+            normalizedUrl
+          )
         ) {
-          const metadataController = new AbortController();
+          setMediaUrl(normalizedUrl);
+          setIsVideo(true);
+          setIsLoading(false);
+          return;
+        }
 
-          const metadataTimeout = window.setTimeout(() => {
-            metadataController.abort();
-          }, 2500);
+        if (
+          contentType.startsWith(
+            'image/'
+          )
+        ) {
+          setMediaUrl(normalizedUrl);
+          setIsVideo(false);
+          setIsLoading(false);
+          return;
+        }
 
-          const response = await fetch(url, {
-            signal: metadataController.signal,
-          });
+        const text =
+          await response.text();
 
-          window.clearTimeout(metadataTimeout);
+        if (cancelled) {
+          return;
+        }
 
-          const data = await response.json().catch(() => null);
+        try {
+          const data =
+            JSON.parse(text);
 
           if (
-            data &&
-            typeof data === 'object' &&
-            typeof data.image === 'string'
+            typeof data.image ===
+              'string' &&
+            data.image.trim()
           ) {
-            if (!cancelled) {
-              setMediaUrl(data.image);
-              setIsVideo(isVideoUrl(data.image));
-              setIsLoading(false);
-            }
+            const resolvedImage =
+              data.image.trim();
+
+            setMediaUrl(
+              resolvedImage
+            );
+
+            setIsVideo(
+              VIDEO_EXTENSIONS.test(
+                resolvedImage
+              )
+            );
+
+            setIsLoading(false);
             return;
           }
+        } catch {
+          // Not JSON — continue checking
+          // the response for embedded IPFS URLs.
         }
-      } catch {
-        /*
-         * HEAD can fail because of CORS or gateway behavior.
-         * Do not then perform an unlimited full download.
-         */
-      }
 
-      /*
-       * Last-resort behavior:
-       *
-       * Treat the URL as direct media and let the actual <Image>/<video>
-       * element decide whether it can render it.
-       *
-       * This is intentionally cheaper than doing another arbitrary
-       * full-file fetch.
-       */
-      if (!cancelled) {
-        setMediaUrl(url);
+        const matches =
+          text.match(
+            IPFS_URL_PATTERN
+          );
+
+        if (
+          matches &&
+          matches.length > 0
+        ) {
+          const videoMatch =
+            matches.find((match) =>
+              VIDEO_EXTENSIONS.test(
+                match
+              )
+            );
+
+          const chosen =
+            videoMatch ??
+            matches[0];
+
+          setMediaUrl(chosen);
+          setIsVideo(
+            !!videoMatch
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        setMediaUrl(null);
         setIsVideo(false);
+        setMediaError(true);
+        setIsLoading(false);
+      } catch {
+        if (cancelled) {
+          return;
+        }
+
+        setMediaUrl(null);
+        setIsVideo(false);
+        setMediaError(true);
         setIsLoading(false);
       }
     };
@@ -165,7 +186,6 @@ export function useClaimMedia(
 
     return () => {
       cancelled = true;
-      controller.abort();
     };
   }, [url, enabled]);
 

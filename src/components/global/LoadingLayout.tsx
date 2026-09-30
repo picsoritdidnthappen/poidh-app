@@ -8,6 +8,7 @@ import { getStore } from '@/store/loading';
 
 export function LoadingLayout({ children }: { children: React.ReactNode }) {
   const store = getStore();
+
   return (
     <Provider store={store}>
       <LoadingLayoutContent>{children}</LoadingLayoutContent>

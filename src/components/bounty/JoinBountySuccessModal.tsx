@@ -26,6 +26,7 @@ export default function JoinBountySuccessModal({
   const account = useAccount();
   const chain = useChainInfo();
   const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -61,13 +62,17 @@ export default function JoinBountySuccessModal({
       ) {
         return;
       }
+
       setShareOpen(false);
     }
 
     if (shareOpen) {
       document.addEventListener('mousedown', handleDocClick);
     }
-    return () => document.removeEventListener('mousedown', handleDocClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleDocClick);
+    };
   }, [shareOpen]);
 
   const handleShareTwitter = async () => {
@@ -75,6 +80,7 @@ export default function JoinBountySuccessModal({
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
     const text = `I just added ${amountText} to ${bountyIssuerUsername}'s @poidhxyz bounty`;
+
     shareToTwitter(text);
   };
 
@@ -83,7 +89,34 @@ export default function JoinBountySuccessModal({
 
     const amountText = `${joinedAmount} ${chain.currency.toUpperCase()}`;
     const text = `I just added ${amountText} to ${bountyIssuerUsername}'s /poidh bounty`;
+
     await shareToFarcaster({ text });
+  };
+
+  const handleCopyLink = async () => {
+    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+
+    try {
+      await navigator.clipboard.writeText(cleanUrl);
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = cleanUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    setCopied(true);
+
+    window.setTimeout(() => {
+      setCopied(false);
+    }, 1500);
   };
 
   if (!open) return null;
@@ -117,6 +150,7 @@ export default function JoinBountySuccessModal({
               <line x1='6' y1='6' x2='18' y2='18' />
             </svg>
           </button>
+
           <div className='flex flex-col items-center gap-4'>
             <p className='font-family-geist text-sm text-white/90 font-bold'>
               funds successfully added! <span className='bounce-emoji'>💰</span>
@@ -139,7 +173,7 @@ export default function JoinBountySuccessModal({
                     ref={dropdownRef}
                     role='menu'
                     aria-label='share menu'
-                    className='absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 p-2 rounded-xl shadow-lg min-w-[200px] ring-1 ring-white/5 bg-gradient-to-br from-[#4aa0ff]/80 via-[#3fb0e9]/70 to-[#2f8fd9]/60 backdrop-blur-md border border-white/10'
+                    className='absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 p-2 rounded-xl shadow-lg min-w-[200px] ring-1 ring-white/5 bg-poidhBlue/95 dark:bg-[#132b47] backdrop-blur-md border border-[#D1ECFF]'
                   >
                     <div className='flex flex-col font-mono text-sm text-white'>
                       <button
@@ -153,6 +187,7 @@ export default function JoinBountySuccessModal({
                         />
                         <span>farcaster</span>
                       </button>
+
                       <button
                         onClick={handleShareTwitter}
                         className='w-full text-left px-4 py-2 rounded-md hover:bg-white/5 flex items-center gap-3 text-white'
@@ -164,6 +199,13 @@ export default function JoinBountySuccessModal({
                   </div>
                 )}
               </div>
+
+              <button
+                onClick={handleCopyLink}
+                className='font-family-geist w-3/4 py-3 rounded-lg lowercase bg-[#7fb7ee] dark:bg-[#2a4a6b] dark:border dark:border-[#4a7ab5] text-white shadow-md hover:scale-[1.01] transition-transform'
+              >
+                {copied ? 'copied!' : 'copy link'}
+              </button>
 
               <button
                 onClick={() => {

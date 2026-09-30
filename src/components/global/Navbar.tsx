@@ -1,10 +1,11 @@
 import GameButton, { PlainGameButton } from '@/components/global/GameButton';
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAccount } from 'wagmi';
 import FormBounty from '../bounty/FormBounty';
 import FormClaim from '../claims/FormClaim';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useChainInfo } from '@/hooks/useChainInfo';
+import { useYouFeedNotification } from '@/hooks/useYouFeedNotification';
 import { trpc } from '@/trpc/client';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import ButtonCTA from './ButtonCTA';
@@ -15,6 +16,10 @@ import {
   MagnifyingGlassIcon,
 } from '@/components/global/Icons';
 import Link from 'next/link';
+import {
+  usePathname,
+  useSearchParams,
+} from 'next/navigation';
 import { toast } from 'react-toastify';
 
 export default function Navbar({
@@ -25,13 +30,24 @@ export default function Navbar({
   bountyId?: string;
 }) {
   const [showForm, setShowForm] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
   const chain = useChainInfo();
   const isMobile = useScreenSize();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const {
+    hasUnseenYouActivity,
+  } = useYouFeedNotification();
 
   const user = trpc.users.fetchByAddress.useQuery(
-    { address: account.address as `0x${string}` },
+    {
+      address: account.address as `0x${string}`,
+    },
     {
       enabled: !!account.address,
     }
@@ -46,6 +62,17 @@ export default function Navbar({
       enabled: type === 'claim' && !!bountyId,
     }
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    setPendingHref(null);
+  }, [
+    pathname,
+    searchParams,
+  ]);
 
   const handleClick = () => {
     if (type === 'claim' && !bounty.data?.inProgress) {
@@ -63,93 +90,292 @@ export default function Navbar({
     openConnectModal?.();
   };
 
+  const handleNavigationStart = (href: string) => {
+    const currentHref =
+      pathname === '/feed'
+        ? `${pathname}${
+            searchParams.toString()
+              ? `?${searchParams.toString()}`
+              : ''
+          }`
+        : pathname;
+
+    if (currentHref === href) {
+      return;
+    }
+
+    setPendingHref(href);
+  };
+
+  const profileHref = account.address
+    ? `/account/${account.address}`
+    : '#';
+
+  const isProfileActive =
+    !!account.address &&
+    pathname === profileHref;
+
+  const feedHref =
+    account.address &&
+    hasUnseenYouActivity
+      ? '/feed?tab=you'
+      : '/feed';
+
+  const mobileNavClass = (
+    active: boolean,
+    pending: boolean
+  ) =>
+    [
+      'relative flex flex-col items-center justify-center gap-1 text-white z-10',
+      'py-2 transition-all duration-150',
+      'active:scale-90 active:opacity-70',
+      active
+        ? 'font-bold drop-shadow-[0_0_5px_rgba(255,255,255,0.75)]'
+        : '',
+      pending
+        ? 'opacity-80'
+        : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+  const MobileIcon = ({
+    pending,
+    active,
+    children,
+  }: {
+    pending: boolean;
+    active: boolean;
+    children: ReactNode;
+  }) => (
+    <div
+      className={`relative w-6 h-6 flex items-center justify-center transition-all duration-150 ${
+        active
+          ? 'scale-110 drop-shadow-[0_0_4px_rgba(255,255,255,0.85)]'
+          : ''
+      }`}
+    >
+      {children}
+
+      {pending && (
+        <div className='absolute -inset-1.5 rounded-full border-2 border-white/25 border-t-white animate-spin pointer-events-none' />
+      )}
+    </div>
+  );
+
+  // Prevent the desktop GameButton from flashing before
+  // the client knows whether this is a mobile viewport.
+  if (!mounted) {
+    return null;
+  }
+
   if (isMobile) {
+    const profilePending =
+      pendingHref === profileHref;
+
+    const leaderboardPending =
+      pendingHref === '/leaderboard';
+
+    const feedPending =
+      pendingHref === feedHref;
+
+    const explorePending =
+      pendingHref === '/explore';
+
     return (
       <>
         <nav className='fixed bottom-0 left-0 right-0 h-20 z-40 how-it-works-hidden shadow-[0_4px_24px_0_var(--cyber-nav-shadow,rgba(80,160,220,0.14))] android:pb-10 pb-4'>
           <div className='absolute inset-0 rounded-t-3xl bg-gradient-to-b from-[#7db3e0] to-[#b3d8f7] dark:from-[#0d1b2e] dark:to-[#132b47] backdrop-blur-sm' />
 
-          <div className='relative h-full flex items-center justify-between pt-2'>
+          <div className='relative h-full grid grid-cols-[1fr_1fr_1.5fr_1fr_1fr] items-center pt-2'>
             <Link
-              href={account.address ? `/account/${account.address}` : '#'}
+              href={profileHref}
               onClick={(e) => {
                 if (!account.address) {
                   e.preventDefault();
                   openConnectModal?.();
+                  return;
                 }
+
+                handleNavigationStart(
+                  profileHref
+                );
               }}
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              className={mobileNavClass(
+                isProfileActive,
+                profilePending
+              )}
             >
-              <div className='relative'>
+              <MobileIcon
+                pending={profilePending}
+                active={isProfileActive}
+              >
                 <ProfileIcon size={24} />
+
                 {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
                   (user?.data?.withdrawalBase ?? 0) > 0 ||
                   (user?.data?.withdrawalDegen ?? 0) > 0 ||
                   (user?.data?.withdrawalMainnet ?? 0) > 0) && (
                   <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
                 )}
-              </div>
-              <span className='text-[10px] whitespace-nowrap'>profile</span>
+              </MobileIcon>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                {profilePending
+                  ? 'loading...'
+                  : 'profile'}
+              </span>
             </Link>
 
             <Link
               href='/leaderboard'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              onClick={() =>
+                handleNavigationStart(
+                  '/leaderboard'
+                )
+              }
+              className={mobileNavClass(
+                pathname ===
+                  '/leaderboard',
+                leaderboardPending
+              )}
             >
-              <LeaderboardIcon size={24} />
-              <span className='text-[10px] whitespace-nowrap'>scores</span>
+              <MobileIcon
+                pending={
+                  leaderboardPending
+                }
+                active={
+                  pathname ===
+                  '/leaderboard'
+                }
+              >
+                <LeaderboardIcon
+                  size={24}
+                />
+              </MobileIcon>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                {leaderboardPending
+                  ? 'loading...'
+                  : 'scores'}
+              </span>
             </Link>
 
-            <div className='relative flex flex-col items-center justify-center gap-1 z-20 w-24'>
-              <div
-                onClick={handleClick}
-                className='cursor-pointer scale-75 -mt-16'
-              >
-                <div className='relative w-[88px] h-[88px] flex items-center justify-center mx-auto'>
-                  <div className='absolute inset-0 rounded-full ring-[5px] ring-white/40' />
+            {/* center slot keeps label aligned with other nav items */}
+            <div className='flex flex-col items-center justify-center gap-1 text-white z-10'>
+              <div className='w-6 h-6' />
 
-                  {showForm ? (
-                    <PlainGameButton hideShadow={true} />
-                  ) : (
-                    <div className='button'>
-                      <GameButton hideShadow={true} />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <span className='text-[10px] whitespace-nowrap text-white'>
+              <span className='text-[10px] whitespace-nowrap'>
                 create {type}
               </span>
             </div>
 
             <Link
-              href='/feed'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              href={feedHref}
+              onClick={() =>
+                handleNavigationStart(
+                  feedHref
+                )
+              }
+              className={mobileNavClass(
+                pathname === '/feed',
+                feedPending
+              )}
             >
-              <ImageIcon size={24} />
-              <span className='text-[10px] whitespace-nowrap'>feed</span>
+              <MobileIcon
+                pending={feedPending}
+                active={
+                  pathname === '/feed'
+                }
+              >
+                <ImageIcon size={24} />
+
+                {account.address &&
+                  hasUnseenYouActivity && (
+                    <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
+                  )}
+              </MobileIcon>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                {feedPending
+                  ? 'loading...'
+                  : 'feed'}
+              </span>
             </Link>
 
             <Link
               href='/explore'
-              className='flex flex-col items-center justify-center gap-1 text-white z-10 w-16'
+              onClick={() =>
+                handleNavigationStart(
+                  '/explore'
+                )
+              }
+              className={mobileNavClass(
+                pathname === '/explore',
+                explorePending
+              )}
             >
-              <MagnifyingGlassIcon size={24} />
-              <span className='text-[10px] whitespace-nowrap'>explore</span>
+              <MobileIcon
+                pending={explorePending}
+                active={
+                  pathname === '/explore'
+                }
+              >
+                <MagnifyingGlassIcon
+                  size={24}
+                />
+              </MobileIcon>
+
+              <span className='text-[10px] whitespace-nowrap'>
+                {explorePending
+                  ? 'loading...'
+                  : 'explore'}
+              </span>
             </Link>
+
+            {/* floating create button:
+                its center sits exactly on the navbar's top edge */}
+            <div className='absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 z-30'>
+              <div
+                onClick={handleClick}
+                className='cursor-pointer flex items-center justify-center scale-75 origin-center active:scale-[0.70] transition-transform duration-100'
+              >
+                {showForm ? (
+                  <PlainGameButton
+                    hideShadow={true}
+                  />
+                ) : (
+                  <div className='button flex items-center justify-center'>
+                    <GameButton
+                      hideShadow={true}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </nav>
 
         {type === 'bounty' ? (
-          <FormBounty open={showForm} onClose={() => setShowForm(false)} />
+          <FormBounty
+            open={showForm}
+            onClose={() =>
+              setShowForm(false)
+            }
+          />
         ) : (
           bounty.data && (
             <FormClaim
-              bountyId={bounty.data.id}
-              onChainBountyId={bounty.data.onChainId}
+              bountyId={
+                bounty.data.id
+              }
+              onChainBountyId={
+                bounty.data.onChainId
+              }
               open={showForm}
-              onClose={() => setShowForm(false)}
+              onClose={() =>
+                setShowForm(false)
+              }
             />
           )
         )}
@@ -166,19 +392,33 @@ export default function Navbar({
           onClick={handleClick}
         >
           <GameButton />
-          <ButtonCTA>create {type}</ButtonCTA>
+
+          <ButtonCTA>
+            create {type}
+          </ButtonCTA>
         </div>
       )}
 
       {type === 'bounty' ? (
-        <FormBounty open={showForm} onClose={() => setShowForm(false)} />
+        <FormBounty
+          open={showForm}
+          onClose={() =>
+            setShowForm(false)
+          }
+        />
       ) : (
         bounty.data && (
           <FormClaim
-            bountyId={bounty.data.id}
-            onChainBountyId={bounty.data.onChainId}
+            bountyId={
+              bounty.data.id
+            }
+            onChainBountyId={
+              bounty.data.onChainId
+            }
             open={showForm}
-            onClose={() => setShowForm(false)}
+            onClose={() =>
+              setShowForm(false)
+            }
           />
         )
       )}

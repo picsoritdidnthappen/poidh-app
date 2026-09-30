@@ -161,6 +161,10 @@ button {
   background: #132b47;
 }
 
+.recent-payout-price {
+  background-color: #1f6fb2;
+}
+
 .button .normal {
   display: block;
 }
@@ -657,6 +661,10 @@ html.cyber [class~='dark:bg-[#0d1b2e]/50'] {
   background-color: #09291c;
 }
 
+html.cyber .recent-payout-price {
+  background-color: #123b29;
+}
+
 /* Existing dialog classes use !important to override Material UI. */
 html.cyber [class~='dark:!bg-[#132b47]'] {
   background-color: #09291c !important;
@@ -836,4 +844,45 @@ html.cyber [class~='border-b-[#cf5d5d]'] {
 html.cyber [class~='hover:bg-[#FF3737]']:hover {
   background-color: #a1f4bc;
   color: #03180f;
+}
+
+/* Feed comment surface */
+.feed-comment-body {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode */
+.dark .feed-comment-body {
+  background: #1d3d5f;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* Cyber mode */
+html.cyber .feed-comment-body {
+  background: #123b29;
+  border-color: rgba(66, 215, 123, 0.35);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.22),
+    inset 0 0 0 1px rgba(66, 215, 123, 0.06);
+}
+
+/* Toast notifications flush with top of viewport */
+:root {
+  --toastify-toast-offset: 0px;
+}
+
+.Toastify__toast-container--top-left,
+.Toastify__toast-container--top-center,
+.Toastify__toast-container--top-right {
+  top: 0 !important;
+}
+
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    top: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }

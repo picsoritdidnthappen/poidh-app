@@ -18,6 +18,7 @@ import Image from 'next/image';
 import Logo from '../global/Logo';
 import { useAccount } from 'wagmi';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { useYouFeedNotification } from '@/hooks/useYouFeedNotification';
 import { trpc } from '@/trpc/client';
 import DarkModeToggle from '@/components/global/DarkModeToggle';
 import ZeroDevAuthModal from '@/components/auth/ZeroDevAuthModal';
@@ -25,11 +26,16 @@ import ZeroDevAuthModal from '@/components/auth/ZeroDevAuthModal';
 export default function Header() {
   const account = useAccount();
   const isMobile = useScreenSize();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
 
+  const { hasUnseenYouActivity } = useYouFeedNotification();
+
   const user = trpc.users.fetchByAddress.useQuery(
-    { address: account.address as `0x${string}` },
+    {
+      address: account.address as `0x${string}`,
+    },
     {
       enabled: !!account.address,
     }
@@ -52,18 +58,27 @@ export default function Header() {
           }}
         />
       </Drawer>
+
       <div className='flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
         <div className='flex'>
           <button
             onClick={() => setIsOpen(true)}
             className='mr-2 hover:text-poidhRed'
           >
-            <MenuIcon size={30} />
+            <div className='relative w-[30px] h-[30px]'>
+              <MenuIcon size={30} />
+
+              {!isMobile && account.address && hasUnseenYouActivity && (
+                <div className='absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 w-2.5 h-2.5 bg-red-500 rounded-full ring-1 ring-white' />
+              )}
+            </div>
           </button>
+
           <Link href='/'>
             <Logo />
           </Link>
         </div>
+
         <div className='flex items-center'>
           <button
             onClick={() => setIsHowItWorksModalOpen(true)}
@@ -72,7 +87,9 @@ export default function Header() {
           >
             <InfoIcon />
           </button>
+
           <DarkModeToggle />
+
           {!isMobile && (
             <Link
               href='/explore'
@@ -86,7 +103,7 @@ export default function Header() {
           {!isMobile && account.address && (
             <Link
               href={`/account/${account.address}`}
-              className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+              className='relative rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
             >
               {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
                 (user?.data?.withdrawalBase ?? 0) > 0 ||
@@ -94,12 +111,15 @@ export default function Header() {
                 (user?.data?.withdrawalMainnet ?? 0) > 0) && (
                 <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
               )}
+
               <UserIcon />
             </Link>
           )}
+
           <ConnectWalletButton />
         </div>
       </div>
+
       {isHowItWorksModalOpen && (
         <HowItWorksModal onClose={() => setIsHowItWorksModalOpen(false)} />
       )}
@@ -133,11 +153,13 @@ function ConnectWalletButton() {
         mounted,
       }) => {
         const ready = mounted && authenticationStatus !== 'loading';
+
         const connected =
           ready &&
           account &&
           chain &&
           (!authenticationStatus || authenticationStatus === 'authenticated');
+
         return (
           <>
             {(() => {
@@ -151,6 +173,7 @@ function ConnectWalletButton() {
                   </button>
                 );
               }
+
               return (
                 <div className='flex gap-2'>
                   <button
@@ -179,13 +202,16 @@ function ConnectWalletButton() {
                       ) : (
                         <>
                           <WalletIcon size={33} />
+
                           <div className='absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full md:hidden' />
                         </>
                       )}
                     </div>
+
                     <span className='hidden md:block'>
                       {account.ensName || account.displayName}
                     </span>
+
                     <ExpandMoreIcon size={12} />
                   </button>
                 </div>

@@ -1,6 +1,7 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { ChainId } from '@/utils/types';
@@ -64,6 +65,7 @@ function CommentForm({
           >
             {submitLabel}
           </button>
+
           {onCancel && cancelLabel ? (
             <button
               type='button'
@@ -91,6 +93,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const [replyDraft, setReplyDraft] = useState('');
+  const [highlightedCommentId, setHighlightedCommentId] = useState<number | null>(
+    null
+  );
   const account = useAccount();
   const { signMessageAsync } = useSignMessage();
   const switchChain = useSwitchChain();
@@ -105,14 +110,16 @@ export default function CommentsSection(props: CommentsSectionProps) {
       setNewComment('');
       toast.success('Comment posted');
     },
-    onError: (error) => toast.error(`Failed to post comment: ${error.message}`),
+    onError: (error) =>
+      toast.error(`Failed to post comment: ${error.message}`),
   });
 
   const rateMutation = trpc.comments.rate.useMutation({
     onSuccess: () => {
       commentsQuery.refetch();
     },
-    onError: (error) => toast.error(`Failed to rate comment: ${error.message}`),
+    onError: (error) =>
+      toast.error(`Failed to rate comment: ${error.message}`),
   });
 
   const banCommentMutation = trpc.admin.banComment.useMutation({
@@ -120,16 +127,20 @@ export default function CommentsSection(props: CommentsSectionProps) {
       commentsQuery.refetch();
       toast.success('Comment banned');
     },
-    onError: (error) => toast.error(`Failed to ban comment: ${error.message}`),
+    onError: (error) =>
+      toast.error(`Failed to ban comment: ${error.message}`),
   });
 
   const commentsByParent = (commentsQuery.data ?? []).reduce(
     (acc: { [key: string]: CommentType[] }, comment) => {
       const parrentId = comment.parentId || 'root';
+
       if (!acc[parrentId]) {
         acc[parrentId] = [];
       }
+
       acc[parrentId].push(comment);
+
       return acc;
     },
     {}
@@ -142,17 +153,67 @@ export default function CommentsSection(props: CommentsSectionProps) {
     const bDown = b.downvotes ?? 0;
 
     const upDiff = bUp - aUp;
-    if (upDiff !== 0) return upDiff;
+
+    if (upDiff !== 0) {
+      return upDiff;
+    }
 
     const downDiff = aDown - bDown;
-    if (downDiff !== 0) return downDiff;
 
-    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    if (downDiff !== 0) {
+      return downDiff;
+    }
+
+    const aTime = a.createdAt
+      ? new Date(a.createdAt).getTime()
+      : 0;
+
+    const bTime = b.createdAt
+      ? new Date(b.createdAt).getTime()
+      : 0;
+
     return bTime - aTime;
   }
 
   const topLevelComments = (commentsByParent['root'] || []).sort(sorting);
+
+  useEffect(() => {
+    if (!commentsQuery.data?.length) {
+      return;
+    }
+
+    const match = window.location.hash.match(/^#comment-(\d+)$/);
+    if (!match) {
+      return;
+    }
+
+    const commentId = Number(match[1]);
+    const element = document.getElementById(`comment-${commentId}`);
+
+    if (!element) {
+      return;
+    }
+
+    setHighlightedCommentId(commentId);
+
+    const frame = window.requestAnimationFrame(() => {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
+
+    const timeout = window.setTimeout(() => {
+      setHighlightedCommentId((current) =>
+        current === commentId ? null : current
+      );
+    }, 2600);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
+  }, [commentsQuery.data]);
 
   async function ensureWalletOnBase() {
     if (!account.address) {
@@ -161,11 +222,16 @@ export default function CommentsSection(props: CommentsSectionProps) {
     }
 
     const chainId = await account.connector?.getChainId();
+
     if (chainId !== 8453) {
       if (switchChain?.switchChainAsync) {
         const [_, error] = await tryCatchAsync(
-          async () => await switchChain.switchChainAsync({ chainId: 8453 })
+          async () =>
+            await switchChain.switchChainAsync({
+              chainId: 8453,
+            })
         );
+
         if (error) {
           toast.error(error.message);
           return null;
@@ -174,6 +240,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
         toast.error(
           'Something went wrong! Switch to Base network or connect/reconnect your wallet to continue'
         );
+
         return null;
       }
     }
@@ -192,13 +259,16 @@ export default function CommentsSection(props: CommentsSectionProps) {
     }
 
     const address = await ensureWalletOnBase();
+
     if (!address) {
       return;
     }
 
     const message = getCommentSignatureFirstLine({ address }) + body;
 
-    const signature = await signMessageAsync({ message }).catch(() => null);
+    const signature = await signMessageAsync({
+      message,
+    }).catch(() => null);
 
     if (!signature) {
       toast.error('Failed to sign message');
@@ -216,12 +286,16 @@ export default function CommentsSection(props: CommentsSectionProps) {
     });
   }
 
-  async function rateComment(commentId: number, type: 'upvote' | 'downvote') {
+  async function rateComment(
+    commentId: number,
+    type: 'upvote' | 'downvote'
+  ) {
     if (rateMutation.isPending) {
       return;
     }
 
     const address = await ensureWalletOnBase();
+
     if (!address) {
       return;
     }
@@ -232,7 +306,10 @@ export default function CommentsSection(props: CommentsSectionProps) {
       type,
     });
 
-    const signature = await signMessageAsync({ message }).catch(() => null);
+    const signature = await signMessageAsync({
+      message,
+    }).catch(() => null);
+
     if (!signature) {
       toast.error('Failed to sign message');
       return;
@@ -248,7 +325,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
     });
   }
 
-  async function handleNewCommentSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleNewCommentSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
     await submitComment(newComment);
   }
@@ -264,6 +343,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     }
 
     const address = await ensureWalletOnBase();
+
     if (!address) {
       return;
     }
@@ -275,7 +355,10 @@ export default function CommentsSection(props: CommentsSectionProps) {
         type: 'comment',
       }) + comment.body;
 
-    const signature = await signMessageAsync({ message }).catch(() => null);
+    const signature = await signMessageAsync({
+      message,
+    }).catch(() => null);
+
     if (!signature) {
       toast.error('Failed to sign message');
       return;
@@ -292,7 +375,10 @@ export default function CommentsSection(props: CommentsSectionProps) {
   }
 
   function handleReplyToggle(commentId: number | null) {
-    if (commentId === null || commentId === activeReplyId) {
+    if (
+      commentId === null ||
+      commentId === activeReplyId
+    ) {
       setActiveReplyId(null);
       setReplyDraft('');
       return;
@@ -305,7 +391,11 @@ export default function CommentsSection(props: CommentsSectionProps) {
   return (
     <>
       <div className='w-full h-4 border-t border-dashed border-white ' />
-      <div id='comments-section' className='xl:w-1/2 w:full pt-8'>
+
+      <div
+        id='comments-section'
+        className='xl:w-1/2 w:full pt-8'
+      >
         <span className='text-xl font-bold text-left my-2 sm:my-4 lowercase'>
           Comments
         </span>
@@ -314,6 +404,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
           <div className='text-sm text-[#D1ECFF] font-semibold tracking-wide'>
             Add a comment
           </div>
+
           <CommentForm
             className='flex items-start space-x-3 sm:space-x-4'
             value={newComment}
@@ -333,7 +424,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
               <CommentThread
                 key={comment.id}
                 comment={comment}
-                replies={(commentsByParent[comment.id] || []).sort(sorting)}
+                replies={(commentsByParent[comment.id] || []).sort(
+                  sorting
+                )}
                 commentsByParent={commentsByParent}
                 activeReplyId={activeReplyId}
                 onReply={handleReplyToggle}
@@ -345,6 +438,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
                 onBanComment={handleBanComment}
                 canBan={!!isAdmin.data}
                 isBanning={banCommentMutation.isPending}
+                highlightedCommentId={highlightedCommentId}
               />
             ))
           ) : (
@@ -373,42 +467,64 @@ function CommentThread({
   onBanComment,
   canBan,
   isBanning,
+  highlightedCommentId,
 }: {
   comment: CommentType;
   replies: CommentType[];
-  commentsByParent: { [key: string]: CommentType[] };
+  commentsByParent: {
+    [key: string]: CommentType[];
+  };
   level?: number;
   activeReplyId: number | null;
   onReply: (commentId: number | null) => void;
   replyString: string;
   setReply: (value: string) => void;
-  onSubmitComment: (body: string, parentId?: number) => Promise<void>;
+  onSubmitComment: (
+    body: string,
+    parentId?: number
+  ) => Promise<void>;
   onRateComment: (
     commentId: number,
     type: 'upvote' | 'downvote'
   ) => Promise<void>;
   isRating: boolean;
-  onBanComment: (comment: CommentType) => Promise<void>;
+  onBanComment: (
+    comment: CommentType
+  ) => Promise<void>;
   canBan: boolean;
   isBanning: boolean;
+  highlightedCommentId: number | null;
 }) {
-  const isReplyingHere = activeReplyId === comment.id;
+  const isReplyingHere =
+    activeReplyId === comment.id;
 
   return (
     <div
       className={`${
-        level > 0 ? 'ml-2 sm:ml-8 border-l border-white/20 pl-2 sm:pl-4' : ''
+        level > 0
+          ? 'ml-2 sm:ml-8 border-l border-white/20 pl-2 sm:pl-4'
+          : ''
       }`}
     >
       <Comment
         comment={comment}
-        onReplyClick={() => onReply(comment.id)}
+        onReplyClick={() =>
+          onReply(comment.id)
+        }
         isReplying={isReplyingHere}
-        onRate={(type) => onRateComment(comment.id, type)}
+        onRate={(type) =>
+          onRateComment(
+            comment.id,
+            type
+          )
+        }
         isRateLoading={isRating}
-        onBan={() => onBanComment(comment)}
+        onBan={() =>
+          onBanComment(comment)
+        }
         canBan={canBan}
         isBanLoading={isBanning}
+        isHighlighted={highlightedCommentId === comment.id}
       />
 
       {isReplyingHere && (
@@ -416,9 +532,15 @@ function CommentThread({
           className='p-8'
           value={replyString}
           onChange={setReply}
-          onSubmit={async (event) => {
+          onSubmit={async (
+            event
+          ) => {
             event.preventDefault();
-            await onSubmitComment(replyString, comment.id);
+
+            await onSubmitComment(
+              replyString,
+              comment.id
+            );
           }}
           onCancel={() => {
             onReply(null);
@@ -435,19 +557,38 @@ function CommentThread({
         <CommentThread
           key={reply.id}
           comment={reply}
-          replies={commentsByParent[reply.id] || []}
-          commentsByParent={commentsByParent}
+          replies={
+            commentsByParent[
+              reply.id
+            ] || []
+          }
+          commentsByParent={
+            commentsByParent
+          }
           level={level + 1}
-          activeReplyId={activeReplyId}
+          activeReplyId={
+            activeReplyId
+          }
           onReply={onReply}
-          replyString={replyString}
+          replyString={
+            replyString
+          }
           setReply={setReply}
-          onSubmitComment={onSubmitComment}
-          onRateComment={onRateComment}
+          onSubmitComment={
+            onSubmitComment
+          }
+          onRateComment={
+            onRateComment
+          }
           isRating={isRating}
-          onBanComment={onBanComment}
+          onBanComment={
+            onBanComment
+          }
           canBan={canBan}
-          isBanning={isBanning}
+          isBanning={
+            isBanning
+          }
+          highlightedCommentId={highlightedCommentId}
         />
       ))}
     </div>
@@ -463,63 +604,128 @@ function Comment({
   onBan,
   isBanLoading,
   canBan,
+  isHighlighted,
 }: {
   comment: CommentType;
   onReplyClick?: () => void;
   isReplying?: boolean;
-  onRate?: (type: 'upvote' | 'downvote') => void;
+  onRate?: (
+    type: 'upvote' | 'downvote'
+  ) => void;
   isRateLoading?: boolean;
   onBan?: () => void;
   isBanLoading?: boolean;
   canBan?: boolean;
+  isHighlighted?: boolean;
 }) {
-  const timestamp = comment.createdAt ? new Date(comment.createdAt) : null;
-  const isValidDate = timestamp && !isNaN(timestamp.getTime());
+  const timestamp =
+    comment.createdAt
+      ? new Date(
+          comment.createdAt
+        )
+      : null;
 
-  const signaturePrefix = getCommentSignatureFirstLine({
-    address: comment.userAddress,
-  });
-  const displayBody = comment.body.startsWith(signaturePrefix)
-    ? comment.body.slice(signaturePrefix.length)
-    : comment.body;
+  const isValidDate =
+    timestamp &&
+    !isNaN(
+      timestamp.getTime()
+    );
+
+  const signaturePrefix =
+    getCommentSignatureFirstLine({
+      address:
+        comment.userAddress,
+    });
+
+  const displayBody =
+    comment.body.startsWith(
+      signaturePrefix
+    )
+      ? comment.body.slice(
+          signaturePrefix.length
+        )
+      : comment.body;
+
+  const accountHref =
+    `/account/${comment.userAddress}`;
 
   return (
-    <div className='flex space-x-2 sm:space-x-3 p-2 sm:p-4 rounded-lg text-white'>
-      <div className='flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 relative'>
-        <div className='w-full h-full overflow-hidden rounded-full'>
-          {comment.author?.pfpUrl ? (
+    <div
+      id={`comment-${comment.id}`}
+      className={`scroll-mt-24 flex space-x-2 sm:space-x-3 p-2 sm:p-4 rounded-lg text-white transition-all duration-700 ${
+        isHighlighted
+          ? 'bg-white/10 ring-2 ring-white/80 shadow-[0_0_24px_rgba(255,255,255,0.22)]'
+          : ''
+      }`}
+    >
+      <Link
+        href={accountHref}
+        className='flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 relative rounded-full group'
+        aria-label={`View ${comment.userAddress} profile`}
+      >
+        <div className='w-full h-full overflow-hidden rounded-full transition group-hover:ring-2 group-hover:ring-white/50'>
+          {comment.author
+            ?.pfpUrl ? (
             <Image
-              src={comment.author.pfpUrl}
-              alt={comment.userAddress}
+              src={
+                comment.author
+                  .pfpUrl
+              }
+              alt={
+                comment.userAddress
+              }
               width={40}
               height={40}
               unoptimized
               className='w-full h-full object-cover'
             />
           ) : (
-            <PatternAvatar seed={comment.userAddress} size={40} />
+            <PatternAvatar
+              seed={
+                comment.userAddress
+              }
+              size={40}
+            />
           )}
         </div>
-      </div>
+      </Link>
 
       <div className='flex-1 min-w-0'>
         <div className='flex items-center space-x-2 flex-wrap'>
-          <span className='font-bold text-sm sm:text-base'>
-            {comment.author?.farcasterTag ??
-              formatWalletAddress(comment.userAddress)}
-          </span>
+          <Link
+            href={accountHref}
+            className='font-bold text-sm sm:text-base hover:underline underline-offset-2'
+          >
+            {comment.author
+              ?.farcasterTag ??
+              formatWalletAddress(
+                comment.userAddress
+              )}
+          </Link>
+
           <div className='flex items-center gap-2'>
-            {comment.author?.farcasterTag ? (
+            {comment.author
+              ?.farcasterTag ? (
               <FarcasterProfileLink
-                farcasterTag={comment.author.farcasterTag}
-                farcasterFid={comment.author.farcasterFid}
+                farcasterTag={
+                  comment.author
+                    .farcasterTag
+                }
+                farcasterFid={
+                  comment.author
+                    .farcasterFid
+                }
                 className='text-white/70 hover:text-white transition'
                 aria-label='Farcaster profile'
               >
-                <FarcasterIcon size={14} />
+                <FarcasterIcon
+                  size={14}
+                />
               </FarcasterProfileLink>
             ) : null}
-            {comment.author?.twitterTag ? (
+
+            {comment.author
+              ?.twitterTag ? (
               <a
                 href={`${TWITTER_URL}/${comment.author.twitterTag}`}
                 target='_blank'
@@ -527,59 +733,106 @@ function Comment({
                 className='text-white/70 hover:text-white transition'
                 aria-label='X profile'
               >
-                <TwitterXIcon width={14} height={14} />
+                <TwitterXIcon
+                  width={14}
+                  height={14}
+                />
               </a>
             ) : null}
           </div>
+
           <span className='text-xs sm:text-sm text-white/60'>
             {isValidDate
-              ? formatDistanceToNow(timestamp, { addSuffix: true })
+              ? formatDistanceToNow(
+                  timestamp,
+                  {
+                    addSuffix:
+                      true,
+                  }
+                )
               : 'Invalid date'}
           </span>
         </div>
 
         <p className='mt-1 sm:mt-2 whitespace-pre-line text-sm sm:text-base break-words'>
-          <TextWithLinks>{displayBody}</TextWithLinks>
+          <TextWithLinks>
+            {displayBody}
+          </TextWithLinks>
         </p>
 
         <div className='mt-1 sm:mt-2 flex items-center space-x-4'>
           <button
             type='button'
-            onClick={() => onRate?.('upvote')}
-            disabled={!onRate || isRateLoading}
+            onClick={() =>
+              onRate?.(
+                'upvote'
+              )
+            }
+            disabled={
+              !onRate ||
+              isRateLoading
+            }
             className='flex items-center space-x-1 text-xs sm:text-sm font-semibold text-white hover:text-white/70 transition disabled:opacity-60 disabled:cursor-not-allowed'
           >
-            <span className='text-green-400'>↑</span>
-            <span>{comment.upvotes ?? 0}</span>
+            <span className='text-green-400'>
+              ↑
+            </span>
+
+            <span>
+              {comment.upvotes ??
+                0}
+            </span>
           </button>
 
           <button
             type='button'
-            onClick={() => onRate?.('downvote')}
-            disabled={!onRate || isRateLoading}
+            onClick={() =>
+              onRate?.(
+                'downvote'
+              )
+            }
+            disabled={
+              !onRate ||
+              isRateLoading
+            }
             className='flex items-center space-x-1 text-xs sm:text-sm font-semibold text-white hover:text-white/70 transition disabled:opacity-60 disabled:cursor-not-allowed'
           >
-            <span className='text-red-400'>↓</span>
-            <span>{comment.downvotes ?? 0}</span>
+            <span className='text-red-400'>
+              ↓
+            </span>
+
+            <span>
+              {comment.downvotes ??
+                0}
+            </span>
           </button>
 
           {canBan ? (
             <button
               type='button'
               onClick={onBan}
-              disabled={!onBan || isBanLoading}
+              disabled={
+                !onBan ||
+                isBanLoading
+              }
               className='text-xs sm:text-sm font-semibold text-red-300 hover:text-red-200 transition disabled:opacity-60 disabled:cursor-not-allowed'
             >
-              {isBanLoading ? 'Banning...' : 'Ban'}
+              {isBanLoading
+                ? 'Banning...'
+                : 'Ban'}
             </button>
           ) : null}
 
           <button
             type='button'
-            onClick={onReplyClick}
+            onClick={
+              onReplyClick
+            }
             className='text-xs sm:text-sm font-semibold text-white hover:text-white/50 transition'
           >
-            {isReplying ? 'Close reply' : 'Reply'}
+            {isReplying
+              ? 'Close reply'
+              : 'Reply'}
           </button>
         </div>
       </div>

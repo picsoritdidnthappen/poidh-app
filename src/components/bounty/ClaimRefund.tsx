@@ -39,7 +39,7 @@ export default function ClaimRefund({
       }
 
       setPollingChainId(chain.id);
-      setLoading({ isLoading: true, status: 'Waiting approval' });
+      setLoading({ isLoading: true, status: 'Waiting for approval' });
       await writeContract.writeContractAsync({
         abi,
         chainId: chain.id,

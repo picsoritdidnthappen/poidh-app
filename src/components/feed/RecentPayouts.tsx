@@ -1,13 +1,30 @@
 'use client';
 
-import { trpc } from '@/trpc/client';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { getChainById } from '@/utils/config';
-import { ChainId, Claim } from '@/utils/types';
+
+import { trpc } from '@/trpc/client';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
+import { getChainById } from '@/utils/config';
+import { ChainId } from '@/utils/types';
 import PatternAvatar from '@/components/global/PatternAvatar';
+
+type RecentPayout = {
+  claim: {
+    id: number;
+    chainId: number;
+    title: string;
+    url: string;
+    issuer: string;
+  };
+  bountyId: number;
+  chainId: number;
+  bountyTitle: string;
+  amount: string;
+  amountUsd: number;
+  timestamp: string;
+};
 
 function hashString(value: string) {
   let hash = 0;
@@ -88,7 +105,7 @@ function GenerativePlaceholder({ seed }: { seed: string }) {
   );
 }
 
-function ClaimantAvatar({
+function EarnerAvatar({
   address,
   size = 28,
 }: {
@@ -130,7 +147,7 @@ function ClaimantAvatar({
       >
         <Image
           src={user.pfpUrl}
-          alt={user.farcasterTag ?? 'claim issuer'}
+          alt={user.farcasterTag ?? 'bounty earner'}
           fill
           unoptimized
           className='object-cover'
@@ -142,18 +159,26 @@ function ClaimantAvatar({
   return <PatternAvatar seed={address} size={size} />;
 }
 
-function ClaimThumb({
-  claim,
-  bountyId,
-  chainId,
-  bountyTitle,
+function formatPayoutUsd(amount: number) {
+  if (amount > 0 && amount < 0.01) {
+    return '<$0.01';
+  }
+
+  return `$${amount.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function PayoutThumb({
+  payout,
 }: {
-  claim: Claim;
-  bountyId: number;
-  chainId: ChainId;
-  bountyTitle: string;
+  payout: RecentPayout;
 }) {
-  const chain = getChainById({ chainId });
+  const chain = getChainById({
+    chainId: payout.chainId as ChainId,
+  });
+
   const thumbRef = useRef<HTMLDivElement>(null);
   const [shouldLoadMedia, setShouldLoadMedia] = useState(false);
 
@@ -191,9 +216,17 @@ function ClaimThumb({
     isVideo,
     mediaError,
     setMediaError,
-  } = useClaimMedia(claim.url, shouldLoadMedia);
+  } = useClaimMedia(
+    payout.claim.url,
+    shouldLoadMedia
+  );
 
-  const placeholderSeed = `${chainId}-${claim.id}-${claim.issuer}`;
+  const payoutLabel = formatPayoutUsd(
+    payout.amountUsd
+  );
+
+  const placeholderSeed =
+    `${payout.chainId}-${payout.claim.id}-${payout.claim.issuer}`;
 
   return (
     <div
@@ -201,13 +234,9 @@ function ClaimThumb({
       className='flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg overflow-hidden relative'
     >
       <Link
-        href={`/${chain.slug}/bounty/${bountyId}`}
+        href={`/${chain.slug}/bounty/${payout.bountyId}`}
         className='block relative w-full h-full group'
-        aria-label={
-          bountyTitle
-            ? `view bounty: ${bountyTitle}`
-            : 'view bounty'
-        }
+        aria-label={`view ${payoutLabel} payout for ${payout.bountyTitle}`}
       >
         {mediaUrl && !mediaError ? (
           isVideo ? (
@@ -224,21 +253,30 @@ function ClaimThumb({
           ) : (
             <Image
               src={mediaUrl}
-              alt={claim.title || 'claim image'}
+              alt={payout.claim.title || 'paid claim'}
               fill
+              unoptimized
               className='object-cover group-hover:scale-105 transition-transform duration-300'
               sizes='(max-width: 640px) 112px, (max-width: 768px) 128px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
-              unoptimized
               onError={() => {
                 setMediaError(true);
               }}
             />
           )
         ) : mediaError ? (
-          <GenerativePlaceholder seed={placeholderSeed} />
+          <GenerativePlaceholder
+            seed={placeholderSeed}
+          />
         ) : (
           <div className='absolute inset-0 bg-white/10 animate-pulse' />
         )}
+
+        {/* payout amount — top right */}
+        <div className='absolute top-2 right-2 z-30'>
+          <div className='recent-payout-price rounded-md backdrop-blur-sm border border-white/15 px-2 py-1 font-mono text-xs sm:text-sm font-bold text-white shadow-md'>
+            {payoutLabel}
+          </div>
+        </div>
 
         {/* softer white frosted bottom fade */}
         <div className='absolute inset-x-0 bottom-0 h-12 sm:h-14 z-10 pointer-events-none'>
@@ -247,24 +285,24 @@ function ClaimThumb({
         </div>
 
         {/* bounty title */}
-        {bountyTitle && (
+        {payout.bountyTitle && (
           <div className='absolute left-2 right-8 sm:right-10 bottom-2 z-20 min-w-0'>
             <div
               className='truncate font-mono text-[9px] sm:text-[11px] font-semibold text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]'
-              title={bountyTitle}
+              title={payout.bountyTitle}
             >
-              {bountyTitle}
+              {payout.bountyTitle}
             </div>
           </div>
         )}
 
-        {/* claimant PFP */}
+        {/* earner PFP */}
         <div
           className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-30 scale-[0.7] sm:scale-[0.75] origin-bottom-right'
-          title='claim issuer'
+          title='bounty earner'
         >
-          <ClaimantAvatar
-            address={claim.issuer}
+          <EarnerAvatar
+            address={payout.claim.issuer}
             size={28}
           />
         </div>
@@ -275,8 +313,19 @@ function ClaimThumb({
   );
 }
 
-export default function LatestClaimImages() {
+export default function RecentPayouts() {
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const recentPayoutsQuery =
+    trpc.claims.fetchRecentPayouts.useQuery(
+      {
+        limit: 12,
+      },
+      {
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+      }
+    );
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -284,6 +333,10 @@ export default function LatestClaimImages() {
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) {
+        return;
+      }
+
       e.preventDefault();
       el.scrollLeft += e.deltaY;
     };
@@ -297,31 +350,25 @@ export default function LatestClaimImages() {
     };
   }, []);
 
-  const latestClaimsQuery = trpc.claims.fetchLatest.useQuery(
-    {
-      limit: 15,
-    },
-    {
-      staleTime: 30_000,
-      refetchOnWindowFocus: false,
-    }
-  );
+  const payouts =
+    (recentPayoutsQuery.data ?? []) as RecentPayout[];
 
-  const latestClaims = latestClaimsQuery.data ?? [];
-
-  if (!latestClaimsQuery.isLoading && latestClaims.length === 0) {
+  if (
+    !recentPayoutsQuery.isLoading &&
+    payouts.length === 0
+  ) {
     return null;
   }
 
   return (
-    <div className='w-full px-4 lg:px-20 pt-6 pb-2'>
+    <div className='w-full px-4 lg:px-20 pt-4 pb-3'>
       <div className='flex items-center justify-between mb-3'>
         <span className='font-mono text-xs text-white/70 tracking-widest'>
-          latest claims
+          recent payouts
         </span>
 
         <Link
-          href='/feed'
+          href='/?tab=past&sort=date'
           className='font-mono text-xs text-white/50 hover:text-white transition-colors underline underline-offset-2'
         >
           see all
@@ -337,20 +384,17 @@ export default function LatestClaimImages() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {latestClaimsQuery.isLoading
-          ? Array.from({ length: 15 }).map((_, i) => (
+        {recentPayoutsQuery.isLoading
+          ? Array.from({ length: 12 }).map((_, i) => (
               <div
                 key={i}
                 className='flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
               />
             ))
-          : latestClaims.map((item) => (
-              <ClaimThumb
-                key={`${item.chainId}-${item.claim.id}`}
-                claim={item.claim as Claim}
-                bountyId={item.bountyId}
-                chainId={item.chainId as ChainId}
-                bountyTitle={item.bountyTitle}
+          : payouts.map((payout) => (
+              <PayoutThumb
+                key={`${payout.chainId}-${payout.claim.id}`}
+                payout={payout}
               />
             ))}
       </div>
