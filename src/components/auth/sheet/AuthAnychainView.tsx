@@ -487,7 +487,9 @@ export default function AuthAnychainView({
           setIsRecovering(false);
           return;
         }
-        const kClient = await getOrInitKernelClient(store, item.chainId);
+        const kClient = await getOrInitKernelClient(store, item.chainId, {
+          allowRoutingRecovery: true,
+        });
         if (!kClient) {
           throw new Error(
             `Smart account unavailable for chain ${item.chainName} (${item.chainId})`
