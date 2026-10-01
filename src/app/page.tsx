@@ -8,12 +8,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
 import { SortIcon } from '@/components/global/Icons';
-import LatestClaimImages from '@/components/feed/LatestClaimImages';
-import RecentPayouts from '@/components/feed/RecentPayouts';
+import Hero from '@/components/feed/Hero';
 import BountyList from '@/components/bounty/BountyList';
 import PastBountyCard from '@/components/bounty/PastBountyCard';
-import Link from 'next/link';
-import { ALBUMS } from '@/utils/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useChainInfo } from '@/hooks/useChainInfo';
 
@@ -23,7 +20,6 @@ export default function Home() {
 
   const [display, setDisplay] = useState<BountyDisplayType>('open');
   const [sortType, setSortType] = useState<BountySortType>('value');
-  const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const chain = useChainInfo();
@@ -39,14 +35,6 @@ export default function Home() {
       setSortType(sortParam);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentAlbumIndex((prevIndex) => (prevIndex + 1) % ALBUMS.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const updateSliderPosition = useCallback(() => {
     const activeIndex = ['open', 'progress', 'past'].indexOf(display);
@@ -88,33 +76,7 @@ export default function Home() {
 
   return (
     <>
-      <div className='flex flex-col items-center text-center px-6 pt-6 pb-2 lg:pt-14'>
-        <h3 className='font-mono text-2xl mt-4 racking-wide'>
-          <span className='flex flex-wrap md:flex-nowrap items-baseline justify-center gap-x-2.5'>
-            <span>social bounties for</span>
-            <Link
-              href={`/a/${ALBUMS[currentAlbumIndex].slug}`}
-              className='inline-block no-underline overflow-hidden h-[1.2em] relative w-full md:w-auto text-center md:text-left'
-              style={{
-                textDecoration: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              <span
-                key={currentAlbumIndex}
-                className='block'
-                style={{
-                  animation: 'turnstile 0.6s ease-in-out',
-                }}
-              >
-                {ALBUMS[currentAlbumIndex].name}
-              </span>
-            </Link>
-          </span>
-        </h3>
-      </div>
-      <LatestClaimImages />
-      <RecentPayouts />
+      <Hero />
 
       <div>
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:py-8 sm:py-4 w-full items-center px-8'>
