@@ -578,7 +578,7 @@ export default function AuthAnychainView({
 
   return (
     <>
-      <SheetHeader className='pb-5'>
+      <SheetHeader className='pb-5 min-w-0 w-full max-w-full overflow-hidden'>
         <div className='flex items-start justify-between w-full'>
           <div>
             <button
@@ -600,7 +600,7 @@ export default function AuthAnychainView({
         </div>
       </SheetHeader>
 
-      <SheetContent className='space-y-4 pt-4'>
+      <SheetContent className='space-y-4 pt-4 min-w-0 w-full max-w-full overflow-x-hidden'>
         {/* Toggle Card */}
         <div className='p-4 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
           <div className='pr-3'>
@@ -629,16 +629,16 @@ export default function AuthAnychainView({
 
         {/* Cross-chain deposit funding */}
         {isConnected && isZeroDev && smartRouting.isRoutingConfigured && (
-          <div className='p-4 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
-            <div className='text-left'>
+          <div className='p-4 min-w-0 w-full max-w-full overflow-hidden rounded-2xl bg-white/[0.04] border border-white/10 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
+            <div className='text-left min-w-0'>
               <div className='text-xs font-bold text-white normal-case'>
-                Add funds from Robinhood Chain
+                Add funds cross-chain
               </div>
 
               <p className='text-[11px] text-white/70 mt-1.5 leading-relaxed normal-case'>
-                Send ETH from Robinhood Chain to one of these deposit addresses.
-                ZeroDev will route it automatically to your poidh account on the
-                destination chain you choose.
+                Choose where you want the funds to land. Send from Base,
+                Arbitrum, Ethereum, or Robinhood Chain using the matching
+                deposit address below.
               </p>
             </div>
 
@@ -648,9 +648,11 @@ export default function AuthAnychainView({
                 <span>Creating deposit addresses...</span>
               </div>
             ) : (
-              <div className='space-y-2'>
+              <div className='space-y-3 min-w-0 w-full max-w-full'>
                 {depositDestinations.map((destination) => {
-                  const routingAddress =
+                  const anychainRoutingAddress =
+                    smartRouting.smartRoutingAddresses[destination.chainId];
+                  const robinhoodRoutingAddress =
                     smartRouting.robinhoodRoutingAddresses[
                       destination.chainId
                     ];
@@ -662,47 +664,86 @@ export default function AuthAnychainView({
                   return (
                     <div
                       key={destination.chainId}
-                      className='p-3 rounded-2xl bg-white/[0.02] border border-white/5'
+                      className='p-3 min-w-0 w-full max-w-full overflow-hidden rounded-2xl bg-white/[0.02] border border-white/5'
                     >
-                      <div className='flex items-center justify-between gap-3'>
-                        <div className='min-w-0'>
-                          <div className='text-[11px] text-white/50 normal-case'>
-                            Deposit ETH → {destination.name}
+                      <div className='text-[11px] font-semibold text-white normal-case'>
+                        Land on {destination.name}
+                      </div>
+
+                      <div className='mt-2 space-y-2 min-w-0'>
+                        <div className='p-2.5 min-w-0 w-full max-w-full overflow-hidden rounded-xl bg-black/15 border border-white/5'>
+                          <div className='text-[10px] text-white/50 normal-case'>
+                            From Base, Arbitrum, or Ethereum • ETH / USDC
                           </div>
 
-                          {routingAddress ? (
-                            <>
-                              <div className='text-[11px] font-mono text-white/90 mt-1 truncate'>
-                                {routingAddress}
+                          <div className='mt-1 flex items-center gap-2 min-w-0 w-full'>
+                            {anychainRoutingAddress ? (
+                              <div className='flex-1 min-w-0 text-[11px] font-mono text-white/90 truncate'>
+                                {anychainRoutingAddress}
                               </div>
-                              {minDepositEth !== undefined && (
-                                <div className='text-[10px] text-amber-300/80 mt-1 normal-case'>
-                                  Minimum: approximately{' '}
-                                  {minDepositEth < 0.0001
-                                    ? minDepositEth.toFixed(6)
-                                    : minDepositEth.toFixed(4)}{' '}
-                                  ETH
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <div className='text-[11px] text-white/40 mt-1'>
-                              Address unavailable
+                            ) : (
+                              <div className='flex-1 min-w-0 text-[11px] text-white/40'>
+                                Address unavailable
+                              </div>
+                            )}
+
+                            {anychainRoutingAddress && (
+                              <button
+                                type='button'
+                                onClick={() =>
+                                  copyRoutingAddress(anychainRoutingAddress)
+                                }
+                                className='shrink-0 flex items-center gap-1 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-white text-[10px] font-semibold py-1.5 px-2.5 transition active:scale-[0.99]'
+                                aria-label={`Copy Base, Arbitrum, or Ethereum deposit address for ${destination.name}`}
+                              >
+                                <Copy size={11} />
+                                Copy
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className='p-2.5 min-w-0 w-full max-w-full overflow-hidden rounded-xl bg-black/15 border border-white/5'>
+                          <div className='text-[10px] text-white/50 normal-case'>
+                            From Robinhood Chain • ETH only
+                          </div>
+
+                          <div className='mt-1 flex items-center gap-2 min-w-0 w-full'>
+                            {robinhoodRoutingAddress ? (
+                              <div className='flex-1 min-w-0 text-[11px] font-mono text-white/90 truncate'>
+                                {robinhoodRoutingAddress}
+                              </div>
+                            ) : (
+                              <div className='flex-1 min-w-0 text-[11px] text-white/40'>
+                                Address unavailable
+                              </div>
+                            )}
+
+                            {robinhoodRoutingAddress && (
+                              <button
+                                type='button'
+                                onClick={() =>
+                                  copyRoutingAddress(robinhoodRoutingAddress)
+                                }
+                                className='shrink-0 flex items-center gap-1 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-white text-[10px] font-semibold py-1.5 px-2.5 transition active:scale-[0.99]'
+                                aria-label={`Copy Robinhood deposit address for ${destination.name}`}
+                              >
+                                <Copy size={11} />
+                                Copy
+                              </button>
+                            )}
+                          </div>
+
+                          {minDepositEth !== undefined && (
+                            <div className='text-[10px] text-amber-300/80 mt-1 normal-case'>
+                              Minimum: approximately{' '}
+                              {minDepositEth < 0.0001
+                                ? minDepositEth.toFixed(6)
+                                : minDepositEth.toFixed(4)}{' '}
+                              ETH
                             </div>
                           )}
                         </div>
-
-                        {routingAddress && (
-                          <button
-                            type='button'
-                            onClick={() => copyRoutingAddress(routingAddress)}
-                            className='shrink-0 flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-white text-[11px] font-semibold py-1.5 px-3 transition active:scale-[0.99]'
-                            aria-label={`Copy Robinhood deposit address for ${destination.name}`}
-                          >
-                            <Copy size={12} />
-                            Copy
-                          </button>
-                        )}
                       </div>
                     </div>
                   );
@@ -710,15 +751,16 @@ export default function AuthAnychainView({
               </div>
             )}
 
-            <div className='pt-2 border-t border-white/5 space-y-1'>
+            <div className='pt-2 border-t border-white/5 space-y-1 min-w-0'>
               <p className='text-[10px] text-white/50 leading-relaxed normal-case'>
-                Send native ETH on Robinhood Chain only. Do not send funds on
-                another network to these addresses.
+                The standard Anychain address accepts ETH or USDC sent from
+                Base, Arbitrum, or Ethereum. The Robinhood address accepts
+                native ETH on Robinhood Chain only.
               </p>
 
               <p className='text-[10px] text-white/40 leading-relaxed normal-case'>
-                Deposits below the routing minimum may need to be recovered
-                manually.
+                Cross-chain routes have minimums. Deposits below a routing
+                minimum may need to be recovered manually.
               </p>
             </div>
           </div>
@@ -944,11 +986,11 @@ export default function AuthAnychainView({
         </div>
       </SheetContent>
 
-      <SheetFooter className='gap-2.5 pt-4'>
+      <SheetFooter className='gap-2.5 pt-4 min-w-0 w-full max-w-full overflow-hidden'>
         <button
           type='button'
           onClick={onBack}
-          className='flex-1 flex items-center justify-center gap-1.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs py-2.5 px-4 transition active:scale-[0.99] normal-case'
+          className='flex-1 min-w-0 flex items-center justify-center gap-1.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs py-2.5 px-4 transition active:scale-[0.99] normal-case'
         >
           <ArrowLeft size={14} />
           <span>{isConnected ? 'Back to Account' : 'Back to Sign In'}</span>
@@ -956,7 +998,7 @@ export default function AuthAnychainView({
         <button
           type='button'
           onClick={onClose}
-          className='rounded-full bg-[#f15e5f] hover:bg-[#cf5d5d] text-white font-semibold text-xs py-2.5 px-5 transition active:scale-[0.99] normal-case'
+          className='shrink-0 rounded-full bg-[#f15e5f] hover:bg-[#cf5d5d] text-white font-semibold text-xs py-2.5 px-5 transition active:scale-[0.99] normal-case'
         >
           Done
         </button>
