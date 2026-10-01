@@ -89,6 +89,7 @@ export interface SmartRoutingResult {
   smartRoutingAddress?: string;
   smartRoutingAddresses: Record<number, string>;
   robinhoodRoutingAddresses: Record<number, string>;
+  robinhoodMinDepositEth: Record<number, number>;
   isCreatingAddress?: boolean;
   feesLive: boolean;
   isRoutingConfigured: boolean;
@@ -96,6 +97,9 @@ export interface SmartRoutingResult {
 
 // In-memory cache for created smart routing addresses by owner address + destination chain ID
 const routingAddressCache = new Map<string, string>();
+
+// In-memory cache for Robinhood-native minimum deposits by owner + destination chain.
+const robinhoodMinDepositCache = new Map<string, number>();
 
 /**
  * Check the full lifecycle of deposits sent to a ZeroDev smart routing address:
@@ -277,6 +281,19 @@ export function useSmartRouting({
         `${userAddress.toLowerCase()}-robinhood-${c}`
       );
       if (cached) res[c] = cached;
+    }
+    return res;
+  });
+  const [robinhoodMinDepositEth, setRobinhoodMinDepositEth] = useState<
+    Record<number, number>
+  >(() => {
+    if (!userAddress) return {};
+    const res: Record<number, number> = {};
+    for (const c of [arbitrum.id, base.id, mainnet.id]) {
+      const cached = robinhoodMinDepositCache.get(
+        `${userAddress.toLowerCase()}-robinhood-${c}`
+      );
+      if (cached !== undefined) res[c] = cached;
     }
     return res;
   });
@@ -489,6 +506,41 @@ export function useSmartRouting({
                 newRobinhoodAddresses[id] =
                   robinhoodRes.smartRoutingAddress;
               }
+
+              if (
+                robinhoodRes?.estimatedFees &&
+                Array.isArray(robinhoodRes.estimatedFees)
+              ) {
+                const robinhoodFeeGroup = robinhoodRes.estimatedFees.find(
+                  (feeGroup) => feeGroup.chainId === robinhood.id
+                );
+
+                const ethFeeData = robinhoodFeeGroup?.data?.find(
+                  (d) =>
+                    d.name?.toLowerCase().includes('eth') ||
+                    (d.token ? isNativeToken(d.token) : false)
+                );
+
+                if (ethFeeData?.minDeposit) {
+                  const minDepositEth = Number(
+                    formatEther(BigInt(ethFeeData.minDeposit))
+                  );
+
+                  if (Number.isFinite(minDepositEth) && minDepositEth > 0) {
+                    robinhoodMinDepositCache.set(
+                      robinhoodKey,
+                      minDepositEth
+                    );
+
+                    if (isMounted) {
+                      setRobinhoodMinDepositEth((prev) => ({
+                        ...prev,
+                        [id]: minDepositEth,
+                      }));
+                    }
+                  }
+                }
+              }
             } catch (err) {
               console.warn(
                 `ZeroDev Robinhood routing unavailable for destination chain ${id}:`,
@@ -681,6 +733,7 @@ export function useSmartRouting({
         smartRoutingAddress,
         smartRoutingAddresses,
         robinhoodRoutingAddresses,
+        robinhoodMinDepositEth,
         isCreatingAddress,
         feesLive,
         isRoutingConfigured,
@@ -1043,6 +1096,7 @@ export function useSmartRouting({
       smartRoutingAddress,
       smartRoutingAddresses,
       robinhoodRoutingAddresses,
+      robinhoodMinDepositEth,
       isCreatingAddress,
       feesLive,
       isRoutingConfigured,
@@ -1057,6 +1111,7 @@ export function useSmartRouting({
     smartRoutingAddress,
     smartRoutingAddresses,
     robinhoodRoutingAddresses,
+    robinhoodMinDepositEth,
     isCreatingAddress,
     anychainEnabled,
     feesLive,
