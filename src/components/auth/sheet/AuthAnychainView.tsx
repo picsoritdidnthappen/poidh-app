@@ -429,7 +429,8 @@ export default function AuthAnychainView({
           if (
             fc.to.toLowerCase() !== item.routingAddress.toLowerCase() ||
             !fc.data.startsWith('0xf3fef3a3') ||
-            fc.data.length !== 138
+            fc.data.length !== 138 ||
+            fc.value !== BigInt(0)
           ) {
             throw new Error(
               `Unexpected refund call returned for ${item.chainName}. Refusing to execute.`
