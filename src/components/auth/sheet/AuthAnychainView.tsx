@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
 import { erc20Abi, formatEther, formatUnits } from 'viem';
-import { arbitrum, base, mainnet, robinhood } from 'viem/chains';
+import { arbitrum, base, mainnet } from 'viem/chains';
 import {
   SheetHeader,
   SheetTitle,
@@ -48,7 +48,6 @@ export default function AuthAnychainView({
 
   const isZeroDev = connector?.id === 'zerodev-wallet';
 
-  const robinhoodFee = smartRouting.solverFees[robinhood.id];
 
   const depositDestinations = [
     {
@@ -117,6 +116,7 @@ export default function AuthAnychainView({
     ...new Set(
       [
         ...Object.values(smartRouting.smartRoutingAddresses),
+        ...Object.values(smartRouting.robinhoodRoutingAddresses),
         smartRouting.smartRoutingAddress,
       ].filter(Boolean) as string[]
     ),
@@ -330,6 +330,7 @@ export default function AuthAnychainView({
     stuckNonce,
     smartRouting.smartRoutingAddress,
     smartRouting.smartRoutingAddresses,
+    smartRouting.robinhoodRoutingAddresses,
   ]);
 
   // Withdraw calls for already-proven rows. Nothing executes here.
@@ -645,7 +646,9 @@ export default function AuthAnychainView({
               <div className='space-y-2'>
                 {depositDestinations.map((destination) => {
                   const routingAddress =
-                    smartRouting.smartRoutingAddresses[destination.chainId];
+                    smartRouting.robinhoodRoutingAddresses[
+                      destination.chainId
+                    ];
 
                   return (
                     <div
@@ -692,13 +695,6 @@ export default function AuthAnychainView({
                 Send native ETH on Robinhood Chain only. Do not send funds on
                 another network to these addresses.
               </p>
-
-              {robinhoodFee?.minDepositEth && (
-                <p className='text-[10px] text-amber-300/80 leading-relaxed normal-case'>
-                  Current minimum route amount: approximately{' '}
-                  {robinhoodFee.minDepositEth.toFixed(4)} ETH.
-                </p>
-              )}
 
               <p className='text-[10px] text-white/40 leading-relaxed normal-case'>
                 Deposits below the routing minimum may need to be recovered
