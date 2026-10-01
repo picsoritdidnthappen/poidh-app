@@ -45,7 +45,7 @@
     "@vercel/og": "^0.6.8",
     "@zerodev/ecdsa-validator": "5.4.9",
     "@zerodev/sdk": "5.5.4",
-    "@zerodev/smart-routing-address": "^0.2.6",
+    "@zerodev/smart-routing-address": "^1.0.2",
     "@zerodev/wallet-core": "^0.0.5",
     "@zerodev/wallet-react": "^0.0.8",
     "@zkpassport/sdk": "^0.12.5",

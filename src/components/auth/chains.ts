@@ -1,6 +1,7 @@
 'use client';
 
-import { arbitrum, base, mainnet } from 'viem/chains';
+import { createPublicClient, http } from 'viem';
+import { arbitrum, base, mainnet, robinhood } from 'viem/chains';
 import {
   arbitrumPublicClient,
   basePublicClient,
@@ -10,7 +11,15 @@ import {
 export const NATIVE_TOKEN_ADDRESS =
   '0x0000000000000000000000000000000000000000' as const;
 
+// These remain the ONLY chains poidh itself supports for live app activity.
 export const SUPPORTED_CHAIN_IDS = [arbitrum.id, base.id, mainnet.id] as const;
+
+// Robinhood is intentionally read/recovery-only here. It is a funding source
+// for ZeroDev Smart Routing Address deposits, not a poidh execution chain.
+const robinhoodRecoveryPublicClient = createPublicClient({
+  chain: robinhood,
+  transport: http('https://rpc.mainnet.chain.robinhood.com'),
+});
 
 export interface RoutingToken {
   chainId: number;
@@ -19,8 +28,10 @@ export interface RoutingToken {
   decimals: number;
 }
 
-// Single source of truth for the tokens Anychain can route, per chain.
+// Single source of truth for the tokens Anychain can route, per poidh chain.
 // (Native ETH is tracked separately as each chain's balance.)
+// Robinhood is intentionally NOT listed here because it is an external
+// Smart Routing Address funding source, not a poidh Anychain balance chain.
 export const SUPPORTED_TOKENS: RoutingToken[] = [
   // Arbitrum
   {
@@ -106,16 +117,22 @@ export function chainNameFor(chainId: number): string {
   if (chainId === base.id) return 'Base';
   if (chainId === mainnet.id) return 'Ethereum';
   if (chainId === arbitrum.id) return 'Arbitrum';
+  if (chainId === robinhood.id) return 'Robinhood Chain';
   return 'Unknown chain';
 }
 
-// Fail closed: no silent fallback to another chain's client.
+// Read helper used by Anychain status/recovery checks.
+//
+// Robinhood is supported here ONLY so poidh can verify a routing deposit and
+// inspect funds held by the Smart Routing Address on the source chain.
+// This does not add Robinhood to SUPPORTED_CHAIN_IDS or normal poidh sends.
 export function publicClientFor(chainId: number) {
   if (chainId === base.id) return basePublicClient;
   if (chainId === mainnet.id) return mainnetPublicClient;
   if (chainId === arbitrum.id) return arbitrumPublicClient;
+  if (chainId === robinhood.id) return robinhoodRecoveryPublicClient;
   throw new Error(
-    `Unsupported chain for balance reads: ${chainId}. Supported chains are Arbitrum, Base, and Ethereum.`
+    `Unsupported chain for routing reads: ${chainId}. Supported read chains are Arbitrum, Base, Ethereum, and Robinhood Chain.`
   );
 }
 
@@ -125,8 +142,8 @@ export interface NativeBalances {
   mainnet: bigint;
 }
 
-// Balance check for one chain. Throws on unknown chains: reading another
-// chain's balance would wrongly report "sufficient" or "empty".
+// Balance check for one poidh-supported chain. Robinhood intentionally does
+// NOT participate in normal Anychain balance sufficiency calculations.
 export function nativeBalanceFor(
   balances: NativeBalances,
   chainId: number

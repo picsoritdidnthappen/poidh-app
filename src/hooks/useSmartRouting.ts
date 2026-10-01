@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { erc20Abi, formatEther, formatUnits } from 'viem';
-import { arbitrum, base, mainnet } from 'viem/chains';
+import { arbitrum, base, mainnet, robinhood } from 'viem/chains';
 import {
   createSmartRoutingAddress,
   createCall,
   FLEX,
+  SMART_ROUTING_ADDRESS_V1_0_0,
   SMART_ROUTING_ADDRESS_SERVER_URL,
   getSmartRoutingAddressStatus,
   getSmartRoutingAddressFeeEstimates,
@@ -87,6 +88,8 @@ export interface SmartRoutingResult {
   solverFees: Record<number, SolverFeeDetails>;
   smartRoutingAddress?: string;
   smartRoutingAddresses: Record<number, string>;
+  robinhoodRoutingAddresses: Record<number, string>;
+  robinhoodMinDepositEth: Record<number, number>;
   isCreatingAddress?: boolean;
   feesLive: boolean;
   isRoutingConfigured: boolean;
@@ -94,6 +97,9 @@ export interface SmartRoutingResult {
 
 // In-memory cache for created smart routing addresses by owner address + destination chain ID
 const routingAddressCache = new Map<string, string>();
+
+// In-memory cache for Robinhood-native minimum deposits by owner + destination chain.
+const robinhoodMinDepositCache = new Map<string, number>();
 
 /**
  * Check the full lifecycle of deposits sent to a ZeroDev smart routing address:
@@ -265,6 +271,32 @@ export function useSmartRouting({
     }
     return res;
   });
+  const [robinhoodRoutingAddresses, setRobinhoodRoutingAddresses] = useState<
+    Record<number, string>
+  >(() => {
+    if (!userAddress) return {};
+    const res: Record<number, string> = {};
+    for (const c of [arbitrum.id, base.id, mainnet.id]) {
+      const cached = routingAddressCache.get(
+        `${userAddress.toLowerCase()}-robinhood-${c}`
+      );
+      if (cached) res[c] = cached;
+    }
+    return res;
+  });
+  const [robinhoodMinDepositEth, setRobinhoodMinDepositEth] = useState<
+    Record<number, number>
+  >(() => {
+    if (!userAddress) return {};
+    const res: Record<number, number> = {};
+    for (const c of [arbitrum.id, base.id, mainnet.id]) {
+      const cached = robinhoodMinDepositCache.get(
+        `${userAddress.toLowerCase()}-robinhood-${c}`
+      );
+      if (cached !== undefined) res[c] = cached;
+    }
+    return res;
+  });
   const [isCreatingAddress, setIsCreatingAddress] = useState(false);
   const projectId = clientEnv.ZERODEV_PROJECT_ID;
   const isRoutingConfigured = !!projectId;
@@ -343,96 +375,175 @@ export function useSmartRouting({
         ];
 
         const newAddresses: Record<number, string> = {};
+        const newRobinhoodAddresses: Record<number, string> = {};
 
         await Promise.all(
           destChains.map(async ({ chain, id }) => {
+            // Normal Anychain address: Base / Arbitrum / Ethereum sources.
+            // Keep partial routes enabled so one temporarily unavailable
+            // normal source does not disable the rest of Anychain.
             const key = `${userAddress.toLowerCase()}-${id}`;
             const cached = routingAddressCache.get(key);
+
             if (cached) {
               newAddresses[id] = cached;
+            } else {
+              try {
+                const res = await createSmartRoutingAddress({
+                  owner,
+                  projectId,
+                  destChain: chain,
+                  slippage: 100, // 1% max slippage
+                  srcTokens: [
+                    { tokenType: 'NATIVE', chain: base },
+                    { tokenType: 'USDC', chain: base },
+                    { tokenType: 'NATIVE', chain: arbitrum },
+                    { tokenType: 'USDC', chain: arbitrum },
+                    { tokenType: 'NATIVE', chain: mainnet },
+                    { tokenType: 'USDC', chain: mainnet },
+                  ],
+                  actions: {
+                    NATIVE: {
+                      action: [nativeCall],
+                    },
+                    USDC: {
+                      action: [erc20Call],
+                    },
+                  },
+                  allowPartialRoutes: true,
+                  version: SMART_ROUTING_ADDRESS_V1_0_0,
+                });
+
+                if (res?.smartRoutingAddress) {
+                  routingAddressCache.set(key, res.smartRoutingAddress);
+                  newAddresses[id] = res.smartRoutingAddress;
+                }
+
+                if (
+                  id === activeChainId &&
+                  res?.estimatedFees &&
+                  Array.isArray(res.estimatedFees)
+                ) {
+                  const updatedFees = { ...cachedSolverFees };
+                  for (const feeGroup of res.estimatedFees) {
+                    const chainId = feeGroup.chainId;
+                    const ethFeeData = feeGroup.data?.find(
+                      (d) =>
+                        d.name?.toLowerCase().includes('eth') ||
+                        (d.token ? isNativeToken(d.token) : false)
+                    );
+                    const usdcFeeData = feeGroup.data?.find((d) =>
+                      d.name?.toLowerCase().includes('usdc')
+                    );
+                    const feeEth = ethFeeData
+                      ? Number(formatEther(BigInt(ethFeeData.fee || '0x0')))
+                      : cachedSolverFees[chainId]?.feeEth || 0.00004;
+                    const minDepositEth = ethFeeData
+                      ? Number(
+                          formatEther(BigInt(ethFeeData.minDeposit || '0x0'))
+                        )
+                      : cachedSolverFees[chainId]?.minDepositEth || 0.0045;
+                    const minDepositUsdc = usdcFeeData
+                      ? Number(
+                          formatUnits(
+                            BigInt(usdcFeeData.minDeposit || '0x0'),
+                            6
+                          )
+                        )
+                      : cachedSolverFees[chainId]?.minDepositUsdc || 10.44;
+
+                    updatedFees[chainId] = {
+                      feeEth,
+                      feeUsd: feeEth * ethPrice,
+                      minDepositEth,
+                      minDepositUsdc,
+                      isSponsored: ethFeeData?.isSponsored || false,
+                    };
+                  }
+                  cachedSolverFees = updatedFees;
+                  setSolverFees(updatedFees);
+                }
+              } catch (err) {
+                console.warn(
+                  `ZeroDev createSmartRoutingAddress note for chain ${id}:`,
+                  err
+                );
+              }
+            }
+
+            // Dedicated Robinhood funding address: Robinhood native ETH is the
+            // ONLY source. Do NOT enable allowPartialRoutes here. If Robinhood
+            // is unavailable, address creation must fail so the UI never shows
+            // an address as Robinhood-ready when that route is missing.
+            const robinhoodKey = `${userAddress.toLowerCase()}-robinhood-${id}`;
+            const cachedRobinhood = routingAddressCache.get(robinhoodKey);
+
+            if (cachedRobinhood) {
+              newRobinhoodAddresses[id] = cachedRobinhood;
               return;
             }
 
             try {
-              const res = await createSmartRoutingAddress({
+              const robinhoodRes = await createSmartRoutingAddress({
                 owner,
+                projectId,
                 destChain: chain,
-                slippage: 100, // 1% max slippage
-                srcTokens: [
-                  { tokenType: 'NATIVE', chain: base },
-                  { tokenType: 'USDC', chain: base },
-                  { tokenType: 'NATIVE', chain: arbitrum },
-                  { tokenType: 'USDC', chain: arbitrum },
-                  { tokenType: 'NATIVE', chain: mainnet },
-                  { tokenType: 'USDC', chain: mainnet },
-                ],
+                slippage: 100,
+                srcTokens: [{ tokenType: 'NATIVE', chain: robinhood }],
                 actions: {
                   NATIVE: {
                     action: [nativeCall],
-                    fallBack: [],
-                  },
-                  USDC: {
-                    action: [erc20Call],
-                    fallBack: [],
                   },
                 },
-                allowPartialRoutes: true,
-                config: clientEnv.ZERODEV_PROJECT_ID
-                  ? {
-                      baseUrl: `${SMART_ROUTING_ADDRESS_SERVER_URL}/${clientEnv.ZERODEV_PROJECT_ID}`,
-                    }
-                  : undefined,
+                version: SMART_ROUTING_ADDRESS_V1_0_0,
               });
 
-              if (res?.smartRoutingAddress) {
-                routingAddressCache.set(key, res.smartRoutingAddress);
-                newAddresses[id] = res.smartRoutingAddress;
+              if (robinhoodRes?.smartRoutingAddress) {
+                routingAddressCache.set(
+                  robinhoodKey,
+                  robinhoodRes.smartRoutingAddress
+                );
+                newRobinhoodAddresses[id] =
+                  robinhoodRes.smartRoutingAddress;
               }
 
               if (
-                id === activeChainId &&
-                res?.estimatedFees &&
-                Array.isArray(res.estimatedFees)
+                robinhoodRes?.estimatedFees &&
+                Array.isArray(robinhoodRes.estimatedFees)
               ) {
-                const updatedFees = { ...cachedSolverFees };
-                for (const feeGroup of res.estimatedFees) {
-                  const chainId = feeGroup.chainId;
-                  const ethFeeData = feeGroup.data?.find(
-                    (d) =>
-                      d.name?.toLowerCase().includes('eth') ||
-                      (d.token ? isNativeToken(d.token) : false)
-                  );
-                  const usdcFeeData = feeGroup.data?.find((d) =>
-                    d.name?.toLowerCase().includes('usdc')
-                  );
-                  const feeEth = ethFeeData
-                    ? Number(formatEther(BigInt(ethFeeData.fee || '0x0')))
-                    : cachedSolverFees[chainId]?.feeEth || 0.00004;
-                  const minDepositEth = ethFeeData
-                    ? Number(
-                        formatEther(BigInt(ethFeeData.minDeposit || '0x0'))
-                      )
-                    : cachedSolverFees[chainId]?.minDepositEth || 0.0045;
-                  const minDepositUsdc = usdcFeeData
-                    ? Number(
-                        formatUnits(BigInt(usdcFeeData.minDeposit || '0x0'), 6)
-                      )
-                    : cachedSolverFees[chainId]?.minDepositUsdc || 10.44;
+                const robinhoodFeeGroup = robinhoodRes.estimatedFees.find(
+                  (feeGroup) => feeGroup.chainId === robinhood.id
+                );
 
-                  updatedFees[chainId] = {
-                    feeEth,
-                    feeUsd: feeEth * ethPrice,
-                    minDepositEth,
-                    minDepositUsdc,
-                    isSponsored: ethFeeData?.isSponsored || false,
-                  };
+                const ethFeeData = robinhoodFeeGroup?.data?.find(
+                  (d) =>
+                    d.name?.toLowerCase().includes('eth') ||
+                    (d.token ? isNativeToken(d.token) : false)
+                );
+
+                if (ethFeeData?.minDeposit) {
+                  const minDepositEth = Number(
+                    formatEther(BigInt(ethFeeData.minDeposit))
+                  );
+
+                  if (Number.isFinite(minDepositEth) && minDepositEth > 0) {
+                    robinhoodMinDepositCache.set(
+                      robinhoodKey,
+                      minDepositEth
+                    );
+
+                    if (isMounted) {
+                      setRobinhoodMinDepositEth((prev) => ({
+                        ...prev,
+                        [id]: minDepositEth,
+                      }));
+                    }
+                  }
                 }
-                cachedSolverFees = updatedFees;
-                setSolverFees(updatedFees);
               }
             } catch (err) {
               console.warn(
-                `ZeroDev createSmartRoutingAddress note for chain ${id}:`,
+                `ZeroDev Robinhood routing unavailable for destination chain ${id}:`,
                 err
               );
             }
@@ -442,6 +553,10 @@ export function useSmartRouting({
         if (!isMounted) return;
 
         setSmartRoutingAddresses((prev) => ({ ...prev, ...newAddresses }));
+        setRobinhoodRoutingAddresses((prev) => ({
+          ...prev,
+          ...newRobinhoodAddresses,
+        }));
         if (newAddresses[activeChainId]) {
           setSmartRoutingAddress(newAddresses[activeChainId]);
         }
@@ -493,11 +608,11 @@ export function useSmartRouting({
               : cachedSolverFees[chainId]?.minDepositEth || 0.0045;
             const minDepositUsdc = usdcFeeData?.minDeposit
               ? Number(
-                  formatUnits(
-                    BigInt(usdcFeeData.minDeposit),
-                    usdcFeeData.decimal || 6
-                  )
+                formatUnits(
+                  BigInt(usdcFeeData.minDeposit),
+                  usdcFeeData.decimal || 6
                 )
+              )
               : cachedSolverFees[chainId]?.minDepositUsdc || 10.44;
 
             updatedFees[chainId] = {
@@ -568,8 +683,8 @@ export function useSmartRouting({
         activeChainId === base.id
           ? 'Base'
           : activeChainId === mainnet.id
-          ? 'Ethereum'
-          : 'Arbitrum',
+            ? 'Ethereum'
+            : 'Arbitrum',
       priority: 2,
       feeTier: 'low' as const,
       estFee: '~ $0.02',
@@ -617,6 +732,8 @@ export function useSmartRouting({
         solverFees,
         smartRoutingAddress,
         smartRoutingAddresses,
+        robinhoodRoutingAddresses,
+        robinhoodMinDepositEth,
         isCreatingAddress,
         feesLive,
         isRoutingConfigured,
@@ -684,9 +801,8 @@ export function useSmartRouting({
       const isSponsored = feeInfo?.isSponsored || false;
       const estFeeStr = isSponsored
         ? 'Free (Sponsored)'
-        : `~${
-            feeEth < 0.0001 ? feeEth.toFixed(6) : feeEth.toFixed(4)
-          } ETH ($${feeUsd.toFixed(2)})`;
+        : `~${feeEth < 0.0001 ? feeEth.toFixed(6) : feeEth.toFixed(4)
+        } ETH ($${feeUsd.toFixed(2)})`;
 
       const nativeEthAvailable = Number(formatEther(chainInfo.raw));
       totalPortfolioEth += nativeEthAvailable;
@@ -979,6 +1095,8 @@ export function useSmartRouting({
       solverFees,
       smartRoutingAddress,
       smartRoutingAddresses,
+      robinhoodRoutingAddresses,
+      robinhoodMinDepositEth,
       isCreatingAddress,
       feesLive,
       isRoutingConfigured,
@@ -992,6 +1110,8 @@ export function useSmartRouting({
     solverFees,
     smartRoutingAddress,
     smartRoutingAddresses,
+    robinhoodRoutingAddresses,
+    robinhoodMinDepositEth,
     isCreatingAddress,
     anychainEnabled,
     feesLive,

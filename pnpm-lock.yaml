@@ -81,8 +81,8 @@ importers:
         specifier: 5.5.4
         version: 5.5.4(viem@2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@zerodev/smart-routing-address':
-        specifier: ^0.2.6
-        version: 0.2.6(typescript@5.8.3)(viem@2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: ^1.0.2
+        version: 1.0.2(typescript@5.8.3)(viem@2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@zerodev/wallet-core':
         specifier: ^0.0.5
         version: 0.0.5(@turnkey/api-key-stamper@0.6.5)(@turnkey/crypto@2.8.14)(encoding@0.1.13)(viem@2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -3326,11 +3326,11 @@ packages:
     peerDependencies:
       viem: ^2.28.0
 
-  '@zerodev/smart-routing-address@0.2.6':
-    resolution: {integrity: sha512-mGb3Bx+YDrCafuaIXeNMXfQ9XEheV8USaKWn5IyH4HLmA0RBzsO4DyKPoH8KG65IHu7bTWuUC91//uStVbyYdA==}
+  '@zerodev/smart-routing-address@1.0.2':
+    resolution: {integrity: sha512-Dj7tw5tbclxhl1VCcO4KZJvXYszNJQtcfcicT4I7gkb2VjlZMMb0S4YH+DLVGSSxNIAT4Ox9syAGa0YRqTKCSA==}
     peerDependencies:
       typescript: ^5.0.0
-      viem: ^2.47.18
+      viem: ^2.55.0
 
   '@zerodev/wallet-core@0.0.5':
     resolution: {integrity: sha512-cPCcigXzMORu+Re9iTf6Q2FSgCf+3JAdjD8AKe8izC52AkTpNLKJE0gsArlkmjzV7ioZITVnWoomsVpT6PO9Mw==}
@@ -7349,6 +7349,11 @@ packages:
 
   semver@7.7.1:
     resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.8.5:
+    resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -12554,7 +12559,7 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.14.0
+      '@types/node': 22.20.2
 
   '@types/connect@3.4.38':
     dependencies:
@@ -12592,7 +12597,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 22.14.0
+      '@types/node': 22.20.2
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -12703,12 +12708,12 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.14.0
+      '@types/node': 22.20.2
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 22.14.0
+      '@types/node': 22.20.2
       '@types/send': 0.17.4
 
   '@types/stack-utils@2.0.3': {}
@@ -13905,8 +13910,9 @@ snapshots:
       semver: 7.7.1
       viem: 2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)
 
-  '@zerodev/smart-routing-address@0.2.6(typescript@5.8.3)(viem@2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
+  '@zerodev/smart-routing-address@1.0.2(typescript@5.8.3)(viem@2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
     dependencies:
+      semver: 7.8.5
       typescript: 5.8.3
       viem: 2.56.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)
 
@@ -19012,6 +19018,8 @@ snapshots:
       lru-cache: 6.0.0
 
   semver@7.7.1: {}
+
+  semver@7.8.5: {}
 
   seq-queue@0.0.5: {}
 
