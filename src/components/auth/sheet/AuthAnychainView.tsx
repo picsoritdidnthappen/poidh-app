@@ -429,9 +429,13 @@ export default function AuthAnychainView({
           if (
             fc.to.toLowerCase() !== item.routingAddress.toLowerCase() ||
             !fc.data.startsWith('0xf3fef3a3') ||
-            fc.data.length < 138
-          )
-            continue;
+            fc.data.length !== 138
+          ) {
+            throw new Error(
+              `Unexpected refund call returned for ${item.chainName}. Refusing to execute.`
+            );
+          }
+
           try {
             const client = publicClientFor(item.chainId);
             const token = `0x${fc.data.slice(34, 74)}` as `0x${string}`;
@@ -649,6 +653,10 @@ export default function AuthAnychainView({
                     smartRouting.robinhoodRoutingAddresses[
                       destination.chainId
                     ];
+                  const minDepositEth =
+                    smartRouting.robinhoodMinDepositEth[
+                      destination.chainId
+                    ];
 
                   return (
                     <div
@@ -662,9 +670,20 @@ export default function AuthAnychainView({
                           </div>
 
                           {routingAddress ? (
-                            <div className='text-[11px] font-mono text-white/90 mt-1 truncate'>
-                              {routingAddress}
-                            </div>
+                            <>
+                              <div className='text-[11px] font-mono text-white/90 mt-1 truncate'>
+                                {routingAddress}
+                              </div>
+                              {minDepositEth !== undefined && (
+                                <div className='text-[10px] text-amber-300/80 mt-1 normal-case'>
+                                  Minimum: approximately{' '}
+                                  {minDepositEth < 0.0001
+                                    ? minDepositEth.toFixed(6)
+                                    : minDepositEth.toFixed(4)}{' '}
+                                  ETH
+                                </div>
+                              )}
+                            </>
                           ) : (
                             <div className='text-[11px] text-white/40 mt-1'>
                               Address unavailable
