@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { useScreenSize } from '@/hooks/useScreenSize';
@@ -294,7 +295,7 @@ export default function FormClaim({
     },
     onError: (error) => {
       setLoading({ isLoading: false });
-      toast.error('Failed to create claim: ' + error.message);
+      toastError('Failed to create claim', error);
     },
     onSettled: () => {
       utils.claims.fetchBountyClaims.refetch();

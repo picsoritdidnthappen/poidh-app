@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import {
   useAccount,
@@ -354,7 +355,7 @@ export default function FormBounty({
     },
 
     onError: (error) => {
-      toast.error('Failed to create bounty: ' + error.message);
+      toastError('Failed to create bounty', error);
     },
 
     onSettled: () => {

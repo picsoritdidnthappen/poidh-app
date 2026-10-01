@@ -3,6 +3,7 @@ import { useChainInfo } from '@/hooks/useChainInfo';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { formatEther, parseEther } from 'viem';
 import {
   useAccount,
@@ -198,7 +199,7 @@ export default function FormJoinBounty({
       setShowSuccess(true);
     },
     onError: (error) => {
-      toast.error('Failed to join bounty: ' + error.message);
+      toastError('Failed to join bounty', error);
       setAmount('');
     },
     onSettled: () => {

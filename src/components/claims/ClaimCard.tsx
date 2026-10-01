@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import {
   BanIcon,
@@ -359,7 +360,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
     },
 
     onError: (error) => {
-      toast.error('Failed to ban claim: ' + error.message);
+      toastError('Failed to ban claim', error);
     },
 
     onSettled: () => {

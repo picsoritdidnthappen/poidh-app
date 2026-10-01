@@ -247,6 +247,10 @@ button {
 .Toastify__close-button > svg {
   fill: white !important;
 }
+/* Keep long messages (hashes, calldata) from stretching the toast off-screen */
+.Toastify__toast-body {
+  overflow-wrap: anywhere;
+}
 
 body.how-it-works-modal-open .how-it-works-hidden {
   display: none !important;

@@ -1,5 +1,6 @@
 import { PieChart } from 'react-minimal-pie-chart';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { formatEther } from 'viem';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
@@ -261,7 +262,7 @@ export default function Voting({
     },
 
     onError: (error) => {
-      toast.error('Failed to vote: ' + error.message);
+      toastError('Failed to vote', error);
     },
 
     onSettled: () => {
@@ -342,7 +343,7 @@ export default function Voting({
     },
 
     onError: (error) => {
-      toast.error('Failed to resolve vote: ' + error.message);
+      toastError('Failed to resolve vote', error);
     },
 
     onSettled: () => {

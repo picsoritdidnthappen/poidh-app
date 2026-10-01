@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { FormEvent, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { ChainId } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
@@ -110,14 +111,14 @@ export default function CommentsSection(props: CommentsSectionProps) {
       setNewComment('');
       toast.success('Comment posted');
     },
-    onError: (error) => toast.error(`Failed to post comment: ${error.message}`),
+    onError: (error) => toastError('Failed to post comment', error),
   });
 
   const rateMutation = trpc.comments.rate.useMutation({
     onSuccess: () => {
       commentsQuery.refetch();
     },
-    onError: (error) => toast.error(`Failed to rate comment: ${error.message}`),
+    onError: (error) => toastError('Failed to rate comment', error),
   });
 
   const banCommentMutation = trpc.admin.banComment.useMutation({
@@ -125,7 +126,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
       commentsQuery.refetch();
       toast.success('Comment banned');
     },
-    onError: (error) => toast.error(`Failed to ban comment: ${error.message}`),
+    onError: (error) => toastError('Failed to ban comment', error),
   });
 
   const commentsByParent = (commentsQuery.data ?? []).reduce(
@@ -226,7 +227,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
         );
 
         if (error) {
-          toast.error(error.message);
+          toastError('Failed to switch network', error);
           return null;
         }
       } else {
