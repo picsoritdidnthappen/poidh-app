@@ -17,11 +17,7 @@ function hashString(value: string) {
   return Math.abs(hash);
 }
 
-function GenerativePlaceholder({
-  seed,
-}: {
-  seed: string;
-}) {
+function GenerativePlaceholder({ seed }: { seed: string }) {
   const hash = hashString(seed);
 
   const palette = [
@@ -33,26 +29,19 @@ function GenerativePlaceholder({
     '#F4A261',
   ];
 
-  const background =
-    palette[hash % palette.length];
+  const background = palette[hash % palette.length];
 
-  const accent1 =
-    palette[(hash + 2) % palette.length];
+  const accent1 = palette[(hash + 2) % palette.length];
 
-  const accent2 =
-    palette[(hash + 4) % palette.length];
+  const accent2 = palette[(hash + 4) % palette.length];
 
-  const vertical =
-    28 + ((hash >> 2) % 38);
+  const vertical = 28 + ((hash >> 2) % 38);
 
-  const horizontal =
-    30 + ((hash >> 4) % 36);
+  const horizontal = 30 + ((hash >> 4) % 36);
 
-  const smallBlockLeft =
-    8 + ((hash >> 6) % 58);
+  const smallBlockLeft = 8 + ((hash >> 6) % 58);
 
-  const smallBlockTop =
-    8 + ((hash >> 8) % 58);
+  const smallBlockTop = 8 + ((hash >> 8) % 58);
 
   return (
     <div
@@ -100,26 +89,17 @@ function GenerativePlaceholder({
   );
 }
 
-export default function ClaimsListAccount({
-  claims,
-}: {
-  claims: Claim[];
-}) {
+export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   if (!claims || claims.length === 0) {
     return (
-      <div className='text-center py-20 text-white/60'>
-        no claims available
-      </div>
+      <div className='text-center py-20 text-white/60'>no claims available</div>
     );
   }
 
   return (
     <div className='container mx-auto px-0 pb-12 pt-5 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
       {claims.map((claim) => (
-        <div
-          key={`${claim.chainId}-${claim.id}`}
-          className='lg:col-span-4'
-        >
+        <div key={`${claim.chainId}-${claim.id}`} className='lg:col-span-4'>
           <ClaimItem claim={claim} />
         </div>
       ))}
@@ -127,17 +107,12 @@ export default function ClaimsListAccount({
   );
 }
 
-function ClaimItem({
-  claim,
-}: {
-  claim: Claim;
-}) {
+function ClaimItem({ claim }: { claim: Claim }) {
   const chain = getChainById({
     chainId: claim.chainId as ChainId,
   });
 
-  const placeholderSeed =
-    `${claim.chainId}-${claim.id}-${claim.issuer}`;
+  const placeholderSeed = `${claim.chainId}-${claim.id}-${claim.issuer}`;
 
   return (
     <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
@@ -163,15 +138,11 @@ function ClaimItem({
                * this layer is still underneath it as the fallback.
                */}
               <div className='absolute inset-0 -z-10'>
-                <GenerativePlaceholder
-                  seed={placeholderSeed}
-                />
+                <GenerativePlaceholder seed={placeholderSeed} />
               </div>
             </>
           ) : (
-            <GenerativePlaceholder
-              seed={placeholderSeed}
-            />
+            <GenerativePlaceholder seed={placeholderSeed} />
           )}
         </div>
       </Link>
@@ -183,38 +154,26 @@ function ClaimItem({
           </p>
 
           <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
-            <MarkdownContent>
-              {claim.description}
-            </MarkdownContent>
+            <MarkdownContent>{claim.description}</MarkdownContent>
           </p>
         </div>
 
         <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
-          <span className='shrink-0 mr-2'>
-            issuer&nbsp;
-          </span>
+          <span className='shrink-0 mr-2'>issuer&nbsp;</span>
 
           <div className='flex flex-row items-center w-full justify-end overflow-hidden'>
-            <DisplayAddress
-              address={claim.issuer}
-            />
+            <DisplayAddress address={claim.issuer} />
 
             <div className='ml-2'>
-              <CopyAddressButton
-                address={claim.issuer}
-              />
+              <CopyAddressButton address={claim.issuer} />
             </div>
           </div>
         </div>
 
         <div className='flex flex-row items-center justify-between'>
-          <span>
-            claim id: {claim.id}
-          </span>
+          <span>claim id: {claim.id}</span>
 
-          <SocialMediaLinks
-            address={claim.issuer}
-          />
+          <SocialMediaLinks address={claim.issuer} />
         </div>
       </div>
     </div>

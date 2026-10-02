@@ -64,7 +64,12 @@ export async function GET(
       },
     });
 
-    const { claims: claimsPreview, participations, extra, ...bountyData } = bounty;
+    const {
+      claims: claimsPreview,
+      participations,
+      extra,
+      ...bountyData
+    } = bounty;
     const { amountSort, ...extraData } = extra;
 
     const claims = await prisma.claims.findMany({
@@ -72,14 +77,18 @@ export async function GET(
       orderBy: [{ isAccepted: 'desc' }, { id: 'desc' }],
     });
 
-    const uniqueIssuers = [...new Set(claims.map((c) => c.issuer.toLowerCase()))];
+    const uniqueIssuers = [
+      ...new Set(claims.map((c) => c.issuer.toLowerCase())),
+    ];
 
     const [neynarUsers, ...names] = await Promise.all([
       getUsersDataOrFetchItFromNeynar(uniqueIssuers),
       ...uniqueIssuers.map((addr) => getHumanReadableName(addr)),
     ]);
 
-    const nameByAddress = new Map(uniqueIssuers.map((addr, i) => [addr, names[i]]));
+    const nameByAddress = new Map(
+      uniqueIssuers.map((addr, i) => [addr, names[i]])
+    );
     const neynarByAddress = new Map(neynarUsers.map((u) => [u.address, u]));
 
     const claimsData = await Promise.all(

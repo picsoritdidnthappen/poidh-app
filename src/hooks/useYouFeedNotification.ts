@@ -24,104 +24,72 @@ function getActivityKey(
 export function useYouFeedNotification() {
   const account = useAccount();
 
-  const [hasUnseenYouActivity, setHasUnseenYouActivity] =
-    useState(false);
+  const [hasUnseenYouActivity, setHasUnseenYouActivity] = useState(false);
 
-  const latestYouActivity =
-    trpc.accounts.activities.useQuery(
-      {
-        address: account.address,
-        limit: 1,
-      },
-      {
-        enabled: !!account.address,
-        staleTime: 30_000,
-        refetchOnWindowFocus: true,
-      }
-    );
+  const latestYouActivity = trpc.accounts.activities.useQuery(
+    {
+      address: account.address,
+      limit: 1,
+    },
+    {
+      enabled: !!account.address,
+      staleTime: 30_000,
+      refetchOnWindowFocus: true,
+    }
+  );
 
   useEffect(() => {
-    if (
-      !account.address ||
-      typeof window === 'undefined'
-    ) {
+    if (!account.address || typeof window === 'undefined') {
       setHasUnseenYouActivity(false);
       return;
     }
 
-    const newestActivity =
-      latestYouActivity.data?.items?.[0];
+    const newestActivity = latestYouActivity.data?.items?.[0];
 
-    const newestActivityKey =
-      getActivityKey(newestActivity);
+    const newestActivityKey = getActivityKey(newestActivity);
 
     if (!newestActivityKey) {
       setHasUnseenYouActivity(false);
       return;
     }
 
-    const storageKey =
-      getYouFeedStorageKey(account.address);
+    const storageKey = getYouFeedStorageKey(account.address);
 
-    const lastSeenActivityKey =
-      window.localStorage.getItem(storageKey);
+    const lastSeenActivityKey = window.localStorage.getItem(storageKey);
 
-    setHasUnseenYouActivity(
-      lastSeenActivityKey !== newestActivityKey
-    );
-  }, [
-    account.address,
-    latestYouActivity.data,
-  ]);
+    setHasUnseenYouActivity(lastSeenActivityKey !== newestActivityKey);
+  }, [account.address, latestYouActivity.data]);
 
   useEffect(() => {
-    if (
-      !account.address ||
-      typeof window === 'undefined'
-    ) {
+    if (!account.address || typeof window === 'undefined') {
       return;
     }
 
     const address = account.address;
 
     const refreshSeenState = () => {
-      const newestActivity =
-        latestYouActivity.data?.items?.[0];
+      const newestActivity = latestYouActivity.data?.items?.[0];
 
-      const newestActivityKey =
-        getActivityKey(newestActivity);
+      const newestActivityKey = getActivityKey(newestActivity);
 
       if (!newestActivityKey) {
         setHasUnseenYouActivity(false);
         return;
       }
 
-      const storageKey =
-        getYouFeedStorageKey(address);
+      const storageKey = getYouFeedStorageKey(address);
 
-      const lastSeenActivityKey =
-        window.localStorage.getItem(storageKey);
+      const lastSeenActivityKey = window.localStorage.getItem(storageKey);
 
-      setHasUnseenYouActivity(
-        lastSeenActivityKey !== newestActivityKey
-      );
+      setHasUnseenYouActivity(lastSeenActivityKey !== newestActivityKey);
     };
 
-    window.addEventListener(
-      'poidh-you-feed-seen',
-      refreshSeenState
-    );
+    window.addEventListener('poidh-you-feed-seen', refreshSeenState);
 
     return () => {
-      window.removeEventListener(
-        'poidh-you-feed-seen',
-        refreshSeenState
-      );
+      window.removeEventListener('poidh-you-feed-seen', refreshSeenState);
     };
-  }, [
-    account.address,
-    latestYouActivity.data,
-  ]);
+  }, [account.address, latestYouActivity.data]);
 
   return {
     hasUnseenYouActivity,

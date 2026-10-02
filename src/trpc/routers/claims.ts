@@ -124,19 +124,19 @@ export const claimsRouter = {
       const txs = await prisma.transactions.findMany({
         where: {
           action: 'claim accepted',
-  
+
           bounty: {
             inProgress: false,
             isCanceled: false,
-  
+
             ban: {
               none: {},
             },
-  
+
             claims: {
               some: {
                 isAccepted: true,
-  
+
                 ban: {
                   none: {},
                 },
@@ -144,34 +144,34 @@ export const claimsRouter = {
             },
           },
         },
-  
+
         select: {
           bountyId: true,
           chainId: true,
           timestamp: true,
-  
+
           bounty: {
             select: {
               id: true,
               chainId: true,
               title: true,
               amount: true,
-  
+
               extra: {
                 select: {
                   amountSort: true,
                 },
               },
-  
+
               claims: {
                 where: {
                   isAccepted: true,
-  
+
                   ban: {
                     none: {},
                   },
                 },
-  
+
                 select: {
                   id: true,
                   chainId: true,
@@ -179,27 +179,27 @@ export const claimsRouter = {
                   url: true,
                   issuer: true,
                 },
-  
+
                 take: 1,
               },
             },
           },
         },
-  
+
         orderBy: {
           timestamp: 'desc',
         },
-  
+
         take: input.limit,
       });
-  
+
       return txs.flatMap((tx) => {
         const claim = tx.bounty.claims[0];
-  
+
         if (!claim) {
           return [];
         }
-  
+
         return [
           {
             claim,
@@ -213,7 +213,7 @@ export const claimsRouter = {
         ];
       });
     }),
-  
+
   fetchBountyClaims: baseProcedure
     .input(
       z.object({
@@ -235,10 +235,7 @@ export const claimsRouter = {
             ? { isAccepted: false, id: { lt: input.cursor } }
             : {}),
         },
-        orderBy: [
-          !input.cursor ? { isAccepted: 'desc' } : {},
-          { id: 'desc' },
-        ],
+        orderBy: [!input.cursor ? { isAccepted: 'desc' } : {}, { id: 'desc' }],
         take: input.limit,
       });
 
@@ -382,10 +379,7 @@ export async function fetchImageMetadata(url: string) {
       headResponse.headers['content-type'] ?? ''
     ).toLowerCase();
 
-    if (
-      contentType.startsWith('image/') ||
-      contentType.startsWith('video/')
-    ) {
+    if (contentType.startsWith('image/') || contentType.startsWith('video/')) {
       return {
         ...emptyMetadata,
         image: url,

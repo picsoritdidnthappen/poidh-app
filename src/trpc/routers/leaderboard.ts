@@ -109,11 +109,7 @@ export const leaderboardRouter = {
           degen,
           arbitrum,
           mainnet,
-          total:
-            (base ?? 0) +
-            (degen ?? 0) +
-            (arbitrum ?? 0) +
-            (mainnet ?? 0),
+          total: (base ?? 0) + (degen ?? 0) + (arbitrum ?? 0) + (mainnet ?? 0),
         });
       });
 

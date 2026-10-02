@@ -1,12 +1,6 @@
 import Image from 'next/image';
 import DisplayAddress from '@/components/global/DisplayAddress';
-import {
-  KeyboardEvent,
-  MouseEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { KeyboardEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
@@ -20,9 +14,7 @@ function hashString(value: string) {
   let hash = 0;
 
   for (let i = 0; i < value.length; i++) {
-    hash =
-      value.charCodeAt(i) +
-      ((hash << 5) - hash);
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
 
     hash |= 0;
   }
@@ -30,11 +22,7 @@ function hashString(value: string) {
   return Math.abs(hash);
 }
 
-function GenerativePlaceholder({
-  seed,
-}: {
-  seed: string;
-}) {
+function GenerativePlaceholder({ seed }: { seed: string }) {
   const hash = hashString(seed);
 
   const palette = [
@@ -46,45 +34,25 @@ function GenerativePlaceholder({
     '#F4A261',
   ];
 
-  const background =
-    palette[
-      hash % palette.length
-    ];
+  const background = palette[hash % palette.length];
 
-  const accent1 =
-    palette[
-      (hash + 2) %
-        palette.length
-    ];
+  const accent1 = palette[(hash + 2) % palette.length];
 
-  const accent2 =
-    palette[
-      (hash + 4) %
-        palette.length
-    ];
+  const accent2 = palette[(hash + 4) % palette.length];
 
-  const vertical =
-    28 +
-    ((hash >> 2) % 38);
+  const vertical = 28 + ((hash >> 2) % 38);
 
-  const horizontal =
-    30 +
-    ((hash >> 4) % 36);
+  const horizontal = 30 + ((hash >> 4) % 36);
 
-  const smallBlockLeft =
-    8 +
-    ((hash >> 6) % 58);
+  const smallBlockLeft = 8 + ((hash >> 6) % 58);
 
-  const smallBlockTop =
-    8 +
-    ((hash >> 8) % 58);
+  const smallBlockTop = 8 + ((hash >> 8) % 58);
 
   return (
     <div
       className='absolute inset-0 overflow-hidden'
       style={{
-        backgroundColor:
-          background,
+        backgroundColor: background,
       }}
     >
       <div
@@ -108,22 +76,18 @@ function GenerativePlaceholder({
           top: 0,
           right: 0,
           height: `${horizontal}%`,
-          backgroundColor:
-            accent1,
+          backgroundColor: accent1,
         }}
       />
 
       <div
         className='absolute border-[4px] border-[#102A43]'
         style={{
-          left:
-            `${smallBlockLeft}%`,
-          top:
-            `${smallBlockTop}%`,
+          left: `${smallBlockLeft}%`,
+          top: `${smallBlockTop}%`,
           width: '24%',
           height: '24%',
-          backgroundColor:
-            accent2,
+          backgroundColor: accent2,
         }}
       />
     </div>
@@ -141,84 +105,51 @@ export default function ClaimImageEmbed({
 }) {
   const router = useRouter();
 
-  const containerRef =
-    useRef<HTMLDivElement>(
-      null
-    );
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const [
-    shouldLoadMedia,
-    setShouldLoadMedia,
-  ] = useState(false);
+  const [shouldLoadMedia, setShouldLoadMedia] = useState(false);
 
-  const [
-    renderError,
-    setRenderError,
-  ] = useState(false);
+  const [renderError, setRenderError] = useState(false);
 
-  const [
-    isNavigating,
-    setIsNavigating,
-  ] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  const chain =
-    getChainById({
-      chainId,
-    });
+  const chain = getChainById({
+    chainId,
+  });
 
-  const mediaSource =
-    claim?.mediaUrl ??
-    claim?.url;
+  const mediaSource = claim?.mediaUrl ?? claim?.url;
 
-  const bountyHref =
-    `/${chain.slug}/bounty/${bountyId}`;
+  const bountyHref = `/${chain.slug}/bounty/${bountyId}`;
 
   /*
    * Only start resolving media when this card is
    * visible or close to becoming visible.
    */
   useEffect(() => {
-    const el =
-      containerRef.current;
+    const el = containerRef.current;
 
     if (!el) {
       return;
     }
 
-    if (
-      !(
-        'IntersectionObserver' in
-        window
-      )
-    ) {
-      setShouldLoadMedia(
-        true
-      );
+    if (!('IntersectionObserver' in window)) {
+      setShouldLoadMedia(true);
 
       return;
     }
 
-    const observer =
-      new IntersectionObserver(
-        (entries) => {
-          if (
-            entries.some(
-              (entry) =>
-                entry.isIntersecting
-            )
-          ) {
-            setShouldLoadMedia(
-              true
-            );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldLoadMedia(true);
 
-            observer.disconnect();
-          }
-        },
-        {
-          rootMargin:
-            '400px',
+          observer.disconnect();
         }
-      );
+      },
+      {
+        rootMargin: '400px',
+      }
+    );
 
     observer.observe(el);
 
@@ -227,11 +158,7 @@ export default function ClaimImageEmbed({
     };
   }, []);
 
-  const {
-    mediaUrl,
-    isVideo,
-    isLoading,
-  } = useClaimMedia(
+  const { mediaUrl, isVideo, isLoading } = useClaimMedia(
     mediaSource,
     shouldLoadMedia
   );
@@ -240,12 +167,9 @@ export default function ClaimImageEmbed({
     return null;
   }
 
-  const hasMedia =
-    !!mediaUrl &&
-    !renderError;
+  const hasMedia = !!mediaUrl && !renderError;
 
-  const placeholderSeed =
-    `${chainId}-${claim.id}-${claim.issuer}`;
+  const placeholderSeed = `${chainId}-${claim.id}-${claim.issuer}`;
 
   function navigateToBounty() {
     if (isNavigating) {
@@ -254,16 +178,11 @@ export default function ClaimImageEmbed({
 
     setIsNavigating(true);
 
-    router.push(
-      bountyHref
-    );
+    router.push(bountyHref);
   }
 
-  function handleCardClick(
-    event: MouseEvent<HTMLDivElement>
-  ) {
-    const target =
-      event.target as HTMLElement;
+  function handleCardClick(event: MouseEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement;
 
     /*
      * Don't hijack controls or links inside the card.
@@ -279,36 +198,21 @@ export default function ClaimImageEmbed({
       return;
     }
 
-    const selection =
-      window.getSelection();
+    const selection = window.getSelection();
 
-    if (
-      selection &&
-      selection
-        .toString()
-        .trim()
-    ) {
+    if (selection && selection.toString().trim()) {
       return;
     }
 
     navigateToBounty();
   }
 
-  function handleCardKeyDown(
-    event: KeyboardEvent<HTMLDivElement>
-  ) {
-    if (
-      event.target !==
-      event.currentTarget
-    ) {
+  function handleCardKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.target !== event.currentTarget) {
       return;
     }
 
-    if (
-      event.key ===
-        'Enter' ||
-      event.key === ' '
-    ) {
+    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
 
       navigateToBounty();
@@ -316,27 +220,16 @@ export default function ClaimImageEmbed({
   }
 
   return (
-    <div
-      ref={containerRef}
-      className='p-3'
-    >
+    <div ref={containerRef} className='p-3'>
       <div
         role='link'
         tabIndex={0}
         aria-label={`Open ${claim.title || 'claim'} bounty`}
-        aria-busy={
-          isNavigating
-        }
-        onClick={
-          handleCardClick
-        }
-        onKeyDown={
-          handleCardKeyDown
-        }
+        aria-busy={isNavigating}
+        onClick={handleCardClick}
+        onKeyDown={handleCardKeyDown}
         className={`relative bg-poidhRed p-4 rounded-lg cursor-pointer overflow-hidden transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-white/60 ${
-          isNavigating
-            ? 'scale-[0.99]'
-            : 'active:scale-[0.99]'
+          isNavigating ? 'scale-[0.99]' : 'active:scale-[0.99]'
         }`}
       >
         {hasMedia ? (
@@ -348,73 +241,45 @@ export default function ClaimImageEmbed({
                 playsInline
                 preload='metadata'
                 className='w-full h-full object-cover rounded-lg'
-                onError={() =>
-                  setRenderError(
-                    true
-                  )
-                }
+                onError={() => setRenderError(true)}
               />
             ) : (
               <Image
                 src={mediaUrl}
-                alt={
-                  claim.title ||
-                  'claim image'
-                }
+                alt={claim.title || 'claim image'}
                 fill
                 loading='lazy'
                 className='object-cover'
                 sizes='(max-width: 768px) 100vw, 600px'
                 unoptimized
-                onError={() =>
-                  setRenderError(
-                    true
-                  )
-                }
+                onError={() => setRenderError(true)}
               />
             )}
           </div>
         ) : renderError ? (
           <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-            <GenerativePlaceholder
-              seed={
-                placeholderSeed
-              }
-            />
+            <GenerativePlaceholder seed={placeholderSeed} />
           </div>
-        ) : isLoading ||
-          !shouldLoadMedia ? (
+        ) : isLoading || !shouldLoadMedia ? (
           <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden bg-white/10 animate-pulse' />
         ) : (
           <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-            <GenerativePlaceholder
-              seed={
-                placeholderSeed
-              }
-            />
+            <GenerativePlaceholder seed={placeholderSeed} />
           </div>
         )}
 
         <div className='mt-3'>
           <h3 className='text-white text-lg font-bold truncate'>
-            {claim.title ||
-              '???'}
+            {claim.title || '???'}
           </h3>
         </div>
 
         <div className='mt-2 text-white/80 text-sm flex items-center gap-1'>
-          <span>
-            issuer:
-          </span>
+          <span>issuer:</span>
 
           <DisplayAddress
-            address={
-              claim.issuer ||
-              '???'
-            }
-            showPfpIfExists={
-              true
-            }
+            address={claim.issuer || '???'}
+            showPfpIfExists={true}
             pfpSize={16}
           />
         </div>
@@ -424,9 +289,7 @@ export default function ClaimImageEmbed({
             <div className='flex items-center gap-2 rounded-md bg-black/35 px-4 py-2 text-white shadow-lg'>
               <div className='h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white' />
 
-              <span className='font-mono text-sm font-medium'>
-                opening...
-              </span>
+              <span className='font-mono text-sm font-medium'>opening...</span>
             </div>
           </div>
         )}

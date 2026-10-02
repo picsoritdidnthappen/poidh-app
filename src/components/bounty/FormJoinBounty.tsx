@@ -147,8 +147,7 @@ export default function FormJoinBounty({
       // Final safety check: make sure the poidh contract actually exists on the
       // network the connected wallet reports. This prevents ETH from being sent
       // to the same address on a chain where no poidh contract is deployed.
-      const contractAddress =
-        chain.contracts.mainContract as `0x${string}`;
+      const contractAddress = chain.contracts.mainContract as `0x${string}`;
 
       const contractCode = await walletProvider.request({
         method: 'eth_getCode',

@@ -863,8 +863,7 @@ html.cyber [class~='hover:bg-[#FF3737]']:hover {
 html.cyber .feed-comment-body {
   background: #123b29;
   border-color: rgba(66, 215, 123, 0.35);
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.22),
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22),
     inset 0 0 0 1px rgba(66, 215, 123, 0.06);
 }
 

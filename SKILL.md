@@ -45,13 +45,13 @@ Do not treat the URI field as a generic evidence-link field.
 
 Links to supporting material such as:
 
-* X / Twitter posts
-* Farcaster posts
-* GitHub repositories or pull requests
-* webpages
-* benchmark pages
-* documentation
-* transaction explorer pages
+- X / Twitter posts
+- Farcaster posts
+- GitHub repositories or pull requests
+- webpages
+- benchmark pages
+- documentation
+- transaction explorer pages
 
 should normally be placed in the **claim description**.
 
@@ -65,11 +65,11 @@ The poidh smart contract does not enforce a file type for the claim URI. The fro
 
 The normal poidh.xyz claim form currently accepts:
 
-* `.jpg`
-* `.jpeg`
-* `.png`
-* `.gif`
-* `.webp`
+- `.jpg`
+- `.jpeg`
+- `.png`
+- `.gif`
+- `.webp`
 
 The normal poidh.xyz upload flow:
 
@@ -175,9 +175,9 @@ Always verify which contract address is being used.
 
 The actively supported poidh networks for this skill are:
 
-* Ethereum Mainnet
-* Arbitrum
-* Base
+- Ethereum Mainnet
+- Arbitrum
+- Base
 
 All bounty funding and payouts on these networks use ETH.
 
@@ -189,12 +189,12 @@ Degen Chain (`chainId 666666666`) is retired and is **not a supported poidh netw
 
 Historical poidh activity from Degen Chain may still appear:
 
-* on historical poidh.xyz bounty pages
-* in the poidh indexer
-* in profile and leaderboard data
-* in analytics
-* in historical datasets
-* in old links or documentation
+- on historical poidh.xyz bounty pages
+- in the poidh indexer
+- in profile and leaderboard data
+- in analytics
+- in historical datasets
+- in old links or documentation
 
 Treat all Degen Chain records as **historical, read-only data**.
 
@@ -246,11 +246,11 @@ poidh v3 is a security-focused rebuild of the protocol following an exploit affe
 
 Historical poidh v2 activity may still appear:
 
-* on poidh.xyz
-* in the indexer
-* in analytics
-* in historical datasets
-* in old documentation
+- on poidh.xyz
+- in the indexer
+- in analytics
+- in historical datasets
+- in old documentation
 
 The v2 contracts are retained only as historical onchain records.
 
@@ -291,9 +291,9 @@ For collections larger than 10 rows, they may repeatedly return the same newest 
 
 This is especially dangerous when evaluating claims because older submissions may include:
 
-* the earliest submission
-* the first valid submission
-* the actual winner under the bounty rules
+- the earliest submission
+- the first valid submission
+- the actual winner under the bounty rules
 
 ### Never:
 
@@ -403,15 +403,15 @@ Use the source appropriate to the task.
 
 Use direct contract calls for:
 
-* bounty status
-* payout decisions
-* claim acceptance
-* voting state
-* balances
-* issuer authorization
-* finalization state
-* critical real-time checks
-* anything immediately preceding a transaction
+- bounty status
+- payout decisions
+- claim acceptance
+- voting state
+- balances
+- issuer authorization
+- finalization state
+- critical real-time checks
+- anything immediately preceding a transaction
 
 For critical decisions, the contract is the source of truth.
 
@@ -421,11 +421,11 @@ For critical decisions, the contract is the source of truth.
 
 For targeted exhaustive reads, prefer the contract's public index getters:
 
-* `bountyClaims(bountyId, i)` for claims on one bounty
-* `userBounties(user, i)` for bounties associated with one user
-* `userClaims(user, i)` for claims associated with one user
-* `bountyCounter()` + `bounties(id)` for the complete bounty registry
-* `claimCounter()` + `claims(id)` for the complete claim registry
+- `bountyClaims(bountyId, i)` for claims on one bounty
+- `userBounties(user, i)` for bounties associated with one user
+- `userClaims(user, i)` for claims associated with one user
+- `bountyCounter()` + `bounties(id)` for the complete bounty registry
+- `claimCounter()` + `claims(id)` for the complete claim registry
 
 Walk array indexes from `0` upward. If an indexed read fails, confirm the **same exact
 index** through a healthy independent RPC provider before treating the failure as the end
@@ -433,10 +433,10 @@ of the array. Then read each referenced record by id.
 
 Use contract events for:
 
-* proof URI discovery
-* historical event metadata
-* transaction history
-* alternative exhaustive discovery when a public index is unavailable or inconvenient
+- proof URI discovery
+- historical event metadata
+- transaction history
+- alternative exhaustive discovery when a public index is unavailable or inconvenient
 
 For evaluating a single bounty, `bountyClaims(bountyId, i)` + `claims(id)` is the preferred
 authoritative claim-enumeration path. `ClaimCreated` events are especially useful for retrieving
@@ -456,12 +456,12 @@ https://indexer.poidh.xyz/swagger
 
 The indexer is useful for:
 
-* browsing bounties
-* browsing claims
-* relational queries
-* building frontends
-* finding candidate records quickly
-* avoiding large numbers of RPC calls
+- browsing bounties
+- browsing claims
+- relational queries
+- building frontends
+- finding candidate records quickly
+- avoiding large numbers of RPC calls
 
 The indexer is approximately **99.9% historically accurate**, but it is an offchain derived data source.
 
@@ -600,12 +600,12 @@ https://poidh.xyz/bounties/data?limit=100
 
 Use this endpoint for tasks such as:
 
-* "show me current poidh bounties"
-* "find a bounty I can complete"
-* "what bounties are open?"
-* "find software bounties"
-* "find photo bounties"
-* "find bounties worth more than X"
+- "show me current poidh bounties"
+- "find a bounty I can complete"
+- "what bounties are open?"
+- "find software bounties"
+- "find photo bounties"
+- "find bounties worth more than X"
 
 After identifying a bounty, inspect its individual data endpoint and/or verify the relevant state onchain.
 
@@ -613,9 +613,9 @@ The frontend feed or indexer may contain historical Degen Chain records.
 
 When discovering actionable bounties, only return bounties on:
 
-* Ethereum Mainnet
-* Arbitrum
-* Base
+- Ethereum Mainnet
+- Arbitrum
+- Base
 
 Exclude Degen Chain (`chainId 666666666`) from actionable bounty results even if a historical record appears open.
 
@@ -894,8 +894,8 @@ frontend_id = contract_bounty_id + POIDH_V2_OFFSET
 
 Return both:
 
-* contract bounty ID
-* poidh.xyz frontend URL
+- contract bounty ID
+- poidh.xyz frontend URL
 
 ---
 
@@ -1024,10 +1024,10 @@ may provide another URI.
 
 For the current poidh.xyz frontend to display it reliably, use one of these forms:
 
-* a direct image URL returning `Content-Type: image/*`
-* a direct video URL returning `Content-Type: video/*`
-* a direct video URL ending in `.mp4`, `.mov`, `.webm`, or `.ogg`
-* JSON metadata containing an `image` field whose value points to displayable media
+- a direct image URL returning `Content-Type: image/*`
+- a direct video URL returning `Content-Type: video/*`
+- a direct video URL ending in `.mp4`, `.mov`, `.webm`, or `.ogg`
+- JSON metadata containing an `image` field whose value points to displayable media
 
 For direct images, prefer:
 
@@ -1217,18 +1217,18 @@ event ClaimCreated(
 
 Events are useful for:
 
-* alternative exhaustive claim discovery
-* retrieving the original proof URI (`imageUri`)
-* claim creation metadata
-* historical transaction context
+- alternative exhaustive claim discovery
+- retrieving the original proof URI (`imageUri`)
+- claim creation metadata
+- historical transaction context
 
 Despite its historical name, `imageUri` may contain proof that is not an image.
 
 RPC providers may restrict:
 
-* block ranges
-* returned log counts
-* large `eth_getLogs` requests
+- block ranges
+- returned log counts
+- large `eth_getLogs` requests
 
 If a log query fails, reduce the block range or use the public `bountyClaims` index.
 
@@ -1280,10 +1280,10 @@ cast call $POIDH_CONTRACT_ADDRESS \
 
 Confirm:
 
-* correct bounty
-* correct claimant
-* accepted state
-* other relevant current state
+- correct bounty
+- correct claimant
+- accepted state
+- other relevant current state
 
 ---
 
@@ -1340,11 +1340,11 @@ The Solidity/event field is historically named `imageUri`, but supported media i
 
 Do not assume:
 
-* every claim URI uses IPFS
-* every URL in the claim description is the claim URI
-* a GitHub, social, benchmark, PDF, document, or webpage link belongs in the URI field
-* every contract-valid URI is displayable by poidh.xyz
-* `imageUri` must literally point directly to an image file
+- every claim URI uses IPFS
+- every URL in the claim description is the claim URI
+- a GitHub, social, benchmark, PDF, document, or webpage link belongs in the URI field
+- every contract-valid URI is displayable by poidh.xyz
+- `imageUri` must literally point directly to an image file
 
 ### Current frontend resolution behavior
 
@@ -1445,10 +1445,10 @@ If the URI cannot be resolved to a supported media form, report the claim media 
 
 Do not assume:
 
-* every URI is JSON metadata
-* every proof URI is an image
-* every claim uses IPFS
-* PDFs or generic documents are supported claim media
+- every URI is JSON metadata
+- every proof URI is an image
+- every claim uses IPFS
+- PDFs or generic documents are supported claim media
 
 ---
 
@@ -1470,22 +1470,22 @@ Do not infer that a webpage or social-post URL is a valid claim media URI merely
 
 Inspect:
 
-* code
-* changes
-* documentation
-* tests
-* deliverables
-* reproducibility
+- code
+- changes
+- documentation
+- tests
+- deliverables
+- reproducibility
 
 ### Video
 
 Inspect available:
 
-* video content
-* representative frames
-* transcript
-* metadata
-* linked evidence
+- video content
+- representative frames
+- transcript
+- metadata
+- linked evidence
 
 ### PDF / document
 
@@ -1497,12 +1497,12 @@ Do not assume a PDF/document URL is a supported `PROOF_URI` for frontend display
 
 Inspect:
 
-* reported result
-* methodology
-* traces
-* output
-* configuration
-* reproducibility requirements
+- reported result
+- methodology
+- traces
+- output
+- configuration
+- reproducibility requirements
 
 Do not reject a claim solely because it is not photographic proof.
 
@@ -1512,21 +1512,21 @@ Do not reject a claim solely because it is not photographic proof.
 
 Possible criteria include:
 
-* eligibility
-* completeness
-* relevance
-* quality
-* authenticity
-* originality
-* reproducibility
-* benchmark performance
-* deadline
-* submission order
-* required social post
-* required tags
-* required links
-* creativity
-* issuer discretion
+- eligibility
+- completeness
+- relevance
+- quality
+- authenticity
+- originality
+- reproducibility
+- benchmark performance
+- deadline
+- submission order
+- required social post
+- required tags
+- required links
+- creativity
+- issuer discretion
 
 Only apply criteria that are present or reasonably implied by the actual bounty.
 
@@ -1548,8 +1548,8 @@ then claim chronology matters.
 
 Exhaustively enumerate claims and sort qualifying submissions using:
 
-* `createdAt`
-* claim ID / event order where useful as a secondary ordering signal
+- `createdAt`
+- claim ID / event order where useful as a secondary ordering signal
 
 Never judge an earliest-valid bounty from only the newest 10 claims.
 
@@ -1559,16 +1559,16 @@ Never judge an earliest-valid bounty from only the newest 10 claims.
 
 Before transacting, report:
 
-* total claims discovered
-* enumeration method
-* claims evaluated
-* inaccessible claims, if any
-* disqualified claims and reasons
-* qualifying finalists
-* recommended winner
-* reasoning
-* whether chronology affected the decision
-* uncertainty
+- total claims discovered
+- enumeration method
+- claims evaluated
+- inaccessible claims, if any
+- disqualified claims and reasons
+- qualifying finalists
+- recommended winner
+- reasoning
+- whether chronology affected the decision
+- uncertainty
 
 If even one potentially eligible claim cannot be inspected, disclose that.
 
@@ -1613,10 +1613,10 @@ cast send $POIDH_CONTRACT_ADDRESS \
 
 Acceptance:
 
-* finalizes the bounty
-* credits claimant payout to `pendingWithdrawals`
-* deducts protocol fee
-* transfers the winning claim NFT to the issuer
+- finalizes the bounty
+- credits claimant payout to `pendingWithdrawals`
+- deducts protocol fee
+- transfers the winning claim NFT to the issuer
 
 ---
 
@@ -1884,17 +1884,19 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 
 1. Use:
 
-   * `https://poidh.xyz/bounties/data`, or
-   * the poidh indexer.
+   - `https://poidh.xyz/bounties/data`, or
+   - the poidh indexer.
+
 2. Filter opportunities according to the user's request.
 3. Inspect:
 
-   * bounty description
-   * amount
-   * chain
-   * status
-   * issuer
-   * claims
+   - bounty description
+   - amount
+   - chain
+   - status
+   - issuer
+   - claims
+
 4. Use individual `/data` endpoint if helpful.
 5. Before submitting a claim, verify current contract state.
 
@@ -1904,11 +1906,12 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 
 1. Determine:
 
-   * chain
-   * name
-   * description
-   * ETH amount
-   * solo/open
+   - chain
+   - name
+   - description
+   - ETH amount
+   - solo/open
+
 2. Resolve v3 contract.
 3. Verify `MIN_BOUNTY_AMOUNT()`.
 4. Verify wallet is an EOA.
@@ -1919,9 +1922,9 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 9. Decode creation event.
 10. Return:
 
-    * transaction hash
-    * contract bounty ID
-    * frontend URL
+    - transaction hash
+    - contract bounty ID
+    - frontend URL
 
 ---
 
@@ -1929,15 +1932,17 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 
 1. Determine:
 
-   * chain
-   * bounty
-   * claim name
-   * claim description
-   * proof URI
+   - chain
+   - bounty
+   - claim name
+   - claim description
+   - proof URI
+
 2. If given frontend URL:
 
-   * use `/data`
-   * obtain `onChainId`
+   - use `/data`
+   - obtain `onChainId`
+
 3. Verify bounty onchain.
 4. Verify no active vote.
 5. Verify wallet is not issuer.
@@ -1977,10 +1982,12 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 3. Check external-contributor state.
 4. If no external contributor:
 
-   * `acceptClaim`
+   - `acceptClaim`
+
 5. If external contributors exist:
 
-   * `submitClaimForVote`
+   - `submitClaimForVote`
+
 6. Explain result to user.
 
 ---

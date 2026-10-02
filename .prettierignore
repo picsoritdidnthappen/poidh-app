@@ -39,3 +39,8 @@ yarn-error.log*
 CHANGELOG.md
 
 pnpm-lock.yaml
+
+# generated Prisma client
+/generated/prisma/
+/prisma/generated/
+/.prisma/

@@ -22,9 +22,7 @@ export default function BountyItem({
     chainId: bounty.chainId,
   });
 
-  const amount = formatEther(
-    BigInt(bounty.amount)
-  ).toString();
+  const amount = formatEther(BigInt(bounty.amount)).toString();
 
   const rewardDisplay = formatSortAmount({
     amount,
@@ -84,8 +82,7 @@ export default function BountyItem({
             className='mt-3 flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-y-contain touch-pan-y pr-2'
             style={{
               scrollbarWidth: 'thin',
-              scrollbarColor:
-                'rgba(255, 255, 255, 0.22) transparent',
+              scrollbarColor: 'rgba(255, 255, 255, 0.22) transparent',
               WebkitOverflowScrolling: 'touch',
             }}
           >
@@ -104,11 +101,7 @@ export default function BountyItem({
               <div className='flex-shrink-0'>
                 <DynamicChainIcon
                   chain={chain.slug}
-                  size={
-                    chain.slug === 'base'
-                      ? 22
-                      : 28
-                  }
+                  size={chain.slug === 'base' ? 22 : 28}
                 />
               </div>
             )}

@@ -33,13 +33,14 @@ export default function SubmitVotingConfirm({
 
               <div className='max-h-[100px] overflow-y-auto custom-scrollbar'>
                 <p className='text-white text-sm'>
-                  you are about to submit this claim for vote. you cannot undo 
-                  this action. doing so will cast your voting shares as a "yes" 
-                  vote for this claim. all other bounty contributors will have 
-                  48 hours to vote "yes" or "no" to confirm the claim. if, after 
-                  48 hours, the majority of participating voters have voted "yes" 
-                  the bounty funds will be claimable by the wallet that submitted 
-                  this claim. you can learn more about open bounty mechanics{' '}
+                  you are about to submit this claim for vote. you cannot undo
+                  this action. doing so will cast your voting shares as a "yes"
+                  vote for this claim. all other bounty contributors will have
+                  48 hours to vote "yes" or "no" to confirm the claim. if, after
+                  48 hours, the majority of participating voters have voted
+                  "yes" the bounty funds will be claimable by the wallet that
+                  submitted this claim. you can learn more about open bounty
+                  mechanics{' '}
                   <a
                     href='https://paragraph.com/@poidh/poidh-open-multiplayer-bounties-explained'
                     target='_blank'

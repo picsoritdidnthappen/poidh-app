@@ -62,6 +62,7 @@ export default function FormClaim({
   const account = useAccount();
   const writeContract = useWriteContract({});
   const chain = useChainInfo();
+  const isZeroDev = account.connector?.id === 'zerodev-wallet';
   const { data: balance } = useBalance({
     address: account.address,
     chainId: chain.id,
@@ -536,7 +537,7 @@ export default function FormClaim({
                 );
                 return;
               }
-              if (balance && balance.value === BigInt(0)) {
+              if (!isZeroDev && balance && balance.value === BigInt(0)) {
                 toast.error(
                   'your wallet needs gas to submit a claim, please add funds on the correct network'
                 );

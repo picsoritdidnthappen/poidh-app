@@ -93,9 +93,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const [replyDraft, setReplyDraft] = useState('');
-  const [highlightedCommentId, setHighlightedCommentId] = useState<number | null>(
-    null
-  );
+  const [highlightedCommentId, setHighlightedCommentId] = useState<
+    number | null
+  >(null);
   const account = useAccount();
   const { signMessageAsync } = useSignMessage();
   const switchChain = useSwitchChain();
@@ -110,16 +110,14 @@ export default function CommentsSection(props: CommentsSectionProps) {
       setNewComment('');
       toast.success('Comment posted');
     },
-    onError: (error) =>
-      toast.error(`Failed to post comment: ${error.message}`),
+    onError: (error) => toast.error(`Failed to post comment: ${error.message}`),
   });
 
   const rateMutation = trpc.comments.rate.useMutation({
     onSuccess: () => {
       commentsQuery.refetch();
     },
-    onError: (error) =>
-      toast.error(`Failed to rate comment: ${error.message}`),
+    onError: (error) => toast.error(`Failed to rate comment: ${error.message}`),
   });
 
   const banCommentMutation = trpc.admin.banComment.useMutation({
@@ -127,8 +125,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
       commentsQuery.refetch();
       toast.success('Comment banned');
     },
-    onError: (error) =>
-      toast.error(`Failed to ban comment: ${error.message}`),
+    onError: (error) => toast.error(`Failed to ban comment: ${error.message}`),
   });
 
   const commentsByParent = (commentsQuery.data ?? []).reduce(
@@ -164,13 +161,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
       return downDiff;
     }
 
-    const aTime = a.createdAt
-      ? new Date(a.createdAt).getTime()
-      : 0;
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
 
-    const bTime = b.createdAt
-      ? new Date(b.createdAt).getTime()
-      : 0;
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
 
     return bTime - aTime;
   }
@@ -286,10 +279,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     });
   }
 
-  async function rateComment(
-    commentId: number,
-    type: 'upvote' | 'downvote'
-  ) {
+  async function rateComment(commentId: number, type: 'upvote' | 'downvote') {
     if (rateMutation.isPending) {
       return;
     }
@@ -325,9 +315,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     });
   }
 
-  async function handleNewCommentSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleNewCommentSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     await submitComment(newComment);
   }
@@ -375,10 +363,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
   }
 
   function handleReplyToggle(commentId: number | null) {
-    if (
-      commentId === null ||
-      commentId === activeReplyId
-    ) {
+    if (commentId === null || commentId === activeReplyId) {
       setActiveReplyId(null);
       setReplyDraft('');
       return;
@@ -392,10 +377,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     <>
       <div className='w-full h-4 border-t border-dashed border-white ' />
 
-      <div
-        id='comments-section'
-        className='xl:w-1/2 w:full pt-8'
-      >
+      <div id='comments-section' className='xl:w-1/2 w:full pt-8'>
         <span className='text-xl font-bold text-left my-2 sm:my-4 lowercase'>
           Comments
         </span>
@@ -424,9 +406,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
               <CommentThread
                 key={comment.id}
                 comment={comment}
-                replies={(commentsByParent[comment.id] || []).sort(
-                  sorting
-                )}
+                replies={(commentsByParent[comment.id] || []).sort(sorting)}
                 commentsByParent={commentsByParent}
                 activeReplyId={activeReplyId}
                 onReply={handleReplyToggle}
@@ -479,49 +459,32 @@ function CommentThread({
   onReply: (commentId: number | null) => void;
   replyString: string;
   setReply: (value: string) => void;
-  onSubmitComment: (
-    body: string,
-    parentId?: number
-  ) => Promise<void>;
+  onSubmitComment: (body: string, parentId?: number) => Promise<void>;
   onRateComment: (
     commentId: number,
     type: 'upvote' | 'downvote'
   ) => Promise<void>;
   isRating: boolean;
-  onBanComment: (
-    comment: CommentType
-  ) => Promise<void>;
+  onBanComment: (comment: CommentType) => Promise<void>;
   canBan: boolean;
   isBanning: boolean;
   highlightedCommentId: number | null;
 }) {
-  const isReplyingHere =
-    activeReplyId === comment.id;
+  const isReplyingHere = activeReplyId === comment.id;
 
   return (
     <div
       className={`${
-        level > 0
-          ? 'ml-2 sm:ml-8 border-l border-white/20 pl-2 sm:pl-4'
-          : ''
+        level > 0 ? 'ml-2 sm:ml-8 border-l border-white/20 pl-2 sm:pl-4' : ''
       }`}
     >
       <Comment
         comment={comment}
-        onReplyClick={() =>
-          onReply(comment.id)
-        }
+        onReplyClick={() => onReply(comment.id)}
         isReplying={isReplyingHere}
-        onRate={(type) =>
-          onRateComment(
-            comment.id,
-            type
-          )
-        }
+        onRate={(type) => onRateComment(comment.id, type)}
         isRateLoading={isRating}
-        onBan={() =>
-          onBanComment(comment)
-        }
+        onBan={() => onBanComment(comment)}
         canBan={canBan}
         isBanLoading={isBanning}
         isHighlighted={highlightedCommentId === comment.id}
@@ -532,15 +495,10 @@ function CommentThread({
           className='p-8'
           value={replyString}
           onChange={setReply}
-          onSubmit={async (
-            event
-          ) => {
+          onSubmit={async (event) => {
             event.preventDefault();
 
-            await onSubmitComment(
-              replyString,
-              comment.id
-            );
+            await onSubmitComment(replyString, comment.id);
           }}
           onCancel={() => {
             onReply(null);
@@ -557,37 +515,19 @@ function CommentThread({
         <CommentThread
           key={reply.id}
           comment={reply}
-          replies={
-            commentsByParent[
-              reply.id
-            ] || []
-          }
-          commentsByParent={
-            commentsByParent
-          }
+          replies={commentsByParent[reply.id] || []}
+          commentsByParent={commentsByParent}
           level={level + 1}
-          activeReplyId={
-            activeReplyId
-          }
+          activeReplyId={activeReplyId}
           onReply={onReply}
-          replyString={
-            replyString
-          }
+          replyString={replyString}
           setReply={setReply}
-          onSubmitComment={
-            onSubmitComment
-          }
-          onRateComment={
-            onRateComment
-          }
+          onSubmitComment={onSubmitComment}
+          onRateComment={onRateComment}
           isRating={isRating}
-          onBanComment={
-            onBanComment
-          }
+          onBanComment={onBanComment}
           canBan={canBan}
-          isBanning={
-            isBanning
-          }
+          isBanning={isBanning}
           highlightedCommentId={highlightedCommentId}
         />
       ))}
@@ -609,45 +549,26 @@ function Comment({
   comment: CommentType;
   onReplyClick?: () => void;
   isReplying?: boolean;
-  onRate?: (
-    type: 'upvote' | 'downvote'
-  ) => void;
+  onRate?: (type: 'upvote' | 'downvote') => void;
   isRateLoading?: boolean;
   onBan?: () => void;
   isBanLoading?: boolean;
   canBan?: boolean;
   isHighlighted?: boolean;
 }) {
-  const timestamp =
-    comment.createdAt
-      ? new Date(
-          comment.createdAt
-        )
-      : null;
+  const timestamp = comment.createdAt ? new Date(comment.createdAt) : null;
 
-  const isValidDate =
-    timestamp &&
-    !isNaN(
-      timestamp.getTime()
-    );
+  const isValidDate = timestamp && !isNaN(timestamp.getTime());
 
-  const signaturePrefix =
-    getCommentSignatureFirstLine({
-      address:
-        comment.userAddress,
-    });
+  const signaturePrefix = getCommentSignatureFirstLine({
+    address: comment.userAddress,
+  });
 
-  const displayBody =
-    comment.body.startsWith(
-      signaturePrefix
-    )
-      ? comment.body.slice(
-          signaturePrefix.length
-        )
-      : comment.body;
+  const displayBody = comment.body.startsWith(signaturePrefix)
+    ? comment.body.slice(signaturePrefix.length)
+    : comment.body;
 
-  const accountHref =
-    `/account/${comment.userAddress}`;
+  const accountHref = `/account/${comment.userAddress}`;
 
   return (
     <div
@@ -664,28 +585,17 @@ function Comment({
         aria-label={`View ${comment.userAddress} profile`}
       >
         <div className='w-full h-full overflow-hidden rounded-full transition group-hover:ring-2 group-hover:ring-white/50'>
-          {comment.author
-            ?.pfpUrl ? (
+          {comment.author?.pfpUrl ? (
             <Image
-              src={
-                comment.author
-                  .pfpUrl
-              }
-              alt={
-                comment.userAddress
-              }
+              src={comment.author.pfpUrl}
+              alt={comment.userAddress}
               width={40}
               height={40}
               unoptimized
               className='w-full h-full object-cover'
             />
           ) : (
-            <PatternAvatar
-              seed={
-                comment.userAddress
-              }
-              size={40}
-            />
+            <PatternAvatar seed={comment.userAddress} size={40} />
           )}
         </div>
       </Link>
@@ -696,36 +606,23 @@ function Comment({
             href={accountHref}
             className='font-bold text-sm sm:text-base hover:underline underline-offset-2'
           >
-            {comment.author
-              ?.farcasterTag ??
-              formatWalletAddress(
-                comment.userAddress
-              )}
+            {comment.author?.farcasterTag ??
+              formatWalletAddress(comment.userAddress)}
           </Link>
 
           <div className='flex items-center gap-2'>
-            {comment.author
-              ?.farcasterTag ? (
+            {comment.author?.farcasterTag ? (
               <FarcasterProfileLink
-                farcasterTag={
-                  comment.author
-                    .farcasterTag
-                }
-                farcasterFid={
-                  comment.author
-                    .farcasterFid
-                }
+                farcasterTag={comment.author.farcasterTag}
+                farcasterFid={comment.author.farcasterFid}
                 className='text-white/70 hover:text-white transition'
                 aria-label='Farcaster profile'
               >
-                <FarcasterIcon
-                  size={14}
-                />
+                <FarcasterIcon size={14} />
               </FarcasterProfileLink>
             ) : null}
 
-            {comment.author
-              ?.twitterTag ? (
+            {comment.author?.twitterTag ? (
               <a
                 href={`${TWITTER_URL}/${comment.author.twitterTag}`}
                 target='_blank'
@@ -733,106 +630,64 @@ function Comment({
                 className='text-white/70 hover:text-white transition'
                 aria-label='X profile'
               >
-                <TwitterXIcon
-                  width={14}
-                  height={14}
-                />
+                <TwitterXIcon width={14} height={14} />
               </a>
             ) : null}
           </div>
 
           <span className='text-xs sm:text-sm text-white/60'>
             {isValidDate
-              ? formatDistanceToNow(
-                  timestamp,
-                  {
-                    addSuffix:
-                      true,
-                  }
-                )
+              ? formatDistanceToNow(timestamp, {
+                  addSuffix: true,
+                })
               : 'Invalid date'}
           </span>
         </div>
 
         <p className='mt-1 sm:mt-2 whitespace-pre-line text-sm sm:text-base break-words'>
-          <TextWithLinks>
-            {displayBody}
-          </TextWithLinks>
+          <TextWithLinks>{displayBody}</TextWithLinks>
         </p>
 
         <div className='mt-1 sm:mt-2 flex items-center space-x-4'>
           <button
             type='button'
-            onClick={() =>
-              onRate?.(
-                'upvote'
-              )
-            }
-            disabled={
-              !onRate ||
-              isRateLoading
-            }
+            onClick={() => onRate?.('upvote')}
+            disabled={!onRate || isRateLoading}
             className='flex items-center space-x-1 text-xs sm:text-sm font-semibold text-white hover:text-white/70 transition disabled:opacity-60 disabled:cursor-not-allowed'
           >
-            <span className='text-green-400'>
-              ↑
-            </span>
+            <span className='text-green-400'>↑</span>
 
-            <span>
-              {comment.upvotes ??
-                0}
-            </span>
+            <span>{comment.upvotes ?? 0}</span>
           </button>
 
           <button
             type='button'
-            onClick={() =>
-              onRate?.(
-                'downvote'
-              )
-            }
-            disabled={
-              !onRate ||
-              isRateLoading
-            }
+            onClick={() => onRate?.('downvote')}
+            disabled={!onRate || isRateLoading}
             className='flex items-center space-x-1 text-xs sm:text-sm font-semibold text-white hover:text-white/70 transition disabled:opacity-60 disabled:cursor-not-allowed'
           >
-            <span className='text-red-400'>
-              ↓
-            </span>
+            <span className='text-red-400'>↓</span>
 
-            <span>
-              {comment.downvotes ??
-                0}
-            </span>
+            <span>{comment.downvotes ?? 0}</span>
           </button>
 
           {canBan ? (
             <button
               type='button'
               onClick={onBan}
-              disabled={
-                !onBan ||
-                isBanLoading
-              }
+              disabled={!onBan || isBanLoading}
               className='text-xs sm:text-sm font-semibold text-red-300 hover:text-red-200 transition disabled:opacity-60 disabled:cursor-not-allowed'
             >
-              {isBanLoading
-                ? 'Banning...'
-                : 'Ban'}
+              {isBanLoading ? 'Banning...' : 'Ban'}
             </button>
           ) : null}
 
           <button
             type='button'
-            onClick={
-              onReplyClick
-            }
+            onClick={onReplyClick}
             className='text-xs sm:text-sm font-semibold text-white hover:text-white/50 transition'
           >
-            {isReplying
-              ? 'Close reply'
-              : 'Reply'}
+            {isReplying ? 'Close reply' : 'Reply'}
           </button>
         </div>
       </div>

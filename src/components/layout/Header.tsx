@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import {
@@ -21,18 +21,16 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import { useYouFeedNotification } from '@/hooks/useYouFeedNotification';
 import { trpc } from '@/trpc/client';
 import DarkModeToggle from '@/components/global/DarkModeToggle';
+import ZeroDevAuthModal from '@/components/auth/ZeroDevAuthModal';
 
 export default function Header() {
   const account = useAccount();
   const isMobile = useScreenSize();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] =
-    useState(false);
+  const [isHowItWorksModalOpen, setIsHowItWorksModalOpen] = useState(false);
 
-  const {
-    hasUnseenYouActivity,
-  } = useYouFeedNotification();
+  const { hasUnseenYouActivity } = useYouFeedNotification();
 
   const user = trpc.users.fetchByAddress.useQuery(
     {
@@ -47,22 +45,15 @@ export default function Header() {
     <>
       <Drawer
         open={isOpen}
-        onClose={(cur) =>
-          setIsOpen(!cur)
-        }
+        onClose={(cur) => setIsOpen(!cur)}
         PaperProps={{
-          className:
-            'w-60 bg-poidhRed',
+          className: 'w-60 bg-poidhRed',
         }}
       >
         <SlideOverMenu
-          onClose={() =>
-            setIsOpen(false)
-          }
+          onClose={() => setIsOpen(false)}
           onOpenHowItWorks={() => {
-            setIsHowItWorksModalOpen(
-              true
-            );
+            setIsHowItWorksModalOpen(true);
             setIsOpen(false);
           }}
         />
@@ -76,12 +67,10 @@ export default function Header() {
           >
             <div className='relative w-[30px] h-[30px]'>
               <MenuIcon size={30} />
-          
-              {!isMobile &&
-                account.address &&
-                hasUnseenYouActivity && (
-                  <div className='absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 w-2.5 h-2.5 bg-red-500 rounded-full ring-1 ring-white' />
-                )}
+
+              {!isMobile && account.address && hasUnseenYouActivity && (
+                <div className='absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 w-2.5 h-2.5 bg-red-500 rounded-full ring-1 ring-white' />
+              )}
             </div>
           </button>
 
@@ -92,11 +81,7 @@ export default function Header() {
 
         <div className='flex items-center'>
           <button
-            onClick={() =>
-              setIsHowItWorksModalOpen(
-                true
-              )
-            }
+            onClick={() => setIsHowItWorksModalOpen(true)}
             className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20 transition-colors'
             aria-label='How it works'
           >
@@ -115,53 +100,47 @@ export default function Header() {
             </Link>
           )}
 
-          {!isMobile &&
-            account.address && (
-              <Link
-                href={`/account/${account.address}`}
-                className='relative rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
-              >
-                {((user?.data
-                  ?.withdrawalArbitrum ??
-                  0) >
-                  0 ||
-                  (user?.data
-                    ?.withdrawalBase ??
-                    0) >
-                    0 ||
-                  (user?.data
-                    ?.withdrawalDegen ??
-                    0) >
-                    0 ||
-                  (user?.data
-                    ?.withdrawalMainnet ??
-                    0) >
-                    0) && (
-                  <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
-                )}
+          {!isMobile && account.address && (
+            <Link
+              href={`/account/${account.address}`}
+              className='relative rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+            >
+              {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
+                (user?.data?.withdrawalBase ?? 0) > 0 ||
+                (user?.data?.withdrawalDegen ?? 0) > 0 ||
+                (user?.data?.withdrawalMainnet ?? 0) > 0) && (
+                <div className='absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white' />
+              )}
 
-                <UserIcon />
-              </Link>
-            )}
+              <UserIcon />
+            </Link>
+          )}
 
           <ConnectWalletButton />
         </div>
       </div>
 
       {isHowItWorksModalOpen && (
-        <HowItWorksModal
-          onClose={() =>
-            setIsHowItWorksModalOpen(
-              false
-            )
-          }
-        />
+        <HowItWorksModal onClose={() => setIsHowItWorksModalOpen(false)} />
       )}
     </>
   );
 }
 
 function ConnectWalletButton() {
+  const [isZeroDevModalOpen, setIsZeroDevModalOpen] = useState(false);
+  const { connector } = useAccount();
+
+  useEffect(() => {
+    const handleOpen = () => setIsZeroDevModalOpen(true);
+    window.addEventListener('open-zerodev-auth', handleOpen);
+    window.addEventListener('zerodev-request-approval', handleOpen);
+    return () => {
+      window.removeEventListener('open-zerodev-auth', handleOpen);
+      window.removeEventListener('zerodev-request-approval', handleOpen);
+    };
+  }, []);
+
   return (
     <ConnectButton.Custom>
       {({
@@ -169,21 +148,17 @@ function ConnectWalletButton() {
         chain,
         openAccountModal,
         openConnectModal,
+        openChainModal,
         authenticationStatus,
         mounted,
       }) => {
-        const ready =
-          mounted &&
-          authenticationStatus !==
-            'loading';
+        const ready = mounted && authenticationStatus !== 'loading';
 
         const connected =
           ready &&
           account &&
           chain &&
-          (!authenticationStatus ||
-            authenticationStatus ===
-              'authenticated');
+          (!authenticationStatus || authenticationStatus === 'authenticated');
 
         return (
           <>
@@ -191,9 +166,7 @@ function ConnectWalletButton() {
               if (!connected) {
                 return (
                   <button
-                    onClick={
-                      openConnectModal
-                    }
+                    onClick={openConnectModal}
                     className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-2 hover:bg-white/20 h-10'
                   >
                     connect
@@ -204,17 +177,23 @@ function ConnectWalletButton() {
               return (
                 <div className='flex gap-2'>
                   <button
-                    onClick={
-                      openAccountModal
-                    }
+                    onClick={() => {
+                      const isZeroDev =
+                        connector?.id?.includes('zerodev') ||
+                        connector?.name?.toLowerCase().includes('zerodev');
+
+                      if (isZeroDev) {
+                        setIsZeroDevModalOpen(true);
+                      } else {
+                        openAccountModal();
+                      }
+                    }}
                     className='border-[#D1ECFF] rounded-lg backdrop-blur-sm bg-white/30 p-1 hover:bg-white/20 flex items-center gap-1 relative'
                   >
                     <div className='relative'>
                       {account.ensAvatar ? (
                         <Image
-                          src={
-                            account.ensAvatar
-                          }
+                          src={account.ensAvatar}
                           className='rounded-lg'
                           alt='User Avatar'
                           width={33}
@@ -222,9 +201,7 @@ function ConnectWalletButton() {
                         />
                       ) : (
                         <>
-                          <WalletIcon
-                            size={33}
-                          />
+                          <WalletIcon size={33} />
 
                           <div className='absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full md:hidden' />
                         </>
@@ -232,17 +209,19 @@ function ConnectWalletButton() {
                     </div>
 
                     <span className='hidden md:block'>
-                      {account.ensName ||
-                        account.displayName}
+                      {account.ensName || account.displayName}
                     </span>
 
-                    <ExpandMoreIcon
-                      size={12}
-                    />
+                    <ExpandMoreIcon size={12} />
                   </button>
                 </div>
               );
             })()}
+            <ZeroDevAuthModal
+              open={isZeroDevModalOpen}
+              onClose={() => setIsZeroDevModalOpen(false)}
+              openChainModal={openChainModal}
+            />
           </>
         );
       }}
