@@ -146,6 +146,24 @@ export default function ClaimItem({
     chainId: claim.chainId,
   });
 
+  const canPickWinner =
+    !!bounty.data &&
+    bounty.data.inProgress &&
+    !bounty.data.isCanceled &&
+    account.address?.toLocaleLowerCase() ===
+      bounty.data.issuer.toLocaleLowerCase() &&
+    !claim.isVotingOrAcceptedBounty;
+
+  const mustUseVoteFlow = trpc.bounties.mustUseVoteFlow.useQuery(
+    {
+      id: claim.bountyId,
+      chainId: claim.chainId,
+    },
+    {
+      enabled: canPickWinner,
+    }
+  );
+
   const acceptClaimMutation = useMutation({
     mutationFn: async ({ claimId }: { claimId: bigint }) => {
       if (!bounty.data) {
@@ -335,25 +353,20 @@ export default function ClaimItem({
 
       <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
         <div className='left-5 top-5 absolute z-10 flex flex-col text-white'>
-          {bounty.data &&
-            bounty.data.inProgress &&
-            !bounty.data.isCanceled &&
-            account.address?.toLocaleLowerCase() ===
-              bounty.data.issuer.toLocaleLowerCase() &&
-            !claim.isVotingOrAcceptedBounty && (
-              <button
-                className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
-                onClick={() => {
-                  if (bounty.data.mustUseVoteFlow) {
-                    setShowVotingConfirm(true);
-                  } else {
-                    setShowAcceptConfirm(true);
-                  }
-                }}
-              >
-                {bounty.data.mustUseVoteFlow ? 'propose winner' : 'accept'}
-              </button>
-            )}
+          {canPickWinner && mustUseVoteFlow.data !== undefined && (
+            <button
+              className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
+              onClick={() => {
+                if (mustUseVoteFlow.data) {
+                  setShowVotingConfirm(true);
+                } else {
+                  setShowAcceptConfirm(true);
+                }
+              }}
+            >
+              {mustUseVoteFlow.data ? 'propose winner' : 'accept'}
+            </button>
+          )}
         </div>
 
         {claim.isAccepted && (
