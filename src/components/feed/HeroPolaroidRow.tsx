@@ -101,8 +101,6 @@ function PolaroidFace({
 
   return (
     <div className={className}>
-      {polaroid.payoutLabel && <PayoutBadge label={polaroid.payoutLabel} />}
-
       <div className='relative aspect-square overflow-hidden bg-black/10'>
         {mediaUrl && !mediaError ? (
           isVideo ? (
@@ -146,6 +144,9 @@ function PolaroidFace({
           />
         </div>
       </div>
+
+      {/* After the photo, so it paints on top of it. */}
+      {polaroid.payoutLabel && <PayoutBadge label={polaroid.payoutLabel} />}
     </div>
   );
 }
