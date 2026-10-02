@@ -165,16 +165,16 @@ button {
   background-color: #1f6fb2;
 }
 
-/* Polaroid cards (components/feed/ClaimSpread.tsx) */
-.polaroid-spread {
+/* Hero polaroids (components/feed/HeroPolaroidRow.tsx) */
+.hero-polaroids {
   container-type: inline-size;
 }
 
 /*
- * Below lg the row shows claim / payout / claim, sized to fill the spread's
+ * Below lg the row shows claim / payout / claim, sized to fill the hero's
  * width (minus its gutters): claim + payout + claim + two gaps = 100cqw.
  */
-.polaroid-row {
+.hero-polaroid-row {
   --polaroid-gap: 12px;
   --polaroid-claim-ratio: 0.85;
   --polaroid-payout: min(
@@ -188,7 +188,7 @@ button {
 }
 
 @media (min-width: 640px) {
-  .polaroid-row {
+  .hero-polaroid-row {
     --polaroid-gap: 20px;
   }
 }
@@ -210,8 +210,8 @@ button {
 
 /*
  * The frame stays put; its photo and caption crossfade. Both faces share one
- * grid cell, the outgoing one on top. ClaimSpread sets --polaroid-fade from
- * its FADE_MS.
+ * grid cell, the outgoing one on top. HeroPolaroidRow sets --polaroid-fade
+ * from its POLAROID_FADE_MS.
  */
 .polaroid-faces {
   display: grid;

@@ -11,7 +11,7 @@ type ResolvedClaimMedia = {
 
 /*
  * Resolutions are shared by URL, so the same claim rendered more than once
- * (e.g. dealt again by ClaimSpread's roll) only sniffs its media once. Failures
+ * (e.g. a hero polaroid coming round again) only sniffs its media once. Failures
  * are evicted so a later mount can retry.
  */
 const resolvedMedia = new Map<string, Promise<ResolvedClaimMedia>>();

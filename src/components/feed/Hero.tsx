@@ -1,101 +1,31 @@
 'use client';
 
 import Link from 'next/link';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { preloadClaimMedia } from '@/hooks/useClaimMedia';
+import { useHeroCycle, useHeroPolaroids } from '@/hooks/useHeroPolaroids';
+import { useIsOnScreen } from '@/hooks/useIsOnScreen';
 import { ALBUMS } from '@/utils/constants';
-import ClaimSpread, {
-  FADE_MS,
-  useSpreadDeck,
-} from '@/components/feed/ClaimSpread';
-
-// How long each deal (hero word + polaroids) stays up before the next.
-const CYCLE_MS = 5000;
-
-// Whether the element is in the viewport and its tab is in the foreground.
-function useIsOnScreen(ref: RefObject<HTMLElement>) {
-  const [isInView, setIsInView] = useState(true);
-  const [isTabVisible, setIsTabVisible] = useState(true);
-
-  useEffect(() => {
-    const element = ref.current;
-
-    if (!element) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(([entry]) =>
-      setIsInView(entry.isIntersecting)
-    );
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [ref]);
-
-  useEffect(() => {
-    const update = () =>
-      setIsTabVisible(document.visibilityState === 'visible');
-
-    update();
-    document.addEventListener('visibilitychange', update);
-
-    return () => document.removeEventListener('visibilitychange', update);
-  }, []);
-
-  return isInView && isTabVisible;
-}
+import HeroPolaroidRow, {
+  POLAROID_FADE_MS,
+} from '@/components/feed/HeroPolaroidRow';
 
 /*
- * The homepage hero: "social bounties for <album>" over the polaroid spread.
- * Owns the one clock both run on: every CYCLE_MS the album word turns over and
- * the polaroids are re-dealt together. Pauses while a polaroid or the album
- * link is hovered or focused, and while off-screen or in a background tab.
+ * The homepage hero: "social bounties for <album>" over the polaroid row.
+ * Both run on one clock (useHeroCycle): each step the album word turns over
+ * and every polaroid slot gets its next one. Pauses while a polaroid or the
+ * album link is hovered or focused, and while off-screen or in a background tab.
  */
 export default function Hero() {
-  const deck = useSpreadDeck();
+  const polaroids = useHeroPolaroids();
 
-  // How many deals in; 0 = the first album and the newest cards.
-  const [step, setStep] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [hasFocus, setHasFocus] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
   const isOnScreen = useIsOnScreen(heroRef);
-  const isPaused = isHovered || hasFocus || !isOnScreen;
+  const step = useHeroCycle(polaroids, isHovered || hasFocus || !isOnScreen);
 
   const album = ALBUMS[step % ALBUMS.length];
-
-  /*
-   * Preload the next deal's media while this one is up, so the crossfade
-   * lands on loaded images. Waits past CYCLE_MS if they're slow.
-   */
-  useEffect(() => {
-    if (deck.isLoading || isPaused) {
-      return;
-    }
-
-    const preloaded = deck.canCycle
-      ? Promise.all(
-          deck
-            .deal(step + 1)
-            .map((card) => card && preloadClaimMedia(card.mediaSourceUrl))
-        )
-      : Promise.resolve();
-
-    let cancelled = false;
-    const timer = setTimeout(() => {
-      preloaded.then(() => {
-        if (!cancelled) {
-          setStep(step + 1);
-        }
-      });
-    }, CYCLE_MS);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [step, isPaused, deck]);
 
   return (
     <section
@@ -126,14 +56,19 @@ export default function Hero() {
             <span
               key={step}
               className='block motion-reduce:![animation:none]'
-              style={{ animation: `turnstile ${FADE_MS}ms ease-in-out` }}
+              style={{
+                animation: `turnstile ${POLAROID_FADE_MS}ms ease-in-out`,
+              }}
             >
               {album.name}
             </span>
           </Link>
         </h3>
       </div>
-      <ClaimSpread slots={deck.deal(step)} isLoading={deck.isLoading} />
+      <HeroPolaroidRow
+        polaroids={polaroids.polaroidsForStep(step)}
+        isLoading={polaroids.isLoading}
+      />
     </section>
   );
 }
