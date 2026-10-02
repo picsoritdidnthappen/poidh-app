@@ -54,6 +54,7 @@ export default function FormClaim({
   const [showSuccess, setShowSuccess] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -82,16 +83,27 @@ export default function FormClaim({
     reader.readAsDataURL(file);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    maxFiles: 1,
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
-    },
-    onDropRejected: () => {
-      toast.error('Please upload only image files');
-    },
-  });
+  const { getRootProps, getInputProps, isDragActive, open: openGallery } =
+    useDropzone({
+      onDrop,
+      maxFiles: 1,
+      multiple: false,
+      noClick: isMobile,
+      accept: {
+        'image/*': [
+          '.jpeg',
+          '.jpg',
+          '.png',
+          '.gif',
+          '.webp',
+          '.heic',
+          '.heif',
+        ],
+      },
+      onDropRejected: () => {
+        toast.error('Please upload only image files');
+      },
+    });
 
   useEffect(() => {
     const uploadImage = async () => {
@@ -439,6 +451,20 @@ export default function FormClaim({
             )}
           >
             <input {...getInputProps()} />
+            {isMobile && (
+              <input
+                ref={cameraInputRef}
+                type='file'
+                accept='image/*'
+                capture='environment'
+                className='hidden'
+                onChange={(e) => {
+                  const selectedFile = e.target.files?.[0];
+                  if (selectedFile) onDrop([selectedFile]);
+                  e.target.value = '';
+                }}
+              />
+            )}
             {isDragActive ? (
               <div className='flex flex-col items-center gap-2'>
                 <ImageIcon />
@@ -465,7 +491,9 @@ export default function FormClaim({
                   <p className='text-sm font-medium'>
                     {imageURI
                       ? '✓ Image uploaded'
-                      : 'Drag & drop or click to upload'}
+                      : isMobile
+                        ? 'Add proof'
+                        : 'Drag & drop or click to upload'}
                   </p>
                   {!imageURI && (
                     <p className='text-xs opacity-70 mt-1'>
@@ -473,6 +501,30 @@ export default function FormClaim({
                     </p>
                   )}
                 </div>
+                {isMobile && (
+                  <div className='flex gap-3 w-full'>
+                    <button
+                      type='button'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        cameraInputRef.current?.click();
+                      }}
+                      className='flex-1 rounded-xl border border-white/30 bg-white/10 px-3 py-3 text-sm font-medium hover:bg-white/15 transition-colors'
+                    >
+                      📷 Take photo
+                    </button>
+                    <button
+                      type='button'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openGallery();
+                      }}
+                      className='flex-1 rounded-xl border border-white/30 bg-white/10 px-3 py-3 text-sm font-medium hover:bg-white/15 transition-colors'
+                    >
+                      🖼️ Choose photo
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {preview && (
