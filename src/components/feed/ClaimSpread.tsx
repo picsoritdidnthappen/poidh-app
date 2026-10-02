@@ -2,7 +2,13 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { trpc } from '@/trpc/client';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
@@ -163,7 +169,10 @@ function PolaroidFace({
   const { mediaUrl, isVideo, mediaError, setMediaError } = useClaimMedia(
     card.mediaSourceUrl
   );
-  const handleMediaError = useCallback(() => setMediaError(true), [setMediaError]);
+  const handleMediaError = useCallback(
+    () => setMediaError(true),
+    [setMediaError]
+  );
 
   return (
     <div className={className}>
@@ -241,8 +250,9 @@ export function useSpreadDeck() {
     () =>
       (claimsQuery.data ?? []).map((item) => ({
         key: `${item.chainId}-${item.claim.id}`,
-        href: `/${getChainById({ chainId: item.chainId as ChainId }).slug
-          }/bounty/${item.bountyId}`,
+        href: `/${
+          getChainById({ chainId: item.chainId as ChainId }).slug
+        }/bounty/${item.bountyId}`,
         ariaLabel: item.bountyTitle
           ? `view bounty: ${item.bountyTitle}`
           : 'view bounty',
@@ -262,8 +272,9 @@ export function useSpreadDeck() {
 
         return {
           key: `${payout.chainId}-${payout.claim.id}`,
-          href: `/${getChainById({ chainId: payout.chainId as ChainId }).slug
-            }/bounty/${payout.bountyId}`,
+          href: `/${
+            getChainById({ chainId: payout.chainId as ChainId }).slug
+          }/bounty/${payout.bountyId}`,
           ariaLabel: `view ${payoutLabel} payout for ${payout.bountyTitle}`,
           mediaSourceUrl: payout.claim.url,
           mediaAlt: payout.claim.title || 'paid claim',

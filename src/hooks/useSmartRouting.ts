@@ -503,8 +503,7 @@ export function useSmartRouting({
                   robinhoodKey,
                   robinhoodRes.smartRoutingAddress
                 );
-                newRobinhoodAddresses[id] =
-                  robinhoodRes.smartRoutingAddress;
+                newRobinhoodAddresses[id] = robinhoodRes.smartRoutingAddress;
               }
 
               if (
@@ -527,10 +526,7 @@ export function useSmartRouting({
                   );
 
                   if (Number.isFinite(minDepositEth) && minDepositEth > 0) {
-                    robinhoodMinDepositCache.set(
-                      robinhoodKey,
-                      minDepositEth
-                    );
+                    robinhoodMinDepositCache.set(robinhoodKey, minDepositEth);
 
                     if (isMounted) {
                       setRobinhoodMinDepositEth((prev) => ({
@@ -608,11 +604,11 @@ export function useSmartRouting({
               : cachedSolverFees[chainId]?.minDepositEth || 0.0045;
             const minDepositUsdc = usdcFeeData?.minDeposit
               ? Number(
-                formatUnits(
-                  BigInt(usdcFeeData.minDeposit),
-                  usdcFeeData.decimal || 6
+                  formatUnits(
+                    BigInt(usdcFeeData.minDeposit),
+                    usdcFeeData.decimal || 6
+                  )
                 )
-              )
               : cachedSolverFees[chainId]?.minDepositUsdc || 10.44;
 
             updatedFees[chainId] = {
@@ -683,8 +679,8 @@ export function useSmartRouting({
         activeChainId === base.id
           ? 'Base'
           : activeChainId === mainnet.id
-            ? 'Ethereum'
-            : 'Arbitrum',
+          ? 'Ethereum'
+          : 'Arbitrum',
       priority: 2,
       feeTier: 'low' as const,
       estFee: '~ $0.02',
@@ -801,8 +797,9 @@ export function useSmartRouting({
       const isSponsored = feeInfo?.isSponsored || false;
       const estFeeStr = isSponsored
         ? 'Free (Sponsored)'
-        : `~${feeEth < 0.0001 ? feeEth.toFixed(6) : feeEth.toFixed(4)
-        } ETH ($${feeUsd.toFixed(2)})`;
+        : `~${
+            feeEth < 0.0001 ? feeEth.toFixed(6) : feeEth.toFixed(4)
+          } ETH ($${feeUsd.toFixed(2)})`;
 
       const nativeEthAvailable = Number(formatEther(chainInfo.raw));
       totalPortfolioEth += nativeEthAvailable;
