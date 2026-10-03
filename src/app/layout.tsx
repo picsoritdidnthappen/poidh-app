@@ -100,7 +100,7 @@ export default function RootLayout({
         <link rel='canonical' href={url} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');var valid=t==='light'||t==='dark'||t==='cyber';var dark=t==='dark'||t==='cyber'||(!valid&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dark);document.documentElement.classList.toggle('cyber',t==='cyber');}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');var valid=t==='light'||t==='dark'||t==='cyber';if(!valid)t='light';document.documentElement.classList.toggle('dark',t==='dark'||t==='cyber');document.documentElement.classList.toggle('cyber',t==='cyber');}catch(e){document.documentElement.classList.remove('dark');document.documentElement.classList.remove('cyber');}})();`,
           }}
         />
       </head>
