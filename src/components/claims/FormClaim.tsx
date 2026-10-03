@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { useScreenSize } from '@/hooks/useScreenSize';
@@ -72,6 +73,16 @@ export default function FormClaim({
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ['jpeg', 'jpg', 'png', 'gif', 'webp', 'heic', 'heif'];
+
+    if (!extension || !allowedExtensions.includes(extension)) {
+      toast.error('Please upload only image files');
+      return;
+    }
+
     setFile(file);
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -82,14 +93,16 @@ export default function FormClaim({
     reader.readAsDataURL(file);
   }, []);
 
+  // Intentionally omit the HTML accept filter here.
+  // On Android, an image-only accept filter can send Chrome straight to the
+  // Photo Picker, which may hide the Camera option. We validate the selected
+  // file ourselves in onDrop instead.
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles: 1,
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
-    },
+    multiple: false,
     onDropRejected: () => {
-      toast.error('Please upload only image files');
+      toast.error('Please select a single image');
     },
   });
 
@@ -294,7 +307,7 @@ export default function FormClaim({
     },
     onError: (error) => {
       setLoading({ isLoading: false });
-      toast.error('Failed to create claim: ' + error.message);
+      toastError('Failed to create claim', error);
     },
     onSettled: () => {
       utils.claims.fetchBountyClaims.refetch();
@@ -465,7 +478,9 @@ export default function FormClaim({
                   <p className='text-sm font-medium'>
                     {imageURI
                       ? '✓ Image uploaded'
-                      : 'Drag & drop or click to upload'}
+                      : isMobile
+                        ? 'Tap to add photo'
+                        : 'Drag & drop or click to upload'}
                   </p>
                   {!imageURI && (
                     <p className='text-xs opacity-70 mt-1'>

@@ -165,6 +165,116 @@ button {
   background-color: #1f6fb2;
 }
 
+/* Hero polaroids (components/feed/HeroPolaroidRow.tsx) */
+.hero-polaroids {
+  container-type: inline-size;
+}
+
+/*
+ * Below lg the row shows claim / payout / claim, sized to fill the hero's
+ * width (minus its gutters): claim + payout + claim + two gaps = 100cqw.
+ */
+.hero-polaroid-row {
+  --polaroid-gap: 12px;
+  --polaroid-claim-ratio: 0.85;
+  --polaroid-payout: min(
+    calc(
+      (100cqw - 2 * var(--polaroid-gap)) / (1 + 2 * var(--polaroid-claim-ratio))
+    ),
+    13rem
+  );
+  --polaroid-claim: calc(var(--polaroid-payout) * var(--polaroid-claim-ratio));
+  gap: var(--polaroid-gap);
+}
+
+@media (min-width: 640px) {
+  .hero-polaroid-row {
+    --polaroid-gap: 20px;
+  }
+}
+
+.polaroid {
+  position: relative;
+  padding: 6px 6px 10px;
+  background: #fbf9f4;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 8px 20px -6px rgb(0 0 0 / 0.35);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+@media (min-width: 640px) {
+  .polaroid {
+    padding: 8px 8px 12px;
+  }
+}
+
+/*
+ * The frame stays put; its photo and caption crossfade. Both faces share one
+ * grid cell, the outgoing one on top. HeroPolaroidRow sets --polaroid-fade
+ * from its POLAROID_FADE_MS.
+ */
+.polaroid-faces {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.polaroid-face,
+.polaroid-face-leaving {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.polaroid-face {
+  animation: polaroid-face-in var(--polaroid-fade, 600ms) ease both;
+}
+
+.polaroid-face-leaving {
+  pointer-events: none;
+  animation: polaroid-face-out var(--polaroid-fade, 600ms) ease both;
+}
+
+@keyframes polaroid-face-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+@keyframes polaroid-face-out {
+  to {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+/*
+ * A fixed lift (not a percentage), so every card rises the same amount. Hover
+ * only on real pointers, so a tap on touch doesn't leave the card stuck up.
+ */
+.polaroid:focus-visible {
+  transform: translateY(-10px);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.12), 0 16px 28px -8px rgb(0 0 0 / 0.4);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .polaroid:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.12), 0 16px 28px -8px rgb(0 0 0 / 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .polaroid,
+  .polaroid-face {
+    transition: none;
+    animation: none;
+  }
+
+  .polaroid-face-leaving {
+    display: none;
+  }
+}
+
 .button .normal {
   display: block;
 }
@@ -246,6 +356,10 @@ button {
 }
 .Toastify__close-button > svg {
   fill: white !important;
+}
+/* Keep long messages (hashes, calldata) from stretching the toast off-screen */
+.Toastify__toast-body {
+  overflow-wrap: anywhere;
 }
 
 body.how-it-works-modal-open .how-it-works-hidden {

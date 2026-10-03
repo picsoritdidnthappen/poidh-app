@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc, trpcClient } from '@/trpc/client';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
@@ -232,7 +233,7 @@ export default function ClaimItem({
         isLoading: false,
       });
 
-      toast.error('Failed to accept claim:' + error.message);
+      toastError('Failed to accept claim', error);
     },
 
     onSettled: () => {
@@ -282,7 +283,7 @@ export default function ClaimItem({
     },
 
     onError: (error) => {
-      toast.error('Failed to submit claim for vote: ' + error.message);
+      toastError('Failed to submit claim for vote', error);
     },
 
     onSettled: () => {

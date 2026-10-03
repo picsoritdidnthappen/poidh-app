@@ -5,6 +5,7 @@ import { trpc, trpcClient } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { pollingChainIdAtom } from '@/store/loading';
 
@@ -64,7 +65,7 @@ export default function Withdraw({
       toast.success('Bounty withdrawn successfully');
     },
     onError: (error) => {
-      toast.error('Failed to withdraw bounty:' + error.message);
+      toastError('Failed to withdraw bounty', error);
     },
     onSettled: () => {
       utils.bounties.participations.refetch();
