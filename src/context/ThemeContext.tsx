@@ -30,15 +30,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let stored: string | null = null;
+  
     try {
       stored = localStorage.getItem('theme');
     } catch {
       // The toggle still works when browser storage is unavailable.
     }
+  
     const initial: Theme =
-    stored === 'light' || stored === 'dark' || stored === 'cyber'
-      ? stored
-      : 'light';
+      stored === 'light' || stored === 'dark' || stored === 'cyber'
+        ? stored
+        : 'light';
+  
     setTheme(initial);
     applyTheme(initial);
   }, []);
