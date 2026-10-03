@@ -54,7 +54,6 @@ export default function FormClaim({
   const [showSuccess, setShowSuccess] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -73,6 +72,16 @@ export default function FormClaim({
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ['jpeg', 'jpg', 'png', 'gif', 'webp', 'heic', 'heif'];
+
+    if (!extension || !allowedExtensions.includes(extension)) {
+      toast.error('Please upload only image files');
+      return;
+    }
+
     setFile(file);
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -83,27 +92,18 @@ export default function FormClaim({
     reader.readAsDataURL(file);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive, open: openGallery } =
-    useDropzone({
-      onDrop,
-      maxFiles: 1,
-      multiple: false,
-      noClick: isMobile,
-      accept: {
-        'image/*': [
-          '.jpeg',
-          '.jpg',
-          '.png',
-          '.gif',
-          '.webp',
-          '.heic',
-          '.heif',
-        ],
-      },
-      onDropRejected: () => {
-        toast.error('Please upload only image files');
-      },
-    });
+  // Intentionally omit the HTML accept filter here.
+  // On Android, an image-only accept filter can send Chrome straight to the
+  // Photo Picker, which may hide the Camera option. We validate the selected
+  // file ourselves in onDrop instead.
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    maxFiles: 1,
+    multiple: false,
+    onDropRejected: () => {
+      toast.error('Please select a single image');
+    },
+  });
 
   useEffect(() => {
     const uploadImage = async () => {
@@ -451,20 +451,6 @@ export default function FormClaim({
             )}
           >
             <input {...getInputProps()} />
-            {isMobile && (
-              <input
-                ref={cameraInputRef}
-                type='file'
-                accept='image/*'
-                capture='environment'
-                className='hidden'
-                onChange={(e) => {
-                  const selectedFile = e.target.files?.[0];
-                  if (selectedFile) onDrop([selectedFile]);
-                  e.target.value = '';
-                }}
-              />
-            )}
             {isDragActive ? (
               <div className='flex flex-col items-center gap-2'>
                 <ImageIcon />
@@ -492,7 +478,7 @@ export default function FormClaim({
                     {imageURI
                       ? '✓ Image uploaded'
                       : isMobile
-                        ? 'Add proof'
+                        ? 'Tap to add photo'
                         : 'Drag & drop or click to upload'}
                   </p>
                   {!imageURI && (
@@ -501,30 +487,6 @@ export default function FormClaim({
                     </p>
                   )}
                 </div>
-                {isMobile && (
-                  <div className='flex gap-3 w-full'>
-                    <button
-                      type='button'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        cameraInputRef.current?.click();
-                      }}
-                      className='flex-1 rounded-xl border border-white/30 bg-white/10 px-3 py-3 text-sm font-medium hover:bg-white/15 transition-colors'
-                    >
-                      📷 Take photo
-                    </button>
-                    <button
-                      type='button'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openGallery();
-                      }}
-                      className='flex-1 rounded-xl border border-white/30 bg-white/10 px-3 py-3 text-sm font-medium hover:bg-white/15 transition-colors'
-                    >
-                      🖼️ Choose photo
-                    </button>
-                  </div>
-                )}
               </div>
             )}
             {preview && (
