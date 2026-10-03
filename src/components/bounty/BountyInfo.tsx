@@ -31,9 +31,9 @@ import Link from 'next/link';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 
-function BountyInfoSkeleton() {
+function BountyInfoHeaderSkeleton() {
   return (
-    <div className='flex pt-6 flex-col justify-between lg:flex-row animate-pulse'>
+    <div className='flex pt-6 flex-col justify-between lg:flex-row'>
       <div className='flex flex-col lg:w-[50%]'>
         <div className='h-10 lg:h-12 w-[80%] max-w-[420px] rounded-lg bg-white/10' />
 
@@ -56,6 +56,21 @@ function BountyInfoSkeleton() {
           <div className='h-7 w-28 rounded bg-white/10' />
           <div className='h-5 w-20 rounded bg-white/10' />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BountyInfoSkeleton() {
+  return (
+    <div className='animate-pulse'>
+      <BountyInfoHeaderSkeleton />
+
+      <div className='max-w-3xl h-[46px] md:h-[50px] border border-white/20 rounded-lg bg-[#D1ECFF]/10 mt-5' />
+
+      <div className='flex items-center gap-4 my-8 h-6'>
+        <div className='h-4 w-28 rounded bg-white/10' />
+        <div className='h-4 w-28 rounded bg-white/10' />
       </div>
     </div>
   );
@@ -421,7 +436,7 @@ export default function BountyInfo({
             <p className='text-white mb-3'>
               📸{' '}
               <Link
-                href={`${window.location.origin}/a/${bounty.data.extra.album}`}
+                href={`/a/${bounty.data.extra.album}`}
                 className='underline hover:opacity-80 cursor-pointer'
               >
                 {bounty.data.extra.album}
@@ -484,14 +499,18 @@ export default function BountyInfo({
         <BountyMultiplayer chain={chain} bountyId={bountyId} />
       )}
 
-      <BountyHistory
-        transactions={(transactions.data ?? []).map((transaction) => {
-          return {
-            ...transaction,
-            timestamp: Number(transaction.timestamp),
-          };
-        })}
-      />
+      {transactions.isLoading ? (
+        <div className='max-w-3xl h-[46px] md:h-[50px] border border-white/20 rounded-lg bg-[#D1ECFF]/10 mt-5' />
+      ) : (
+        <BountyHistory
+          transactions={(transactions.data ?? []).map((transaction) => {
+            return {
+              ...transaction,
+              timestamp: Number(transaction.timestamp),
+            };
+          })}
+        />
+      )}
 
       <div className='flex flex-wrap items-center gap-4 my-8'>
         <div className='flex items-center gap-4'>
