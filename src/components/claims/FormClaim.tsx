@@ -76,7 +76,15 @@ export default function FormClaim({
     if (!file) return;
 
     const extension = file.name.split('.').pop()?.toLowerCase();
-    const allowedExtensions = ['jpeg', 'jpg', 'png', 'gif', 'webp', 'heic', 'heif'];
+    const allowedExtensions = [
+      'jpeg',
+      'jpg',
+      'png',
+      'gif',
+      'webp',
+      'heic',
+      'heif',
+    ];
 
     if (!extension || !allowedExtensions.includes(extension)) {
       toast.error('Please upload only image files');
@@ -479,8 +487,8 @@ export default function FormClaim({
                     {imageURI
                       ? '✓ Image uploaded'
                       : isMobile
-                        ? 'Tap to add photo'
-                        : 'Drag & drop or click to upload'}
+                      ? 'Tap to add photo'
+                      : 'Drag & drop or click to upload'}
                   </p>
                   {!imageURI && (
                     <p className='text-xs opacity-70 mt-1'>
