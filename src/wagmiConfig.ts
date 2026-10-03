@@ -27,13 +27,13 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           'Missing NEXT_PUBLIC_ZERODEV_PROJECT_ID: set it to your ZeroDev project ID.'
         );
       }
-      
+
       // ZeroDev-specific RPCs.
       // These are used only by the ZeroDev connector. Normal poidh wallets
       // continue using the existing Wagmi transports below.
       const zeroDevRpcFor = (chainId: number) =>
         `https://rpc.zerodev.app/api/v3/${clientEnv.ZERODEV_PROJECT_ID}/chain/${chainId}`;
-      
+
       const zeroDevArbitrum = {
         ...arbitrum,
         rpcUrls: {
@@ -43,7 +43,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           },
         },
       };
-      
+
       const zeroDevBase = {
         ...base,
         rpcUrls: {
@@ -53,7 +53,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           },
         },
       };
-      
+
       const zeroDevMainnet = {
         ...mainnet,
         rpcUrls: {
@@ -63,7 +63,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           },
         },
       };
-      
+
       const baseConnector = zeroDevWallet({
         projectId: clientEnv.ZERODEV_PROJECT_ID,
         chains: [zeroDevArbitrum, zeroDevBase, zeroDevMainnet],
@@ -166,9 +166,9 @@ export const zeroDevRainbowWallet = (): Wallet => ({
                     [base.id]: zeroDevRpcFor(base.id),
                     [mainnet.id]: zeroDevRpcFor(mainnet.id),
                   };
-                  
+
                   const rpc = rpcMap[chainId];
-                  
+
                   if (!rpc) {
                     return '0x';
                   }

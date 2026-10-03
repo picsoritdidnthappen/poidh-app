@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -192,7 +193,7 @@ export default function BountyInfo({
     },
 
     onError: (error) => {
-      toast.error('Failed to ban bounty: ' + error.message);
+      toastError('Failed to ban bounty', error);
     },
 
     onSettled: () => {
@@ -268,11 +269,8 @@ export default function BountyInfo({
     },
 
     onError: (error) => {
-      setLoading({
-        isLoading: false,
-      });
-
-      toast.error('Failed to cancel bounty: ' + error.message);
+      setLoading({ isLoading: false });
+      toastError('Failed to cancel bounty', error);
     },
 
     onSettled: () => {

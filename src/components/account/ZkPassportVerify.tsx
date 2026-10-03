@@ -6,6 +6,7 @@ import { ZKPassport } from '@zkpassport/sdk';
 import { trpc } from '@/trpc/client';
 import { ZkPassportIcon } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 
 type VerifyState = 'idle' | 'connecting' | 'waiting' | 'generating';
 
@@ -102,9 +103,7 @@ export default function ZkPassportVerify({ address }: { address: string }) {
         closeModal();
       });
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to start verification'
-      );
+      toastError('Failed to start verification', err);
       closeModal();
     }
   }, [address, verifyMutation, utils, closeModal]);

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { formatAmountShort } from '@/utils/utils';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { CloseIcon } from '@/components/global/Icons';
@@ -113,7 +114,7 @@ export default function ClaimFundsButton({ user }: { user: User }) {
     },
     onError: (error) => {
       setLoading({ isLoading: false });
-      toast.error('Failed to claim funds: ' + error.message);
+      toastError('Failed to claim funds', error);
     },
     onSettled: () => {
       setPollingChainId(null);

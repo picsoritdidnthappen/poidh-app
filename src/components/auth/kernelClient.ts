@@ -44,10 +44,10 @@ export async function getOrInitKernelClient(
     targetChainId === base.id
       ? base
       : targetChainId === mainnet.id
-        ? mainnet
-        : targetChainId === arbitrum.id
-          ? arbitrum
-          : robinhood;
+      ? mainnet
+      : targetChainId === arbitrum.id
+      ? arbitrum
+      : robinhood;
 
   const state = store.getState?.();
   const existing = state?.kernelClients?.get(targetChainId);
@@ -72,10 +72,10 @@ export async function getOrInitKernelClient(
     targetChainId === base.id
       ? clientEnv.BASE_RPC_URL || 'https://mainnet.base.org'
       : targetChainId === mainnet.id
-        ? clientEnv.MAINNET_RPC_URL || 'https://ethereum-rpc.publicnode.com'
-        : targetChainId === arbitrum.id
-          ? clientEnv.ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc'
-          : zeroDevRpcUrl;
+      ? clientEnv.MAINNET_RPC_URL || 'https://ethereum-rpc.publicnode.com'
+      : targetChainId === arbitrum.id
+      ? clientEnv.ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc'
+      : zeroDevRpcUrl;
 
   const publicClient = createPublicClient({
     chain: chainObj,

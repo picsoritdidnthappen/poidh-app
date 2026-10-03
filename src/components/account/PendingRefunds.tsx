@@ -13,6 +13,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import abi from '@/constant/abi/abi';
 
 type PendingRefund = {
@@ -76,7 +77,7 @@ export default function PendingRefunds({ address }: { address: string }) {
       toast.success('Refund claimed — funds are now available to withdraw');
     },
     onError: (error) => {
-      toast.error('Failed to claim refund: ' + error.message);
+      toastError('Failed to claim refund', error);
     },
     onSettled: () => {
       utils.accounts.pendingRefunds.invalidate();
