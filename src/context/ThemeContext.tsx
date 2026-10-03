@@ -35,15 +35,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {
       // The toggle still works when browser storage is unavailable.
     }
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches;
     const initial: Theme =
-      stored === 'light' || stored === 'dark' || stored === 'cyber'
-        ? stored
-        : prefersDark
-        ? 'dark'
-        : 'light';
+    stored === 'light' || stored === 'dark' || stored === 'cyber'
+      ? stored
+      : 'light';
     setTheme(initial);
     applyTheme(initial);
   }, []);
