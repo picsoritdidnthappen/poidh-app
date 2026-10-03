@@ -377,6 +377,44 @@ export default function BountyInfo({
           )
           .replace('**Winner**', '### Winner')
           .replace('**Deadline**', '### Deadline')
+      : bounty.data.id === 1190
+      ? `### August Update
+
+This bounty was updated in August to open submissions to politicians anywhere in the world. Please reference the comment section below for the bounty creator's original scope update.
+
+We want direct, on-camera conversations with real politicians about crypto, decentralization, internet governance, and the future of our open networks.
+
+Your mission is simple: interview a currently active politician from any country and discuss the 10 topics below on video.
+
+The politician can serve at the national, regional, state/provincial, or local level. You must be able to prove that your interview subject is a real, currently active politician.
+
+First legit claim wins.
+
+You must cover all 10 topics in the interview, but feel free to tailor the wording to your country, region, and political context as you see fit.
+
+1. Do you see crypto as speech, property, or financial plumbing — and how does that shape your approach to regulation?
+2. How should crypto regulation protect small builders without entrenching large incumbents?
+3. Should self-custody be an explicit legal right in your country or region?
+4. Where's the line between consumer protection and killing permissionless innovation?
+5. Do decentralized social protocols like Farcaster reduce platform monopoly risk — or just reshape it?
+6. Should protocol-layer speech be regulated differently than corporate platforms?
+7. How would you prevent regulatory capture by large crypto firms?
+8. Do you support prediction markets (like Policast) as legitimate civic tools or view them as gambling?
+9. Should governments be able to censor at the app layer if the protocol itself is neutral?
+10. What would make you publicly post from a decentralized social network yourself?
+
+### Rules
+
+- Video format required
+- Original interviews only
+- Audio must be understandable
+- Minor editing is allowed
+- Short-form clips and full interviews are both acceptable
+- AI-generated interviews or voice cloning are prohibited
+- You may ask follow-up questions in addition to the required list
+- Be prepared to provide clear proof that the interview subject is a real, currently active politician
+
+First legit video, posted on the Farcaster /politics channel, wins 🏆`
       : bounty.data.description;
 
   return (
