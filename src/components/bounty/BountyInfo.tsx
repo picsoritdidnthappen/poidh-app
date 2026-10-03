@@ -363,6 +363,20 @@ export default function BountyInfo({
           /Overall community enjoyment\r?\nReward/,
           'Overall community enjoyment\n\nReward'
         )
+      : bounty.data.id === 1464
+      ? bounty.data.description
+          .replace(
+            /\*\*How to enter:\*\*[\s\S]*?(?=\n\n\*\*Winner\*\*)/,
+            `### How to Enter
+
+1. Go to [giftedstock.com](https://giftedstock.com/) and buy at least one premium box.
+2. Gift it to a friend: press Gift box in your profile and send it sealed.
+3. Screenshot the send. The confirmation popup works, and if you close it too fast, the history tab in your profile shows the transfer.
+4. Post that screenshot on X or Farcaster and tag [@alitiknazoglu](https://t.me/alitiknazoglu)
+5. Submit a screenshot of your post as your poidh claim, with the post URL in the claim description.`
+          )
+          .replace('**Winner**', '### Winner')
+          .replace('**Deadline**', '### Deadline')
       : bounty.data.description;
 
   return (
