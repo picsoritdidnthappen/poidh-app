@@ -7,6 +7,7 @@ import { trpc, trpcClient } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { toast } from 'react-toastify';
+import { toastError } from '@/utils/errors';
 import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
 import { pollingChainIdAtom } from '@/store/loading';
 import type { Chain } from '@/utils/types';
@@ -70,7 +71,7 @@ export default function ClaimRefund({
       toast.success('Refund claimed — funds are now available to withdraw');
     },
     onError: (error) => {
-      toast.error('Failed to claim refund: ' + error.message);
+      toastError('Failed to claim refund', error);
     },
     onSettled: () => {
       utils.bounties.participations.refetch();

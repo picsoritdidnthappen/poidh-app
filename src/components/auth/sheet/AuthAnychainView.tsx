@@ -48,7 +48,6 @@ export default function AuthAnychainView({
 
   const isZeroDev = connector?.id === 'zerodev-wallet';
 
-
   const depositDestinations = [
     {
       chainId: base.id,
@@ -653,13 +652,9 @@ export default function AuthAnychainView({
                   const anychainRoutingAddress =
                     smartRouting.smartRoutingAddresses[destination.chainId];
                   const robinhoodRoutingAddress =
-                    smartRouting.robinhoodRoutingAddresses[
-                      destination.chainId
-                    ];
+                    smartRouting.robinhoodRoutingAddresses[destination.chainId];
                   const minDepositEth =
-                    smartRouting.robinhoodMinDepositEth[
-                      destination.chainId
-                    ];
+                    smartRouting.robinhoodMinDepositEth[destination.chainId];
 
                   return (
                     <div
