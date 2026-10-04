@@ -92,16 +92,16 @@ export const generateMetadataForBounty = async ({
   // query client means the page reuses these instead of hitting the DB again.
   const queryClient = getQueryClient();
   const [price, bounty] = await Promise.all([
-    queryClient.fetchQuery(
+    queryClient.query(
       trpc.web3.fetchPrice.queryOptions({ currency: chain.currency })
     ),
     Number.isNaN(id)
       ? null
       : Promise.all([
-          queryClient.fetchQuery(
+          queryClient.query(
             trpc.bounties.fetch.queryOptions({ id, chainId: chain.id })
           ),
-          queryClient.fetchQuery(
+          queryClient.query(
             trpc.bounties.participations.queryOptions({
               bountyId: id,
               chainId: chain.id,
@@ -258,8 +258,8 @@ export const generateMetadataForAccountPage = async ({
     const input = { address: address.toLowerCase() };
     const queryClient = getQueryClient();
     const [split, accountActivitiesCount] = await Promise.all([
-      queryClient.fetchQuery(trpc.accounts.stats.queryOptions(input)),
-      queryClient.fetchQuery(trpc.accounts.activitiesCount.queryOptions(input)),
+      queryClient.query(trpc.accounts.stats.queryOptions(input)),
+      queryClient.query(trpc.accounts.activitiesCount.queryOptions(input)),
     ]);
 
     const accountDataObject = {

@@ -11,7 +11,7 @@ import { createContext } from './context';
 // One per request, so generateMetadata and the page share results
 export const getQueryClient = cache(makeQueryClient);
 
-// Use with getQueryClient().prefetchQuery/fetchQuery(trpc.x.y.queryOptions(input))
+// Use with getQueryClient().query(trpc.x.y.queryOptions(input))
 export const trpc = createTRPCOptionsProxy({
   router: appRouter,
   ctx: createContext,

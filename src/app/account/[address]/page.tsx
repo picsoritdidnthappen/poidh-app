@@ -21,29 +21,28 @@ export default async function Account({
     lastPage.nextCursor;
   const prefetchList = {
     bounties: () =>
-      queryClient.prefetchInfiniteQuery(
+      queryClient.infiniteQuery(
         trpc.accounts.bounties.infiniteQueryOptions(listInput, {
           getNextPageParam,
         })
       ),
     claims: () =>
-      queryClient.prefetchInfiniteQuery(
+      queryClient.infiniteQuery(
         trpc.accounts.claims.infiniteQueryOptions(listInput, {
           getNextPageParam,
         })
       ),
     nfts: () =>
-      queryClient.prefetchInfiniteQuery(
+      queryClient.infiniteQuery(
         trpc.accounts.nfts.infiniteQueryOptions(listInput, {
           getNextPageParam,
         })
       ),
   }[section];
-  await Promise.all([
-    queryClient.prefetchQuery(trpc.accounts.stats.queryOptions({ address })),
-    queryClient.prefetchQuery(
-      trpc.accounts.activitiesCount.queryOptions({ address })
-    ),
+  // A failed query just loads in the browser instead
+  await Promise.allSettled([
+    queryClient.query(trpc.accounts.stats.queryOptions({ address })),
+    queryClient.query(trpc.accounts.activitiesCount.queryOptions({ address })),
     prefetchList(),
   ]);
 
