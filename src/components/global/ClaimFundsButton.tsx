@@ -223,7 +223,7 @@ export default function ClaimFundsButton({ user }: { user: User }) {
   );
 }
 
-function getFundsToClaim(user: User): FundToClaim[] {
+export function getFundsToClaim(user: User): FundToClaim[] {
   const claimOptions: FundToClaim[] = [];
 
   if (user.withdrawalBase > 0) {

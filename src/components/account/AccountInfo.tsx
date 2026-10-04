@@ -10,7 +10,9 @@ import CopyAddressButton from '@/components/global/CopyAddressButton';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import { ShareIcon } from '@/components/global/Icons';
-import ClaimFundsButton from '@/components/global/ClaimFundsButton';
+import ClaimFundsButton, {
+  getFundsToClaim,
+} from '@/components/global/ClaimFundsButton';
 import { formatAmountShort } from '@/utils/utils';
 import InfiniteScroll from 'react-infinite-scroller';
 import { ChainId } from '@/utils/types';
@@ -128,9 +130,11 @@ export default function AccountInfo({ address }: { address: string }) {
     { enabled: isOwnPage }
   );
 
-  const pendingRefundIds = new Set(
-    (pendingRefunds.data ?? []).map((r) => `${r.bountyId}-${r.chainId}`)
-  );
+  // Only add the own-page section once there's something in it, so an empty
+  // wrapper doesn't push the tabs down when the wallet reconnects
+  const hasFundsToClaim = !!user.data && getFundsToClaim(user.data).length > 0;
+  const hasOwnPageActions =
+    isOwnPage && (hasFundsToClaim || !!pendingRefunds.data?.length);
 
   return (
     <>
@@ -240,7 +244,7 @@ export default function AccountInfo({ address }: { address: string }) {
             </div>
           </div>
 
-          {isOwnPage && (
+          {hasOwnPageActions && (
             <div className='flex justify-center px-6 lg:mt-0'>
               <div className='w-full lg:w-[35%] flex flex-col gap-2'>
                 {user.data && <ClaimFundsButton user={user.data} />}
