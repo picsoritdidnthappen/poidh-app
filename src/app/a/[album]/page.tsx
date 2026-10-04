@@ -187,21 +187,23 @@ export default function Album({ params }: { params: { album: string } }) {
                 threshold={500}
               >
                 <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
-                  {allItems
-                    .filter(
-                      (bounty) => !bounty.inProgress && !bounty.isCanceled
-                    )
-                    .map((bounty) => {
-                      return (
-                        <PastBountyCard
-                          key={`bounty-list-album-past-${bounty.id}`}
-                          bounty={{
-                            ...bounty,
-                            chainId: bounty.chainId as ChainId,
-                          }}
-                        />
-                      );
-                    })}
+                  {allItems.map(({ acceptedClaim, ...bounty }) =>
+                    acceptedClaim &&
+                    !bounty.inProgress &&
+                    !bounty.isCanceled ? (
+                      <PastBountyCard
+                        key={`bounty-list-album-past-${bounty.id}`}
+                        bounty={{
+                          ...bounty,
+                          chainId: bounty.chainId as ChainId,
+                        }}
+                        claim={{
+                          ...acceptedClaim,
+                          chainId: acceptedClaim.chainId as ChainId,
+                        }}
+                      />
+                    ) : null
+                  )}
                 </div>
               </InfiniteScroll>
             )

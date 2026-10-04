@@ -212,19 +212,23 @@ export default function Home() {
               ) : (
                 <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
                   {bounties.data.pages.flatMap((page) =>
-                    page.items
-                      .filter((bounty) => bounty.hasClaims)
-                      .map((bounty) => {
-                        return !bounty.isCanceled && !bounty.inProgress ? (
-                          <PastBountyCard
-                            key={`${bounty.chainId}-${bounty.id}`}
-                            bounty={{
-                              ...bounty,
-                              chainId: bounty.chainId as ChainId,
-                            }}
-                          />
-                        ) : null;
-                      })
+                    page.items.map(({ acceptedClaim, ...bounty }) =>
+                      acceptedClaim &&
+                      !bounty.isCanceled &&
+                      !bounty.inProgress ? (
+                        <PastBountyCard
+                          key={`${bounty.chainId}-${bounty.id}`}
+                          bounty={{
+                            ...bounty,
+                            chainId: bounty.chainId as ChainId,
+                          }}
+                          claim={{
+                            ...acceptedClaim,
+                            chainId: acceptedClaim.chainId as ChainId,
+                          }}
+                        />
+                      ) : null
+                    )
                   )}
                 </div>
               )}

@@ -286,6 +286,9 @@ export const bountiesRouter = {
         items: items.map(({ claims, participations, ...bounty }) => ({
           ...bounty,
           hasClaims: claims.length > 0,
+          // Claims are ordered accepted-first, so past bounty cards get their
+          // claim here instead of fetching it one card at a time
+          acceptedClaim: claims[0]?.isAccepted ? claims[0] : null,
           createdAt: bounty.createdAt.toNumber(),
           hasParticipants: participations.length > 1,
         })),
@@ -365,6 +368,9 @@ export const bountiesRouter = {
         items: items.map(({ claims, participations, extra, ...bounty }) => ({
           ...bounty,
           hasClaims: claims.length > 0,
+          // Claims are ordered accepted-first, so past bounty cards get their
+          // claim here instead of fetching it one card at a time
+          acceptedClaim: claims[0]?.isAccepted ? claims[0] : null,
           createdAt: bounty.createdAt.toNumber(),
           hasParticipants: participations.length > 1,
           amountSort: extra.amountSort,
