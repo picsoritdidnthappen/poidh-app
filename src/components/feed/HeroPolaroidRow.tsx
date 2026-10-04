@@ -1,16 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
-import { CSSProperties, useCallback, useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 import { CLAIMS_PER_SIDE, HeroPolaroid } from '@/hooks/useHeroPolaroids';
 import { cn } from '@/utils/utils';
-import {
-  GenerativePlaceholder,
-  IssuerAvatar,
-} from '@/components/feed/ClaimMediaParts';
+import { ClaimMedia, IssuerAvatar } from '@/components/claims/ClaimMediaParts';
 
 // How long a slot takes to crossfade to its next polaroid.
 export const POLAROID_FADE_MS = 600;
@@ -91,42 +87,18 @@ function PolaroidFace({
   polaroid: HeroPolaroid;
   className: string;
 }) {
-  const { mediaUrl, isVideo, mediaError, setMediaError } = useClaimMedia(
-    polaroid.mediaSourceUrl
-  );
-  const handleMediaError = useCallback(
-    () => setMediaError(true),
-    [setMediaError]
-  );
+  const media = useClaimMedia(polaroid.mediaSourceUrl);
 
   return (
     <div className={className}>
       <div className='relative aspect-square overflow-hidden bg-black/10'>
-        {mediaUrl && !mediaError ? (
-          isVideo ? (
-            <video
-              src={mediaUrl}
-              muted
-              playsInline
-              preload='metadata'
-              className='absolute inset-0 w-full h-full object-cover'
-              onError={handleMediaError}
-            />
-          ) : (
-            <Image
-              src={mediaUrl}
-              alt={polaroid.mediaAlt}
-              fill
-              unoptimized
-              className='object-cover'
-              onError={handleMediaError}
-            />
-          )
-        ) : mediaError ? (
-          <GenerativePlaceholder seed={polaroid.key} />
-        ) : (
-          <div className='absolute inset-0 bg-black/10' />
-        )}
+        <ClaimMedia
+          media={media}
+          seed={polaroid.key}
+          alt={polaroid.mediaAlt}
+          videoControls={false}
+          loadingClassName='bg-black/10'
+        />
       </div>
 
       <div className='flex items-center gap-1.5 pt-2 min-w-0'>

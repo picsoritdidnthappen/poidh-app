@@ -1,9 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import { useCallback } from 'react';
 
 import { trpc } from '@/trpc/client';
 import PatternAvatar from '@/components/global/PatternAvatar';
+import type { useClaimMedia } from '@/hooks/useClaimMedia';
 
 export function hashString(value: string) {
   let hash = 0;
@@ -82,6 +84,62 @@ export function GenerativePlaceholder({ seed }: { seed: string }) {
       />
     </div>
   );
+}
+
+/*
+ * A claim's photo or video, filling the nearest relative parent. Shows a
+ * loading tile while useClaimMedia resolves the URL, and the generative
+ * placeholder if there's no media or it fails to load.
+ */
+export function ClaimMedia({
+  media,
+  seed,
+  alt,
+  videoControls = true,
+  loadingClassName = 'bg-white/10 animate-pulse',
+}: {
+  media: ReturnType<typeof useClaimMedia>;
+  seed: string;
+  alt: string;
+  // Off where the card itself is the click target (the hero polaroids)
+  videoControls?: boolean;
+  loadingClassName?: string;
+}) {
+  const { mediaUrl, isVideo, isLoading, mediaError, setMediaError } = media;
+
+  // Stable, so next/image doesn't reset img.src on every render
+  const handleError = useCallback(() => setMediaError(true), [setMediaError]);
+
+  if (mediaUrl && !mediaError) {
+    return isVideo ? (
+      <video
+        src={mediaUrl}
+        controls={videoControls}
+        muted={!videoControls}
+        playsInline
+        preload='metadata'
+        className='absolute inset-0 w-full h-full object-cover'
+        // With controls, clicks belong to the video, not the card
+        onClick={videoControls ? (e) => e.stopPropagation() : undefined}
+        onError={handleError}
+      />
+    ) : (
+      <Image
+        src={mediaUrl}
+        alt={alt}
+        fill
+        unoptimized
+        className='object-cover'
+        onError={handleError}
+      />
+    );
+  }
+
+  if (isLoading && !mediaError) {
+    return <div className={`absolute inset-0 ${loadingClassName}`} />;
+  }
+
+  return <GenerativePlaceholder seed={seed} />;
 }
 
 export function IssuerAvatar({

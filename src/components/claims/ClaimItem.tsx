@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
@@ -20,89 +19,7 @@ import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
-
-function hashString(value: string) {
-  let hash = 0;
-
-  for (let i = 0; i < value.length; i++) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-    hash |= 0;
-  }
-
-  return Math.abs(hash);
-}
-
-function GenerativePlaceholder({ seed }: { seed: string }) {
-  const hash = hashString(seed);
-
-  const palette = [
-    '#F45B5B',
-    '#FFD166',
-    '#118AB2',
-    '#7B61FF',
-    '#06D6A0',
-    '#F4A261',
-  ];
-
-  const background = palette[hash % palette.length];
-
-  const accent1 = palette[(hash + 2) % palette.length];
-
-  const accent2 = palette[(hash + 4) % palette.length];
-
-  const vertical = 28 + ((hash >> 2) % 38);
-
-  const horizontal = 30 + ((hash >> 4) % 36);
-
-  const smallBlockLeft = 8 + ((hash >> 6) % 58);
-
-  const smallBlockTop = 8 + ((hash >> 8) % 58);
-
-  return (
-    <div
-      className='absolute inset-0 overflow-hidden'
-      style={{
-        backgroundColor: background,
-      }}
-    >
-      <div
-        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
-        style={{
-          left: `${vertical}%`,
-        }}
-      />
-
-      <div
-        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
-        style={{
-          top: `${horizontal}%`,
-        }}
-      />
-
-      <div
-        className='absolute'
-        style={{
-          left: `${vertical}%`,
-          top: 0,
-          right: 0,
-          height: `${horizontal}%`,
-          backgroundColor: accent1,
-        }}
-      />
-
-      <div
-        className='absolute border-[4px] border-[#102A43]'
-        style={{
-          left: `${smallBlockLeft}%`,
-          top: `${smallBlockTop}%`,
-          width: '24%',
-          height: '24%',
-          backgroundColor: accent2,
-        }}
-      />
-    </div>
-  );
-}
+import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
 
 export default function ClaimItem({
   claim,
@@ -119,13 +36,8 @@ export default function ClaimItem({
 
   const utils = trpc.useUtils();
 
-  const {
-    mediaUrl,
-    isVideo,
-    isLoading: isMediaLoading,
-    mediaError,
-    setMediaError,
-  } = useClaimMedia(claim.url);
+  const media = useClaimMedia(claim.url);
+  const { mediaUrl, mediaError } = media;
 
   const placeholderSeed = `${claim.chainId}-${claim.id}-${claim.issuer}`;
 
@@ -380,38 +292,11 @@ export default function ClaimItem({
           className='relative w-full aspect-square bg-[#12AAFF] dark:bg-[#132b47] rounded-[8px] overflow-hidden cursor-pointer'
           onClick={() => setOpenCard(true)}
         >
-          {mediaError ? (
-            <GenerativePlaceholder seed={placeholderSeed} />
-          ) : mediaUrl ? (
-            isVideo ? (
-              <video
-                src={mediaUrl}
-                controls
-                playsInline
-                className='w-full h-full object-cover'
-                onClick={(e) => e.stopPropagation()}
-                onError={() => {
-                  setMediaError(true);
-                }}
-              />
-            ) : (
-              <Image
-                src={mediaUrl}
-                alt={claim.title || 'claim image'}
-                fill
-                className='object-cover'
-                sizes='(max-width: 768px) 100vw, 600px'
-                unoptimized
-                onError={() => {
-                  setMediaError(true);
-                }}
-              />
-            )
-          ) : isMediaLoading ? (
-            <div className='absolute inset-0 bg-white/10 animate-pulse' />
-          ) : (
-            <GenerativePlaceholder seed={placeholderSeed} />
-          )}
+          <ClaimMedia
+            media={media}
+            seed={placeholderSeed}
+            alt={claim.title || 'claim image'}
+          />
         </div>
 
         <div className='p-3'>

@@ -82,19 +82,9 @@ export const accountsRouter = {
         nextCursor = items[items.length - 1].id;
       }
 
-      const normalizedItems = await Promise.all(
-        items.map(async (claim) => {
-          const imageMetadata = await fetchImageMetadata(claim.url);
-
-          return {
-            ...claim,
-            url: imageMetadata.image,
-          };
-        })
-      );
-
+      // Media URLs are resolved in the browser by useClaimMedia
       return {
-        items: normalizedItems,
+        items,
         nextCursor,
       };
     }),
@@ -138,19 +128,9 @@ export const accountsRouter = {
         nextCursor = items[items.length - 1].id;
       }
 
-      const normalizedItems = await Promise.all(
-        items.map(async (claim) => {
-          const imageMetadata = await fetchImageMetadata(claim.url);
-
-          return {
-            ...claim,
-            url: imageMetadata.image,
-          };
-        })
-      );
-
+      // Media URLs are resolved in the browser by useClaimMedia
       return {
-        items: normalizedItems,
+        items,
         nextCursor,
       };
     }),
