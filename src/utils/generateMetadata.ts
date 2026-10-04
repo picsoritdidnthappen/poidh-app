@@ -3,7 +3,7 @@ import { generateDynamicOGUrl } from '@/utils/og';
 import { Netname } from '@/utils/types';
 import { Metadata } from 'next';
 import { formatEther } from 'viem';
-import { getQueryClient, trpc, trpcCaller } from '@/trpc/server';
+import { getQueryClient, trpc } from '@/trpc/server';
 
 const APP_URL = (
   process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz'
@@ -254,13 +254,13 @@ export const generateMetadataForAccountPage = async ({
   };
 
   try {
-    const split = await trpcCaller.accounts.stats({
-      address,
-    });
-
-    const accountActivitiesCount = await trpcCaller.accounts.activitiesCount({
-      address,
-    });
+    // Same input as the page, so the page reuses these results
+    const input = { address: address.toLowerCase() };
+    const queryClient = getQueryClient();
+    const [split, accountActivitiesCount] = await Promise.all([
+      queryClient.fetchQuery(trpc.accounts.stats.queryOptions(input)),
+      queryClient.fetchQuery(trpc.accounts.activitiesCount.queryOptions(input)),
+    ]);
 
     const accountDataObject = {
       address,

@@ -18,16 +18,11 @@ import ShareAccountModal from '@/components/account/ShareAccountModal';
 import { useAccount } from 'wagmi';
 import ZkPassportVerify from '@/components/account/ZkPassportVerify';
 import PendingRefunds from '@/components/account/PendingRefunds';
-
-type Section = 'nfts' | 'bounties' | 'claims';
-const PAGE_SIZE = 9;
-
-const getSectionFromParam = (value: string | null): Section => {
-  if (value === 'nfts' || value === 'bounties' || value === 'claims') {
-    return value;
-  }
-  return 'bounties';
-};
+import {
+  getSectionFromParam,
+  PAGE_SIZE,
+  type Section,
+} from '@/components/account/sections';
 
 function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
