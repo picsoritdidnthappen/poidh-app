@@ -90,15 +90,13 @@ export default function Header() {
 
           <DarkModeToggle />
 
-          {!isMobile && (
-            <Link
-              href='/explore'
-              className='rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
-              aria-label='Explore'
-            >
-              <MagnifyingGlassIcon />
-            </Link>
-          )}
+          <Link
+            href='/explore'
+            className='hidden md:inline rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+            aria-label='Explore'
+          >
+            <MagnifyingGlassIcon />
+          </Link>
 
           {!isMobile && account.address && (
             <Link
