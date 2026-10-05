@@ -254,4 +254,5 @@ export const config = getDefaultConfig({
     [base.id]: http(clientEnv.BASE_RPC_URL),
     [mainnet.id]: http(clientEnv.MAINNET_RPC_URL),
   },
+  ssr: true,
 });
