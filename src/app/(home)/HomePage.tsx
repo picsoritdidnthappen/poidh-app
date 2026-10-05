@@ -8,36 +8,57 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { FormControl, MenuItem, Select } from '@mui/material';
 import InfiniteScroll from 'react-infinite-scroller';
 import { SortIcon } from '@/components/global/Icons';
-import Hero from '@/components/feed/Hero';
-import BountyList from '@/components/bounty/BountyList';
-import PastBountyCard from '@/components/bounty/PastBountyCard';
+import BountyList, { BountyListSkeleton } from '@/components/bounty/BountyList';
+import PastBountyCard, {
+  PAST_BOUNTY_GRID_CLASS,
+  PastBountyGridSkeleton,
+} from '@/components/bounty/PastBountyCard';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useChainInfo } from '@/hooks/useChainInfo';
+import {
+  getDisplayFromParam,
+  getSortFromParam,
+  HOME_PAGE_SIZE,
+} from './homeParams';
 
-export default function Home() {
+const TABS: { display: BountyDisplayType; label: string }[] = [
+  { display: 'open', label: 'new bounties' },
+  { display: 'progress', label: 'voting in progress' },
+  { display: 'past', label: 'past bounties' },
+];
+
+export default function HomePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [display, setDisplay] = useState<BountyDisplayType>('open');
-  const [sortType, setSortType] = useState<BountySortType>('value');
+  // Kept in state as well as the URL so the tab switches on click, without
+  // waiting for the navigation
+  const [display, setDisplay] = useState(() =>
+    getDisplayFromParam(searchParams.get('tab'))
+  );
+  const [sortType, setSortType] = useState(() =>
+    getSortFromParam(searchParams.get('sort'))
+  );
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const chain = useChainInfo();
 
+  // Follow the URL on back and forward
   useEffect(() => {
-    const tabParam = searchParams.get('tab') as BountyDisplayType | null;
-    const sortParam = searchParams.get('sort') as BountySortType | null;
-
-    if (tabParam && ['open', 'progress', 'past'].includes(tabParam)) {
-      setDisplay(tabParam);
-    }
-    if (sortParam && ['value', 'date'].includes(sortParam)) {
-      setSortType(sortParam);
-    }
+    setDisplay(getDisplayFromParam(searchParams.get('tab')));
+    setSortType(getSortFromParam(searchParams.get('sort')));
   }, [searchParams]);
 
+  const select = (newDisplay: BountyDisplayType, newSort: BountySortType) => {
+    setDisplay(newDisplay);
+    setSortType(newSort);
+    // scroll: false keeps the page where it is. Otherwise Next jumps back to
+    // the top when the switcher is scrolled to the top of the screen
+    router.push(`/?tab=${newDisplay}&sort=${newSort}`, { scroll: false });
+  };
+
   const updateSliderPosition = useCallback(() => {
-    const activeIndex = ['open', 'progress', 'past'].indexOf(display);
+    const activeIndex = TABS.findIndex((tab) => tab.display === display);
     const activeTab = tabRefs.current[activeIndex];
 
     if (activeTab) {
@@ -66,7 +87,7 @@ export default function Home() {
   const bounties = trpc.bounties.fetchAll.useInfiniteQuery(
     {
       status: display,
-      limit: 6,
+      limit: HOME_PAGE_SIZE,
       sortType,
     },
     {
@@ -76,8 +97,6 @@ export default function Home() {
 
   return (
     <>
-      <Hero />
-
       <div>
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:py-8 sm:py-4 w-full items-center px-8'>
           <div className='hidden md:flex flex-1'></div>
@@ -93,45 +112,19 @@ export default function Home() {
                   width: `${sliderStyle.width}px`,
                 }}
               />
-              <button
-                aria-pressed={display === 'open'}
-                ref={(el) => {
-                  tabRefs.current[0] = el;
-                }}
-                onClick={() => {
-                  setDisplay('open');
-                  router.push(`/?tab=open&sort=${sortType}`);
-                }}
-                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
-              >
-                new bounties
-              </button>
-              <button
-                aria-pressed={display === 'progress'}
-                ref={(el) => {
-                  tabRefs.current[1] = el;
-                }}
-                onClick={() => {
-                  setDisplay('progress');
-                  router.push(`/?tab=progress&sort=${sortType}`);
-                }}
-                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
-              >
-                voting in progress
-              </button>
-              <button
-                aria-pressed={display === 'past'}
-                ref={(el) => {
-                  tabRefs.current[2] = el;
-                }}
-                onClick={() => {
-                  setDisplay('past');
-                  router.push(`/?tab=past&sort=${sortType}`);
-                }}
-                className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
-              >
-                past bounties
-              </button>
+              {TABS.map((tab, i) => (
+                <button
+                  key={tab.display}
+                  aria-pressed={display === tab.display}
+                  ref={(el) => {
+                    tabRefs.current[i] = el;
+                  }}
+                  onClick={() => select(tab.display, sortType)}
+                  className='relative z-10 flex-grow sm:flex-grow-0 md:px-5 px-3 h-full flex items-center justify-center'
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
           <div className='w-full md:w-auto flex justify-center md:justify-end mt-2 md:mt-0 md:flex-1 md:ml-3'>
@@ -169,11 +162,9 @@ export default function Home() {
                   },
                 }}
                 renderValue={() => <SortIcon size={18} />}
-                onChange={(e) => {
-                  const newSort = e.target.value as BountySortType;
-                  setSortType(newSort);
-                  router.push(`/?tab=${display}&sort=${newSort}`);
-                }}
+                onChange={(e) =>
+                  select(display, e.target.value as BountySortType)
+                }
               >
                 <MenuItem value='value' className='color-white'>
                   by value
@@ -187,7 +178,7 @@ export default function Home() {
         </div>
 
         <div className='pb-20 z-1 mt-4'>
-          {bounties.data && (
+          {bounties.data ? (
             <InfiniteScroll
               loadMore={async () => await bounties.fetchNextPage()}
               hasMore={bounties.hasNextPage && !bounties.isFetchingNextPage}
@@ -210,7 +201,7 @@ export default function Home() {
                   )}
                 />
               ) : (
-                <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
+                <div className={PAST_BOUNTY_GRID_CLASS}>
                   {bounties.data.pages.flatMap((page) =>
                     page.items.map(({ acceptedClaim, ...bounty }) =>
                       acceptedClaim &&
@@ -233,6 +224,12 @@ export default function Home() {
                 </div>
               )}
             </InfiniteScroll>
+          ) : display === 'past' ? (
+            // Holds the first page's space while a tab loads, so the page
+            // doesn't collapse and jump
+            <PastBountyGridSkeleton count={HOME_PAGE_SIZE} />
+          ) : (
+            <BountyListSkeleton count={HOME_PAGE_SIZE} />
           )}
         </div>
       </div>

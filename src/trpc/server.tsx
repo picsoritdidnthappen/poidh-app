@@ -1,6 +1,10 @@
 import 'server-only';
 
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import {
+  dehydrate,
+  HydrationBoundary,
+  type QueryClient,
+} from '@tanstack/react-query';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { cache } from 'react';
 
@@ -18,9 +22,13 @@ export const trpc = createTRPCOptionsProxy({
   queryClient: getQueryClient,
 });
 
-export function HydrateClient(props: { children: React.ReactNode }) {
+// Pass queryClient to send only that client's queries instead of the shared one
+export function HydrateClient(props: {
+  children: React.ReactNode;
+  queryClient?: QueryClient;
+}) {
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
+    <HydrationBoundary state={dehydrate(props.queryClient ?? getQueryClient())}>
       {props.children}
     </HydrationBoundary>
   );

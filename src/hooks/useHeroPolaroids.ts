@@ -4,10 +4,7 @@ import { trpc } from '@/trpc/client';
 import { preloadClaimMedia } from '@/hooks/useClaimMedia';
 import { getChainById } from '@/utils/config';
 import { ChainId } from '@/utils/types';
-
-// How many recent claims, and recent payouts, the hero cycles through.
-// Divisible by the four side slots, so the claim groups loop evenly.
-const FETCH_LIMIT = 28;
+import { HERO_FETCH_LIMIT } from '@/utils/constants';
 
 // Claim polaroids either side of the centre payout.
 export const CLAIMS_PER_SIDE = 2;
@@ -110,11 +107,11 @@ export function pickPolaroidsForStep(
 export function useHeroPolaroids() {
   const queryOptions = { staleTime: 30_000, refetchOnWindowFocus: false };
   const claimsQuery = trpc.claims.fetchLatest.useQuery(
-    { limit: FETCH_LIMIT },
+    { limit: HERO_FETCH_LIMIT },
     queryOptions
   );
   const payoutsQuery = trpc.claims.fetchRecentPayouts.useQuery(
-    { limit: FETCH_LIMIT },
+    { limit: HERO_FETCH_LIMIT },
     queryOptions
   );
 

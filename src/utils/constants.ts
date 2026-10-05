@@ -22,3 +22,7 @@ export const DEGEN_MIN_AMOUNT = 1;
 export const ARBITRUM_LAST_PRE_V3_BOUNTY = 180;
 export const DEGEN_LAST_PRE_V3_BOUNTY = 1197;
 export const BASE_LAST_PRE_V3_BOUNTY = 986;
+
+// How many recent claims, and recent payouts, the home hero cycles through.
+// Divisible by the four side slots, so the claim groups loop evenly.
+export const HERO_FETCH_LIMIT = 28;
