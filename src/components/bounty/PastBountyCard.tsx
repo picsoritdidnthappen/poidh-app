@@ -22,10 +22,14 @@ export default function PastBountyCard({
   const media = useClaimMedia(claim.url);
 
   return (
-    <Link
-      href={`/${chain.slug}/bounty/${bounty.id}`}
-      className='lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl cursor-pointer'
-    >
+    <div className='relative lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl'>
+      {/* Covers the whole card. The issuer links and the scrollable
+          description sit above it, since links can't nest inside links. */}
+      <Link
+        href={`/${chain.slug}/bounty/${bounty.id}`}
+        aria-label={bounty.title}
+        className='absolute inset-0 z-[5] rounded-xl'
+      />
       <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
         <div>
           <div className='z-10 left-5 top-5 text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute'>
@@ -45,23 +49,20 @@ export default function PastBountyCard({
               <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-word text-left'>
                 {claim.title}
               </p>
-              <div className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words text-left'>
+              <div className='relative z-10 normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words text-left'>
                 <MarkdownContent>{claim.description}</MarkdownContent>
               </div>
             </div>
-            <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
+            <div className='relative z-10 mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
               <span className='shrink-0 mr-2'>issuer </span>
-              <div
-                className='flex flex-row items-center w-full justify-end overflow-hidden'
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className='flex flex-row items-center w-full justify-end overflow-hidden'>
                 <DisplayAddress address={claim.issuer} />
                 <div className='ml-2'>
                   <CopyAddressButton address={claim.issuer} />
                 </div>
               </div>
             </div>
-            <div className='flex flex-row items-center justify-between'>
+            <div className='relative z-10 flex flex-row items-center justify-between'>
               <span>claim id: {claim.id}</span>
               <SocialMediaLinks address={claim.issuer} />
             </div>
@@ -83,6 +84,6 @@ export default function PastBountyCard({
           {bounty.isMultiplayer && <UsersRoundIcon size={20} />}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
