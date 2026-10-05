@@ -10,6 +10,7 @@ import { getChainById } from '@/utils/config';
 import MarkdownContent from '@/components/global/MarkdownContent';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
+import { ClaimItemSkeleton } from '@/components/claims/ClaimList';
 
 export default function PastBountyCard({
   bounty,
@@ -84,6 +85,33 @@ export default function PastBountyCard({
           {bounty.isMultiplayer && <UsersRoundIcon size={20} />}
         </div>
       </div>
+    </div>
+  );
+}
+
+export const PAST_BOUNTY_GRID_CLASS =
+  'container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0';
+
+// Same layout as the cards: the claim block, then the bounty title and amount
+export function PastBountyGridSkeleton({ count }: { count: number }) {
+  return (
+    <div className={PAST_BOUNTY_GRID_CLASS}>
+      {Array.from({ length: count }, (_, i) => (
+        <div
+          key={i}
+          className='lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl'
+        >
+          <ClaimItemSkeleton />
+          <div className='px-1 py-3 animate-pulse'>
+            <div className='flex items-center h-7 mb-3'>
+              <div className='h-5 w-[70%] rounded bg-white/10' />
+            </div>
+            <div className='flex items-center h-6'>
+              <div className='h-4 w-32 rounded bg-white/10' />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

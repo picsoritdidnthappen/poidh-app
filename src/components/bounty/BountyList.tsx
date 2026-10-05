@@ -2,6 +2,10 @@ import { motion } from 'framer-motion';
 import { cn } from '@/utils/utils';
 import BountyItem from './BountyItem';
 import { Bounty } from '@/utils/types';
+import { useIsHydrating } from '@/hooks/useIsHydrating';
+
+const GRID_CLASS =
+  'container list mx-auto px-5 pb-12 pt-5 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0';
 
 export default function BountyList({
   bounties,
@@ -12,6 +16,10 @@ export default function BountyList({
   showStatusEmoji?: boolean;
   showChainIcon?: boolean;
 }) {
+  // A list from the server shows straight away. Starting it at scale 0 would
+  // hide the server HTML until the JS loads and plays the entrance.
+  const isHydrating = useIsHydrating();
+
   if (!bounties || bounties.length === 0) {
     return (
       <div className='text-center py-20 text-white/60'>
@@ -23,7 +31,7 @@ export default function BountyList({
   return (
     <>
       <motion.div
-        className='container list mx-auto px-5 pb-12 pt-5 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'
+        className={GRID_CLASS}
         variants={{
           hidden: { opacity: 1, scale: 0 },
           visible: {
@@ -34,7 +42,7 @@ export default function BountyList({
             },
           },
         }}
-        initial='hidden'
+        initial={isHydrating ? false : 'hidden'}
         animate='visible'
       >
         {bounties.map((bounty) => (
@@ -64,5 +72,19 @@ export default function BountyList({
         ))}
       </motion.div>
     </>
+  );
+}
+
+// Cards at the real cards' height, so the grid keeps its size while loading
+export function BountyListSkeleton({ count }: { count: number }) {
+  return (
+    <div className={GRID_CLASS}>
+      {Array.from({ length: count }, (_, i) => (
+        <div
+          key={i}
+          className='lg:col-span-4 h-[300px] sm:h-[310px] rounded-xl border-2 border-white/10 bg-white/10 animate-pulse'
+        />
+      ))}
+    </div>
   );
 }

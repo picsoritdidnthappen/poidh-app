@@ -4,7 +4,9 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { trpc } from '@/trpc/client';
 import BountyList from '@/components/bounty/BountyList';
 import { BountyDisplayType, ChainId } from '@/utils/types';
-import PastBountyCard from '@/components/bounty/PastBountyCard';
+import PastBountyCard, {
+  PAST_BOUNTY_GRID_CLASS,
+} from '@/components/bounty/PastBountyCard';
 import Navbar from '@/components/global/Navbar';
 import InfiniteScroll from 'react-infinite-scroller';
 
@@ -186,7 +188,7 @@ export default function Album({ params }: { params: { album: string } }) {
                 }
                 threshold={500}
               >
-                <div className='container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0'>
+                <div className={PAST_BOUNTY_GRID_CLASS}>
                   {allItems.map(({ acceptedClaim, ...bounty }) =>
                     acceptedClaim &&
                     !bounty.inProgress &&
