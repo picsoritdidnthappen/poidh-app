@@ -16,12 +16,10 @@ export const bountiesRouter = {
           },
         },
         include: {
-          claims: {
-            where: {
-              ban: { none: {} },
+          _count: {
+            select: {
+              claims: { where: { ban: { none: {} } } },
             },
-            select: { id: true },
-            take: 1,
           },
           ban: { take: 1 },
           participations: {
@@ -32,7 +30,7 @@ export const bountiesRouter = {
         },
       });
 
-      const { claims, participations, extra, ...bountyData } = bounty;
+      const { _count, participations, extra, ...bountyData } = bounty;
       const { amountSort, ...extraData } = extra;
 
       const everHadExternalContributor = bounty.isMultiplayer
@@ -48,7 +46,7 @@ export const bountiesRouter = {
       return {
         ...bountyData,
         extra: extraData,
-        hasClaims: claims.length > 0,
+        hasClaims: _count.claims > 0,
         hasParticipants: participations.length > 1,
         mustUseVoteFlow,
         amountSort,
@@ -150,14 +148,10 @@ export const bountiesRouter = {
           select: {
             bounty: {
               include: {
-                claims: {
-                  take: 1,
-                  where: {
-                    ban: {
-                      none: {},
-                    },
+                _count: {
+                  select: {
+                    claims: { where: { ban: { none: {} } } },
                   },
-                  orderBy: { isAccepted: 'desc' },
                 },
                 participations: {
                   select: { userAddress: true },
@@ -178,14 +172,10 @@ export const bountiesRouter = {
       } else {
         const bounties = await prisma.bounties.findMany({
           include: {
-            claims: {
-              take: 1,
-              where: {
-                ban: {
-                  none: {},
-                },
+            _count: {
+              select: {
+                claims: { where: { ban: { none: {} } } },
               },
-              orderBy: { isAccepted: 'desc' },
             },
             participations: {
               select: { userAddress: true },
@@ -261,9 +251,9 @@ export const bountiesRouter = {
       }
 
       return {
-        items: items.map(({ claims, participations, ...bounty }) => ({
+        items: items.map(({ _count, participations, ...bounty }) => ({
           ...bounty,
-          hasClaims: claims.length > 0,
+          hasClaims: _count.claims > 0,
           createdAt: bounty.createdAt.toNumber(),
           hasParticipants: participations.length > 1,
         })),
@@ -283,14 +273,10 @@ export const bountiesRouter = {
     .query(async ({ input }) => {
       const items = await prisma.bounties.findMany({
         include: {
-          claims: {
-            take: 1,
-            where: {
-              ban: {
-                none: {},
-              },
+          _count: {
+            select: {
+              claims: { where: { ban: { none: {} } } },
             },
-            orderBy: { isAccepted: 'desc' },
           },
           participations: {
             select: { userAddress: true },
@@ -340,9 +326,9 @@ export const bountiesRouter = {
       }
 
       return {
-        items: items.map(({ claims, participations, extra, ...bounty }) => ({
+        items: items.map(({ _count, participations, extra, ...bounty }) => ({
           ...bounty,
-          hasClaims: claims.length > 0,
+          hasClaims: _count.claims > 0,
           createdAt: bounty.createdAt.toNumber(),
           hasParticipants: participations.length > 1,
           amountSort: extra.amountSort,
@@ -541,12 +527,9 @@ export const bountiesRouter = {
 
       const items = await prisma.bounties.findMany({
         include: {
-          claims: {
-            take: 1,
-            where: {
-              ban: {
-                none: {},
-              },
+          _count: {
+            select: {
+              claims: { where: { ban: { none: {} } } },
             },
           },
           participations: {
@@ -588,10 +571,10 @@ export const bountiesRouter = {
       }
 
       return {
-        items: items.map(({ claims, participations, extra, ...bounty }) => ({
+        items: items.map(({ _count, participations, extra, ...bounty }) => ({
           ...bounty,
           createdAt: bounty.createdAt.toNumber(),
-          hasClaims: claims.length > 0,
+          hasClaims: _count.claims > 0,
           hasParticipants: participations.length > 1,
           amountSort: extra.amountSort,
         })),
