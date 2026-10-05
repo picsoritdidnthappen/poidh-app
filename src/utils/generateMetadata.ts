@@ -2,8 +2,9 @@ import { chains } from '@/utils/config';
 import { generateDynamicOGUrl } from '@/utils/og';
 import { Netname } from '@/utils/types';
 import { Metadata } from 'next';
+import prisma from 'prisma/prisma';
 import { formatEther } from 'viem';
-import { getQueryClient, trpc, trpcCaller } from '@/trpc/server';
+import { trpcCaller } from '@/trpc/server';
 
 const APP_URL = (
   process.env.NEXT_PUBLIC_APP_URL || 'https://poidh.xyz'
@@ -88,29 +89,30 @@ export const generateMetadataForBounty = async ({
 
   const canonicalUrl = `${APP_URL}/${params.netname}/bounty/${params.id}`;
 
-  // Same queries the bounty page prefetches. Going through the per-request
-  // query client means the page reuses these instead of hitting the DB again.
-  const queryClient = getQueryClient();
-  const [price, bounty] = await Promise.all([
-    queryClient.fetchQuery(
-      trpc.web3.fetchPrice.queryOptions({ currency: chain.currency })
-    ),
-    Number.isNaN(id)
-      ? null
-      : Promise.all([
-          queryClient.fetchQuery(
-            trpc.bounties.fetch.queryOptions({ id, chainId: chain.id })
-          ),
-          queryClient.fetchQuery(
-            trpc.bounties.participations.queryOptions({
-              bountyId: id,
-              chainId: chain.id,
-            })
-          ),
-        ])
-          .then(([bounty, participations]) => ({ ...bounty, participations }))
-          .catch(() => null),
-  ]);
+  const price: number | undefined = await trpcCaller.web3.fetchPrice({
+    currency: chain.currency,
+  });
+
+  let bounty = null;
+
+  if (!Number.isNaN(id)) {
+    bounty = await prisma.bounties.findUnique({
+      where: {
+        id_chainId: {
+          id,
+          chainId: chain.id,
+        },
+      },
+      include: {
+        participations: {
+          select: {
+            amount: true,
+            userAddress: true,
+          },
+        },
+      },
+    });
+  }
 
   if (!bounty) {
     const frame = buildFrame({

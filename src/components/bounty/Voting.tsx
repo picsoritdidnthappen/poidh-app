@@ -360,32 +360,8 @@ export default function Voting({
 
   if (isInitialLoading) {
     return (
-      <div className='w-full mt-5 animate-pulse'>
-        <div className='bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 p-6 backdrop-blur-md'>
-          <div className='space-y-2'>
-            <div className='flex justify-center items-center h-7'>
-              <div className='h-5 w-40 rounded bg-white/10' />
-            </div>
-
-            <div className='flex justify-center'>
-              <div className='w-full aspect-square p-[10%]'>
-                <div className='w-full h-full rounded-full bg-white/10' />
-              </div>
-            </div>
-
-            <div className='space-y-2 bg-white/5 rounded-lg p-3 border border-white/10'>
-              <div className='h-6' />
-              <div className='h-6' />
-            </div>
-
-            {!isAcceptedBounty && (
-              <div className='bg-white/5 rounded-lg p-3 border border-white/10'>
-                <div className='h-4' />
-                <div className='h-4 mt-1' />
-              </div>
-            )}
-          </div>
-        </div>
+      <div className='flex items-center justify-center h-40 animate-pulse bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-2xl border border-white/20 backdrop-blur-md'>
+        <p className='text-sm text-white/50'>Loading voting data...</p>
       </div>
     );
   }
