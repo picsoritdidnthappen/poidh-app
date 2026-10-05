@@ -19,7 +19,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
   id: 'zerodev-wallet',
   name: 'Create wallet',
   iconUrl: '/images/create-wallet-icon.png',
-  iconBackground: '#19110B',
+  iconBackground: '#579DD9',
   createConnector:
     (walletDetails: WalletDetails) => (config: ConnectorConfig) => {
       if (!clientEnv.ZERODEV_PROJECT_ID) {
