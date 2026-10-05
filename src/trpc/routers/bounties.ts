@@ -35,6 +35,38 @@ export const bountiesRouter = {
       const { claims, participations, extra, ...bountyData } = bounty;
       const { amountSort, ...extraData } = extra;
 
+      return {
+        ...bountyData,
+        createdAt: bountyData.createdAt.toNumber(),
+        extra: extraData,
+        hasClaims: claims.length > 0,
+        hasParticipants: participations.length > 1,
+        amountSort,
+      };
+    }),
+
+  // Kept out of `fetch` because it's an onchain read: the bounty page is
+  // server-rendered from `fetch`, and only the issuer needs this
+  mustUseVoteFlow: baseProcedure
+    .input(z.object({ id: z.number(), chainId: z.number() }))
+    .query(async ({ input }) => {
+      const bounty = await prisma.bounties.findUniqueOrThrow({
+        where: {
+          id_chainId: {
+            ...input,
+          },
+        },
+        select: {
+          chainId: true,
+          onChainId: true,
+          isMultiplayer: true,
+          participations: {
+            select: { userAddress: true },
+            take: 2,
+          },
+        },
+      });
+
       const everHadExternalContributor = bounty.isMultiplayer
         ? await getEverHadExternalContributor({
             chainId: bounty.chainId,
@@ -42,17 +74,7 @@ export const bountiesRouter = {
           })
         : false;
 
-      const mustUseVoteFlow =
-        everHadExternalContributor ?? participations.length > 1;
-
-      return {
-        ...bountyData,
-        extra: extraData,
-        hasClaims: claims.length > 0,
-        hasParticipants: participations.length > 1,
-        mustUseVoteFlow,
-        amountSort,
-      };
+      return everHadExternalContributor ?? bounty.participations.length > 1;
     }),
 
   fetchTransactions: baseProcedure

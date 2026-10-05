@@ -17,9 +17,9 @@ type ConnectorConfig = Parameters<ReturnType<Wallet['createConnector']>>[0];
 
 export const zeroDevRainbowWallet = (): Wallet => ({
   id: 'zerodev-wallet',
-  name: 'ZeroDev',
-  iconUrl: '/images/zerodev-logo.svg',
-  iconBackground: '#19110B',
+  name: 'Create wallet',
+  iconUrl: '/images/create-wallet-icon.png',
+  iconBackground: '#579DD9',
   createConnector:
     (walletDetails: WalletDetails) => (config: ConnectorConfig) => {
       if (!clientEnv.ZERODEV_PROJECT_ID) {
@@ -27,13 +27,13 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           'Missing NEXT_PUBLIC_ZERODEV_PROJECT_ID: set it to your ZeroDev project ID.'
         );
       }
-
+      
       // ZeroDev-specific RPCs.
       // These are used only by the ZeroDev connector. Normal poidh wallets
       // continue using the existing Wagmi transports below.
       const zeroDevRpcFor = (chainId: number) =>
         `https://rpc.zerodev.app/api/v3/${clientEnv.ZERODEV_PROJECT_ID}/chain/${chainId}`;
-
+      
       const zeroDevArbitrum = {
         ...arbitrum,
         rpcUrls: {
@@ -43,7 +43,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           },
         },
       };
-
+      
       const zeroDevBase = {
         ...base,
         rpcUrls: {
@@ -53,7 +53,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           },
         },
       };
-
+      
       const zeroDevMainnet = {
         ...mainnet,
         rpcUrls: {
@@ -63,7 +63,7 @@ export const zeroDevRainbowWallet = (): Wallet => ({
           },
         },
       };
-
+      
       const baseConnector = zeroDevWallet({
         projectId: clientEnv.ZERODEV_PROJECT_ID,
         chains: [zeroDevArbitrum, zeroDevBase, zeroDevMainnet],
@@ -166,9 +166,9 @@ export const zeroDevRainbowWallet = (): Wallet => ({
                     [base.id]: zeroDevRpcFor(base.id),
                     [mainnet.id]: zeroDevRpcFor(mainnet.id),
                   };
-
+                  
                   const rpc = rpcMap[chainId];
-
+                  
                   if (!rpc) {
                     return '0x';
                   }
@@ -240,7 +240,12 @@ export const config = getDefaultConfig({
   chains: [mainnet, arbitrum, base],
   wallets: [
     ...(clientEnv.ZERODEV_PROJECT_ID
-      ? [{ groupName: 'Smart Accounts', wallets: [zeroDevRainbowWallet] }]
+      ? [
+          {
+            groupName: 'No wallet?',
+            wallets: [zeroDevRainbowWallet],
+          },
+        ]
       : []),
     ...wallets,
   ],

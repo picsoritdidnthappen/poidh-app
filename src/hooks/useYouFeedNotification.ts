@@ -30,6 +30,7 @@ export function useYouFeedNotification() {
     {
       address: account.address,
       limit: 1,
+      excludeOwnActivity: true,
     },
     {
       enabled: !!account.address,
