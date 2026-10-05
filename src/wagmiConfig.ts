@@ -254,7 +254,5 @@ export const config = getDefaultConfig({
     [base.id]: http(clientEnv.BASE_RPC_URL),
     [mainnet.id]: http(clientEnv.MAINNET_RPC_URL),
   },
-  // Without this the stored wallet is read during the first browser render,
-  // so wallet-dependent UI doesn't match the server HTML
   ssr: true,
 });
