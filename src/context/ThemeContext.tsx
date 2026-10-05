@@ -30,20 +30,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let stored: string | null = null;
+
     try {
       stored = localStorage.getItem('theme');
     } catch {
       // The toggle still works when browser storage is unavailable.
     }
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches;
+
     const initial: Theme =
       stored === 'light' || stored === 'dark' || stored === 'cyber'
         ? stored
-        : prefersDark
-        ? 'dark'
         : 'light';
+
     setTheme(initial);
     applyTheme(initial);
   }, []);

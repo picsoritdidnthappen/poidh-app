@@ -96,13 +96,16 @@ export function ClaimMedia({
   seed,
   alt,
   videoControls = true,
+  mediaClassName = '',
   loadingClassName = 'bg-white/10 animate-pulse',
 }: {
   media: ReturnType<typeof useClaimMedia>;
   seed: string;
   alt: string;
-  // Off where the card itself is the click target (the hero polaroids)
+  // Off where the card itself is the click target (the home rails)
   videoControls?: boolean;
+  // Extra classes for the image or video, e.g. a hover zoom
+  mediaClassName?: string;
   loadingClassName?: string;
 }) {
   const { mediaUrl, isVideo, isLoading, mediaError, setMediaError } = media;
@@ -118,7 +121,7 @@ export function ClaimMedia({
         muted={!videoControls}
         playsInline
         preload='metadata'
-        className='absolute inset-0 w-full h-full object-cover'
+        className={`absolute inset-0 w-full h-full object-cover ${mediaClassName}`}
         // With controls, clicks belong to the video, not the card
         onClick={videoControls ? (e) => e.stopPropagation() : undefined}
         onError={handleError}
@@ -129,7 +132,7 @@ export function ClaimMedia({
         alt={alt}
         fill
         unoptimized
-        className='object-cover'
+        className={`object-cover ${mediaClassName}`}
         onError={handleError}
       />
     );

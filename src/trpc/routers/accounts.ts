@@ -722,14 +722,16 @@ export const accountsRouter = {
     .input(
       z.object({
         address: z.string().optional(),
-
         limit: z.number().min(1).max(200).default(10),
-
         cursor: z.string().nullish(),
+        excludeOwnActivity: z.boolean().optional(),
       })
     )
     .query(async ({ input }) => {
       const normalizedAddress = input.address?.toLowerCase();
+
+      const excludeOwnActivity =
+        !!normalizedAddress && input.excludeOwnActivity === true;
 
       const cursorTimestamp = input.cursor ? Number(input.cursor) : null;
 
@@ -938,6 +940,16 @@ export const accountsRouter = {
                         },
                       ],
                     },
+
+                    ...(excludeOwnActivity
+                      ? [
+                          {
+                            address: {
+                              not: normalizedAddress,
+                            },
+                          },
+                        ]
+                      : []),
                   ]
                 : []),
             ],
@@ -992,6 +1004,14 @@ export const accountsRouter = {
                         ]
                       : []),
                   ],
+                }
+              : {}),
+
+            ...(excludeOwnActivity
+              ? {
+                  userAddress: {
+                    not: normalizedAddress,
+                  },
                 }
               : {}),
 

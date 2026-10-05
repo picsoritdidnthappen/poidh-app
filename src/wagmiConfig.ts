@@ -17,9 +17,9 @@ type ConnectorConfig = Parameters<ReturnType<Wallet['createConnector']>>[0];
 
 export const zeroDevRainbowWallet = (): Wallet => ({
   id: 'zerodev-wallet',
-  name: 'ZeroDev',
-  iconUrl: '/images/zerodev-logo.svg',
-  iconBackground: '#19110B',
+  name: 'Create wallet',
+  iconUrl: '/images/create-wallet-icon.png',
+  iconBackground: '#579DD9',
   createConnector:
     (walletDetails: WalletDetails) => (config: ConnectorConfig) => {
       if (!clientEnv.ZERODEV_PROJECT_ID) {
@@ -240,7 +240,12 @@ export const config = getDefaultConfig({
   chains: [mainnet, arbitrum, base],
   wallets: [
     ...(clientEnv.ZERODEV_PROJECT_ID
-      ? [{ groupName: 'Smart Accounts', wallets: [zeroDevRainbowWallet] }]
+      ? [
+          {
+            groupName: 'No wallet?',
+            wallets: [zeroDevRainbowWallet],
+          },
+        ]
       : []),
     ...wallets,
   ],
@@ -249,5 +254,4 @@ export const config = getDefaultConfig({
     [base.id]: http(clientEnv.BASE_RPC_URL),
     [mainnet.id]: http(clientEnv.MAINNET_RPC_URL),
   },
-  ssr: true,
 });

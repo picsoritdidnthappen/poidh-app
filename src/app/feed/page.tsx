@@ -73,6 +73,19 @@ export default function Feed() {
     }
   );
 
+  const latestNotifiableActivity = trpc.accounts.activities.useQuery(
+    {
+      address: account.address,
+      limit: 1,
+      excludeOwnActivity: true,
+    },
+    {
+      enabled: isYouFeed && !!account.address,
+      staleTime: 30_000,
+      refetchOnWindowFocus: true,
+    }
+  );
+
   /*
    * Once the personalized feed is actually being viewed
    * and its newest item has loaded, mark that item as seen.
@@ -85,7 +98,7 @@ export default function Feed() {
       return;
     }
 
-    const newestActivity = activities.data?.pages?.[0]?.items?.[0];
+    const newestActivity = latestNotifiableActivity.data?.items?.[0];
 
     const newestActivityKey = getActivityKey(newestActivity);
 
@@ -105,7 +118,7 @@ export default function Feed() {
      * without requiring a reload.
      */
     window.dispatchEvent(new Event('poidh-you-feed-seen'));
-  }, [isYouFeed, account.address, activities.data]);
+  }, [isYouFeed, account.address, latestNotifiableActivity.data]);
 
   const handleDisplayChange = (nextDisplay: 'all' | 'you') => {
     setDisplay(nextDisplay);

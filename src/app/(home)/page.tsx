@@ -15,7 +15,7 @@ export default async function Home({
   const sortType = getSortFromParam(searchParams.sort);
 
   // Load the selected tab's first page on the server, so it's in the first
-  // HTML instead of popping in. The hero loads in the layout. A failed query
+  // HTML instead of popping in. The rails load in the layout. A failed query
   // just loads in the browser instead.
   await getQueryClient()
     .infiniteQuery(

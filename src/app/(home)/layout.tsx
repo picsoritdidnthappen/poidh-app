@@ -1,10 +1,12 @@
-import Hero from '@/components/feed/Hero';
+import HomeHeading from '@/components/feed/HomeHeading';
+import LatestClaimImages from '@/components/feed/LatestClaimImages';
+import RecentPayouts from '@/components/feed/RecentPayouts';
 import { makeQueryClient } from '@/trpc/query-client';
 import { HydrateClient, trpc } from '@/trpc/server';
-import { HERO_FETCH_LIMIT } from '@/utils/constants';
+import { LATEST_CLAIMS_LIMIT, RECENT_PAYOUTS_LIMIT } from '@/utils/constants';
 
-// The hero lives in a layout because a tab or sort change only rerenders the
-// page, so it doesn't load the hero again
+// The heading and rails live in a layout because a tab or sort change only
+// rerenders the page, so it doesn't load them again
 export default async function HomeLayout({
   children,
 }: {
@@ -16,17 +18,21 @@ export default async function HomeLayout({
   // A failed query just loads in the browser instead
   await Promise.allSettled([
     queryClient.query(
-      trpc.claims.fetchLatest.queryOptions({ limit: HERO_FETCH_LIMIT })
+      trpc.claims.fetchLatest.queryOptions({ limit: LATEST_CLAIMS_LIMIT })
     ),
     queryClient.query(
-      trpc.claims.fetchRecentPayouts.queryOptions({ limit: HERO_FETCH_LIMIT })
+      trpc.claims.fetchRecentPayouts.queryOptions({
+        limit: RECENT_PAYOUTS_LIMIT,
+      })
     ),
   ]);
 
   return (
     <>
+      <HomeHeading />
       <HydrateClient queryClient={queryClient}>
-        <Hero />
+        <LatestClaimImages />
+        <RecentPayouts />
       </HydrateClient>
       {children}
     </>
