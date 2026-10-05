@@ -17,8 +17,8 @@ type ConnectorConfig = Parameters<ReturnType<Wallet['createConnector']>>[0];
 
 export const zeroDevRainbowWallet = (): Wallet => ({
   id: 'zerodev-wallet',
-  name: 'ZeroDev — email, Google, or passkey',
-  iconUrl: '/images/zerodev-logo.svg',
+  name: 'Create wallet',
+  iconUrl: '/images/create-wallet-icon.png',
   iconBackground: '#19110B',
   createConnector:
     (walletDetails: WalletDetails) => (config: ConnectorConfig) => {
@@ -242,7 +242,7 @@ export const config = getDefaultConfig({
     ...(clientEnv.ZERODEV_PROJECT_ID
       ? [
           {
-            groupName: 'No wallet? Start here',
+            groupName: 'No wallet?',
             wallets: [zeroDevRainbowWallet],
           },
         ]
