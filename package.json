@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "tsx scripts/migration.ts && prisma generate && next build",
+    "dev": "node scripts/sync-skill.mjs && next dev",
+    "build": "node scripts/sync-skill.mjs && tsx scripts/migration.ts && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
