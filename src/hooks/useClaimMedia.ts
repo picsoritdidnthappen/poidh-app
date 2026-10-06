@@ -20,6 +20,10 @@ const settledMedia = new Map<string, ResolvedClaimMedia>();
 async function sniffClaimMedia(url: string): Promise<ResolvedClaimMedia> {
   const response = await fetch(url);
 
+  if (!response.ok) {
+    throw new Error(`Failed to load claim media: ${response.status}`);
+  }
+  
   const contentType = response.headers.get('content-type') ?? '';
 
   if (contentType.startsWith('video/') || VIDEO_EXTENSIONS.test(url)) {
@@ -68,6 +72,7 @@ function resolveClaimMedia(url: string) {
   if (!pending) {
     pending = sniffClaimMedia(url).then(
       (media) => {
+        resolvedMedia.delete(url);
         settledMedia.set(url, media);
         return media;
       },
