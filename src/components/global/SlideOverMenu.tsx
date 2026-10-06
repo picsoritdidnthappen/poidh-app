@@ -177,6 +177,10 @@ export default function SlideOverMenu({
       <MenuLink href='/terms' onClick={handleCloseWithDelay}>
         terms 📜
       </MenuLink>
+
+      <MenuLink href='/privacy' onClick={handleCloseWithDelay}>
+        privacy 🔒
+      </MenuLink>
     </div>
   );
 }
