@@ -11,8 +11,8 @@ import { WALLET_COOKIE_NAME } from '@/utils/walletCookieName';
 const STORAGE_PREFIX = 'wagmi';
 
 // wagmi's own cookieStorage writes a session cookie, which is gone after a
-// browser restart. Chrome caps this at 400 days.
-const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
+// browser restart. Each write of the wagmi store renews the 7 days.
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 function getLocalStorage() {
   try {
@@ -46,6 +46,15 @@ function writeCookie(name: string, value: string | null) {
         )};max-age=${COOKIE_MAX_AGE_SECONDS};path=/;samesite=Lax${secure}`;
 }
 
+function hasConnection(serializedStore: string) {
+  try {
+    const connections = JSON.parse(serializedStore)?.state?.connections?.value;
+    return Array.isArray(connections) && connections.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 // localStorage stays the source of truth, so wallets connected before this
 // change still reconnect. Only the wagmi store is copied to a cookie, because
 // that is all the server needs.
@@ -70,7 +79,11 @@ export const walletStorage = createStorage({
       } catch {
         // QuotaExceededError, SecurityError, etc.
       }
-      if (key === WALLET_COOKIE_NAME) writeCookie(key, value);
+      // A disconnected wallet has nothing for the server to render, so it
+      // gets no cookie.
+      if (key === WALLET_COOKIE_NAME) {
+        writeCookie(key, hasConnection(value) ? value : null);
+      }
     },
     removeItem(key) {
       try {
