@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import {
@@ -21,6 +21,7 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import { useYouFeedNotification } from '@/hooks/useYouFeedNotification';
 import { trpc } from '@/trpc/client';
 import DarkModeToggle from '@/components/global/DarkModeToggle';
+import SmoothWidth from '@/components/global/SmoothWidth';
 import ZeroDevAuthModal from '@/components/auth/ZeroDevAuthModal';
 
 export default function Header() {
@@ -225,39 +226,5 @@ function ConnectWalletButton() {
         );
       }}
     </ConnectButton.Custom>
-  );
-}
-
-// Animates its width when the content changes, so the button doesn't jump
-// when the ENS name replaces the address.
-function SmoothWidth({
-  children,
-  className = '',
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  const contentRef = useRef<HTMLSpanElement>(null);
-  const [width, setWidth] = useState<number>();
-
-  useEffect(() => {
-    const content = contentRef.current;
-    if (!content) return;
-    const observer = new ResizeObserver(() => {
-      setWidth(Math.ceil(content.getBoundingClientRect().width));
-    });
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <span
-      className={`overflow-hidden transition-[width] duration-200 ease-out motion-reduce:transition-none ${className}`}
-      style={{ width }}
-    >
-      <span ref={contentRef} className='inline-block whitespace-nowrap'>
-        {children}
-      </span>
-    </span>
   );
 }
