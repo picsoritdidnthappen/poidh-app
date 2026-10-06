@@ -1,98 +1,14 @@
-import Image from 'next/image';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import { KeyboardEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getChainById } from '@/utils/config';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
+import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
 
 type ClaimWithMedia = Claim & {
   mediaUrl?: string | null;
 };
-
-function hashString(value: string) {
-  let hash = 0;
-
-  for (let i = 0; i < value.length; i++) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-
-    hash |= 0;
-  }
-
-  return Math.abs(hash);
-}
-
-function GenerativePlaceholder({ seed }: { seed: string }) {
-  const hash = hashString(seed);
-
-  const palette = [
-    '#F45B5B',
-    '#FFD166',
-    '#118AB2',
-    '#7B61FF',
-    '#06D6A0',
-    '#F4A261',
-  ];
-
-  const background = palette[hash % palette.length];
-
-  const accent1 = palette[(hash + 2) % palette.length];
-
-  const accent2 = palette[(hash + 4) % palette.length];
-
-  const vertical = 28 + ((hash >> 2) % 38);
-
-  const horizontal = 30 + ((hash >> 4) % 36);
-
-  const smallBlockLeft = 8 + ((hash >> 6) % 58);
-
-  const smallBlockTop = 8 + ((hash >> 8) % 58);
-
-  return (
-    <div
-      className='absolute inset-0 overflow-hidden'
-      style={{
-        backgroundColor: background,
-      }}
-    >
-      <div
-        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
-        style={{
-          left: `${vertical}%`,
-        }}
-      />
-
-      <div
-        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
-        style={{
-          top: `${horizontal}%`,
-        }}
-      />
-
-      <div
-        className='absolute'
-        style={{
-          left: `${vertical}%`,
-          top: 0,
-          right: 0,
-          height: `${horizontal}%`,
-          backgroundColor: accent1,
-        }}
-      />
-
-      <div
-        className='absolute border-[4px] border-[#102A43]'
-        style={{
-          left: `${smallBlockLeft}%`,
-          top: `${smallBlockTop}%`,
-          width: '24%',
-          height: '24%',
-          backgroundColor: accent2,
-        }}
-      />
-    </div>
-  );
-}
 
 export default function ClaimImageEmbed({
   claim,
@@ -108,8 +24,6 @@ export default function ClaimImageEmbed({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [shouldLoadMedia, setShouldLoadMedia] = useState(false);
-
-  const [renderError, setRenderError] = useState(false);
 
   const [isNavigating, setIsNavigating] = useState(false);
 
@@ -158,16 +72,11 @@ export default function ClaimImageEmbed({
     };
   }, []);
 
-  const { mediaUrl, isVideo, isLoading } = useClaimMedia(
-    mediaSource,
-    shouldLoadMedia
-  );
+  const media = useClaimMedia(mediaSource, shouldLoadMedia);
 
   if (!claim) {
     return null;
   }
-
-  const hasMedia = !!mediaUrl && !renderError;
 
   const placeholderSeed = `${chainId}-${claim.id}-${claim.issuer}`;
 
@@ -232,41 +141,13 @@ export default function ClaimImageEmbed({
           isNavigating ? 'scale-[0.99]' : 'active:scale-[0.99]'
         }`}
       >
-        {hasMedia ? (
-          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-            {isVideo ? (
-              <video
-                src={mediaUrl}
-                controls
-                playsInline
-                preload='metadata'
-                className='w-full h-full object-cover rounded-lg'
-                onError={() => setRenderError(true)}
-              />
-            ) : (
-              <Image
-                src={mediaUrl}
-                alt={claim.title || 'claim image'}
-                fill
-                loading='lazy'
-                className='object-cover'
-                sizes='(max-width: 768px) 100vw, 600px'
-                unoptimized
-                onError={() => setRenderError(true)}
-              />
-            )}
-          </div>
-        ) : renderError ? (
-          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-            <GenerativePlaceholder seed={placeholderSeed} />
-          </div>
-        ) : isLoading || !shouldLoadMedia ? (
-          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden bg-white/10 animate-pulse' />
-        ) : (
-          <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
-            <GenerativePlaceholder seed={placeholderSeed} />
-          </div>
-        )}
+        <div className='relative w-full h-[clamp(12rem,50vw,28rem)] rounded-lg overflow-hidden'>
+          <ClaimMedia
+            media={media}
+            seed={placeholderSeed}
+            alt={claim.title || 'claim image'}
+          />
+        </div>
 
         <div className='mt-3'>
           <h3 className='text-white text-lg font-bold truncate'>

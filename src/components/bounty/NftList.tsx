@@ -5,6 +5,8 @@ import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import { getChainById } from '@/utils/config';
 import { ChainId } from '@/utils/types';
 import MarkdownContent from '@/components/global/MarkdownContent';
+import { useClaimMedia } from '@/hooks/useClaimMedia';
+import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
 
 type NFT = {
   id: number;
@@ -36,14 +38,18 @@ export default function NftList({ NFTs }: { NFTs: NFT[] }) {
 
 function NftListItem({ NFT }: { NFT: NFT }) {
   const chain = getChainById({ chainId: NFT.chainId });
+  const media = useClaimMedia(NFT.url);
 
   return (
     <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl w-full'>
       <Link href={`/${chain.slug}/bounty/${NFT.bountyId}`}>
-        <div className='bg-poidhBlue dark:bg-[#132b47] aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'>
-          <div
-            style={{ backgroundImage: `url(${NFT.url})` }}
-            className='bg-poidhBlue dark:bg-[#132b47] bg-cover bg-center aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
+        <div className='relative bg-poidhBlue dark:bg-[#132b47] w-full aspect-square rounded-[8px] overflow-hidden'>
+          <ClaimMedia
+            media={media}
+            seed={`${NFT.chainId}-${NFT.id}-${NFT.issuer}`}
+            alt={NFT.title || 'NFT image'}
+            // The whole card links to the bounty
+            videoControls={false}
           />
         </div>
       </Link>
@@ -52,9 +58,9 @@ function NftListItem({ NFT }: { NFT: NFT }) {
           <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden'>
             {NFT.title}
           </p>
-          <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
+          <div className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
             <MarkdownContent>{NFT.description}</MarkdownContent>
-          </p>
+          </div>
         </div>
         <div className='mt-2 py-2 flex flex-row justify-between text-sm border-t border-dashed'>
           <span className=''>issuer&nbsp;</span>

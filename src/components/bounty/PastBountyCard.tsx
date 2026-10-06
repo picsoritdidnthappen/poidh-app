@@ -1,4 +1,4 @@
-import { Bounty, ChainId } from '@/utils/types';
+import { Bounty, ChainId, Claim } from '@/utils/types';
 import { formatEther } from 'viem';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
@@ -6,83 +6,112 @@ import { formatSortAmount } from '@/utils/utils';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import { UsersRoundIcon } from '@/components/global/Icons';
 import Link from 'next/link';
-import { trpc } from '@/trpc/client';
 import { getChainById } from '@/utils/config';
 import MarkdownContent from '@/components/global/MarkdownContent';
+import { useClaimMedia } from '@/hooks/useClaimMedia';
+import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
+import { ClaimItemSkeleton } from '@/components/claims/ClaimList';
 
-export default function PastBountyCard({ bounty }: { bounty: Bounty }) {
-  const claim = trpc.claims.fetchAcceptedClaimByBountyId.useQuery({
-    bountyId: bounty.id,
-    chainId: bounty.chainId,
-  });
-
-  if (!claim.data) {
-    return null;
-  }
-
-  const chain = getChainById({ chainId: claim.data.chainId as ChainId });
+export default function PastBountyCard({
+  bounty,
+  claim,
+}: {
+  bounty: Bounty;
+  claim: Claim;
+}) {
+  const chain = getChainById({ chainId: claim.chainId as ChainId });
+  const media = useClaimMedia(claim.url);
 
   return (
-    <>
-      {claim && (
-        <Link
-          href={`/${chain.slug}/bounty/${bounty.id}`}
-          className='lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl cursor-pointer'
+    <div className='relative lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl'>
+      {/* Covers the whole card. The issuer links and the scrollable
+          description sit above it, since links can't nest inside links. */}
+      <Link
+        href={`/${chain.slug}/bounty/${bounty.id}`}
+        aria-label={bounty.title}
+        className='absolute inset-0 z-[5] rounded-xl'
+      />
+      <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
+        <div>
+          <div className='z-10 left-5 top-5 text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute'>
+            accepted
+          </div>
+          <div className='relative bg-poidhBlue dark:bg-[#132b47] w-full aspect-square rounded-[8px] overflow-hidden'>
+            <ClaimMedia
+              media={media}
+              seed={`${claim.chainId}-${claim.id}-${claim.issuer}`}
+              alt={claim.title || 'claim image'}
+              // The whole card links to the bounty
+              videoControls={false}
+            />
+          </div>
+          <div className='p-3'>
+            <div className='flex flex-col'>
+              <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-word text-left'>
+                {claim.title}
+              </p>
+              <div className='relative z-10 normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words text-left'>
+                <MarkdownContent>{claim.description}</MarkdownContent>
+              </div>
+            </div>
+            <div className='relative z-10 mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
+              <span className='shrink-0 mr-2'>issuer </span>
+              <div className='flex flex-row items-center w-full justify-end overflow-hidden'>
+                <DisplayAddress address={claim.issuer} />
+                <div className='ml-2'>
+                  <CopyAddressButton address={claim.issuer} />
+                </div>
+              </div>
+            </div>
+            <div className='relative z-10 flex flex-row items-center justify-between'>
+              <span>claim id: {claim.id}</span>
+              <SocialMediaLinks address={claim.issuer} />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className='px-1 py-3 text-left'>
+        <p className='text-nowrap overflow-ellipsis overflow-hidden text-xl mb-3 normal-case'>
+          {bounty.title}
+        </p>
+        <div className='flex items-center'>
+          <span className='text-md mr-3'>
+            {formatSortAmount({
+              usdAmount: bounty.amountSort,
+              amount: formatEther(BigInt(bounty.amount)),
+              currency: chain.currency,
+            })}
+          </span>
+          {bounty.isMultiplayer && <UsersRoundIcon size={20} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export const PAST_BOUNTY_GRID_CLASS =
+  'container mx-auto p-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0';
+
+// Same layout as the cards: the claim block, then the bounty title and amount
+export function PastBountyGridSkeleton({ count }: { count: number }) {
+  return (
+    <div className={PAST_BOUNTY_GRID_CLASS}>
+      {Array.from({ length: count }, (_, i) => (
+        <div
+          key={i}
+          className='lg:col-span-4 p-3 bg-whiteblue border-1 rounded-xl'
         >
-          <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
-            <div>
-              <div className='left-5 top-5 text-white bg-poidhRed border border-poidhRed rounded-[8px] py-2 px-5 absolute'>
-                accepted
-              </div>
-              <div
-                style={{ backgroundImage: `url(${claim.data.url})` }}
-                className='bg-poidhBlue dark:bg-[#132b47] bg-cover bg-center w-full aspect-w-1 aspect-h-1 rounded-[8px] overflow-hidden'
-              ></div>
-              <div className='p-3'>
-                <div className='flex flex-col'>
-                  <p className='normal-case text-nowrap overflow-ellipsis overflow-hidden break-word text-left'>
-                    {claim.data.title}
-                  </p>
-                  <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden break-words text-left'>
-                    <MarkdownContent>{claim.data.description}</MarkdownContent>
-                  </p>
-                </div>
-                <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>
-                  <span className='shrink-0 mr-2'>issuer </span>
-                  <div
-                    className='flex flex-row items-center w-full justify-end overflow-hidden'
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <DisplayAddress address={claim.data.issuer} />
-                    <div className='ml-2'>
-                      <CopyAddressButton address={claim.data.issuer} />
-                    </div>
-                  </div>
-                </div>
-                <div className='flex flex-row items-center justify-between'>
-                  <span>claim id: {claim.data.id}</span>
-                  <SocialMediaLinks address={claim.data.issuer} />
-                </div>
-              </div>
+          <ClaimItemSkeleton />
+          <div className='px-1 py-3 animate-pulse'>
+            <div className='flex items-center h-7 mb-3'>
+              <div className='h-5 w-[70%] rounded bg-white/10' />
+            </div>
+            <div className='flex items-center h-6'>
+              <div className='h-4 w-32 rounded bg-white/10' />
             </div>
           </div>
-          <div className='px-1 py-3 text-left'>
-            <p className='text-nowrap overflow-ellipsis overflow-hidden text-xl mb-3 normal-case'>
-              {bounty.title}
-            </p>
-            <div className='flex items-center'>
-              <span className='text-md mr-3'>
-                {formatSortAmount({
-                  usdAmount: bounty.amountSort,
-                  amount: formatEther(BigInt(bounty.amount)),
-                  currency: chain.currency,
-                })}
-              </span>
-              {bounty.isMultiplayer && <UsersRoundIcon size={20} />}
-            </div>
-          </div>
-        </Link>
-      )}
-    </>
+        </div>
+      ))}
+    </div>
   );
 }

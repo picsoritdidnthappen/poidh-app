@@ -59,7 +59,7 @@ export default function ClaimList({
   );
 }
 
-function ClaimItemSkeleton() {
+export function ClaimItemSkeleton() {
   return (
     <div className='p-[2px] relative border-white/10 border-2 rounded-xl animate-pulse'>
       <div className='w-full aspect-square bg-white/10 rounded-[8px]' />
