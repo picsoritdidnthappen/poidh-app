@@ -1,0 +1,13 @@
+# poidh
+
+> poidh ("pics or it didn't happen") is an onchain social bounty protocol where people create, fund, complete, and verify bounties using proof.
+
+## Agent resources
+
+- [poidh Agent Skill](https://poidh.xyz/skill.md): Machine-readable instructions for agents to discover, create, fund, claim, and evaluate poidh bounties.
+- [poidh Documentation](https://docs.poidh.xyz/): Protocol and product documentation.
+- [poidh GitHub](https://github.com/picsoritdidnthappen/poidh-app): Open-source application, contracts, and agent skill source.
+
+## Main application
+
+- [poidh](https://poidh.xyz/): Create, fund, discover, and complete bounties.
