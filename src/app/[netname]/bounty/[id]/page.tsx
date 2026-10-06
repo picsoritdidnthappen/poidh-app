@@ -16,17 +16,18 @@ export default async function Bounty({
   // instead of popping in and pushing the page down
   if (chain && params.netname !== 'degen' && !Number.isNaN(id)) {
     const queryClient = getQueryClient();
-    await Promise.all([
-      queryClient.prefetchQuery(
+    // A failed query just loads in the browser instead
+    await Promise.allSettled([
+      queryClient.query(
         trpc.bounties.fetch.queryOptions({ id, chainId: chain.id })
       ),
-      queryClient.prefetchQuery(
+      queryClient.query(
         trpc.bounties.participations.queryOptions({
           bountyId: id,
           chainId: chain.id,
         })
       ),
-      queryClient.prefetchQuery(
+      queryClient.query(
         trpc.web3.fetchPrice.queryOptions({ currency: chain.currency })
       ),
     ]);

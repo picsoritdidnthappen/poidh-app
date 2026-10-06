@@ -5,89 +5,8 @@ import CopyAddressButton from '../global/CopyAddressButton';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import { getChainById } from '@/utils/config';
 import MarkdownContent from '@/components/global/MarkdownContent';
-
-function hashString(value: string) {
-  let hash = 0;
-
-  for (let i = 0; i < value.length; i++) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-    hash |= 0;
-  }
-
-  return Math.abs(hash);
-}
-
-function GenerativePlaceholder({ seed }: { seed: string }) {
-  const hash = hashString(seed);
-
-  const palette = [
-    '#F45B5B',
-    '#FFD166',
-    '#118AB2',
-    '#7B61FF',
-    '#06D6A0',
-    '#F4A261',
-  ];
-
-  const background = palette[hash % palette.length];
-
-  const accent1 = palette[(hash + 2) % palette.length];
-
-  const accent2 = palette[(hash + 4) % palette.length];
-
-  const vertical = 28 + ((hash >> 2) % 38);
-
-  const horizontal = 30 + ((hash >> 4) % 36);
-
-  const smallBlockLeft = 8 + ((hash >> 6) % 58);
-
-  const smallBlockTop = 8 + ((hash >> 8) % 58);
-
-  return (
-    <div
-      className='absolute inset-0 overflow-hidden'
-      style={{
-        backgroundColor: background,
-      }}
-    >
-      <div
-        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
-        style={{
-          left: `${vertical}%`,
-        }}
-      />
-
-      <div
-        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
-        style={{
-          top: `${horizontal}%`,
-        }}
-      />
-
-      <div
-        className='absolute'
-        style={{
-          left: `${vertical}%`,
-          top: 0,
-          right: 0,
-          height: `${horizontal}%`,
-          backgroundColor: accent1,
-        }}
-      />
-
-      <div
-        className='absolute border-[4px] border-[#102A43]'
-        style={{
-          left: `${smallBlockLeft}%`,
-          top: `${smallBlockTop}%`,
-          width: '24%',
-          height: '24%',
-          backgroundColor: accent2,
-        }}
-      />
-    </div>
-  );
-}
+import { useClaimMedia } from '@/hooks/useClaimMedia';
+import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
 
 export default function ClaimsListAccount({ claims }: { claims: Claim[] }) {
   if (!claims || claims.length === 0) {
@@ -112,6 +31,7 @@ function ClaimItem({ claim }: { claim: Claim }) {
     chainId: claim.chainId as ChainId,
   });
 
+  const media = useClaimMedia(claim.url);
   const placeholderSeed = `${claim.chainId}-${claim.id}-${claim.issuer}`;
 
   return (
@@ -124,26 +44,13 @@ function ClaimItem({ claim }: { claim: Claim }) {
         )}
 
         <div className='relative bg-poidhBlue dark:bg-[#132b47] w-full aspect-square rounded-[8px] overflow-hidden'>
-          {claim.url ? (
-            <>
-              <div
-                style={{
-                  backgroundImage: `url(${claim.url})`,
-                }}
-                className='absolute inset-0 bg-cover bg-center'
-              />
-
-              {/*
-               * If the browser cannot render the supplied URL,
-               * this layer is still underneath it as the fallback.
-               */}
-              <div className='absolute inset-0 -z-10'>
-                <GenerativePlaceholder seed={placeholderSeed} />
-              </div>
-            </>
-          ) : (
-            <GenerativePlaceholder seed={placeholderSeed} />
-          )}
+          <ClaimMedia
+            media={media}
+            seed={placeholderSeed}
+            alt={claim.title || 'claim image'}
+            // The whole card links to the bounty
+            videoControls={false}
+          />
         </div>
       </Link>
 
@@ -153,9 +60,9 @@ function ClaimItem({ claim }: { claim: Claim }) {
             {claim.title}
           </p>
 
-          <p className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
+          <div className='normal-case w-full h-20 overflow-y-auto overflow-x-hidden overflow-hidden'>
             <MarkdownContent>{claim.description}</MarkdownContent>
-          </p>
+          </div>
         </div>
 
         <div className='mt-2 py-2 flex flex-row items-center text-sm border-t border-dashed'>

@@ -22,3 +22,8 @@ export const DEGEN_MIN_AMOUNT = 1;
 export const ARBITRUM_LAST_PRE_V3_BOUNTY = 180;
 export const DEGEN_LAST_PRE_V3_BOUNTY = 1197;
 export const BASE_LAST_PRE_V3_BOUNTY = 986;
+
+// How many items the home rails show. Shared with the home layout, so the
+// server loads the same queries the rails read
+export const LATEST_CLAIMS_LIMIT = 15;
+export const RECENT_PAYOUTS_LIMIT = 12;

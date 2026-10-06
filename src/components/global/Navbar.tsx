@@ -1,3 +1,5 @@
+'use client';
+
 import GameButton, { PlainGameButton } from '@/components/global/GameButton';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAccount } from 'wagmi';

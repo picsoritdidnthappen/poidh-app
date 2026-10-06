@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
@@ -8,7 +7,8 @@ import { trpc } from '@/trpc/client';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 import { getChainById } from '@/utils/config';
 import { ChainId } from '@/utils/types';
-import PatternAvatar from '@/components/global/PatternAvatar';
+import { ClaimMedia, IssuerAvatar } from '@/components/claims/ClaimMediaParts';
+import { RECENT_PAYOUTS_LIMIT } from '@/utils/constants';
 
 type RecentPayout = {
   claim: {
@@ -25,139 +25,6 @@ type RecentPayout = {
   amountUsd: number;
   timestamp: string;
 };
-
-function hashString(value: string) {
-  let hash = 0;
-
-  for (let i = 0; i < value.length; i++) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-    hash |= 0;
-  }
-
-  return Math.abs(hash);
-}
-
-function GenerativePlaceholder({ seed }: { seed: string }) {
-  const hash = hashString(seed);
-
-  const palette = [
-    '#F45B5B',
-    '#FFD166',
-    '#118AB2',
-    '#7B61FF',
-    '#06D6A0',
-    '#F4A261',
-  ];
-
-  const background = palette[hash % palette.length];
-  const accent1 = palette[(hash + 2) % palette.length];
-  const accent2 = palette[(hash + 4) % palette.length];
-
-  const vertical = 28 + ((hash >> 2) % 38);
-  const horizontal = 30 + ((hash >> 4) % 36);
-
-  const smallBlockLeft = 8 + ((hash >> 6) % 58);
-  const smallBlockTop = 8 + ((hash >> 8) % 58);
-
-  return (
-    <div
-      className='absolute inset-0 overflow-hidden'
-      style={{
-        backgroundColor: background,
-      }}
-    >
-      <div
-        className='absolute top-0 bottom-0 w-[4px] bg-[#102A43]'
-        style={{
-          left: `${vertical}%`,
-        }}
-      />
-
-      <div
-        className='absolute left-0 right-0 h-[4px] bg-[#102A43]'
-        style={{
-          top: `${horizontal}%`,
-        }}
-      />
-
-      <div
-        className='absolute'
-        style={{
-          left: `${vertical}%`,
-          top: 0,
-          right: 0,
-          height: `${horizontal}%`,
-          backgroundColor: accent1,
-        }}
-      />
-
-      <div
-        className='absolute border-[4px] border-[#102A43]'
-        style={{
-          left: `${smallBlockLeft}%`,
-          top: `${smallBlockTop}%`,
-          width: '24%',
-          height: '24%',
-          backgroundColor: accent2,
-        }}
-      />
-    </div>
-  );
-}
-
-function EarnerAvatar({
-  address,
-  size = 28,
-}: {
-  address: string;
-  size?: number;
-}) {
-  const userQuery = trpc.neynar.usersData.useQuery(
-    {
-      addresses: [address],
-    },
-    {
-      staleTime: 60_000,
-      refetchOnWindowFocus: false,
-    }
-  );
-
-  const user = userQuery.data?.[0];
-
-  if (userQuery.isLoading) {
-    return (
-      <div
-        className='rounded-full bg-white/20 animate-pulse'
-        style={{
-          width: size,
-          height: size,
-        }}
-      />
-    );
-  }
-
-  if (user?.pfpUrl) {
-    return (
-      <div
-        className='relative overflow-hidden rounded-full'
-        style={{
-          width: size,
-          height: size,
-        }}
-      >
-        <Image
-          src={user.pfpUrl}
-          alt={user.farcasterTag ?? 'bounty earner'}
-          fill
-          unoptimized
-          className='object-cover'
-        />
-      </div>
-    );
-  }
-
-  return <PatternAvatar seed={address} size={size} />;
-}
 
 function formatPayoutUsd(amount: number) {
   if (amount > 0 && amount < 0.01) {
@@ -207,10 +74,7 @@ function PayoutThumb({ payout }: { payout: RecentPayout }) {
     };
   }, []);
 
-  const { mediaUrl, isVideo, mediaError, setMediaError } = useClaimMedia(
-    payout.claim.url,
-    shouldLoadMedia
-  );
+  const media = useClaimMedia(payout.claim.url, shouldLoadMedia);
 
   const payoutLabel = formatPayoutUsd(payout.amountUsd);
 
@@ -226,36 +90,13 @@ function PayoutThumb({ payout }: { payout: RecentPayout }) {
         className='block relative w-full h-full group'
         aria-label={`view ${payoutLabel} payout for ${payout.bountyTitle}`}
       >
-        {mediaUrl && !mediaError ? (
-          isVideo ? (
-            <video
-              src={mediaUrl}
-              muted
-              playsInline
-              preload='metadata'
-              className='absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-              onError={() => {
-                setMediaError(true);
-              }}
-            />
-          ) : (
-            <Image
-              src={mediaUrl}
-              alt={payout.claim.title || 'paid claim'}
-              fill
-              unoptimized
-              className='object-cover group-hover:scale-105 transition-transform duration-300'
-              sizes='(max-width: 640px) 112px, (max-width: 768px) 128px, (max-width: 1024px) 144px, (max-width: 1280px) 160px, 176px'
-              onError={() => {
-                setMediaError(true);
-              }}
-            />
-          )
-        ) : mediaError ? (
-          <GenerativePlaceholder seed={placeholderSeed} />
-        ) : (
-          <div className='absolute inset-0 bg-white/10 animate-pulse' />
-        )}
+        <ClaimMedia
+          media={media}
+          seed={placeholderSeed}
+          alt={payout.claim.title || 'paid claim'}
+          videoControls={false}
+          mediaClassName='group-hover:scale-105 transition-transform duration-300'
+        />
 
         {/* payout amount — top right */}
         <div className='absolute top-2 right-2 z-30'>
@@ -287,7 +128,11 @@ function PayoutThumb({ payout }: { payout: RecentPayout }) {
           className='absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-30 scale-[0.7] sm:scale-[0.75] origin-bottom-right'
           title='bounty earner'
         >
-          <EarnerAvatar address={payout.claim.issuer} size={28} />
+          <IssuerAvatar
+            address={payout.claim.issuer}
+            fallbackAlt='bounty earner'
+            size={28}
+          />
         </div>
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 z-10 pointer-events-none' />
@@ -301,7 +146,7 @@ export default function RecentPayouts() {
 
   const recentPayoutsQuery = trpc.claims.fetchRecentPayouts.useQuery(
     {
-      limit: 12,
+      limit: RECENT_PAYOUTS_LIMIT,
     },
     {
       staleTime: 30_000,
@@ -363,7 +208,7 @@ export default function RecentPayouts() {
         }}
       >
         {recentPayoutsQuery.isLoading
-          ? Array.from({ length: 12 }).map((_, i) => (
+          ? Array.from({ length: RECENT_PAYOUTS_LIMIT }).map((_, i) => (
               <div
                 key={i}
                 className='flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-lg bg-white/10 animate-pulse'
