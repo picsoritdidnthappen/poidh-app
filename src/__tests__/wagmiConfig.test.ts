@@ -13,6 +13,7 @@ jest.mock('@rainbow-me/rainbowkit', () => ({
   }),
 }));
 jest.mock('viem', () => ({ http: jest.fn() }));
+jest.mock('@/utils/walletStorage', () => ({ walletStorage: {} }));
 jest.mock('wagmi/chains', () => ({
   arbitrum: { id: 42161 },
   base: { id: 8453 },

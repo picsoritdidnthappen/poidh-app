@@ -98,10 +98,10 @@ export default function Header() {
             <MagnifyingGlassIcon />
           </Link>
 
-          {!isMobile && account.address && (
+          {account.address && (
             <Link
               href={`/account/${account.address}`}
-              className='relative rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
+              className='hidden md:inline relative rounded-lg backdrop-blur-sm bg-white/30 p-2 mr-2 hover:bg-white/20'
             >
               {((user?.data?.withdrawalArbitrum ?? 0) > 0 ||
                 (user?.data?.withdrawalBase ?? 0) > 0 ||
@@ -148,9 +148,10 @@ function ConnectWalletButton() {
         openConnectModal,
         openChainModal,
         authenticationStatus,
-        mounted,
       }) => {
-        const ready = mounted && authenticationStatus !== 'loading';
+        // No `mounted` check: the server renders the wallet state from the
+        // cookie, so the first paint already matches the browser.
+        const ready = authenticationStatus !== 'loading';
 
         const connected =
           ready &&
