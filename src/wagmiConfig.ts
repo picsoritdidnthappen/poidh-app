@@ -1,6 +1,7 @@
 'use client';
 
 import clientEnv from '@/utils/clientEnv';
+import { walletStorage } from '@/utils/walletStorage';
 import {
   getDefaultConfig,
   getDefaultWallets,
@@ -234,25 +235,29 @@ export const zeroDevRainbowWallet = (): Wallet => ({
     },
 });
 
-export const config = getDefaultConfig({
-  appName: 'poidh',
-  projectId: '784d6347a43d3f6e89f58b177f1b27f2',
-  chains: [mainnet, arbitrum, base],
-  wallets: [
-    ...(clientEnv.ZERODEV_PROJECT_ID
-      ? [
-          {
-            groupName: 'No wallet?',
-            wallets: [zeroDevRainbowWallet],
-          },
-        ]
-      : []),
-    ...wallets,
-  ],
-  transports: {
-    [arbitrum.id]: http(clientEnv.ARBITRUM_RPC_URL),
-    [base.id]: http(clientEnv.BASE_RPC_URL),
-    [mainnet.id]: http(clientEnv.MAINNET_RPC_URL),
-  },
-  ssr: true,
-});
+export const createWagmiConfig = () =>
+  getDefaultConfig({
+    appName: 'poidh',
+    projectId: '784d6347a43d3f6e89f58b177f1b27f2',
+    chains: [mainnet, arbitrum, base],
+    wallets: [
+      ...(clientEnv.ZERODEV_PROJECT_ID
+        ? [
+            {
+              groupName: 'No wallet?',
+              wallets: [zeroDevRainbowWallet],
+            },
+          ]
+        : []),
+      ...wallets,
+    ],
+    transports: {
+      [arbitrum.id]: http(clientEnv.ARBITRUM_RPC_URL),
+      [base.id]: http(clientEnv.BASE_RPC_URL),
+      [mainnet.id]: http(clientEnv.MAINNET_RPC_URL),
+    },
+    ssr: true,
+    storage: walletStorage,
+  });
+
+export const config = createWagmiConfig();

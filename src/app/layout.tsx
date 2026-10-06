@@ -1,6 +1,6 @@
 import '@/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { TRPCProvider } from '@/trpc/client';
 import '@rainbow-me/rainbowkit/styles.css';
 import { WalletProvider } from '@/components/global/WalletProvider';
@@ -13,6 +13,7 @@ import Footer from '@/components/global/Footer';
 import KonamiCamera from '@/components/global/KonamiCamera';
 import { Analytics } from '@vercel/analytics/next';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { WALLET_COOKIE_NAME } from '@/utils/walletCookieName';
 
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
@@ -93,6 +94,7 @@ export default function RootLayout({
   const headersList = headers();
   const referer = headersList.get('referer');
   const url = referer ? String(referer) : '';
+  const walletCookie = cookies().get(WALLET_COOKIE_NAME)?.value;
 
   return (
     <html lang='en' suppressHydrationWarning>
@@ -107,7 +109,7 @@ export default function RootLayout({
       <body className='bg-blue-300 text-white'>
         <ThemeProvider>
           <TRPCProvider>
-            <WalletProvider>
+            <WalletProvider walletCookie={walletCookie}>
               <LoadingLayout>
                 <ClientLayout>{children}</ClientLayout>
                 <Footer />
