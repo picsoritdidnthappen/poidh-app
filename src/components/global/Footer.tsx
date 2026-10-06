@@ -17,8 +17,18 @@ const links = [
     external: true,
   },
   {
+    label: 'agents',
+    href: '/skill.md',
+    external: false,
+  },
+  {
     label: 'terms',
     href: '/terms',
+    external: false,
+  },
+  {
+    label: 'privacy',
+    href: '/privacy',
     external: false,
   },
 ];
