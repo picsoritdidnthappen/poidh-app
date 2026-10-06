@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import SlideOverMenu from '@/components/global/SlideOverMenu';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import {
@@ -207,9 +207,9 @@ function ConnectWalletButton() {
                       )}
                     </div>
 
-                    <span className='hidden md:block'>
+                    <SmoothWidth className='hidden md:block'>
                       {account.ensName || account.displayName}
-                    </span>
+                    </SmoothWidth>
 
                     <ExpandMoreIcon size={12} />
                   </button>
@@ -225,5 +225,39 @@ function ConnectWalletButton() {
         );
       }}
     </ConnectButton.Custom>
+  );
+}
+
+// Animates its width when the content changes, so the button doesn't jump
+// when the ENS name replaces the address.
+function SmoothWidth({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const contentRef = useRef<HTMLSpanElement>(null);
+  const [width, setWidth] = useState<number>();
+
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+    const observer = new ResizeObserver(() => {
+      setWidth(Math.ceil(content.getBoundingClientRect().width));
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <span
+      className={`overflow-hidden transition-[width] duration-200 ease-out motion-reduce:transition-none ${className}`}
+      style={{ width }}
+    >
+      <span ref={contentRef} className='inline-block whitespace-nowrap'>
+        {children}
+      </span>
+    </span>
   );
 }
