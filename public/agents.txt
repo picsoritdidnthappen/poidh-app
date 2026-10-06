@@ -1,0 +1,3 @@
+# poidh agent capabilities
+
+Skills: https://poidh.xyz/skill.md
