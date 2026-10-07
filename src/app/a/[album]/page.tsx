@@ -69,7 +69,7 @@ export default function Album({ params }: { params: { album: string } }) {
     <div className='pb-14'>
       <div>
         <div className='container mx-auto px-4 text-center my-6 mt-8'>
-          <h1 className='max-w-full font-mono text-3xl sm:text-4xl leading-tight [overflow-wrap:anywhere]'>
+          <h1 className='max-w-full font-mono text-[clamp(1.25rem,6vw,2.25rem)] sm:text-4xl leading-tight tracking-tight [overflow-wrap:anywhere]'>
             {album}
           </h1>
         </div>
