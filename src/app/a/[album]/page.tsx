@@ -68,8 +68,10 @@ export default function Album({ params }: { params: { album: string } }) {
   return (
     <div className='pb-14'>
       <div>
-        <div className='container mx-auto text-center my-6 mt-8 '>
-          <h1 className='font-mono text-4xl'>{album}</h1>
+        <div className='container mx-auto px-4 text-center my-6 mt-8'>
+          <h1 className='max-w-full font-mono text-3xl sm:text-4xl leading-tight [overflow-wrap:anywhere]'>
+            {album}
+          </h1>
         </div>
         <div className='z-1 flex flex-wrap container mx-auto border-b border-white hover:border-white py-6 md:pb-12 sm:pb-8 pt-4  w-full items-center justify-center px-8'>
           <div
