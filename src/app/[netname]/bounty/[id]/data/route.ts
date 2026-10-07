@@ -46,6 +46,7 @@ export async function GET(
       { status: 400, headers: CORS_HEADERS }
     );
   }
+
   if (Number.isNaN(id)) {
     return NextResponse.json(
       { error: 'invalid bounty id' },
@@ -70,26 +71,52 @@ export async function GET(
       extra,
       ...bountyData
     } = bounty;
+
     const { amountSort, ...extraData } = extra;
 
-    const claims = await prisma.claims.findMany({
-      where: { bountyId: id, chainId, ban: { none: {} } },
-      orderBy: [{ isAccepted: 'desc' }, { id: 'desc' }],
-    });
+    const [claims, comments] = await Promise.all([
+      prisma.claims.findMany({
+        where: { bountyId: id, chainId, ban: { none: {} } },
+        orderBy: [{ isAccepted: 'desc' }, { id: 'desc' }],
+      }),
+      prisma.comments.findMany({
+        where: {
+          bountyId: id,
+          chainId,
+          deletedAt: null,
+        },
+        include: {
+          reactions: {
+            select: {
+              type: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+      }),
+    ]);
 
-    const uniqueIssuers = [
-      ...new Set(claims.map((c) => c.issuer.toLowerCase())),
+    const uniqueUsers = [
+      ...new Set([
+        ...claims.map((claim) => claim.issuer.toLowerCase()),
+        ...comments.map((comment) => comment.userAddress.toLowerCase()),
+      ]),
     ];
 
     const [neynarUsers, ...names] = await Promise.all([
-      getUsersDataOrFetchItFromNeynar(uniqueIssuers),
-      ...uniqueIssuers.map((addr) => getHumanReadableName(addr)),
+      getUsersDataOrFetchItFromNeynar(uniqueUsers),
+      ...uniqueUsers.map((addr) => getHumanReadableName(addr)),
     ]);
 
     const nameByAddress = new Map(
-      uniqueIssuers.map((addr, i) => [addr, names[i]])
+      uniqueUsers.map((addr, i) => [addr, names[i]])
     );
-    const neynarByAddress = new Map(neynarUsers.map((u) => [u.address, u]));
+
+    const neynarByAddress = new Map(
+      neynarUsers.map((user) => [user.address.toLowerCase(), user])
+    );
 
     const claimsData = await Promise.all(
       claims.map(async (claim) => {
@@ -104,11 +131,44 @@ export async function GET(
           issuerName: nameByAddress.get(issuerLower) ?? null,
           farcasterHandle: neynarUser?.farcasterTag ?? null,
           twitterHandle: neynarUser?.twitterTag ?? null,
+          profileUrl: `https://poidh.xyz/account/${issuerLower}`,
           title: claim.title,
           description: claim.description,
         };
       })
     );
+
+    const commentsData = comments.map((comment) => {
+      const authorLower = comment.userAddress.toLowerCase();
+      const neynarUser = neynarByAddress.get(authorLower);
+
+      const { upvotes, downvotes } = comment.reactions.reduce(
+        (acc, reaction) => {
+          if (reaction.type === 'upvote') {
+            acc.upvotes += 1;
+          } else if (reaction.type === 'downvote') {
+            acc.downvotes += 1;
+          }
+
+          return acc;
+        },
+        { upvotes: 0, downvotes: 0 }
+      );
+
+      return {
+        commentId: comment.id,
+        parentId: comment.parentId,
+        body: comment.body,
+        createdAt: comment.createdAt,
+        authorAddress: comment.userAddress,
+        authorName: nameByAddress.get(authorLower) ?? null,
+        farcasterHandle: neynarUser?.farcasterTag ?? null,
+        twitterHandle: neynarUser?.twitterTag ?? null,
+        profileUrl: `https://poidh.xyz/account/${authorLower}`,
+        upvotes,
+        downvotes,
+      };
+    });
 
     return NextResponse.json(
       {
@@ -120,6 +180,7 @@ export async function GET(
         currency: CURRENCIES[slug],
         url: `https://poidh.xyz/${slug}/bounty/${id}`,
         claims: claimsData,
+        comments: commentsData,
       },
       { headers: { ...CORS_HEADERS, ...CACHE_HEADERS } }
     );
