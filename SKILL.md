@@ -675,6 +675,21 @@ Typical response fields include:
 }
 ```
 
+The individual bounty `/data` endpoint also returns:
+
+- `claims` — all non-banned claims, including claimant address, resolved
+  name, Farcaster handle, Twitter handle, poidh profile URL, title,
+  description, and resolved claim media.
+
+- `comments` — all publicly visible (non-deleted) bounty comments in
+  chronological order, including author address, resolved name,
+  Farcaster handle, Twitter handle, poidh profile URL, reply parent,
+  timestamp, and reaction counts.
+
+When evaluating or completing a bounty, always inspect `comments` for
+clarifications, requirement changes, answers from the bounty creator,
+or other context that may modify the original bounty description.
+
 Of particular importance:
 
 ```text
