@@ -677,9 +677,15 @@ Typical response fields include:
 
 The individual bounty `/data` endpoint also returns:
 
-- `claims` — all non-banned claims, including claimant address, resolved
-  name, Farcaster handle, Twitter handle, poidh profile URL, title,
-  description, and resolved claim media.
+- `claims` — all non-banned claims, including `claimId`, the raw claim
+  `uri`, claimant address, resolved name, Farcaster handle, Twitter
+  handle, poidh profile URL, title, and description.
+
+  `uri` is the claim's original proof/metadata URI. It is not necessarily
+  a direct image or video URL and is not pre-resolved by this endpoint.
+  It may point to JSON metadata, direct media, or an IPFS URI/gateway URL.
+  Resolve it using the claim-media rules described below when the actual
+  proof media needs to be inspected.
 
 - `comments` — all publicly visible (non-deleted) bounty comments in
   chronological order, including author address, resolved name,
