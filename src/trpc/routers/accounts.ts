@@ -5,7 +5,6 @@ import { ChainId } from '@/utils/types';
 import { addressSchema } from '../serverTypes';
 import { formatEther } from 'viem';
 import { fetchPrice } from '@/utils/utils';
-import { fetchImageMetadata } from './claims';
 import {
   ARBITRUM_LAST_PRE_V3_BOUNTY,
   BASE_LAST_PRE_V3_BOUNTY,
