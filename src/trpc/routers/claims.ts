@@ -1,18 +1,6 @@
 import { z } from 'zod';
 import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
-import axios from 'axios';
-
-const DIRECT_MEDIA_EXTENSIONS =
-  /\.(avif|bmp|gif|jpe?g|png|svg|webp|mp4|mov|webm|ogg)(\?.*)?$/i;
-
-const emptyMetadata = {
-  name: null,
-  description: null,
-  external_url: null,
-  image: null,
-  attributes: null,
-};
 
 export const claimsRouter = {
   fetch: baseProcedure
@@ -30,12 +18,7 @@ export const claimsRouter = {
         },
       });
 
-      const imageMetadata = await fetchImageMetadata(claim.url);
-
-      return {
-        ...claim,
-        url: imageMetadata.image ?? claim.url,
-      };
+      return claim;
     }),
 
   /*
@@ -232,7 +215,12 @@ export const claimsRouter = {
             none: {},
           },
           ...(input.cursor
-            ? { isAccepted: false, id: { lt: input.cursor } }
+            ? {
+                isAccepted: false,
+                id: {
+                  lt: input.cursor,
+                },
+              }
             : {}),
         },
         orderBy: [!input.cursor ? { isAccepted: 'desc' } : {}, { id: 'desc' }],
@@ -265,16 +253,7 @@ export const claimsRouter = {
         },
       });
 
-      if (!claim) {
-        return null;
-      }
-
-      const imageMetadata = await fetchImageMetadata(claim.url);
-
-      return {
-        ...claim,
-        url: imageMetadata.image ?? claim.url,
-      };
+      return claim;
     }),
 
   fetchVotingClaimByBountyId: baseProcedure
@@ -290,7 +269,9 @@ export const claimsRouter = {
             isVoting: true,
           },
         },
-        orderBy: { round: 'desc' },
+        orderBy: {
+          round: 'desc',
+        },
         take: 1,
       });
 
@@ -308,16 +289,7 @@ export const claimsRouter = {
         },
       });
 
-      if (!claim) {
-        return null;
-      }
-
-      const imageMetadata = await fetchImageMetadata(claim.url);
-
-      return {
-        ...claim,
-        url: imageMetadata.image ?? claim.url,
-      };
+      return claim;
     }),
 
   isCreated: baseProcedure
@@ -347,88 +319,3 @@ export const claimsRouter = {
       });
     }),
 };
-
-export async function fetchImageMetadata(url: string) {
-  if (!url || typeof url !== 'string') {
-    return emptyMetadata;
-  }
-
-  /*
-   * Obvious direct media URLs do not need to be downloaded and parsed
-   * as NFT metadata.
-   */
-  if (DIRECT_MEDIA_EXTENSIONS.test(url)) {
-    return {
-      ...emptyMetadata,
-      image: url,
-    };
-  }
-
-  /*
-   * First try a small HEAD request.
-   * This lets extensionless IPFS image/video URLs resolve without
-   * downloading the entire media file.
-   */
-  try {
-    const headResponse = await axios.head(url, {
-      timeout: 2000,
-      maxRedirects: 5,
-    });
-
-    const contentType = String(
-      headResponse.headers['content-type'] ?? ''
-    ).toLowerCase();
-
-    if (contentType.startsWith('image/') || contentType.startsWith('video/')) {
-      return {
-        ...emptyMetadata,
-        image: url,
-      };
-    }
-  } catch {
-    // Some gateways do not support HEAD. Fall through to metadata fetch.
-  }
-
-  /*
-   * Metadata fetch is deliberately bounded.
-   *
-   * We only need small JSON metadata here. A broken gateway or giant
-   * response should never hold a tRPC request open indefinitely.
-   */
-  try {
-    const response = await axios.get(url, {
-      timeout: 3000,
-      maxRedirects: 5,
-      maxContentLength: 512 * 1024,
-      maxBodyLength: 512 * 1024,
-    });
-
-    if (!response?.data) {
-      return emptyMetadata;
-    }
-
-    const responseSchema = z.object({
-      name: z.string().nullable().optional(),
-      description: z.string().nullable().optional(),
-      external_url: z.string().nullable().optional(),
-      image: z.string(),
-      attributes: z.array(z.any()).nullable().optional(),
-    });
-
-    const parsed = responseSchema.safeParse(response.data);
-
-    if (!parsed.success) {
-      return emptyMetadata;
-    }
-
-    return {
-      name: parsed.data.name ?? null,
-      description: parsed.data.description ?? null,
-      external_url: parsed.data.external_url ?? null,
-      image: parsed.data.image,
-      attributes: parsed.data.attributes ?? null,
-    };
-  } catch {
-    return emptyMetadata;
-  }
-}

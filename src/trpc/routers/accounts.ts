@@ -5,7 +5,6 @@ import { ChainId } from '@/utils/types';
 import { addressSchema } from '../serverTypes';
 import { formatEther } from 'viem';
 import { fetchPrice } from '@/utils/utils';
-import { fetchImageMetadata } from './claims';
 import {
   ARBITRUM_LAST_PRE_V3_BOUNTY,
   BASE_LAST_PRE_V3_BOUNTY,
@@ -1131,47 +1130,11 @@ export const accountsRouter = {
         ])
       );
 
-      /*
-       * Preserve claim-media normalization for transaction
-       * activity.
-       */
-      const normalizedTxs = await Promise.all(
-        txs.map(async (tx) => {
-          if (!tx.claim?.url) {
-            return {
-              ...tx,
-
-              timestamp: tx.timestamp.toString(),
-
-              comment: null,
-            };
-          }
-
-          const imageMetadata = await fetchImageMetadata(tx.claim.url);
-
-          return {
-            ...tx,
-
-            timestamp: tx.timestamp.toString(),
-
-            claim: {
-              ...tx.claim,
-
-              /*
-               * Preserve original claim URI.
-               */
-              url: tx.claim.url,
-
-              /*
-               * Also expose server-resolved media.
-               */
-              mediaUrl: imageMetadata.image,
-            },
-
-            comment: null,
-          };
-        })
-      );
+      const normalizedTxs = txs.map((tx) => ({
+        ...tx,
+        timestamp: tx.timestamp.toString(),
+        comment: null,
+      }));
 
       const commentActivities = comments
         .map((comment) => {

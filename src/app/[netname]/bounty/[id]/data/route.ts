@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from 'prisma/prisma';
 import type { Netname, ChainId, Currency } from '@/utils/types';
-import { fetchImageMetadata } from '@/trpc/routers/claims';
 import { getUsersDataOrFetchItFromNeynar } from '@/trpc/routers/neynar';
 import { getHumanReadableName } from '@/trpc/routers/web3';
 
@@ -118,25 +117,22 @@ export async function GET(
       neynarUsers.map((user) => [user.address.toLowerCase(), user])
     );
 
-    const claimsData = await Promise.all(
-      claims.map(async (claim) => {
-        const imageMetadata = await fetchImageMetadata(claim.url);
-        const issuerLower = claim.issuer.toLowerCase();
-        const neynarUser = neynarByAddress.get(issuerLower);
-
-        return {
-          claimId: claim.id,
-          imageUrl: imageMetadata.image,
-          issuerAddress: claim.issuer,
-          issuerName: nameByAddress.get(issuerLower) ?? null,
-          farcasterHandle: neynarUser?.farcasterTag ?? null,
-          twitterHandle: neynarUser?.twitterTag ?? null,
-          profileUrl: `https://poidh.xyz/account/${issuerLower}`,
-          title: claim.title,
-          description: claim.description,
-        };
-      })
-    );
+    const claimsData = claims.map((claim) => {
+      const issuerLower = claim.issuer.toLowerCase();
+      const neynarUser = neynarByAddress.get(issuerLower);
+    
+      return {
+        claimId: claim.id,
+        uri: claim.url,
+        issuerAddress: claim.issuer,
+        issuerName: nameByAddress.get(issuerLower) ?? null,
+        farcasterHandle: neynarUser?.farcasterTag ?? null,
+        twitterHandle: neynarUser?.twitterTag ?? null,
+        profileUrl: `https://poidh.xyz/account/${issuerLower}`,
+        title: claim.title,
+        description: claim.description,
+      };
+    });
 
     const commentsData = comments.map((comment) => {
       const authorLower = comment.userAddress.toLowerCase();
