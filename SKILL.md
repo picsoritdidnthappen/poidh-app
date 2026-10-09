@@ -43,6 +43,60 @@ Use the documentation for deeper explanations of the poidh.xyz website, how it w
 
 This `SKILL.md` is the primary operational guide for agent actions, data discovery, transaction safety, and interacting with the poidh.xyz website and the underlying poidh protocol smart contracts.
 
+## Open-Source Repository
+
+The poidh.xyz application is open source.
+
+Official repository:
+
+```text
+https://github.com/picsoritdidnthappen/poidh-app
+```
+
+poidh.xyz is the primary user interface and access point for the poidh protocol, but **poidh.xyz is not the poidh protocol itself**.
+
+The poidh protocol consists of deployed onchain smart contracts and the resulting onchain state.
+
+The poidh.xyz frontend provides a convenient interface for:
+
+- discovering bounties
+- creating and funding bounties
+- submitting claims
+- viewing claim media
+- participating in bounty voting
+- viewing profiles and account activity
+- reading comments and other social context
+- accessing structured `/data` endpoints
+
+Agents, alternative frontends, scripts, applications, and other interfaces may interact with the poidh protocol without using poidh.xyz directly.
+
+The open-source poidh.xyz repository is useful for understanding how the primary frontend:
+
+- reads and presents protocol data
+- resolves claim media
+- displays bounty and voting state
+- calculates and presents profile information
+- exposes public `/data` endpoints
+- integrates offchain social and identity information
+- interacts with the poidh indexer and deployed contracts
+
+Do not assume that behavior or data produced by the poidh.xyz frontend is itself authoritative protocol state.
+
+For consensus-critical information such as:
+
+- whether a bounty is active, canceled, or finalized
+- accepted claims
+- contributor voting state
+- balances
+- pending withdrawals
+- payout state
+- authorization
+- transaction validity
+
+the deployed smart contracts and current onchain state are authoritative.
+
+The poidh.xyz frontend, its JSON endpoints, and the poidh indexer are interfaces and derived data sources built around the protocol.
+
 ## Claim Proof and the URI Field
 
 A poidh claim contains:
@@ -490,6 +544,33 @@ poidh.xyz exposes lightweight frontend JSON endpoints.
 These are useful when an agent wants structured bounty data without directly interacting with the indexer or parsing chain events.
 
 They are convenience endpoints, not the ultimate authority for critical contract state.
+
+### Common Resource Links
+
+Individual bounty and account `/data` endpoints include top-level links to additional poidh resources:
+
+```text
+docsUrl
+githubUrl
+```
+
+These fields have different purposes:
+
+- `docsUrl` — official poidh documentation for deeper explanations of protocol concepts, product behavior, reputation systems, and terminology
+- `githubUrl` — source code for the poidh.xyz frontend and its public data endpoints
+
+Current resources:
+
+```text
+docsUrl:   https://docs.poidh.xyz/
+githubUrl: https://github.com/picsoritdidnthappen/poidh-app
+```
+
+When an unfamiliar poidh concept appears in `/data`, prefer following `docsUrl` rather than guessing its meaning.
+
+When implementation details of poidh.xyz or its `/data` endpoints matter, `githubUrl` points to the open-source frontend repository.
+
+These resources are informational and operational aids. They do not replace direct onchain verification for consensus-critical state or transactions.
 
 ---
 
