@@ -1404,6 +1404,12 @@ export async function GET(
         skillUrl:
           `${APP_URL}/skill.md`,
 
+        docsUrl: 
+          `https://docs.poidh.xyz/`,
+        
+        githubUrl: 
+          `https://github.com/picsoritdidnthappen/poidh-app`,
+
         poidhScore:
           stats !== null
             ? Number(stats.poidhScore)
