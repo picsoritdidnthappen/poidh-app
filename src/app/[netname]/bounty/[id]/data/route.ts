@@ -176,6 +176,8 @@ export async function GET(
         currency: CURRENCIES[slug],
         url: `https://poidh.xyz/${slug}/bounty/${id}`,
         skillUrl: 'https://poidh.xyz/skill.md',
+        docsUrl: 'https://docs.poidh.xyz/',
+        githubUrl: 'https://github.com/picsoritdidnthappen/poidh-app',
         claims: claimsData,
         comments: commentsData,
       },
