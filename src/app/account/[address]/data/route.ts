@@ -744,38 +744,77 @@ export async function GET(
     );
 
     /*
-     * Social identity resolution is enrichment.
+     * Identity enrichment.
      *
-     * If it fails, the core historical/account data should still load.
+     * Fully resolve the profile owner's human-readable name, but use cached
+     * UsersExtra names for the surrounding social graph. A large profile can
+     * reference hundreds of users, and resolving every one of them live would
+     * create hundreds of unnecessary RPC/database operations.
      */
-    const [neynarUsers, names] = await Promise.all([
+    const profileIsProtocolContract =
+      getProtocolContractLabel(address) !== null;
+    
+    const [neynarUsers, cachedNameUsers, profileName] = await Promise.all([
       getUsersDataOrFetchItFromNeynar(resolvableAddresses).catch(() => []),
-
-      Promise.all(
-        resolvableAddresses.map(async (userAddress) => {
-          try {
-            return await getHumanReadableName(userAddress);
-          } catch {
-            return null;
-          }
-        })
-      ),
+    
+      prisma.usersExtra.findMany({
+        where: {
+          address: {
+            in: resolvableAddresses,
+          },
+        },
+        select: {
+          address: true,
+          gwei: true,
+          wei: true,
+          ens: true,
+          degenName: true,
+        },
+      }),
+    
+      profileIsProtocolContract
+        ? Promise.resolve(null)
+        : getHumanReadableName(address).catch(() => null),
     ]);
-
-    const nameByAddress = new Map(
-      resolvableAddresses.map((userAddress, index) => [
-        userAddress,
-        names[index],
-      ])
-    );
-
+    
+    /*
+     * Match getHumanReadableName()'s preferred-name order:
+     *
+     * .gwei
+     * .wei
+     * ENS
+     * .degen
+     */
+    const nameByAddress = new Map<string, string | null>();
+    
+    for (const user of cachedNameUsers) {
+      const normalized = user.address.toLowerCase();
+    
+      nameByAddress.set(
+        normalized,
+        user.gwei ??
+          user.wei ??
+          user.ens ??
+          user.degenName ??
+          null
+      );
+    }
+    
+    /*
+     * The subject of this endpoint gets a full live/cached resolution.
+     * Override the cached value with that result.
+     */
+    if (!profileIsProtocolContract) {
+      nameByAddress.set(address, profileName);
+    }
+    
     const neynarByAddress = new Map(
       neynarUsers.map((user) => [
         user.address.toLowerCase(),
         user,
       ])
     );
-
+    
     const getIdentity = (userAddress: string) => {
       const normalized = userAddress.toLowerCase();
 
