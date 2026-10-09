@@ -761,6 +761,8 @@ It may include:
 - the creator of each bounty the user interacted with
 - current bounty status, including whether it is canceled, completed, or in progress
 - whether an active bounty is currently accepting claims
+- whether a voting round is currently unresolved
+- whether the latest voting round has been resolved
 - winning claim and winner information for completed bounties
 - claims submitted by the user
 - claim submission timestamps when available
@@ -772,32 +774,90 @@ It may include:
 - comment reply context when available
 - users connected to the profile through bounties, claims, NFTs, and comments
 
+`poidhScore` is poidh's reputation and activity score.
+
+For deeper explanation of poidh concepts and product behavior, see:
+
+```text
+https://docs.poidh.xyz/
+```
+
 Bounty records may include fields such as:
 
 ```text
 status
+statusLabel
 statusEmoji
 acceptingClaims
+votingInProgress
+voteResolved
 winningClaim
 creator
 url
 dataUrl
 ```
 
-These make it possible to understand both the user's relationship to a bounty and the bounty's current state.
+`votingInProgress` means the current voting round has started and has not yet been resolved.
 
-For example, an account may have funded a bounty it did not create. The account data can distinguish:
+A voting deadline may have passed while:
+
+```text
+votingInProgress: true
+```
+
+if nobody has yet submitted the vote-resolution transaction.
+
+```text
+voteResolved: true
+```
+
+indicates that the latest voting round has been resolved.
+
+Bounty status values may include:
+
+```text
+in_progress
+completed
+canceled
+```
+
+The status emoji mirrors the poidh frontend:
+
+```text
+💰 in progress
+✅ completed
+❌ canceled
+```
+
+The endpoint distinguishes between bounties a user created and bounties they merely funded.
+
+For example:
 
 ```text
 createdByProfile: false
 fundedByProfile: true
 ```
 
-and provide the bounty creator's identity and profile links.
+means the user contributed funds to a bounty created by somebody else.
 
-Completed bounties may include a winning claim and winner identity. Winner identity objects may include:
+The bounty creator identity is included so an agent can follow that relationship to the creator's poidh account.
+
+Completed bounties may include:
 
 ```text
+winningClaim
+```
+
+with the winning claimant's identity.
+
+Winner identity objects may include:
+
+```text
+address
+name
+farcasterHandle
+twitterHandle
+pfpUrl
 profileUrl
 profileDataUrl
 ```
@@ -813,8 +873,6 @@ currentOwner
 bounty
 ```
 
-The nested `bounty` object includes the bounty's current status. This allows an agent to determine, for example, whether a user submitted a claim to a bounty that is now completed, canceled, or still in progress and accepting additional claims.
-
 Possible `claimStatus` values include:
 
 ```text
@@ -824,11 +882,94 @@ not_selected
 bounty_canceled
 ```
 
-The `nfts` array represents claim NFTs currently held by the account.
+The nested `bounty` object contains the bounty's current status.
 
-Do not interpret `nfts` as a complete historical NFT ownership or transfer record. The current owner may differ from the original claimant, so NFT records may expose both identities when relevant.
+This allows an agent to determine, for example, whether a user submitted a claim to a bounty that:
 
-The account endpoint may also include:
+- is still active and accepting additional claims
+- currently has an unresolved voting round
+- has been completed
+- has been canceled
+
+Full bounty descriptions are included only in the top-level:
+
+```text
+bounties
+```
+
+array, which represents bounties the profile created or funded.
+
+Bounty references nested under:
+
+```text
+claims
+nfts
+comments
+```
+
+are intentionally compact.
+
+They generally include the bounty title, current status, creator, winner when applicable, and bounty URLs rather than repeating the full bounty description.
+
+If complete bounty details are needed, follow:
+
+```text
+dataUrl
+```
+
+to the bounty's individual `/data` endpoint.
+
+The:
+
+```text
+nfts
+```
+
+array represents claim NFTs currently held by the account.
+
+Do not interpret `nfts` as a complete historical NFT ownership or transfer record.
+
+The current owner may differ from the original claimant, so NFT records may expose both identities when relevant.
+
+Some claim NFTs may currently be held by a poidh protocol contract.
+
+When this occurs, the identity object may include:
+
+```text
+accountType: protocol_contract
+isProtocolContract: true
+contractLabel
+```
+
+Protocol contracts are not social users.
+
+They do not have poidh profile crawl targets and should not appear in:
+
+```text
+relatedUsers
+```
+
+The account endpoint may include:
+
+```text
+comments
+```
+
+containing public, non-deleted comments authored by the profile.
+
+Comment records may include:
+
+- comment body
+- timestamp
+- reply parent
+- reply target identity
+- upvote and downvote counts
+- the related bounty
+- the related bounty's current status
+- the bounty creator
+- the winning claimant when applicable
+
+The endpoint may also include:
 
 ```text
 relatedUsers
@@ -845,7 +986,7 @@ Related users may include:
 - users the profile replied to in comments
 - other publicly visible identities directly connected through poidh activity
 
-Related-user identity objects may include:
+Related-user objects may include:
 
 ```text
 address
@@ -859,7 +1000,22 @@ relationships
 relatedBountyUrls
 ```
 
-An agent may follow `profileDataUrl` to inspect another user's public poidh activity and continue traversing the public social graph.
+An agent may follow:
+
+```text
+profileDataUrl
+```
+
+to inspect another user's public poidh activity and continue traversing the public social graph.
+
+A useful crawl pattern is:
+
+```text
+account /data
+→ related bounty or related user
+→ bounty dataUrl or profileDataUrl
+→ additional public poidh context
+```
 
 Historical Degen Chain records may appear in account data.
 
@@ -894,8 +1050,12 @@ Use it for:
 - understanding a user's public poidh history
 - reputation and activity inspection
 - social-graph discovery
-- finding bounties a user created, funded, claimed, or commented on
-- finding related users
+- finding bounties a user created or funded
+- finding claims a user submitted
+- understanding the outcome of those claims
+- finding NFTs a user currently holds
+- finding public comments authored by a user
+- finding related poidh users
 - determining the current state of bounties associated with historical user activity
 
 For critical current protocol state, especially immediately before a transaction, verify the relevant state directly onchain.
