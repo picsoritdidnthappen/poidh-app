@@ -2336,7 +2336,8 @@ The winner receives the bounty payout minus the protocol fee through the withdra
    - the poidh indexer.
 
 2. Filter opportunities according to the user's request.
-3. Inspect:
+
+3. Inspect the individual bounty `/data` endpoint for:
 
    - bounty description
    - amount
@@ -2344,9 +2345,11 @@ The winner receives the bounty payout minus the protocol fee through the withdra
    - status
    - issuer
    - claims
+   - comments
 
-4. Use individual `/data` endpoint if helpful.
-5. Before submitting a claim, verify current contract state.
+4. Always inspect public comments for clarifications, requirement changes, answers from the bounty creator, or other context that may affect how the bounty should be completed.
+
+5. Before submitting a claim or performing another transaction, verify current critical state directly onchain.
 
 ---
 
