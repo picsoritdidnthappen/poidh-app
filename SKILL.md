@@ -31,6 +31,18 @@ It can:
 
 A bounty issuer escrows ETH and describes an outcome. Claimants submit proof that they completed the bounty. The issuer — or contributors through weighted voting — can accept a winning claim and release the bounty payout.
 
+## Official Documentation
+
+poidh's official documentation is available at:
+
+```text
+https://docs.poidh.xyz/
+```
+
+Use the documentation for deeper explanations of the poidh.xyz website, how it works, concepts, protocol behavior, reputation systems, and product terminology.
+
+This `SKILL.md` is the primary operational guide for agent actions, data discovery, transaction safety, and interacting with the poidh.xyz website and the underlying poidh protocol smart contracts.
+
 ## Claim Proof and the URI Field
 
 A poidh claim contains:
@@ -713,6 +725,180 @@ is the v3 contract bounty ID.
 When available, prefer the returned `onChainId` rather than manually calculating the offset.
 
 Still verify critical state directly against the contract before a transaction.
+
+## Individual Account JSON
+
+Append:
+
+```text
+/data
+```
+
+to a poidh account URL.
+
+Format:
+
+```text
+https://poidh.xyz/account/[address]/data
+```
+
+Example:
+
+```text
+https://poidh.xyz/account/0x4200ac338555e25b20c8fe82ac02a5c8d4e5a5b4/data
+```
+
+The account `/data` endpoint provides a public machine-readable view of a user's identity, reputation, activity, collection, and social history on poidh.
+
+It may include:
+
+- resolved name, Farcaster handle, Twitter handle, and profile image
+- poidh score and aggregate ETH statistics
+- historical Degen statistics
+- bounties the user created
+- bounties the user contributed funds to
+- the user's contribution amount and relationship to each bounty
+- the creator of each bounty the user interacted with
+- current bounty status, including whether it is canceled, completed, or in progress
+- whether an active bounty is currently accepting claims
+- winning claim and winner information for completed bounties
+- claims submitted by the user
+- claim submission timestamps when available
+- current claim outcome, such as won, pending, not selected, or bounty canceled
+- the current state of the bounty associated with each claim
+- claim NFTs currently held by the user
+- original claimant information for held NFTs
+- public, non-deleted comments authored by the user
+- comment reply context when available
+- users connected to the profile through bounties, claims, NFTs, and comments
+
+Bounty records may include fields such as:
+
+```text
+status
+statusEmoji
+acceptingClaims
+winningClaim
+creator
+url
+dataUrl
+```
+
+These make it possible to understand both the user's relationship to a bounty and the bounty's current state.
+
+For example, an account may have funded a bounty it did not create. The account data can distinguish:
+
+```text
+createdByProfile: false
+fundedByProfile: true
+```
+
+and provide the bounty creator's identity and profile links.
+
+Completed bounties may include a winning claim and winner identity. Winner identity objects may include:
+
+```text
+profileUrl
+profileDataUrl
+```
+
+This allows an agent to move from one user's activity to the public poidh profile of another user they interacted with.
+
+Claim records may include:
+
+```text
+claimStatus
+createdAt
+currentOwner
+bounty
+```
+
+The nested `bounty` object includes the bounty's current status. This allows an agent to determine, for example, whether a user submitted a claim to a bounty that is now completed, canceled, or still in progress and accepting additional claims.
+
+Possible `claimStatus` values include:
+
+```text
+won
+pending
+not_selected
+bounty_canceled
+```
+
+The `nfts` array represents claim NFTs currently held by the account.
+
+Do not interpret `nfts` as a complete historical NFT ownership or transfer record. The current owner may differ from the original claimant, so NFT records may expose both identities when relevant.
+
+The account endpoint may also include:
+
+```text
+relatedUsers
+```
+
+`relatedUsers` provides convenient crawl targets for the user's public poidh social graph.
+
+Related users may include:
+
+- creators of bounties the profile funded
+- creators of bounties the profile submitted claims to
+- winners of bounties the profile interacted with
+- original claimants of NFTs the profile currently holds
+- users the profile replied to in comments
+- other publicly visible identities directly connected through poidh activity
+
+Related-user identity objects may include:
+
+```text
+address
+name
+farcasterHandle
+twitterHandle
+pfpUrl
+profileUrl
+profileDataUrl
+relationships
+relatedBountyUrls
+```
+
+An agent may follow `profileDataUrl` to inspect another user's public poidh activity and continue traversing the public social graph.
+
+Historical Degen Chain records may appear in account data.
+
+Degen Chain is retired and must not be treated as an actionable network.
+
+Records may include fields such as:
+
+```text
+networkStatus
+protocolVersion
+liveProtocolSupported
+```
+
+Treat:
+
+```text
+networkStatus: retired
+```
+
+or:
+
+```text
+liveProtocolSupported: false
+```
+
+as a signal that the record is historical or otherwise not part of the currently supported live protocol.
+
+The account `/data` endpoint is a convenience representation derived from poidh frontend and indexed data.
+
+Use it for:
+
+- understanding a user's public poidh history
+- reputation and activity inspection
+- social-graph discovery
+- finding bounties a user created, funded, claimed, or commented on
+- finding related users
+- determining the current state of bounties associated with historical user activity
+
+For critical current protocol state, especially immediately before a transaction, verify the relevant state directly onchain.
 
 ---
 
