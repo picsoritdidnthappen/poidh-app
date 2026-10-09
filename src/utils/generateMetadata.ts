@@ -301,6 +301,9 @@ export const generateMetadataForAccountPage = async ({
 
       alternates: {
         canonical: canonicalUrl,
+        types: {
+          'application/json': `${canonicalUrl}/data`,
+        },
       },
 
       openGraph: {
@@ -333,6 +336,9 @@ export const generateMetadataForAccountPage = async ({
 
       alternates: {
         canonical: canonicalUrl,
+        types: {
+          'application/json': `${canonicalUrl}/data`,
+        },
       },
 
       openGraph: {

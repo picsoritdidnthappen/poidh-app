@@ -31,6 +31,72 @@ It can:
 
 A bounty issuer escrows ETH and describes an outcome. Claimants submit proof that they completed the bounty. The issuer — or contributors through weighted voting — can accept a winning claim and release the bounty payout.
 
+## Official Documentation
+
+poidh's official documentation is available at:
+
+```text
+https://docs.poidh.xyz/
+```
+
+Use the documentation for deeper explanations of the poidh.xyz website, how it works, concepts, protocol behavior, reputation systems, and product terminology.
+
+This `SKILL.md` is the primary operational guide for agent actions, data discovery, transaction safety, and interacting with the poidh.xyz website and the underlying poidh protocol smart contracts.
+
+## Open-Source Repository
+
+The poidh.xyz application is open source.
+
+Official repository:
+
+```text
+https://github.com/picsoritdidnthappen/poidh-app
+```
+
+poidh.xyz is the primary user interface and access point for the poidh protocol, but **poidh.xyz is not the poidh protocol itself**.
+
+The poidh protocol consists of deployed onchain smart contracts and the resulting onchain state.
+
+The poidh.xyz frontend provides a convenient interface for:
+
+- discovering bounties
+- creating and funding bounties
+- submitting claims
+- viewing claim media
+- participating in bounty voting
+- viewing profiles and account activity
+- reading comments and other social context
+- accessing structured `/data` endpoints
+
+Agents, alternative frontends, scripts, applications, and other interfaces may interact with the poidh protocol without using poidh.xyz directly.
+
+The open-source poidh.xyz repository is useful for understanding how the primary frontend:
+
+- reads and presents protocol data
+- resolves claim media
+- displays bounty and voting state
+- calculates and presents profile information
+- exposes public `/data` endpoints
+- integrates offchain social and identity information
+- interacts with the poidh indexer and deployed contracts
+
+Do not assume that behavior or data produced by the poidh.xyz frontend is itself authoritative protocol state.
+
+For consensus-critical information such as:
+
+- whether a bounty is active, canceled, or finalized
+- accepted claims
+- contributor voting state
+- balances
+- pending withdrawals
+- payout state
+- authorization
+- transaction validity
+
+the deployed smart contracts and current onchain state are authoritative.
+
+The poidh.xyz frontend, its JSON endpoints, and the poidh indexer are interfaces and derived data sources built around the protocol.
+
 ## Claim Proof and the URI Field
 
 A poidh claim contains:
@@ -479,6 +545,33 @@ These are useful when an agent wants structured bounty data without directly int
 
 They are convenience endpoints, not the ultimate authority for critical contract state.
 
+### Common Resource Links
+
+Individual bounty and account `/data` endpoints include top-level links to additional poidh resources:
+
+```text
+docsUrl
+githubUrl
+```
+
+These fields have different purposes:
+
+- `docsUrl` — official poidh documentation for deeper explanations of protocol concepts, product behavior, reputation systems, and terminology
+- `githubUrl` — source code for the poidh.xyz frontend and its public data endpoints
+
+Current resources:
+
+```text
+docsUrl:   https://docs.poidh.xyz/
+githubUrl: https://github.com/picsoritdidnthappen/poidh-app
+```
+
+When an unfamiliar poidh concept appears in `/data`, prefer following `docsUrl` rather than guessing its meaning.
+
+When implementation details of poidh.xyz or its `/data` endpoints matter, `githubUrl` points to the open-source frontend repository.
+
+These resources are informational and operational aids. They do not replace direct onchain verification for consensus-critical state or transactions.
+
 ---
 
 # Required Environment Variables
@@ -713,6 +806,340 @@ is the v3 contract bounty ID.
 When available, prefer the returned `onChainId` rather than manually calculating the offset.
 
 Still verify critical state directly against the contract before a transaction.
+
+## Individual Account JSON
+
+Append:
+
+```text
+/data
+```
+
+to a poidh account URL.
+
+Format:
+
+```text
+https://poidh.xyz/account/[address]/data
+```
+
+Example:
+
+```text
+https://poidh.xyz/account/0x4200ac338555e25b20c8fe82ac02a5c8d4e5a5b4/data
+```
+
+The account `/data` endpoint provides a public machine-readable view of a user's identity, reputation, activity, collection, and social history on poidh.
+
+It may include:
+
+- resolved name, Farcaster handle, Twitter handle, and profile image
+- poidh score and aggregate ETH statistics
+- historical Degen statistics
+- bounties the user created
+- bounties the user contributed funds to
+- the user's contribution amount and relationship to each bounty
+- the creator of each bounty the user interacted with
+- current bounty status, including whether it is canceled, completed, or in progress
+- whether an active bounty is currently accepting claims
+- whether a voting round is currently unresolved
+- whether the latest voting round has been resolved
+- winning claim and winner information for completed bounties
+- claims submitted by the user
+- claim submission timestamps when available
+- current claim outcome, such as won, pending, not selected, or bounty canceled
+- the current state of the bounty associated with each claim
+- claim NFTs currently held by the user
+- original claimant information for held NFTs
+- public, non-deleted comments authored by the user
+- comment reply context when available
+- users connected to the profile through bounties, claims, NFTs, and comments
+
+`poidhScore` is poidh's reputation and activity score.
+
+For deeper explanation of poidh concepts and product behavior, see:
+
+```text
+https://docs.poidh.xyz/
+```
+
+Bounty records may include fields such as:
+
+```text
+status
+statusLabel
+statusEmoji
+acceptingClaims
+votingInProgress
+voteResolved
+winningClaim
+creator
+url
+dataUrl
+```
+
+`votingInProgress` means the current voting round has started and has not yet been resolved.
+
+A voting deadline may have passed while:
+
+```text
+votingInProgress: true
+```
+
+if nobody has yet submitted the vote-resolution transaction.
+
+```text
+voteResolved: true
+```
+
+indicates that the latest voting round has been resolved.
+
+Bounty status values may include:
+
+```text
+in_progress
+completed
+canceled
+```
+
+The status emoji mirrors the poidh frontend:
+
+```text
+💰 in progress
+✅ completed
+❌ canceled
+```
+
+The endpoint distinguishes between bounties a user created and bounties they merely funded.
+
+For example:
+
+```text
+createdByProfile: false
+fundedByProfile: true
+```
+
+means the user contributed funds to a bounty created by somebody else.
+
+The bounty creator identity is included so an agent can follow that relationship to the creator's poidh account.
+
+Completed bounties may include:
+
+```text
+winningClaim
+```
+
+with the winning claimant's identity.
+
+Winner identity objects may include:
+
+```text
+address
+name
+farcasterHandle
+twitterHandle
+pfpUrl
+profileUrl
+profileDataUrl
+```
+
+This allows an agent to move from one user's activity to the public poidh profile of another user they interacted with.
+
+Claim records may include:
+
+```text
+claimStatus
+createdAt
+currentOwner
+bounty
+```
+
+Possible `claimStatus` values include:
+
+```text
+won
+pending
+not_selected
+bounty_canceled
+```
+
+The nested `bounty` object contains the bounty's current status.
+
+This allows an agent to determine, for example, whether a user submitted a claim to a bounty that:
+
+- is still active and accepting additional claims
+- currently has an unresolved voting round
+- has been completed
+- has been canceled
+
+Full bounty descriptions are included only in the top-level:
+
+```text
+bounties
+```
+
+array, which represents bounties the profile created or funded.
+
+Bounty references nested under:
+
+```text
+claims
+nfts
+comments
+```
+
+are intentionally compact.
+
+They generally include the bounty title, current status, creator, winner when applicable, and bounty URLs rather than repeating the full bounty description.
+
+If complete bounty details are needed, follow:
+
+```text
+dataUrl
+```
+
+to the bounty's individual `/data` endpoint.
+
+The:
+
+```text
+nfts
+```
+
+array represents claim NFTs currently held by the account.
+
+Do not interpret `nfts` as a complete historical NFT ownership or transfer record.
+
+The current owner may differ from the original claimant, so NFT records may expose both identities when relevant.
+
+Some claim NFTs may currently be held by a poidh protocol contract.
+
+When this occurs, the identity object may include:
+
+```text
+accountType: protocol_contract
+isProtocolContract: true
+contractLabel
+```
+
+Protocol contracts are not social users.
+
+They do not have poidh profile crawl targets and should not appear in:
+
+```text
+relatedUsers
+```
+
+The account endpoint may include:
+
+```text
+comments
+```
+
+containing public, non-deleted comments authored by the profile.
+
+Comment records may include:
+
+- comment body
+- timestamp
+- reply parent
+- reply target identity
+- upvote and downvote counts
+- the related bounty
+- the related bounty's current status
+- the bounty creator
+- the winning claimant when applicable
+
+The endpoint may also include:
+
+```text
+relatedUsers
+```
+
+`relatedUsers` provides convenient crawl targets for the user's public poidh social graph.
+
+Related users may include:
+
+- creators of bounties the profile funded
+- creators of bounties the profile submitted claims to
+- winners of bounties the profile interacted with
+- original claimants of NFTs the profile currently holds
+- users the profile replied to in comments
+- other publicly visible identities directly connected through poidh activity
+
+Related-user objects may include:
+
+```text
+address
+name
+farcasterHandle
+twitterHandle
+pfpUrl
+profileUrl
+profileDataUrl
+relationships
+relatedBountyUrls
+```
+
+An agent may follow:
+
+```text
+profileDataUrl
+```
+
+to inspect another user's public poidh activity and continue traversing the public social graph.
+
+A useful crawl pattern is:
+
+```text
+account /data
+→ related bounty or related user
+→ bounty dataUrl or profileDataUrl
+→ additional public poidh context
+```
+
+Historical Degen Chain records may appear in account data.
+
+Degen Chain is retired and must not be treated as an actionable network.
+
+Records may include fields such as:
+
+```text
+networkStatus
+protocolVersion
+liveProtocolSupported
+```
+
+Treat:
+
+```text
+networkStatus: retired
+```
+
+or:
+
+```text
+liveProtocolSupported: false
+```
+
+as a signal that the record is historical or otherwise not part of the currently supported live protocol.
+
+The account `/data` endpoint is a convenience representation derived from poidh frontend and indexed data.
+
+Use it for:
+
+- understanding a user's public poidh history
+- reputation and activity inspection
+- social-graph discovery
+- finding bounties a user created or funded
+- finding claims a user submitted
+- understanding the outcome of those claims
+- finding NFTs a user currently holds
+- finding public comments authored by a user
+- finding related poidh users
+- determining the current state of bounties associated with historical user activity
+
+For critical current protocol state, especially immediately before a transaction, verify the relevant state directly onchain.
 
 ---
 
@@ -1909,7 +2336,8 @@ The winner receives the bounty payout minus the protocol fee through the withdra
    - the poidh indexer.
 
 2. Filter opportunities according to the user's request.
-3. Inspect:
+
+3. Inspect the individual bounty `/data` endpoint for:
 
    - bounty description
    - amount
@@ -1917,9 +2345,11 @@ The winner receives the bounty payout minus the protocol fee through the withdra
    - status
    - issuer
    - claims
+   - comments
 
-4. Use individual `/data` endpoint if helpful.
-5. Before submitting a claim, verify current contract state.
+4. Always inspect public comments for clarifications, requirement changes, answers from the bounty creator, or other context that may affect how the bounty should be completed.
+
+5. Before submitting a claim or performing another transaction, verify current critical state directly onchain.
 
 ---
 
