@@ -287,12 +287,18 @@ function isVoteResolutionAction(action: string) {
 /*
  * Determine whether the CURRENT voting round has been resolved.
  *
- * This matters because the indexed bounty.isVoting flag can remain
- * true after resolution.
+ * The indexed bounty.isVoting flag can remain true after resolution,
+ * so current voting state must be derived from both transaction history
+ * and the bounty's final state.
  *
  * A previous resolved voting round must not cause a newer round to be
- * marked resolved, so we compare the most recent "submitted for vote"
- * transaction against the most recent resolution transaction.
+ * marked resolved, so the latest vote start is compared with the latest
+ * indexed resolution transaction.
+ *
+ * For older records where the indexer contains a vote start but not a
+ * recognizable resolution transaction, a finalized non-canceled bounty
+ * is enough to prove that the vote is no longer unresolved. In that case
+ * voteResolved is true while voteResolution remains null.
  */
 function getVotingState(bounty: BountyReference) {
   const latestVoteStart = bounty.transactions.find((transaction) =>
@@ -303,27 +309,41 @@ function getVotingState(bounty: BountyReference) {
     isVoteResolutionAction(transaction.action)
   );
 
-  let voteResolved = false;
+  let resolutionFoundInHistory = false;
 
   if (latestVoteStart && latestVoteResolution) {
     try {
-      voteResolved =
+      resolutionFoundInHistory =
         BigInt(latestVoteResolution.timestamp.toString()) >=
         BigInt(latestVoteStart.timestamp.toString());
     } catch {
-      voteResolved =
+      resolutionFoundInHistory =
         Number(latestVoteResolution.timestamp.toString()) >=
         Number(latestVoteStart.timestamp.toString());
     }
   }
 
+  const resolvedByFinalBountyState =
+    latestVoteStart !== undefined &&
+    !bounty.inProgress &&
+    !bounty.isCanceled;
+
+  const voteResolved =
+    resolutionFoundInHistory || resolvedByFinalBountyState;
+
   /*
-   * An unresolved vote remains "in progress" even if its deadline
-   * has already passed. It stops being in progress once the vote is
-   * actually resolved.
+   * A vote can only be currently in progress while the bounty itself
+   * is still active. A completed or canceled bounty can never expose
+   * votingInProgress: true.
+   *
+   * An unresolved vote remains in progress even after its voting
+   * deadline passes, until resolution/finalization occurs.
    */
   const votingInProgress =
-    bounty.isVoting && !voteResolved && !bounty.isCanceled;
+    bounty.inProgress &&
+    bounty.isVoting &&
+    !voteResolved &&
+    !bounty.isCanceled;
 
   return {
     votingInProgress,
@@ -333,13 +353,19 @@ function getVotingState(bounty: BountyReference) {
       ? latestVoteStart.timestamp.toString()
       : null,
 
-    voteResolution: voteResolved && latestVoteResolution
-      ? {
-          tx: latestVoteResolution.tx,
-          action: latestVoteResolution.action,
-          timestamp: latestVoteResolution.timestamp.toString(),
-        }
-      : null,
+    /*
+     * Only expose a concrete resolution transaction when one was
+     * actually found in indexed history. A final-state fallback may
+     * establish voteResolved=true while this stays null.
+     */
+    voteResolution:
+      resolutionFoundInHistory && latestVoteResolution
+        ? {
+            tx: latestVoteResolution.tx,
+            action: latestVoteResolution.action,
+            timestamp: latestVoteResolution.timestamp.toString(),
+          }
+        : null,
   };
 }
 
@@ -969,7 +995,6 @@ export async function GET(
               bounty.createdAt.toString(),
 
             deadline: bounty.deadline,
-
             isMultiplayer:
               bounty.isMultiplayer,
 
@@ -1229,7 +1254,6 @@ export async function GET(
           user,
           relationships:
             new Set([relationship]),
-
           bountyUrls: new Set(
             bountyUrl
               ? [bountyUrl]
@@ -1404,10 +1428,10 @@ export async function GET(
         skillUrl:
           `${APP_URL}/skill.md`,
 
-        docsUrl: 
+        docsUrl:
           `https://docs.poidh.xyz/`,
-        
-        githubUrl: 
+
+        githubUrl:
           `https://github.com/picsoritdidnthappen/poidh-app`,
 
         poidhScore:
