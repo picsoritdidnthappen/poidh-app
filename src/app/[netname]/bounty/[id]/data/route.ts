@@ -51,12 +51,15 @@ function isVoteResolutionAction(action: string) {
 }
 
 function getVotingState(bounty: {
+  inProgress: boolean;
   isVoting: boolean;
   isCanceled: boolean;
   transactions: {
     action: string;
     tx: string;
-    timestamp: bigint | number | string;
+    timestamp: {
+      toString(): string;
+    };
   }[];
 }) {
   const latestVoteStart = bounty.transactions.find((transaction) =>
@@ -67,25 +70,69 @@ function getVotingState(bounty: {
     isVoteResolutionAction(transaction.action)
   );
 
-  const voteStartedAt = latestVoteStart?.timestamp ?? null;
-  const voteResolvedAt = latestVoteResolution?.timestamp ?? null;
+  const voteStartedAt = latestVoteStart
+    ? latestVoteStart.timestamp.toString()
+    : null;
+
+  let resolutionFoundInHistory = false;
+
+  if (latestVoteStart && latestVoteResolution) {
+    try {
+      resolutionFoundInHistory =
+        BigInt(latestVoteResolution.timestamp.toString()) >=
+        BigInt(latestVoteStart.timestamp.toString());
+    } catch {
+      resolutionFoundInHistory =
+        Number(latestVoteResolution.timestamp.toString()) >=
+        Number(latestVoteStart.timestamp.toString());
+    }
+  }
+
+  /*
+   * Older indexed records may contain the vote start but not a
+   * recognizable vote-resolution transaction.
+   *
+   * If the bounty has since been completed, that vote can no longer
+   * be unresolved.
+   */
+  const resolvedByFinalBountyState =
+    latestVoteStart !== undefined &&
+    !bounty.inProgress &&
+    !bounty.isCanceled;
 
   const voteResolved =
-    latestVoteStart != null &&
-    latestVoteResolution != null &&
-    BigInt(String(latestVoteResolution.timestamp)) >=
-      BigInt(String(latestVoteStart.timestamp));
+    resolutionFoundInHistory || resolvedByFinalBountyState;
 
+  /*
+   * A completed or canceled bounty can never have a vote that is
+   * currently in progress.
+   */
   const votingInProgress =
-    bounty.isVoting && !voteResolved && !bounty.isCanceled;
+    bounty.inProgress &&
+    bounty.isVoting &&
+    !voteResolved &&
+    !bounty.isCanceled;
 
   return {
     votingInProgress,
     voteResolved,
     voteStartedAt,
-    voteResolvedAt,
-    voteStartTx: latestVoteStart?.tx ?? null,
-    voteResolveTx: latestVoteResolution?.tx ?? null,
+
+    /*
+     * Only expose a resolution transaction if we actually found one.
+     * A completed historical bounty may therefore have:
+     *
+     * voteResolved: true
+     * voteResolution: null
+     */
+    voteResolution:
+      resolutionFoundInHistory && latestVoteResolution
+        ? {
+            tx: latestVoteResolution.tx,
+            action: latestVoteResolution.action,
+            timestamp: latestVoteResolution.timestamp.toString(),
+          }
+        : null,
   };
 }
 
@@ -130,7 +177,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: { netname: string; id: string } }
 ) {
   const slug = params.netname as Netname;
@@ -140,14 +187,20 @@ export async function GET(
   if (!chainId) {
     return NextResponse.json(
       { error: 'unknown chain' },
-      { status: 400, headers: CORS_HEADERS }
+      {
+        status: 400,
+        headers: CORS_HEADERS,
+      }
     );
   }
 
   if (Number.isNaN(id)) {
     return NextResponse.json(
       { error: 'invalid bounty id' },
-      { status: 400, headers: CORS_HEADERS }
+      {
+        status: 400,
+        headers: CORS_HEADERS,
+      }
     );
   }
 
@@ -159,6 +212,7 @@ export async function GET(
           chainId,
         },
       },
+
       include: {
         claims: {
           where: {
@@ -166,27 +220,35 @@ export async function GET(
               none: {},
             },
           },
+
           select: {
             id: true,
           },
+
           take: 1,
         },
+
         ban: {
           take: 1,
         },
+
         participations: {
           select: {
             userAddress: true,
           },
+
           take: 2,
         },
+
         extra: true,
+
         transactions: {
           select: {
             action: true,
             tx: true,
             timestamp: true,
           },
+
           orderBy: {
             timestamp: 'desc',
           },
@@ -205,6 +267,7 @@ export async function GET(
     const { amountSort, ...extraData } = extra;
 
     const votingState = getVotingState({
+      inProgress: bounty.inProgress,
       isVoting: bounty.isVoting,
       isCanceled: bounty.isCanceled,
       transactions,
@@ -220,18 +283,29 @@ export async function GET(
         where: {
           bountyId: id,
           chainId,
+
           ban: {
             none: {},
           },
         },
-        orderBy: [{ isAccepted: 'desc' }, { id: 'desc' }],
+
+        orderBy: [
+          {
+            isAccepted: 'desc',
+          },
+          {
+            id: 'desc',
+          },
+        ],
       }),
+
       prisma.comments.findMany({
         where: {
           bountyId: id,
           chainId,
           deletedAt: null,
         },
+
         include: {
           reactions: {
             select: {
@@ -239,6 +313,7 @@ export async function GET(
             },
           },
         },
+
         orderBy: {
           createdAt: 'asc',
         },
@@ -254,90 +329,167 @@ export async function GET(
 
     const [neynarUsers, ...names] = await Promise.all([
       getUsersDataOrFetchItFromNeynar(uniqueUsers),
-      ...uniqueUsers.map((addr) => getHumanReadableName(addr)),
+
+      ...uniqueUsers.map((addr) =>
+        getHumanReadableName(addr)
+      ),
     ]);
 
     const nameByAddress = new Map(
-      uniqueUsers.map((addr, i) => [addr, names[i]])
+      uniqueUsers.map((addr, i) => [
+        addr,
+        names[i],
+      ])
     );
 
     const neynarByAddress = new Map(
-      neynarUsers.map((user) => [user.address.toLowerCase(), user])
+      neynarUsers.map((user) => [
+        user.address.toLowerCase(),
+        user,
+      ])
     );
 
     const claimsData = claims.map((claim) => {
-      const issuerLower = claim.issuer.toLowerCase();
-      const neynarUser = neynarByAddress.get(issuerLower);
+      const issuerLower =
+        claim.issuer.toLowerCase();
+
+      const neynarUser =
+        neynarByAddress.get(issuerLower);
 
       return {
         claimId: claim.id,
         uri: claim.url,
+
         isAccepted: claim.isAccepted,
+
         issuerAddress: claim.issuer,
-        issuerName: nameByAddress.get(issuerLower) ?? null,
-        farcasterHandle: neynarUser?.farcasterTag ?? null,
-        twitterHandle: neynarUser?.twitterTag ?? null,
-        profileUrl: `${APP_URL}/account/${issuerLower}`,
-        profileDataUrl: `${APP_URL}/account/${issuerLower}/data`,
+
+        issuerName:
+          nameByAddress.get(issuerLower) ??
+          null,
+
+        farcasterHandle:
+          neynarUser?.farcasterTag ?? null,
+
+        twitterHandle:
+          neynarUser?.twitterTag ?? null,
+
+        profileUrl:
+          `${APP_URL}/account/${issuerLower}`,
+
+        profileDataUrl:
+          `${APP_URL}/account/${issuerLower}/data`,
+
         title: claim.title,
         description: claim.description,
       };
     });
 
-    const acceptedClaim = claimsData.find((claim) => claim.isAccepted);
+    const acceptedClaim =
+      claimsData.find(
+        (claim) => claim.isAccepted
+      );
 
     const winningClaim = acceptedClaim
       ? {
-          claimId: acceptedClaim.claimId,
-          title: acceptedClaim.title,
-          description: acceptedClaim.description,
-          uri: acceptedClaim.uri,
+          claimId:
+            acceptedClaim.claimId,
+
+          title:
+            acceptedClaim.title,
+
+          description:
+            acceptedClaim.description,
+
+          uri:
+            acceptedClaim.uri,
+
           winner: {
-            address: acceptedClaim.issuerAddress,
-            name: acceptedClaim.issuerName,
-            farcasterHandle: acceptedClaim.farcasterHandle,
-            twitterHandle: acceptedClaim.twitterHandle,
-            profileUrl: acceptedClaim.profileUrl,
-            profileDataUrl: acceptedClaim.profileDataUrl,
+            address:
+              acceptedClaim.issuerAddress,
+
+            name:
+              acceptedClaim.issuerName,
+
+            farcasterHandle:
+              acceptedClaim.farcasterHandle,
+
+            twitterHandle:
+              acceptedClaim.twitterHandle,
+
+            profileUrl:
+              acceptedClaim.profileUrl,
+
+            profileDataUrl:
+              acceptedClaim.profileDataUrl,
           },
         }
       : null;
 
-    const commentsData = comments.map((comment) => {
-      const authorLower = comment.userAddress.toLowerCase();
-      const neynarUser = neynarByAddress.get(authorLower);
+    const commentsData = comments.map(
+      (comment) => {
+        const authorLower =
+          comment.userAddress.toLowerCase();
 
-      const { upvotes, downvotes } = comment.reactions.reduce(
-        (acc, reaction) => {
-          if (reaction.type === 'upvote') {
-            acc.upvotes += 1;
-          } else if (reaction.type === 'downvote') {
-            acc.downvotes += 1;
+        const neynarUser =
+          neynarByAddress.get(authorLower);
+
+        const {
+          upvotes,
+          downvotes,
+        } = comment.reactions.reduce(
+          (acc, reaction) => {
+            if (
+              reaction.type === 'upvote'
+            ) {
+              acc.upvotes += 1;
+            } else if (
+              reaction.type === 'downvote'
+            ) {
+              acc.downvotes += 1;
+            }
+
+            return acc;
+          },
+          {
+            upvotes: 0,
+            downvotes: 0,
           }
+        );
 
-          return acc;
-        },
-        {
-          upvotes: 0,
-          downvotes: 0,
-        }
-      );
+        return {
+          commentId: comment.id,
+          parentId: comment.parentId,
+          body: comment.body,
+          createdAt: comment.createdAt,
 
-      return {
-        commentId: comment.id,
-        parentId: comment.parentId,
-        body: comment.body,
-        createdAt: comment.createdAt,
-        authorAddress: comment.userAddress,
-        authorName: nameByAddress.get(authorLower) ?? null,
-        farcasterHandle: neynarUser?.farcasterTag ?? null,
-        twitterHandle: neynarUser?.twitterTag ?? null,
-        profileUrl: `${APP_URL}/account/${authorLower}`,
-        profileDataUrl: `${APP_URL}/account/${authorLower}/data`,
-        upvotes,
-        downvotes,
-      };
-    });
+          authorAddress:
+            comment.userAddress,
+
+          authorName:
+            nameByAddress.get(
+              authorLower
+            ) ?? null,
+
+          farcasterHandle:
+            neynarUser?.farcasterTag ??
+            null,
+
+          twitterHandle:
+            neynarUser?.twitterTag ??
+            null,
+
+          profileUrl:
+            `${APP_URL}/account/${authorLower}`,
+
+          profileDataUrl:
+            `${APP_URL}/account/${authorLower}/data`,
+
+          upvotes,
+          downvotes,
+        };
+      }
+    );
 
     return NextResponse.json(
       {
@@ -345,28 +497,52 @@ export async function GET(
 
         extra: extraData,
 
-        status: bountyStatus.status,
-        statusLabel: bountyStatus.statusLabel,
-        statusEmoji: bountyStatus.statusEmoji,
-        acceptingClaims: bountyStatus.acceptingClaims,
+        status:
+          bountyStatus.status,
 
-        votingInProgress: votingState.votingInProgress,
-        voteResolved: votingState.voteResolved,
-        voteStartedAt: votingState.voteStartedAt,
-        voteResolvedAt: votingState.voteResolvedAt,
-        voteStartTx: votingState.voteStartTx,
-        voteResolveTx: votingState.voteResolveTx,
+        statusLabel:
+          bountyStatus.statusLabel,
+
+        statusEmoji:
+          bountyStatus.statusEmoji,
+
+        acceptingClaims:
+          bountyStatus.acceptingClaims,
+
+        votingInProgress:
+          votingState.votingInProgress,
+
+        voteResolved:
+          votingState.voteResolved,
+
+        voteStartedAt:
+          votingState.voteStartedAt,
+
+        voteResolution:
+          votingState.voteResolution,
 
         winningClaim,
 
-        hasClaims: claimsPreview.length > 0,
-        hasParticipants: participations.length > 1,
-        priceUsd: amountSort,
-        currency: CURRENCIES[slug],
+        hasClaims:
+          claimsPreview.length > 0,
 
-        url: `${APP_URL}/${slug}/bounty/${id}`,
-        skillUrl: `${APP_URL}/skill.md`,
-        docsUrl: 'https://docs.poidh.xyz/',
+        hasParticipants:
+          participations.length > 1,
+
+        priceUsd: amountSort,
+
+        currency:
+          CURRENCIES[slug],
+
+        url:
+          `${APP_URL}/${slug}/bounty/${id}`,
+
+        skillUrl:
+          `${APP_URL}/skill.md`,
+
+        docsUrl:
+          'https://docs.poidh.xyz/',
+
         githubUrl:
           'https://github.com/picsoritdidnthappen/poidh-app',
 
@@ -382,8 +558,13 @@ export async function GET(
     );
   } catch {
     return NextResponse.json(
-      { error: 'not found' },
-      { status: 404, headers: CORS_HEADERS }
+      {
+        error: 'not found',
+      },
+      {
+        status: 404,
+        headers: CORS_HEADERS,
+      }
     );
   }
 }
