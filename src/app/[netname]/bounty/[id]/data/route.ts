@@ -175,6 +175,7 @@ export async function GET(
         priceUsd: amountSort,
         currency: CURRENCIES[slug],
         url: `https://poidh.xyz/${slug}/bounty/${id}`,
+        skillUrl: 'https://poidh.xyz/skill.md',
         claims: claimsData,
         comments: commentsData,
       },

@@ -126,6 +126,9 @@ export const generateMetadataForBounty = async ({
 
       alternates: {
         canonical: canonicalUrl,
+        types: {
+          'application/json': `${canonicalUrl}/data`,
+        },
       },
 
       openGraph: {
@@ -197,6 +200,9 @@ export const generateMetadataForBounty = async ({
 
     alternates: {
       canonical: canonicalUrl,
+      types: {
+        'application/json': `${canonicalUrl}/data`,
+      },
     },
 
     openGraph: {
