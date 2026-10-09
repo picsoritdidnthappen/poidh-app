@@ -96,19 +96,20 @@ model Users {
 }
 
 model UsersExtra {
-  address      String
-  pfpUrl       String?  @map("pfp_url")
-  ens          String?
-  degenName    String?  @map("degen_name")
-  wei          String?
-  gwei         String?
-  farcasterTag       String?   @map("farcaster_tag")
-  farcasterFid       Int?      @map("farcaster_fid")
-  twitterTag         String?   @map("twitter_tag")
-  zkpassportCountry  String?   @map("zkpassport_country")
-  zkpassportVerifiedAt DateTime? @map("zkpassport_verified_at")
-  lastUpdated        DateTime  @default(now()) @map("last_updated")
-  extraPoints        Float   @default(0) @map("extra_points")
+  address                 String
+  pfpUrl                  String?   @map("pfp_url")
+  ens                     String?
+  degenName               String?   @map("degen_name")
+  wei                     String?
+  gwei                    String?
+  farcasterTag            String?   @map("farcaster_tag")
+  farcasterFid            Int?      @map("farcaster_fid")
+  twitterTag              String?   @map("twitter_tag")
+  neynarLastUpdated       DateTime? @map("neynar_last_updated")
+  zkpassportCountry       String?   @map("zkpassport_country")
+  zkpassportVerifiedAt    DateTime? @map("zkpassport_verified_at")
+  lastUpdated             DateTime  @default(now()) @map("last_updated")
+  extraPoints             Float     @default(0) @map("extra_points")
 
   user Users @relation(fields: [address], references: [address])
 
