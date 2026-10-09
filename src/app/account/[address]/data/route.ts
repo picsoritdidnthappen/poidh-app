@@ -1419,12 +1419,6 @@ export async function GET(
         profile:
           getIdentity(address),
 
-        profileUrl:
-          `${APP_URL}/account/${address}`,
-
-        dataUrl:
-          `${APP_URL}/account/${address}/data`,
-
         skillUrl:
           `${APP_URL}/skill.md`,
 
