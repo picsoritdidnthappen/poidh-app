@@ -4,7 +4,7 @@ import { tryCatchAsync } from '@/utils/utils';
 import neynarClient from 'neynar';
 import prisma from 'prisma/prisma';
 
-const NEYNAR_BATCH_SIZE = 300;
+const NEYNAR_REFRESH_LIMIT = 100;
 
 export const neynarRouter = {
   usersData: baseProcedure
@@ -18,26 +18,16 @@ export const neynarRouter = {
     }),
 };
 
-function chunkArray<T>(items: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-
-  return chunks;
-}
-
 export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
-  /*
-   * Cache Neynar identity data for seven days.
-   *
-   * Neynar has its own timestamp so ENS / .gwei / .wei / other name
-   * lookups cannot accidentally make Farcaster/X data look fresh.
-   */
   const sevenDays = 7 * 24 * 60 * 60 * 1000;
   const sevenDaysAgo = new Date(Date.now() - sevenDays);
 
+  /*
+   * Deduplicate while preserving caller order.
+   *
+   * This matters for large account pages because the profile owner is added
+   * first and should therefore get refresh priority.
+   */
   const normalizedAddresses = [
     ...new Set(addresses.map((address) => address.toLowerCase())),
   ];
@@ -50,116 +40,85 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
     },
   });
 
-  const existingAddresses = new Set(
-    users.map((user) => user.address.toLowerCase())
+  const usersByAddress = new Map(
+    users.map((user) => [user.address.toLowerCase(), user])
   );
 
   /*
-   * Refresh when:
+   * Work through addresses in the exact order supplied by the caller.
    *
-   * - this address has never been checked through Neynar
-   * - its Neynar cache is older than seven days
-   * - it contains the old temporary !123-style Farcaster username
-   *
-   * Do NOT use generic lastUpdated here. That timestamp is also touched by
-   * unrelated human-readable-name lookups.
+   * A user needs Neynar enrichment when:
+   * - there is no UsersExtra row yet
+   * - Neynar has never checked the row
+   * - Neynar data is older than seven days
+   * - it contains an old temporary !123-style Farcaster username
    */
-  const usersToUpdate = users
-    .filter(
-      (user) =>
-        user.neynarLastUpdated === null ||
-        user.neynarLastUpdated < sevenDaysAgo ||
-        (user.farcasterTag && /^!\d+$/.test(user.farcasterTag))
-    )
-    .map((user) => user.address.toLowerCase());
+  const addressesNeedingRefresh = normalizedAddresses.filter((address) => {
+    const user = usersByAddress.get(address);
 
-  const missingAddresses = normalizedAddresses.filter(
-    (address) => !existingAddresses.has(address)
+    if (!user) {
+      return true;
+    }
+
+    return (
+      user.neynarLastUpdated === null ||
+      user.neynarLastUpdated < sevenDaysAgo ||
+      (user.farcasterTag !== null &&
+        /^!\d+$/.test(user.farcasterTag))
+    );
+  });
+
+  /*
+   * Never let one request try to refresh an enormous social graph.
+   *
+   * Cached identities are returned immediately below. Large profiles will
+   * gradually warm the remaining cache over subsequent requests.
+   */
+  const addressesToFetch = addressesNeedingRefresh.slice(
+    0,
+    NEYNAR_REFRESH_LIMIT
   );
-
-  const addressesToFetch = [
-    ...new Set([...usersToUpdate, ...missingAddresses]),
-  ];
 
   if (addressesToFetch.length === 0) {
     return users;
   }
 
+  const [usersData, error] = await tryCatchAsync(
+    async () =>
+      await neynarClient.fetchBulkUsersByEthOrSolAddress({
+        addresses: addressesToFetch,
+      })
+  );
+
   /*
-   * Neynar's bulk address lookup has a finite request size.
+   * Neynar is enrichment only.
    *
-   * Keep batches comfortably below the limit and process them sequentially
-   * so a very large poidh profile doesn't produce one oversized request or
-   * a burst of simultaneous requests.
+   * If Neynar fails, preserve and return everything already cached rather
+   * than making social identity data disappear from the response.
    */
-  const batches = chunkArray(addressesToFetch, NEYNAR_BATCH_SIZE);
+  if (error) {
+    console.error('Neynar user lookup failed:', error.message);
+    return users;
+  }
 
-  const refreshedUsers: (typeof users)[number][] = [];
+  const usersDataByAddress = new Map(
+    Object.entries(usersData).map(([address, data]) => [
+      address.toLowerCase(),
+      data,
+    ])
+  );
 
-  for (const [batchIndex, batch] of batches.entries()) {
-    const [usersData, error] = await tryCatchAsync(
-      async () =>
-        await neynarClient.fetchBulkUsersByEthOrSolAddress({
-          addresses: batch,
-        })
-    );
+  const refreshedAt = new Date();
 
-    if (error) {
-      console.error(
-        `Neynar lookup failed for batch ${batchIndex + 1}/${batches.length}:`,
-        error.message
-      );
+  /*
+   * Record a successful Neynar lookup even when Neynar does not know the
+   * address. This gives wallets without Farcaster accounts a negative cache
+   * and prevents them from being queried on every request.
+   */
+  const updates = addressesToFetch.map((address) => {
+    const extra = usersDataByAddress.get(address)?.[0];
 
-      /*
-       * Do not fail the entire identity lookup because one batch failed.
-       * Existing cached rows will still be returned below.
-       */
-      continue;
-    }
-
-    /*
-     * Neynar response keys are wallet addresses. Normalize them before
-     * matching so checksum casing cannot cause a missed identity.
-     */
-    const usersDataByAddress = new Map(
-      Object.entries(usersData).map(([address, data]) => [
-        address.toLowerCase(),
-        data,
-      ])
-    );
-
-    const refreshedAt = new Date();
-
-    /*
-     * Update every address from a successful Neynar batch.
-     *
-     * Even if Neynar has no Farcaster identity for an address, record the
-     * successful lookup time. Otherwise wallets with no Farcaster account
-     * would be queried again on every request forever.
-     */
-    const updates = batch.map((address) => {
-      const extra = usersDataByAddress.get(address)?.[0];
-
-      if (!extra) {
-        return prisma.usersExtra.upsert({
-          where: {
-            address,
-          },
-          create: {
-            address,
-            neynarLastUpdated: refreshedAt,
-          },
-          update: {
-            neynarLastUpdated: refreshedAt,
-          },
-        });
-      }
-
-      const twitterTag =
-        extra.verified_accounts?.find(
-          (account) => account.platform === 'x'
-        )?.username ?? null;
-
+    if (!extra) {
       return prisma.usersExtra.upsert({
         where: {
           address,
@@ -167,50 +126,70 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
 
         create: {
           address,
-          pfpUrl: extra.pfp_url,
-          farcasterTag: extra.username,
-          farcasterFid: extra.fid,
-          twitterTag,
           neynarLastUpdated: refreshedAt,
         },
 
         update: {
-          pfpUrl: extra.pfp_url,
-          farcasterTag: extra.username,
-          farcasterFid: extra.fid,
-          twitterTag,
           neynarLastUpdated: refreshedAt,
         },
       });
-    });
-
-    try {
-      const updatedBatch = await prisma.$transaction(updates);
-      refreshedUsers.push(...updatedBatch);
-    } catch (error) {
-      console.error(
-        `Failed to save Neynar batch ${batchIndex + 1}/${batches.length}:`,
-        error
-      );
     }
+
+    const twitterTag =
+      extra.verified_accounts?.find(
+        (account) => account.platform === 'x'
+      )?.username ?? null;
+
+    return prisma.usersExtra.upsert({
+      where: {
+        address,
+      },
+
+      create: {
+        address,
+        pfpUrl: extra.pfp_url,
+        farcasterTag: extra.username,
+        farcasterFid: extra.fid,
+        twitterTag,
+        neynarLastUpdated: refreshedAt,
+      },
+
+      update: {
+        pfpUrl: extra.pfp_url,
+        farcasterTag: extra.username,
+        farcasterFid: extra.fid,
+        twitterTag,
+        neynarLastUpdated: refreshedAt,
+      },
+    });
+  });
+
+  let refreshedUsers: (typeof users)[number][] = [];
+
+  try {
+    refreshedUsers = await prisma.$transaction(updates);
+  } catch (error) {
+    console.error('Failed to save Neynar user data:', error);
+
+    /*
+     * The Neynar call succeeding but the cache write failing should still
+     * not destroy previously cached identity data.
+     */
+    return users;
   }
 
   /*
-   * Start with every row we originally got from the database, then replace
-   * any of those rows with their freshly updated versions.
-   *
-   * This is important: a Neynar failure must never make already-cached
-   * Farcaster/Twitter information disappear from the response.
+   * Merge fresh rows into the original database result.
    */
-  const usersByAddress = new Map<string, (typeof users)[number]>();
+  const resultByAddress = new Map<string, (typeof users)[number]>();
 
   for (const user of users) {
-    usersByAddress.set(user.address.toLowerCase(), user);
+    resultByAddress.set(user.address.toLowerCase(), user);
   }
 
   for (const user of refreshedUsers) {
-    usersByAddress.set(user.address.toLowerCase(), user);
+    resultByAddress.set(user.address.toLowerCase(), user);
   }
 
-  return Array.from(usersByAddress.values());
+  return Array.from(resultByAddress.values());
 }
