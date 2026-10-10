@@ -33,7 +33,7 @@ export const bountiesRouter = {
       });
 
       const { claims, participations, extra, ...bountyData } = bounty;
-      const { amountSort, ...extraData } = extra;
+      const { amountSort, ...extraData } = extra || { amountSort: 0 };
 
       return {
         ...bountyData,
@@ -257,7 +257,7 @@ export const bountiesRouter = {
 
         items = bounties.map(({ extra, ...bounty }) => ({
           ...bounty,
-          amountSort: extra.amountSort,
+          amountSort: extra?.amountSort ?? 0,
         }));
       }
 
@@ -373,7 +373,7 @@ export const bountiesRouter = {
           acceptedClaim: claims[0]?.isAccepted ? claims[0] : null,
           createdAt: bounty.createdAt.toNumber(),
           hasParticipants: participations.length > 1,
-          amountSort: extra.amountSort,
+          amountSort: extra?.amountSort ?? 0,
         })),
         nextCursor,
       };
@@ -492,11 +492,10 @@ export const bountiesRouter = {
   isCanceled: baseProcedure
     .input(z.object({ chainId: z.number(), id: z.number() }))
     .query(async ({ input }) => {
-      return prisma.bounties.findUnique({
+      return prisma.bounties.findFirst({
         where: {
-          id_chainId: {
-            ...input,
-          },
+          id: input.id,
+          chainId: input.chainId,
           isCanceled: true,
         },
       });
@@ -561,7 +560,7 @@ export const bountiesRouter = {
       z.object({
         keyword: z.string(),
         limit: z.number().min(1).max(100).default(15),
-        cursor: z.string().nullish(),
+        cursor: z.number().nullish(),
       })
     )
     .query(async ({ input }) => {
@@ -576,6 +575,7 @@ export const bountiesRouter = {
                 none: {},
               },
             },
+            orderBy: { isAccepted: 'desc' },
           },
           participations: {
             select: { userAddress: true },
@@ -610,9 +610,9 @@ export const bountiesRouter = {
         take: input.limit,
       });
 
-      let nextCursor: string | undefined = undefined;
+      let nextCursor: number | undefined = undefined;
       if (items.length === input.limit) {
-        nextCursor = items[items.length - 1].createdAt.toString();
+        nextCursor = items[items.length - 1].createdAt.toNumber();
       }
 
       return {
@@ -621,7 +621,7 @@ export const bountiesRouter = {
           createdAt: bounty.createdAt.toNumber(),
           hasClaims: claims.length > 0,
           hasParticipants: participations.length > 1,
-          amountSort: extra.amountSort,
+          amountSort: extra?.amountSort ?? 0,
         })),
         nextCursor,
       };
