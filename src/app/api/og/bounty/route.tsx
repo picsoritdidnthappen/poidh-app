@@ -19,10 +19,12 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const imageFormat = searchParams.get('imageFormat') as
-      | 'og'
-      | 'preview'
-      | null;
+    const imageFormatParam = searchParams.get('imageFormat');
+
+    const imageFormat: 'og' | 'preview' | undefined =
+      imageFormatParam === 'og' || imageFormatParam === 'preview'
+        ? imageFormatParam
+        : undefined;
 
     const title = searchParams.get('title');
     const amount = searchParams.get('amount');
