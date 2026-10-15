@@ -215,9 +215,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
       return;
     }
 
-    const chainId = await account.connector?.getChainId();
+    const walletChainId = account.chainId;
 
-    if (chainId !== 8453) {
+    if (walletChainId !== 8453) {
       if (switchChain?.switchChainAsync) {
         const [_, error] = await tryCatchAsync(
           async () =>
@@ -225,7 +225,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
               chainId: 8453,
             })
         );
-
+    
         if (error) {
           toastError('Failed to switch network', error);
           return null;
@@ -234,11 +234,11 @@ export default function CommentsSection(props: CommentsSectionProps) {
         toast.error(
           'Something went wrong! Switch to Base network or connect/reconnect your wallet to continue'
         );
-
+    
         return null;
       }
     }
-
+    
     return account.address;
   }
 
