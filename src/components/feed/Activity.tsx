@@ -174,7 +174,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       return null;
     }
 
-    const walletChainId = await account.connector?.getChainId();
+    const walletChainId = account.chainId;
 
     if (walletChainId !== 8453) {
       if (switchChain?.switchChainAsync) {
