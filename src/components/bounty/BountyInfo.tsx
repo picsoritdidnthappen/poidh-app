@@ -168,9 +168,13 @@ export default function BountyInfo({
 
       // arbitrum has a problem with message signing,
       // so all confirmations are on base
-      const chainId = await account.connector?.getChainId();
-
-      if (chainId !== 8453) {
+      if (!account.address) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const walletChainId = account.chainId;
+      
+      if (walletChainId !== 8453) {
         await switctChain.switchChainAsync({
           chainId: 8453,
         });
@@ -222,14 +226,18 @@ export default function BountyInfo({
         throw new Error('Bounty data not found!');
       }
 
-      const chainId = await account.connector?.getChainId();
-
-      if (chain.id !== chainId) {
+      if (!account.address) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const walletChainId = account.chainId;
+      
+      if (chain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network...',
         });
-
+      
         await switctChain.switchChainAsync({
           chainId: chain.id,
         });

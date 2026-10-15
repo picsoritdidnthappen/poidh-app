@@ -135,15 +135,21 @@ export default function FormClaim({
     mutationFn: async () => {
       setShowConfirm(false);
 
-      if (!account.connector) {
+      if (!account.connector || !account.address) {
         throw new Error('Wallet connector unavailable');
       }
-
-      const walletChainId = await account.connector.getChainId();
-
+      
+      const walletChainId = account.chainId;
+      
       if (chain.id !== walletChainId) {
-        setLoading({ isLoading: true, status: 'Switching network...' });
-        await switchChain.switchChainAsync({ chainId: chain.id });
+        setLoading({
+          isLoading: true,
+          status: 'Switching network...',
+        });
+      
+        await switchChain.switchChainAsync({
+          chainId: chain.id,
+        });
       }
 
       const walletProvider = (await account.connector.getProvider()) as
