@@ -83,14 +83,18 @@ export default function ClaimItem({
         throw new Error('Bounty data not found!');
       }
 
-      const chainId = await account.connector?.getChainId();
-
-      if (chain.id !== chainId) {
+      if (!account.address) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const walletChainId = account.chainId;
+      
+      if (chain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network...',
         });
-
+      
         await switctChain.switchChainAsync({
           chainId: chain.id,
         });
@@ -164,9 +168,13 @@ export default function ClaimItem({
         throw new Error('Bounty data not found!');
       }
 
-      const chainId = await account.connector?.getChainId();
-
-      if (chain.id !== chainId) {
+      if (!account.address) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const walletChainId = account.chainId;
+      
+      if (chain.id !== walletChainId) {
         await switctChain.switchChainAsync({
           chainId: chain.id,
         });
