@@ -123,7 +123,7 @@ export default function Voting({
   };
 
   const ensureCorrectChain = async () => {
-    const currentChainId = await account.connector?.getChainId();
+    const currentChainId = account.chainId;
 
     if (currentChainId !== chain.id) {
       setLoading({
@@ -173,22 +173,31 @@ export default function Voting({
   };
 
   /*
-   * Wait until the indexer reflects
-   * that voting has ended.
+   * Wait until the indexer has recorded
+   * the exact resolve transaction.
+   *
+   * Do not rely on bounty.isVoting here:
+   * that flag can remain true after resolution.
    */
-  const waitForResolveIndexing = async () => {
+  const waitForResolveIndexing = async (txHash: string) => {
     for (let i = 0; i < 60; i++) {
       setLoading({
         isLoading: true,
         status: `Indexing result... ${i}s`,
       });
 
-      const latestBounty = await trpcClient.bounties.fetch.query({
-        id: Number(bountyId),
-        chainId: chain.id,
-      });
+      const transactions =
+        await trpcClient.bounties.fetchTransactions.query({
+          bountyId: Number(bountyId),
+          chainId: chain.id,
+        });
 
-      if (!latestBounty.isVoting) {
+      const indexed = transactions.some(
+        (transaction) =>
+          transaction.tx?.toLowerCase() === txHash.toLowerCase()
+      );
+
+      if (indexed) {
         return true;
       }
 
@@ -257,7 +266,9 @@ export default function Voting({
       if (indexed) {
         toast.success('Voted successfully');
       } else {
-        toast.info('Vote confirmed. Indexing is taking longer than expected.');
+        toast.info(
+          'Vote confirmed. Indexing is taking longer than expected.'
+        );
       }
     },
 
@@ -321,7 +332,7 @@ export default function Voting({
         hash: tx,
       });
 
-      const indexed = await waitForResolveIndexing();
+      const indexed = await waitForResolveIndexing(tx);
 
       return {
         indexed,
