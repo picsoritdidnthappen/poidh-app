@@ -55,15 +55,19 @@ export default function FormJoinBounty({
 
   const bountyMutation = useMutation({
     mutationFn: async () => {
-      if (!account.connector) {
+      if (!account.connector || !account.address) {
         throw new Error('Wallet connector unavailable');
       }
-
-      const walletChainId = await account.connector.getChainId();
-
-      if (chain.id !== walletChainId) {
-        setLoading({ isLoading: true, status: 'Switching network...' });
-        await switchChain.switchChainAsync({ chainId: chain.id });
+      
+      if (chain.id !== account.chainId) {
+        setLoading({
+          isLoading: true,
+          status: 'Switching network...',
+        });
+      
+        await switchChain.switchChainAsync({
+          chainId: chain.id,
+        });
       }
 
       const walletProvider = (await account.connector.getProvider()) as
