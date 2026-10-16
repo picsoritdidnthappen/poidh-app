@@ -6,7 +6,7 @@ import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import ClaimImageEmbed from '@/components/feed/ClaimImageEmbed';
-import TextWithLinks from '@/components/global/TextWithLinks';
+import CollapsibleText from '@/components/global/CollapsibleText';
 import { getChainById } from '@/utils/config';
 import { trpc } from '@/trpc/client';
 import {
@@ -465,12 +465,10 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                   />
                 </div>
 
-                <div className='feed-comment-body ml-12 mt-2 rounded-md border px-3 py-2 text-sm sm:text-base text-white/80 whitespace-pre-wrap break-words'>
-                  <TextWithLinks>
-                    {activity.comment.parent.body.trimEnd()}
-                  </TextWithLinks>
-                </div>
-              </div>
+                <CollapsibleText
+                  text={activity.comment.parent.body.trimEnd()}
+                  className='feed-comment-body ml-12 mt-2 rounded-md border px-3 py-2 text-sm sm:text-base text-white/80'
+                />
             )}
 
             <div
@@ -493,11 +491,10 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
               </div>
 
               {activity.comment?.body && (
-                <div className='feed-comment-body mt-2 rounded-md border px-3 py-2 text-sm sm:text-base text-white/90 whitespace-pre-wrap break-words'>
-                  <TextWithLinks>
-                    {activity.comment.body.trimEnd()}
-                  </TextWithLinks>
-                </div>
+                <CollapsibleText
+                  text={activity.comment.body.trimEnd()}
+                  className='feed-comment-body mt-2 rounded-md border px-3 py-2 text-sm sm:text-base text-white/90'
+                />
               )}
 
               <div className='mt-2'>
