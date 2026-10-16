@@ -438,6 +438,18 @@ You must cover all 10 topics in the interview, but feel free to tailor the wordi
 - Be prepared to provide clear proof that the interview subject is a real, currently active politician
 
 First legit video, posted on the Farcaster /politics channel, wins 🏆`
+      : /^DESIGN SEER['’]S SIX INTERFACES$/i.test(bounty.data.title.trim())
+      ? bounty.data.description.replace(
+          /Design all six:\s*([\s\S]*?)(?=Submit one Poidh claim covering all six\.)/i,
+          (_match, interfaces: string) => {
+            const formattedInterfaces = interfaces.replace(
+              /(?:^|\s)(Seer homepage|Seer app|Deep|Futarchy|Opportunity Markets|Risk Pricing)\s*[-–—]\s*/g,
+              '\n\n- **$1** — '
+            );
+
+            return `\n\n**Design all six:**\n\n${formattedInterfaces.trim()}\n\n`;
+          }
+        )
       : bounty.data.description;
 
   return (
