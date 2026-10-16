@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
 import { ChainId } from '@/utils/types';
-import TextWithLinks from '@/components/global/TextWithLinks';
+import CollapsibleText from '@/components/global/CollapsibleText';
 import { trpc } from '@/trpc/client';
 import {
   getBanSignatureFirstLine,
@@ -645,9 +645,10 @@ function Comment({
           </span>
         </div>
 
-        <p className='mt-1 sm:mt-2 whitespace-pre-line text-sm sm:text-base break-words'>
-          <TextWithLinks>{displayBody}</TextWithLinks>
-        </p>
+        <CollapsibleText
+          text={displayBody}
+          className='mt-1 sm:mt-2 text-sm sm:text-base'
+        />
 
         <div className='mt-1 sm:mt-2 flex items-center space-x-4'>
           <button
