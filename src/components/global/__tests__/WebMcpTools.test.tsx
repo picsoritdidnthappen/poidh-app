@@ -78,7 +78,9 @@ describe('buildWebMcpTools', () => {
         untrustedContentHint: true,
       });
     }
-    expect(byName(tools, 'create_bounty').annotations).toBeUndefined();
+    expect(byName(tools, 'create_bounty').annotations).toEqual({
+      consequentialHint: true,
+    });
   });
 
   it('action tools open the /tx approval page with plain parameters', async () => {
@@ -133,7 +135,7 @@ describe('buildWebMcpTools', () => {
         limit: 99,
       })
     );
-    expect(mockFetchByKeyword).toHaveBeenCalledWith({ keyword: '', limit: 10 });
+    expect(mockFetchByKeyword).toHaveBeenCalledWith({ keyword: '', limit: 5 });
     expect(out.bounties[0]).toMatchObject({
       id: 1493,
       chain: 'base',
@@ -142,9 +144,32 @@ describe('buildWebMcpTools', () => {
       reward: '0.0107 eth',
       url: '/base/bounty/1493',
     });
-    expect(out.bounties[0].title.length).toBe(200);
+    expect(out.bounties[0].title.length).toBe(160);
     expect(out.note).toMatch(/user-written/);
   });
+});
+
+it('keeps a full page of results under the output budget', async () => {
+  mockFetchByKeyword.mockResolvedValue({
+    items: Array.from({ length: 5 }, (_, i) => ({
+      id: 1000 + i,
+      chainId: 8453,
+      title: 'y'.repeat(500),
+      amount: '10700000000000000',
+      inProgress: true,
+      isCanceled: false,
+      isMultiplayer: false,
+      isVoting: false,
+    })),
+  });
+  const text = await byName(
+    buildWebMcpTools(jest.fn()),
+    'find_bounties'
+  ).execute({});
+  expect(text.length).toBeLessThanOrEqual(1500);
+  const out = JSON.parse(text);
+  expect(out.bounties.length).toBeGreaterThanOrEqual(3);
+  expect(out.bounties[0].id).toBe(1000);
 });
 
 describe('withErrorText', () => {
