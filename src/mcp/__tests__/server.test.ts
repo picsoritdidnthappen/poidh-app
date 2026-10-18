@@ -270,6 +270,16 @@ describe('prepare tools', () => {
     expect(res.simulation).toEqual({ ok: true, from: ISSUER });
     expect(res.transaction.from).toBe(ISSUER);
     expect(res.walletSendCalls.from).toBe(ISSUER);
+    const signUrl = new URL(res.signUrl);
+    expect(signUrl.origin + signUrl.pathname).toBe('https://poidh.xyz/tx');
+    expect(Object.fromEntries(signUrl.searchParams)).toEqual({
+      action: 'create_bounty',
+      chain: 'base',
+      type: 'solo',
+      title: 'Golden Gate',
+      description: 'sunrise photo',
+      amountEth: '0.01',
+    });
     expect(mockProvider.call).toHaveBeenCalledWith(
       expect.objectContaining({ account: ISSUER, value: 10n ** 16n })
     );

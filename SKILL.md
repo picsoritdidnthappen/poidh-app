@@ -72,6 +72,7 @@ The MCP server never signs or holds keys. `prepare_*` tools return:
 - `transaction`: `{ chainId, to, data, value }` for `eth_sendTransaction`
 - `walletSendCalls`: the same call as an EIP-5792 `wallet_sendCalls` request
 - `simulation`: an `eth_call` dry run when you pass `from`, with decoded contract errors
+- `signUrl`: a `https://poidh.xyz/tx?...` link to send a human who wants to review and approve the action on poidh.xyz with the wallet they already use there, including poidh's built-in wallet
 
 The tools take the bounty ID shown in the poidh.xyz URL and convert it to the contract ID for you. The rules in this guide still apply: confirm with the user before signing, and only regular wallets (EOAs) can create bounties.
 
