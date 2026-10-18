@@ -21,5 +21,7 @@ export default function TxPage({
   for (const [key, value] of Object.entries(searchParams)) {
     if (typeof value === 'string') params.set(key, value);
   }
-  return <TxApproval query={params.toString()} />;
+  const query = params.toString();
+  // Keyed so a new link never shows the previous link's result
+  return <TxApproval key={query} query={query} />;
 }

@@ -12,6 +12,7 @@ import {
   APP_URL,
   BountyRecord,
   bountyStatus,
+  isSafeProofUri,
   prepareAction,
   slugFor,
 } from './actions';
@@ -139,6 +140,11 @@ export function createPoidhMcpServer(): McpServer {
       caller.claims
         .fetch({ claimId, chainId: chains[chain].id })
         .catch(() => null),
+    loadVotingClaim: (chain, id) =>
+      caller.claims.fetchVotingClaimByBountyId({
+        bountyId: id,
+        chainId: chains[chain].id,
+      }),
     mustUseVoteFlow: (chain, id) =>
       caller.bounties.mustUseVoteFlow({ id, chainId: chains[chain].id }),
   };
@@ -362,7 +368,8 @@ export function createPoidhMcpServer(): McpServer {
         proofUri: z
           .string()
           .url()
-          .describe('https:// or ipfs:// URL of the proof media'),
+          .refine(isSafeProofUri, 'Use an https://, ipfs:// or ar:// URL')
+          .describe('https://, ipfs:// or ar:// URL of the proof media'),
         from: fromAddress,
       },
       annotations: writeAnnotations,

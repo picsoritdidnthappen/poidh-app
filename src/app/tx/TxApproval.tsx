@@ -12,10 +12,12 @@ import {
   ActionName,
   ActionRequest,
   BountyRecord,
+  ClaimRecord,
+  isSafeProofUri,
   parseActionParams,
   prepareAction,
 } from '@/mcp/actions';
-import { getSenderKind } from '@/mcp/transactions';
+import { getSenderKind, simulate } from '@/mcp/transactions';
 import { setLoadingAtom } from '@/store/loading';
 import { trpcClient } from '@/trpc/client';
 import { chains } from '@/utils/config';
@@ -54,6 +56,11 @@ const clientDeps: ActionDeps = {
     trpcClient.claims.fetch
       .query({ claimId, chainId: chains[chain].id })
       .catch(() => null),
+  loadVotingClaim: (chain, id) =>
+    trpcClient.claims.fetchVotingClaimByBountyId.query({
+      bountyId: id,
+      chainId: chains[chain].id,
+    }),
   mustUseVoteFlow: (chain, id) =>
     trpcClient.bounties.mustUseVoteFlow.query({
       id,
@@ -95,12 +102,29 @@ function Shell({
   );
 }
 
+/** Proof links are only clickable for schemes poidh can display. */
+function ProofLink({ uri }: { uri: string }) {
+  if (!isSafeProofUri(uri)) return <span>{uri}</span>;
+  return (
+    <a
+      className='underline'
+      href={uri}
+      target='_blank'
+      rel='noopener noreferrer'
+    >
+      {uri}
+    </a>
+  );
+}
+
 function RequestDetails({
   request,
   bounty,
+  claim,
 }: {
   request: ActionRequest;
   bounty?: BountyRecord;
+  claim?: ClaimRecord;
 }) {
   return (
     <>
@@ -139,14 +163,30 @@ function RequestDetails({
             </div>
           </Detail>
           <Detail label='proof'>
-            <a
-              className='underline'
-              href={request.proofUri}
+            <ProofLink uri={request.proofUri} />
+          </Detail>
+        </>
+      )}
+      {claim && (
+        <>
+          <Detail
+            label={
+              request.action === 'accept_claim' ? 'claim' : 'claim under vote'
+            }
+          >
+            {claim.title}
+          </Detail>
+          <Detail label='claimant'>
+            <Link
+              className='underline font-mono'
+              href={`/account/${claim.issuer}`}
               target='_blank'
-              rel='noopener noreferrer'
             >
-              {request.proofUri}
-            </a>
+              {claim.issuer}
+            </Link>
+          </Detail>
+          <Detail label='proof'>
+            <ProofLink uri={claim.url} />
           </Detail>
         </>
       )}
@@ -191,6 +231,23 @@ export default function TxApproval({ query }: { query: string }) {
   const smartWalletBlocked =
     request?.action === 'create_bounty' &&
     (isZeroDev || senderKind.data === 'contract');
+
+  // Dry-run from the connected wallet to catch reverts such as voting
+  // without a stake or twice. RPC failures (null) never block approval.
+  const preflight = useQuery({
+    queryKey: ['agent-preflight', query, account.address],
+    queryFn: () =>
+      simulate(
+        (request as ActionRequest).chain,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        prepared.data!.tx,
+        account.address as `0x${string}`
+      ),
+    enabled: !!prepared.data && !!account.address && !smartWalletBlocked,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const preflightFailed = preflight.data?.ok === false ? preflight.data : null;
 
   const send = useMutation({
     mutationFn: async () => {
@@ -276,8 +333,9 @@ export default function TxApproval({ query }: { query: string }) {
   return (
     <Shell title={title}>
       <p className='mb-6 opacity-90'>
-        an agent prepared this for you. check the details, then approve it in
-        your wallet. nothing happens until you do.
+        this link asks you to approve the action below. anyone can create links
+        like this, so check every detail before you approve in your wallet.
+        nothing happens until you do.
       </p>
 
       <div className={cardClass}>
@@ -297,7 +355,11 @@ export default function TxApproval({ query }: { query: string }) {
               {prepared.data.tx.valueWei !== '0' && (
                 <Detail label='amount'>{prepared.data.tx.valueEth} eth</Detail>
               )}
-              <RequestDetails request={request} bounty={prepared.data.bounty} />
+              <RequestDetails
+                request={request}
+                bounty={prepared.data.bounty}
+                claim={prepared.data.claim}
+              />
             </dl>
 
             <details className='mt-4 text-sm'>
@@ -328,11 +390,22 @@ export default function TxApproval({ query }: { query: string }) {
               wallet) to post this bounty.
             </p>
           )}
+          {preflightFailed && (
+            <p
+              role='alert'
+              className='rounded-2xl border border-poidhRed/60 bg-poidhRed/20 p-4 text-sm'
+            >
+              this would fail onchain from your wallet:{' '}
+              {preflightFailed.hint ?? preflightFailed.error}
+            </p>
+          )}
           {account.isConnected ? (
             <button
               type='button'
               className={buttonClass}
-              disabled={send.isPending || smartWalletBlocked}
+              disabled={
+                send.isPending || smartWalletBlocked || !!preflightFailed
+              }
               onClick={() => send.mutate()}
             >
               approve in wallet

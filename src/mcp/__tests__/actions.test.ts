@@ -8,6 +8,8 @@ import {
   ActionRequest,
   actionUrl,
   BountyRecord,
+  ClaimRecord,
+  isSafeProofUri,
   parseActionParams,
   prepareAction,
 } from '../actions';
@@ -51,9 +53,24 @@ const bounty = (overrides: Partial<BountyRecord> = {}): BountyRecord => ({
   ...overrides,
 });
 
-const deps = (b: BountyRecord = bounty()): ActionDeps => ({
+const claim = (overrides: Partial<ClaimRecord> = {}): ClaimRecord => ({
+  id: 50,
+  bountyId: 1271,
+  onChainId: 812,
+  title: 'my sunrise photo',
+  description: 'shot at 6am',
+  url: 'ipfs://bafyproof',
+  issuer: OTHER,
+  ...overrides,
+});
+
+const deps = (
+  b: BountyRecord = bounty(),
+  votingClaim: ClaimRecord | null = claim()
+): ActionDeps => ({
   loadBounty: jest.fn(async () => b),
-  loadClaim: jest.fn(async () => ({ bountyId: b.id, onChainId: 812 })),
+  loadClaim: jest.fn(async () => claim({ bountyId: b.id })),
+  loadVotingClaim: jest.fn(async () => votingClaim),
   mustUseVoteFlow: jest.fn(async () => false),
 });
 
@@ -114,6 +131,16 @@ describe('approval links', () => {
       'proofUri',
     ],
     [
+      'javascript: proof links',
+      'action=submit_claim&chain=base&id=1&title=t&description=d&proofUri=javascript:alert(1)',
+      'proofUri',
+    ],
+    [
+      'data: proof links',
+      'action=submit_claim&chain=base&id=1&title=t&description=d&proofUri=data:text/html,x',
+      'proofUri',
+    ],
+    [
       'blank title',
       'action=create_bounty&chain=base&title=%20&description=d&amountEth=1',
       'title',
@@ -167,5 +194,65 @@ describe('prepareAction', () => {
     const d = deps();
     await prepareAction(ALL[0], d);
     expect(d.loadBounty).not.toHaveBeenCalled();
+  });
+
+  it('returns the claim being accepted so the person can check it', async () => {
+    const result = await prepareAction(
+      { action: 'accept_claim', chain: 'base', id: 1271, claimId: 50 },
+      deps(bounty({ isMultiplayer: false })),
+      ISSUER
+    );
+    expect(result.claim).toMatchObject({
+      title: 'my sunrise photo',
+      issuer: OTHER,
+      url: 'ipfs://bafyproof',
+    });
+  });
+
+  it('returns the claim under vote, and refuses when there is none', async () => {
+    const voting = bounty({ isVoting: true });
+    const result = await prepareAction(
+      { action: 'vote', chain: 'base', id: 1271, approve: true },
+      deps(voting)
+    );
+    expect(result.claim?.id).toBe(50);
+    expect(result.summary).toBe('Vote yes on claim 50 for bounty 1271.');
+
+    await expect(
+      prepareAction(
+        { action: 'vote', chain: 'base', id: 1271, approve: true },
+        deps(voting, null)
+      )
+    ).rejects.toThrow(/Could not find the claim up for vote/);
+  });
+
+  it('rejects unsafe proof URIs even when called directly', async () => {
+    await expect(
+      prepareAction(
+        {
+          action: 'submit_claim',
+          chain: 'base',
+          id: 1271,
+          title: 't',
+          description: 'd',
+          proofUri: 'javascript:alert(1)',
+        },
+        deps()
+      )
+    ).rejects.toThrow(/https:\/\/, ipfs:\/\/ or ar:\/\//);
+  });
+});
+
+describe('isSafeProofUri', () => {
+  it.each([
+    ['https://example.com/a.jpg', true],
+    ['ipfs://bafy', true],
+    ['ar://abc', true],
+    ['http://example.com/a.jpg', false],
+    ['javascript:alert(1)', false],
+    ['data:image/png;base64,AAAA', false],
+    ['not a url', false],
+  ])('%s → %s', (uri, safe) => {
+    expect(isSafeProofUri(uri)).toBe(safe);
   });
 });

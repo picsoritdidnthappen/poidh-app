@@ -63,17 +63,28 @@ export type BountyRecord = {
   deadline?: number | null;
 };
 
+export type ClaimRecord = {
+  id: number;
+  bountyId: number;
+  onChainId: number;
+  title: string;
+  description: string;
+  /** Proof media URI */
+  url: string;
+  /** Claimant address */
+  issuer: string;
+};
+
 /** Data access the actions need; MCP and the page each supply their own. */
 export type ActionDeps = {
   /** Throws a user-facing error when the bounty is missing. */
   // eslint-disable-next-line no-unused-vars
   loadBounty(chain: WriteChain, id: number): Promise<BountyRecord>;
-  loadClaim(
-    // eslint-disable-next-line no-unused-vars
-    chain: WriteChain,
-    // eslint-disable-next-line no-unused-vars
-    claimId: number
-  ): Promise<{ bountyId: number; onChainId: number } | null>;
+  // eslint-disable-next-line no-unused-vars
+  loadClaim(chain: WriteChain, claimId: number): Promise<ClaimRecord | null>;
+  /** The claim currently up for a contributor vote on a bounty. */
+  // eslint-disable-next-line no-unused-vars
+  loadVotingClaim(chain: WriteChain, id: number): Promise<ClaimRecord | null>;
   // eslint-disable-next-line no-unused-vars
   mustUseVoteFlow(chain: WriteChain, id: number): Promise<boolean>;
 };
@@ -84,6 +95,8 @@ export type PreparedAction = {
   /** Where to look after the transaction confirms */
   url: string;
   bounty?: BountyRecord;
+  /** The claim being accepted or voted on, so a person can check it */
+  claim?: ClaimRecord;
 };
 
 export const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
@@ -114,6 +127,18 @@ function requireOpen(b: BountyRecord) {
   const status = bountyStatus(b);
   if (status !== 'open') {
     throw new Error(`Bounty ${b.id} is ${status}, not open.`);
+  }
+}
+
+/**
+ * Proof links are shown to people as clickable links, so only allow
+ * schemes poidh can display: https, IPFS and Arweave.
+ */
+export function isSafeProofUri(value: string): boolean {
+  try {
+    return ['https:', 'ipfs:', 'ar:'].includes(new URL(value).protocol);
+  } catch {
+    return false;
   }
 }
 
@@ -184,6 +209,9 @@ export async function prepareAction(
       if (sameAddress(from, bounty.issuer)) {
         throw new Error('The bounty issuer cannot submit a claim.');
       }
+      if (!isSafeProofUri(req.proofUri)) {
+        throw new Error('proofUri must be an https://, ipfs:// or ar:// URL.');
+      }
       const tx = buildCreateClaim({
         chain,
         onChainBountyId: bounty.onChainId,
@@ -225,6 +253,7 @@ export async function prepareAction(
             } (${formatEther(BigInt(bounty.amount))} ETH).`,
         url: bountyUrl(req.id),
         bounty,
+        claim,
       };
     }
 
@@ -239,6 +268,12 @@ export async function prepareAction(
           `Voting on bounty ${req.id} has ended. Use prepare_resolve_vote to close it.`
         );
       }
+      const claim = await deps.loadVotingClaim(chain, req.id);
+      if (!claim) {
+        throw new Error(
+          `Could not find the claim up for vote on bounty ${req.id}.`
+        );
+      }
       const tx = buildVote({
         chain,
         onChainBountyId: bounty.onChainId,
@@ -246,11 +281,12 @@ export async function prepareAction(
       });
       return {
         tx,
-        summary: `Vote ${
-          req.approve ? 'yes' : 'no'
-        } on the claim up for vote on bounty ${req.id}.`,
+        summary: `Vote ${req.approve ? 'yes' : 'no'} on claim ${
+          claim.id
+        } for bounty ${req.id}.`,
         url: bountyUrl(req.id),
         bounty,
+        claim,
       };
     }
 
@@ -267,12 +303,14 @@ export async function prepareAction(
           )} more hour(s); it can be resolved after it ends.`
         );
       }
+      const claim = await deps.loadVotingClaim(chain, req.id);
       const tx = buildResolveVote({ chain, onChainBountyId: bounty.onChainId });
       return {
         tx,
         summary: `Resolve the vote on bounty ${req.id}.`,
         url: bountyUrl(req.id),
         bounty,
+        claim: claim ?? undefined,
       };
     }
 
@@ -321,7 +359,10 @@ const actionSchema = z.discriminatedUnion('action', [
     id,
     title: text(200),
     description: text(5000),
-    proofUri: z.string().url(),
+    proofUri: z
+      .string()
+      .url()
+      .refine(isSafeProofUri, 'must be an https://, ipfs:// or ar:// URL'),
   }),
   z.object({ action: z.literal('accept_claim'), chain, id, claimId: id }),
   z.object({
