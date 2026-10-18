@@ -166,7 +166,7 @@ describe('read tools', () => {
 
   it('get_bounty includes claims and vote tally while voting', async () => {
     mockCaller.bounties.fetch.mockResolvedValue(
-      bounty({ isMultiplayer: true, isVoting: true })
+      bounty({ isMultiplayer: true, isVoting: true, deadline: 1_800_000_000 })
     );
     mockCaller.claims.fetchBountyClaims.mockResolvedValue({
       items: [
@@ -198,14 +198,35 @@ describe('read tools', () => {
       },
     ]);
     expect(res.moreClaims).toBe(false);
-    expect(res.voting).toEqual({ yes: 3, no: 1 });
+    expect(res.voting).toEqual({
+      yes: 3,
+      no: 1,
+      deadline: '2027-01-15T08:00:00.000Z',
+    });
   });
 
   it('get_bounty returns an actionable error for unknown bounties', async () => {
-    mockCaller.bounties.fetch.mockRejectedValue(new Error('NotFound'));
+    // tRPC's caller wraps Prisma's findUniqueOrThrow P2025 error
+    mockCaller.bounties.fetch.mockRejectedValue(
+      Object.assign(new Error('wrapped'), { cause: { code: 'P2025' } })
+    );
     const res = await callTool('get_bounty', { chain: 'arbitrum', id: 9 });
     expect(res.isError).toBe(true);
     expect(res.text).toMatch(/Bounty 9 not found on arbitrum/);
+  });
+
+  it('does not report a database outage as "not found"', async () => {
+    const spy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    mockCaller.bounties.fetch.mockRejectedValue(
+      new Error('connect ECONNREFUSED')
+    );
+    const res = await callTool('get_bounty', { chain: 'base', id: 9 });
+    expect(res.isError).toBe(true);
+    expect(res.text).toMatch(/Could not load the bounty right now/);
+    expect(res.text).not.toMatch(/ECONNREFUSED/);
+    spy.mockRestore();
   });
 });
 
@@ -223,6 +244,8 @@ describe('prepare tools', () => {
     expect(res.transaction.chainId).toBe(8453);
     expect(res.walletSendCalls.chainId).toBe('0x2105');
     expect(res.simulation).toEqual({ ok: true, from: ISSUER });
+    expect(res.transaction.from).toBe(ISSUER);
+    expect(res.walletSendCalls.from).toBe(ISSUER);
     expect(mockProvider.call).toHaveBeenCalledWith(
       expect.objectContaining({ account: ISSUER, value: 10n ** 16n })
     );
@@ -380,6 +403,43 @@ describe('prepare tools', () => {
       claimId: 50,
     });
     expect(wrongBounty.text).toMatch(/Claim 50 not found on bounty 1271/);
+  });
+
+  it('vote is refused after the deadline and resolve before it', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    mockCaller.bounties.fetch.mockResolvedValue(
+      bounty({ isMultiplayer: true, isVoting: true, deadline: now - 60 })
+    );
+    const late = await callTool('prepare_vote', {
+      chain: 'base',
+      id: 1271,
+      approve: true,
+    });
+    expect(late.text).toMatch(/has ended. Use prepare_resolve_vote/);
+
+    mockCaller.bounties.fetch.mockResolvedValue(
+      bounty({ isMultiplayer: true, isVoting: true, deadline: now + 7200 })
+    );
+    const early = await callTool('prepare_resolve_vote', {
+      chain: 'base',
+      id: 1271,
+    });
+    expect(early.text).toMatch(/still open for about 2 more hour/);
+  });
+
+  it("prepare summaries do not echo other users' text", async () => {
+    mockCaller.bounties.fetch.mockResolvedValue(
+      bounty({ isMultiplayer: true })
+    );
+    const res = (
+      await callTool('prepare_join_bounty', {
+        chain: 'base',
+        id: 1271,
+        amountEth: '0.005',
+      })
+    ).json();
+    expect(res.summary).toBe('Add 0.005 ETH to bounty 1271 on base.');
+    expect(JSON.stringify(res)).not.toMatch(/Ignore previous instructions/);
   });
 
   it('vote and resolve require an active vote', async () => {

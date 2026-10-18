@@ -155,11 +155,17 @@ describe('transaction builders', () => {
     });
   });
 
-  it('converts to an EIP-5792 wallet_sendCalls request', () => {
+  it('converts to EIP-5792 wallet_sendCalls params, with from when known', () => {
     const tx = buildWithdraw({ chain: 'base' });
+    const call = { to: tx.to, data: tx.data, value: '0x0' };
     expect(toSendCalls(tx)).toEqual({
+      version: '2.0.0',
       chainId: '0x2105',
-      calls: [{ to: tx.to, data: tx.data, value: '0x0' }],
+      atomicRequired: false,
+      calls: [call],
     });
+    expect(
+      toSendCalls(tx, '0x1111111111111111111111111111111111111111')
+    ).toMatchObject({ from: '0x1111111111111111111111111111111111111111' });
   });
 });

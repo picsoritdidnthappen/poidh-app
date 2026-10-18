@@ -64,6 +64,8 @@ type BountyRecord = {
   isVoting: boolean;
   hasClaims: boolean;
   amountSort?: number;
+  /** Vote deadline in unix seconds while a vote is active */
+  deadline?: number | null;
 };
 
 function slugFor(chainId: number): Netname {
@@ -77,6 +79,21 @@ function bountyStatus(b: BountyRecord) {
   if (b.isVoting) return 'voting';
   if (b.inProgress) return 'open';
   return 'completed';
+}
+
+/** Prisma's findUniqueOrThrow error, possibly wrapped by the tRPC caller. */
+function isNotFound(err: unknown): boolean {
+  const code = (e: unknown) => (e as { code?: unknown } | null)?.code;
+  return (
+    code(err) === 'P2025' ||
+    code((err as { cause?: unknown } | null)?.cause) === 'P2025'
+  );
+}
+
+/** Seconds until a vote closes; null when the deadline is unknown. */
+function voteSecondsLeft(b: BountyRecord): number | null {
+  if (!b.deadline) return null;
+  return b.deadline - Math.floor(Date.now() / 1000);
 }
 
 function summarizeBounty(b: BountyRecord) {
@@ -129,8 +146,8 @@ async function prepared(input: {
     : undefined;
   return json({
     summary: input.summary,
-    transaction: input.tx,
-    walletSendCalls: toSendCalls(input.tx),
+    transaction: input.from ? { ...input.tx, from: input.from } : input.tx,
+    walletSendCalls: toSendCalls(input.tx, input.from as `0x${string}`),
     simulation:
       simulation ?? (input.from ? 'unavailable' : 'skipped: pass from'),
     warnings: input.warnings?.length ? input.warnings : undefined,
@@ -158,8 +175,12 @@ export function createPoidhMcpServer(): McpServer {
     const chainId = chains[chain].id;
     try {
       return (await caller.bounties.fetch({ id, chainId })) as BountyRecord;
-    } catch {
-      throw new Error(`Bounty ${id} not found on ${chain}.`);
+    } catch (err) {
+      if (isNotFound(err)) {
+        throw new Error(`Bounty ${id} not found on ${chain}.`);
+      }
+      console.error('MCP failed to load bounty', { chain, id, err });
+      throw new Error('Could not load the bounty right now. Please retry.');
     }
   }
 
@@ -237,7 +258,12 @@ export function createPoidhMcpServer(): McpServer {
           isAccepted: c.isAccepted,
         })),
         moreClaims: claims.nextCursor !== undefined,
-        voting,
+        voting: voting && {
+          ...voting,
+          deadline: bounty.deadline
+            ? new Date(bounty.deadline * 1000).toISOString()
+            : null,
+        },
         note: UGC_NOTE,
       });
     }
@@ -376,7 +402,7 @@ export function createPoidhMcpServer(): McpServer {
       });
       return prepared({
         chain,
-        summary: `Add ${tx.valueEth} ETH to bounty ${id} "${bounty.title}".`,
+        summary: `Add ${tx.valueEth} ETH to bounty ${id} on ${chain}.`,
         tx,
         url: `${APP_URL}/${chain}/bounty/${id}`,
         from,
@@ -418,7 +444,7 @@ export function createPoidhMcpServer(): McpServer {
       });
       return prepared({
         chain,
-        summary: `Submit claim "${title}" to bounty ${id} "${bounty.title}".`,
+        summary: `Submit a claim to bounty ${id} on ${chain}.`,
         tx,
         url: `${APP_URL}/${chain}/bounty/${id}`,
         from,
@@ -497,6 +523,12 @@ export function createPoidhMcpServer(): McpServer {
       if (!bounty.isVoting) {
         throw new Error(`Bounty ${id} has no active vote.`);
       }
+      const left = voteSecondsLeft(bounty);
+      if (left !== null && left <= 0) {
+        throw new Error(
+          `Voting on bounty ${id} has ended. Use prepare_resolve_vote to close it.`
+        );
+      }
       const tx = buildVote({
         chain,
         onChainBountyId: bounty.onChainId,
@@ -527,6 +559,14 @@ export function createPoidhMcpServer(): McpServer {
       const bounty = await loadBounty(chain, id);
       if (!bounty.isVoting) {
         throw new Error(`Bounty ${id} has no active vote.`);
+      }
+      const left = voteSecondsLeft(bounty);
+      if (left !== null && left > 0) {
+        throw new Error(
+          `Voting on bounty ${id} is still open for about ${Math.ceil(
+            left / 3600
+          )} more hour(s); it can be resolved after it ends.`
+        );
       }
       const tx = buildResolveVote({ chain, onChainBountyId: bounty.onChainId });
       return prepared({

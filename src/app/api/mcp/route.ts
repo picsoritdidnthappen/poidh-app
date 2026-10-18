@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers':
     'Content-Type, Accept, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID',
   'Access-Control-Expose-Headers': 'Mcp-Session-Id, Mcp-Protocol-Version',
@@ -52,9 +52,21 @@ async function handle(req: Request): Promise<Response> {
   }
 }
 
-export const GET = handle;
 export const POST = handle;
-export const DELETE = handle;
+
+/**
+ * Stateless JSON mode has no standalone SSE stream or session to delete, so
+ * GET and DELETE return 405, which the Streamable HTTP spec allows.
+ */
+function methodNotAllowed(): Response {
+  return new Response(null, {
+    status: 405,
+    headers: { ...CORS_HEADERS, Allow: 'POST, OPTIONS' },
+  });
+}
+
+export const GET = methodNotAllowed;
+export const DELETE = methodNotAllowed;
 
 export function OPTIONS() {
   return new Response(null, { status: 204, headers: CORS_HEADERS });

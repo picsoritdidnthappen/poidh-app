@@ -54,10 +54,16 @@ function build({ chain, functionName, data, valueWei = 0n }: Args) {
   return tx;
 }
 
-/** The same call as an EIP-5792 `wallet_sendCalls` request. */
-export function toSendCalls(tx: PreparedTransaction) {
+/**
+ * The same call as EIP-5792 `wallet_sendCalls` params. `from` is included
+ * when known; without it, wallets fill in the connected account.
+ */
+export function toSendCalls(tx: PreparedTransaction, from?: `0x${string}`) {
   return {
+    version: '2.0.0',
     chainId: toHex(tx.chainId),
+    ...(from ? { from } : {}),
+    atomicRequired: false,
     calls: [{ to: tx.to, data: tx.data, value: tx.value }],
   };
 }
@@ -87,6 +93,8 @@ export type SenderKind = 'eoa' | 'eip7702' | 'contract' | 'unknown';
  * passes the dry run but reverts when a bundler submits it.
  * EIP-7702 accounts carry a 23-byte `0xef0100…` delegation designator and
  * pass the rule only when they send the transaction themselves.
+ * Best effort: a counterfactual (not yet deployed) smart account also has
+ * empty code and is reported as 'eoa'.
  */
 export async function getSenderKind(
   chain: WriteChain,
