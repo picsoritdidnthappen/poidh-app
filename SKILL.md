@@ -76,6 +76,10 @@ The MCP server never signs or holds keys. `prepare_*` tools return:
 
 The tools take the bounty ID shown in the poidh.xyz URL and convert it to the contract ID for you. The rules in this guide still apply: confirm with the user before signing, and only regular wallets (EOAs) can create bounties.
 
+### WebMCP (in-browser agents)
+
+When an agent runs inside a browser on poidh.xyz (Chrome's WebMCP, ChatGPT desktop site tools), the page registers the same tools through `document.modelContext`. `find_bounties` and `get_bounty` return data. The action tools (`create_bounty`, `join_bounty`, `submit_claim`, `accept_claim`, `vote`, `resolve_vote`, `withdraw`) open the `/tx` approval page, where the person approves in their own wallet.
+
 ## Open-Source Repository
 
 The poidh.xyz application is open source.
