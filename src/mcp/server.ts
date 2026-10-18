@@ -116,11 +116,27 @@ function summarizeBounty(b: BountyRecord) {
   };
 }
 
+/**
+ * Returns a result both as structuredContent (for clients that read it)
+ * and as JSON text (for clients that don't), per the MCP tools spec.
+ */
 function json(value: unknown) {
+  const structured =
+    value && typeof value === 'object' && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : { result: value };
   return {
     content: [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }],
+    structuredContent: structured,
   };
 }
+
+const readAnnotations = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: false,
+};
 
 const fromAddress = address
   .optional()
@@ -205,7 +221,7 @@ export function createPoidhMcpServer(): McpServer {
           .optional()
           .describe('nextCursor from a previous call'),
       },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      annotations: readAnnotations,
     },
     async ({ query, limit, cursor }) => {
       const result = await caller.bounties.fetchByKeyword({
@@ -232,7 +248,7 @@ export function createPoidhMcpServer(): McpServer {
         id: bountyId,
         claimsLimit: z.number().int().min(1).max(50).default(20),
       },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      annotations: readAnnotations,
     },
     async ({ chain, id, claimsLimit }) => {
       const bounty = await loadBounty(chain, id);
@@ -276,7 +292,7 @@ export function createPoidhMcpServer(): McpServer {
       description:
         'Returns a poidh user’s profile (ENS, Farcaster, X handles when linked) and totals: ETH paid out as an issuer, earned as a claimant, and currently escrowed in open bounties.',
       inputSchema: { address },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      annotations: readAnnotations,
     },
     async ({ address }) => {
       const [profile, stats] = await Promise.all([
@@ -303,16 +319,14 @@ export function createPoidhMcpServer(): McpServer {
       description:
         'Returns the poidh leaderboard: top users ranked by points from bounties paid, earned and NFTs held.',
       inputSchema: { page: z.number().int().min(1).max(10).default(1) },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      annotations: readAnnotations,
     },
     async ({ page }) => json(await caller.leaderboard.fetch({ page }))
   );
 
-  const writeAnnotations = {
-    readOnlyHint: true,
-    destructiveHint: false,
-    openWorldHint: false,
-  };
+  // prepare_* tools only build and dry-run a transaction; the person
+  // signs it elsewhere, so they are read-only from the server's view.
+  const writeAnnotations = readAnnotations;
 
   server.registerTool(
     'prepare_create_bounty',

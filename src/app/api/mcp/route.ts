@@ -1,15 +1,22 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
+import { isAllowedOrigin } from '@/mcp/origin';
 import { createPoidhMcpServer } from '@/mcp/server';
 
 export const dynamic = 'force-dynamic';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+const BASE_CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers':
-    'Content-Type, Accept, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID',
+    'Content-Type, Accept, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Mcp-Method, Mcp-Name, Last-Event-ID',
   'Access-Control-Expose-Headers': 'Mcp-Session-Id, Mcp-Protocol-Version',
+  Vary: 'Origin',
 };
+
+function corsHeaders(origin: string | null): Record<string, string> {
+  return origin && isAllowedOrigin(origin)
+    ? { ...BASE_CORS_HEADERS, 'Access-Control-Allow-Origin': origin }
+    : BASE_CORS_HEADERS;
+}
 
 /**
  * Remote MCP endpoint (Streamable HTTP). Stateless: every request gets a
@@ -18,6 +25,18 @@ const CORS_HEADERS = {
  * endpoint is public and holds no credentials.
  */
 async function handle(req: Request): Promise<Response> {
+  const origin = req.headers.get('origin');
+  const CORS_HEADERS = corsHeaders(origin);
+  if (!isAllowedOrigin(origin)) {
+    return Response.json(
+      {
+        jsonrpc: '2.0',
+        error: { code: -32000, message: 'Origin not allowed' },
+        id: null,
+      },
+      { status: 403, headers: CORS_HEADERS }
+    );
+  }
   const started = Date.now();
   const server = createPoidhMcpServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
@@ -58,16 +77,23 @@ export const POST = handle;
  * Stateless JSON mode has no standalone SSE stream or session to delete, so
  * GET and DELETE return 405, which the Streamable HTTP spec allows.
  */
-function methodNotAllowed(): Response {
+function methodNotAllowed(req: Request): Response {
   return new Response(null, {
     status: 405,
-    headers: { ...CORS_HEADERS, Allow: 'POST, OPTIONS' },
+    headers: {
+      ...corsHeaders(req.headers.get('origin')),
+      Allow: 'POST, OPTIONS',
+    },
   });
 }
 
 export const GET = methodNotAllowed;
 export const DELETE = methodNotAllowed;
 
-export function OPTIONS() {
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
+export function OPTIONS(req: Request) {
+  const origin = req.headers.get('origin');
+  return new Response(null, {
+    status: isAllowedOrigin(origin) ? 204 : 403,
+    headers: corsHeaders(origin),
+  });
 }

@@ -130,7 +130,12 @@ describe('tool list', () => {
     for (const tool of tools) {
       expect(tool.description?.length).toBeLessThanOrEqual(500);
       expect(tool.name.length).toBeLessThanOrEqual(30);
-      expect(tool.annotations?.readOnlyHint).toBe(true);
+      expect(tool.annotations).toMatchObject({
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      });
     }
   });
 });
@@ -162,6 +167,25 @@ describe('read tools', () => {
     });
     expect(res.nextCursor).toBe('123');
     expect(res.note).toMatch(/user-written content/);
+  });
+
+  it('returns structuredContent alongside the JSON text', async () => {
+    mockCaller.bounties.fetchByKeyword.mockResolvedValue({
+      items: [bounty()],
+      nextCursor: undefined,
+    });
+    const client = await connect();
+    const result = (await client.callTool({
+      name: 'find_bounties',
+      arguments: {},
+    })) as {
+      structuredContent?: { bounties: { id: number }[] };
+      content: { text: string }[];
+    };
+    expect(result.structuredContent?.bounties[0].id).toBe(1271);
+    expect(JSON.parse(result.content[0].text)).toEqual(
+      result.structuredContent
+    );
   });
 
   it('get_bounty includes claims and vote tally while voting', async () => {
