@@ -24,6 +24,9 @@ const mockCaller = {
   leaderboard: { fetch: jest.fn() },
 };
 const mockProvider = { getCode: jest.fn(), call: jest.fn() };
+const mockFetch = jest.fn();
+
+global.fetch = mockFetch as unknown as typeof fetch;
 
 jest.mock('@/trpc/trpc', () => ({ appRouter: {} }));
 jest.mock('@/trpc/init', () => ({
@@ -192,69 +195,178 @@ describe('read tools', () => {
     );
   });
 
-  it('get_bounty includes claims and vote tally while voting', async () => {
-    mockCaller.bounties.fetch.mockResolvedValue(
-      bounty({ isMultiplayer: true, isVoting: true, deadline: 1_800_000_000 })
-    );
-    mockCaller.claims.fetchBountyClaims.mockResolvedValue({
-      items: [
+  it('get_bounty returns the complete /data representation', async () => {
+    const bountyData = {
+      id: 1271,
+      onChainId: 285,
+      chainId: 8453,
+      title: 'Golden Gate at sunrise',
+      description: 'Take the photo',
+      amount: '10000000000000000',
+      issuer: ISSUER,
+      status: 'in_progress',
+      statusLabel: 'In progress',
+      statusEmoji: '💰',
+      acceptingClaims: true,
+      votingInProgress: false,
+      voteResolved: false,
+      voteStartedAt: null,
+      voteResolution: null,
+      winningClaim: null,
+      hasClaims: true,
+      hasParticipants: false,
+      priceUsd: 23.67,
+      currency: 'eth',
+      url: 'https://poidh.xyz/base/bounty/1271',
+      skillUrl: 'https://poidh.xyz/skill.md',
+      docsUrl: 'https://docs.poidh.xyz/',
+      githubUrl: 'https://github.com/picsoritdidnthappen/poidh-app',
+      claims: [
         {
-          id: 50,
+          claimId: 50,
+          uri: 'ipfs://bafy',
+          isAccepted: false,
+          issuerAddress: CLAIMANT,
+          issuerName: 'alice.eth',
+          farcasterHandle: 'alice',
+          twitterHandle: 'alice_x',
+          profileUrl: `https://poidh.xyz/account/${CLAIMANT}`,
+          profileDataUrl: `https://poidh.xyz/account/${CLAIMANT}/data`,
           title: 'Here it is',
           description: 'shot at 6am',
-          url: 'ipfs://bafy',
-          issuer: CLAIMANT,
-          isAccepted: false,
         },
       ],
-      nextCursor: undefined,
+      comments: [
+        {
+          commentId: 7,
+          parentId: null,
+          body: 'deadline extended to Friday',
+          createdAt: '2026-10-18T12:00:00.000Z',
+          authorAddress: ISSUER,
+          authorName: 'issuer.eth',
+          farcasterHandle: 'issuer',
+          twitterHandle: null,
+          profileUrl: `https://poidh.xyz/account/${ISSUER}`,
+          profileDataUrl: `https://poidh.xyz/account/${ISSUER}/data`,
+          upvotes: 2,
+          downvotes: 0,
+        },
+      ],
+    };
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => bountyData,
     });
-    mockCaller.bounties.fetchVoting.mockResolvedValue({ yes: 3, no: 1 });
+
     const res = (
       await callTool('get_bounty', { chain: 'base', id: 1271 })
     ).json();
-    expect(res.bounty.status).toBe('voting');
-    expect(res.bounty.type).toBe('open');
-    expect(res.claims).toEqual([
-      {
-        id: 50,
-        title: 'Here it is',
-        description: 'shot at 6am',
-        proofUri: 'ipfs://bafy',
-        claimant: CLAIMANT,
-        isAccepted: false,
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/base/bounty/1271/data'),
+      { cache: 'no-store' }
+    );
+    expect(res).toMatchObject(bountyData);
+    expect(res.claims).toEqual(bountyData.claims);
+    expect(res.comments).toEqual(bountyData.comments);
+    expect(res.note).toMatch(/user-written content/);
+  });
+
+  it('get_account returns the complete /data representation', async () => {
+    const accountData = {
+      address: CLAIMANT.toLowerCase(),
+      profile: {
+        address: CLAIMANT.toLowerCase(),
+        name: 'alice.eth',
+        farcasterHandle: 'alice',
+        twitterHandle: 'alice_x',
       },
-    ]);
-    expect(res.moreClaims).toBe(false);
-    expect(res.voting).toEqual({
-      yes: 3,
-      no: 1,
-      deadline: '2027-01-15T08:00:00.000Z',
+      profileUrl: `https://poidh.xyz/account/${CLAIMANT.toLowerCase()}`,
+      dataUrl: `https://poidh.xyz/account/${CLAIMANT.toLowerCase()}/data`,
+      poidhScore: 1234,
+      summary: {
+        bounties: 3,
+        bountiesCreated: 1,
+        bountiesFunded: 2,
+        claimsSubmitted: 4,
+        claimsWon: 1,
+        nftsHeld: 2,
+        commentsAuthored: 5,
+        relatedUsers: 6,
+      },
+      totals: {
+        eth: {
+          paid: { amountCrypto: 0.1, amountUSD: 250 },
+          earned: { amountCrypto: 0.2, amountUSD: 500 },
+          inContract: { amountCrypto: 0.01, amountUSD: 25 },
+        },
+      },
+      bounties: [{ id: 1271, title: 'Example bounty' }],
+      claims: [{ claimId: 50, claimStatus: 'won' }],
+      nfts: [{ claimId: 50 }],
+      comments: [{ commentId: 7, body: 'hello' }],
+      relatedUsers: [{ address: ISSUER }],
+    };
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => accountData,
     });
+
+    const res = (await callTool('get_account', { address: CLAIMANT })).json();
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `/account/${CLAIMANT.toLowerCase()}/data`
+      ),
+      { cache: 'no-store' }
+    );
+    expect(res).toMatchObject(accountData);
+    expect(res.bounties).toEqual(accountData.bounties);
+    expect(res.claims).toEqual(accountData.claims);
+    expect(res.nfts).toEqual(accountData.nfts);
+    expect(res.comments).toEqual(accountData.comments);
+    expect(res.relatedUsers).toEqual(accountData.relatedUsers);
+    expect(res.note).toMatch(/user-written content/);
   });
 
-  it('get_bounty returns an actionable error for unknown bounties', async () => {
-    // tRPC's caller wraps Prisma's findUniqueOrThrow P2025 error
-    mockCaller.bounties.fetch.mockRejectedValue(
-      Object.assign(new Error('wrapped'), { cause: { code: 'P2025' } })
-    );
-    const res = await callTool('get_bounty', { chain: 'arbitrum', id: 9 });
+  it('get_bounty reports a missing /data bounty as not found', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 404,
+      json: async () => ({ error: 'not found' }),
+    });
+
+    const res = await callTool('get_bounty', {
+      chain: 'arbitrum',
+      id: 9,
+    });
+
     expect(res.isError).toBe(true);
-    expect(res.text).toMatch(/Bounty 9 not found on arbitrum/);
+    expect(res.text).toMatch(/Not found/);
   });
 
-  it('does not report a database outage as "not found"', async () => {
-    const spy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => undefined);
-    mockCaller.bounties.fetch.mockRejectedValue(
-      new Error('connect ECONNREFUSED')
-    );
-    const res = await callTool('get_bounty', { chain: 'base', id: 9 });
+  it('does not expose upstream error bodies when /data fails', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({
+        error: 'connect ECONNREFUSED secret-internal-detail',
+      }),
+    });
+
+    const res = await callTool('get_bounty', {
+      chain: 'base',
+      id: 9,
+    });
+
     expect(res.isError).toBe(true);
-    expect(res.text).toMatch(/Could not load the bounty right now/);
+    expect(res.text).toMatch(/poidh data endpoint returned 500/);
     expect(res.text).not.toMatch(/ECONNREFUSED/);
-    spy.mockRestore();
+    expect(res.text).not.toMatch(/secret-internal-detail/);
   });
 });
 
