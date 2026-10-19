@@ -5,6 +5,14 @@ import { addressSchema } from '../serverTypes';
 import { checkIsIssuer } from './admin';
 import { getEverHadExternalContributor } from './web3';
 
+/**
+ * Escapes LIKE wildcards. Prisma's `contains` passes `%` and `_` through, so
+ * a search for "%%" matched every bounty instead of the literal text.
+ */
+export function likeLiteral(text: string): string {
+  return text.replace(/[\\%_]/g, (c) => `\\${c}`);
+}
+
 export const bountiesRouter = {
   fetch: baseProcedure
     .input(z.object({ id: z.number(), chainId: z.number() }))
@@ -598,14 +606,20 @@ export const bountiesRouter = {
               }
             : {
                 OR: [
-                  { title: { contains: q, mode: 'insensitive' } },
-                  { description: { contains: q, mode: 'insensitive' } },
+                  { title: { contains: likeLiteral(q), mode: 'insensitive' } },
+                  {
+                    description: {
+                      contains: likeLiteral(q),
+                      mode: 'insensitive',
+                    },
+                  },
                 ],
               }),
           ...(input.cursor ? { createdAt: { lt: input.cursor } } : {}),
         },
 
-        distinct: 'id',
+        // Bounty ids repeat across chains; (id, chainId) is the key.
+        distinct: ['id', 'chainId'],
         orderBy: { createdAt: 'desc' },
         take: input.limit,
       });
