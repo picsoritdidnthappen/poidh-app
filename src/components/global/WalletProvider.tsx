@@ -1,6 +1,7 @@
 'use client';
 
 import { darkTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { SessionProvider } from '@/components/auth/SessionProvider';
 import { useTheme } from '@/context/ThemeContext';
 import { walletCookieToInitialState } from '@/utils/walletStorage';
 import { config, createWagmiConfig } from '@/wagmiConfig';
@@ -38,7 +39,7 @@ export function WalletProvider({
             : undefined
         }
       >
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </RainbowKitProvider>
     </WagmiProvider>
   );
