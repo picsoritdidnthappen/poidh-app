@@ -100,11 +100,14 @@ export default function RootLayout({
     <html lang='en' suppressHydrationWarning>
       <head>
         <link rel='canonical' href={url} />
-        <link
-          rel='help'
-          type='text/markdown'
-          href={`${APP_URL}/skill.md`}
-        />
+        <link rel='help' type='text/markdown' href={`${APP_URL}/skill.md`} />
+        {/* Chrome WebMCP origin trial token for this origin (see WebMcpTools) */}
+        {process.env.NEXT_PUBLIC_WEBMCP_ORIGIN_TRIAL_TOKEN && (
+          <meta
+            httpEquiv='origin-trial'
+            content={process.env.NEXT_PUBLIC_WEBMCP_ORIGIN_TRIAL_TOKEN}
+          />
+        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');var valid=t==='light'||t==='dark'||t==='cyber';if(!valid)t='light';document.documentElement.classList.toggle('dark',t==='dark'||t==='cyber');document.documentElement.classList.toggle('cyber',t==='cyber');}catch(e){document.documentElement.classList.remove('dark');document.documentElement.classList.remove('cyber');}})();`,
