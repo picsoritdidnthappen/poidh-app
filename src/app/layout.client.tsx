@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
+import WebMcpTools from '@/components/global/WebMcpTools';
 import sdk from '@farcaster/frame-sdk';
 import { sdk as miniAppSdk } from '@farcaster/miniapp-sdk';
 
@@ -41,6 +42,7 @@ export default function ClientLayout({
   return (
     <>
       {shouldShowHeader && <Header />}
+      <WebMcpTools />
       {children}
     </>
   );

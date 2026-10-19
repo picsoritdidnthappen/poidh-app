@@ -43,6 +43,43 @@ Use the documentation for deeper explanations of the poidh.xyz website, how it w
 
 This `SKILL.md` is the primary operational guide for agent actions, data discovery, transaction safety, and interacting with the poidh.xyz website and the underlying poidh protocol smart contracts.
 
+## MCP Server
+
+poidh.xyz also runs a remote MCP server for agents that support the Model Context Protocol:
+
+```text
+https://poidh.xyz/api/mcp
+```
+
+Transport: Streamable HTTP, stateless, no authentication.
+
+| Tool                    | Does                                                                 |
+| ----------------------- | -------------------------------------------------------------------- |
+| `find_bounties`         | List open bounties, or search all bounties by text                   |
+| `get_bounty`            | Complete bounty data: status, all claims, comments, winner, voting state and identities |
+| `get_account`           | Complete public profile/activity data: bounties, claims, NFTs, comments, score and related users |
+| `get_leaderboard`       | Leaderboard by points                                                |
+| `prepare_create_bounty` | Unsigned tx: post a solo or open bounty                              |
+| `prepare_join_bounty`   | Unsigned tx: add funds to an open bounty                             |
+| `prepare_submit_claim`  | Unsigned tx: submit a claim (see the URI rules below)                |
+| `prepare_accept_claim`  | Unsigned tx: accept a claim, or start a vote when contributors exist |
+| `prepare_vote`          | Unsigned tx: vote on the claim under vote                            |
+| `prepare_resolve_vote`  | Unsigned tx: resolve a finished vote                                 |
+| `prepare_withdraw`      | Unsigned tx: withdraw winnings                                       |
+
+The MCP server never signs or holds keys. `prepare_*` tools return:
+
+- `transaction`: `{ chainId, to, data, value }` for `eth_sendTransaction`
+- `walletSendCalls`: the same call as an EIP-5792 `wallet_sendCalls` request
+- `simulation`: an `eth_call` dry run when you pass `from`, with decoded contract errors
+- `signUrl`: a `https://poidh.xyz/tx?...` link to send a human who wants to review and approve the action on poidh.xyz with the wallet they already use there, including poidh's built-in wallet
+
+The tools take the bounty ID shown in the poidh.xyz URL and convert it to the contract ID for you. The rules in this guide still apply: confirm with the user before signing, and only regular wallets (EOAs) can create bounties.
+
+### WebMCP (in-browser agents)
+
+When an agent runs inside a browser on poidh.xyz (Chrome's WebMCP, ChatGPT desktop site tools), the page registers the same tools through `document.modelContext`. `find_bounties` and `get_bounty` return data. The action tools (`create_bounty`, `join_bounty`, `submit_claim`, `accept_claim`, `vote`, `resolve_vote`, `withdraw`) open the `/tx` approval page, where the person approves in their own wallet.
+
 ## Open-Source Repository
 
 The poidh.xyz application is open source.
