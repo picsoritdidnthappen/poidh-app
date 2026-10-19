@@ -1,8 +1,10 @@
 import {
   BaseError,
   decodeErrorResult,
+  decodeEventLog,
   encodeFunctionData,
   formatEther,
+  Log,
   parseEther,
   toHex,
 } from 'viem';
@@ -167,6 +169,32 @@ export async function simulate(
       return { ok: false, from, error: 'Reverted' };
     }
   }
+}
+
+/**
+ * Reads the onchain id of the bounty a confirmed create transaction made.
+ * Only logs emitted by `contract` (the poidh contract the transaction was
+ * sent to) count, so a look-alike event from another contract can't change
+ * which bounty the person is sent to. Returns null when there is none.
+ */
+export function createdBountyOnChainId(
+  logs: readonly Pick<Log, 'address' | 'data' | 'topics'>[],
+  contract: `0x${string}`
+): bigint | null {
+  for (const log of logs) {
+    if (log.address.toLowerCase() !== contract.toLowerCase()) continue;
+    try {
+      const event = decodeEventLog({
+        abi,
+        data: log.data,
+        topics: log.topics,
+      });
+      if (event.eventName === 'BountyCreated') return event.args.id;
+    } catch {
+      // Another poidh event this ABI doesn't describe; keep looking.
+    }
+  }
+  return null;
 }
 
 /**

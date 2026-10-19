@@ -1,7 +1,12 @@
 /**
  * @jest-environment node
  */
-import { decodeFunctionData } from 'viem';
+import {
+  decodeFunctionData,
+  encodeAbiParameters,
+  encodeEventTopics,
+  Log,
+} from 'viem';
 import abi from '@/constant/abi/abi';
 import {
   buildAcceptOrNominateClaim,
@@ -11,6 +16,7 @@ import {
   buildResolveVote,
   buildVote,
   buildWithdraw,
+  createdBountyOnChainId,
   parseEthAmount,
   toSendCalls,
 } from '../transactions';
@@ -167,5 +173,77 @@ describe('transaction builders', () => {
     expect(
       toSendCalls(tx, '0x1111111111111111111111111111111111111111')
     ).toMatchObject({ from: '0x1111111111111111111111111111111111111111' });
+  });
+});
+
+describe('createdBountyOnChainId', () => {
+  const POIDH = '0x5555fa783936c260f77385b4e153b9725fef1719' as const;
+  const OTHER = '0x9999999999999999999999999999999999999999' as const;
+  const ISSUER = '0x1111111111111111111111111111111111111111' as const;
+
+  /** A BountyCreated log encoded exactly as the contract emits it. */
+  const bountyCreated = (
+    address: `0x${string}`,
+    id: bigint
+  ): Pick<Log, 'address' | 'data' | 'topics'> => ({
+    address,
+    topics: encodeEventTopics({
+      abi,
+      eventName: 'BountyCreated',
+      args: { id, issuer: ISSUER },
+    }) as Log['topics'],
+    data: encodeAbiParameters(
+      [
+        { type: 'string' },
+        { type: 'string' },
+        { type: 'uint256' },
+        { type: 'uint256' },
+        { type: 'bool' },
+        { type: 'uint256' },
+      ],
+      ['title', 'description', 10n ** 15n, 1_700_000_000n, false, 0n]
+    ),
+  });
+
+  it('reads the id from the poidh contract event', () => {
+    expect(createdBountyOnChainId([bountyCreated(POIDH, 42n)], POIDH)).toBe(
+      42n
+    );
+  });
+
+  it('matches the contract address case-insensitively', () => {
+    const log = bountyCreated(
+      POIDH.toUpperCase().replace('0X', '0x') as `0x${string}`,
+      7n
+    );
+    expect(createdBountyOnChainId([log], POIDH)).toBe(7n);
+  });
+
+  it('ignores a look-alike event from another contract', () => {
+    expect(createdBountyOnChainId([bountyCreated(OTHER, 1n)], POIDH)).toBe(
+      null
+    );
+    expect(
+      createdBountyOnChainId(
+        [bountyCreated(OTHER, 1n), bountyCreated(POIDH, 99n)],
+        POIDH
+      )
+    ).toBe(99n);
+  });
+
+  it('skips poidh logs it cannot decode', () => {
+    const unknown = {
+      address: POIDH,
+      topics: [`0x${'ab'.repeat(32)}`] as Log['topics'],
+      data: '0x' as const,
+    };
+    expect(createdBountyOnChainId([unknown], POIDH)).toBe(null);
+    expect(
+      createdBountyOnChainId([unknown, bountyCreated(POIDH, 5n)], POIDH)
+    ).toBe(5n);
+  });
+
+  it('returns null when nothing was created', () => {
+    expect(createdBountyOnChainId([], POIDH)).toBe(null);
   });
 });

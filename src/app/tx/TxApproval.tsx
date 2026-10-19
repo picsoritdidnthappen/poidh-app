@@ -17,7 +17,11 @@ import {
   parseActionParams,
   prepareAction,
 } from '@/mcp/actions';
-import { getSenderKind, simulate } from '@/mcp/transactions';
+import {
+  createdBountyOnChainId,
+  getSenderKind,
+  simulate,
+} from '@/mcp/transactions';
 import { setLoadingAtom } from '@/store/loading';
 import { trpcClient } from '@/trpc/client';
 import { chains } from '@/utils/config';
@@ -273,7 +277,14 @@ export default function TxApproval({ query }: { query: string }) {
         if (receipt.status !== 'success') {
           throw new Error('the transaction reverted onchain');
         }
-        return { hash, explorer: `${chain.explorer}${hash}` };
+        return {
+          hash,
+          explorer: `${chain.explorer}${hash}`,
+          createdOnChainId:
+            request.action === 'create_bounty'
+              ? createdBountyOnChainId(receipt.logs, tx.to)
+              : null,
+        };
       } finally {
         setLoading({ isLoading: false });
       }
@@ -281,6 +292,26 @@ export default function TxApproval({ query }: { query: string }) {
     onSuccess: () => toast.success('transaction confirmed'),
     onError: (error) => toastError('transaction failed', error),
   });
+
+  // A new bounty's page id comes from the indexer, which can lag the
+  // receipt; poll for up to a minute, the same window FormBounty allows.
+  const createdOnChainId = send.data?.createdOnChainId ?? null;
+  const created = useQuery({
+    queryKey: ['created-bounty', request?.chain, createdOnChainId?.toString()],
+    queryFn: () =>
+      trpcClient.bounties.isNewlyCreated.query({
+        id: Number(createdOnChainId),
+        chainId: chains[(request as ActionRequest).chain].id,
+      }),
+    enabled: createdOnChainId !== null && !!request,
+    refetchInterval: (query) =>
+      query.state.data || query.state.dataUpdateCount >= 30 ? false : 2_000,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const viewUrl = created.data
+    ? `/${request?.chain}/bounty/${created.data.id}`
+    : prepared.data?.url;
 
   if (!request) {
     return (
@@ -308,9 +339,9 @@ export default function TxApproval({ query }: { query: string }) {
         <div className={cardClass}>
           <p className='mb-6'>{prepared.data?.summary}</p>
           <div className='flex flex-col sm:flex-row gap-3'>
-            {prepared.data && (
-              <Link className={buttonClass} href={prepared.data.url}>
-                view on poidh
+            {viewUrl && (
+              <Link className={buttonClass} href={viewUrl}>
+                {created.data ? 'view your bounty' : 'view on poidh'}
               </Link>
             )}
             <a
@@ -322,9 +353,11 @@ export default function TxApproval({ query }: { query: string }) {
               view transaction
             </a>
           </div>
-          <p className='text-sm opacity-70 mt-4'>
-            it can take a minute to show up on poidh.
-          </p>
+          {!created.data && (
+            <p className='text-sm opacity-70 mt-4'>
+              it can take a minute to show up on poidh.
+            </p>
+          )}
         </div>
       </Shell>
     );
