@@ -74,7 +74,7 @@ The MCP server never signs or holds keys. `prepare_*` tools return:
 - `simulation`: an `eth_call` dry run when you pass `from`, with decoded contract errors
 - `signUrl`: a `https://poidh.xyz/tx?...` link to send a human who wants to review and approve the action on poidh.xyz with the wallet they already use there, including poidh's built-in wallet
 
-The tools take the bounty ID shown in the poidh.xyz URL and convert it to the contract ID for you. The rules in this guide still apply: confirm with the user before signing, and only regular wallets (EOAs) can create bounties.
+The tools take the bounty ID shown in the poidh.xyz URL and convert it to the contract ID for you. They refuse to act on poidh v2 bounties (see Frontend IDs vs Contract IDs) and return an error instead of a transaction. The rules in this guide still apply: confirm with the user before signing, and only regular wallets (EOAs) can create bounties.
 
 ### WebMCP (in-browser agents)
 
@@ -693,6 +693,19 @@ https://poidh.xyz/base/bounty/1271
 ```
 
 > 🚨 Never assume `/base/bounty/106` corresponds to `bounties(106)`.
+
+## Frontend IDs at or below the offset are poidh v2 bounties
+
+On Arbitrum and Base, a frontend ID less than or equal to the offset is a historical poidh v2 bounty. It is read-only: do not join it, claim it, accept a claim, vote, or resolve a vote.
+
+The indexer still reports an `onChainId` for these bounties, but it is the **v2** contract ID. The same number is a different bounty on the v3 contract:
+
+```text
+Base frontend 176   → v2 bounty, onChainId 176 (read-only)
+Base frontend 1162  → v3 bounty 176 (a different bounty)
+```
+
+> 🚨 Never pass a v2 bounty's `onChainId` to a v3 contract call. It targets someone else's bounty.
 
 Convert the ID before making contract calls.
 
