@@ -56,8 +56,8 @@ Transport: Streamable HTTP, stateless, no authentication.
 | Tool                    | Does                                                                 |
 | ----------------------- | -------------------------------------------------------------------- |
 | `find_bounties`         | List open bounties, or search all bounties by text                   |
-| `get_bounty`            | One bounty with its claims and vote tally                            |
-| `get_account`           | Profile and paid / earned / escrowed totals for an address           |
+| `get_bounty`            | Complete bounty data: status, all claims, comments, winner, voting state and identities |
+| `get_account`           | Complete public profile/activity data: bounties, claims, NFTs, comments, score and related users |
 | `get_leaderboard`       | Leaderboard by points                                                |
 | `prepare_create_bounty` | Unsigned tx: post a solo or open bounty                              |
 | `prepare_join_bounty`   | Unsigned tx: add funds to an open bounty                             |
