@@ -23,6 +23,12 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^~/(.*)$': '<rootDir>/public/$1',
     '^.+\\.(svg)$': '<rootDir>/src/__mocks__/svg.tsx',
+    // Jest 27 ignores package.json "exports", so map MCP SDK and zod
+    // subpaths to their CJS builds
+    '^@modelcontextprotocol/sdk/(.*)$':
+      '<rootDir>/node_modules/@modelcontextprotocol/sdk/dist/cjs/$1',
+    '^zod/(v3|v4|v4-mini|v4/core|v4/mini)$':
+      '<rootDir>/node_modules/zod/$1/index.cjs',
   },
 };
 
