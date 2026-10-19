@@ -454,7 +454,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
             {isReplyActivity && activity.comment?.parent && (
               <div className='relative pb-4'>
                 <div className='absolute left-[17px] top-9 -bottom-4 w-px bg-white/25 pointer-events-none' />
-            
+
                 <div className='relative z-10'>
                   <DisplayAddress
                     address={activity.comment.parent.address}
@@ -464,7 +464,7 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
                     showLoadingSkeleton
                   />
                 </div>
-            
+
                 <CollapsibleText
                   text={activity.comment.parent.body.trimEnd()}
                   className='feed-comment-body ml-12 mt-2 rounded-md border px-3 py-2 text-sm sm:text-base text-white/80'

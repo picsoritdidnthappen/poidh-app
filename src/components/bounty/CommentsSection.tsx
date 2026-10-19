@@ -225,7 +225,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
               chainId: 8453,
             })
         );
-    
+
         if (error) {
           toastError('Failed to switch network', error);
           return null;
@@ -234,11 +234,11 @@ export default function CommentsSection(props: CommentsSectionProps) {
         toast.error(
           'Something went wrong! Switch to Base network or connect/reconnect your wallet to continue'
         );
-    
+
         return null;
       }
     }
-    
+
     return account.address;
   }
 

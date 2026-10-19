@@ -319,9 +319,7 @@ describe('read tools', () => {
     const res = (await callTool('get_account', { address: CLAIMANT })).json();
 
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `/account/${CLAIMANT.toLowerCase()}/data`
-      ),
+      expect.stringContaining(`/account/${CLAIMANT.toLowerCase()}/data`),
       { cache: 'no-store' }
     );
     expect(res).toMatchObject(accountData);

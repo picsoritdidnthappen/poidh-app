@@ -138,15 +138,15 @@ export default function FormClaim({
       if (!account.connector || !account.address) {
         throw new Error('Wallet connector unavailable');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (chain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network...',
         });
-      
+
         await switchChain.switchChainAsync({
           chainId: chain.id,
         });

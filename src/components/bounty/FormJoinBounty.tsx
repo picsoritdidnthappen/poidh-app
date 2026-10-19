@@ -58,13 +58,13 @@ export default function FormJoinBounty({
       if (!account.connector || !account.address) {
         throw new Error('Wallet connector unavailable');
       }
-      
+
       if (chain.id !== account.chainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network...',
         });
-      
+
         await switchChain.switchChainAsync({
           chainId: chain.id,
         });

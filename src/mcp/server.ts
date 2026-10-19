@@ -268,9 +268,7 @@ export function createPoidhMcpServer(): McpServer {
     },
     async ({ address }) => {
       const normalizedAddress = address.toLowerCase();
-      const data = await fetchPoidhData(
-        `/account/${normalizedAddress}/data`
-      );
+      const data = await fetchPoidhData(`/account/${normalizedAddress}/data`);
 
       return json({
         ...data,

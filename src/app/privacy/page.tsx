@@ -95,11 +95,11 @@ export default function Privacy() {
               </h2>
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
-                Blockchain transactions are public. Information recorded
-                onchain may be copied, indexed, analyzed, and displayed by
-                third parties independently of poidh. We cannot delete, modify,
-                or reverse information that has been permanently recorded on a
-                public blockchain.
+                Blockchain transactions are public. Information recorded onchain
+                may be copied, indexed, analyzed, and displayed by third parties
+                independently of poidh. We cannot delete, modify, or reverse
+                information that has been permanently recorded on a public
+                blockchain.
               </p>
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
@@ -170,8 +170,8 @@ export default function Privacy() {
               >
                 <li>
                   <strong>wagmi.store</strong> — stores wallet connection state
-                  so the Service can reconnect your wallet and, where
-                  supported, render the connected-wallet state correctly.
+                  so the Service can reconnect your wallet and, where supported,
+                  render the connected-wallet state correctly.
                 </li>
                 <li>
                   <strong>theme</strong> — remembers your selected light, dark,
@@ -210,9 +210,7 @@ export default function Privacy() {
             <section
               style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
             >
-              <h2 className='text-lg font-semibold text-poidhRed'>
-                Analytics
-              </h2>
+              <h2 className='text-lg font-semibold text-poidhRed'>Analytics</h2>
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
                 We use Vercel Analytics to understand aggregate usage of the
@@ -281,7 +279,9 @@ export default function Privacy() {
                   transaction infrastructure.
                 </li>
                 <li>
-                  <strong>WalletConnect, RainbowKit, and wallet providers</strong>{' '}
+                  <strong>
+                    WalletConnect, RainbowKit, and wallet providers
+                  </strong>{' '}
                   for wallet connection functionality.
                 </li>
                 <li>
@@ -349,9 +349,7 @@ export default function Privacy() {
             <section
               style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
             >
-              <h2 className='text-lg font-semibold text-poidhRed'>
-                Retention
-              </h2>
+              <h2 className='text-lg font-semibold text-poidhRed'>Retention</h2>
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
                 We retain information for as long as reasonably necessary to
@@ -378,16 +376,16 @@ export default function Privacy() {
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
                 You may disconnect your wallet, clear browser storage, stop
-                using the Service, or contact us about information maintained
-                by poidh.
+                using the Service, or contact us about information maintained by
+                poidh.
               </p>
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
                 Depending on where you live, applicable law may give you rights
                 to request access to, correction of, deletion of, restriction
-                of, or portability of certain personal information, or to
-                object to certain processing. You may also have the right to
-                complain to a local data-protection authority.
+                of, or portability of certain personal information, or to object
+                to certain processing. You may also have the right to complain
+                to a local data-protection authority.
               </p>
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
@@ -417,15 +415,13 @@ export default function Privacy() {
             <section
               style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
             >
-              <h2 className='text-lg font-semibold text-poidhRed'>
-                Security
-              </h2>
+              <h2 className='text-lg font-semibold text-poidhRed'>Security</h2>
 
               <p style={{ margin: 0, lineHeight: 1.7 }}>
-                We use reasonable technical and organizational measures
-                intended to protect the information we control. No website,
-                wallet, blockchain, storage system, or transmission method is
-                completely secure, and we cannot guarantee absolute security.
+                We use reasonable technical and organizational measures intended
+                to protect the information we control. No website, wallet,
+                blockchain, storage system, or transmission method is completely
+                secure, and we cannot guarantee absolute security.
               </p>
             </section>
 
