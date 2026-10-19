@@ -296,6 +296,13 @@ describe('read tools', () => {
         commentsAuthored: 5,
         relatedUsers: 6,
       },
+      totals: {
+        eth: {
+          paid: { amountCrypto: 0.1, amountUSD: 250 },
+          earned: { amountCrypto: 0.2, amountUSD: 500 },
+          inContract: { amountCrypto: 0.01, amountUSD: 25 },
+        },
+      },
       bounties: [{ id: 1271, title: 'Example bounty' }],
       claims: [{ claimId: 50, claimStatus: 'won' }],
       nfts: [{ claimId: 50 }],
