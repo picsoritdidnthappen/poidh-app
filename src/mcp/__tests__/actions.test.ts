@@ -190,6 +190,14 @@ describe('prepareAction', () => {
     expect(anonymous.url).toBe('https://poidh.xyz');
   });
 
+  it('links a new bounty to a page that exists', async () => {
+    // There is no /{chain}/bounties page; it used to 404 (see #1579).
+    const withFrom = await prepareAction(ALL[0], deps(), ISSUER);
+    expect(withFrom.url).toBe(`https://poidh.xyz/account/${ISSUER}`);
+    const anonymous = await prepareAction(ALL[0], deps());
+    expect(anonymous.url).toBe('https://poidh.xyz');
+  });
+
   it('skips data access for actions that need no bounty', async () => {
     const d = deps();
     await prepareAction(ALL[0], d);
