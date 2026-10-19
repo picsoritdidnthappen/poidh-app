@@ -22,7 +22,12 @@ import {
   WriteChain,
 } from './transactions';
 
-const APP_URL = 'https://poidh.xyz';
+const APP_URL = (
+  process.env.NEXT_PUBLIC_URL ??
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'https://poidh.xyz')
+).replace(/\/$/, '');
 
 const readChain = z
   .enum(['mainnet', 'arbitrum', 'base', 'degen'])
