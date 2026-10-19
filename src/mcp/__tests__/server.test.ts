@@ -14,7 +14,11 @@ const mockCaller = {
     fetchVoting: jest.fn(),
     mustUseVoteFlow: jest.fn(),
   },
-  claims: { fetch: jest.fn(), fetchBountyClaims: jest.fn() },
+  claims: {
+    fetch: jest.fn(),
+    fetchBountyClaims: jest.fn(),
+    fetchVotingClaimByBountyId: jest.fn(),
+  },
   users: { fetchByAddress: jest.fn() },
   accounts: { stats: jest.fn() },
   leaderboard: { fetch: jest.fn() },
@@ -382,6 +386,16 @@ describe('prepare tools', () => {
     expect(res.simulation).toEqual({ ok: true, from: ISSUER });
     expect(res.transaction.from).toBe(ISSUER);
     expect(res.walletSendCalls.from).toBe(ISSUER);
+    const signUrl = new URL(res.signUrl);
+    expect(signUrl.origin + signUrl.pathname).toBe('https://poidh.xyz/tx');
+    expect(Object.fromEntries(signUrl.searchParams)).toEqual({
+      action: 'create_bounty',
+      chain: 'base',
+      type: 'solo',
+      title: 'Golden Gate',
+      description: 'sunrise photo',
+      amountEth: '0.01',
+    });
     expect(mockProvider.call).toHaveBeenCalledWith(
       expect.objectContaining({ account: ISSUER, value: 10n ** 16n })
     );
@@ -592,6 +606,7 @@ describe('prepare tools', () => {
     mockCaller.bounties.fetch.mockResolvedValue(
       bounty({ isMultiplayer: true, isVoting: true })
     );
+    mockCaller.claims.fetchVotingClaimByBountyId.mockResolvedValue(null);
     const resolve = (
       await callTool('prepare_resolve_vote', { chain: 'base', id: 1271 })
     ).json();
@@ -621,6 +636,18 @@ describe('prepare tools', () => {
       error: 'NothingToWithdraw',
       hint: 'There are no winnings to withdraw on this chain.',
     });
+  });
+
+  it('rejects javascript: proof links at the schema', async () => {
+    const res = await callTool('prepare_submit_claim', {
+      chain: 'base',
+      id: 1271,
+      title: 't',
+      description: 'd',
+      proofUri: 'javascript:alert(1)',
+    });
+    expect(res.isError).toBe(true);
+    expect(mockCaller.bounties.fetch).not.toHaveBeenCalled();
   });
 
   it('never offers retired Degen Chain as a write target', async () => {

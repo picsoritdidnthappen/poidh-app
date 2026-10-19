@@ -56,8 +56,8 @@ Transport: Streamable HTTP, stateless, no authentication.
 | Tool                    | Does                                                                 |
 | ----------------------- | -------------------------------------------------------------------- |
 | `find_bounties`         | List open bounties, or search all bounties by text                   |
-| `get_bounty`            | One bounty with its claims and vote tally                            |
-| `get_account`           | Profile and paid / earned / escrowed totals for an address           |
+| `get_bounty`            | Complete bounty data: status, all claims, comments, winner, voting state and identities |
+| `get_account`           | Complete public profile/activity data: bounties, claims, NFTs, comments, score and related users |
 | `get_leaderboard`       | Leaderboard by points                                                |
 | `prepare_create_bounty` | Unsigned tx: post a solo or open bounty                              |
 | `prepare_join_bounty`   | Unsigned tx: add funds to an open bounty                             |
@@ -72,6 +72,7 @@ The MCP server never signs or holds keys. `prepare_*` tools return:
 - `transaction`: `{ chainId, to, data, value }` for `eth_sendTransaction`
 - `walletSendCalls`: the same call as an EIP-5792 `wallet_sendCalls` request
 - `simulation`: an `eth_call` dry run when you pass `from`, with decoded contract errors
+- `signUrl`: a `https://poidh.xyz/tx?...` link to send a human who wants to review and approve the action on poidh.xyz with the wallet they already use there, including poidh's built-in wallet
 
 The tools take the bounty ID shown in the poidh.xyz URL and convert it to the contract ID for you. The rules in this guide still apply: confirm with the user before signing, and only regular wallets (EOAs) can create bounties.
 
