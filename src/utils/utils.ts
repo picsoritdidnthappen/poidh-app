@@ -23,20 +23,24 @@ export function getBanSignatureFirstLine({
   return `Ban ${type} id: ${id} chainId: ${chainId}\n`;
 }
 
-export function getCommentSignatureFirstLine({ address }: { address: string }) {
-  return `${address} wants to create a comment. Comment content: \n`;
-}
-
-export function getReactionSignatureMessage({
+/**
+ * Removes the signed-message prefix that some early comments were saved
+ * with, so only what the user wrote is shown.
+ */
+export function stripLegacyCommentPrefix({
+  body,
   address,
-  commentId,
-  type,
 }: {
+  body: string;
   address: string;
-  commentId: number;
-  type: 'upvote' | 'downvote';
 }) {
-  return `${address.toLocaleLowerCase()} wants to ${type} comment ${commentId}`;
+  const prefix = `${address} wants to create a comment. Comment content: \n`;
+
+  if (body.toLowerCase().startsWith(prefix.toLowerCase())) {
+    return body.slice(prefix.length);
+  }
+
+  return body;
 }
 
 export function formatAmount({

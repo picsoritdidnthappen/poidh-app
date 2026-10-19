@@ -10,8 +10,7 @@ import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
 import {
   getBanSignatureFirstLine,
-  getCommentSignatureFirstLine,
-  getReactionSignatureMessage,
+  stripLegacyCommentPrefix,
   tryCatchAsync,
 } from '@/utils/utils';
 import { inferRouterOutputs } from '@trpc/server';
@@ -23,6 +22,8 @@ import { TWITTER_URL } from '../global/SocialMediaLinks';
 import FarcasterProfileLink from '@/components/global/FarcasterProfileLink';
 import PatternAvatar from '@/components/global/PatternAvatar';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useSession } from '@/components/auth/SessionProvider';
+import { SignInCancelledError } from '@/utils/sessionClient';
 
 type CommentType = inferRouterOutputs<AppRouter>['comments']['fetch'][number];
 
@@ -101,6 +102,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
   const { signMessageAsync } = useSignMessage();
   const switchChain = useSwitchChain();
   const { openConnectModal } = useConnectModal();
+  const { withSession } = useSession();
   const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
 
   const commentMutation = trpc.comments.comment.useMutation({
@@ -111,14 +113,12 @@ export default function CommentsSection(props: CommentsSectionProps) {
       setNewComment('');
       toast.success('Comment posted');
     },
-    onError: (error) => toastError('Failed to post comment', error),
   });
 
   const rateMutation = trpc.comments.rate.useMutation({
     onSuccess: () => {
       commentsQuery.refetch();
     },
-    onError: (error) => toastError('Failed to rate comment', error),
   });
 
   const banCommentMutation = trpc.admin.banComment.useMutation({
@@ -225,7 +225,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
               chainId: 8453,
             })
         );
-    
+
         if (error) {
           toastError('Failed to switch network', error);
           return null;
@@ -234,11 +234,11 @@ export default function CommentsSection(props: CommentsSectionProps) {
         toast.error(
           'Something went wrong! Switch to Base network or connect/reconnect your wallet to continue'
         );
-    
+
         return null;
       }
     }
-    
+
     return account.address;
   }
 
@@ -252,32 +252,25 @@ export default function CommentsSection(props: CommentsSectionProps) {
       return;
     }
 
-    const address = await ensureWalletOnBase();
-
-    if (!address) {
+    if (!account.address) {
+      openConnectModal?.();
       return;
     }
 
-    const message = getCommentSignatureFirstLine({ address }) + body;
-
-    const signature = await signMessageAsync({
-      message,
-    }).catch(() => null);
-
-    if (!signature) {
-      toast.error('Failed to sign message');
-      return;
+    try {
+      await withSession(() =>
+        commentMutation.mutateAsync({
+          bountyId: props.bountyId,
+          chainId: props.chainId,
+          text: body,
+          parrentId: parentId,
+        })
+      );
+    } catch (error) {
+      if (!(error instanceof SignInCancelledError)) {
+        toastError('Failed to post comment', error);
+      }
     }
-
-    await commentMutation.mutateAsync({
-      address,
-      bountyId: props.bountyId,
-      chainId: props.chainId,
-      signature,
-      signatureText: message,
-      text: body,
-      parrentId: parentId,
-    });
   }
 
   async function rateComment(commentId: number, type: 'upvote' | 'downvote') {
@@ -285,35 +278,24 @@ export default function CommentsSection(props: CommentsSectionProps) {
       return;
     }
 
-    const address = await ensureWalletOnBase();
-
-    if (!address) {
+    if (!account.address) {
+      openConnectModal?.();
       return;
     }
 
-    const message = getReactionSignatureMessage({
-      address,
-      commentId,
-      type,
-    });
-
-    const signature = await signMessageAsync({
-      message,
-    }).catch(() => null);
-
-    if (!signature) {
-      toast.error('Failed to sign message');
-      return;
+    try {
+      await withSession(() =>
+        rateMutation.mutateAsync({
+          chainId: props.chainId,
+          commentId,
+          type,
+        })
+      );
+    } catch (error) {
+      if (!(error instanceof SignInCancelledError)) {
+        toastError('Failed to rate comment', error);
+      }
     }
-
-    await rateMutation.mutateAsync({
-      address,
-      chainId: props.chainId,
-      commentId,
-      signature,
-      signatureText: message,
-      type,
-    });
   }
 
   async function handleNewCommentSubmit(event: FormEvent<HTMLFormElement>) {
@@ -561,13 +543,10 @@ function Comment({
 
   const isValidDate = timestamp && !isNaN(timestamp.getTime());
 
-  const signaturePrefix = getCommentSignatureFirstLine({
+  const displayBody = stripLegacyCommentPrefix({
+    body: comment.body,
     address: comment.userAddress,
   });
-
-  const displayBody = comment.body.startsWith(signaturePrefix)
-    ? comment.body.slice(signaturePrefix.length)
-    : comment.body;
 
   const accountHref = `/account/${comment.userAddress}`;
 

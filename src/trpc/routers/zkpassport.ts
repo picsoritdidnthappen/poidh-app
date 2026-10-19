@@ -1,18 +1,20 @@
-import { baseProcedure } from '../init';
+import { authedProcedure, baseProcedure } from '../init';
 import { z } from 'zod';
 import prisma from 'prisma/prisma';
 
 export const zkpassportRouter = {
-  verify: baseProcedure
+  /**
+   * Saves the signed-in user's zkPassport nationality badge.
+   */
+  verify: authedProcedure
     .input(
       z.object({
-        address: z.string(),
         country: z.string().min(1).max(10),
         uniqueIdentifier: z.string().min(1),
       })
     )
-    .mutation(async ({ input }) => {
-      const address = input.address.toLowerCase();
+    .mutation(async ({ ctx, input }) => {
+      const { address } = ctx.session;
 
       await prisma.usersExtra.upsert({
         where: { address },
