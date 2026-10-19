@@ -168,7 +168,9 @@ export async function prepareAction(
       const tx = buildCreateBounty({ ...req, amountWei });
       return {
         tx,
-        summary: `Create a ${req.type} bounty "${req.title}" on ${chain} for ${tx.valueEth} ETH.`,
+        summary: `Create ${
+          req.type === 'open' ? 'an open' : 'a solo'
+        } bounty "${req.title}" on ${chain} for ${tx.valueEth} ETH.`,
         // The new bounty's id is only known once it confirms (the /tx page
         // then links to it directly); until then the issuer's account page
         // lists it. There is no per-chain bounty list page.

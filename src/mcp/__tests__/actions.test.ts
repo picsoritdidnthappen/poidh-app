@@ -217,6 +217,28 @@ describe('prepareAction', () => {
     });
   });
 
+  it('summarizes a new bounty in plain English', async () => {
+    const open = await prepareAction(
+      {
+        ...(ALL[0] as Extract<ActionRequest, { action: 'create_bounty' }>),
+        title: 'x',
+      },
+      deps()
+    );
+    expect(open.summary).toBe(
+      'Create an open bounty "x" on base for 0.01 ETH.'
+    );
+    const solo = await prepareAction(
+      {
+        ...(ALL[0] as Extract<ActionRequest, { action: 'create_bounty' }>),
+        type: 'solo',
+        title: 'x',
+      },
+      deps()
+    );
+    expect(solo.summary).toBe('Create a solo bounty "x" on base for 0.01 ETH.');
+  });
+
   it('returns the claim under vote, and refuses when there is none', async () => {
     const voting = bounty({ isVoting: true });
     const result = await prepareAction(
