@@ -169,7 +169,9 @@ export async function prepareAction(
       return {
         tx,
         summary: `Create a ${req.type} bounty "${req.title}" on ${chain} for ${tx.valueEth} ETH.`,
-        url: `${APP_URL}/${chain}/bounties`,
+        // The new bounty's id is only known after it confirms, and there is
+        // no per-chain bounty list page; the issuer's account page lists it.
+        url: from ? `${APP_URL}/account/${from}` : APP_URL,
       };
     }
 
