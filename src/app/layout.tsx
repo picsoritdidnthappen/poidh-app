@@ -18,7 +18,7 @@ import { WALLET_COOKIE_NAME } from '@/utils/walletCookieName';
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
 const APP_DESCRIPTION =
-  "pics or it didn't happen - social bounties + collectible NFTs on Arbitrum, Base, or Degen Chain - we don't have a token, Google is lying to you";
+  "pics or it didn't happen - social bounties + collectible NFTs on Arbitrum, Base, and Ethereum Mainnet - we don't have a token, Google is lying to you";
 const APP_OG_IMAGE_URL =
   `${process.env.NEXT_PUBLIC_URL}/images/poidh-preview-hero-v2.png` ||
   `https://poidh.xyz/images/poidh-preview-hero-v2.png`;
