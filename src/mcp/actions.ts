@@ -2,6 +2,7 @@ import { formatEther } from 'viem';
 import { z } from 'zod';
 import { chains } from '@/utils/config';
 import { Netname } from '@/utils/types';
+import { isV3Bounty } from '@/utils/utils';
 import {
   buildAcceptOrNominateClaim,
   buildCreateBounty,
@@ -123,6 +124,26 @@ export function slugFor(chainId: number): Netname {
   return chain.slug;
 }
 
+/**
+ * Loads a bounty an action will write to. Bounties from before poidh v3
+ * live on an older contract, and their on-chain ids repeat on the current
+ * one, so a transaction for them would hit a different bounty. The site
+ * hides these actions on old bounties (isV3Bounty); refuse them here too.
+ */
+async function loadCurrentBounty(
+  deps: ActionDeps,
+  chain: WriteChain,
+  id: number
+): Promise<BountyRecord> {
+  const bounty = await deps.loadBounty(chain, id);
+  if (!isV3Bounty(bounty.chainId, bounty.id)) {
+    throw new Error(
+      `Bounty ${id} is on poidh's older contract, so it can't be changed from here. View it at ${APP_URL}/${chain}/bounty/${id}.`
+    );
+  }
+  return bounty;
+}
+
 function requireOpen(b: BountyRecord) {
   const status = bountyStatus(b);
   if (status !== 'open') {
@@ -179,7 +200,7 @@ export async function prepareAction(
     }
 
     case 'join_bounty': {
-      const bounty = await deps.loadBounty(chain, req.id);
+      const bounty = await loadCurrentBounty(deps, chain, req.id);
       requireOpen(bounty);
       if (!bounty.isMultiplayer) {
         throw new Error(
@@ -209,7 +230,7 @@ export async function prepareAction(
     }
 
     case 'submit_claim': {
-      const bounty = await deps.loadBounty(chain, req.id);
+      const bounty = await loadCurrentBounty(deps, chain, req.id);
       requireOpen(bounty);
       if (sameAddress(from, bounty.issuer)) {
         throw new Error('The bounty issuer cannot submit a claim.');
@@ -233,7 +254,7 @@ export async function prepareAction(
     }
 
     case 'accept_claim': {
-      const bounty = await deps.loadBounty(chain, req.id);
+      const bounty = await loadCurrentBounty(deps, chain, req.id);
       requireOpen(bounty);
       if (from && !sameAddress(from, bounty.issuer)) {
         throw new Error('Only the bounty issuer can accept a claim.');
@@ -263,7 +284,7 @@ export async function prepareAction(
     }
 
     case 'vote': {
-      const bounty = await deps.loadBounty(chain, req.id);
+      const bounty = await loadCurrentBounty(deps, chain, req.id);
       if (!bounty.isVoting) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }
@@ -296,7 +317,7 @@ export async function prepareAction(
     }
 
     case 'resolve_vote': {
-      const bounty = await deps.loadBounty(chain, req.id);
+      const bounty = await loadCurrentBounty(deps, chain, req.id);
       if (!bounty.isVoting) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }

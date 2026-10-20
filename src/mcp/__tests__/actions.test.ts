@@ -198,6 +198,57 @@ describe('prepareAction', () => {
     expect(anonymous.url).toBe('https://poidh.xyz');
   });
 
+  describe('bounties from before poidh v3', () => {
+    // Base #176 as prod returns it: on the older contract, still marked
+    // isVoting. Its on-chain id 176 is a different bounty (#1162) on the
+    // current contract, so a transaction for it would hit the wrong bounty.
+    const legacy = bounty({
+      id: 176,
+      onChainId: 176,
+      inProgress: false,
+      isVoting: true,
+    });
+    const BOUNTY_ACTIONS: ActionRequest[] = [
+      { action: 'join_bounty', chain: 'base', id: 176, amountEth: '0.01' },
+      {
+        action: 'submit_claim',
+        chain: 'base',
+        id: 176,
+        title: 't',
+        description: 'd',
+        proofUri: 'https://example.com/a.jpg',
+      },
+      { action: 'accept_claim', chain: 'base', id: 176, claimId: 50 },
+      { action: 'vote', chain: 'base', id: 176, approve: true },
+      { action: 'resolve_vote', chain: 'base', id: 176 },
+    ];
+
+    it.each(BOUNTY_ACTIONS.map((r) => [r.action, r]))(
+      'refuses %s instead of targeting a different bounty',
+      async (_name, request) => {
+        await expect(
+          prepareAction(request, deps(legacy), ISSUER)
+        ).rejects.toThrow("Bounty 176 is on poidh's older contract");
+      }
+    );
+
+    it.each([
+      [8453, 986, false],
+      [8453, 987, true],
+      [42161, 180, false],
+      [42161, 181, true],
+      [1, 1, true],
+    ])('chain %i bounty %i is current: %s', async (chainId, id, current) => {
+      const result = prepareAction(
+        { action: 'resolve_vote', chain: 'base', id },
+        deps(bounty({ id, chainId, isVoting: true })),
+        ISSUER
+      );
+      if (current) await expect(result).resolves.toBeDefined();
+      else await expect(result).rejects.toThrow(/older contract/);
+    });
+  });
+
   it('skips data access for actions that need no bounty', async () => {
     const d = deps();
     await prepareAction(ALL[0], d);

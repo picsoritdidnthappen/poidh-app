@@ -153,15 +153,15 @@ export default function FormBounty({
       if (!account.connector || !account.address) {
         throw new Error('Wallet connector unavailable');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (currentChain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network',
         });
-      
+
         await switchChain.switchChainAsync({
           chainId: currentChain.id,
         });

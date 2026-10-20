@@ -33,22 +33,10 @@ const CHAIN_CURRENCIES: Record<number, string> = {
  * never be represented as social users or included in relatedUsers.
  */
 const POIDH_PROTOCOL_CONTRACTS = new Map<string, string>([
-  [
-    '0xe731dfadbf20542e10d09d26fc71445c70d4232',
-    'poidh v3 core contract',
-  ],
-  [
-    '0x5555fa783936c260f77385b4e153b9725fef1719',
-    'poidh v3 core contract',
-  ],
-  [
-    '0x9c5f45d5e1382e4058d334d93c6c01442012a4d9',
-    'poidh claim NFT contract',
-  ],
-  [
-    '0x27e117cc9a8da363442e7bd0618939e3eeeacf6a',
-    'poidh claim NFT contract',
-  ],
+  ['0xe731dfadbf20542e10d09d26fc71445c70d4232', 'poidh v3 core contract'],
+  ['0x5555fa783936c260f77385b4e153b9725fef1719', 'poidh v3 core contract'],
+  ['0x9c5f45d5e1382e4058d334d93c6c01442012a4d9', 'poidh claim NFT contract'],
+  ['0x27e117cc9a8da363442e7bd0618939e3eeeacf6a', 'poidh claim NFT contract'],
   [
     '0x18e5585ca7ce31b90bc8bb7aaf84152857ce243f',
     'historical poidh Degen core contract',
@@ -234,18 +222,14 @@ function getNetworkInfo(chainId: number, bountyId: number) {
   if (chainId === 1) {
     protocolVersion = 'v3';
   } else if (chainId === 42161) {
-    protocolVersion =
-      bountyId <= ARBITRUM_LAST_PRE_V3_BOUNTY ? 'v2' : 'v3';
+    protocolVersion = bountyId <= ARBITRUM_LAST_PRE_V3_BOUNTY ? 'v2' : 'v3';
   } else if (chainId === 8453) {
-    protocolVersion =
-      bountyId <= BASE_LAST_PRE_V3_BOUNTY ? 'v2' : 'v3';
+    protocolVersion = bountyId <= BASE_LAST_PRE_V3_BOUNTY ? 'v2' : 'v3';
   } else if (chainId === 666666666) {
-    protocolVersion =
-      bountyId <= DEGEN_LAST_PRE_V3_BOUNTY ? 'v2' : 'v3';
+    protocolVersion = bountyId <= DEGEN_LAST_PRE_V3_BOUNTY ? 'v2' : 'v3';
   }
 
-  const networkStatus =
-    chainId === 666666666 ? 'retired' : 'active';
+  const networkStatus = chainId === 666666666 ? 'retired' : 'active';
 
   return {
     networkStatus,
@@ -324,12 +308,9 @@ function getVotingState(bounty: BountyReference) {
   }
 
   const resolvedByFinalBountyState =
-    latestVoteStart !== undefined &&
-    !bounty.inProgress &&
-    !bounty.isCanceled;
+    latestVoteStart !== undefined && !bounty.inProgress && !bounty.isCanceled;
 
-  const voteResolved =
-    resolutionFoundInHistory || resolvedByFinalBountyState;
+  const voteResolved = resolutionFoundInHistory || resolvedByFinalBountyState;
 
   /*
    * A vote can only be currently in progress while the bounty itself
@@ -340,10 +321,7 @@ function getVotingState(bounty: BountyReference) {
    * deadline passes, until resolution/finalization occurs.
    */
   const votingInProgress =
-    bounty.inProgress &&
-    bounty.isVoting &&
-    !voteResolved &&
-    !bounty.isCanceled;
+    bounty.inProgress && bounty.isVoting && !voteResolved && !bounty.isCanceled;
 
   return {
     votingInProgress,
@@ -753,10 +731,10 @@ export async function GET(
      */
     const profileIsProtocolContract =
       getProtocolContractLabel(address) !== null;
-    
+
     const [neynarUsers, cachedNameUsers, profileName] = await Promise.all([
       getUsersDataOrFetchItFromNeynar(resolvableAddresses).catch(() => []),
-    
+
       prisma.usersExtra.findMany({
         where: {
           address: {
@@ -771,12 +749,12 @@ export async function GET(
           degenName: true,
         },
       }),
-    
+
       profileIsProtocolContract
         ? Promise.resolve(null)
         : getHumanReadableName(address).catch(() => null),
     ]);
-    
+
     /*
      * Match getHumanReadableName()'s preferred-name order:
      *
@@ -786,20 +764,16 @@ export async function GET(
      * .degen
      */
     const nameByAddress = new Map<string, string | null>();
-    
+
     for (const user of cachedNameUsers) {
       const normalized = user.address.toLowerCase();
-    
+
       nameByAddress.set(
         normalized,
-        user.gwei ??
-          user.wei ??
-          user.ens ??
-          user.degenName ??
-          null
+        user.gwei ?? user.wei ?? user.ens ?? user.degenName ?? null
       );
     }
-    
+
     /*
      * The subject of this endpoint gets a full live/cached resolution.
      * Override the cached value with that result.
@@ -807,19 +781,15 @@ export async function GET(
     if (!profileIsProtocolContract) {
       nameByAddress.set(address, profileName);
     }
-    
+
     const neynarByAddress = new Map(
-      neynarUsers.map((user) => [
-        user.address.toLowerCase(),
-        user,
-      ])
+      neynarUsers.map((user) => [user.address.toLowerCase(), user])
     );
-    
+
     const getIdentity = (userAddress: string) => {
       const normalized = userAddress.toLowerCase();
 
-      const protocolContractLabel =
-        getProtocolContractLabel(normalized);
+      const protocolContractLabel = getProtocolContractLabel(normalized);
 
       if (protocolContractLabel) {
         return {
@@ -869,25 +839,15 @@ export async function GET(
      * No bounty description is returned from here.
      */
     const buildBountyReference = (bounty: BountyReference) => {
-      const urls = getBountyUrls(
-        bounty.chainId,
-        bounty.id
-      );
+      const urls = getBountyUrls(bounty.chainId, bounty.id);
 
       const voting = getVotingState(bounty);
 
-      const status = getBountyStatus(
-        bounty,
-        voting.votingInProgress
-      );
+      const status = getBountyStatus(bounty, voting.votingInProgress);
 
-      const network = getNetworkInfo(
-        bounty.chainId,
-        bounty.id
-      );
+      const network = getNetworkInfo(bounty.chainId, bounty.id);
 
-      const winningClaim =
-        bounty.claims[0] ?? null;
+      const winningClaim = bounty.claims[0] ?? null;
 
       return {
         bountyId: bounty.id,
@@ -895,8 +855,7 @@ export async function GET(
 
         chainId: bounty.chainId,
         chain: CHAIN_SLUGS[bounty.chainId] ?? null,
-        currency:
-          CHAIN_CURRENCIES[bounty.chainId] ?? null,
+        currency: CHAIN_CURRENCIES[bounty.chainId] ?? null,
 
         ...network,
 
@@ -910,17 +869,13 @@ export async function GET(
          * Do not expose the stale indexed isVoting flag as if it were
          * current voting state.
          */
-        votingInProgress:
-          voting.votingInProgress,
+        votingInProgress: voting.votingInProgress,
 
-        voteResolved:
-          voting.voteResolved,
+        voteResolved: voting.voteResolved,
 
-        voteStartedAt:
-          voting.voteStartedAt,
+        voteStartedAt: voting.voteStartedAt,
 
-        voteResolution:
-          voting.voteResolution,
+        voteResolution: voting.voteResolution,
 
         inProgress: bounty.inProgress,
         isCanceled: bounty.isCanceled,
@@ -940,9 +895,7 @@ export async function GET(
                * The bounty winner is the accepted claim issuer,
                * regardless of who currently owns the claim NFT.
                */
-              winner: getIdentity(
-                winningClaim.issuer
-              ),
+              winner: getIdentity(winningClaim.issuer),
             }
           : null,
       };
@@ -964,15 +917,12 @@ export async function GET(
     >();
 
     for (const bounty of createdBounties) {
-      bountyMap.set(
-        `${bounty.chainId}-${bounty.id}`,
-        {
-          bounty,
-          createdByProfile: true,
-          fundedByProfile: false,
-          contributionAmount: null,
-        }
-      );
+      bountyMap.set(`${bounty.chainId}-${bounty.id}`, {
+        bounty,
+        createdByProfile: true,
+        fundedByProfile: false,
+        contributionAmount: null,
+      });
     }
 
     for (const participation of fundedParticipations) {
@@ -983,15 +933,13 @@ export async function GET(
 
       if (existing) {
         existing.fundedByProfile = true;
-        existing.contributionAmount =
-          participation.amount;
+        existing.contributionAmount = participation.amount;
       } else {
         bountyMap.set(key, {
           bounty,
           createdByProfile: false,
           fundedByProfile: true,
-          contributionAmount:
-            participation.amount,
+          contributionAmount: participation.amount,
         });
       }
     }
@@ -999,21 +947,10 @@ export async function GET(
     /*
      * This is the only bounty collection containing full descriptions.
      */
-    const bountiesData = Array.from(
-      bountyMap.values()
-    )
-      .sort(
-        (a, b) =>
-          Number(b.bounty.createdAt) -
-          Number(a.bounty.createdAt)
-      )
+    const bountiesData = Array.from(bountyMap.values())
+      .sort((a, b) => Number(b.bounty.createdAt) - Number(a.bounty.createdAt))
       .map(
-        ({
-          bounty,
-          createdByProfile,
-          fundedByProfile,
-          contributionAmount,
-        }) => {
+        ({ bounty, createdByProfile, fundedByProfile, contributionAmount }) => {
           return {
             ...buildBountyReference(bounty),
 
@@ -1024,24 +961,18 @@ export async function GET(
             description: bounty.description,
 
             amount: bounty.amount,
-            amountFormatted:
-              formatAmount(bounty.amount),
+            amountFormatted: formatAmount(bounty.amount),
 
-            priceUsd:
-              bounty.extra.amountSort,
+            priceUsd: bounty.extra.amountSort,
 
-            createdAt:
-              bounty.createdAt.toString(),
+            createdAt: bounty.createdAt.toString(),
 
             deadline: bounty.deadline,
-            isMultiplayer:
-              bounty.isMultiplayer,
+            isMultiplayer: bounty.isMultiplayer,
 
-            isJoinedBounty:
-              bounty.isJoinedBounty,
+            isJoinedBounty: bounty.isJoinedBounty,
 
-            album:
-              bounty.extra.album,
+            album: bounty.extra.album,
 
             relationship: {
               createdByProfile,
@@ -1049,10 +980,7 @@ export async function GET(
 
               contributionAmount,
 
-              contributionAmountFormatted:
-                formatAmount(
-                  contributionAmount
-                ),
+              contributionAmountFormatted: formatAmount(contributionAmount),
             },
           };
         }
@@ -1066,56 +994,40 @@ export async function GET(
      */
     const claimsData = submittedClaims
       .map((claim) => {
-        const createdTransaction =
-          claim.transactions[0] ?? null;
+        const createdTransaction = claim.transactions[0] ?? null;
 
         return {
           claimId: claim.id,
           onChainId: claim.onChainId,
 
           chainId: claim.chainId,
-          chain:
-            CHAIN_SLUGS[claim.chainId] ?? null,
+          chain: CHAIN_SLUGS[claim.chainId] ?? null,
 
           title: claim.title,
           description: claim.description,
           proofUri: claim.url,
 
-          createdAt:
-            createdTransaction?.timestamp.toString() ??
-            null,
+          createdAt: createdTransaction?.timestamp.toString() ?? null,
 
-          creationTx:
-            createdTransaction?.tx ?? null,
+          creationTx: createdTransaction?.tx ?? null,
 
-          isAccepted:
-            claim.isAccepted,
+          isAccepted: claim.isAccepted,
 
-          claimStatus: getClaimStatus(
-            claim,
-            claim.bounty
-          ),
+          claimStatus: getClaimStatus(claim, claim.bounty),
 
           /*
            * A submitted claim NFT may still be held by the poidh
            * protocol contract. In that case this is labeled as a
            * protocol contract rather than represented as a user.
            */
-          currentOwner:
-            getIdentity(claim.owner),
+          currentOwner: getIdentity(claim.owner),
 
-          bounty:
-            buildBountyReference(
-              claim.bounty
-            ),
+          bounty: buildBountyReference(claim.bounty),
         };
       })
       .sort((a, b) => {
         if (a.createdAt && b.createdAt) {
-          return (
-            Number(b.createdAt) -
-            Number(a.createdAt)
-          );
+          return Number(b.createdAt) - Number(a.createdAt);
         }
 
         return b.claimId - a.claimId;
@@ -1128,56 +1040,39 @@ export async function GET(
      */
     const nftsData = ownedNfts
       .map((claim) => {
-        const createdTransaction =
-          claim.transactions[0] ?? null;
+        const createdTransaction = claim.transactions[0] ?? null;
 
         return {
           claimId: claim.id,
           onChainId: claim.onChainId,
 
           chainId: claim.chainId,
-          chain:
-            CHAIN_SLUGS[claim.chainId] ?? null,
+          chain: CHAIN_SLUGS[claim.chainId] ?? null,
 
           title: claim.title,
           description: claim.description,
           proofUri: claim.url,
 
-          createdAt:
-            createdTransaction?.timestamp.toString() ??
-            null,
+          createdAt: createdTransaction?.timestamp.toString() ?? null,
 
-          isAccepted:
-            claim.isAccepted,
+          isAccepted: claim.isAccepted,
 
-          claimStatus:
-            getClaimStatus(
-              claim,
-              claim.bounty
-            ),
+          claimStatus: getClaimStatus(claim, claim.bounty),
 
-          currentOwner:
-            getIdentity(claim.owner),
+          currentOwner: getIdentity(claim.owner),
 
           /*
            * The NFT holder may not be the person who originally
            * submitted the claim.
            */
-          originalClaimant:
-            getIdentity(claim.issuer),
+          originalClaimant: getIdentity(claim.issuer),
 
-          bounty:
-            buildBountyReference(
-              claim.bounty
-            ),
+          bounty: buildBountyReference(claim.bounty),
         };
       })
       .sort((a, b) => {
         if (a.createdAt && b.createdAt) {
-          return (
-            Number(b.createdAt) -
-            Number(a.createdAt)
-          );
+          return Number(b.createdAt) - Number(a.createdAt);
         }
 
         return b.claimId - a.claimId;
@@ -1186,54 +1081,40 @@ export async function GET(
     /*
      * Public comment history authored by this profile.
      */
-    const commentsData =
-      authoredComments.map((comment) => {
-        const parent =
-          comment.parentId !== null
-            ? parentCommentById.get(
-                comment.parentId
-              ) ?? null
-            : null;
+    const commentsData = authoredComments.map((comment) => {
+      const parent =
+        comment.parentId !== null
+          ? parentCommentById.get(comment.parentId) ?? null
+          : null;
 
-        const reactions =
-          getReactionCounts(
-            comment.reactions
-          );
+      const reactions = getReactionCounts(comment.reactions);
 
-        return {
-          commentId: comment.id,
-          parentId: comment.parentId,
+      return {
+        commentId: comment.id,
+        parentId: comment.parentId,
 
-          body: comment.body,
+        body: comment.body,
 
-          createdAt:
-            comment.createdAt.toISOString(),
+        createdAt: comment.createdAt.toISOString(),
 
-          upvotes:
-            reactions.upvotes,
+        upvotes: reactions.upvotes,
 
-          downvotes:
-            reactions.downvotes,
+        downvotes: reactions.downvotes,
 
-          replyTo: parent
-            ? {
-                commentId: parent.id,
-                body: parent.body,
-                author: getIdentity(
-                  parent.userAddress
-                ),
-              }
-            : null,
+        replyTo: parent
+          ? {
+              commentId: parent.id,
+              body: parent.body,
+              author: getIdentity(parent.userAddress),
+            }
+          : null,
 
-          /*
-           * Compact bounty reference only.
-           */
-          bounty:
-            buildBountyReference(
-              comment.bounty
-            ),
-        };
-      });
+        /*
+         * Compact bounty reference only.
+         */
+        bounty: buildBountyReference(comment.bounty),
+      };
+    });
 
     /*
      * Build an explicit social graph so agents do not need to parse
@@ -1270,36 +1151,23 @@ export async function GET(
         return;
       }
 
-      const existing =
-        relatedUsersMap.get(user.address);
+      const existing = relatedUsersMap.get(user.address);
 
       if (existing) {
-        existing.relationships.add(
-          relationship
-        );
+        existing.relationships.add(relationship);
 
         if (bountyUrl) {
-          existing.bountyUrls.add(
-            bountyUrl
-          );
+          existing.bountyUrls.add(bountyUrl);
         }
 
         return;
       }
 
-      relatedUsersMap.set(
-        user.address,
-        {
-          user,
-          relationships:
-            new Set([relationship]),
-          bountyUrls: new Set(
-            bountyUrl
-              ? [bountyUrl]
-              : []
-          ),
-        }
-      );
+      relatedUsersMap.set(user.address, {
+        user,
+        relationships: new Set([relationship]),
+        bountyUrls: new Set(bountyUrl ? [bountyUrl] : []),
+      });
     };
 
     /*
@@ -1307,10 +1175,8 @@ export async function GET(
      */
     bountiesData.forEach((bounty) => {
       if (
-        bounty.relationship
-          .fundedByProfile &&
-        !bounty.relationship
-          .createdByProfile
+        bounty.relationship.fundedByProfile &&
+        !bounty.relationship.createdByProfile
       ) {
         addRelatedUser(
           bounty.creator,
@@ -1338,12 +1204,9 @@ export async function GET(
         claim.bounty.url
       );
 
-      if (
-        claim.bounty.winningClaim
-      ) {
+      if (claim.bounty.winningClaim) {
         addRelatedUser(
-          claim.bounty.winningClaim
-            .winner,
+          claim.bounty.winningClaim.winner,
           'won_bounty_profile_claimed',
           claim.bounty.url
         );
@@ -1376,12 +1239,9 @@ export async function GET(
         nft.bounty.url
       );
 
-      if (
-        nft.bounty.winningClaim
-      ) {
+      if (nft.bounty.winningClaim) {
         addRelatedUser(
-          nft.bounty.winningClaim
-            .winner,
+          nft.bounty.winningClaim.winner,
           'won_bounty_for_profile_held_nft',
           nft.bounty.url
         );
@@ -1407,121 +1267,76 @@ export async function GET(
       }
     });
 
-    const relatedUsers = Array.from(
-      relatedUsersMap.values()
-    ).map(
-      ({
-        user,
-        relationships,
-        bountyUrls,
-      }) => ({
+    const relatedUsers = Array.from(relatedUsersMap.values()).map(
+      ({ user, relationships, bountyUrls }) => ({
         ...user,
 
-        relationships:
-          Array.from(relationships),
+        relationships: Array.from(relationships),
 
-        relatedBountyUrls:
-          Array.from(bountyUrls),
+        relatedBountyUrls: Array.from(bountyUrls),
       })
     );
 
-    const claimsWon =
-      claimsData.filter(
-        (claim) =>
-          claim.claimStatus === 'won'
-      ).length;
+    const claimsWon = claimsData.filter(
+      (claim) => claim.claimStatus === 'won'
+    ).length;
 
-    const claimsPending =
-      claimsData.filter(
-        (claim) =>
-          claim.claimStatus === 'pending'
-      ).length;
+    const claimsPending = claimsData.filter(
+      (claim) => claim.claimStatus === 'pending'
+    ).length;
 
-    const claimsNotSelected =
-      claimsData.filter(
-        (claim) =>
-          claim.claimStatus ===
-          'not_selected'
-      ).length;
+    const claimsNotSelected = claimsData.filter(
+      (claim) => claim.claimStatus === 'not_selected'
+    ).length;
 
-    const claimsOnCanceledBounties =
-      claimsData.filter(
-        (claim) =>
-          claim.claimStatus ===
-          'bounty_canceled'
-      ).length;
+    const claimsOnCanceledBounties = claimsData.filter(
+      (claim) => claim.claimStatus === 'bounty_canceled'
+    ).length;
 
     return NextResponse.json(
       {
         address,
 
-        profile:
-          getIdentity(address),
+        profile: getIdentity(address),
 
-        skillUrl:
-          `${APP_URL}/skill.md`,
+        skillUrl: `${APP_URL}/skill.md`,
 
-        docsUrl:
-          `https://docs.poidh.xyz/`,
+        docsUrl: `https://docs.poidh.xyz/`,
 
-        githubUrl:
-          `https://github.com/picsoritdidnthappen/poidh-app`,
+        githubUrl: `https://github.com/picsoritdidnthappen/poidh-app`,
 
-        poidhScore:
-          stats !== null
-            ? Number(stats.poidhScore)
-            : null,
+        poidhScore: stats !== null ? Number(stats.poidhScore) : null,
 
         summary: {
-          bounties:
-            bountiesData.length,
+          bounties: bountiesData.length,
 
-          bountiesCreated:
-            bountiesData.filter(
-              (bounty) =>
-                bounty.relationship
-                  .createdByProfile
-            ).length,
+          bountiesCreated: bountiesData.filter(
+            (bounty) => bounty.relationship.createdByProfile
+          ).length,
 
-          bountiesFunded:
-            bountiesData.filter(
-              (bounty) =>
-                bounty.relationship
-                  .fundedByProfile
-            ).length,
+          bountiesFunded: bountiesData.filter(
+            (bounty) => bounty.relationship.fundedByProfile
+          ).length,
 
-          bountiesFundedButNotCreated:
-            bountiesData.filter(
-              (bounty) =>
-                bounty.relationship
-                  .fundedByProfile &&
-                !bounty.relationship
-                  .createdByProfile
-            ).length,
+          bountiesFundedButNotCreated: bountiesData.filter(
+            (bounty) =>
+              bounty.relationship.fundedByProfile &&
+              !bounty.relationship.createdByProfile
+          ).length,
 
-          activeBounties:
-            bountiesData.filter(
-              (bounty) =>
-                bounty.status ===
-                'in_progress'
-            ).length,
+          activeBounties: bountiesData.filter(
+            (bounty) => bounty.status === 'in_progress'
+          ).length,
 
-          completedBounties:
-            bountiesData.filter(
-              (bounty) =>
-                bounty.status ===
-                'completed'
-            ).length,
+          completedBounties: bountiesData.filter(
+            (bounty) => bounty.status === 'completed'
+          ).length,
 
-          canceledBounties:
-            bountiesData.filter(
-              (bounty) =>
-                bounty.status ===
-                'canceled'
-            ).length,
+          canceledBounties: bountiesData.filter(
+            (bounty) => bounty.status === 'canceled'
+          ).length,
 
-          claimsSubmitted:
-            claimsData.length,
+          claimsSubmitted: claimsData.length,
 
           claimsWon,
 
@@ -1531,29 +1346,22 @@ export async function GET(
 
           claimsOnCanceledBounties,
 
-          nftsHeld:
-            nftsData.length,
+          nftsHeld: nftsData.length,
 
-          commentsAuthored:
-            commentsData.length,
+          commentsAuthored: commentsData.length,
 
-          relatedUsers:
-            relatedUsers.length,
+          relatedUsers: relatedUsers.length,
         },
 
         totals:
           stats !== null
             ? {
                 eth: {
-                  paid:
-                    stats.eth.totalPaid,
+                  paid: stats.eth.totalPaid,
 
-                  earned:
-                    stats.eth.totalEarn,
+                  earned: stats.eth.totalEarn,
 
-                  inContract:
-                    stats.eth
-                      .amountInContract,
+                  inContract: stats.eth.amountInContract,
                 },
 
                 /*
@@ -1561,15 +1369,11 @@ export async function GET(
                  * profile's historical record.
                  */
                 degen: {
-                  paid:
-                    stats.degen.totalPaid,
+                  paid: stats.degen.totalPaid,
 
-                  earned:
-                    stats.degen.totalEarn,
+                  earned: stats.degen.totalEarn,
 
-                  inContract:
-                    stats.degen
-                      .amountInContract,
+                  inContract: stats.degen.amountInContract,
                 },
               }
             : null,
@@ -1602,10 +1406,7 @@ export async function GET(
       }
     );
   } catch (error) {
-    console.error(
-      'account data route error:',
-      error
-    );
+    console.error('account data route error:', error);
 
     return NextResponse.json(
       {

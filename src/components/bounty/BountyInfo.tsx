@@ -171,9 +171,9 @@ export default function BountyInfo({
       if (!account.address) {
         throw new Error('Wallet not connected');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (walletChainId !== 8453) {
         await switctChain.switchChainAsync({
           chainId: 8453,
@@ -229,15 +229,15 @@ export default function BountyInfo({
       if (!account.address) {
         throw new Error('Wallet not connected');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (chain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network...',
         });
-      
+
         await switctChain.switchChainAsync({
           chainId: chain.id,
         });
