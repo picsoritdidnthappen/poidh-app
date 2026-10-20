@@ -17,6 +17,7 @@ import {
   buildVote,
   buildWithdraw,
   createdBountyOnChainId,
+  MAX_AMOUNT_WEI,
   parseEthAmount,
   toSendCalls,
 } from '../transactions';
@@ -55,6 +56,56 @@ describe('parseEthAmount', () => {
 
   it('rejects zero', () => {
     expect(() => parseEthAmount('0')).toThrow(/greater than 0/);
+  });
+
+  // Bounty #1495, claims 8933/8934: a 65-digit amount built a 276-bit
+  // transaction value, beyond uint256, and still returned a sign link.
+  it.each([
+    '9'.repeat(65),
+    '1' + '0'.repeat(82),
+    '120000000.000000000000000001',
+  ])('rejects an amount larger than the ETH supply (%s)', (amount) => {
+    expect(() => parseEthAmount(amount)).toThrow(/more ETH than exists/);
+  });
+
+  it('does not parse or echo huge input', () => {
+    expect(() => parseEthAmount('9'.repeat(100_000))).toThrow(
+      /^Amount is more ETH than exists/
+    );
+    expect(() => parseEthAmount('9'.repeat(100_000) + 'a')).toThrow(
+      /^Invalid ETH amount "9{32}…"/
+    );
+    expect(() => parseEthAmount('0'.repeat(100_000) + '1')).toThrow(
+      /^Invalid ETH amount/
+    );
+  });
+
+  it('builders refuse values outside the cap even without parseEthAmount', () => {
+    expect(() =>
+      buildCreateBounty({
+        chain: 'base',
+        type: 'solo',
+        title: 't',
+        description: 'd',
+        amountWei: 2n ** 256n,
+      })
+    ).toThrow(/more ETH than exists/);
+    expect(() =>
+      buildJoinOpenBounty({
+        chain: 'base',
+        onChainBountyId: 1,
+        amountWei: MAX_AMOUNT_WEI + 1n,
+      })
+    ).toThrow(/more ETH than exists/);
+    expect(() =>
+      buildJoinOpenBounty({ chain: 'base', onChainBountyId: 1, amountWei: -1n })
+    ).toThrow(/cannot be negative/);
+  });
+
+  it('accepts amounts up to the cap', () => {
+    expect(parseEthAmount('000000000120000000')).toBe(MAX_AMOUNT_WEI);
+    expect(parseEthAmount('120000000')).toBe(MAX_AMOUNT_WEI);
+    expect(parseEthAmount('1000000')).toBe(10n ** 24n);
   });
 });
 
