@@ -259,6 +259,11 @@ const ALLOWED_SEQUENCES = new RegExp(
   'gu'
 );
 
+/** Throws when `value` is empty or only whitespace. */
+function requireText(field: string, value: string): void {
+  if (!value.trim()) throw new Error(`${field} can't be blank.`);
+}
+
 /**
  * Throws when `value` contains a hidden or text-reordering character.
  * Tabs and new lines are only allowed when `multiline` (descriptions): in a
@@ -302,6 +307,8 @@ export async function prepareAction(
 
   switch (req.action) {
     case 'create_bounty': {
+      requireText('Title', req.title);
+      requireText('Description', req.description);
       rejectHiddenCharacters('Title', req.title);
       rejectHiddenCharacters('Description', req.description, {
         multiline: true,
@@ -364,6 +371,8 @@ export async function prepareAction(
           'proofUri must be an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id.'
         );
       }
+      requireText('Title', req.title);
+      requireText('Description', req.description);
       rejectHiddenCharacters('Title', req.title);
       rejectHiddenCharacters('Description', req.description, {
         multiline: true,

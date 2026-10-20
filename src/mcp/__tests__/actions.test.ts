@@ -574,3 +574,51 @@ describe('isSafeProofUri', () => {
     expect(isSafeProofUri(uri)).toBe(safe);
   });
 });
+
+describe('blank titles and descriptions', () => {
+  // Bounty #1495, claim 8941: " " passed the MCP schemas (min length 1,
+  // no trim) and went into the calldata.
+  const create = (title: string, description: string): ActionRequest => ({
+    action: 'create_bounty',
+    chain: 'base',
+    type: 'open',
+    title,
+    description,
+    amountEth: '0.001',
+  });
+
+  it.each([
+    ['Title', ' ', 'd'],
+    ['Title', '\t \n', 'd'],
+    ['Description', 'ok', '   '],
+  ])(
+    'refuses a blank %s on a new bounty',
+    async (field, title, description) => {
+      await expect(
+        prepareAction(create(title, description), deps())
+      ).rejects.toThrow(`${field} can't be blank.`);
+    }
+  );
+
+  it('refuses a blank claim title', async () => {
+    await expect(
+      prepareAction(
+        {
+          action: 'submit_claim',
+          chain: 'base',
+          id: 1271,
+          title: '  ',
+          description: 'd',
+          proofUri: 'https://example.com/a.jpg',
+        },
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow("Title can't be blank.");
+  });
+
+  it('keeps text with surrounding spaces as written', async () => {
+    const result = await prepareAction(create('  hi  ', 'd'), deps());
+    expect(result.summary).toContain('"  hi  "');
+  });
+});
