@@ -165,22 +165,37 @@ export function isSafeProofUri(value: string): boolean {
 
 /**
  * Characters that are invisible or reorder the text around them (the
- * "Trojan Source" class, CVE-2021-42574). In a title or description they
- * can make the approval summary read differently from what gets signed, or
- * hide instructions from the people and agents reading the bounty later.
- * Zero-width joiners and variation selectors stay allowed for emoji.
+ * "Trojan Source" class, CVE-2021-42574). In user text they can make the
+ * approval summary read differently from what gets signed, or hide
+ * instructions from the people and agents who read the bounty later.
+ *
+ * Rejected:
+ * - bidi controls and marks, zero-width space, word joiner and invisible
+ *   operators, BOM, soft hyphen, fillers, line/paragraph separators and
+ *   control characters other than tab and new lines
+ * - tag characters, except in the England, Scotland and Wales flags
+ * - zero-width (non-)joiners right after ASCII; after other scripts they're
+ *   needed for Persian, Indic scripts and emoji sequences
+ * - two variation selectors in a row, which can encode hidden bytes; one
+ *   after a character is a normal emoji or CJK variant
  */
-const HIDDEN_CHARACTERS =
-  /[\u061C\u200B\u200C\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF\u{E0000}-\u{E007F}]/u;
-// Subdivision flags (🏴 + tag letters + cancel tag) are the one legitimate use
-// of tag characters.
-const TAG_FLAG = /\u{1F3F4}[\u{E0020}-\u{E007E}]+\u{E007F}/gu;
+const HIDDEN_CHARACTERS = new RegExp(
+  [
+    '[\\0-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F-\\x9F\\xAD\\u034F\\u061C\\u115F\\u1160\\u17B4\\u17B5\\u180E\\u200B\\u200E\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u3164\\uFEFF\\uFFA0\\uFFF9-\\uFFFB\\u{E0000}-\\u{E007F}]',
+    '(?:^|[\\0-\\x7F])[\\u200C\\u200D]',
+    '[\\uFE00-\\uFE0F\\u{E0100}-\\u{E01EF}]{2}',
+  ].join('|'),
+  'u'
+);
+const TAG_FLAGS =
+  /\u{1F3F4}(?:\u{E0067}\u{E0062}(?:\u{E0065}\u{E006E}\u{E0067}|\u{E0073}\u{E0063}\u{E0074}|\u{E0077}\u{E006C}\u{E0073}))\u{E007F}/gu;
 
 /** Throws when `value` contains a hidden or text-reordering character. */
 export function rejectHiddenCharacters(field: string, value: string): void {
-  const match = value.replace(TAG_FLAG, '').match(HIDDEN_CHARACTERS);
+  const match = value.replace(TAG_FLAGS, '').match(HIDDEN_CHARACTERS);
   if (!match) return;
-  const code = (match[0].codePointAt(0) ?? 0)
+  const hidden = [...match[0]].pop() ?? '';
+  const code = (hidden.codePointAt(0) ?? 0)
     .toString(16)
     .toUpperCase()
     .padStart(4, '0');
@@ -268,6 +283,7 @@ export async function prepareAction(
       }
       rejectHiddenCharacters('Title', req.title);
       rejectHiddenCharacters('Description', req.description);
+      rejectHiddenCharacters('proofUri', req.proofUri);
       const tx = buildCreateClaim({
         chain,
         onChainBountyId: bounty.onChainId,

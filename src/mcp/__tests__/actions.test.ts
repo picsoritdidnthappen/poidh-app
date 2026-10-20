@@ -355,6 +355,18 @@ describe('hidden characters in user text', () => {
     ['word joiner', 'a\u2060b'],
     ['byte order mark', '\ufeffhello'],
     ['tag characters (hidden ASCII)', 'hi\u{E0069}\u{E0067}\u{E006E}'],
+    [
+      'fake flag hiding tag text',
+      '\u{1F3F4}\u{E0069}\u{E0067}\u{E006E}\u{E006F}\u{E0072}\u{E0065}\u{E007F}',
+    ],
+    ['zero-width joiner between ASCII letters', 'free\u200dmoney'],
+    ['zero-width non-joiner between ASCII letters', 'free\u200cmoney'],
+    ['run of variation selectors (hidden bytes)', 'pay 1\uFE00\uFE01 ETH'],
+    ['variation selector supplement run', 'a\u{E0100}\u{E0101}'],
+    ['soft hyphen', 'free\u00admoney'],
+    ['Hangul filler', 'a\u3164b'],
+    ['line separator', 'a\u2028b'],
+    ['control character', 'a\u0007b'],
   ])('refuses a bounty title with a %s', async (_name, title) => {
     await expect(prepareAction(create(title), deps())).rejects.toThrow(
       /Title contains a hidden character \(U\+[0-9A-F]{4,5}\)/
@@ -368,6 +380,16 @@ describe('hidden characters in user text', () => {
     await expect(
       prepareAction(claimWith('done\u200b'), deps(), OTHER)
     ).rejects.toThrow(/Title contains a hidden character \(U\+200B\)/);
+    await expect(
+      prepareAction(
+        {
+          ...claimWith('done'),
+          proofUri: 'https://example.com/\u202egpj.exe',
+        } as ActionRequest,
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow(/proofUri contains a hidden character \(U\+202E\)/);
   });
 
   it.each([
@@ -382,6 +404,14 @@ describe('hidden characters in user text', () => {
       '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',
     ],
     ['Arabic and Hebrew text', 'مرحبا שלום'],
+    ['Persian with zero-width non-joiner', 'می\u200cخواهم'],
+    ['Devanagari with zero-width joiner', 'क\u094d\u200dष'],
+    ['keycap emoji', '1\uFE0F\u20E3'],
+    [
+      'England and Wales flags',
+      '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F} \u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}',
+    ],
+    ['tabs', 'a\tb'],
     ['new lines', 'line one\nline two'],
   ])('allows %s', async (_name, text) => {
     expect(() => rejectHiddenCharacters('Title', text)).not.toThrow();
