@@ -86,15 +86,15 @@ export default function ClaimItem({
       if (!account.address) {
         throw new Error('Wallet not connected');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (chain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network...',
         });
-      
+
         await switctChain.switchChainAsync({
           chainId: chain.id,
         });
@@ -171,9 +171,9 @@ export default function ClaimItem({
       if (!account.address) {
         throw new Error('Wallet not connected');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (chain.id !== walletChainId) {
         await switctChain.switchChainAsync({
           chainId: chain.id,

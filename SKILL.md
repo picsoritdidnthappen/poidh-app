@@ -53,19 +53,19 @@ https://poidh.xyz/api/mcp
 
 Transport: Streamable HTTP, stateless, no authentication.
 
-| Tool                    | Does                                                                 |
-| ----------------------- | -------------------------------------------------------------------- |
-| `find_bounties`         | List open bounties, or search all bounties by text                   |
-| `get_bounty`            | Complete bounty data: status, all claims, comments, winner, voting state and identities |
+| Tool                    | Does                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `find_bounties`         | List open bounties, or search all bounties by text                                               |
+| `get_bounty`            | Complete bounty data: status, all claims, comments, winner, voting state and identities          |
 | `get_account`           | Complete public profile/activity data: bounties, claims, NFTs, comments, score and related users |
-| `get_leaderboard`       | Leaderboard by points                                                |
-| `prepare_create_bounty` | Unsigned tx: post a solo or open bounty                              |
-| `prepare_join_bounty`   | Unsigned tx: add funds to an open bounty                             |
-| `prepare_submit_claim`  | Unsigned tx: submit a claim (see the URI rules below)                |
-| `prepare_accept_claim`  | Unsigned tx: accept a claim, or start a vote when contributors exist |
-| `prepare_vote`          | Unsigned tx: vote on the claim under vote                            |
-| `prepare_resolve_vote`  | Unsigned tx: resolve a finished vote                                 |
-| `prepare_withdraw`      | Unsigned tx: withdraw winnings                                       |
+| `get_leaderboard`       | Leaderboard by points                                                                            |
+| `prepare_create_bounty` | Unsigned tx: post a solo or open bounty                                                          |
+| `prepare_join_bounty`   | Unsigned tx: add funds to an open bounty                                                         |
+| `prepare_submit_claim`  | Unsigned tx: submit a claim (see the URI rules below)                                            |
+| `prepare_accept_claim`  | Unsigned tx: accept a claim, or start a vote when contributors exist                             |
+| `prepare_vote`          | Unsigned tx: vote on the claim under vote                                                        |
+| `prepare_resolve_vote`  | Unsigned tx: resolve a finished vote                                                             |
+| `prepare_withdraw`      | Unsigned tx: withdraw winnings                                                                   |
 
 The MCP server never signs or holds keys. `prepare_*` tools return:
 

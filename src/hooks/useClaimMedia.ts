@@ -23,7 +23,7 @@ async function sniffClaimMedia(url: string): Promise<ResolvedClaimMedia> {
   if (!response.ok) {
     throw new Error(`Failed to load claim media: ${response.status}`);
   }
-  
+
   const contentType = response.headers.get('content-type') ?? '';
 
   if (contentType.startsWith('video/') || VIDEO_EXTENSIONS.test(url)) {

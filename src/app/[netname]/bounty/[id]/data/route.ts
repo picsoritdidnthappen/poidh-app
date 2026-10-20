@@ -98,22 +98,16 @@ function getVotingState(bounty: {
    * be unresolved.
    */
   const resolvedByFinalBountyState =
-    latestVoteStart !== undefined &&
-    !bounty.inProgress &&
-    !bounty.isCanceled;
+    latestVoteStart !== undefined && !bounty.inProgress && !bounty.isCanceled;
 
-  const voteResolved =
-    resolutionFoundInHistory || resolvedByFinalBountyState;
+  const voteResolved = resolutionFoundInHistory || resolvedByFinalBountyState;
 
   /*
    * A completed or canceled bounty can never have a vote that is
    * currently in progress.
    */
   const votingInProgress =
-    bounty.inProgress &&
-    bounty.isVoting &&
-    !voteResolved &&
-    !bounty.isCanceled;
+    bounty.inProgress && bounty.isVoting && !voteResolved && !bounty.isCanceled;
 
   return {
     votingInProgress,
@@ -275,10 +269,7 @@ export async function GET(
       transactions,
     });
 
-    const bountyStatus = getBountyStatus(
-      bounty,
-      votingState.votingInProgress
-    );
+    const bountyStatus = getBountyStatus(bounty, votingState.votingInProgress);
 
     const [claims, comments] = await Promise.all([
       prisma.claims.findMany({
@@ -332,31 +323,21 @@ export async function GET(
     const [neynarUsers, ...names] = await Promise.all([
       getUsersDataOrFetchItFromNeynar(uniqueUsers),
 
-      ...uniqueUsers.map((addr) =>
-        getHumanReadableName(addr)
-      ),
+      ...uniqueUsers.map((addr) => getHumanReadableName(addr)),
     ]);
 
     const nameByAddress = new Map(
-      uniqueUsers.map((addr, i) => [
-        addr,
-        names[i],
-      ])
+      uniqueUsers.map((addr, i) => [addr, names[i]])
     );
 
     const neynarByAddress = new Map(
-      neynarUsers.map((user) => [
-        user.address.toLowerCase(),
-        user,
-      ])
+      neynarUsers.map((user) => [user.address.toLowerCase(), user])
     );
 
     const claimsData = claims.map((claim) => {
-      const issuerLower =
-        claim.issuer.toLowerCase();
+      const issuerLower = claim.issuer.toLowerCase();
 
-      const neynarUser =
-        neynarByAddress.get(issuerLower);
+      const neynarUser = neynarByAddress.get(issuerLower);
 
       return {
         claimId: claim.id,
@@ -366,132 +347,92 @@ export async function GET(
 
         issuerAddress: claim.issuer,
 
-        issuerName:
-          nameByAddress.get(issuerLower) ??
-          null,
+        issuerName: nameByAddress.get(issuerLower) ?? null,
 
-        farcasterHandle:
-          neynarUser?.farcasterTag ?? null,
+        farcasterHandle: neynarUser?.farcasterTag ?? null,
 
-        twitterHandle:
-          neynarUser?.twitterTag ?? null,
+        twitterHandle: neynarUser?.twitterTag ?? null,
 
-        profileUrl:
-          `${APP_URL}/account/${issuerLower}`,
+        profileUrl: `${APP_URL}/account/${issuerLower}`,
 
-        profileDataUrl:
-          `${APP_URL}/account/${issuerLower}/data`,
+        profileDataUrl: `${APP_URL}/account/${issuerLower}/data`,
 
         title: claim.title,
         description: claim.description,
       };
     });
 
-    const acceptedClaim =
-      claimsData.find(
-        (claim) => claim.isAccepted
-      );
+    const acceptedClaim = claimsData.find((claim) => claim.isAccepted);
 
     const winningClaim = acceptedClaim
       ? {
-          claimId:
-            acceptedClaim.claimId,
+          claimId: acceptedClaim.claimId,
 
-          title:
-            acceptedClaim.title,
+          title: acceptedClaim.title,
 
-          description:
-            acceptedClaim.description,
+          description: acceptedClaim.description,
 
-          uri:
-            acceptedClaim.uri,
+          uri: acceptedClaim.uri,
 
           winner: {
-            address:
-              acceptedClaim.issuerAddress,
+            address: acceptedClaim.issuerAddress,
 
-            name:
-              acceptedClaim.issuerName,
+            name: acceptedClaim.issuerName,
 
-            farcasterHandle:
-              acceptedClaim.farcasterHandle,
+            farcasterHandle: acceptedClaim.farcasterHandle,
 
-            twitterHandle:
-              acceptedClaim.twitterHandle,
+            twitterHandle: acceptedClaim.twitterHandle,
 
-            profileUrl:
-              acceptedClaim.profileUrl,
+            profileUrl: acceptedClaim.profileUrl,
 
-            profileDataUrl:
-              acceptedClaim.profileDataUrl,
+            profileDataUrl: acceptedClaim.profileDataUrl,
           },
         }
       : null;
 
-    const commentsData = comments.map(
-      (comment) => {
-        const authorLower =
-          comment.userAddress.toLowerCase();
+    const commentsData = comments.map((comment) => {
+      const authorLower = comment.userAddress.toLowerCase();
 
-        const neynarUser =
-          neynarByAddress.get(authorLower);
+      const neynarUser = neynarByAddress.get(authorLower);
 
-        const {
-          upvotes,
-          downvotes,
-        } = comment.reactions.reduce(
-          (acc, reaction) => {
-            if (
-              reaction.type === 'upvote'
-            ) {
-              acc.upvotes += 1;
-            } else if (
-              reaction.type === 'downvote'
-            ) {
-              acc.downvotes += 1;
-            }
-
-            return acc;
-          },
-          {
-            upvotes: 0,
-            downvotes: 0,
+      const { upvotes, downvotes } = comment.reactions.reduce(
+        (acc, reaction) => {
+          if (reaction.type === 'upvote') {
+            acc.upvotes += 1;
+          } else if (reaction.type === 'downvote') {
+            acc.downvotes += 1;
           }
-        );
 
-        return {
-          commentId: comment.id,
-          parentId: comment.parentId,
-          body: comment.body,
-          createdAt: comment.createdAt,
+          return acc;
+        },
+        {
+          upvotes: 0,
+          downvotes: 0,
+        }
+      );
 
-          authorAddress:
-            comment.userAddress,
+      return {
+        commentId: comment.id,
+        parentId: comment.parentId,
+        body: comment.body,
+        createdAt: comment.createdAt,
 
-          authorName:
-            nameByAddress.get(
-              authorLower
-            ) ?? null,
+        authorAddress: comment.userAddress,
 
-          farcasterHandle:
-            neynarUser?.farcasterTag ??
-            null,
+        authorName: nameByAddress.get(authorLower) ?? null,
 
-          twitterHandle:
-            neynarUser?.twitterTag ??
-            null,
+        farcasterHandle: neynarUser?.farcasterTag ?? null,
 
-          profileUrl:
-            `${APP_URL}/account/${authorLower}`,
+        twitterHandle: neynarUser?.twitterTag ?? null,
 
-          profileDataUrl:
-            `${APP_URL}/account/${authorLower}/data`,
+        profileUrl: `${APP_URL}/account/${authorLower}`,
 
-          upvotes,
-          downvotes,
-        };
-      }
-    );
+        profileDataUrl: `${APP_URL}/account/${authorLower}/data`,
+
+        upvotes,
+        downvotes,
+      };
+    });
 
     return NextResponse.json(
       {
@@ -499,54 +440,39 @@ export async function GET(
 
         extra: extraData,
 
-        status:
-          bountyStatus.status,
+        status: bountyStatus.status,
 
-        statusLabel:
-          bountyStatus.statusLabel,
+        statusLabel: bountyStatus.statusLabel,
 
-        statusEmoji:
-          bountyStatus.statusEmoji,
+        statusEmoji: bountyStatus.statusEmoji,
 
-        acceptingClaims:
-          bountyStatus.acceptingClaims,
+        acceptingClaims: bountyStatus.acceptingClaims,
 
-        votingInProgress:
-          votingState.votingInProgress,
+        votingInProgress: votingState.votingInProgress,
 
-        voteResolved:
-          votingState.voteResolved,
+        voteResolved: votingState.voteResolved,
 
-        voteStartedAt:
-          votingState.voteStartedAt,
+        voteStartedAt: votingState.voteStartedAt,
 
-        voteResolution:
-          votingState.voteResolution,
+        voteResolution: votingState.voteResolution,
 
         winningClaim,
 
-        hasClaims:
-          claimsPreview.length > 0,
+        hasClaims: claimsPreview.length > 0,
 
-        hasParticipants:
-          participations.length > 1,
+        hasParticipants: participations.length > 1,
 
         priceUsd: amountSort,
 
-        currency:
-          CURRENCIES[slug],
+        currency: CURRENCIES[slug],
 
-        url:
-          `${APP_URL}/${slug}/bounty/${id}`,
+        url: `${APP_URL}/${slug}/bounty/${id}`,
 
-        skillUrl:
-          `${APP_URL}/skill.md`,
+        skillUrl: `${APP_URL}/skill.md`,
 
-        docsUrl:
-          'https://docs.poidh.xyz/',
+        docsUrl: 'https://docs.poidh.xyz/',
 
-        githubUrl:
-          'https://github.com/picsoritdidnthappen/poidh-app',
+        githubUrl: 'https://github.com/picsoritdidnthappen/poidh-app',
 
         claims: claimsData,
         comments: commentsData,

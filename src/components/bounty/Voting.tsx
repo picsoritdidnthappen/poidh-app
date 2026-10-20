@@ -186,15 +186,13 @@ export default function Voting({
         status: `Indexing result... ${i}s`,
       });
 
-      const transactions =
-        await trpcClient.bounties.fetchTransactions.query({
-          bountyId: Number(bountyId),
-          chainId: chain.id,
-        });
+      const transactions = await trpcClient.bounties.fetchTransactions.query({
+        bountyId: Number(bountyId),
+        chainId: chain.id,
+      });
 
       const indexed = transactions.some(
-        (transaction) =>
-          transaction.tx?.toLowerCase() === txHash.toLowerCase()
+        (transaction) => transaction.tx?.toLowerCase() === txHash.toLowerCase()
       );
 
       if (indexed) {
@@ -266,9 +264,7 @@ export default function Voting({
       if (indexed) {
         toast.success('Voted successfully');
       } else {
-        toast.info(
-          'Vote confirmed. Indexing is taking longer than expected.'
-        );
+        toast.info('Vote confirmed. Indexing is taking longer than expected.');
       }
     },
 

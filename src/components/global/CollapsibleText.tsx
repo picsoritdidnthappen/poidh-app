@@ -16,23 +16,15 @@ export default function CollapsibleText({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const isLong =
-    text.length > maxLength ||
-    text.split('\n').length > 12;
+  const isLong = text.length > maxLength || text.split('\n').length > 12;
 
   return (
     <div className={className}>
       <div
         className={`whitespace-pre-wrap break-words ${
-          isLong && !isExpanded
-            ? 'overflow-hidden'
-            : ''
+          isLong && !isExpanded ? 'overflow-hidden' : ''
         }`}
-        style={
-          isLong && !isExpanded
-            ? { maxHeight }
-            : undefined
-        }
+        style={isLong && !isExpanded ? { maxHeight } : undefined}
       >
         <TextWithLinks>{text}</TextWithLinks>
       </div>
@@ -40,16 +32,10 @@ export default function CollapsibleText({
       {isLong && (
         <button
           type='button'
-          onClick={() =>
-            setIsExpanded(
-              (current) => !current
-            )
-          }
+          onClick={() => setIsExpanded((current) => !current)}
           className='mt-2 text-xs sm:text-sm font-semibold text-white/60 hover:text-white underline underline-offset-2 transition'
         >
-          {isExpanded
-            ? 'show less'
-            : 'view more'}
+          {isExpanded ? 'show less' : 'view more'}
         </button>
       )}
     </div>

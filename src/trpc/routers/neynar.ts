@@ -63,8 +63,7 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
     return (
       user.neynarLastUpdated === null ||
       user.neynarLastUpdated < sevenDaysAgo ||
-      (user.farcasterTag !== null &&
-        /^!\d+$/.test(user.farcasterTag))
+      (user.farcasterTag !== null && /^!\d+$/.test(user.farcasterTag))
     );
   });
 
@@ -136,9 +135,8 @@ export async function getUsersDataOrFetchItFromNeynar(addresses: string[]) {
     }
 
     const twitterTag =
-      extra.verified_accounts?.find(
-        (account) => account.platform === 'x'
-      )?.username ?? null;
+      extra.verified_accounts?.find((account) => account.platform === 'x')
+        ?.username ?? null;
 
     return prisma.usersExtra.upsert({
       where: {
