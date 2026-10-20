@@ -17,6 +17,7 @@ import {
   buildVote,
   buildWithdraw,
   createdBountyOnChainId,
+  MAX_AMOUNT_WEI,
   parseEthAmount,
   toSendCalls,
 } from '../transactions';
@@ -55,6 +56,21 @@ describe('parseEthAmount', () => {
 
   it('rejects zero', () => {
     expect(() => parseEthAmount('0')).toThrow(/greater than 0/);
+  });
+
+  // Bounty #1495, claims 8933/8934: a 65-digit amount built a 276-bit
+  // transaction value, beyond uint256, and still returned a sign link.
+  it.each([
+    '9'.repeat(65),
+    '1' + '0'.repeat(82),
+    '120000000.000000000000000001',
+  ])('rejects an amount larger than the ETH supply (%s)', (amount) => {
+    expect(() => parseEthAmount(amount)).toThrow(/more ETH than exists/);
+  });
+
+  it('accepts amounts up to the cap', () => {
+    expect(parseEthAmount('120000000')).toBe(MAX_AMOUNT_WEI);
+    expect(parseEthAmount('1000000')).toBe(10n ** 24n);
   });
 });
 

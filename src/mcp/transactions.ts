@@ -201,6 +201,12 @@ export function createdBountyOnChainId(
  * Parses a user-supplied ETH amount ("0.01") into wei, rejecting malformed,
  * zero and negative values with messages an agent can act on.
  */
+/**
+ * Roughly the total ETH supply. Anything larger can't be a real amount, and
+ * very large inputs would otherwise build a value that doesn't fit in uint256.
+ */
+export const MAX_AMOUNT_WEI = parseEther('120000000');
+
 export function parseEthAmount(amount: string): bigint {
   const trimmed = amount.trim();
   if (!/^\d+(\.\d{1,18})?$/.test(trimmed)) {
@@ -211,6 +217,11 @@ export function parseEthAmount(amount: string): bigint {
   const wei = parseEther(trimmed);
   if (wei <= 0n) {
     throw new Error('Amount must be greater than 0.');
+  }
+  if (wei > MAX_AMOUNT_WEI) {
+    throw new Error(
+      `Amount "${trimmed}" ETH is more ETH than exists. Check the number and try again.`
+    );
   }
   return wei;
 }
