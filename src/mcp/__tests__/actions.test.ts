@@ -336,7 +336,10 @@ describe('hidden characters in user text', () => {
     description,
     amountEth: '0.001',
   });
-  const claimWith = (title: string, description = 'd'): ActionRequest => ({
+  const claimWith = (
+    title: string,
+    description = 'd'
+  ): Extract<ActionRequest, { action: 'submit_claim' }> => ({
     action: 'submit_claim',
     chain: 'base',
     id: 1271,
@@ -395,7 +398,7 @@ describe('hidden characters in user text', () => {
         {
           ...claimWith('done'),
           proofUri: 'https://example.com/\u202egpj.exe',
-        } as ActionRequest,
+        },
         deps(),
         OTHER
       )
@@ -421,19 +424,49 @@ describe('hidden characters in user text', () => {
       'England and Wales flags',
       '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F} \u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}',
     ],
-    ['tabs and Windows new lines', 'a\tb\r\nc'],
     ['heart on fire', '\u2764\uFE0F\u200D\u{1F525}'],
     ['rainbow flag', '\u{1F3F3}\uFE0F\u200D\u{1F308}'],
     ['technologist with skin tone', '\u{1F469}\u{1F3FD}\u200D\u{1F4BB}'],
     ['pirate flag', '\u{1F3F4}\u200D\u2620\uFE0F'],
     ['CJK ideographic variation', '\u845B\u{E0100}'],
     ['Bengali', '\u09ac\u09be\u0982\u09b2\u09be'],
-    ['new lines', 'line one\nline two'],
+    ['woman running', '\u{1F3C3}\u200D\u2640\uFE0F'],
+    ['copyright sign', '\u00A9\uFE0F'],
+    ['keycap', '#\uFE0F\u20E3'],
+    ['Persian non-joiner after a shadda', '\u0645\u0640\u0651\u200c\u062e'],
   ])('allows %s', async (_name, text) => {
     expect(() => rejectHiddenCharacters('Title', text)).not.toThrow();
     await expect(
       prepareAction(create(text, text), deps())
     ).resolves.toBeDefined();
+  });
+
+  it('allows tabs and new lines only in descriptions', async () => {
+    const text = 'line one\r\nline two\n\tindented';
+    await expect(
+      prepareAction(create('ok', text), deps())
+    ).resolves.toBeDefined();
+    // A new line in a title could fake extra lines in the approval summary.
+    await expect(
+      prepareAction(
+        create('x" on base for 0.001 ETH.\nReal summary: "x'),
+        deps()
+      )
+    ).rejects.toThrow(/Title contains a hidden character \(U\+000A\)/);
+    // new URL() drops tabs and new lines, so they'd pass isSafeProofUri.
+    await expect(
+      prepareAction(
+        { ...claimWith('done'), proofUri: 'https://example.com/a\n.jpg' },
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow(/proofUri contains a hidden character \(U\+000A\)/);
+  });
+
+  it('refuses a variation selector after a digit outside a keycap', () => {
+    expect(() => rejectHiddenCharacters('Title', 'Pay 1\uFE0F ETH')).toThrow(
+      /U\+FE0F/
+    );
   });
 });
 

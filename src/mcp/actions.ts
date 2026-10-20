@@ -177,26 +177,35 @@ const INVISIBLE = new RegExp(
 const INVISIBLE_ALL = new RegExp(INVISIBLE.source, 'gu');
 
 /**
- * The legitimate uses of those characters, which stay allowed: tab and new
- * lines, emoji sequences (ZWJ, VS16, the England/Scotland/Wales tag flags),
- * CJK variation sequences, and zero-width (non-)joiners inside words of
- * scripts that need them, like Persian and Hindi.
+ * The legitimate uses of those characters, which stay allowed: emoji
+ * sequences (ZWJ, VS16, keycaps, the England/Scotland/Wales tag flags), CJK
+ * variation sequences, and zero-width (non-)joiners inside words of
+ * non-Latin/Greek/Cyrillic scripts that need them, like Persian and Hindi.
  */
 const ALLOWED_SEQUENCES = new RegExp(
   [
-    '\\r\\n|\\t|\\n',
     '\\u{1F3F4}\\u{E0067}\\u{E0062}(?:\\u{E0065}\\u{E006E}\\u{E0067}|\\u{E0073}\\u{E0063}\\u{E0074}|\\u{E0077}\\u{E006C}\\u{E0073})\\u{E007F}',
     '\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?(?:\\u200D\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?)+',
-    '\\p{Emoji}\\uFE0F',
+    '\\p{Extended_Pictographic}\\uFE0F',
+    '[0-9#*]\\uFE0F\\u20E3',
     '\\p{Script=Han}[\\u{E0100}-\\u{E01EF}]',
-    '(?<=\\p{L}|\\p{M})(?<!\\p{Script=Latin}|\\p{Script=Greek}|\\p{Script=Cyrillic}|\\p{Script=Common}|\\p{Script=Inherited})[\\u200C\\u200D](?=\\p{L}|\\p{M})',
+    '(?<=\\p{L}\\p{M}*)(?<![\\p{Script=Latin}\\p{Script=Greek}\\p{Script=Cyrillic}]\\p{M}*)[\\u200C\\u200D](?=\\p{L}|\\p{M})',
   ].join('|'),
   'gu'
 );
 
-/** Throws when `value` contains a hidden or text-reordering character. */
-export function rejectHiddenCharacters(field: string, value: string): void {
-  const match = value
+/**
+ * Throws when `value` contains a hidden or text-reordering character.
+ * Tabs and new lines are only allowed when `multiline` (descriptions): in a
+ * title they could fake extra lines in the approval summary, and new URL()
+ * silently drops them from links.
+ */
+export function rejectHiddenCharacters(
+  field: string,
+  value: string,
+  { multiline = false } = {}
+): void {
+  const match = (multiline ? value.replace(/\r\n|\t|\n/g, ' ') : value)
     .replace(ALLOWED_SEQUENCES, (seq) => seq.replace(INVISIBLE_ALL, ''))
     .match(INVISIBLE);
   if (!match) return;
@@ -229,7 +238,9 @@ export async function prepareAction(
   switch (req.action) {
     case 'create_bounty': {
       rejectHiddenCharacters('Title', req.title);
-      rejectHiddenCharacters('Description', req.description);
+      rejectHiddenCharacters('Description', req.description, {
+        multiline: true,
+      });
       const amountWei = parseEthAmount(req.amountEth);
       if (amountWei < MIN_BOUNTY_WEI) {
         throw new Error('Minimum bounty reward is 0.001 ETH.');
@@ -287,7 +298,9 @@ export async function prepareAction(
         throw new Error('proofUri must be an https://, ipfs:// or ar:// URL.');
       }
       rejectHiddenCharacters('Title', req.title);
-      rejectHiddenCharacters('Description', req.description);
+      rejectHiddenCharacters('Description', req.description, {
+        multiline: true,
+      });
       rejectHiddenCharacters('proofUri', req.proofUri);
       const tx = buildCreateClaim({
         chain,
