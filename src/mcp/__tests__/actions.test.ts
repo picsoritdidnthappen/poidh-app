@@ -372,6 +372,16 @@ describe('isSafeProofUri', () => {
     ['https://printer.local/a.png', false],
     ['https://nas.home.arpa/a.png', false],
     [`ipfs://${CID_V0}:8080/a.png`, false],
+    // Second review round.
+    ['https://localhost../a.png', false],
+    ['https://127.0.0.1../a.png', false],
+    ['https://..example.com/a.png', false],
+    ['https://-.com/a.png', false],
+    ['https://router.test/a.png', false],
+    ['https://nas.home/a.png', false],
+    ['https://svc.corp/a.png', false],
+    ['https://bücher.de/a.png', true],
+    [`ipfs://${CID_V1.toUpperCase()}/photo.jpg`, true],
   ])('%s → %s', (uri, safe) => {
     expect(isSafeProofUri(uri)).toBe(safe);
   });

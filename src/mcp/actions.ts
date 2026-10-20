@@ -151,23 +151,46 @@ function requireOpen(b: BountyRecord) {
   }
 }
 
-// IPFS content ids: CIDv0 (Qm…, base58) or CIDv1 in base32 (b…).
-const IPFS_CID = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,})$/;
+// IPFS content ids: CIDv0 (Qm…, base58) or CIDv1 in base32 (b…, or B… when
+// written in upper case).
+const IPFS_CID = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,}|B[A-Z2-7]{58,})$/;
 // Arweave transaction ids: 43 base64url characters.
 const ARWEAVE_ID = /^[A-Za-z0-9_-]{43}$/;
+
+// Reserved, private-use and commonly intranet-only names (RFC 6761/6762,
+// RFC 8375, ICANN name-collision list) that never resolve publicly.
+const LOCAL_SUFFIXES = [
+  'localhost',
+  'local',
+  'test',
+  'example',
+  'invalid',
+  'internal',
+  'intranet',
+  'private',
+  'lan',
+  'home',
+  'corp',
+  'home.arpa',
+];
+const DNS_LABEL = /^[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?$/;
 
 /**
  * True when an https host is a public domain name. IP literals are refused
  * outright (new URL() has already turned tricks like `2852039166` or
  * `0xA9FEA9FE` into `169.254.169.254`), as are single-label intranet names
- * and names that only resolve on the viewer's own network.
+ * and names that only resolve on the viewer's own network. Public names that
+ * resolve to private IPs (e.g. wildcard DNS services) need DNS to detect and
+ * are out of scope here.
  */
 function isPublicDomain(hostname: string): boolean {
   const host = hostname.toLowerCase().replace(/\.$/, '');
-  if (host.startsWith('[') || !host.includes('.')) return false;
-  const tld = host.slice(host.lastIndexOf('.') + 1);
-  if (/^\d+$/.test(tld)) return false; // IPv4 literal
-  return !['localhost', 'local', 'internal', 'lan', 'home.arpa'].some(
+  const labels = host.split('.');
+  if (labels.length < 2 || !labels.every((l) => DNS_LABEL.test(l))) {
+    return false; // IPv6 literal, single label, empty or malformed label
+  }
+  if (/^\d+$/.test(labels[labels.length - 1])) return false; // IPv4 literal
+  return !LOCAL_SUFFIXES.some(
     (local) => host === local || host.endsWith(`.${local}`)
   );
 }
