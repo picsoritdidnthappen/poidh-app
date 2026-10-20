@@ -157,48 +157,24 @@ const IPFS_CID = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,})$/;
 const ARWEAVE_ID = /^[A-Za-z0-9_-]{43}$/;
 
 /**
- * True for loopback, private, link-local and other non-public IP literals.
- * `hostname` must come from `new URL()`, which already rewrites tricks like
- * `https://2852039166/` or `https://0xA9FEA9FE/` to `169.254.169.254`.
+ * True when an https host is a public domain name. IP literals are refused
+ * outright (new URL() has already turned tricks like `2852039166` or
+ * `0xA9FEA9FE` into `169.254.169.254`), as are single-label intranet names
+ * and names that only resolve on the viewer's own network.
  */
-function isPrivateHost(hostname: string): boolean {
-  const host = hostname.toLowerCase();
-  if (
-    host === 'localhost' ||
-    host === 'localhost.' ||
-    /\.localhost\.?$/.test(host)
-  ) {
-    return true;
-  }
-  const v4 = host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
-  if (v4) {
-    const [a, b] = [Number(v4[1]), Number(v4[2])];
-    return (
-      a === 0 ||
-      a === 10 ||
-      a === 127 ||
-      (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 168)
-    );
-  }
-  if (host.startsWith('[')) {
-    const v6 = host.slice(1, -1);
-    return (
-      v6 === '::' ||
-      v6 === '::1' ||
-      v6.startsWith('::ffff:') || // IPv4-mapped, e.g. [::ffff:7f00:1]
-      /^f[cd]/.test(v6) || // fc00::/7
-      /^fe[89ab]/.test(v6) // fe80::/10
-    );
-  }
-  return false;
+function isPublicDomain(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/\.$/, '');
+  if (host.startsWith('[') || !host.includes('.')) return false;
+  const tld = host.slice(host.lastIndexOf('.') + 1);
+  if (/^\d+$/.test(tld)) return false; // IPv4 literal
+  return !['localhost', 'local', 'internal', 'lan', 'home.arpa'].some(
+    (local) => host === local || host.endsWith(`.${local}`)
+  );
 }
 
 /**
  * Proof links are shown to people as clickable links and loaded by their
- * browsers, so only allow public https URLs and real IPFS/Arweave ids.
+ * browsers, so only allow https on public domains and real IPFS/Arweave ids.
  */
 export function isSafeProofUri(value: string): boolean {
   let url: URL;
@@ -210,11 +186,11 @@ export function isSafeProofUri(value: string): boolean {
   if (url.username || url.password) return false;
   switch (url.protocol) {
     case 'https:':
-      return !isPrivateHost(url.hostname);
+      return isPublicDomain(url.hostname);
     case 'ipfs:':
-      return IPFS_CID.test(url.hostname);
+      return !url.port && IPFS_CID.test(url.hostname);
     case 'ar:':
-      return ARWEAVE_ID.test(url.hostname);
+      return !url.port && ARWEAVE_ID.test(url.hostname);
     default:
       return false;
   }

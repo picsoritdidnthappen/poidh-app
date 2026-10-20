@@ -334,8 +334,7 @@ describe('isSafeProofUri', () => {
     [`ipfs://${CID_V0}`, true],
     [`ipfs://${CID_V1}/photo.jpg`, true],
     [`ar://${ARWEAVE}`, true],
-    ['https://8.8.8.8/a.png', true],
-    ['https://172.32.0.1/a.png', true],
+    ['https://cdn.example.co.uk./a.png', true],
     ['http://example.com/a.jpg', false],
     ['javascript:alert(1)', false],
     ['data:image/png;base64,AAAA', false],
@@ -363,6 +362,16 @@ describe('isSafeProofUri', () => {
     ['https://[::ffff:127.0.0.1]/a.png', false],
     ['https://[fd00::1]/a.png', false],
     ['https://[fe80::1]/a.png', false],
+    // Review follow-ups: anything that isn't a public domain name.
+    ['https://8.8.8.8/a.png', false],
+    ['https://127.0.0.1./a.png', false],
+    ['https://[::192.168.1.1]/a.png', false],
+    ['https://[64:ff9b::7f00:1]/a.png', false],
+    ['https://[2001:4860:4860::8888]/a.png', false],
+    ['https://intranet/a.png', false],
+    ['https://printer.local/a.png', false],
+    ['https://nas.home.arpa/a.png', false],
+    [`ipfs://${CID_V0}:8080/a.png`, false],
   ])('%s → %s', (uri, safe) => {
     expect(isSafeProofUri(uri)).toBe(safe);
   });
