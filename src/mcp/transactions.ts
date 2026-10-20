@@ -54,9 +54,8 @@ const TOO_MUCH_ETH =
 function build({ chain, functionName, data, valueWei = 0n }: Args) {
   // parseEthAmount already enforces this; checked again so a builder called
   // with a raw bigint can never produce a value outside uint256.
-  if (valueWei < 0n || valueWei > MAX_AMOUNT_WEI) {
-    throw new Error(TOO_MUCH_ETH);
-  }
+  if (valueWei < 0n) throw new Error('Amount cannot be negative.');
+  if (valueWei > MAX_AMOUNT_WEI) throw new Error(TOO_MUCH_ETH);
   const target = chains[chain];
   const tx: PreparedTransaction = {
     chainId: target.id,
@@ -217,15 +216,18 @@ export function createdBountyOnChainId(
  */
 export function parseEthAmount(amount: string): bigint {
   const trimmed = amount.trim();
-  if (!/^\d+(\.\d{1,18})?$/.test(trimmed)) {
-    throw new Error(
-      `Invalid ETH amount "${amount}". Use a decimal string like "0.01".`
-    );
-  }
-  // More than 9 whole digits is far over the cap; refuse before parsing so a
-  // huge digit string never becomes a huge bigint.
-  if (trimmed.split('.')[0].replace(/^0+/, '').length > 9) {
+  const valid = /^\d+(\.\d{1,18})?$/.test(trimmed);
+  // More than 9 whole digits is over the cap whatever the rest says.
+  if (valid && trimmed.split('.')[0].replace(/^0+/, '').length > 9) {
     throw new Error(TOO_MUCH_ETH);
+  }
+  // Real amounts are short: refuse over-long input (e.g. padded with zeros)
+  // before parsing it, and don't echo long input back.
+  if (!valid || trimmed.length > 64) {
+    const shown = amount.length > 32 ? `${amount.slice(0, 32)}…` : amount;
+    throw new Error(
+      `Invalid ETH amount "${shown}". Use a decimal string like "0.01".`
+    );
   }
   const wei = parseEther(trimmed);
   if (wei <= 0n) {

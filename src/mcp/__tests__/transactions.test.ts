@@ -68,9 +68,15 @@ describe('parseEthAmount', () => {
     expect(() => parseEthAmount(amount)).toThrow(/more ETH than exists/);
   });
 
-  it('does not echo a huge amount back in the error', () => {
+  it('does not parse or echo huge input', () => {
     expect(() => parseEthAmount('9'.repeat(100_000))).toThrow(
       /^Amount is more ETH than exists/
+    );
+    expect(() => parseEthAmount('9'.repeat(100_000) + 'a')).toThrow(
+      /^Invalid ETH amount "9{32}…"/
+    );
+    expect(() => parseEthAmount('0'.repeat(100_000) + '1')).toThrow(
+      /^Invalid ETH amount/
     );
   });
 
@@ -91,6 +97,9 @@ describe('parseEthAmount', () => {
         amountWei: MAX_AMOUNT_WEI + 1n,
       })
     ).toThrow(/more ETH than exists/);
+    expect(() =>
+      buildJoinOpenBounty({ chain: 'base', onChainBountyId: 1, amountWei: -1n })
+    ).toThrow(/cannot be negative/);
   });
 
   it('accepts amounts up to the cap', () => {
