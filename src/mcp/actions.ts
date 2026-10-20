@@ -107,9 +107,9 @@ export const MIN_CONTRIBUTION_WEI = 10_000_000_000_000n; // 0.00001 ETH
 
 export function bountyStatus(b: BountyRecord) {
   if (b.isCanceled) return 'canceled';
+  if (!b.inProgress) return 'completed';
   if (b.isVoting) return 'voting';
-  if (b.inProgress) return 'open';
-  return 'completed';
+  return 'open';
 }
 
 /** Seconds until a vote closes; null when the deadline is unknown. */
@@ -407,7 +407,7 @@ export async function prepareAction(
 
     case 'vote': {
       const bounty = await loadCurrentBounty(deps, chain, req.id);
-      if (!bounty.isVoting) {
+      if (!bounty.inProgress || !bounty.isVoting) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }
       const left = voteSecondsLeft(bounty);
@@ -440,7 +440,7 @@ export async function prepareAction(
 
     case 'resolve_vote': {
       const bounty = await loadCurrentBounty(deps, chain, req.id);
-      if (!bounty.isVoting) {
+      if (!bounty.inProgress || !bounty.isVoting) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }
       const left = voteSecondsLeft(bounty);

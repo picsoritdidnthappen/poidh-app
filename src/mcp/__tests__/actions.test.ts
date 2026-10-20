@@ -8,6 +8,7 @@ import {
   ActionRequest,
   actionUrl,
   BountyRecord,
+  bountyStatus,
   ClaimRecord,
   isSafeProofUri,
   parseActionParams,
@@ -466,6 +467,50 @@ describe('hidden characters in user text', () => {
   it('refuses a variation selector after a digit outside a keycap', () => {
     expect(() => rejectHiddenCharacters('Title', 'Pay 1\uFE0F ETH')).toThrow(
       /U\+FE0F/
+    );
+  });
+
+  it('refuses voting or resolving votes on completed bounties with lingering isVoting', async () => {
+    const completedVoting = bounty({ inProgress: false, isVoting: true });
+    await expect(
+      prepareAction(
+        { action: 'vote', chain: 'base', id: 1271, approve: true },
+        deps(completedVoting)
+      )
+    ).rejects.toThrow(/has no active vote/);
+
+    await expect(
+      prepareAction(
+        { action: 'resolve_vote', chain: 'base', id: 1271 },
+        deps(completedVoting)
+      )
+    ).rejects.toThrow(/has no active vote/);
+  });
+});
+
+describe('bountyStatus', () => {
+  it('returns canceled when isCanceled is true', () => {
+    expect(bountyStatus(bounty({ isCanceled: true }))).toBe('canceled');
+  });
+
+  it('returns completed when inProgress is false, even if isVoting is true', () => {
+    expect(bountyStatus(bounty({ inProgress: false, isVoting: true }))).toBe(
+      'completed'
+    );
+    expect(bountyStatus(bounty({ inProgress: false, isVoting: false }))).toBe(
+      'completed'
+    );
+  });
+
+  it('returns voting when inProgress is true and isVoting is true', () => {
+    expect(bountyStatus(bounty({ inProgress: true, isVoting: true }))).toBe(
+      'voting'
+    );
+  });
+
+  it('returns open when inProgress is true and isVoting is false', () => {
+    expect(bountyStatus(bounty({ inProgress: true, isVoting: false }))).toBe(
+      'open'
     );
   });
 });

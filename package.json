@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/sync-skill.mjs && next dev",
-    "build": "node scripts/sync-skill.mjs && tsx scripts/migration.ts && prisma generate && next build",
-    "start": "next start",
+    "dev": "node api.js && node scripts/sync-skill.mjs && next dev",
+    "build": "node api.js && node scripts/sync-skill.mjs && tsx scripts/migration.ts && prisma generate && next build",
+    "start": "node api.js && next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
     "lint:strict": "eslint --max-warnings=98 src",
