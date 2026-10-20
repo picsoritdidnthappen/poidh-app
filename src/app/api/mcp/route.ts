@@ -18,6 +18,46 @@ function corsHeaders(origin: string | null): Record<string, string> {
     : BASE_CORS_HEADERS;
 }
 
+// The largest real request (a claim with a 5,000-character description) is
+// well under 20 KB.
+const MAX_BODY_BYTES = 256 * 1024;
+
+function jsonRpcError(
+  status: number,
+  code: number,
+  message: string,
+  headers: Record<string, string>
+): Response {
+  return Response.json(
+    { jsonrpc: '2.0', error: { code, message }, id: null },
+    { status, headers }
+  );
+}
+
+/**
+ * Reads at most MAX_BODY_BYTES of the body. Returns null when it is larger,
+ * without buffering the rest.
+ */
+async function readCappedBody(req: Request): Promise<string | null> {
+  const declared = Number(req.headers.get('content-length'));
+  if (declared > MAX_BODY_BYTES) return null;
+  if (!req.body) return '';
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > MAX_BODY_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  return new TextDecoder().decode(Buffer.concat(chunks));
+}
+
 /**
  * Remote MCP endpoint (Streamable HTTP). Stateless: every request gets a
  * fresh server and transport, which suits serverless and needs no session
@@ -37,6 +77,34 @@ async function handle(req: Request): Promise<Response> {
       { status: 403, headers: CORS_HEADERS }
     );
   }
+  let parsedBody: unknown;
+  if (req.method === 'POST') {
+    const text = await readCappedBody(req);
+    if (text === null) {
+      return jsonRpcError(413, -32000, 'Request body too large', CORS_HEADERS);
+    }
+    try {
+      parsedBody = JSON.parse(text);
+    } catch {
+      return jsonRpcError(
+        400,
+        -32700,
+        'Parse error: Invalid JSON',
+        CORS_HEADERS
+      );
+    }
+    // JSON-RPC batching was removed from MCP (2025-06-18). Each message in a
+    // batch runs a database query or /data fetch, so one request could fan out
+    // into dozens (bounty #1495, claim 8940).
+    if (Array.isArray(parsedBody)) {
+      return jsonRpcError(
+        400,
+        -32600,
+        'Batch requests are not supported. Send one JSON-RPC message per request.',
+        CORS_HEADERS
+      );
+    }
+  }
   const started = Date.now();
   const server = createPoidhMcpServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
@@ -46,7 +114,7 @@ async function handle(req: Request): Promise<Response> {
 
   try {
     await server.connect(transport);
-    const res = await transport.handleRequest(req);
+    const res = await transport.handleRequest(req, { parsedBody });
     const headers = new Headers(res.headers);
     for (const [k, v] of Object.entries(CORS_HEADERS)) headers.set(k, v);
     return new Response(res.body, { status: res.status, headers });
