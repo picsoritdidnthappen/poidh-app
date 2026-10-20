@@ -68,7 +68,33 @@ describe('parseEthAmount', () => {
     expect(() => parseEthAmount(amount)).toThrow(/more ETH than exists/);
   });
 
+  it('does not echo a huge amount back in the error', () => {
+    expect(() => parseEthAmount('9'.repeat(100_000))).toThrow(
+      /^Amount is more ETH than exists/
+    );
+  });
+
+  it('builders refuse values outside the cap even without parseEthAmount', () => {
+    expect(() =>
+      buildCreateBounty({
+        chain: 'base',
+        type: 'solo',
+        title: 't',
+        description: 'd',
+        amountWei: 2n ** 256n,
+      })
+    ).toThrow(/more ETH than exists/);
+    expect(() =>
+      buildJoinOpenBounty({
+        chain: 'base',
+        onChainBountyId: 1,
+        amountWei: MAX_AMOUNT_WEI + 1n,
+      })
+    ).toThrow(/more ETH than exists/);
+  });
+
   it('accepts amounts up to the cap', () => {
+    expect(parseEthAmount('000000000120000000')).toBe(MAX_AMOUNT_WEI);
     expect(parseEthAmount('120000000')).toBe(MAX_AMOUNT_WEI);
     expect(parseEthAmount('1000000')).toBe(10n ** 24n);
   });

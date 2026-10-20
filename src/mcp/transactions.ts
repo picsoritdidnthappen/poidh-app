@@ -42,7 +42,21 @@ type Args = {
   valueWei?: bigint;
 };
 
+/**
+ * Roughly the total ETH supply. Anything larger can't be a real amount, and
+ * very large inputs would otherwise build a value that doesn't fit in uint256.
+ */
+export const MAX_AMOUNT_WEI = parseEther('120000000');
+
+const TOO_MUCH_ETH =
+  'Amount is more ETH than exists. Check the number and try again.';
+
 function build({ chain, functionName, data, valueWei = 0n }: Args) {
+  // parseEthAmount already enforces this; checked again so a builder called
+  // with a raw bigint can never produce a value outside uint256.
+  if (valueWei < 0n || valueWei > MAX_AMOUNT_WEI) {
+    throw new Error(TOO_MUCH_ETH);
+  }
   const target = chains[chain];
   const tx: PreparedTransaction = {
     chainId: target.id,
@@ -201,12 +215,6 @@ export function createdBountyOnChainId(
  * Parses a user-supplied ETH amount ("0.01") into wei, rejecting malformed,
  * zero and negative values with messages an agent can act on.
  */
-/**
- * Roughly the total ETH supply. Anything larger can't be a real amount, and
- * very large inputs would otherwise build a value that doesn't fit in uint256.
- */
-export const MAX_AMOUNT_WEI = parseEther('120000000');
-
 export function parseEthAmount(amount: string): bigint {
   const trimmed = amount.trim();
   if (!/^\d+(\.\d{1,18})?$/.test(trimmed)) {
@@ -214,14 +222,17 @@ export function parseEthAmount(amount: string): bigint {
       `Invalid ETH amount "${amount}". Use a decimal string like "0.01".`
     );
   }
+  // More than 9 whole digits is far over the cap; refuse before parsing so a
+  // huge digit string never becomes a huge bigint.
+  if (trimmed.split('.')[0].replace(/^0+/, '').length > 9) {
+    throw new Error(TOO_MUCH_ETH);
+  }
   const wei = parseEther(trimmed);
   if (wei <= 0n) {
     throw new Error('Amount must be greater than 0.');
   }
   if (wei > MAX_AMOUNT_WEI) {
-    throw new Error(
-      `Amount "${trimmed}" ETH is more ETH than exists. Check the number and try again.`
-    );
+    throw new Error(TOO_MUCH_ETH);
   }
   return wei;
 }
