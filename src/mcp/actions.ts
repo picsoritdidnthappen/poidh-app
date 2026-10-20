@@ -292,7 +292,9 @@ export async function prepareAction(
         throw new Error('The bounty issuer cannot submit a claim.');
       }
       if (!isSafeProofUri(req.proofUri)) {
-        throw new Error('proofUri must be an https://, ipfs:// or ar:// URL.');
+        throw new Error(
+          'proofUri must be an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id.'
+        );
       }
       const tx = buildCreateClaim({
         chain,
@@ -444,7 +446,10 @@ const actionSchema = z.discriminatedUnion('action', [
     proofUri: z
       .string()
       .url()
-      .refine(isSafeProofUri, 'must be an https://, ipfs:// or ar:// URL'),
+      .refine(
+        isSafeProofUri,
+        'must be an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id'
+      ),
   }),
   z.object({ action: z.literal('accept_claim'), chain, id, claimId: id }),
   z.object({

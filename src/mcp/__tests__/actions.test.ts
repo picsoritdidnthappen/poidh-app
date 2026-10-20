@@ -320,7 +320,7 @@ describe('prepareAction', () => {
         },
         deps()
       )
-    ).rejects.toThrow(/https:\/\/, ipfs:\/\/ or ar:\/\//);
+    ).rejects.toThrow(/https:\/\/ link on a public domain/);
   });
 });
 

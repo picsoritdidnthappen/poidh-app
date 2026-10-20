@@ -390,7 +390,10 @@ export function createPoidhMcpServer(): McpServer {
         proofUri: z
           .string()
           .url()
-          .refine(isSafeProofUri, 'Use an https://, ipfs:// or ar:// URL')
+          .refine(
+            isSafeProofUri,
+            'Use an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id'
+          )
           .describe('https://, ipfs:// or ar:// URL of the proof media'),
         from: fromAddress,
       },
