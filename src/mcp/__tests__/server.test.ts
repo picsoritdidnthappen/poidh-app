@@ -319,9 +319,7 @@ describe('read tools', () => {
     const res = (await callTool('get_account', { address: CLAIMANT })).json();
 
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `/account/${CLAIMANT.toLowerCase()}/data`
-      ),
+      expect.stringContaining(`/account/${CLAIMANT.toLowerCase()}/data`),
       { cache: 'no-store' }
     );
     expect(res).toMatchObject(accountData);
@@ -367,6 +365,78 @@ describe('read tools', () => {
     expect(res.text).toMatch(/poidh data endpoint returned 500/);
     expect(res.text).not.toMatch(/ECONNREFUSED/);
     expect(res.text).not.toMatch(/secret-internal-detail/);
+  });
+
+  // A Prisma error as prod returned it for find_bounties { cursor: 'abc' }
+  const prismaError = new Error(
+    'Invalid `prisma.bounties.findMany()` invocation:\n\n{ where: { createdAt: { lt: "abc" } }, distinct: "id" }'
+  );
+
+  it('find_bounties rejects a non-numeric cursor before querying', async () => {
+    const res = await callTool('find_bounties', { cursor: 'abc' });
+    expect(res.isError).toBe(true);
+    expect(mockCaller.bounties.fetchByKeyword).not.toHaveBeenCalled();
+  });
+
+  it('find_bounties does not expose database query details', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockCaller.bounties.fetchByKeyword.mockRejectedValue(prismaError);
+    const res = await callTool('find_bounties', { query: 'dog' });
+    expect(res.isError).toBe(true);
+    expect(res.text).toMatch(/Could not search bounties right now/);
+    expect(res.text).not.toMatch(/prisma|findMany|createdAt/);
+  });
+
+  it('find_bounties strips NUL bytes Postgres cannot store', async () => {
+    mockCaller.bounties.fetchByKeyword.mockResolvedValue({ items: [] });
+    const res = await callTool('find_bounties', { query: 'do\u0000g' });
+    expect(res.isError).toBe(false);
+    expect(mockCaller.bounties.fetchByKeyword).toHaveBeenCalledWith(
+      expect.objectContaining({ keyword: 'dog' })
+    );
+  });
+
+  it('get_leaderboard does not expose database errors', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockCaller.leaderboard.fetch.mockRejectedValue(
+      new Error('invalid byte sequence for encoding "UTF8": 0x00')
+    );
+    const res = await callTool('get_leaderboard', {});
+    expect(res.isError).toBe(true);
+    expect(res.text).toMatch(/Could not load the leaderboard right now/);
+    expect(res.text).not.toMatch(/UTF8/);
+  });
+
+  it('prepare tools do not expose database errors', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockCaller.bounties.fetch.mockResolvedValue(
+      bounty({ isMultiplayer: true, isVoting: true })
+    );
+    mockCaller.claims.fetchVotingClaimByBountyId.mockRejectedValue(prismaError);
+    const res = await callTool('prepare_vote', {
+      chain: 'base',
+      id: 1271,
+      approve: true,
+    });
+    expect(res.isError).toBe(true);
+    expect(res.text).toMatch(/Could not load the claim under vote/);
+    expect(res.text).not.toMatch(/prisma/);
+  });
+
+  it('get_bounty reports a non-JSON /data response plainly', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => {
+        throw new SyntaxError(
+          'Unexpected token \'<\', "<!DOCTYPE "... is not valid JSON'
+        );
+      },
+    });
+    const res = await callTool('get_bounty', { chain: 'mainnet', id: 9 });
+    expect(res.isError).toBe(true);
+    expect(res.text).toMatch(/invalid response/);
+    expect(res.text).not.toMatch(/DOCTYPE/);
   });
 });
 

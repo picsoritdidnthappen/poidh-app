@@ -68,13 +68,26 @@ async function fetchPoidhData(path: string): Promise<Record<string, unknown>> {
     throw new Error(`poidh data endpoint returned ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = await response.json().catch(() => null);
 
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     throw new Error('poidh data endpoint returned an invalid response');
   }
 
   return data as Record<string, unknown>;
+}
+
+/**
+ * Runs a poidh database read for a tool. Database and tRPC errors can carry
+ * query details, so they are logged here and the agent gets a plain message.
+ */
+async function readDb<T>(what: string, run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (err) {
+    console.error(`MCP failed to ${what}`, err);
+    throw new Error(`Could not ${what} right now. Please retry.`);
+  }
 }
 
 /** Prisma's findUniqueOrThrow error, possibly wrapped by the tRPC caller. */
@@ -170,12 +183,16 @@ export function createPoidhMcpServer(): McpServer {
         .fetch({ claimId, chainId: chains[chain].id })
         .catch(() => null),
     loadVotingClaim: (chain, id) =>
-      caller.claims.fetchVotingClaimByBountyId({
-        bountyId: id,
-        chainId: chains[chain].id,
-      }),
+      readDb('load the claim under vote', () =>
+        caller.claims.fetchVotingClaimByBountyId({
+          bountyId: id,
+          chainId: chains[chain].id,
+        })
+      ),
     mustUseVoteFlow: (chain, id) =>
-      caller.bounties.mustUseVoteFlow({ id, chainId: chains[chain].id }),
+      readDb('check the bounty contributors', () =>
+        caller.bounties.mustUseVoteFlow({ id, chainId: chains[chain].id })
+      ),
   };
 
   /**
@@ -216,17 +233,21 @@ export function createPoidhMcpServer(): McpServer {
         limit: z.number().int().min(1).max(50).default(10),
         cursor: z
           .string()
+          .regex(/^\d+$/)
           .optional()
           .describe('nextCursor from a previous call'),
       },
       annotations: readAnnotations,
     },
     async ({ query, limit, cursor }) => {
-      const result = await caller.bounties.fetchByKeyword({
-        keyword: query ?? '',
-        limit,
-        cursor: cursor ?? null,
-      });
+      const result = await readDb('search bounties', () =>
+        caller.bounties.fetchByKeyword({
+          // Postgres text can't hold NUL bytes
+          keyword: (query ?? '').replace(/\0/g, ''),
+          limit,
+          cursor: cursor ?? null,
+        })
+      );
       return json({
         bounties: result.items.map((b) => summarizeBounty(b as BountyRecord)),
         nextCursor: result.nextCursor ?? null,
@@ -268,9 +289,7 @@ export function createPoidhMcpServer(): McpServer {
     },
     async ({ address }) => {
       const normalizedAddress = address.toLowerCase();
-      const data = await fetchPoidhData(
-        `/account/${normalizedAddress}/data`
-      );
+      const data = await fetchPoidhData(`/account/${normalizedAddress}/data`);
 
       return json({
         ...data,
@@ -288,7 +307,12 @@ export function createPoidhMcpServer(): McpServer {
       inputSchema: { page: z.number().int().min(1).max(10).default(1) },
       annotations: readAnnotations,
     },
-    async ({ page }) => json(await caller.leaderboard.fetch({ page }))
+    async ({ page }) =>
+      json(
+        await readDb('load the leaderboard', () =>
+          caller.leaderboard.fetch({ page })
+        )
+      )
   );
 
   // prepare_* tools only build and dry-run a transaction; the person
