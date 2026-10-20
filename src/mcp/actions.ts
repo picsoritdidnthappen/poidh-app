@@ -105,9 +105,18 @@ export const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 export const MIN_BOUNTY_WEI = 1_000_000_000_000_000n; // 0.001 ETH
 export const MIN_CONTRIBUTION_WEI = 10_000_000_000_000n; // 0.00001 ETH
 
+/**
+ * The indexer can leave `isVoting` set after a vote ends and the bounty is
+ * paid out, so a vote only counts while the bounty is still in progress
+ * (the same rule as the /data route).
+ */
+function hasActiveVote(b: BountyRecord): boolean {
+  return b.isVoting && b.inProgress && !b.isCanceled;
+}
+
 export function bountyStatus(b: BountyRecord) {
   if (b.isCanceled) return 'canceled';
-  if (b.isVoting) return 'voting';
+  if (hasActiveVote(b)) return 'voting';
   if (b.inProgress) return 'open';
   return 'completed';
 }
@@ -407,7 +416,7 @@ export async function prepareAction(
 
     case 'vote': {
       const bounty = await loadCurrentBounty(deps, chain, req.id);
-      if (!bounty.isVoting) {
+      if (!hasActiveVote(bounty)) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }
       const left = voteSecondsLeft(bounty);
@@ -440,7 +449,7 @@ export async function prepareAction(
 
     case 'resolve_vote': {
       const bounty = await loadCurrentBounty(deps, chain, req.id);
-      if (!bounty.isVoting) {
+      if (!hasActiveVote(bounty)) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }
       const left = voteSecondsLeft(bounty);
