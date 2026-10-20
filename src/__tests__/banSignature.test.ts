@@ -50,6 +50,9 @@ jest.mock('@/utils/serverEnv', () => ({
 
 const mockClaimNonce = jest.fn();
 const mockHideComments = jest.fn();
+const mockFindClaim = jest.fn();
+const mockFindBounty = jest.fn();
+const mockCreateBan = jest.fn();
 jest.mock('prisma/prisma', () => ({
   __esModule: true,
   default: {
@@ -59,6 +62,15 @@ jest.mock('prisma/prisma', () => ({
     comments: {
       findFirst: async () => ({ id: 7 }),
       updateMany: (...args: unknown[]) => mockHideComments(...args),
+    },
+    claims: {
+      findUnique: (...args: unknown[]) => mockFindClaim(...args),
+    },
+    bounties: {
+      findUniqueOrThrow: (...args: unknown[]) => mockFindBounty(...args),
+    },
+    ban: {
+      create: (...args: unknown[]) => mockCreateBan(...args),
     },
   },
 }));
@@ -73,7 +85,7 @@ const caller = createCallerFactory(createTRPCRouter(adminRouter))({
 const ban = { type: 'comment', id: 7, chainId: 8453, nonce: 'abc123' } as const;
 
 /**
- * Builds a banComment request signed by the given account.
+ * Builds a ban request signed by the given account.
  */
 async function signedBan(
   account = admin,
@@ -93,6 +105,7 @@ beforeEach(() => {
   mockClaimNonce.mockReset();
   mockClaimNonce.mockResolvedValue({ count: 1 });
   mockHideComments.mockReset();
+  mockCreateBan.mockReset();
 });
 
 describe('admin.banComment', () => {
@@ -137,6 +150,50 @@ describe('admin.banComment', () => {
     await expect(
       caller.banComment(await signedBan(someoneElse))
     ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+  });
+});
+
+describe('admin.banClaim', () => {
+  const claimBan = { ...ban, type: 'claim' } as const;
+
+  /**
+   * Sets up claim 7 on the given bounty, and who issued each bounty.
+   */
+  function setUpClaim(bountyId: number) {
+    mockFindClaim.mockResolvedValue({ bountyId });
+    mockFindBounty.mockImplementation(
+      async ({ where }: { where: { id_chainId: { id: number } } }) => ({
+        issuer:
+          where.id_chainId.id === 1
+            ? someoneElse.address.toLowerCase()
+            : '0x0000000000000000000000000000000000000002',
+      })
+    );
+  }
+
+  it('lets the issuer ban a claim on their own bounty', async () => {
+    setUpClaim(1);
+
+    await caller.banClaim(await signedBan(someoneElse, claimBan));
+
+    expect(mockCreateBan).toHaveBeenCalled();
+  });
+
+  it("refuses an issuer banning a claim on someone else's bounty", async () => {
+    setUpClaim(2);
+
+    await expect(
+      caller.banClaim(await signedBan(someoneElse, claimBan))
+    ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+    expect(mockCreateBan).not.toHaveBeenCalled();
+  });
+
+  it('refuses a claim that does not exist', async () => {
+    mockFindClaim.mockResolvedValue(null);
+
+    await expect(
+      caller.banClaim(await signedBan(admin, claimBan))
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });
 

@@ -51,35 +51,43 @@ export const adminRouter = {
   }),
 
   /**
-   * Bans a claim. Admins and the bounty's issuer can do this, with a fresh
-   * signature for every ban.
+   * Bans a claim. Admins and the issuer of the claim's bounty can do this,
+   * with a fresh signature for every ban. The bounty comes from the claim
+   * itself, so an issuer can only ban claims on their own bounties.
    */
-  banClaim: baseProcedure
-    .input(banInput.extend({ bountyId: z.number() }))
-    .mutation(async ({ input }) => {
-      const isIssuer = await checkIsIssuer({
-        address: input.address,
-        bountyId: input.bountyId,
+  banClaim: baseProcedure.input(banInput).mutation(async ({ input }) => {
+    const claim = await prisma.claims.findUnique({
+      where: { id_chainId: { id: input.id, chainId: input.chainId } },
+      select: { bountyId: true },
+    });
+
+    if (!claim) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Claim not found' });
+    }
+
+    const isIssuer = await checkIsIssuer({
+      address: input.address,
+      bountyId: claim.bountyId,
+      chainId: input.chainId,
+    });
+
+    if (!checkIsAdmin(input.address) && !isIssuer) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Not authorized to perform this action',
+      });
+    }
+
+    await verifyBanSignature({ ...input, type: 'claim' });
+
+    await prisma.ban.create({
+      data: {
         chainId: input.chainId,
-      });
-
-      if (!checkIsAdmin(input.address) && !isIssuer) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Not authorized to perform this action',
-        });
-      }
-
-      await verifyBanSignature({ ...input, type: 'claim' });
-
-      await prisma.ban.create({
-        data: {
-          chainId: input.chainId,
-          bannedBy: input.address.toLowerCase(),
-          claimId: input.id,
-        },
-      });
-    }),
+        bannedBy: input.address.toLowerCase(),
+        claimId: input.id,
+      },
+    });
+  }),
 
   /**
    * Hides a comment and its replies. Admins only, with a fresh signature for

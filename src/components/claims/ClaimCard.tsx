@@ -230,13 +230,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   };
 
   const signMutation = useMutation({
-    mutationFn: async ({
-      claimId,
-      bountyId,
-    }: {
-      claimId: number;
-      bountyId: number;
-    }) => {
+    mutationFn: async ({ claimId }: { claimId: number }) => {
       const chainId = await account.connector?.getChainId();
 
       if (chainId !== 8453) {
@@ -266,7 +260,6 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         await banClaimMutation.mutateAsync({
           id: Number(claimId),
           chainId: chain.id,
-          bountyId: Number(bountyId),
           address: account.address,
           chainName: chain.slug,
           signature,
@@ -556,10 +549,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
               {(isAdmin.data || isIssuer.data) && (
                 <button
                   onClick={async () =>
-                    await signMutation.mutateAsync({
-                      bountyId: claim.bountyId,
-                      claimId: claim.id,
-                    })
+                    await signMutation.mutateAsync({ claimId: claim.id })
                   }
                   className='flex-1 relative group'
                 >
