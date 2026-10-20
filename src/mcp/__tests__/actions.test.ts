@@ -8,10 +8,12 @@ import {
   ActionRequest,
   actionUrl,
   BountyRecord,
+  bountyStatus,
   ClaimRecord,
   isSafeProofUri,
   parseActionParams,
   prepareAction,
+  rejectHiddenCharacters,
 } from '../actions';
 
 jest.mock('@/utils/config', () => ({
@@ -249,6 +251,47 @@ describe('prepareAction', () => {
     });
   });
 
+  describe('completed bounties still flagged isVoting', () => {
+    // Bounty #1495, claims 8930 and 8949: Base #1421 was paid out, but the
+    // indexer left isVoting set, so find_bounties said "voting" and claims
+    // were refused with the wrong reason.
+    const done = bounty({ id: 1421, inProgress: false, isVoting: true });
+
+    it('reports them as completed, like /data', () => {
+      expect(bountyStatus(done)).toBe('completed');
+      expect(bountyStatus(bounty({ isVoting: true }))).toBe('voting');
+      expect(bountyStatus(bounty({ isVoting: true, isCanceled: true }))).toBe(
+        'canceled'
+      );
+    });
+
+    it('refuses claims because the bounty is completed', async () => {
+      await expect(
+        prepareAction(
+          {
+            action: 'submit_claim',
+            chain: 'base',
+            id: 1421,
+            title: 't',
+            description: 'd',
+            proofUri: 'https://example.com/a.jpg',
+          },
+          deps(done),
+          OTHER
+        )
+      ).rejects.toThrow('Bounty 1421 is completed, not open.');
+    });
+
+    it.each<ActionRequest>([
+      { action: 'vote', chain: 'base', id: 1421, approve: true },
+      { action: 'resolve_vote', chain: 'base', id: 1421 },
+    ])('does not build $action for a finished vote', async (request) => {
+      await expect(prepareAction(request, deps(done))).rejects.toThrow(
+        'Bounty 1421 has no active vote.'
+      );
+    });
+  });
+
   it('skips data access for actions that need no bounty', async () => {
     const d = deps();
     await prepareAction(ALL[0], d);
@@ -320,20 +363,262 @@ describe('prepareAction', () => {
         },
         deps()
       )
-    ).rejects.toThrow(/https:\/\/, ipfs:\/\/ or ar:\/\//);
+    ).rejects.toThrow(/https:\/\/ link on a public domain/);
+  });
+});
+
+describe('hidden characters in user text', () => {
+  // Bounty #1495, claim 8933: a right-to-left override in the title made the
+  // approval summary read differently from the calldata being signed.
+  const create = (title: string, description = 'd'): ActionRequest => ({
+    action: 'create_bounty',
+    chain: 'base',
+    type: 'open',
+    title,
+    description,
+    amountEth: '0.001',
+  });
+  const claimWith = (
+    title: string,
+    description = 'd'
+  ): Extract<ActionRequest, { action: 'submit_claim' }> => ({
+    action: 'submit_claim',
+    chain: 'base',
+    id: 1271,
+    title,
+    description,
+    proofUri: 'https://example.com/a.jpg',
+  });
+
+  it.each([
+    ['right-to-left override', 'pay \u202eHTE 01\u202c'],
+    ['left-to-right embedding', 'a\u202ab'],
+    ['right-to-left isolate', 'a\u2067b\u2069'],
+    ['right-to-left mark', 'a\u200fb'],
+    ['Arabic letter mark', 'a\u061cb'],
+    ['zero-width space', 'free\u200bmoney'],
+    ['word joiner', 'a\u2060b'],
+    ['byte order mark', '\ufeffhello'],
+    ['tag characters (hidden ASCII)', 'hi\u{E0069}\u{E0067}\u{E006E}'],
+    [
+      'fake flag hiding tag text',
+      '\u{1F3F4}\u{E0069}\u{E0067}\u{E006E}\u{E006F}\u{E0072}\u{E0065}\u{E007F}',
+    ],
+    ['zero-width joiner between ASCII letters', 'free\u200dmoney'],
+    ['zero-width non-joiner between ASCII letters', 'free\u200cmoney'],
+    ['run of variation selectors (hidden bytes)', 'pay 1\uFE00\uFE01 ETH'],
+    ['variation selector supplement run', 'a\u{E0100}\u{E0101}'],
+    ['soft hyphen', 'free\u00admoney'],
+    ['Hangul filler', 'a\u3164b'],
+    ['line separator', 'a\u2028b'],
+    ['control character', 'a\u0007b'],
+    // Second review round.
+    ['variation selector after each letter', 'p\uFE00a\uFE01y'],
+    ['ideographic variation selector after a Latin letter', 'p\u{E0100}a'],
+    ['joiner after an accented Latin letter', 'pay\u00e9\u200d 1'],
+    ['joiner after a combining mark', 'pay\u0301\u200d'],
+    ['repeated non-joiners in Persian', '\u0645\u06cc\u200c\u200c\u062e'],
+    ['bare carriage return', 'pay 10 ETH\rpay 0.001 ETH'],
+    ['Syriac abbreviation mark', 'a\u070fb'],
+    ['Mongolian variation selector', 'a\u180bb'],
+    ['musical format control', 'a\u{1D173}b'],
+  ])('refuses a bounty title with a %s', async (_name, title) => {
+    await expect(prepareAction(create(title), deps())).rejects.toThrow(
+      /Title contains a hidden character \(U\+[0-9A-F]{4,5}\)/
+    );
+  });
+
+  it('checks descriptions and claims too', async () => {
+    await expect(
+      prepareAction(create('ok', 'see \u202eevil'), deps())
+    ).rejects.toThrow(/Description contains a hidden character \(U\+202E\)/);
+    await expect(
+      prepareAction(claimWith('done\u200b'), deps(), OTHER)
+    ).rejects.toThrow(/Title contains a hidden character \(U\+200B\)/);
+    await expect(
+      prepareAction(
+        {
+          ...claimWith('done'),
+          proofUri: 'https://example.com/\u202egpj.exe',
+        },
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow(/proofUri contains a hidden character \(U\+202E\)/);
+  });
+
+  it.each([
+    [
+      'family emoji (zero-width joiners)',
+      '\u{1F468}\u200d\u{1F469}\u200d\u{1F467}',
+    ],
+    ['heart with variation selector', '\u2764\ufe0f'],
+    ['skin tone', '\u{1F44D}\u{1F3FD}'],
+    [
+      'Scotland flag (tag sequence)',
+      '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',
+    ],
+    ['Arabic and Hebrew text', 'مرحبا שלום'],
+    ['Persian with zero-width non-joiner', 'می\u200cخواهم'],
+    ['Devanagari with zero-width joiner', 'क\u094d\u200dष'],
+    ['keycap emoji', '1\uFE0F\u20E3'],
+    [
+      'England and Wales flags',
+      '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F} \u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}',
+    ],
+    ['heart on fire', '\u2764\uFE0F\u200D\u{1F525}'],
+    ['rainbow flag', '\u{1F3F3}\uFE0F\u200D\u{1F308}'],
+    ['technologist with skin tone', '\u{1F469}\u{1F3FD}\u200D\u{1F4BB}'],
+    ['pirate flag', '\u{1F3F4}\u200D\u2620\uFE0F'],
+    ['CJK ideographic variation', '\u845B\u{E0100}'],
+    ['Bengali', '\u09ac\u09be\u0982\u09b2\u09be'],
+    ['woman running', '\u{1F3C3}\u200D\u2640\uFE0F'],
+    ['copyright sign', '\u00A9\uFE0F'],
+    ['keycap', '#\uFE0F\u20E3'],
+    ['Persian non-joiner after a shadda', '\u0645\u0640\u0651\u200c\u062e'],
+  ])('allows %s', async (_name, text) => {
+    expect(() => rejectHiddenCharacters('Title', text)).not.toThrow();
+    await expect(
+      prepareAction(create(text, text), deps())
+    ).resolves.toBeDefined();
+  });
+
+  it('allows tabs and new lines only in descriptions', async () => {
+    const text = 'line one\r\nline two\n\tindented';
+    await expect(
+      prepareAction(create('ok', text), deps())
+    ).resolves.toBeDefined();
+    // A new line in a title could fake extra lines in the approval summary.
+    await expect(
+      prepareAction(
+        create('x" on base for 0.001 ETH.\nReal summary: "x'),
+        deps()
+      )
+    ).rejects.toThrow(/Title contains a hidden character \(U\+000A\)/);
+    // new URL() drops tabs and new lines, so they'd pass isSafeProofUri.
+    await expect(
+      prepareAction(
+        { ...claimWith('done'), proofUri: 'https://example.com/a\n.jpg' },
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow(/proofUri contains a hidden character \(U\+000A\)/);
+  });
+
+  it('refuses a variation selector after a digit outside a keycap', () => {
+    expect(() => rejectHiddenCharacters('Title', 'Pay 1\uFE0F ETH')).toThrow(
+      /U\+FE0F/
+    );
   });
 });
 
 describe('isSafeProofUri', () => {
+  const CID_V0 = 'QmXyUiKVhKeDvTgoVFaDQqicJor1dfTXcH3RHKwsBCAdBL';
+  const CID_V1 = 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi';
+  const ARWEAVE = 'bNbA3TEQVL60xlgCcqdz4ZPHFZ711cZ3hmkpGttDt_U';
+
   it.each([
     ['https://example.com/a.jpg', true],
-    ['ipfs://bafy', true],
-    ['ar://abc', true],
+    [`ipfs://${CID_V0}`, true],
+    [`ipfs://${CID_V1}/photo.jpg`, true],
+    [`ar://${ARWEAVE}`, true],
+    ['https://cdn.example.co.uk./a.png', true],
     ['http://example.com/a.jpg', false],
     ['javascript:alert(1)', false],
     ['data:image/png;base64,AAAA', false],
     ['not a url', false],
+    // Bounty #1495, claim 8933: these all passed the scheme-only check.
+    ['ipfs://', false],
+    ['ipfs://bafy', false],
+    ['ar://abc', false],
+    ['https://user:pass@example.com/a.png', false],
+    ['https://169.254.169.254/latest/meta-data', false],
+    // The same address written in forms that new URL() normalizes.
+    ['https://2852039166/', false],
+    ['https://0xA9FEA9FE/', false],
+    ['https://0251.0376.0251.0376/', false],
+    ['https://127.1/', false],
+    ['https://0/', false],
+    ['https://10.0.0.5/a.png', false],
+    ['https://172.16.0.1/a.png', false],
+    ['https://192.168.1.1/a.png', false],
+    ['https://100.64.0.1/a.png', false],
+    ['https://localhost/a.png', false],
+    ['https://localhost./a.png', false],
+    ['https://printer.localhost/a.png', false],
+    ['https://[::1]/a.png', false],
+    ['https://[::ffff:127.0.0.1]/a.png', false],
+    ['https://[fd00::1]/a.png', false],
+    ['https://[fe80::1]/a.png', false],
+    // Review follow-ups: anything that isn't a public domain name.
+    ['https://8.8.8.8/a.png', false],
+    ['https://127.0.0.1./a.png', false],
+    ['https://[::192.168.1.1]/a.png', false],
+    ['https://[64:ff9b::7f00:1]/a.png', false],
+    ['https://[2001:4860:4860::8888]/a.png', false],
+    ['https://intranet/a.png', false],
+    ['https://printer.local/a.png', false],
+    ['https://nas.home.arpa/a.png', false],
+    [`ipfs://${CID_V0}:8080/a.png`, false],
+    // Second review round.
+    ['https://localhost../a.png', false],
+    ['https://127.0.0.1../a.png', false],
+    ['https://..example.com/a.png', false],
+    ['https://-.com/a.png', false],
+    ['https://router.test/a.png', false],
+    ['https://nas.home/a.png', false],
+    ['https://svc.corp/a.png', false],
+    ['https://bücher.de/a.png', true],
+    [`ipfs://${CID_V1.toUpperCase()}/photo.jpg`, true],
   ])('%s → %s', (uri, safe) => {
     expect(isSafeProofUri(uri)).toBe(safe);
+  });
+});
+
+describe('blank titles and descriptions', () => {
+  // Bounty #1495, claim 8941: " " passed the MCP schemas (min length 1,
+  // no trim) and went into the calldata.
+  const create = (title: string, description: string): ActionRequest => ({
+    action: 'create_bounty',
+    chain: 'base',
+    type: 'open',
+    title,
+    description,
+    amountEth: '0.001',
+  });
+
+  it.each([
+    ['Title', ' ', 'd'],
+    ['Title', '\t \n', 'd'],
+    ['Description', 'ok', '   '],
+  ])(
+    'refuses a blank %s on a new bounty',
+    async (field, title, description) => {
+      await expect(
+        prepareAction(create(title, description), deps())
+      ).rejects.toThrow(`${field} can't be blank.`);
+    }
+  );
+
+  it('refuses a blank claim title', async () => {
+    await expect(
+      prepareAction(
+        {
+          action: 'submit_claim',
+          chain: 'base',
+          id: 1271,
+          title: '  ',
+          description: 'd',
+          proofUri: 'https://example.com/a.jpg',
+        },
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow("Title can't be blank.");
+  });
+
+  it('keeps text with surrounding spaces as written', async () => {
+    const result = await prepareAction(create('  hi  ', 'd'), deps());
+    expect(result.summary).toContain('"  hi  "');
   });
 });

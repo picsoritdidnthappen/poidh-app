@@ -105,9 +105,18 @@ export const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 export const MIN_BOUNTY_WEI = 1_000_000_000_000_000n; // 0.001 ETH
 export const MIN_CONTRIBUTION_WEI = 10_000_000_000_000n; // 0.00001 ETH
 
+/**
+ * The indexer can leave `isVoting` set after a vote ends and the bounty is
+ * paid out, so a vote only counts while the bounty is still in progress
+ * (the same rule as the /data route).
+ */
+function hasActiveVote(b: BountyRecord): boolean {
+  return b.isVoting && b.inProgress && !b.isCanceled;
+}
+
 export function bountyStatus(b: BountyRecord) {
   if (b.isCanceled) return 'canceled';
-  if (b.isVoting) return 'voting';
+  if (hasActiveVote(b)) return 'voting';
   if (b.inProgress) return 'open';
   return 'completed';
 }
@@ -151,16 +160,132 @@ function requireOpen(b: BountyRecord) {
   }
 }
 
+// IPFS content ids: CIDv0 (Qm…, base58) or CIDv1 in base32 (b…, or B… when
+// written in upper case).
+const IPFS_CID = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,}|B[A-Z2-7]{58,})$/;
+// Arweave transaction ids: 43 base64url characters.
+const ARWEAVE_ID = /^[A-Za-z0-9_-]{43}$/;
+
+// Reserved, private-use and commonly intranet-only names (RFC 6761/6762,
+// RFC 8375, ICANN name-collision list) that never resolve publicly.
+const LOCAL_SUFFIXES = [
+  'localhost',
+  'local',
+  'test',
+  'example',
+  'invalid',
+  'internal',
+  'intranet',
+  'private',
+  'lan',
+  'home',
+  'corp',
+  'home.arpa',
+];
+const DNS_LABEL = /^[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?$/;
+
 /**
- * Proof links are shown to people as clickable links, so only allow
- * schemes poidh can display: https, IPFS and Arweave.
+ * True when an https host is a public domain name. IP literals are refused
+ * outright (new URL() has already turned tricks like `2852039166` or
+ * `0xA9FEA9FE` into `169.254.169.254`), as are single-label intranet names
+ * and names that only resolve on the viewer's own network. Public names that
+ * resolve to private IPs (e.g. wildcard DNS services) need DNS to detect and
+ * are out of scope here.
+ */
+function isPublicDomain(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/\.$/, '');
+  const labels = host.split('.');
+  if (labels.length < 2 || !labels.every((l) => DNS_LABEL.test(l))) {
+    return false; // IPv6 literal, single label, empty or malformed label
+  }
+  if (/^\d+$/.test(labels[labels.length - 1])) return false; // IPv4 literal
+  return !LOCAL_SUFFIXES.some(
+    (local) => host === local || host.endsWith(`.${local}`)
+  );
+}
+
+/**
+ * Proof links are shown to people as clickable links and loaded by their
+ * browsers, so only allow https on public domains and real IPFS/Arweave ids.
  */
 export function isSafeProofUri(value: string): boolean {
+  let url: URL;
   try {
-    return ['https:', 'ipfs:', 'ar:'].includes(new URL(value).protocol);
+    url = new URL(value);
   } catch {
     return false;
   }
+  if (url.username || url.password) return false;
+  switch (url.protocol) {
+    case 'https:':
+      return isPublicDomain(url.hostname);
+    case 'ipfs:':
+      return !url.port && IPFS_CID.test(url.hostname);
+    case 'ar:':
+      return !url.port && ARWEAVE_ID.test(url.hostname);
+    default:
+      return false;
+  }
+}
+
+/**
+ * Invisible and format characters: controls, bidi overrides and marks (the
+ * "Trojan Source" class, CVE-2021-42574), zero-width characters, tag and
+ * variation selectors, fillers. In user text they can make the approval
+ * summary read differently from what gets signed, or hide instructions
+ * from the people and agents who read the bounty later.
+ */
+const INVISIBLE = new RegExp(
+  '[\\p{Cc}\\p{Cf}\\p{Default_Ignorable_Code_Point}\\u2028\\u2029]',
+  'u'
+);
+const INVISIBLE_ALL = new RegExp(INVISIBLE.source, 'gu');
+
+/**
+ * The legitimate uses of those characters, which stay allowed: emoji
+ * sequences (ZWJ, VS16, keycaps, the England/Scotland/Wales tag flags), CJK
+ * variation sequences, and zero-width (non-)joiners inside words of
+ * non-Latin/Greek/Cyrillic scripts that need them, like Persian and Hindi.
+ */
+const ALLOWED_SEQUENCES = new RegExp(
+  [
+    '\\u{1F3F4}\\u{E0067}\\u{E0062}(?:\\u{E0065}\\u{E006E}\\u{E0067}|\\u{E0073}\\u{E0063}\\u{E0074}|\\u{E0077}\\u{E006C}\\u{E0073})\\u{E007F}',
+    '\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?(?:\\u200D\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?)+',
+    '\\p{Extended_Pictographic}\\uFE0F',
+    '[0-9#*]\\uFE0F\\u20E3',
+    '\\p{Script=Han}[\\u{E0100}-\\u{E01EF}]',
+    '(?<=\\p{L}\\p{M}*)(?<![\\p{Script=Latin}\\p{Script=Greek}\\p{Script=Cyrillic}]\\p{M}*)[\\u200C\\u200D](?=\\p{L}|\\p{M})',
+  ].join('|'),
+  'gu'
+);
+
+/** Throws when `value` is empty or only whitespace. */
+function requireText(field: string, value: string): void {
+  if (!value.trim()) throw new Error(`${field} can't be blank.`);
+}
+
+/**
+ * Throws when `value` contains a hidden or text-reordering character.
+ * Tabs and new lines are only allowed when `multiline` (descriptions): in a
+ * title they could fake extra lines in the approval summary, and new URL()
+ * silently drops them from links.
+ */
+export function rejectHiddenCharacters(
+  field: string,
+  value: string,
+  { multiline = false } = {}
+): void {
+  const match = (multiline ? value.replace(/\r\n|\t|\n/g, ' ') : value)
+    .replace(ALLOWED_SEQUENCES, (seq) => seq.replace(INVISIBLE_ALL, ''))
+    .match(INVISIBLE);
+  if (!match) return;
+  const code = (match[0].codePointAt(0) ?? 0)
+    .toString(16)
+    .toUpperCase()
+    .padStart(4, '0');
+  throw new Error(
+    `${field} contains a hidden character (U+${code}) that can make text display differently from what is signed. Remove it and try again.`
+  );
 }
 
 function sameAddress(a?: string, b?: string) {
@@ -182,6 +307,12 @@ export async function prepareAction(
 
   switch (req.action) {
     case 'create_bounty': {
+      requireText('Title', req.title);
+      requireText('Description', req.description);
+      rejectHiddenCharacters('Title', req.title);
+      rejectHiddenCharacters('Description', req.description, {
+        multiline: true,
+      });
       const amountWei = parseEthAmount(req.amountEth);
       if (amountWei < MIN_BOUNTY_WEI) {
         throw new Error('Minimum bounty reward is 0.001 ETH.');
@@ -236,8 +367,17 @@ export async function prepareAction(
         throw new Error('The bounty issuer cannot submit a claim.');
       }
       if (!isSafeProofUri(req.proofUri)) {
-        throw new Error('proofUri must be an https://, ipfs:// or ar:// URL.');
+        throw new Error(
+          'proofUri must be an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id.'
+        );
       }
+      requireText('Title', req.title);
+      requireText('Description', req.description);
+      rejectHiddenCharacters('Title', req.title);
+      rejectHiddenCharacters('Description', req.description, {
+        multiline: true,
+      });
+      rejectHiddenCharacters('proofUri', req.proofUri);
       const tx = buildCreateClaim({
         chain,
         onChainBountyId: bounty.onChainId,
@@ -285,7 +425,7 @@ export async function prepareAction(
 
     case 'vote': {
       const bounty = await loadCurrentBounty(deps, chain, req.id);
-      if (!bounty.isVoting) {
+      if (!hasActiveVote(bounty)) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }
       const left = voteSecondsLeft(bounty);
@@ -318,7 +458,7 @@ export async function prepareAction(
 
     case 'resolve_vote': {
       const bounty = await loadCurrentBounty(deps, chain, req.id);
-      if (!bounty.isVoting) {
+      if (!hasActiveVote(bounty)) {
         throw new Error(`Bounty ${req.id} has no active vote.`);
       }
       const left = voteSecondsLeft(bounty);
@@ -388,7 +528,10 @@ const actionSchema = z.discriminatedUnion('action', [
     proofUri: z
       .string()
       .url()
-      .refine(isSafeProofUri, 'must be an https://, ipfs:// or ar:// URL'),
+      .refine(
+        isSafeProofUri,
+        'must be an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id'
+      ),
   }),
   z.object({ action: z.literal('accept_claim'), chain, id, claimId: id }),
   z.object({
