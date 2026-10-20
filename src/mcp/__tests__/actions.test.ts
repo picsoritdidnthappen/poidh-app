@@ -8,6 +8,7 @@ import {
   ActionRequest,
   actionUrl,
   BountyRecord,
+  bountyStatus,
   ClaimRecord,
   isSafeProofUri,
   parseActionParams,
@@ -247,6 +248,47 @@ describe('prepareAction', () => {
       );
       if (current) await expect(result).resolves.toBeDefined();
       else await expect(result).rejects.toThrow(/older contract/);
+    });
+  });
+
+  describe('completed bounties still flagged isVoting', () => {
+    // Bounty #1495, claims 8930 and 8949: Base #1421 was paid out, but the
+    // indexer left isVoting set, so find_bounties said "voting" and claims
+    // were refused with the wrong reason.
+    const done = bounty({ id: 1421, inProgress: false, isVoting: true });
+
+    it('reports them as completed, like /data', () => {
+      expect(bountyStatus(done)).toBe('completed');
+      expect(bountyStatus(bounty({ isVoting: true }))).toBe('voting');
+      expect(bountyStatus(bounty({ isVoting: true, isCanceled: true }))).toBe(
+        'canceled'
+      );
+    });
+
+    it('refuses claims because the bounty is completed', async () => {
+      await expect(
+        prepareAction(
+          {
+            action: 'submit_claim',
+            chain: 'base',
+            id: 1421,
+            title: 't',
+            description: 'd',
+            proofUri: 'https://example.com/a.jpg',
+          },
+          deps(done),
+          OTHER
+        )
+      ).rejects.toThrow('Bounty 1421 is completed, not open.');
+    });
+
+    it.each<ActionRequest>([
+      { action: 'vote', chain: 'base', id: 1421, approve: true },
+      { action: 'resolve_vote', chain: 'base', id: 1421 },
+    ])('does not build $action for a finished vote', async (request) => {
+      await expect(prepareAction(request, deps(done))).rejects.toThrow(
+        'Bounty 1421 has no active vote.'
+      );
     });
   });
 
