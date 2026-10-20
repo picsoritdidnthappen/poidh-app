@@ -12,6 +12,7 @@ import {
   isSafeProofUri,
   parseActionParams,
   prepareAction,
+  rejectHiddenCharacters,
 } from '../actions';
 
 jest.mock('@/utils/config', () => ({
@@ -321,6 +322,72 @@ describe('prepareAction', () => {
         deps()
       )
     ).rejects.toThrow(/https:\/\/, ipfs:\/\/ or ar:\/\//);
+  });
+});
+
+describe('hidden characters in user text', () => {
+  // Bounty #1495, claim 8933: a right-to-left override in the title made the
+  // approval summary read differently from the calldata being signed.
+  const create = (title: string, description = 'd'): ActionRequest => ({
+    action: 'create_bounty',
+    chain: 'base',
+    type: 'open',
+    title,
+    description,
+    amountEth: '0.001',
+  });
+  const claimWith = (title: string, description = 'd'): ActionRequest => ({
+    action: 'submit_claim',
+    chain: 'base',
+    id: 1271,
+    title,
+    description,
+    proofUri: 'https://example.com/a.jpg',
+  });
+
+  it.each([
+    ['right-to-left override', 'pay \u202eHTE 01\u202c'],
+    ['left-to-right embedding', 'a\u202ab'],
+    ['right-to-left isolate', 'a\u2067b\u2069'],
+    ['right-to-left mark', 'a\u200fb'],
+    ['Arabic letter mark', 'a\u061cb'],
+    ['zero-width space', 'free\u200bmoney'],
+    ['word joiner', 'a\u2060b'],
+    ['byte order mark', '\ufeffhello'],
+    ['tag characters (hidden ASCII)', 'hi\u{E0069}\u{E0067}\u{E006E}'],
+  ])('refuses a bounty title with a %s', async (_name, title) => {
+    await expect(prepareAction(create(title), deps())).rejects.toThrow(
+      /Title contains a hidden character \(U\+[0-9A-F]{4,5}\)/
+    );
+  });
+
+  it('checks descriptions and claims too', async () => {
+    await expect(
+      prepareAction(create('ok', 'see \u202eevil'), deps())
+    ).rejects.toThrow(/Description contains a hidden character \(U\+202E\)/);
+    await expect(
+      prepareAction(claimWith('done\u200b'), deps(), OTHER)
+    ).rejects.toThrow(/Title contains a hidden character \(U\+200B\)/);
+  });
+
+  it.each([
+    [
+      'family emoji (zero-width joiners)',
+      '\u{1F468}\u200d\u{1F469}\u200d\u{1F467}',
+    ],
+    ['heart with variation selector', '\u2764\ufe0f'],
+    ['skin tone', '\u{1F44D}\u{1F3FD}'],
+    [
+      'Scotland flag (tag sequence)',
+      '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',
+    ],
+    ['Arabic and Hebrew text', 'مرحبا שלום'],
+    ['new lines', 'line one\nline two'],
+  ])('allows %s', async (_name, text) => {
+    expect(() => rejectHiddenCharacters('Title', text)).not.toThrow();
+    await expect(
+      prepareAction(create(text, text), deps())
+    ).resolves.toBeDefined();
   });
 });
 

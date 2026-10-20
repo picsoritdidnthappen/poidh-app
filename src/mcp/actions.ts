@@ -163,6 +163,32 @@ export function isSafeProofUri(value: string): boolean {
   }
 }
 
+/**
+ * Characters that are invisible or reorder the text around them (the
+ * "Trojan Source" class, CVE-2021-42574). In a title or description they
+ * can make the approval summary read differently from what gets signed, or
+ * hide instructions from the people and agents reading the bounty later.
+ * Zero-width joiners and variation selectors stay allowed for emoji.
+ */
+const HIDDEN_CHARACTERS =
+  /[\u061C\u200B\u200C\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF\u{E0000}-\u{E007F}]/u;
+// Subdivision flags (🏴 + tag letters + cancel tag) are the one legitimate use
+// of tag characters.
+const TAG_FLAG = /\u{1F3F4}[\u{E0020}-\u{E007E}]+\u{E007F}/gu;
+
+/** Throws when `value` contains a hidden or text-reordering character. */
+export function rejectHiddenCharacters(field: string, value: string): void {
+  const match = value.replace(TAG_FLAG, '').match(HIDDEN_CHARACTERS);
+  if (!match) return;
+  const code = (match[0].codePointAt(0) ?? 0)
+    .toString(16)
+    .toUpperCase()
+    .padStart(4, '0');
+  throw new Error(
+    `${field} contains a hidden character (U+${code}) that can make text display differently from what is signed. Remove it and try again.`
+  );
+}
+
 function sameAddress(a?: string, b?: string) {
   return !!a && !!b && a.toLowerCase() === b.toLowerCase();
 }
@@ -182,6 +208,8 @@ export async function prepareAction(
 
   switch (req.action) {
     case 'create_bounty': {
+      rejectHiddenCharacters('Title', req.title);
+      rejectHiddenCharacters('Description', req.description);
       const amountWei = parseEthAmount(req.amountEth);
       if (amountWei < MIN_BOUNTY_WEI) {
         throw new Error('Minimum bounty reward is 0.001 ETH.');
@@ -238,6 +266,8 @@ export async function prepareAction(
       if (!isSafeProofUri(req.proofUri)) {
         throw new Error('proofUri must be an https://, ipfs:// or ar:// URL.');
       }
+      rejectHiddenCharacters('Title', req.title);
+      rejectHiddenCharacters('Description', req.description);
       const tx = buildCreateClaim({
         chain,
         onChainBountyId: bounty.onChainId,
