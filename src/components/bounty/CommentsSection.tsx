@@ -9,7 +9,7 @@ import { ChainId } from '@/utils/types';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { trpc } from '@/trpc/client';
 import {
-  getBanSignatureFirstLine,
+  getBanMessage,
   stripLegacyCommentPrefix,
   tryCatchAsync,
 } from '@/utils/utils';
@@ -121,6 +121,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     },
   });
 
+  const { mutateAsync: getNonce } = trpc.auth.nonce.useMutation();
   const banCommentMutation = trpc.admin.banComment.useMutation({
     onSuccess: () => {
       commentsQuery.refetch();
@@ -319,15 +320,15 @@ export default function CommentsSection(props: CommentsSectionProps) {
       return;
     }
 
-    const message =
-      getBanSignatureFirstLine({
-        id: comment.id,
-        chainId: props.chainId,
-        type: 'comment',
-      }) + comment.body;
+    const nonce = await getNonce();
 
     const signature = await signMessageAsync({
-      message,
+      message: getBanMessage({
+        type: 'comment',
+        id: comment.id,
+        chainId: props.chainId,
+        nonce,
+      }),
     }).catch(() => null);
 
     if (!signature) {
@@ -340,8 +341,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
       chainId: props.chainId,
       address,
       chainName: chain.slug,
-      message,
       signature,
+      nonce,
     });
   }
 

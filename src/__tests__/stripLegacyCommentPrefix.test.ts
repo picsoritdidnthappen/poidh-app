@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { stripLegacyCommentPrefix } from '@/utils/utils';
 
 const checksummed = '0xAbC0000000000000000000000000000000000001';

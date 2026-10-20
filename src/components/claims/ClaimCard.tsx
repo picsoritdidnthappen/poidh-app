@@ -3,7 +3,7 @@ import { useClaimMedia } from '@/hooks/useClaimMedia';
 import { GenerativePlaceholder } from '@/components/claims/ClaimMediaParts';
 import { trpc } from '@/trpc/client';
 import { Bounty, Claim } from '@/utils/types';
-import { getBanSignatureFirstLine } from '@/utils/utils';
+import { getBanMessage } from '@/utils/utils';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
@@ -72,6 +72,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   } | null>(null);
 
   const banClaimMutation = trpc.admin.banClaim.useMutation({});
+  const { mutateAsync: getNonce } = trpc.auth.nonce.useMutation();
 
   const isAdmin = trpc.admin.isAdmin.useQuery({
     address: account.address,
@@ -246,15 +247,16 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
         });
       }
 
-      const message = getBanSignatureFirstLine({
-        id: Number(claimId),
-        chainId: chain.id,
-        type: 'claim',
-      });
+      const nonce = await getNonce();
 
       if (account.address) {
         const signature = await signMessageAsync({
-          message,
+          message: getBanMessage({
+            type: 'claim',
+            id: Number(claimId),
+            chainId: chain.id,
+            nonce,
+          }),
         }).catch(() => null);
 
         if (!signature) {
@@ -267,8 +269,8 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
           bountyId: Number(bountyId),
           address: account.address,
           chainName: chain.slug,
-          message,
           signature,
+          nonce,
         });
       }
     },

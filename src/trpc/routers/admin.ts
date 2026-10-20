@@ -4,8 +4,18 @@ import { addressSchema, bytesSchema, chainNameSchema } from '../serverTypes';
 import serverEnv from '@/utils/serverEnv';
 import prisma from 'prisma/prisma';
 import { TRPCError } from '@trpc/server';
-import { getBanSignatureFirstLine } from '@/utils/utils';
+import { getBanMessage } from '@/utils/utils';
 import { chains } from '@/utils/config';
+import { claimNonce } from '../nonce';
+
+const banInput = z.object({
+  id: z.number(),
+  chainId: z.number(),
+  address: addressSchema,
+  signature: bytesSchema,
+  chainName: chainNameSchema,
+  nonce: z.string(),
+});
 
 export const adminRouter = {
   isAdmin: baseProcedure
@@ -18,116 +28,49 @@ export const adminRouter = {
       return checkIsAdmin(input.address);
     }),
 
-  banBounty: baseProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        chainId: z.number(),
-        address: addressSchema,
-        signature: bytesSchema,
-        chainName: chainNameSchema,
-        message: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const expectedMessage = getBanSignatureFirstLine({
-        id: input.id,
+  /**
+   * Bans a bounty. Admins only, with a fresh signature for every ban.
+   */
+  banBounty: baseProcedure.input(banInput).mutation(async ({ input }) => {
+    if (!checkIsAdmin(input.address)) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Not authorized to perform this action',
+      });
+    }
+
+    await verifyBanSignature({ ...input, type: 'bounty' });
+
+    await prisma.ban.create({
+      data: {
         chainId: input.chainId,
-        type: 'bounty',
-      });
+        bountyId: input.id,
+        bannedBy: input.address.toLowerCase(),
+      },
+    });
+  }),
 
-      if (!input.message.startsWith(expectedMessage)) {
-        throw new TRPCError({
-          code: 'UNPROCESSABLE_CONTENT',
-          message: 'Invalid message',
-        });
-      }
-
-      const isAdmin = checkIsAdmin(input.address);
-      const chain = chains['base'];
-
-      if (!isAdmin) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Not authorized to perform this action',
-        });
-      }
-
-      const isValid = await chain.provider.verifyMessage({
-        address: input.address,
-        message: input.message,
-        signature: input.signature,
-      });
-
-      if (!isValid) {
-        throw new TRPCError({
-          code: 'UNPROCESSABLE_CONTENT',
-          message: 'Signature is invalid',
-        });
-      }
-
-      await prisma.ban.create({
-        data: {
-          chainId: input.chainId,
-          bountyId: input.id,
-          bannedBy: input.address.toLowerCase(),
-        },
-      });
-    }),
-
+  /**
+   * Bans a claim. Admins and the bounty's issuer can do this, with a fresh
+   * signature for every ban.
+   */
   banClaim: baseProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        chainId: z.number(),
-        bountyId: z.number(),
-        address: addressSchema,
-        signature: bytesSchema,
-        chainName: chainNameSchema,
-        message: z.string(),
-      })
-    )
+    .input(banInput.extend({ bountyId: z.number() }))
     .mutation(async ({ input }) => {
-      const expectedMessage = getBanSignatureFirstLine({
-        id: input.id,
-        chainId: input.chainId,
-        type: 'claim',
-      });
-
-      if (!input.message.startsWith(expectedMessage)) {
-        throw new TRPCError({
-          code: 'UNPROCESSABLE_CONTENT',
-          message: 'Invalid message',
-        });
-      }
-
       const isIssuer = await checkIsIssuer({
         address: input.address,
         bountyId: input.bountyId,
         chainId: input.chainId,
       });
-      const isAdmin = checkIsAdmin(input.address);
-      const chain = chains['base'];
 
-      if (!isAdmin && !isIssuer) {
+      if (!checkIsAdmin(input.address) && !isIssuer) {
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Not authorized to perform this action',
         });
       }
 
-      const isValid = await chain.provider.verifyMessage({
-        address: input.address,
-        message: input.message,
-        signature: input.signature,
-      });
-
-      if (!isValid) {
-        throw new TRPCError({
-          code: 'UNPROCESSABLE_CONTENT',
-          message: 'Signature is invalid',
-        });
-      }
+      await verifyBanSignature({ ...input, type: 'claim' });
 
       await prisma.ban.create({
         data: {
@@ -138,71 +81,78 @@ export const adminRouter = {
       });
     }),
 
-  banComment: baseProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        chainId: z.number(),
-        address: addressSchema,
-        signature: bytesSchema,
-        chainName: chainNameSchema,
-        message: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const expectedMessage = getBanSignatureFirstLine({
-        id: input.id,
-        chainId: input.chainId,
-        type: 'comment',
+  /**
+   * Hides a comment and its replies. Admins only, with a fresh signature for
+   * every ban.
+   */
+  banComment: baseProcedure.input(banInput).mutation(async ({ input }) => {
+    if (!checkIsAdmin(input.address)) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Not authorized to perform this action',
       });
+    }
 
-      if (!input.message.startsWith(expectedMessage)) {
-        throw new TRPCError({
-          code: 'UNPROCESSABLE_CONTENT',
-          message: 'Invalid message',
-        });
-      }
+    await verifyBanSignature({ ...input, type: 'comment' });
 
-      const isAdmin = checkIsAdmin(input.address);
-      const chain = chains['base'];
+    const comment = await prisma.comments.findFirst({
+      where: { id: input.id, chainId: input.chainId },
+    });
 
-      if (!isAdmin) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Not authorized to perform this action',
-        });
-      }
-
-      const isValid = await chain.provider.verifyMessage({
-        address: input.address,
-        message: input.message,
-        signature: input.signature,
+    if (!comment) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Comment not found',
       });
+    }
 
-      if (!isValid) {
-        throw new TRPCError({
-          code: 'UNPROCESSABLE_CONTENT',
-          message: 'Signature is invalid',
-        });
-      }
-
-      const comment = await prisma.comments.findFirst({
-        where: { id: input.id, chainId: input.chainId },
-      });
-
-      if (!comment) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Comment not found',
-        });
-      }
-
-      await prisma.comments.updateMany({
-        where: { OR: [{ id: input.id }, { parentId: input.id }] },
-        data: { deletedAt: new Date() },
-      });
-    }),
+    await prisma.comments.updateMany({
+      where: { OR: [{ id: input.id }, { parentId: input.id }] },
+      data: { deletedAt: new Date() },
+    });
+  }),
 };
+
+/**
+ * Checks a ban signature: that it's from the given address and covers this
+ * item and nonce, and that the nonce hasn't been used. Then uses up the
+ * nonce so the same signature can't ban again.
+ */
+async function verifyBanSignature({
+  type,
+  id,
+  chainId,
+  nonce,
+  address,
+  signature,
+}: {
+  type: 'bounty' | 'claim' | 'comment';
+  id: number;
+  chainId: number;
+  nonce: string;
+  address: `0x${string}`;
+  signature: `0x${string}`;
+}) {
+  const isValid = await chains.base.provider.verifyMessage({
+    message: getBanMessage({ type, id, chainId, nonce }),
+    address,
+    signature,
+  });
+
+  if (!isValid) {
+    throw new TRPCError({
+      code: 'UNPROCESSABLE_CONTENT',
+      message: 'Signature is invalid',
+    });
+  }
+
+  if (!(await claimNonce(nonce))) {
+    throw new TRPCError({
+      code: 'UNPROCESSABLE_CONTENT',
+      message: 'This ban request has expired or was already used',
+    });
+  }
+}
 
 export function checkIsAdmin(address?: string) {
   if (!address) {

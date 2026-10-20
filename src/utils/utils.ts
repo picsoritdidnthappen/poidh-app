@@ -1,5 +1,6 @@
 import clsx, { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { arbitrum, base, degen, mainnet } from 'viem/chains';
 import { Currency } from './types';
 import {
   ARBITRUM_LAST_PRE_V3_BOUNTY,
@@ -11,16 +12,37 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getBanSignatureFirstLine({
+/**
+ * The message an admin signs to ban something. The client signs it and the
+ * server rebuilds it from the request to check the signature. The nonce
+ * makes each signed ban usable only once.
+ */
+export function getBanMessage({
+  type,
   id,
   chainId,
-  type,
+  nonce,
 }: {
+  type: 'claim' | 'bounty' | 'comment';
   id: number;
   chainId: number;
-  type: 'claim' | 'bounty' | 'comment';
+  nonce: string;
 }) {
-  return `Ban ${type} id: ${id} chainId: ${chainId}\n`;
+  const chain = [mainnet, base, arbitrum, degen].find(
+    ({ id }) => id === chainId
+  );
+  const chainName = chain?.name ?? 'Unknown';
+  const typeName = type.charAt(0).toUpperCase() + type.slice(1);
+
+  return [
+    'poidh admin action',
+    '',
+    'Ban',
+    `Type: ${typeName}`,
+    `ID: ${id}`,
+    `Chain: ${chainName} (${chainId})`,
+    `Nonce: ${nonce}`,
+  ].join('\n');
 }
 
 /**

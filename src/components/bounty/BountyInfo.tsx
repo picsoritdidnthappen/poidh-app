@@ -14,7 +14,7 @@ import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
 import { isV3Bounty } from '@/utils/utils';
 import { cn } from '@/utils/utils';
-import { formatAmount, getBanSignatureFirstLine } from '@/utils/utils';
+import { formatAmount, getBanMessage } from '@/utils/utils';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import CopyAddressButton from '@/components/global/CopyAddressButton';
 import BountyHistory from './BountyHistory';
@@ -110,6 +110,7 @@ export default function BountyInfo({
   );
 
   const banBountyMutation = trpc.admin.banBounty.useMutation({});
+  const { mutateAsync: getNonce } = trpc.auth.nonce.useMutation();
 
   const priceQuery = trpc.web3.fetchPrice.useQuery(
     {
@@ -171,25 +172,25 @@ export default function BountyInfo({
       if (!account.address) {
         throw new Error('Wallet not connected');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (walletChainId !== 8453) {
         await switctChain.switchChainAsync({
           chainId: 8453,
         });
       }
 
-      const message =
-        getBanSignatureFirstLine({
-          id: Number(bounty.data.id),
-          chainId: bounty.data.chainId,
-          type: 'bounty',
-        }) + JSON.stringify(bounty.data, undefined, 2);
+      const nonce = await getNonce();
 
       if (account.address) {
         const signature = await signMessageAsync({
-          message,
+          message: getBanMessage({
+            type: 'bounty',
+            id: Number(bounty.data.id),
+            chainId: bounty.data.chainId,
+            nonce,
+          }),
         }).catch(() => null);
 
         if (!signature) {
@@ -201,8 +202,8 @@ export default function BountyInfo({
           chainId: bounty.data.chainId,
           address: account.address,
           chainName: chain.slug,
-          message,
           signature,
+          nonce,
         });
       }
     },
@@ -229,15 +230,15 @@ export default function BountyInfo({
       if (!account.address) {
         throw new Error('Wallet not connected');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (chain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network...',
         });
-      
+
         await switctChain.switchChainAsync({
           chainId: chain.id,
         });

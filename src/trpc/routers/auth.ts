@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { generateSiweNonce, parseSiweMessage } from 'viem/siwe';
-import prisma from 'prisma/prisma';
+import { parseSiweMessage } from 'viem/siwe';
 import { baseProcedure } from '../init';
 import { bytesSchema } from '../serverTypes';
 import {
@@ -9,7 +8,8 @@ import {
   deleteSession,
   serializeSessionCookie,
 } from '../session';
-import { NONCE_TTL_MS, isAllowedHost } from '@/utils/authConfig';
+import { claimNonce, createNonce } from '../nonce';
+import { isAllowedHost } from '@/utils/authConfig';
 import { chains } from '@/utils/config';
 
 export const authRouter = {
@@ -21,21 +21,10 @@ export const authRouter = {
   }),
 
   /**
-   * Hands out a one-time random value for the client to put in the sign-in
-   * message, so a signed message can only be used once. Also clears out
-   * nonces old enough to have expired.
+   * Hands out a one-time random value for the client to put in a message it
+   * signs: the sign-in message, or an admin's ban message.
    */
-  nonce: baseProcedure.mutation(async () => {
-    const nonce = generateSiweNonce();
-    const cutoff = new Date(Date.now() - NONCE_TTL_MS);
-
-    await prisma.$transaction([
-      prisma.authNonces.deleteMany({ where: { createdAt: { lte: cutoff } } }),
-      prisma.authNonces.create({ data: { nonce } }),
-    ]);
-
-    return nonce;
-  }),
+  nonce: baseProcedure.mutation(() => createNonce()),
 
   /**
    * Signs the user in with a signed SIWE message and sets the session cookie.
@@ -91,18 +80,7 @@ export const authRouter = {
         });
       }
 
-      // A single update, so two requests racing with the same nonce can't
-      // both claim it
-      const { count } = await prisma.authNonces.updateMany({
-        where: {
-          nonce: parsed.nonce,
-          usedAt: null,
-          createdAt: { gt: new Date(Date.now() - NONCE_TTL_MS) },
-        },
-        data: { usedAt: new Date() },
-      });
-
-      if (count !== 1) {
+      if (!(await claimNonce(parsed.nonce))) {
         throw new TRPCError({
           code: 'UNPROCESSABLE_CONTENT',
           message: 'Sign-in request expired, please try again',
