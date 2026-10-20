@@ -9,6 +9,7 @@ import {
   BASE_LAST_PRE_V3_BOUNTY,
   DEGEN_LAST_PRE_V3_BOUNTY,
 } from '@/utils/constants';
+import { getProtocolContractLabel } from '@/utils/protocolContracts';
 
 const APP_URL = 'https://poidh.xyz';
 
@@ -25,27 +26,6 @@ const CHAIN_CURRENCIES: Record<number, string> = {
   8453: 'eth',
   666666666: 'degen',
 };
-
-/*
- * Known poidh protocol contracts.
- *
- * These may legitimately appear as claim NFT owners, but they should
- * never be represented as social users or included in relatedUsers.
- */
-const POIDH_PROTOCOL_CONTRACTS = new Map<string, string>([
-  ['0xe731dfadbf20542e10d09d26fc71445c70d4232', 'poidh v3 core contract'],
-  ['0x5555fa783936c260f77385b4e153b9725fef1719', 'poidh v3 core contract'],
-  ['0x9c5f45d5e1382e4058d334d93c6c01442012a4d9', 'poidh claim NFT contract'],
-  ['0x27e117cc9a8da363442e7bd0618939e3eeeacf6a', 'poidh claim NFT contract'],
-  [
-    '0x18e5585ca7ce31b90bc8bb7aaf84152857ce243f',
-    'historical poidh Degen core contract',
-  ],
-  [
-    '0x39f04b7897dcaf9dc454e433f43fb1c3bb528e11',
-    'historical poidh Degen claim NFT contract',
-  ],
-]);
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -193,10 +173,6 @@ type BountyReference = {
     };
   }[];
 };
-
-function getProtocolContractLabel(address: string) {
-  return POIDH_PROTOCOL_CONTRACTS.get(address.toLowerCase()) ?? null;
-}
 
 function getBountyUrls(chainId: number, bountyId: number) {
   const slug = CHAIN_SLUGS[chainId];
