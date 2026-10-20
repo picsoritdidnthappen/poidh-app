@@ -164,38 +164,43 @@ export function isSafeProofUri(value: string): boolean {
 }
 
 /**
- * Characters that are invisible or reorder the text around them (the
- * "Trojan Source" class, CVE-2021-42574). In user text they can make the
- * approval summary read differently from what gets signed, or hide
- * instructions from the people and agents who read the bounty later.
- *
- * Rejected:
- * - bidi controls and marks, zero-width space, word joiner and invisible
- *   operators, BOM, soft hyphen, fillers, line/paragraph separators and
- *   control characters other than tab and new lines
- * - tag characters, except in the England, Scotland and Wales flags
- * - zero-width (non-)joiners right after ASCII; after other scripts they're
- *   needed for Persian, Indic scripts and emoji sequences
- * - two variation selectors in a row, which can encode hidden bytes; one
- *   after a character is a normal emoji or CJK variant
+ * Invisible and format characters: controls, bidi overrides and marks (the
+ * "Trojan Source" class, CVE-2021-42574), zero-width characters, tag and
+ * variation selectors, fillers. In user text they can make the approval
+ * summary read differently from what gets signed, or hide instructions
+ * from the people and agents who read the bounty later.
  */
-const HIDDEN_CHARACTERS = new RegExp(
-  [
-    '[\\0-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F-\\x9F\\xAD\\u034F\\u061C\\u115F\\u1160\\u17B4\\u17B5\\u180E\\u200B\\u200E\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u3164\\uFEFF\\uFFA0\\uFFF9-\\uFFFB\\u{E0000}-\\u{E007F}]',
-    '(?:^|[\\0-\\x7F])[\\u200C\\u200D]',
-    '[\\uFE00-\\uFE0F\\u{E0100}-\\u{E01EF}]{2}',
-  ].join('|'),
+const INVISIBLE = new RegExp(
+  '[\\p{Cc}\\p{Cf}\\p{Default_Ignorable_Code_Point}\\u2028\\u2029]',
   'u'
 );
-const TAG_FLAGS =
-  /\u{1F3F4}(?:\u{E0067}\u{E0062}(?:\u{E0065}\u{E006E}\u{E0067}|\u{E0073}\u{E0063}\u{E0074}|\u{E0077}\u{E006C}\u{E0073}))\u{E007F}/gu;
+const INVISIBLE_ALL = new RegExp(INVISIBLE.source, 'gu');
+
+/**
+ * The legitimate uses of those characters, which stay allowed: tab and new
+ * lines, emoji sequences (ZWJ, VS16, the England/Scotland/Wales tag flags),
+ * CJK variation sequences, and zero-width (non-)joiners inside words of
+ * scripts that need them, like Persian and Hindi.
+ */
+const ALLOWED_SEQUENCES = new RegExp(
+  [
+    '\\r\\n|\\t|\\n',
+    '\\u{1F3F4}\\u{E0067}\\u{E0062}(?:\\u{E0065}\\u{E006E}\\u{E0067}|\\u{E0073}\\u{E0063}\\u{E0074}|\\u{E0077}\\u{E006C}\\u{E0073})\\u{E007F}',
+    '\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?(?:\\u200D\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?)+',
+    '\\p{Emoji}\\uFE0F',
+    '\\p{Script=Han}[\\u{E0100}-\\u{E01EF}]',
+    '(?<=\\p{L}|\\p{M})(?<!\\p{Script=Latin}|\\p{Script=Greek}|\\p{Script=Cyrillic}|\\p{Script=Common}|\\p{Script=Inherited})[\\u200C\\u200D](?=\\p{L}|\\p{M})',
+  ].join('|'),
+  'gu'
+);
 
 /** Throws when `value` contains a hidden or text-reordering character. */
 export function rejectHiddenCharacters(field: string, value: string): void {
-  const match = value.replace(TAG_FLAGS, '').match(HIDDEN_CHARACTERS);
+  const match = value
+    .replace(ALLOWED_SEQUENCES, (seq) => seq.replace(INVISIBLE_ALL, ''))
+    .match(INVISIBLE);
   if (!match) return;
-  const hidden = [...match[0]].pop() ?? '';
-  const code = (hidden.codePointAt(0) ?? 0)
+  const code = (match[0].codePointAt(0) ?? 0)
     .toString(16)
     .toUpperCase()
     .padStart(4, '0');

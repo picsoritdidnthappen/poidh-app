@@ -367,6 +367,16 @@ describe('hidden characters in user text', () => {
     ['Hangul filler', 'a\u3164b'],
     ['line separator', 'a\u2028b'],
     ['control character', 'a\u0007b'],
+    // Second review round.
+    ['variation selector after each letter', 'p\uFE00a\uFE01y'],
+    ['ideographic variation selector after a Latin letter', 'p\u{E0100}a'],
+    ['joiner after an accented Latin letter', 'pay\u00e9\u200d 1'],
+    ['joiner after a combining mark', 'pay\u0301\u200d'],
+    ['repeated non-joiners in Persian', '\u0645\u06cc\u200c\u200c\u062e'],
+    ['bare carriage return', 'pay 10 ETH\rpay 0.001 ETH'],
+    ['Syriac abbreviation mark', 'a\u070fb'],
+    ['Mongolian variation selector', 'a\u180bb'],
+    ['musical format control', 'a\u{1D173}b'],
   ])('refuses a bounty title with a %s', async (_name, title) => {
     await expect(prepareAction(create(title), deps())).rejects.toThrow(
       /Title contains a hidden character \(U\+[0-9A-F]{4,5}\)/
@@ -411,7 +421,13 @@ describe('hidden characters in user text', () => {
       'England and Wales flags',
       '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F} \u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}',
     ],
-    ['tabs', 'a\tb'],
+    ['tabs and Windows new lines', 'a\tb\r\nc'],
+    ['heart on fire', '\u2764\uFE0F\u200D\u{1F525}'],
+    ['rainbow flag', '\u{1F3F3}\uFE0F\u200D\u{1F308}'],
+    ['technologist with skin tone', '\u{1F469}\u{1F3FD}\u200D\u{1F4BB}'],
+    ['pirate flag', '\u{1F3F4}\u200D\u2620\uFE0F'],
+    ['CJK ideographic variation', '\u845B\u{E0100}'],
+    ['Bengali', '\u09ac\u09be\u0982\u09b2\u09be'],
     ['new lines', 'line one\nline two'],
   ])('allows %s', async (_name, text) => {
     expect(() => rejectHiddenCharacters('Title', text)).not.toThrow();
