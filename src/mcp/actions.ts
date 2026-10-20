@@ -163,6 +163,61 @@ export function isSafeProofUri(value: string): boolean {
   }
 }
 
+/**
+ * Invisible and format characters: controls, bidi overrides and marks (the
+ * "Trojan Source" class, CVE-2021-42574), zero-width characters, tag and
+ * variation selectors, fillers. In user text they can make the approval
+ * summary read differently from what gets signed, or hide instructions
+ * from the people and agents who read the bounty later.
+ */
+const INVISIBLE = new RegExp(
+  '[\\p{Cc}\\p{Cf}\\p{Default_Ignorable_Code_Point}\\u2028\\u2029]',
+  'u'
+);
+const INVISIBLE_ALL = new RegExp(INVISIBLE.source, 'gu');
+
+/**
+ * The legitimate uses of those characters, which stay allowed: emoji
+ * sequences (ZWJ, VS16, keycaps, the England/Scotland/Wales tag flags), CJK
+ * variation sequences, and zero-width (non-)joiners inside words of
+ * non-Latin/Greek/Cyrillic scripts that need them, like Persian and Hindi.
+ */
+const ALLOWED_SEQUENCES = new RegExp(
+  [
+    '\\u{1F3F4}\\u{E0067}\\u{E0062}(?:\\u{E0065}\\u{E006E}\\u{E0067}|\\u{E0073}\\u{E0063}\\u{E0074}|\\u{E0077}\\u{E006C}\\u{E0073})\\u{E007F}',
+    '\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?(?:\\u200D\\p{Extended_Pictographic}(?:\\p{Emoji_Modifier}|\\uFE0F)?)+',
+    '\\p{Extended_Pictographic}\\uFE0F',
+    '[0-9#*]\\uFE0F\\u20E3',
+    '\\p{Script=Han}[\\u{E0100}-\\u{E01EF}]',
+    '(?<=\\p{L}\\p{M}*)(?<![\\p{Script=Latin}\\p{Script=Greek}\\p{Script=Cyrillic}]\\p{M}*)[\\u200C\\u200D](?=\\p{L}|\\p{M})',
+  ].join('|'),
+  'gu'
+);
+
+/**
+ * Throws when `value` contains a hidden or text-reordering character.
+ * Tabs and new lines are only allowed when `multiline` (descriptions): in a
+ * title they could fake extra lines in the approval summary, and new URL()
+ * silently drops them from links.
+ */
+export function rejectHiddenCharacters(
+  field: string,
+  value: string,
+  { multiline = false } = {}
+): void {
+  const match = (multiline ? value.replace(/\r\n|\t|\n/g, ' ') : value)
+    .replace(ALLOWED_SEQUENCES, (seq) => seq.replace(INVISIBLE_ALL, ''))
+    .match(INVISIBLE);
+  if (!match) return;
+  const code = (match[0].codePointAt(0) ?? 0)
+    .toString(16)
+    .toUpperCase()
+    .padStart(4, '0');
+  throw new Error(
+    `${field} contains a hidden character (U+${code}) that can make text display differently from what is signed. Remove it and try again.`
+  );
+}
+
 function sameAddress(a?: string, b?: string) {
   return !!a && !!b && a.toLowerCase() === b.toLowerCase();
 }
@@ -182,6 +237,10 @@ export async function prepareAction(
 
   switch (req.action) {
     case 'create_bounty': {
+      rejectHiddenCharacters('Title', req.title);
+      rejectHiddenCharacters('Description', req.description, {
+        multiline: true,
+      });
       const amountWei = parseEthAmount(req.amountEth);
       if (amountWei < MIN_BOUNTY_WEI) {
         throw new Error('Minimum bounty reward is 0.001 ETH.');
@@ -238,6 +297,11 @@ export async function prepareAction(
       if (!isSafeProofUri(req.proofUri)) {
         throw new Error('proofUri must be an https://, ipfs:// or ar:// URL.');
       }
+      rejectHiddenCharacters('Title', req.title);
+      rejectHiddenCharacters('Description', req.description, {
+        multiline: true,
+      });
+      rejectHiddenCharacters('proofUri', req.proofUri);
       const tx = buildCreateClaim({
         chain,
         onChainBountyId: bounty.onChainId,

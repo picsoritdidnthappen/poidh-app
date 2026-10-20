@@ -12,6 +12,7 @@ import {
   isSafeProofUri,
   parseActionParams,
   prepareAction,
+  rejectHiddenCharacters,
 } from '../actions';
 
 jest.mock('@/utils/config', () => ({
@@ -321,6 +322,151 @@ describe('prepareAction', () => {
         deps()
       )
     ).rejects.toThrow(/https:\/\/, ipfs:\/\/ or ar:\/\//);
+  });
+});
+
+describe('hidden characters in user text', () => {
+  // Bounty #1495, claim 8933: a right-to-left override in the title made the
+  // approval summary read differently from the calldata being signed.
+  const create = (title: string, description = 'd'): ActionRequest => ({
+    action: 'create_bounty',
+    chain: 'base',
+    type: 'open',
+    title,
+    description,
+    amountEth: '0.001',
+  });
+  const claimWith = (
+    title: string,
+    description = 'd'
+  ): Extract<ActionRequest, { action: 'submit_claim' }> => ({
+    action: 'submit_claim',
+    chain: 'base',
+    id: 1271,
+    title,
+    description,
+    proofUri: 'https://example.com/a.jpg',
+  });
+
+  it.each([
+    ['right-to-left override', 'pay \u202eHTE 01\u202c'],
+    ['left-to-right embedding', 'a\u202ab'],
+    ['right-to-left isolate', 'a\u2067b\u2069'],
+    ['right-to-left mark', 'a\u200fb'],
+    ['Arabic letter mark', 'a\u061cb'],
+    ['zero-width space', 'free\u200bmoney'],
+    ['word joiner', 'a\u2060b'],
+    ['byte order mark', '\ufeffhello'],
+    ['tag characters (hidden ASCII)', 'hi\u{E0069}\u{E0067}\u{E006E}'],
+    [
+      'fake flag hiding tag text',
+      '\u{1F3F4}\u{E0069}\u{E0067}\u{E006E}\u{E006F}\u{E0072}\u{E0065}\u{E007F}',
+    ],
+    ['zero-width joiner between ASCII letters', 'free\u200dmoney'],
+    ['zero-width non-joiner between ASCII letters', 'free\u200cmoney'],
+    ['run of variation selectors (hidden bytes)', 'pay 1\uFE00\uFE01 ETH'],
+    ['variation selector supplement run', 'a\u{E0100}\u{E0101}'],
+    ['soft hyphen', 'free\u00admoney'],
+    ['Hangul filler', 'a\u3164b'],
+    ['line separator', 'a\u2028b'],
+    ['control character', 'a\u0007b'],
+    // Second review round.
+    ['variation selector after each letter', 'p\uFE00a\uFE01y'],
+    ['ideographic variation selector after a Latin letter', 'p\u{E0100}a'],
+    ['joiner after an accented Latin letter', 'pay\u00e9\u200d 1'],
+    ['joiner after a combining mark', 'pay\u0301\u200d'],
+    ['repeated non-joiners in Persian', '\u0645\u06cc\u200c\u200c\u062e'],
+    ['bare carriage return', 'pay 10 ETH\rpay 0.001 ETH'],
+    ['Syriac abbreviation mark', 'a\u070fb'],
+    ['Mongolian variation selector', 'a\u180bb'],
+    ['musical format control', 'a\u{1D173}b'],
+  ])('refuses a bounty title with a %s', async (_name, title) => {
+    await expect(prepareAction(create(title), deps())).rejects.toThrow(
+      /Title contains a hidden character \(U\+[0-9A-F]{4,5}\)/
+    );
+  });
+
+  it('checks descriptions and claims too', async () => {
+    await expect(
+      prepareAction(create('ok', 'see \u202eevil'), deps())
+    ).rejects.toThrow(/Description contains a hidden character \(U\+202E\)/);
+    await expect(
+      prepareAction(claimWith('done\u200b'), deps(), OTHER)
+    ).rejects.toThrow(/Title contains a hidden character \(U\+200B\)/);
+    await expect(
+      prepareAction(
+        {
+          ...claimWith('done'),
+          proofUri: 'https://example.com/\u202egpj.exe',
+        },
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow(/proofUri contains a hidden character \(U\+202E\)/);
+  });
+
+  it.each([
+    [
+      'family emoji (zero-width joiners)',
+      '\u{1F468}\u200d\u{1F469}\u200d\u{1F467}',
+    ],
+    ['heart with variation selector', '\u2764\ufe0f'],
+    ['skin tone', '\u{1F44D}\u{1F3FD}'],
+    [
+      'Scotland flag (tag sequence)',
+      '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',
+    ],
+    ['Arabic and Hebrew text', 'مرحبا שלום'],
+    ['Persian with zero-width non-joiner', 'می\u200cخواهم'],
+    ['Devanagari with zero-width joiner', 'क\u094d\u200dष'],
+    ['keycap emoji', '1\uFE0F\u20E3'],
+    [
+      'England and Wales flags',
+      '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F} \u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}',
+    ],
+    ['heart on fire', '\u2764\uFE0F\u200D\u{1F525}'],
+    ['rainbow flag', '\u{1F3F3}\uFE0F\u200D\u{1F308}'],
+    ['technologist with skin tone', '\u{1F469}\u{1F3FD}\u200D\u{1F4BB}'],
+    ['pirate flag', '\u{1F3F4}\u200D\u2620\uFE0F'],
+    ['CJK ideographic variation', '\u845B\u{E0100}'],
+    ['Bengali', '\u09ac\u09be\u0982\u09b2\u09be'],
+    ['woman running', '\u{1F3C3}\u200D\u2640\uFE0F'],
+    ['copyright sign', '\u00A9\uFE0F'],
+    ['keycap', '#\uFE0F\u20E3'],
+    ['Persian non-joiner after a shadda', '\u0645\u0640\u0651\u200c\u062e'],
+  ])('allows %s', async (_name, text) => {
+    expect(() => rejectHiddenCharacters('Title', text)).not.toThrow();
+    await expect(
+      prepareAction(create(text, text), deps())
+    ).resolves.toBeDefined();
+  });
+
+  it('allows tabs and new lines only in descriptions', async () => {
+    const text = 'line one\r\nline two\n\tindented';
+    await expect(
+      prepareAction(create('ok', text), deps())
+    ).resolves.toBeDefined();
+    // A new line in a title could fake extra lines in the approval summary.
+    await expect(
+      prepareAction(
+        create('x" on base for 0.001 ETH.\nReal summary: "x'),
+        deps()
+      )
+    ).rejects.toThrow(/Title contains a hidden character \(U\+000A\)/);
+    // new URL() drops tabs and new lines, so they'd pass isSafeProofUri.
+    await expect(
+      prepareAction(
+        { ...claimWith('done'), proofUri: 'https://example.com/a\n.jpg' },
+        deps(),
+        OTHER
+      )
+    ).rejects.toThrow(/proofUri contains a hidden character \(U\+000A\)/);
+  });
+
+  it('refuses a variation selector after a digit outside a keycap', () => {
+    expect(() => rejectHiddenCharacters('Title', 'Pay 1\uFE0F ETH')).toThrow(
+      /U\+FE0F/
+    );
   });
 });
 
