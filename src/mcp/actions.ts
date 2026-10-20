@@ -151,15 +151,71 @@ function requireOpen(b: BountyRecord) {
   }
 }
 
+// IPFS content ids: CIDv0 (Qm…, base58) or CIDv1 in base32 (b…, or B… when
+// written in upper case).
+const IPFS_CID = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,}|B[A-Z2-7]{58,})$/;
+// Arweave transaction ids: 43 base64url characters.
+const ARWEAVE_ID = /^[A-Za-z0-9_-]{43}$/;
+
+// Reserved, private-use and commonly intranet-only names (RFC 6761/6762,
+// RFC 8375, ICANN name-collision list) that never resolve publicly.
+const LOCAL_SUFFIXES = [
+  'localhost',
+  'local',
+  'test',
+  'example',
+  'invalid',
+  'internal',
+  'intranet',
+  'private',
+  'lan',
+  'home',
+  'corp',
+  'home.arpa',
+];
+const DNS_LABEL = /^[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?$/;
+
 /**
- * Proof links are shown to people as clickable links, so only allow
- * schemes poidh can display: https, IPFS and Arweave.
+ * True when an https host is a public domain name. IP literals are refused
+ * outright (new URL() has already turned tricks like `2852039166` or
+ * `0xA9FEA9FE` into `169.254.169.254`), as are single-label intranet names
+ * and names that only resolve on the viewer's own network. Public names that
+ * resolve to private IPs (e.g. wildcard DNS services) need DNS to detect and
+ * are out of scope here.
+ */
+function isPublicDomain(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/\.$/, '');
+  const labels = host.split('.');
+  if (labels.length < 2 || !labels.every((l) => DNS_LABEL.test(l))) {
+    return false; // IPv6 literal, single label, empty or malformed label
+  }
+  if (/^\d+$/.test(labels[labels.length - 1])) return false; // IPv4 literal
+  return !LOCAL_SUFFIXES.some(
+    (local) => host === local || host.endsWith(`.${local}`)
+  );
+}
+
+/**
+ * Proof links are shown to people as clickable links and loaded by their
+ * browsers, so only allow https on public domains and real IPFS/Arweave ids.
  */
 export function isSafeProofUri(value: string): boolean {
+  let url: URL;
   try {
-    return ['https:', 'ipfs:', 'ar:'].includes(new URL(value).protocol);
+    url = new URL(value);
   } catch {
     return false;
+  }
+  if (url.username || url.password) return false;
+  switch (url.protocol) {
+    case 'https:':
+      return isPublicDomain(url.hostname);
+    case 'ipfs:':
+      return !url.port && IPFS_CID.test(url.hostname);
+    case 'ar:':
+      return !url.port && ARWEAVE_ID.test(url.hostname);
+    default:
+      return false;
   }
 }
 
@@ -295,7 +351,9 @@ export async function prepareAction(
         throw new Error('The bounty issuer cannot submit a claim.');
       }
       if (!isSafeProofUri(req.proofUri)) {
-        throw new Error('proofUri must be an https://, ipfs:// or ar:// URL.');
+        throw new Error(
+          'proofUri must be an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id.'
+        );
       }
       rejectHiddenCharacters('Title', req.title);
       rejectHiddenCharacters('Description', req.description, {
@@ -452,7 +510,10 @@ const actionSchema = z.discriminatedUnion('action', [
     proofUri: z
       .string()
       .url()
-      .refine(isSafeProofUri, 'must be an https://, ipfs:// or ar:// URL'),
+      .refine(
+        isSafeProofUri,
+        'must be an https:// link on a public domain (no login or IP address), or an ipfs:// or ar:// link with a real content id'
+      ),
   }),
   z.object({ action: z.literal('accept_claim'), chain, id, claimId: id }),
   z.object({

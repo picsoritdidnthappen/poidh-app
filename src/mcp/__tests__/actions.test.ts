@@ -321,7 +321,7 @@ describe('prepareAction', () => {
         },
         deps()
       )
-    ).rejects.toThrow(/https:\/\/, ipfs:\/\/ or ar:\/\//);
+    ).rejects.toThrow(/https:\/\/ link on a public domain/);
   });
 });
 
@@ -471,14 +471,63 @@ describe('hidden characters in user text', () => {
 });
 
 describe('isSafeProofUri', () => {
+  const CID_V0 = 'QmXyUiKVhKeDvTgoVFaDQqicJor1dfTXcH3RHKwsBCAdBL';
+  const CID_V1 = 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi';
+  const ARWEAVE = 'bNbA3TEQVL60xlgCcqdz4ZPHFZ711cZ3hmkpGttDt_U';
+
   it.each([
     ['https://example.com/a.jpg', true],
-    ['ipfs://bafy', true],
-    ['ar://abc', true],
+    [`ipfs://${CID_V0}`, true],
+    [`ipfs://${CID_V1}/photo.jpg`, true],
+    [`ar://${ARWEAVE}`, true],
+    ['https://cdn.example.co.uk./a.png', true],
     ['http://example.com/a.jpg', false],
     ['javascript:alert(1)', false],
     ['data:image/png;base64,AAAA', false],
     ['not a url', false],
+    // Bounty #1495, claim 8933: these all passed the scheme-only check.
+    ['ipfs://', false],
+    ['ipfs://bafy', false],
+    ['ar://abc', false],
+    ['https://user:pass@example.com/a.png', false],
+    ['https://169.254.169.254/latest/meta-data', false],
+    // The same address written in forms that new URL() normalizes.
+    ['https://2852039166/', false],
+    ['https://0xA9FEA9FE/', false],
+    ['https://0251.0376.0251.0376/', false],
+    ['https://127.1/', false],
+    ['https://0/', false],
+    ['https://10.0.0.5/a.png', false],
+    ['https://172.16.0.1/a.png', false],
+    ['https://192.168.1.1/a.png', false],
+    ['https://100.64.0.1/a.png', false],
+    ['https://localhost/a.png', false],
+    ['https://localhost./a.png', false],
+    ['https://printer.localhost/a.png', false],
+    ['https://[::1]/a.png', false],
+    ['https://[::ffff:127.0.0.1]/a.png', false],
+    ['https://[fd00::1]/a.png', false],
+    ['https://[fe80::1]/a.png', false],
+    // Review follow-ups: anything that isn't a public domain name.
+    ['https://8.8.8.8/a.png', false],
+    ['https://127.0.0.1./a.png', false],
+    ['https://[::192.168.1.1]/a.png', false],
+    ['https://[64:ff9b::7f00:1]/a.png', false],
+    ['https://[2001:4860:4860::8888]/a.png', false],
+    ['https://intranet/a.png', false],
+    ['https://printer.local/a.png', false],
+    ['https://nas.home.arpa/a.png', false],
+    [`ipfs://${CID_V0}:8080/a.png`, false],
+    // Second review round.
+    ['https://localhost../a.png', false],
+    ['https://127.0.0.1../a.png', false],
+    ['https://..example.com/a.png', false],
+    ['https://-.com/a.png', false],
+    ['https://router.test/a.png', false],
+    ['https://nas.home/a.png', false],
+    ['https://svc.corp/a.png', false],
+    ['https://bücher.de/a.png', true],
+    [`ipfs://${CID_V1.toUpperCase()}/photo.jpg`, true],
   ])('%s → %s', (uri, safe) => {
     expect(isSafeProofUri(uri)).toBe(safe);
   });
