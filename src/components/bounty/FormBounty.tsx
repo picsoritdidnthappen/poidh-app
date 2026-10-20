@@ -153,15 +153,15 @@ export default function FormBounty({
       if (!account.connector || !account.address) {
         throw new Error('Wallet connector unavailable');
       }
-      
+
       const walletChainId = account.chainId;
-      
+
       if (currentChain.id !== walletChainId) {
         setLoading({
           isLoading: true,
           status: 'Switching network',
         });
-      
+
         await switchChain.switchChainAsync({
           chainId: currentChain.id,
         });
@@ -334,11 +334,20 @@ export default function FormBounty({
     },
 
     onSuccess: async ({ bountyId, album, chainId }) => {
-      await saveBountyAlbum.mutateAsync({
-        bountyId,
-        chainId,
-        album,
-      });
+      if (album) {
+        try {
+          await saveBountyAlbum.mutateAsync({
+            bountyId,
+            chainId,
+            album,
+          });
+        } catch (error) {
+          toastError(
+            'Bounty created, but adding it to the album failed',
+            error
+          );
+        }
+      }
 
       onClose();
       setUsdPerToken(null);

@@ -2,8 +2,12 @@ import { z } from 'zod';
 import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
 import { addressSchema } from '../serverTypes';
-import { checkIsIssuer } from './admin';
+import { checkIsAdmin, checkIsIssuer } from './admin';
 import { getEverHadExternalContributor } from './web3';
+import { TRPCError } from '@trpc/server';
+
+/** How long after a bounty is created its album can still be set. */
+const ALBUM_WINDOW_MS = 5 * 60 * 1000;
 
 export const bountiesRouter = {
   fetch: baseProcedure
@@ -94,6 +98,11 @@ export const bountiesRouter = {
       });
     }),
 
+  /**
+   * Puts a bounty in an album. A signed-in admin can set or change it at any
+   * time. Anyone else, with no sign-in needed, can only set it once, while
+   * the bounty has no album yet and was created in the last few minutes.
+   */
   addToAlbum: baseProcedure
     .input(
       z.object({
@@ -102,7 +111,41 @@ export const bountiesRouter = {
         album: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const session = await ctx.getSession();
+      const isAdmin = checkIsAdmin(session?.address);
+
+      if (!isAdmin) {
+        if (!input.album.trim()) {
+          return null;
+        }
+
+        const bounty = await prisma.bounties.findUnique({
+          where: {
+            id_chainId: { id: input.bountyId, chainId: input.chainId },
+          },
+          select: { createdAt: true, extra: { select: { album: true } } },
+        });
+
+        if (!bounty) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Bounty not found',
+          });
+        }
+
+        const createdAtMs = Number(bounty.createdAt) * 1000;
+        const isNew = Date.now() - createdAtMs < ALBUM_WINDOW_MS;
+        const hasAlbum = !!bounty.extra?.album?.trim();
+
+        if (!isNew || hasAlbum) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'The album can only be set when the bounty is created',
+          });
+        }
+      }
+
       return prisma.bountiesExtra.upsert({
         where: {
           bountyId_chainId: {

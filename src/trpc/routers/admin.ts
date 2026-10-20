@@ -204,7 +204,7 @@ export const adminRouter = {
     }),
 };
 
-function checkIsAdmin(address?: string) {
+export function checkIsAdmin(address?: string) {
   if (!address) {
     return false;
   }
