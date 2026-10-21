@@ -10,12 +10,22 @@ type ResolvedClaimMedia = {
 } | null;
 
 /*
+ * A claim that ends up without usable media can get there in three very
+ * different ways: the browser blocked the fetch (CORS or network), the host
+ * answered with an HTTP error, or the response simply carried no image.
+ * Consumers render the same fallback for all three, but claimants debugging
+ * from their own origin need the distinction, so failures keep their reason.
+ */
+export type MediaFailureReason = 'network' | 'http' | 'no-media';
+
+/*
  * Resolutions are shared by URL, so the same claim rendered more than once
  * (e.g. in a home rail and a bounty card) only sniffs its media once. Failures
  * are evicted so a later mount can retry.
  */
 const resolvedMedia = new Map<string, Promise<ResolvedClaimMedia>>();
 const settledMedia = new Map<string, ResolvedClaimMedia>();
+const failedMedia = new Map<string, MediaFailureReason>();
 
 async function sniffClaimMedia(url: string): Promise<ResolvedClaimMedia> {
   const response = await fetch(url);
@@ -73,11 +83,22 @@ function resolveClaimMedia(url: string) {
     pending = sniffClaimMedia(url).then(
       (media) => {
         resolvedMedia.delete(url);
+        if (media === null) {
+          failedMedia.set(url, 'no-media');
+        } else {
+          failedMedia.delete(url);
+        }
         settledMedia.set(url, media);
         return media;
       },
-      () => {
+      (error) => {
+        // CORS rejections surface as TypeError from fetch; other rejects come
+        // from sniffClaimMedia's !response.ok branch (an HTTP failure).
+        const reason: MediaFailureReason =
+          error instanceof TypeError ? 'network' : 'http';
         resolvedMedia.delete(url);
+        failedMedia.set(url, reason);
+        console.warn(`[claim media] ${url} could not be resolved (${reason})`);
         return null;
       }
     );
@@ -103,6 +124,10 @@ export function useClaimMedia(url: string | null | undefined, enabled = true) {
 
   const [mediaError, setMediaError] = useState(settled === null);
 
+  const [mediaFailure, setMediaFailure] = useState<MediaFailureReason | null>(
+    settled === null ? (failedMedia.get(url?.trim() ?? '') ?? 'no-media') : null
+  );
+
   useEffect(() => {
     const normalizedUrl = typeof url === 'string' ? url.trim() : '';
 
@@ -111,6 +136,11 @@ export function useClaimMedia(url: string | null | undefined, enabled = true) {
       setIsVideo(media?.isVideo ?? false);
       setIsLoading(false);
       setMediaError(!media);
+      setMediaFailure(
+        media === null
+          ? (failedMedia.get(normalizedUrl) ?? 'no-media')
+          : null
+      );
     };
 
     /*
@@ -135,6 +165,7 @@ export function useClaimMedia(url: string | null | undefined, enabled = true) {
     setIsVideo(false);
     setIsLoading(true);
     setMediaError(false);
+    setMediaFailure(null);
 
     /*
      * Allows callers to defer
@@ -162,6 +193,7 @@ export function useClaimMedia(url: string | null | undefined, enabled = true) {
     isVideo,
     isLoading,
     mediaError,
+    mediaFailure,
     setMediaError,
   };
 }
