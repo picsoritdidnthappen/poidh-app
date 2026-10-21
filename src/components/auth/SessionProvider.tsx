@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -40,8 +39,8 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 
 /**
  * Keeps track of whether the connected wallet is signed in, and shows the
- * sign-in prompt when it's needed: right after a fresh connect, and when an
- * offchain action needs a session the user doesn't have.
+ * sign-in prompt when an offchain action needs a session the user doesn't
+ * have.
  *
  * Being signed in is separate from being connected. A session only counts
  * for the address it was made for, so switching accounts in the wallet means
@@ -61,7 +60,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const isSignedIn = !!address && me.data?.address === address.toLowerCase();
 
   const [prompt, setPrompt] = useState<{ expired: boolean } | null>(null);
-  const [promptAfterConnect, setPromptAfterConnect] = useState(false);
   const pendingRef = useRef<PendingSignIn | null>(null);
 
   /**
@@ -164,45 +162,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   );
 
   /**
-   * Prompts on a fresh connect, but not when the wallet reconnects on page
-   * load.
-   */
-  const handleConnect = useCallback(
-    ({ isReconnected }: { isReconnected: boolean }) => {
-      if (!isReconnected) {
-        setPromptAfterConnect(true);
-      }
-    },
-    []
-  );
-
-  /**
    * Ends the session when the wallet disconnects.
    */
   const handleDisconnect = useCallback(() => {
-    setPromptAfterConnect(false);
     closePrompt(false);
     signOut().catch((error) => console.error('Sign-out failed', error));
   }, [closePrompt, signOut]);
 
-  useAccountEffect({
-    onConnect: handleConnect,
-    onDisconnect: handleDisconnect,
-  });
-
-  // Waits for the session check after a fresh connect, so a wallet that's
-  // already signed in doesn't get the prompt
-  useEffect(() => {
-    if (!promptAfterConnect || me.isPending || me.isFetching) {
-      return;
-    }
-
-    setPromptAfterConnect(false);
-
-    if (!isSignedIn) {
-      setPrompt({ expired: false });
-    }
-  }, [promptAfterConnect, me.isPending, me.isFetching, isSignedIn]);
+  useAccountEffect({ onDisconnect: handleDisconnect });
 
   const value = useMemo(
     () => ({ isSignedIn, signIn, signOut, requestSignIn, withSession }),

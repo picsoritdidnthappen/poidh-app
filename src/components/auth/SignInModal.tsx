@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { CloseIcon } from '@/components/global/Icons';
-import { SESSION_TTL_DAYS } from '@/utils/authConfig';
 import { getErrorMessage } from '@/utils/errors';
 
 /**
  * Asks the user to sign in by signing a message with their wallet. Shown
- * right after they connect, and again when they try an offchain action
- * without a session.
+ * when they try an offchain action without a session.
  *
  * This is a plain overlay rather than a Headless UI dialog so the ZeroDev
  * approval sheet, which opens when a ZeroDev wallet signs, can sit on top of
@@ -65,7 +63,7 @@ export default function SignInModal({
       >
         <div className='flex items-center justify-between p-6 border-b border-white/20'>
           <h2 id='sign-in-title' className='text-xl font-semibold text-white'>
-            {expired ? 'Sign in again' : 'Sign in'}
+            Sign in to poidh
           </h2>
           <button
             onClick={onClose}
@@ -77,12 +75,11 @@ export default function SignInModal({
         </div>
 
         <div className='p-6 flex flex-col gap-4'>
-          <p className='text-white/80 leading-relaxed'>
+          <p className='text-white/80'>
             {expired
               ? 'Your sign-in has expired. Sign a message with your wallet to keep going.'
               : 'Sign a message with your wallet so you can comment and vote without signing each time.'}{' '}
-            It&apos;s free and doesn&apos;t send a transaction. You&apos;ll stay
-            signed in for {SESSION_TTL_DAYS} days.
+            It&apos;s free and doesn&apos;t send a transaction.
           </p>
 
           {error && <p className='text-sm text-red-200'>{error}</p>}
@@ -95,12 +92,14 @@ export default function SignInModal({
             >
               {isSigning ? 'Check your wallet…' : 'Sign in'}
             </button>
-            <button
-              onClick={onClose}
-              className='flex-1 rounded-full px-5 py-2 hover:bg-white/20 transition-colors'
-            >
-              Not now
-            </button>
+            {!isSigning ? (
+              <button
+                onClick={onClose}
+                className='flex-1 rounded-full px-5 py-2 hover:bg-white/20 transition-colors'
+              >
+                Not now
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
