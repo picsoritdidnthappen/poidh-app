@@ -66,6 +66,19 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        // Keep sub-path suffixes (e.g. /data for the JSON route) when
+        // normalizing bounty 9 to bounty 11, so agents and humans land on
+        // matching pages even if the zone ignores suffixes (see #1591).
+        source: '/mainnet/bounty/9',
+        destination: '/mainnet/bounty/11',
+        permanent: true,
+      },
+      {
+        source: '/mainnet/bounty/9/:path*',
+        destination: '/mainnet/bounty/11/:path*',
+        permanent: true,
+      },
+      {
         source: '/base/account/:address',
         destination: '/account/:address',
         permanent: true,
