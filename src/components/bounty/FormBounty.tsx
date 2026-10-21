@@ -1036,6 +1036,18 @@ export default function FormBounty({
                     if (name && description && amount) {
                       const minValue = ETH_MIN_AMOUNT;
 
+                      // PoidhV3 reverts with ContractsCannotCreateBounties for
+                      // any msg.sender != tx.origin. The ZeroDev connector is a
+                      // 4337 smart account (UserOperations via a bundler), so
+                      // bounty creation can never succeed from it — block
+                      // before approval instead of failing on-chain.
+                      if (account.connector?.id === 'zerodev-wallet') {
+                        toast.error(
+                          'your poidh wallet is a smart wallet, and only regular wallets can create bounties. connect a regular wallet (like metamask, rainbow or coinbase wallet) to post this bounty.'
+                        );
+                        return;
+                      }
+
                       if (Number(amount) < minValue) {
                         toast.error(
                           `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
