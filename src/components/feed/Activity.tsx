@@ -2,18 +2,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import DisplayAddress from '@/components/global/DisplayAddress';
 import ClaimImageEmbed from '@/components/feed/ClaimImageEmbed';
 import CollapsibleText from '@/components/global/CollapsibleText';
 import { getChainById } from '@/utils/config';
 import { trpc } from '@/trpc/client';
-import {
-  formatAmount,
-  getCommentSignatureFirstLine,
-  tryCatchAsync,
-} from '@/utils/utils';
+import { formatAmount } from '@/utils/utils';
+import { useSession } from '@/components/auth/SessionProvider';
+import { SignInCancelledError } from '@/utils/sessionClient';
+import { getErrorMessage } from '@/utils/errors';
 import { formatEther } from 'viem';
 import { ChainId, Claim } from '@/utils/types';
 
@@ -61,11 +60,9 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
 
   const account = useAccount();
 
-  const { signMessageAsync } = useSignMessage();
-
-  const switchChain = useSwitchChain();
-
   const { openConnectModal } = useConnectModal();
+
+  const { withSession } = useSession();
 
   const utils = trpc.useUtils();
 
@@ -107,10 +104,6 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
           chainId: chainId as ChainId,
         }),
       ]);
-    },
-
-    onError: (error) => {
-      toast.error(`Failed to post reply: ${error.message}`);
     },
   });
 
@@ -167,41 +160,6 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
         time: '',
       };
 
-  async function ensureWalletOnBase() {
-    if (!account.address) {
-      openConnectModal?.();
-
-      return null;
-    }
-
-    const walletChainId = account.chainId;
-
-    if (walletChainId !== 8453) {
-      if (switchChain?.switchChainAsync) {
-        const [_, error] = await tryCatchAsync(
-          async () =>
-            await switchChain.switchChainAsync({
-              chainId: 8453,
-            })
-        );
-
-        if (error) {
-          toast.error(error.message);
-
-          return null;
-        }
-      } else {
-        toast.error(
-          'Something went wrong! Switch to Base network or connect/reconnect your wallet to continue'
-        );
-
-        return null;
-      }
-    }
-
-    return account.address;
-  }
-
   async function handleReplySubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -217,42 +175,31 @@ export default function Activity({ activity }: { activity: ActivityTx }) {
       return;
     }
 
-    const address = await ensureWalletOnBase();
-
-    if (!address) {
-      return;
-    }
-
-    const message =
-      getCommentSignatureFirstLine({
-        address,
-      }) + body;
-
-    const signature = await signMessageAsync({
-      message,
-    }).catch(() => null);
-
-    if (!signature) {
-      toast.error('Failed to sign message');
+    if (!account.address) {
+      openConnectModal?.();
 
       return;
     }
 
-    await commentMutation.mutateAsync({
-      address,
+    const parrentId = activity.comment.id;
 
-      bountyId,
+    try {
+      await withSession(() =>
+        commentMutation.mutateAsync({
+          bountyId,
 
-      chainId: chainId as ChainId,
+          chainId: chainId as ChainId,
 
-      signature,
+          text: body,
 
-      signatureText: message,
-
-      text: body,
-
-      parrentId: activity.comment.id,
-    });
+          parrentId,
+        })
+      );
+    } catch (error) {
+      if (!(error instanceof SignInCancelledError)) {
+        toast.error(`Failed to post reply: ${getErrorMessage(error)}`);
+      }
+    }
   }
 
   function handleCommentCardClick(event: React.MouseEvent<HTMLDivElement>) {
