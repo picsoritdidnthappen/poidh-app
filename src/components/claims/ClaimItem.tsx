@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
@@ -28,6 +29,7 @@ export default function ClaimItem({
     isVotingOrAcceptedBounty: boolean;
   };
 }) {
+  const router = useRouter();
   const account = useAccount();
   const chain = useChainInfo();
 
@@ -187,19 +189,60 @@ export default function ClaimItem({
         status: 'Waiting for approval',
       });
 
-      await writeContract.writeContractAsync({
+      const tx = await writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'submitClaimForVote',
         args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
         chainId: pollingChainId ?? chain.id,
       });
+
+      setLoading({
+        isLoading: true,
+        status: 'Waiting for confirmation...',
+      });
+
+      await chain.provider.waitForTransactionReceipt({
+        hash: tx,
+      });
+
+      /*
+       * Wait until the indexer has recorded
+       * this claim as the one up for vote,
+       * so the refreshed page shows the
+       * voting state instead of the old one.
+       */
+      for (let i = 0; i < 60; i++) {
+        setLoading({
+          isLoading: true,
+          status: `Indexing vote proposal... ${i}s`,
+        });
+
+        const votingClaim =
+          await trpcClient.claims.fetchVotingClaimByBountyId.query({
+            bountyId: claim.bountyId,
+            chainId: claim.chainId,
+          });
+
+        if (votingClaim?.id === claim.id) {
+          return true;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1_000));
+      }
+
+      return false;
     },
 
-    onSuccess: () => {
-      toast.success('Claim submitted for vote successfully');
-
-      window.location.reload();
+    onSuccess: (indexed) => {
+      if (indexed) {
+        toast.success('Claim submitted for vote successfully');
+      } else {
+        toast.info(
+          'Claim submitted for vote. Indexing is taking longer than expected.'
+        );
+      }
+      router.refresh();
     },
 
     onError: (error) => {
