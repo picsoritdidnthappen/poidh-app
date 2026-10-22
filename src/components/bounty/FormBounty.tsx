@@ -35,6 +35,8 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import { ETH_MIN_AMOUNT } from '@/utils/constants';
 import MarkdownContent from '@/components/global/MarkdownContent';
 
+const ALBUM_PATTERN = /^[a-z]+(?:-[a-z]+)*$/;
+const ALBUM_TYPING_PATTERN = /^[a-z]+(?:-[a-z]+)*-?$/;
 const BOUNTY_GUIDE_TEMPLATE = `## Why
 
 Explain why you're creating this bounty and what outcome you're looking for.
@@ -874,12 +876,16 @@ export default function FormBounty({
                 </div>
 
                 <div
-                  className={`flex text-balance gap-2 text-xs mt-2 items-center ${
+                  className={`flex w-full items-center gap-2 text-xs mt-2 ${
                     isMobile ? 'mb-5' : 'mb-6'
                   }`}
                 >
-                  <InfoIcon size={18} /> a 2.5% fee is deducted from completed
-                  bounties
+                  <span className='shrink-0'>
+                    <InfoIcon size={18} />
+                  </span>
+                  <span className='min-w-0 flex-1'>
+                    a 2.5% fee is deducted from completed bounties
+                  </span>
                 </div>
               </div>
 
@@ -887,8 +893,8 @@ export default function FormBounty({
                 <span className={isMobile ? 'text-base mb-2' : 'font-semibold'}>
                   album
                 </span>
-
-                <div className={`relative mt-2 ${isMobile ? 'mb-5' : 'mb-6'}`}>
+              
+                <div className='relative mt-2'>
                   <input
                     type='text'
                     value={album}
@@ -896,10 +902,12 @@ export default function FormBounty({
                       if (!showAlbumDropdown) {
                         setShowAlbumDropdown(true);
                       }
-
-                      const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
-
-                      setAlbum(next.toLowerCase());
+              
+                      const next = e.target.value.toLowerCase();
+              
+                      if (next === '' || ALBUM_TYPING_PATTERN.test(next)) {
+                        setAlbum(next);
+                      }
                     }}
                     onFocus={() => setShowAlbumDropdown(true)}
                     onBlur={() => setShowAlbumDropdown(false)}
@@ -908,36 +916,50 @@ export default function FormBounty({
                     }`}
                     placeholder='optional'
                     maxLength={30}
-                    onKeyDown={(e) => {
-                      if (/\s/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                   />
-
+              
                   {showAlbumDropdown &&
                     album &&
                     albums &&
-                    albums.length > 0 && (
+                    albums.some(
+                      (c) => c.album.length <= 30 && ALBUM_PATTERN.test(c.album)
+                    ) && (
                       <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 dark:bg-[#132b47] border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
-                        {albums.map((c) => (
-                          <li
-                            key={c.album}
-                            className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setAlbum(c.album);
-                              setShowAlbumDropdown(false);
-                            }}
-                          >
-                            {c.album.length > 20
-                              ? `${c.album.slice(0, 20)}…`
-                              : c.album}{' '}
-                            ({c.count.album})
-                          </li>
-                        ))}
+                        {albums
+                          .filter(
+                            (c) => c.album.length <= 30 && ALBUM_PATTERN.test(c.album)
+                          )
+                          .map((c) => (
+                            <li
+                              key={c.album}
+                              className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setAlbum(c.album);
+                                setShowAlbumDropdown(false);
+                              }}
+                            >
+                              {c.album.length > 20
+                                ? `${c.album.slice(0, 20)}…`
+                                : c.album}{' '}
+                              ({c.count.album})
+                            </li>
+                          ))}
                       </ul>
                     )}
+                </div>
+              
+                <div
+                  className={`flex w-full items-center gap-2 text-xs text-white mt-2 ${
+                    isMobile ? 'mb-5' : 'mb-6'
+                  }`}
+                >
+                  <span className='shrink-0'>
+                    <InfoIcon size={18} />
+                  </span>
+                  <span className='min-w-0 flex-1'>
+                    albums are categories - choose an existing album or create a new one
+                  </span>
                 </div>
               </div>
 
@@ -1067,6 +1089,16 @@ export default function FormBounty({
                         amount,
                         album,
                       };
+
+                      if (
+                        album &&
+                        (album.length > 30 || !ALBUM_PATTERN.test(album))
+                      ) {
+                        toast.error(
+                          'Album names must contain only letters and single hyphens between words.'
+                        );
+                        return;
+                      }
 
                       createBountyMutations.mutate(formData);
                     } else {

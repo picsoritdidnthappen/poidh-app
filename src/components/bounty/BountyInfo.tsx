@@ -451,6 +451,8 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
             return `\n\n**Design all six:**\n\n${formattedInterfaces.trim()}\n\n`;
           }
         )
+      : chain.id === 1 && bounty.data.id === 42
+      ? `${bounty.data.description.trimEnd()}\n\n[https://www.glazecorp.io/docs](https://www.glazecorp.io/docs)`
       : bounty.data.description;
 
   return (
@@ -505,17 +507,19 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
             </button>
           )}
 
-          {bounty.data?.extra?.album && (
-            <p className='text-white mb-3'>
-              📸{' '}
-              <Link
-                href={`/a/${bounty.data.extra.album}`}
-                className='underline hover:opacity-80 cursor-pointer'
-              >
-                {bounty.data.extra.album}
-              </Link>
-            </p>
-          )}
+          {bounty.data?.extra?.album &&
+            bounty.data.extra.album.length <= 30 &&
+            /^[a-z]+(?:-[a-z]+)*$/.test(bounty.data.extra.album) && (
+              <p className='text-white mb-3'>
+                📸{' '}
+                <Link
+                  href={`/a/${bounty.data.extra.album}`}
+                  className='underline hover:opacity-80 cursor-pointer'
+                >
+                  {bounty.data.extra.album}
+                </Link>
+              </p>
+            )}
 
           <div className='flex flex-col sm:flex-row sm:items-center gap-5 mb-0 mt-1 sm:gap-3 sm:mb-5'>
             <div className='flex items-center gap-x-3'>
