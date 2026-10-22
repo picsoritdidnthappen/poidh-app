@@ -32,7 +32,19 @@ export default function SlideOverMenu({
 
   const [isResourcesExpanded, setIsResourcesExpanded] = useState(false);
 
-  const trendingAlbums = trpc.albums.trending.useQuery({});
+  const trendingAlbums = trpc.albums.trending.useQuery(
+    { limit: 15 },
+    {
+      select: (albums) =>
+        albums
+          .filter(
+            (album) =>
+              album.name.length <= 30 &&
+              /^[a-z]+(?:-[a-z]+)*$/.test(album.name)
+          )
+          .slice(0, 10),
+    }
+  );
 
   const handleCloseWithDelay = () => {
     setTimeout(() => {
