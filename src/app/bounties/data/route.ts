@@ -22,11 +22,34 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  const limit = Math.min(
-    Number(req.nextUrl.searchParams.get('limit')) || 20,
-    100
-  );
-  const cursor = req.nextUrl.searchParams.get('cursor');
+  const rawLimit = req.nextUrl.searchParams.get('limit');
+  let limit = 20;
+  if (rawLimit !== null) {
+    limit = Number(rawLimit);
+    if (
+      rawLimit === '' ||
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 100
+    ) {
+      return NextResponse.json(
+        { error: 'limit must be an integer between 1 and 100' },
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+  }
+
+  const rawCursor = req.nextUrl.searchParams.get('cursor');
+  let cursor: number | undefined;
+  if (rawCursor !== null) {
+    cursor = Number(rawCursor);
+    if (rawCursor === '' || !Number.isInteger(cursor) || cursor < 0) {
+      return NextResponse.json(
+        { error: 'invalid cursor' },
+        { status: 400, headers: CORS_HEADERS }
+      );
+    }
+  }
 
   const bounties = await prisma.bounties.findMany({
     include: {
@@ -45,7 +68,7 @@ export async function GET(req: NextRequest) {
       isCanceled: false,
       isVoting: false,
       ban: { none: {} },
-      ...(cursor ? { createdAt: { lt: Number(cursor) } } : {}),
+      ...(cursor !== undefined ? { createdAt: { lt: cursor } } : {}),
     },
     orderBy: { createdAt: 'desc' },
     take: limit,
