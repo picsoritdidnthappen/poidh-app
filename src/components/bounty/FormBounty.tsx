@@ -889,7 +889,16 @@ export default function FormBounty({
                 <span className={isMobile ? 'text-base mb-2' : 'font-semibold'}>
                   album
                 </span>
-
+              
+                <div className='flex items-start gap-2 text-xs text-white/60 mt-2'>
+                  <span className='shrink-0 mt-0.5'>
+                    <InfoIcon size={16} />
+                  </span>
+                  <span>
+                    albums are poidh&apos;s category system - choose an existing album or create a new one
+                  </span>
+                </div>
+              
                 <div className={`relative mt-2 ${isMobile ? 'mb-5' : 'mb-6'}`}>
                   <input
                     type='text'
