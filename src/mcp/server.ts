@@ -154,7 +154,12 @@ const fromAddress = address
  * Nothing here signs, holds keys, or writes to the database.
  */
 export function createPoidhMcpServer(): McpServer {
-  const caller = createCallerFactory(appRouter)({});
+  const caller = createCallerFactory(appRouter)({
+    host: null,
+    sessionToken: null,
+    resHeaders: null,
+    getSession: async () => null,
+  });
   const server = new McpServer(
     { name: 'poidh', version: '0.1.0' },
     {

@@ -2,6 +2,7 @@ import { usersRouter } from '@/trpc/routers/users';
 import { createTRPCRouter } from './init';
 import { accountsRouter } from './routers/accounts';
 import { adminRouter } from './routers/admin';
+import { authRouter } from './routers/auth';
 import { albumsRouter } from './routers/albums';
 import { bountiesRouter } from './routers/bounties';
 import { claimsRouter } from './routers/claims';
@@ -15,6 +16,7 @@ export const appRouter = createTRPCRouter({
   bounties: bountiesRouter,
   claims: claimsRouter,
   admin: adminRouter,
+  auth: authRouter,
   albums: albumsRouter,
   comments: commentsRouter,
   neynar: neynarRouter,

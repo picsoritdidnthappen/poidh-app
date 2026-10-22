@@ -7,6 +7,8 @@ import { trpc } from '@/trpc/client';
 import { ZkPassportIcon } from '@/components/global/Icons';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
+import { useSession } from '@/components/auth/SessionProvider';
+import { SignInCancelledError } from '@/utils/sessionClient';
 
 type VerifyState = 'idle' | 'connecting' | 'waiting' | 'generating';
 
@@ -22,9 +24,14 @@ export default function ZkPassportVerify({ address }: { address: string }) {
       closeModal();
       statusQuery.refetch();
     },
+    onError: (error) => {
+      toastError('Failed to save verification', error);
+      closeModal();
+    },
   });
 
   const utils = trpc.useUtils();
+  const { withSession } = useSession();
 
   const closeModal = useCallback(() => {
     setShowModal(false);
@@ -83,7 +90,6 @@ export default function ZkPassportVerify({ address }: { address: string }) {
         if (verified && result.nationality?.disclose?.result) {
           const country = result.nationality.disclose.result as string;
           await verifyMutation.mutateAsync({
-            address,
             country,
             uniqueIdentifier: 'verified',
           });
@@ -108,6 +114,20 @@ export default function ZkPassportVerify({ address }: { address: string }) {
     }
   }, [address, verifyMutation, utils, closeModal]);
 
+  /**
+   * Makes sure the user is signed in before the passport scan starts, so
+   * the result can be saved to their account when it comes back.
+   */
+  const handleClick = async () => {
+    try {
+      await withSession(startVerification);
+    } catch (error) {
+      if (!(error instanceof SignInCancelledError)) {
+        toastError('Failed to start verification', error);
+      }
+    }
+  };
+
   useEffect(() => {
     return () => {
       setQrUrl(null);
@@ -122,7 +142,7 @@ export default function ZkPassportVerify({ address }: { address: string }) {
     <>
       <button
         type='button'
-        onClick={startVerification}
+        onClick={handleClick}
         className='hover:text-gray-200 cursor-pointer transition-colors'
         aria-label='Verify with zkPassport'
         title='Verify with zkPassport'

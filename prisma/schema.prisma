@@ -216,6 +216,24 @@ model Notifications {
   @@map("Notifications")
 }
 
+model AuthNonces {
+  nonce     String    @id
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+
+  @@map("AuthNonces")
+}
+
+model Sessions {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique @map("token_hash")
+  address   String
+  host      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("Sessions")
+}
+
 enum Reaction {
   upvote
   downvote

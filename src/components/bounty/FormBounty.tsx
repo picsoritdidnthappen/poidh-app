@@ -334,11 +334,20 @@ export default function FormBounty({
     },
 
     onSuccess: async ({ bountyId, album, chainId }) => {
-      await saveBountyAlbum.mutateAsync({
-        bountyId,
-        chainId,
-        album,
-      });
+      if (album) {
+        try {
+          await saveBountyAlbum.mutateAsync({
+            bountyId,
+            chainId,
+            album,
+          });
+        } catch (error) {
+          toastError(
+            'Bounty created, but adding it to the album failed',
+            error
+          );
+        }
+      }
 
       onClose();
       setUsdPerToken(null);

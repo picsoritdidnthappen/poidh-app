@@ -1,13 +1,8 @@
 import { z } from 'zod';
-import { baseProcedure, middleware } from '../init';
+import { authedProcedure, baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
-import { addressSchema, bytesSchema } from '../serverTypes';
-import {
-  getCommentSignatureFirstLine,
-  getReactionSignatureMessage,
-} from '@/utils/utils';
 import { TRPCError } from '@trpc/server';
-import { chains, getChainById } from '@/utils/config';
+import { getChainById } from '@/utils/config';
 import { getUsersDataOrFetchItFromNeynar } from './neynar';
 
 const COMMENTS_USER_LIMIT = {
@@ -15,144 +10,6 @@ const COMMENTS_USER_LIMIT = {
   bounty: 3,
   timeLimit: 5 * 60 * 1000,
 };
-
-const verifyComment = middleware(async (opts) => {
-  const schema = z.object({
-    address: addressSchema,
-    bountyId: z.number(),
-    chainId: z.union([
-      z.literal(8453),
-      z.literal(666666666),
-      z.literal(42161),
-      z.literal(1),
-    ]),
-    signature: bytesSchema,
-    signatureText: z.string(),
-  });
-
-  const { input, next } = opts;
-
-  const parsedInput = schema.safeParse(input);
-
-  if (parsedInput.error) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: 'Invalid input! Check zod schema. \n',
-    });
-  }
-
-  const { address, signature, signatureText: message } = parsedInput.data;
-
-  const { bountyCount, globalCount } = await getUserCommentsCount({
-    ...parsedInput.data,
-  });
-
-  if (
-    bountyCount >= COMMENTS_USER_LIMIT.bounty ||
-    globalCount >= COMMENTS_USER_LIMIT.global
-  ) {
-    throw new TRPCError({
-      code: 'TOO_MANY_REQUESTS',
-      message:
-        'You reached your comments limit. Ask admin to reset it or wait 5 min.',
-    });
-  }
-
-  const chain = chains['base'];
-
-  const expectedMessage = getCommentSignatureFirstLine({
-    address,
-  });
-
-  if (!message.startsWith(expectedMessage)) {
-    throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
-      message: 'Invalid message',
-    });
-  }
-
-  const isValid = await chain.provider.verifyMessage({
-    address,
-    signature,
-    message,
-  });
-
-  if (!isValid) {
-    throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
-      message: 'Signature is invalid',
-    });
-  }
-
-  return next();
-});
-
-const verifyReaction = middleware(async (opts) => {
-  const schema = z.object({
-    address: addressSchema,
-    chainId: z.union([
-      z.literal(8453),
-      z.literal(666666666),
-      z.literal(42161),
-      z.literal(1),
-    ]),
-    commentId: z.number(),
-    signature: bytesSchema,
-    signatureText: z.string(),
-    type: z.union([z.literal('upvote'), z.literal('downvote')]),
-  });
-
-  const { input, next } = opts;
-
-  const parsedInput = schema.safeParse(input);
-
-  if (parsedInput.error) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: 'Invalid input! Check zod schema. \n',
-    });
-  }
-
-  const {
-    address,
-    signature,
-    signatureText: message,
-    commentId,
-    type,
-  } = parsedInput.data;
-
-  const chain = chains['base'];
-  const expectedMessage = getReactionSignatureMessage({
-    address,
-    commentId,
-    type,
-  });
-
-  if (message !== expectedMessage) {
-    throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
-      message: 'Invalid message',
-    });
-  }
-
-  const isValid = await chain.provider.verifyMessage({
-    address,
-    signature,
-    message,
-  });
-
-  if (!isValid) {
-    throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
-      message: 'Signature is invalid',
-    });
-  }
-
-  return next({
-    ctx: opts.ctx,
-    input: parsedInput.data,
-  });
-});
 
 export const commentsRouter = {
   fetch: baseProcedure
@@ -217,12 +74,14 @@ export const commentsRouter = {
       });
     }),
 
-  comment: baseProcedure
+  /**
+   * Posts a comment or reply as the signed-in user, then notifies the bounty
+   * issuer and, for a reply, the parent comment's author. Each user can post
+   * a limited number of comments every few minutes.
+   */
+  comment: authedProcedure
     .input(
       z.object({
-        address: addressSchema.transform((address) =>
-          address.toLocaleLowerCase()
-        ),
         bountyId: z.number(),
         chainId: z.union([
           z.literal(8453),
@@ -230,15 +89,31 @@ export const commentsRouter = {
           z.literal(42161),
           z.literal(1),
         ]),
-        signature: bytesSchema,
         text: z.string(),
-        signatureText: z.string(),
         parrentId: z.number().optional(),
       })
     )
-    .use(verifyComment)
-    .mutation(async ({ input }) => {
-      await getUsersDataOrFetchItFromNeynar([input.address]);
+    .mutation(async ({ ctx, input }) => {
+      const { address } = ctx.session;
+
+      const { bountyCount, globalCount } = await getUserCommentsCount({
+        address,
+        bountyId: input.bountyId,
+        chainId: input.chainId,
+      });
+
+      if (
+        bountyCount >= COMMENTS_USER_LIMIT.bounty ||
+        globalCount >= COMMENTS_USER_LIMIT.global
+      ) {
+        throw new TRPCError({
+          code: 'TOO_MANY_REQUESTS',
+          message:
+            'You reached your comments limit. Ask admin to reset it or wait 5 min.',
+        });
+      }
+
+      await getUsersDataOrFetchItFromNeynar([address]);
       const [bounty, parentComment] = await Promise.all([
         prisma.bounties.findFirst({
           where: {
@@ -266,7 +141,7 @@ export const commentsRouter = {
           parentId: input.parrentId,
           chainId: input.chainId,
           bountyId: input.bountyId,
-          userAddress: input.address,
+          userAddress: address,
         },
       });
 
@@ -275,14 +150,14 @@ export const commentsRouter = {
         input.text.length > 140 ? `${input.text.slice(0, 137)}...` : input.text;
       const addresses = new Set<string>();
 
-      if (bounty?.issuer && bounty.issuer !== input.address) {
+      if (bounty?.issuer && bounty.issuer !== address) {
         addresses.add(bounty.issuer);
       }
 
       if (
         input.parrentId &&
         parentComment?.userAddress &&
-        parentComment.userAddress !== input.address
+        parentComment.userAddress !== address
       ) {
         addresses.add(parentComment.userAddress);
       }
@@ -294,18 +169,19 @@ export const commentsRouter = {
             addresses: Array.from(addresses),
             link: `https://poidh.xyz/${chain.slug}/bounty/${input.bountyId}`,
             message: shortMessage,
-            issuer: input.address,
+            issuer: address,
           },
         },
       });
     }),
 
-  rate: baseProcedure
+  /**
+   * Upvotes or downvotes a comment as the signed-in user, replacing any vote
+   * they already gave it.
+   */
+  rate: authedProcedure
     .input(
       z.object({
-        address: addressSchema.transform((address) =>
-          address.toLocaleLowerCase()
-        ),
         chainId: z.union([
           z.literal(8453),
           z.literal(666666666),
@@ -313,13 +189,12 @@ export const commentsRouter = {
           z.literal(1),
         ]),
         commentId: z.number(),
-        signature: bytesSchema,
-        signatureText: z.string(),
         type: z.union([z.literal('upvote'), z.literal('downvote')]),
       })
     )
-    .use(verifyReaction)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const { address } = ctx.session;
+
       const comment = await prisma.comments.findFirst({
         where: {
           AND: [{ id: input.commentId }, { chainId: input.chainId }],
@@ -336,18 +211,18 @@ export const commentsRouter = {
         });
       }
 
-      await getUsersDataOrFetchItFromNeynar([input.address]);
+      await getUsersDataOrFetchItFromNeynar([address]);
       await prisma.$transaction([
         prisma.reactions.deleteMany({
           where: {
             commentId: input.commentId,
-            address: input.address,
+            address,
           },
         }),
         prisma.reactions.create({
           data: {
             commentId: input.commentId,
-            address: input.address,
+            address,
             type: input.type,
           },
         }),

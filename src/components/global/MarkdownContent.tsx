@@ -13,9 +13,7 @@ const sanitizeSchema = {
     source: ['src', 'type'],
   },
 };
-
 const VIDEO_EXTENSIONS = /\.(mp4|webm|ogg|mov)(\?.*)?$/i;
-
 const components: Components = {
   a: ({ href, children }) => (
     <a
@@ -105,6 +103,34 @@ const components: Components = {
   em: ({ children }) => <em className='italic'>{children}</em>,
   hr: () => <hr className='border-gray-400 my-4' />,
 };
+// Normalize missing spaces after dash bullets, without editing code fences.
+function normalizeBullets(markdown: string): string {
+  let fence: { marker: string; length: number } | null = null;
+
+  return markdown
+    .split('\n')
+    .map((line) => {
+      const match = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+      if (match) {
+        const marker = match[1][0];
+        if (!fence) {
+          fence = { marker, length: match[1].length };
+        } else if (
+          marker === fence.marker &&
+          match[1].length >= fence.length &&
+          match[2].trim() === ''
+        ) {
+          fence = null;
+        }
+        return line;
+      }
+
+      return fence
+        ? line
+        : line.replace(/^([ \t]{0,3})-(?=[A-Za-z])/, '$1- ');
+    })
+    .join('\n');
+}
 
 export default function MarkdownContent({
   children,
@@ -113,6 +139,9 @@ export default function MarkdownContent({
   children: string;
   className?: string;
 }) {
+  // Display-only normalization: onchain text is never modified.
+  const normalizedChildren = normalizeBullets(children);
+
   return (
     <div
       className={`normal-case min-w-0 max-w-full${
@@ -124,7 +153,7 @@ export default function MarkdownContent({
         rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
         components={components}
       >
-        {children}
+        {normalizedChildren}
       </ReactMarkdown>
     </div>
   );
