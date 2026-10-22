@@ -890,16 +890,7 @@ export default function FormBounty({
                   album
                 </span>
               
-                <div className='flex items-start gap-2 text-xs text-white/60 mt-2'>
-                  <span className='shrink-0 mt-0.5'>
-                    <InfoIcon size={16} />
-                  </span>
-                  <span>
-                    albums are poidh&apos;s category system - choose an existing album or create a new one
-                  </span>
-                </div>
-              
-                <div className={`relative mt-2 ${isMobile ? 'mb-5' : 'mb-6'}`}>
+                <div className='relative mt-2'>
                   <input
                     type='text'
                     value={album}
@@ -907,9 +898,9 @@ export default function FormBounty({
                       if (!showAlbumDropdown) {
                         setShowAlbumDropdown(true);
                       }
-                    
+              
                       const next = e.target.value.toLowerCase();
-                    
+              
                       if (next === '' || ALBUM_TYPING_PATTERN.test(next)) {
                         setAlbum(next);
                       }
@@ -921,38 +912,50 @@ export default function FormBounty({
                     }`}
                     placeholder='optional'
                     maxLength={30}
-                    onKeyDown={(e) => {
-                      if (/\s/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                   />
-
+              
                   {showAlbumDropdown &&
                     album &&
                     albums &&
-                    albums.length > 0 && (
+                    albums.some(
+                      (c) => c.album.length <= 30 && ALBUM_PATTERN.test(c.album)
+                    ) && (
                       <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 dark:bg-[#132b47] border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
                         {albums
-                          .filter((c) => c.album.length <= 30 && ALBUM_PATTERN.test(c.album))
+                          .filter(
+                            (c) => c.album.length <= 30 && ALBUM_PATTERN.test(c.album)
+                          )
                           .map((c) => (
-                          <li
-                            key={c.album}
-                            className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setAlbum(c.album);
-                              setShowAlbumDropdown(false);
-                            }}
-                          >
-                            {c.album.length > 20
-                              ? `${c.album.slice(0, 20)}…`
-                              : c.album}{' '}
-                            ({c.count.album})
-                          </li>
-                        ))}
+                            <li
+                              key={c.album}
+                              className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setAlbum(c.album);
+                                setShowAlbumDropdown(false);
+                              }}
+                            >
+                              {c.album.length > 20
+                                ? `${c.album.slice(0, 20)}…`
+                                : c.album}{' '}
+                              ({c.count.album})
+                            </li>
+                          ))}
                       </ul>
                     )}
+                </div>
+              
+                <div
+                  className={`flex items-start gap-2 text-xs text-white/60 mt-2 ${
+                    isMobile ? 'mb-5' : 'mb-6'
+                  }`}
+                >
+                  <span className='shrink-0 mt-0.5'>
+                    <InfoIcon size={18} />
+                  </span>
+                  <span>
+                    albums are poidh&apos;s category system - choose an existing album or create a new one
+                  </span>
                 </div>
               </div>
 
