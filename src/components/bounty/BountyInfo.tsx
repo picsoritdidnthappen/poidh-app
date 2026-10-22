@@ -451,6 +451,8 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
             return `\n\n**Design all six:**\n\n${formattedInterfaces.trim()}\n\n`;
           }
         )
+      : chain.id === 1 && bounty.data.id === 42
+      ? `${bounty.data.description.trimEnd()}\n\n[https://www.glazecorp.io/docs](https://www.glazecorp.io/docs)`
       : bounty.data.description;
 
   return (
