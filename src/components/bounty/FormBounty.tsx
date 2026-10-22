@@ -35,6 +35,8 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import { ETH_MIN_AMOUNT } from '@/utils/constants';
 import MarkdownContent from '@/components/global/MarkdownContent';
 
+const ALBUM_PATTERN = /^[a-z]+(?:-[a-z]+)*$/;
+const ALBUM_TYPING_PATTERN = /^[a-z]+(?:-[a-z]+)*-?$/;
 const BOUNTY_GUIDE_TEMPLATE = `## Why
 
 Explain why you're creating this bounty and what outcome you're looking for.
@@ -896,10 +898,12 @@ export default function FormBounty({
                       if (!showAlbumDropdown) {
                         setShowAlbumDropdown(true);
                       }
-
-                      const next = e.target.value.match(/^[^\s]*/)?.[0] ?? '';
-
-                      setAlbum(next.toLowerCase());
+                    
+                      const next = e.target.value.toLowerCase();
+                    
+                      if (next === '' || ALBUM_TYPING_PATTERN.test(next)) {
+                        setAlbum(next);
+                      }
                     }}
                     onFocus={() => setShowAlbumDropdown(true)}
                     onBlur={() => setShowAlbumDropdown(false)}
@@ -920,7 +924,9 @@ export default function FormBounty({
                     albums &&
                     albums.length > 0 && (
                       <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 dark:bg-[#132b47] border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
-                        {albums.map((c) => (
+                        {albums
+                          .filter((c) => c.album.length <= 30 && ALBUM_PATTERN.test(c.album))
+                          .map((c) => (
                           <li
                             key={c.album}
                             className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
@@ -1067,6 +1073,16 @@ export default function FormBounty({
                         amount,
                         album,
                       };
+
+                      if (
+                        album &&
+                        (album.length > 30 || !ALBUM_PATTERN.test(album))
+                      ) {
+                        toast.error(
+                          'Album names must contain only letters and single hyphens between words.'
+                        );
+                        return;
+                      }
 
                       createBountyMutations.mutate(formData);
                     } else {
