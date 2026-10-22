@@ -950,7 +950,9 @@ export default function FormBounty({
                     isMobile ? 'mb-5' : 'mb-6'
                   }`}
                 >
-                  <InfoIcon size={18} />
+                  <span className='inline-flex w-[18px] h-[18px] shrink-0'>
+                    <InfoIcon size={18} />
+                  </span>
                   <span>
                     albums are poidh&apos;s category system - choose an existing album or create a new one
                   </span>
