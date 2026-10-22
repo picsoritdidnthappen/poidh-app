@@ -876,12 +876,16 @@ export default function FormBounty({
                 </div>
 
                 <div
-                  className={`flex text-balance gap-2 text-xs mt-2 items-center ${
+                  className={`flex w-full items-center gap-2 text-xs mt-2 ${
                     isMobile ? 'mb-5' : 'mb-6'
                   }`}
                 >
-                  <InfoIcon size={18} /> a 2.5% fee is deducted from completed
-                  bounties
+                  <span className='shrink-0'>
+                    <InfoIcon size={18} />
+                  </span>
+                  <span className='min-w-0 flex-1'>
+                    a 2.5% fee is deducted from completed bounties
+                  </span>
                 </div>
               </div>
 
@@ -946,14 +950,14 @@ export default function FormBounty({
                 </div>
               
                 <div
-                  className={`flex text-balance gap-2 text-xs mt-2 items-center text-white ${
+                  className={`flex w-full items-center gap-2 text-xs text-white mt-2 ${
                     isMobile ? 'mb-5' : 'mb-6'
                   }`}
                 >
-                  <span className='inline-flex w-[18px] h-[18px] shrink-0'>
+                  <span className='shrink-0'>
                     <InfoIcon size={18} />
                   </span>
-                  <span>
+                  <span className='min-w-0 flex-1'>
                     albums are poidh&apos;s category system - choose an existing album or create a new one
                   </span>
                 </div>
