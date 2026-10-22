@@ -49,7 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(APP_URL),
-    title: "poidh - pics or it didn't happen - crypto bounties",
+    title: "poidh - pics or it didn't happen - social bounties",
     description: APP_DESCRIPTION,
     viewport: {
       width: 'device-width',
@@ -61,7 +61,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: 'website',
       url: APP_URL,
-      title: "poidh - pics or it didn't happen - crypto bounties",
+      title: "poidh - pics or it didn't happen - social bounties",
       description: APP_DESCRIPTION,
       siteName: 'POIDH',
       images: [
@@ -69,14 +69,14 @@ export async function generateMetadata(): Promise<Metadata> {
           url: APP_OG_IMAGE_URL,
           width: 600,
           height: 400,
-          alt: "poidh - pics or it didn't happen - crypto bounties",
+          alt: "poidh - pics or it didn't happen - social bounties",
         },
       ],
       locale: 'en_US',
     },
     twitter: {
       card: 'summary_large_image',
-      title: "poidh - pics or it didn't happen - crypto bounties",
+      title: "poidh - pics or it didn't happen - social bounties",
       description: APP_DESCRIPTION,
       images: [APP_OG_IMAGE_URL],
     },
