@@ -958,7 +958,7 @@ export default function FormBounty({
                     <InfoIcon size={18} />
                   </span>
                   <span className='min-w-0 flex-1'>
-                    albums are poidh&apos;s category system - choose an existing album or create a new one
+                    albums are categories - choose an existing album or create a new one
                   </span>
                 </div>
               </div>
