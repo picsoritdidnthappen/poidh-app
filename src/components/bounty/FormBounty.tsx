@@ -946,13 +946,11 @@ export default function FormBounty({
                 </div>
               
                 <div
-                  className={`flex items-start gap-2 text-xs text-white/60 mt-2 ${
+                  className={`flex text-balance gap-2 text-xs mt-2 items-center text-white ${
                     isMobile ? 'mb-5' : 'mb-6'
                   }`}
                 >
-                  <span className='shrink-0 mt-0.5'>
-                    <InfoIcon size={18} />
-                  </span>
+                  <InfoIcon size={18} />
                   <span>
                     albums are poidh&apos;s category system - choose an existing album or create a new one
                   </span>
