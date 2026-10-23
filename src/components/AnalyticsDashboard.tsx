@@ -391,18 +391,32 @@ export default function AnalyticsDashboard() {
             </table>
           </div>
         </section>
-        <p className='text-xs text-white/65 leading-relaxed'>
-          Source: poidh&apos;s indexer-backed PostgreSQL database. Counts unique transaction hashes per chain on v3 bounties, starting January 1, 2026.
-          Events within a single transaction count once. Smart-wallet transactions are included; transfers or withdrawals not indexed against a bounty are not included.
-          ETH volume means gross deposits (initial bounty funding plus later contributions), not payouts or current locked balance.
-          Initial deposits are reconstructed from indexed bounty balances and funding/withdrawal events; refunds and payouts are not counted again.
-          The first indexed event determines the transaction count action category. Summary refreshes hourly, and recent activity may lag chain state.
-          Last generated: {new Date(summary.generatedAt).toLocaleString()}.
-        </p>
-        <p className='pb-4 text-xs text-white/65'>
-          based on the original dashboard from{' '}
-          <a href='https://github.com/swiftbotlab/poidh-daily-txs' target='_blank' rel='noopener noreferrer' className='underline underline-offset-4 hover:text-white'>Swift Bot Labs</a>
-        </p>
+        <footer className='pb-4 space-y-3 text-xs leading-relaxed text-white/65'>
+          <div className='space-y-1.5'>
+            <p>Data is based on indexed activity from the live poidh v3 contracts on Ethereum Mainnet, Arbitrum, and Base:</p>
+            <div className='flex flex-wrap gap-x-5 gap-y-1'>
+              <a href='https://etherscan.io/address/0xe731dfadbff20542e10d09d26fc71445c70d4232' target='_blank' rel='noopener noreferrer' className='underline underline-offset-4 hover:text-white'>Ethereum Mainnet ↗</a>
+              <a href='https://arbiscan.io/address/0x5555fa783936c260f77385b4e153b9725fef1719' target='_blank' rel='noopener noreferrer' className='underline underline-offset-4 hover:text-white'>Arbitrum ↗</a>
+              <a href='https://basescan.org/address/0x5555fa783936c260f77385b4e153b9725fef1719' target='_blank' rel='noopener noreferrer' className='underline underline-offset-4 hover:text-white'>Base ↗</a>
+            </div>
+            <p>
+              Excludes bounties on Degen v3 (retired) and the older poidh v2 and v1 contracts. For protocol history and contract information, visit the{' '}
+              <a href='https://docs.poidh.xyz/developers/building-on-poidh.html' target='_blank' rel='noopener noreferrer' className='underline underline-offset-4 hover:text-white'>poidh developer documentation ↗</a>.
+            </p>
+          </div>
+          <p>
+            Source: poidh&apos;s indexer-backed PostgreSQL database. Counts unique transaction hashes per chain on v3 bounties, starting January 1, 2026.
+            Events within a single transaction count once. Smart-wallet transactions are included; transfers or withdrawals not indexed against a bounty are not included.
+            ETH volume means gross deposits (initial bounty funding plus later contributions), not payouts or current locked balance.
+            Initial deposits are reconstructed from indexed bounty balances and funding/withdrawal events; refunds and payouts are not counted again.
+            The first indexed event determines the transaction count action category. Summary refreshes hourly, and recent activity may lag chain state.
+            Last generated: {new Date(summary.generatedAt).toLocaleString()}.
+          </p>
+          <p>
+            based on the original dashboard from{' '}
+            <a href='https://github.com/swiftbotlab/poidh-daily-txs' target='_blank' rel='noopener noreferrer' className='underline underline-offset-4 hover:text-white'>Swift Bot Labs</a>
+          </p>
+        </footer>
       </>}
     </main>
     <Navbar type='bounty'/>
