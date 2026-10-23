@@ -311,7 +311,7 @@ export default function AnalyticsDashboard() {
           <div className='flex flex-wrap items-center justify-between gap-3 border-t border-white/15 pt-4'>
             <div className='inline-flex rounded-full bg-black/15 p-1 gap-1'>
               {(['day', 'week', 'cumulative'] as const).map((item) => <button key={item} onClick={() => { setPeriod(item); setSelected(null); }} aria-pressed={period === item}
-                className={`rounded-full px-3 py-1.5 text-sm ${period === item ? 'bg-white text-[#173e66]' : 'hover:bg-white/10'}`}>{item === 'cumulative' ? 'cumulative' : `${item}ly`}</button>)}
+                className={`rounded-full px-3 py-1.5 text-sm ${period === item ? 'bg-white text-[#173e66]' : 'hover:bg-white/10'}`}>{item === 'day' ? 'daily' : item === 'week' ? 'weekly' : 'cumulative'}</button>)}
             </div>
             <div className='inline-flex rounded-full bg-black/15 p-1 gap-1'>
               {(['chain', 'action'] as const).map((item) => <button key={item} onClick={() => { setDimension(item); setSelected(null); }} aria-pressed={dimension === item}
