@@ -29,6 +29,8 @@ export type DailyPoint = {
   base: number;
   total: number;
   by: Record<ActionGroup, number>;
+  /** Gross ETH deposited into bounties, not payouts or net TVL. */
+  eth: { ethereum: number; arbitrum: number; base: number; total: number; by: Record<ActionGroup, number> };
 };
 export type AnalyticsSummary = {
   generatedAt: string;
@@ -50,6 +52,7 @@ export function actionGroup(action: string): ActionGroup {
   if (a === 'claim created') return 'claims';
   if (a === 'bounty created' || a === 'bounty canceled') return 'bounties';
   if (a === 'claim accepted') return 'accepted';
+  if (a === 'funding') return 'funding';
   if (a === 'voted' || a === 'voting resolved' || a.endsWith('submitted for vote')) return 'voting';
   if (/^[+-][\d.]+ eth$/.test(a) || a === 'funds claimed') return 'funding';
   return 'other';
@@ -75,6 +78,7 @@ export function uniqueTransactions<T extends IndexedTransaction>(rows: T[]): T[]
   return [...unique.values()];
 }
 export type GroupedTransactionCount = { date: string; chainId: number; action: string; count: number };
+export type GroupedEthVolume = { date: string; chainId: number; action: string; eth: string };
 
 function emptyAnalytics(now: Date): AnalyticsSummary {
   const throughDate = now.toISOString().slice(0, 10);
@@ -82,7 +86,8 @@ function emptyAnalytics(now: Date): AnalyticsSummary {
   for (let time = Date.parse(`${ANALYTICS_START}T00:00:00Z`); time <= Date.parse(`${throughDate}T00:00:00Z`); time += 86400000) {
     const date = new Date(time).toISOString().slice(0, 10);
     const by = Object.fromEntries(ACTION_GROUPS.map((g) => [g, 0])) as Record<ActionGroup, number>;
-    const point: DailyPoint = { date, ethereum: 0, arbitrum: 0, base: 0, total: 0, by };
+    const point: DailyPoint = { date, ethereum: 0, arbitrum: 0, base: 0, total: 0, by,
+      eth: { ethereum: 0, arbitrum: 0, base: 0, total: 0, by: { ...by } } };
     days.push(point);
   }
   return {
@@ -94,7 +99,11 @@ function emptyAnalytics(now: Date): AnalyticsSummary {
   };
 }
 
-export function aggregateGroupedAnalytics(rows: GroupedTransactionCount[], now = new Date()): AnalyticsSummary {
+export function aggregateGroupedAnalytics(
+  rows: GroupedTransactionCount[],
+  now = new Date(),
+  volumeRows: GroupedEthVolume[] = [],
+): AnalyticsSummary {
   const summary = emptyAnalytics(now);
   const lookup = new Map(summary.days.map((row) => [row.date, row]));
   for (const entry of rows) {
@@ -104,6 +113,15 @@ export function aggregateGroupedAnalytics(rows: GroupedTransactionCount[], now =
     point[chain.key] += entry.count;
     point.total += entry.count;
     point.by[actionGroup(entry.action)] += entry.count;
+  }
+  for (const entry of volumeRows) {
+    const point = lookup.get(entry.date);
+    const chain = chainFor(entry.chainId);
+    const amount = Number(entry.eth);
+    if (!point || !chain || !Number.isFinite(amount) || amount < 0) continue;
+    point.eth[chain.key] += amount;
+    point.eth.total += amount;
+    point.eth.by[actionGroup(entry.action)] += amount;
   }
   return summary;
 }
