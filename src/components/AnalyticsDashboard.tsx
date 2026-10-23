@@ -8,6 +8,7 @@ import { ACTION_GROUPS, CHAINS, type ActionGroup, type AnalyticsSummary, type Ch
 type Range = '7d' | '30d' | '90d' | 'all' | 'custom';
 type Period = 'day' | 'week' | 'cumulative';
 type Dimension = 'chain' | 'action';
+type Metric = 'transactions' | 'eth';
 type SeriesKey = ChainKey | ActionGroup;
 type Bucket = { start: string; end: string; label: string; count: Record<SeriesKey, number> };
 type Detail = {
@@ -35,6 +36,8 @@ const KEYS: SeriesKey[] = [...CHAINS.map((c) => c.key), ...ACTION_GROUPS];
 const emptyCounts = () => Object.fromEntries(KEYS.map((key) => [key, 0])) as Record<SeriesKey, number>;
 const addDays = (date: string, count: number) => new Date(Date.parse(`${date}T00:00:00Z`) + count * 86400000).toISOString().slice(0, 10);
 const formatNumber = (value: number) => new Intl.NumberFormat('en-US').format(value);
+const formatEth = (value: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: Math.abs(value) < 0.01 ? 6 : 4 }).format(value);
+const formatMetric = (value: number, metric: Metric) => metric === 'eth' ? `${formatEth(value)} ETH` : formatNumber(value);
 const niceDate = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 const download = (name: string, body: string, mime: string) => {
   const url = URL.createObjectURL(new Blob([body], { type: mime }));
@@ -45,14 +48,14 @@ const download = (name: string, body: string, mime: string) => {
   URL.revokeObjectURL(url);
 };
 
-function toBucket(point: DailyPoint): Bucket {
+function toBucket(point: DailyPoint, metric: Metric): Bucket {
   const count = emptyCounts();
-  for (const chain of CHAINS) count[chain.key] = point[chain.key];
-  for (const action of ACTION_GROUPS) count[action] = point.by[action];
+  for (const chain of CHAINS) count[chain.key] = metric === 'eth' ? point.eth[chain.key] : point[chain.key];
+  for (const action of ACTION_GROUPS) count[action] = metric === 'eth' ? point.eth.by[action] : point.by[action];
   return { start: point.date, end: point.date, label: niceDate(point.date), count };
 }
-function bucketize(days: DailyPoint[], period: Period): Bucket[] {
-  if (period !== 'week') return days.map(toBucket);
+function bucketize(days: DailyPoint[], period: Period, metric: Metric): Bucket[] {
+  if (period !== 'week') return days.map((point) => toBucket(point, metric));
   const result: Bucket[] = [];
   for (const point of days) {
     const date = Date.parse(`${point.date}T00:00:00Z`);
@@ -64,13 +67,13 @@ function bucketize(days: DailyPoint[], period: Period): Bucket[] {
       result.push(latest);
     }
     latest.end = point.date;
-    const item = toBucket(point);
+    const item = toBucket(point, metric);
     for (const key of KEYS) latest.count[key] += item.count[key];
   }
   return result;
 }
 
-function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect, selected } : {
+function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect, selected, metric } : {
   buckets: Bucket[];
   series: SeriesKey[];
   colors: Record<string, string>;
@@ -78,6 +81,7 @@ function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect
   dailyAverage: boolean;
   onSelect: (bucket: Bucket) => void;
   selected: Bucket | null;
+  metric: Metric;
 }) {
   // Size the entire timeline to the available card width, instead of expanding
   // the SVG horizontally for longer date ranges.
@@ -116,13 +120,13 @@ function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect
   const averagePath = average.map((n, i) => `${i ? 'L' : 'M'} ${xx(i)} ${yy(n)}`).join(' ');
   if (!buckets.length) return <div className='py-24 text-center text-white/70'>no indexed activity for this range</div>;
   return (
-    <div ref={chartRef} className='w-full min-w-0 overflow-hidden pb-2' aria-label='Transaction activity chart; click a bar to see the transactions'>
-      <svg viewBox={`0 0 ${width} ${height}`} width='100%' height={height} className='block w-full' role='img' aria-label='poidh indexed transaction history'>
+    <div ref={chartRef} className='w-full min-w-0 overflow-hidden pb-2' aria-label={`${metric === 'eth' ? 'ETH funding volume' : 'Transaction activity'} chart; click a bar to see transactions on the date`}>
+      <svg viewBox={`0 0 ${width} ${height}`} width='100%' height={height} className='block w-full' role='img' aria-label={metric === 'eth' ? 'poidh indexed ETH deposited into bounties' : 'poidh indexed transaction history'}>
         {[0, 0.25, 0.5, 0.75, 1].map((tick) => {
           const y = yy(max * tick);
           return <g key={tick}>
             <line x1={left} x2={width - 8} y1={y} y2={y} stroke='white' strokeOpacity={0.17} strokeDasharray='3 5'/>
-            <text x={left - 11} y={y + 4} textAnchor='end' fill='white' fillOpacity={0.75} fontSize={11}>{formatNumber(Math.round(max * tick))}</text>
+            <text x={left - 11} y={y + 4} textAnchor='end' fill='white' fillOpacity={0.75} fontSize={11}>{metric === 'eth' ? formatEth(max * tick) : formatNumber(Math.round(max * tick))}</text>
           </g>;
         })}
         {buckets.map((bucket, index) => {
@@ -139,10 +143,10 @@ function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect
             {index % interval === 0 && <text x={x} y={height - 12} fontSize={11} textAnchor='middle' fill='white' fillOpacity={0.72}>{bucket.label}</text>}
             {selected?.start === bucket.start && <rect x={x - step * 0.45} y={top} width={Math.max(0.5, step * 0.9)} height={plotHeight} stroke='white' strokeOpacity={0.55} fill='white' fillOpacity={0.04} />}
             <rect x={x - step / 2} y={top} width={step} height={plotHeight} fill='transparent'
-              role='button' tabIndex={0} aria-label={`${bucket.start} to ${bucket.end}: ${formatNumber(totals[index])} transactions. Show details`}
+              role='button' tabIndex={0} aria-label={`${bucket.start} to ${bucket.end}: ${formatMetric(totals[index], metric)}. Show transactions on this date`}
               className='cursor-pointer' onClick={() => onSelect(bucket)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(bucket); } }}>
-              <title>{`${bucket.start}${bucket.start !== bucket.end ? ` – ${bucket.end}` : ''}: ${formatNumber(totals[index])} transactions`}</title>
+              <title>{`${bucket.start}${bucket.start !== bucket.end ? ` – ${bucket.end}` : ''}: ${formatMetric(totals[index], metric)}`}</title>
             </rect>
           </g>;
         })}
@@ -160,6 +164,7 @@ export default function AnalyticsDashboard() {
   const [range, setRange] = useState<Range>('30d');
   const [period, setPeriod] = useState<Period>('day');
   const [dimension, setDimension] = useState<Dimension>('chain');
+  const [metric, setMetric] = useState<Metric>('transactions');
   const [active, setActive] = useState<SeriesKey[]>(KEYS);
   const [customFrom, setCustomFrom] = useState('2026-01-01');
   const [customTo, setCustomTo] = useState(new Date().toISOString().slice(0, 10));
@@ -176,9 +181,11 @@ export default function AnalyticsDashboard() {
     const r = params.get('range');
     const p = params.get('period');
     const d = params.get('view');
+    const m = params.get('metric');
     if (r && ['7d', '30d', '90d', 'all', 'custom'].includes(r)) setRange(r as Range);
     if (p && ['day', 'week', 'cumulative'].includes(p)) setPeriod(p as Period);
     if (d && ['chain', 'action'].includes(d)) setDimension(d as Dimension);
+    if (m === 'eth') setMetric('eth');
     if (params.get('from')) setCustomFrom(params.get('from')!);
     if (params.get('to')) setCustomTo(params.get('to')!);
   }, []);
@@ -187,9 +194,10 @@ export default function AnalyticsDashboard() {
     params.set('range', range);
     params.set('period', period);
     params.set('view', dimension);
+    params.set('metric', metric);
     if (range === 'custom') { params.set('from', customFrom); params.set('to', customTo); }
     window.history.replaceState(null, '', `/analytics?${params.toString()}`);
-  }, [range, period, dimension, customFrom, customTo]);
+  }, [range, period, dimension, metric, customFrom, customTo]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -213,13 +221,15 @@ export default function AnalyticsDashboard() {
     if (end < start) return [];
     return summary.days.filter((day) => day.date >= start && day.date <= end);
   }, [summary, range, customFrom, customTo]);
-  const buckets = useMemo(() => bucketize(days, period), [days, period]);
+  const buckets = useMemo(() => bucketize(days, period, metric), [days, period, metric]);
   const series = useMemo(() => (
-    (dimension === 'chain' ? CHAINS.map((c) => c.key) : [...ACTION_GROUPS]).filter((key) => active.includes(key))
-  ), [dimension, active]);
+    (dimension === 'chain' ? CHAINS.map((c) => c.key) : metric === 'eth' ? ['bounties', 'funding'] as ActionGroup[] : [...ACTION_GROUPS])
+      .filter((key) => active.includes(key))
+  ), [dimension, metric, active]);
   const palette: Record<string, string> = dimension === 'chain' ? CHAIN_COLORS : ACTION_COLORS;
   const counts = days.map((day) => series.reduce((sum, key) =>
-    sum + (key === 'ethereum' || key === 'arbitrum' || key === 'base' ? day[key] : day.by[key]), 0));
+    sum + (metric === 'eth' ? (key === 'ethereum' || key === 'arbitrum' || key === 'base' ? day.eth[key] : day.eth.by[key]) :
+      (key === 'ethereum' || key === 'arbitrum' || key === 'base' ? day[key] : day.by[key])), 0));
   const total = counts.reduce((sum, value) => sum + value, 0);
   const peak = counts.length ? Math.max(...counts) : 0;
   const average = counts.length ? total / counts.length : 0;
@@ -261,11 +271,12 @@ export default function AnalyticsDashboard() {
     finally { setDetailLoading(false); }
   };
   const csv = () => {
-    const header = ['date_utc', 'ethereum', 'arbitrum', 'base', 'total', ...ACTION_GROUPS];
-    const body = days.map((d) => [d.date, d.ethereum, d.arbitrum, d.base, d.total, ...ACTION_GROUPS.map((key) => d.by[key])].join(','));
-    download('poidh-analytics.csv', [header.join(','), ...body].join('\r\n'), 'text/csv;charset=utf-8');
+    const header = ['date_utc', 'ethereum', 'arbitrum', 'base', 'total', ...ACTION_GROUPS].map((h) => metric === 'eth' && h !== 'date_utc' ? `${h}_eth` : h);
+    const body = days.map((d) => metric === 'eth' ? [d.date, d.eth.ethereum, d.eth.arbitrum, d.eth.base, d.eth.total, ...ACTION_GROUPS.map((key) => d.eth.by[key])].join(',') :
+      [d.date, d.ethereum, d.arbitrum, d.base, d.total, ...ACTION_GROUPS.map((key) => d.by[key])].join(','));
+    download(metric === 'eth' ? 'poidh-eth-volume.csv' : 'poidh-analytics.csv', [header.join(','), ...body].join('\r\n'), 'text/csv;charset=utf-8');
   };
-  const exportJson = () => download('poidh-analytics.json', JSON.stringify({ source: summary?.source, days }, null, 2), 'application/json');
+  const exportJson = () => download('poidh-analytics.json', JSON.stringify({ source: summary?.source, metric, days }, null, 2), 'application/json');
   const selectBucket = (bucket: Bucket) => {
     // If range starts mid-week, drill down only into dates actually in range.
     const first = days[0]?.date || bucket.start;
@@ -283,9 +294,9 @@ export default function AnalyticsDashboard() {
       {summary && <>
         <section className='grid grid-cols-2 lg:grid-cols-4 gap-3' aria-label='Summary statistics'>
           {[
-            ['transactions', formatNumber(total)],
-            ['daily average', average.toFixed(1)],
-            ['peak day', formatNumber(peak)],
+            [metric === 'eth' ? 'ETH funded' : 'transactions', formatMetric(total, metric)],
+            ['daily average', formatMetric(average, metric)],
+            ['peak day', formatMetric(peak, metric)],
             ['days in range', formatNumber(days.length)],
           ].map(([label, value]) => <div key={label} className={`${CARD} p-4 sm:p-5`}>
             <p className='text-xs text-white/65 mb-3'>{label}</p>
@@ -294,10 +305,16 @@ export default function AnalyticsDashboard() {
         </section>
         <section className={`${CARD} p-4 sm:p-6 space-y-5`}>
           <div className='flex flex-wrap justify-between items-start gap-3'>
-            <h2 className='text-xl font-semibold'>transaction activity</h2>
+            <h2 className='text-xl font-semibold'>{metric === 'eth' ? 'ETH funding volume' : 'transaction activity'}</h2>
             <div className='flex items-center gap-2'>
               <button onClick={csv} className={`${BUTTON} border-white/30 hover:bg-white/20`}>↓ csv</button>
               <button onClick={exportJson} className={`${BUTTON} border-white/30 hover:bg-white/20`}>↓ json</button>
+            </div>
+          </div>
+          <div className='flex flex-wrap items-center gap-2'>
+            <div className='inline-flex rounded-full bg-black/15 p-1 gap-1' aria-label='Chart metric'>
+              {(['transactions', 'eth'] as const).map((item) => <button key={item} onClick={() => { setMetric(item); setSelected(null); }} aria-pressed={metric === item}
+                className={`rounded-full px-4 py-1.5 text-sm ${metric === item ? 'bg-white text-[#173e66]' : 'hover:bg-white/10'}`}>{item === 'eth' ? 'by ETH volume' : 'by transactions'}</button>)}
             </div>
           </div>
           <div className='flex flex-wrap gap-2 items-center'>
@@ -319,7 +336,7 @@ export default function AnalyticsDashboard() {
             </div>
           </div>
           <div className='flex flex-wrap gap-2'>
-            {(dimension === 'chain' ? CHAINS.map((chain) => ({ key: chain.key, label: chain.label })) : ACTION_GROUPS.map((group) => ({ key: group, label: group }))).map(({ key, label }) => {
+            {(dimension === 'chain' ? CHAINS.map((chain) => ({ key: chain.key, label: chain.label })) : (metric === 'eth' ? ACTION_GROUPS.filter((g) => g === 'bounties' || g === 'funding') : ACTION_GROUPS).map((group) => ({ key: group, label: group }))).map(({ key, label }) => {
               const on = active.includes(key);
               return <button key={key} onClick={() => setActive((old) => on ? old.filter((k) => k !== key) : [...old, key])}
                 aria-pressed={on} className={`inline-flex items-center gap-2 rounded-full border border-white/25 px-3 py-1.5 text-xs ${on ? 'bg-white/10' : 'opacity-45'}`}>
@@ -327,9 +344,9 @@ export default function AnalyticsDashboard() {
                 </button>;
             })}
           </div>
-          <MiniChart buckets={buckets} series={series} colors={palette} cumulative={period === 'cumulative'} dailyAverage={period === 'day'} onSelect={selectBucket} selected={selected}/>
+          <MiniChart buckets={buckets} series={series} colors={palette} metric={metric} cumulative={period === 'cumulative'} dailyAverage={period === 'day'} onSelect={selectBucket} selected={selected}/>
           <div className='flex flex-wrap justify-between gap-2 text-xs text-white/65'>
-            <span>{period === 'day' && <span className='text-[#fff4bd]'>- - 7-day moving average · </span>}click a bar, point, or table row for transaction links</span>
+            <span>{period === 'day' && <span className='text-[#fff4bd]'>- - 7-day moving average · </span>}click a bar, point, or table row for transactions on that date</span>
             <span>UTC dates · updated hourly</span>
           </div>
         </section>
@@ -355,8 +372,8 @@ export default function AnalyticsDashboard() {
         </section>}
         <section className={`${CARD} overflow-hidden`}>
           <div className='flex justify-between items-center gap-2 p-4 sm:p-6 border-b border-white/20'>
-            <h2 className='text-lg font-semibold'>daily totals</h2>
-            <p className='text-xs text-white/65'>select a row to inspect transactions</p>
+            <h2 className='text-lg font-semibold'>{metric === 'eth' ? 'daily ETH funded' : 'daily totals'}</h2>
+            <p className='text-xs text-white/65'>{metric === 'eth' ? 'values in ETH · click for transaction links' : 'select a row to inspect transactions'}</p>
           </div>
           <div className='max-h-[440px] overflow-auto'>
             <table className='w-full text-xs sm:text-sm text-left tabular-nums'>
@@ -365,21 +382,26 @@ export default function AnalyticsDashboard() {
                 <th className='p-3 text-right'>arbitrum</th><th className='p-3 text-right'>base</th><th className='p-3 text-right'>total</th>
               </tr></thead>
               <tbody>{[...days].reverse().map((row) => <tr key={row.date} tabIndex={0} role='button' aria-label={`Show ${row.date} transactions`}
-                onClick={() => selectBucket(toBucket(row))}
-                onKeyDown={(e) => { if (e.key === 'Enter') selectBucket(toBucket(row)); }}
+                onClick={() => selectBucket(toBucket(row, metric))}
+                onKeyDown={(e) => { if (e.key === 'Enter') selectBucket(toBucket(row, metric)); }}
                 className='cursor-pointer border-t border-white/10 hover:bg-white/15 focus:bg-white/15'>
-                <td className='p-3 whitespace-nowrap'>{row.date}</td><td className='p-3 text-right'>{formatNumber(row.ethereum)}</td>
-                <td className='p-3 text-right'>{formatNumber(row.arbitrum)}</td><td className='p-3 text-right'>{formatNumber(row.base)}</td>
-                <td className='p-3 text-right font-semibold'>{formatNumber(row.total)}</td>
+                <td className='p-3 whitespace-nowrap'>{row.date}</td><td className='p-3 text-right'>{metric === 'eth' ? formatEth(row.eth.ethereum) : formatNumber(row.ethereum)}</td><td className='p-3 text-right'>{metric === 'eth' ? formatEth(row.eth.arbitrum) : formatNumber(row.arbitrum)}</td><td className='p-3 text-right'>{metric === 'eth' ? formatEth(row.eth.base) : formatNumber(row.base)}</td>
+                <td className='p-3 text-right font-semibold'>{metric === 'eth' ? formatEth(row.eth.total) : formatNumber(row.total)}</td>
               </tr>)}</tbody>
             </table>
           </div>
         </section>
-        <p className='pb-4 text-xs text-white/65 leading-relaxed'>
+        <p className='text-xs text-white/65 leading-relaxed'>
           Source: poidh&apos;s indexer-backed PostgreSQL database. Counts unique transaction hashes per chain on v3 bounties, starting January 1, 2026.
           Events within a single transaction count once. Smart-wallet transactions are included; transfers or withdrawals not indexed against a bounty are not included.
-          The first indexed event determines the action category. Summary refreshes hourly, and recent activity may lag chain state.
+          ETH volume means gross deposits (initial bounty funding plus later contributions), not payouts or current locked balance.
+          Initial deposits are reconstructed from indexed bounty balances and funding/withdrawal events; refunds and payouts are not counted again.
+          The first indexed event determines the transaction count action category. Summary refreshes hourly, and recent activity may lag chain state.
           Last generated: {new Date(summary.generatedAt).toLocaleString()}.
+        </p>
+        <p className='pb-4 text-xs text-white/65'>
+          based on the original dashboard from{' '}
+          <a href='https://github.com/swiftbotlab/poidh-daily-txs' target='_blank' rel='noopener noreferrer' className='underline underline-offset-4 hover:text-white'>Swift Bot Labs</a>
         </p>
       </>}
     </main>
