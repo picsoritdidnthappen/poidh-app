@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/global/Navbar';
 import { ACTION_GROUPS, CHAINS, type ActionGroup, type AnalyticsSummary, type ChainKey, type DailyPoint } from '@/poidhAnalytics';
@@ -79,11 +79,26 @@ function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect
   onSelect: (bucket: Bucket) => void;
   selected: Bucket | null;
 }) {
+  // Size the entire timeline to the available card width, instead of expanding
+  // the SVG horizontally for longer date ranges.
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(760);
+  useEffect(() => {
+    const el = chartRef.current;
+    if (!el) return;
+    const measure = () => setContainerWidth(el.getBoundingClientRect().width);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const left = 55, top = 20, bottom = 38, height = 300;
   const plotHeight = height - top - bottom;
-  const step = cumulative ? 15 : 22;
-  const width = Math.max(760, left + 16 + step * buckets.length);
-  const plotWidth = width - left - 15;
+  const width = Math.max(1, containerWidth);
+  const plotWidth = Math.max(1, width - left - 15);
+  const step = plotWidth / Math.max(1, buckets.length);
+  const barWidth = Math.max(0.5, step * 0.78);
   const totals = buckets.map((bucket) => series.reduce((sum, key) => sum + bucket.count[key], 0));
   const values = cumulative ? totals.reduce<number[]>((acc, n) => {
     acc.push((acc[acc.length - 1] || 0) + n);
@@ -94,15 +109,15 @@ function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect
   ) : [];
   const max = Math.max(1, ...values, ...average) * 1.12;
   const bottomY = height - bottom;
-  const xx = (i: number) => left + (i + 0.5) * (plotWidth / Math.max(1, buckets.length));
+  const xx = (i: number) => left + (i + 0.5) * step;
   const yy = (n: number) => bottomY - (n / max) * plotHeight;
-  const interval = Math.max(1, Math.ceil(buckets.length / 9));
+  const interval = Math.max(1, Math.ceil(buckets.length / Math.max(3, Math.floor(plotWidth / 85))));
   const cumulativePath = values.map((n, i) => `${i ? 'L' : 'M'} ${xx(i)} ${yy(n)}`).join(' ');
   const averagePath = average.map((n, i) => `${i ? 'L' : 'M'} ${xx(i)} ${yy(n)}`).join(' ');
   if (!buckets.length) return <div className='py-24 text-center text-white/70'>no indexed activity for this range</div>;
   return (
-    <div className='w-full overflow-x-auto pb-2' aria-label='Transaction activity chart; click a bar to see the transactions'>
-      <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} className='block max-w-none' role='img' aria-label='poidh indexed transaction history'>
+    <div ref={chartRef} className='w-full min-w-0 overflow-hidden pb-2' aria-label='Transaction activity chart; click a bar to see the transactions'>
+      <svg viewBox={`0 0 ${width} ${height}`} width='100%' height={height} className='block w-full' role='img' aria-label='poidh indexed transaction history'>
         {[0, 0.25, 0.5, 0.75, 1].map((tick) => {
           const y = yy(max * tick);
           return <g key={tick}>
@@ -119,10 +134,10 @@ function MiniChart({ buckets, series, colors, cumulative, dailyAverage, onSelect
               const y = yy(running + value);
               const h = (value / max) * plotHeight;
               running += value;
-              return <rect key={key} x={x - Math.max(2, step - 6) / 2} y={y} width={Math.max(2, step - 6)} height={Math.max(0, h)} fill={colors[key]} rx={1} />;
+              return <rect key={key} x={x - barWidth / 2} y={y} width={barWidth} height={Math.max(0, h)} fill={colors[key]} rx={1} />;
             })}
             {index % interval === 0 && <text x={x} y={height - 12} fontSize={11} textAnchor='middle' fill='white' fillOpacity={0.72}>{bucket.label}</text>}
-            {selected?.start === bucket.start && <rect x={x - step / 2 + 1} y={top} width={step - 2} height={plotHeight} stroke='white' strokeOpacity={0.55} fill='white' fillOpacity={0.04} />}
+            {selected?.start === bucket.start && <rect x={x - step * 0.45} y={top} width={Math.max(0.5, step * 0.9)} height={plotHeight} stroke='white' strokeOpacity={0.55} fill='white' fillOpacity={0.04} />}
             <rect x={x - step / 2} y={top} width={step} height={plotHeight} fill='transparent'
               role='button' tabIndex={0} aria-label={`${bucket.start} to ${bucket.end}: ${formatNumber(totals[index])} transactions. Show details`}
               className='cursor-pointer' onClick={() => onSelect(bucket)}
@@ -260,7 +275,6 @@ export default function AnalyticsDashboard() {
   return <div className='min-h-screen pb-24 px-4 pt-10 text-white font-mono sm:px-8'>
     <main className='max-w-7xl mx-auto space-y-5'>
       <header className='mb-6 text-center space-y-2'>
-        <p className='text-xs uppercase tracking-widest text-white/70'>the internet&apos;s coordination protocol</p>
         <h1 className='text-4xl sm:text-5xl'>poidh analytics 📊</h1>
         <p className='text-sm sm:text-base text-white/75'>indexed v3 transactions across ethereum, arbitrum, and base</p>
       </header>
