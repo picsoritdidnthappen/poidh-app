@@ -115,7 +115,7 @@ export default function SlideOverMenu({
         how it works 💡
       </button>
 
-      <MenuLink href='/leaderboard' onClick={handleCloseWithDelay}>
+      <MenuLink href='/analytics' onClick={handleCloseWithDelay}>
         analytics 📊
       </MenuLink>
 
