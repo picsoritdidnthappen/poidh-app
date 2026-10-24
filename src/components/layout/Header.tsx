@@ -80,12 +80,16 @@ export default function Header() {
             <Logo />
           </Link>
         </div>
-
-        <div className='pointer-events-none absolute left-1/2 top-1/2 z-10 hidden w-[270px] -translate-x-1/2 -translate-y-1/2 lg:block'>
+        
+        <div
+          className='pointer-events-none absolute top-1/2 z-10 hidden w-[270px] -translate-x-1/2 -translate-y-1/2 lg:block'
+          style={{ left: 'min(50%, calc(100% - 590px))' }}
+        >
           <div className='pointer-events-auto'>
             <AnalyticsTicker variant='desktop' />
           </div>
         </div>
+
 
         <div className='flex items-center'>
           <button
