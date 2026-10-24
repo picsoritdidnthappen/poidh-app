@@ -32,6 +32,7 @@ const ACTION_COLORS: Record<ActionGroup, string> = {
 };
 const CARD = 'rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm';
 const BUTTON = 'rounded-full border px-3 py-1.5 text-sm transition-colors';
+const VISIBLE_ACTION_GROUPS = ACTION_GROUPS.filter((group) => group !== 'other');
 const KEYS: SeriesKey[] = [...CHAINS.map((c) => c.key), ...ACTION_GROUPS];
 const emptyCounts = () => Object.fromEntries(KEYS.map((key) => [key, 0])) as Record<SeriesKey, number>;
 const addDays = (date: string, count: number) => new Date(Date.parse(`${date}T00:00:00Z`) + count * 86400000).toISOString().slice(0, 10);
@@ -163,7 +164,7 @@ export default function AnalyticsDashboard() {
   const [error, setError] = useState('');
   const [range, setRange] = useState<Range>('30d');
   const [period, setPeriod] = useState<Period>('day');
-  const [dimension, setDimension] = useState<Dimension>('chain');
+  const [dimension, setDimension] = useState<Dimension>('action');
   const [metric, setMetric] = useState<Metric>('transactions');
   const [active, setActive] = useState<SeriesKey[]>(KEYS);
   const [customFrom, setCustomFrom] = useState('2026-01-01');
@@ -223,7 +224,7 @@ export default function AnalyticsDashboard() {
   }, [summary, range, customFrom, customTo]);
   const buckets = useMemo(() => bucketize(days, period, metric), [days, period, metric]);
   const series = useMemo(() => (
-    (dimension === 'chain' ? CHAINS.map((c) => c.key) : metric === 'eth' ? ['bounties', 'funding'] as ActionGroup[] : [...ACTION_GROUPS])
+    (dimension === 'chain' ? CHAINS.map((c) => c.key) : metric === 'eth' ? ['bounties', 'funding'] as ActionGroup[] : VISIBLE_ACTION_GROUPS)
       .filter((key) => active.includes(key))
   ), [dimension, metric, active]);
   const palette: Record<string, string> = dimension === 'chain' ? CHAIN_COLORS : ACTION_COLORS;
@@ -336,7 +337,7 @@ export default function AnalyticsDashboard() {
             </div>
           </div>
           <div className='flex flex-wrap gap-2'>
-            {(dimension === 'chain' ? CHAINS.map((chain) => ({ key: chain.key, label: chain.label })) : (metric === 'eth' ? ACTION_GROUPS.filter((g) => g === 'bounties' || g === 'funding') : ACTION_GROUPS).map((group) => ({ key: group, label: group }))).map(({ key, label }) => {
+            {(dimension === 'chain' ? CHAINS.map((chain) => ({ key: chain.key, label: chain.label })) : (metric === 'eth' ? VISIBLE_ACTION_GROUPS.filter((g) => g === 'bounties' || g === 'funding') : VISIBLE_ACTION_GROUPS).map((group) => ({ key: group, label: group }))).map(({ key, label }) => {
               const on = active.includes(key);
               return <button key={key} onClick={() => setActive((old) => on ? old.filter((k) => k !== key) : [...old, key])}
                 aria-pressed={on} className={`inline-flex items-center gap-2 rounded-full border border-white/25 px-3 py-1.5 text-xs ${on ? 'bg-white/10' : 'opacity-45'}`}>
