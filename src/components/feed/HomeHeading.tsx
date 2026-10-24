@@ -10,11 +10,19 @@ export default function HomeHeading() {
   const [currentAlbumIndex, setCurrentAlbumIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    let rotation = 0;
+    const interval = window.setInterval(() => {
+      rotation += 1;
       setCurrentAlbumIndex((prevIndex) => (prevIndex + 1) % ALBUMS.length);
+
+      // Use the album timer as the single source of truth for the header ticker.
+      // A rotation count means the ticker can change on every *second* album.
+      window.dispatchEvent(
+        new CustomEvent('poidh:album-rotated', { detail: { rotation } })
+      );
     }, 4000);
 
-    return () => clearInterval(interval);
+    return () => window.clearInterval(interval);
   }, []);
 
   return (
