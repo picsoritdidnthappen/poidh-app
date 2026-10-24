@@ -23,6 +23,7 @@ import { trpc } from '@/trpc/client';
 import DarkModeToggle from '@/components/global/DarkModeToggle';
 import SmoothWidth from '@/components/global/SmoothWidth';
 import ZeroDevAuthModal from '@/components/auth/ZeroDevAuthModal';
+import AnalyticsTicker from '@/components/global/AnalyticsTicker';
 
 export default function Header() {
   const account = useAccount();
@@ -60,7 +61,7 @@ export default function Header() {
         />
       </Drawer>
 
-      <div className='flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
+      <div className='relative flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
         <div className='flex'>
           <button
             onClick={() => setIsOpen(true)}
@@ -79,6 +80,16 @@ export default function Header() {
             <Logo />
           </Link>
         </div>
+        
+        <div
+          className='pointer-events-none absolute top-1/2 z-10 hidden w-[270px] -translate-x-1/2 -translate-y-1/2 lg:block'
+          style={{ left: 'min(50%, calc(100% - 590px))' }}
+        >
+          <div className='pointer-events-auto'>
+            <AnalyticsTicker variant='desktop' />
+          </div>
+        </div>
+
 
         <div className='flex items-center'>
           <button

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useYouFeedNotification } from '@/hooks/useYouFeedNotification';
+import AnalyticsTicker from '@/components/global/AnalyticsTicker';
 
 const MenuLink = ({
   href,
@@ -197,6 +198,11 @@ export default function SlideOverMenu({
       <MenuLink href='/privacy' onClick={handleCloseWithDelay}>
         privacy 🔒
       </MenuLink>
+
+      <AnalyticsTicker
+        variant='menu'
+        onNavigate={handleCloseWithDelay}
+      />
     </div>
   );
 }
