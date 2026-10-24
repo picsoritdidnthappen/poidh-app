@@ -1,17 +1,17 @@
 import type { Metadata } from 'next';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
-// Match the base URL used by the existing poidh root layout.
 const APP_URL = (process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz').replace(/\/$/, '');
 const ANALYTICS_URL = `${APP_URL}/analytics`;
-const IMAGE_URL = `${APP_URL}/images/poidh-preview-hero-v2.png`;
+const OG_IMAGE_URL = `${APP_URL}/api/og/analytics`;
+const FARCASTER_IMAGE_URL = `${APP_URL}/api/og/analytics?format=farcaster`;
 const SPLASH_URL = `${APP_URL}/mini-splash-v2.png`;
 const DESCRIPTION =
   'Explore poidh v3 transaction activity and ETH volume across Ethereum, Arbitrum, and Base.';
 
 const miniAppEmbed = {
   version: '1',
-  imageUrl: IMAGE_URL,
+  imageUrl: FARCASTER_IMAGE_URL,
   button: {
     title: 'view poidh analytics',
     action: {
@@ -33,13 +33,13 @@ export const metadata: Metadata = {
     url: ANALYTICS_URL,
     title: 'poidh analytics',
     description: DESCRIPTION,
-    images: [{ url: IMAGE_URL, width: 600, height: 400, alt: 'poidh analytics' }],
+    images: [{ url: OG_IMAGE_URL, width: 1200, height: 630, alt: 'poidh analytics — bounties, claims, and votes' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'poidh analytics',
     description: DESCRIPTION,
-    images: [IMAGE_URL],
+    images: [OG_IMAGE_URL],
   },
   other: {
     'fc:miniapp': JSON.stringify(miniAppEmbed),
