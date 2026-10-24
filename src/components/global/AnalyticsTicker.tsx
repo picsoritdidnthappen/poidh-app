@@ -114,7 +114,6 @@ export default function AnalyticsTicker({
   const [failed, setFailed] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const pathname = usePathname();
-  const hasStats = stats !== null;
 
   useEffect(() => {
     let active = true;
@@ -136,80 +135,31 @@ export default function AnalyticsTicker({
   }, []);
 
   useEffect(() => {
-    if (variant !== 'desktop' || !hasStats) return;
-
-    // On pages without the homepage album heading, rotate every 10 seconds.
-    // On the homepage, follow real album text changes instead of running
-    // another timer that could drift out of sync with the carousel.
-    if (pathname !== '/') {
-      const interval = window.setInterval(() => {
-        setActiveIndex((index) => (index + 1) % 2);
-      }, 10000);
-      return () => window.clearInterval(interval);
-    }
-
-    const findAlbumHeading = () => {
-      const candidates = document.querySelectorAll<HTMLElement>(
-        'h1, h2, h3, h4, [role="heading"]'
-      );
-      for (const el of Array.from(candidates)) {
-        const text = (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
-        if (text.startsWith('social bounties for ')) return { el, text };
-      }
-      return null;
-    };
-
-    let lastAlbum: string | null = null;
-    let albumChanges = 0;
-    let headingObserver: MutationObserver | null = null;
-    let discoveryObserver: MutationObserver | null = null;
-    let debounceTimer: number | null = null;
-
-    // Group consecutive React DOM mutations into one title change.
-    const checkAlbum = () => {
-      const current = findAlbumHeading()?.text;
-      if (!current || current === lastAlbum) return;
-      if (lastAlbum !== null) {
-        albumChanges += 1;
-        if (albumChanges % 2 === 0) {
-          setActiveIndex((index) => (index + 1) % 2);
-        }
-      }
-      lastAlbum = current;
-    };
-
-    const scheduleCheck = () => {
-      if (debounceTimer !== null) window.clearTimeout(debounceTimer);
-      debounceTimer = window.setTimeout(checkAlbum, 200);
-    };
-
-    const attach = () => {
-      if (headingObserver) return true;
-      const found = findAlbumHeading();
-      if (!found) return false;
-      lastAlbum = found.text;
-      // Observe the heading's parent so replacing the title node also counts.
-      headingObserver = new MutationObserver(scheduleCheck);
-      headingObserver.observe(found.el.parentElement || found.el, {
-        subtree: true, childList: true, characterData: true,
-      });
-      discoveryObserver?.disconnect();
-      return true;
-    };
+    if (variant !== 'desktop') return;
 
     setActiveIndex(0);
-    if (!attach()) {
-      // The homepage content may mount after the global header.
-      discoveryObserver = new MutationObserver(() => attach());
-      discoveryObserver.observe(document.body, { childList: true, subtree: true });
+
+    if (pathname === '/') {
+      // HomeHeading is the timing source: it emits one event every 4 seconds.
+      // Switch the ticker on rotations 2, 4, 6, ... (once every 8 seconds).
+      // Using the absolute rotation count also tolerates a missed event.
+      const handleAlbumRotation = (event: Event) => {
+        const rotation = (event as CustomEvent<{ rotation: number }>).detail?.rotation;
+        if (Number.isSafeInteger(rotation) && rotation >= 0) {
+          setActiveIndex(Math.floor(rotation / 2) % 2);
+        }
+      };
+
+      window.addEventListener('poidh:album-rotated', handleAlbumRotation);
+      return () => window.removeEventListener('poidh:album-rotated', handleAlbumRotation);
     }
 
-    return () => {
-      headingObserver?.disconnect();
-      discoveryObserver?.disconnect();
-      if (debounceTimer !== null) window.clearTimeout(debounceTimer);
-    };
-  }, [variant, hasStats, pathname]);
+    // Other pages do not mount HomeHeading. Keep the same 8-second cadence.
+    const interval = window.setInterval(() => {
+      setActiveIndex((index) => (index + 1) % 2);
+    }, 8000);
+    return () => window.clearInterval(interval);
+  }, [variant, pathname]);
 
   if (variant === 'menu') {
     // Keep the menu spacing stable while both stats are loading.
@@ -263,7 +213,7 @@ export default function AnalyticsTicker({
               className='flex flex-col transition-transform duration-500 ease-in-out motion-reduce:transition-none'
               style={{ transform: `translateY(-${activeIndex * 50}%)` }}
             >
-              <span className='h-5 leading-5 shrink-0'>30D ETH VOLUME · {formatEth(stats.ethFunded)} ETH ↗</span>
+              <span className='h-5 leading-5 shrink-0'>30D VOLUME · {formatEth(stats.ethFunded)} ETH ↗</span>
               <span className='h-5 leading-5 shrink-0'>30D TRANSACTIONS · {transactionFormatter.format(stats.transactions)} ↗</span>
             </span>
           </span>
