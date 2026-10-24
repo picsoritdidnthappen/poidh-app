@@ -61,7 +61,7 @@ export default function Header() {
         />
       </Drawer>
 
-      <div className='flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
+      <div className='relative flex justify-between items-center h-[4.5rem] px-4 lg:px-20 border-b border-white'>
         <div className='flex'>
           <button
             onClick={() => setIsOpen(true)}
@@ -81,8 +81,10 @@ export default function Header() {
           </Link>
         </div>
 
-        <div className='hidden lg:flex flex-1 min-w-0 items-center justify-center px-3'>
-          <AnalyticsTicker variant='desktop' />
+        <div className='pointer-events-none absolute left-1/2 top-1/2 z-10 hidden w-[270px] -translate-x-1/2 -translate-y-1/2 lg:block'>
+          <div className='pointer-events-auto'>
+            <AnalyticsTicker variant='desktop' />
+          </div>
         </div>
 
         <div className='flex items-center'>
