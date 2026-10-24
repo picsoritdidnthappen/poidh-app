@@ -10,21 +10,29 @@ const VOTE_BLUE = '#175fa8';
 
 // Decorative bars, not represented as live or historical transaction counts.
 // Fixed numbers keep social previews stable and cacheable.
-const bars = Array.from({ length: 47 }, (_, i) => {
-  const waves = Math.sin(i * 0.48) * 0.5 + Math.sin(i * 1.17) * 0.28;
-  const spike = [8, 17, 25, 35, 40, 44].includes(i) ? 57 : 0;
-  const size = Math.max(45, 77 + i * 3.3 + waves * 72 + spike);
-  return {
-    bounties: Math.round(size * (0.22 + (i % 4) * 0.025)),
-    claims: Math.round(size * (0.64 + (i % 3) * 0.025)),
-    votes: Math.round(size * (0.07 + (i % 5) * 0.009)),
-  };
+const activityHeights = [
+  108, 151, 127, 195, 159,
+  117, 251, 190, 132, 183,
+  228, 171, 274, 219, 154,
+  244, 201, 301, 239, 275,
+];
+
+// Exactly 20 deliberately varied stacked bars: claims dominate, bounties
+// account for a smaller middle share, and votes are only a thin accent.
+const bars = activityHeights.map((total, i) => {
+  const bounties = Math.round(total * (0.23 + (i % 4) * 0.018));
+  const votes = Math.round(total * [0.05, 0.08, 0.04, 0.1, 0.06][i % 5]);
+  return { bounties, claims: total - bounties - votes, votes };
 });
 
 export async function GET(request: Request) {
   const farcaster = new URL(request.url).searchParams.get('format') === 'farcaster';
   const height = farcaster ? 800 : 630;
   const chartHeight = farcaster ? 428 : 300;
+  const tallestBar = Math.max(
+    ...bars.map((bar) => bar.bounties + bar.claims + bar.votes),
+  );
+  const heightScale = (chartHeight - 8) / tallestBar;
 
   // Use poidh's ACTUAL SVG wordmark. Never generate or approximate the logo.
   const logoResponse = await fetch('https://poidh.xyz/Logo_poidh.svg', {
@@ -80,12 +88,13 @@ export async function GET(request: Request) {
             alignItems: 'flex-end',
             width: '100%',
             height: chartHeight,
-            gap: 7,
+            gap: 12,
           }}
         >
           {bars.map((bar, index) => {
-            const total = bar.bounties + bar.claims + bar.votes;
-            const scale = Math.min(1, (chartHeight - 10) / Math.max(210, total));
+            // Every bar flexes to fill its share of the entire chart width.
+            // The last bar finishes flush with the right edge of the emoji.
+            const scale = heightScale;
             return (
               <div
                 key={index}
@@ -93,9 +102,9 @@ export async function GET(request: Request) {
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'flex-end',
-                  width: 15,
+                  flex: 1,
+                  minWidth: 0,
                   height: '100%',
-                  flexShrink: 0,
                 }}
               >
                 <div style={{ height: bar.votes * scale, backgroundColor: VOTE_BLUE }} />
