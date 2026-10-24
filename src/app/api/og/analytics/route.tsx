@@ -35,9 +35,10 @@ export async function GET(request: Request) {
   const heightScale = (chartHeight - 8) / tallestBar;
 
   // Use poidh's ACTUAL SVG wordmark. Never generate or approximate the logo.
-  const logoResponse = await fetch('https://poidh.xyz/Logo_poidh.svg', {
-    cache: 'force-cache',
-  });
+  const logoResponse = await fetch(
+    new URL('/Logo_poidh.svg', request.url),
+    { cache: 'force-cache' }
+  );
   if (!logoResponse.ok) {
     return new Response('Official poidh logo could not be loaded', { status: 503 });
   }
