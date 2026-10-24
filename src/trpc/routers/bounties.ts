@@ -216,9 +216,19 @@ export const bountiesRouter = {
                 : {}),
             },
 
-            ...(input.cursor
-              ? { amountSort: { lt: input.cursor.amountSort } }
-              : {}),
+          ...(input.cursor
+            ? {
+                OR: [
+                  { amountSort: { lt: input.cursor.amountSort } },
+                  {
+                    amountSort: { equals: input.cursor.amountSort },
+                    bounty: {
+                      createdAt: { lt: input.cursor.createdAt },
+                    },
+                  },
+                ],
+              }
+            : {}),
           },
           select: {
             bounty: {
@@ -240,7 +250,7 @@ export const bountiesRouter = {
             },
             amountSort: true,
           },
-          orderBy: { amountSort: 'desc' },
+          orderBy: [{ amountSort: 'desc' }, { bounty: { createdAt: 'desc' } }],
           take: input.limit,
         });
 
