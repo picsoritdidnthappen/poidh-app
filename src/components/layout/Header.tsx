@@ -23,6 +23,7 @@ import { trpc } from '@/trpc/client';
 import DarkModeToggle from '@/components/global/DarkModeToggle';
 import SmoothWidth from '@/components/global/SmoothWidth';
 import ZeroDevAuthModal from '@/components/auth/ZeroDevAuthModal';
+import AnalyticsTicker from '@/components/global/AnalyticsTicker';
 
 export default function Header() {
   const account = useAccount();
@@ -78,6 +79,10 @@ export default function Header() {
           <Link href='/'>
             <Logo />
           </Link>
+        </div>
+
+        <div className='hidden lg:flex flex-1 min-w-0 items-center justify-center px-3'>
+          <AnalyticsTicker variant='desktop' />
         </div>
 
         <div className='flex items-center'>
