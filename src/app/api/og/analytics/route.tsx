@@ -2,8 +2,8 @@ import { ImageResponse } from '@vercel/og';
 
 export const runtime = 'edge';
 
-// The light blue used by poidh's existing preview artwork and mini-app splash.
-const BACKGROUND_BLUE = '#6faae1';
+// Match the existing poidh bounty OG cards (not the flat mini-app splash blue).
+const OG_BACKGROUND = 'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)';
 const BOUNTY_RED = '#f15e5f';
 const CLAIM_CREAM = '#fff8e8';
 const VOTE_BLUE = '#175fa8';
@@ -36,17 +36,25 @@ export async function GET(request: Request) {
   const logoSvg = await logoResponse.text();
   const officialLogo = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(logoSvg)}`;
 
+  // Load the same Geist Mono font asset as poidh's existing bounty OG renderer.
+  const fontUrl = new URL('../../../../../public/fonts/GeistMono-Regular.ttf', import.meta.url);
+  const fontResponse = await fetch(fontUrl);
+  if (!fontResponse.ok) {
+    return new Response('Official poidh font could not be loaded', { status: 503 });
+  }
+  const fontData = await fontResponse.arrayBuffer();
+
   return new ImageResponse(
     <div
       style={{
         width: '100%',
         height: '100%',
-        backgroundColor: BACKGROUND_BLUE,
+        background: OG_BACKGROUND,
         display: 'flex',
         flexDirection: 'column',
         padding: '48px 56px 42px',
         color: 'white',
-        fontFamily: 'monospace',
+        fontFamily: 'GeistMono',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 135 }}>
@@ -61,11 +69,7 @@ export async function GET(request: Request) {
           <span style={{ color: '#ffffff', fontSize: 81, fontWeight: 700, letterSpacing: -3 }}>
             analytics
           </span>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 66 }}>
-            <div style={{ height: 28, width: 20, backgroundColor: CLAIM_CREAM, borderRadius: 3 }} />
-            <div style={{ height: 44, width: 20, backgroundColor: VOTE_BLUE, borderRadius: 3 }} />
-            <div style={{ height: 63, width: 20, backgroundColor: BOUNTY_RED, borderRadius: 3 }} />
-          </div>
+          <span style={{ display: 'flex', alignItems: 'center', fontSize: 72, lineHeight: 1 }}>📊</span>
         </div>
       </div>
 
@@ -119,6 +123,14 @@ export async function GET(request: Request) {
     {
       width: 1200,
       height,
+      emoji: 'twemoji',
+      fonts: [
+        {
+          name: 'GeistMono',
+          data: fontData,
+          style: 'normal',
+        },
+      ],
       headers: {
         'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
       },
