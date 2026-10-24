@@ -67,10 +67,14 @@ const transactionFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 0,
 });
 
+// Always display two decimal places, truncating instead of rounding up.
+// e.g. 3.616 ETH -> 3.61 ETH.
 function formatEth(value: number): string {
+  const truncated = Math.trunc((value + Number.EPSILON) * 100) / 100;
   return new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: value > 0 && value < 0.01 ? 6 : 3,
-  }).format(value);
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(truncated);
 }
 
 /** Desktop: rotating single-line ticker. Menu: two static stacked rows. */
@@ -123,7 +127,7 @@ export default function AnalyticsTicker({
       >
         <div className='mb-2 text-xs uppercase tracking-wide text-white/70'>last 30 days ↗</div>
         <div className='flex items-baseline justify-between gap-3 py-1 text-sm'>
-          <span>ETH funded</span>
+          <span>volume</span>
           <span className='font-semibold tabular-nums'>{formatEth(stats.ethFunded)} ETH</span>
         </div>
         <div className='flex items-baseline justify-between gap-3 py-1 text-sm'>
@@ -142,7 +146,7 @@ export default function AnalyticsTicker({
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
       className='flex w-full min-w-0 max-w-[270px] items-center justify-center rounded-lg bg-white/15 px-3 py-2 text-white hover:bg-white/25 transition-colors h-10'
-      aria-label={stats ? `View poidh analytics: ${formatEth(stats.ethFunded)} ETH funded and ${transactionFormatter.format(stats.transactions)} transactions in the last 30 days` : 'View poidh analytics'}
+      aria-label={stats ? `View poidh analytics: ${formatEth(stats.ethFunded)} ETH volume and ${transactionFormatter.format(stats.transactions)} transactions in the last 30 days` : 'View poidh analytics'}
     >
       {!stats ? (
         <span className='text-xs whitespace-nowrap'>analytics ↗</span>
