@@ -453,6 +453,38 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
         )
       : chain.id === 1 && bounty.data.id === 42
       ? `${bounty.data.description.trimEnd()}\n\n[https://www.glazecorp.io/docs](https://www.glazecorp.io/docs)`
+      
+      : chain.id === 8453 && bounty.data.id === 1507
+            ? `### The challenge
+      
+      Create a remix of the “Lock ’Em Up” video with Balajiss replacing the original older man as the grandpa.
+      
+      Use the videos below as inspiration for the setup, pacing, and style, while giving the remix its own creative twist.
+      
+      ### What we're looking for
+      
+      - **Balajiss as Grandpa:** Make him the clear replacement for the older man in the scene.
+      - **A recognizable remix:** Keep enough of the original setup and comedic rhythm that viewers can recognize the reference.
+      - **A polished edit:** Aim for clean cuts, well-timed reactions, and clear audio. Any added dialogue or captions should feel like part of the scene.
+      
+      ### Bonus points
+      
+      Make the script funny. Go beyond a simple character swap with original dialogue, a strong punchline, or an unexpected twist.
+      
+      The humor should work with the scene rather than feel pasted on top of it.
+      
+      ### Deliverable
+      
+      One finished, shareable video remix featuring Balajiss as the grandpa.
+      
+      Use the reference videos as a guide for the short-form format and overall feel.
+      
+      ### Reference videos
+      
+      The original brief includes a reference video and another remix for inspiration:
+      
+      - **Original video:** [Watch on YouTube](https://youtube.com/shorts/ROLt24iizbM?is=PKhJ5-a66DigmBsA)
+      - **Example remix (video 2):** [Watch on YouTube](https://youtube.com/shorts/j9eIEGiPqCE?is=ve0ePRgmQrMMyamq)`.replace(/^ {6}/gm, '')
       : bounty.data.description;
 
   return (
