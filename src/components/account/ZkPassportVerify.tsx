@@ -70,10 +70,13 @@ export default function ZkPassportVerify({ address }: { address: string }) {
         url,
         onRequestReceived,
         onGeneratingProof,
-        onResult,
+        onSuccess,
         onReject,
         onError,
-      } = queryBuilder.disclose('nationality').done();
+      } = queryBuilder
+        .disclose('nationality')
+        .bind('user_address', address as `0x${string}`)
+        .done();
 
       setQrUrl(url);
       setState('waiting');
@@ -86,18 +89,9 @@ export default function ZkPassportVerify({ address }: { address: string }) {
         setState('generating');
       });
 
-      onResult(async ({ verified, result }) => {
-        if (verified && result.nationality?.disclose?.result) {
-          const country = result.nationality.disclose.result as string;
-          await verifyMutation.mutateAsync({
-            country,
-            uniqueIdentifier: 'verified',
-          });
-          utils.neynar.usersData.invalidate({ addresses: [address] });
-        } else {
-          toast.error('Verification failed. Please try again.');
-          closeModal();
-        }
+      onSuccess(async ({ proofs, result }) => {
+        await verifyMutation.mutateAsync({ proofs, queryResult: result });
+        utils.neynar.usersData.invalidate({ addresses: [address] });
       });
 
       onReject(() => {
