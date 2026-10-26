@@ -108,6 +108,7 @@ model UsersExtra {
   neynarLastUpdated       DateTime? @map("neynar_last_updated")
   zkpassportCountry       String?   @map("zkpassport_country")
   zkpassportVerifiedAt    DateTime? @map("zkpassport_verified_at")
+  zkpassportUniqueId      String?   @unique @map("zkpassport_unique_id")
   lastUpdated             DateTime  @default(now()) @map("last_updated")
   extraPoints             Float     @default(0) @map("extra_points")
 

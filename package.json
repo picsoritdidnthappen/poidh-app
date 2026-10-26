@@ -50,7 +50,7 @@
     "@zerodev/smart-routing-address": "^1.0.2",
     "@zerodev/wallet-core": "^0.0.5",
     "@zerodev/wallet-react": "^0.0.8",
-    "@zkpassport/sdk": "^0.12.5",
+    "@zkpassport/sdk": "^0.19.2",
     "axios": "^1.8.4",
     "clsx": "^2.1.1",
     "csv-parse": "^6.1.0",

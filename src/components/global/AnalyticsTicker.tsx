@@ -213,8 +213,8 @@ export default function AnalyticsTicker({
               className='flex flex-col transition-transform duration-500 ease-in-out motion-reduce:transition-none'
               style={{ transform: `translateY(-${activeIndex * 50}%)` }}
             >
-              <span className='h-5 leading-5 shrink-0'>30D VOLUME · {formatEth(stats.ethFunded)} ETH ↗</span>
-              <span className='h-5 leading-5 shrink-0'>30D TRANSACTIONS · {transactionFormatter.format(stats.transactions)} ↗</span>
+              <span className='h-5 leading-5 shrink-0'>30D VOLUME · {formatEth(stats.ethFunded)} ETH 💰</span>
+              <span className='h-5 leading-5 shrink-0'>30D TRANSACTIONS · {transactionFormatter.format(stats.transactions)} 🧾</span>
             </span>
           </span>
         )}

@@ -27,6 +27,7 @@ import AnalyticsTicker from '@/components/global/AnalyticsTicker';
 
 export default function Header() {
   const account = useAccount();
+  
   const isMobile = useScreenSize();
 
   const [isOpen, setIsOpen] = useState(false);
