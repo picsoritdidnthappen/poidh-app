@@ -487,6 +487,14 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
       - **Example remix (video 2):** [Watch on YouTube](https://youtube.com/shorts/j9eIEGiPqCE?is=ve0ePRgmQrMMyamq)`.replace(/^ {6}/gm, '')
       : bounty.data.description;
 
+    const createdAt = new Date(bounty.data.createdAt * 1000);
+
+    const createdDate = createdAt.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
   return (
     <>
       <div className='flex pt-6 flex-col justify-between lg:flex-row'>
@@ -499,8 +507,8 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
             <MarkdownContent>{displayDescription}</MarkdownContent>
           </div>
 
-          <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
-            bounty issuer:&nbsp;
+          <div className='flex flex-row mt-5 mb-1 normal-case break-all flex-wrap'>
+            created by:&nbsp;
             <div className='flex flex-row items-center justify-end overflow-hidden'>
               <DisplayAddress
                 address={bounty.data.issuer}
@@ -516,6 +524,17 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
 
               <SocialMediaLinks address={bounty.data.issuer} />
             </div>
+          </div>
+
+          <div className='mb-4 normal-case'>
+            created:&nbsp;
+            <time
+              dateTime={createdAt.toISOString()}
+              title={createdAt.toISOString().replace(/\.\d{3}Z$/, 'Z')}
+              className='cursor-help'
+            >
+              {createdDate}
+            </time>
           </div>
 
           {isAdmin.data && (
