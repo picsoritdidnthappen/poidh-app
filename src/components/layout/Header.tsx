@@ -27,15 +27,7 @@ import AnalyticsTicker from '@/components/global/AnalyticsTicker';
 
 export default function Header() {
   const account = useAccount();
-    useEffect(() => {
-      console.log('[poidh wallet debug]', {
-        status: account.status,
-        connected: account.isConnected,
-        connectorId: account.connector?.id,
-        connectorName: account.connector?.name,
-        getProviderType: typeof account.connector?.getProvider,
-      });
-    }, [account.status, account.isConnected, account.connector]);
+  
   const isMobile = useScreenSize();
 
   const [isOpen, setIsOpen] = useState(false);
