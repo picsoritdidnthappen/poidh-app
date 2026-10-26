@@ -507,7 +507,7 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
             <MarkdownContent>{displayDescription}</MarkdownContent>
           </div>
 
-          <div className='flex flex-row mt-5 mb-1 normal-case break-all flex-wrap'>
+          <div className='flex flex-row mt-5 mb-4 normal-case break-all flex-wrap'>
             created by:&nbsp;
             <div className='flex flex-row items-center justify-end overflow-hidden'>
               <DisplayAddress
