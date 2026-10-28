@@ -12,7 +12,8 @@ import { chains } from '@/utils/config';
 import { useMutation } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import abi from '@/constant/abi/abi';
 import { decodeEventLog } from 'viem';
 import { trpcClient } from '@/trpc/client';
@@ -34,7 +35,7 @@ type User = {
 export default function ClaimFundsButton({ user }: { user: User }) {
   const account = useAccount();
   const setLoading = useSetAtom(setLoadingAtom);
-  const switchChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const writeContract = useWriteContract({});
 
@@ -44,11 +45,7 @@ export default function ClaimFundsButton({ user }: { user: User }) {
 
   const withdrawFundsMutation = useMutation({
     mutationFn: async (chain: Chain) => {
-      const chainId = await account.connector?.getChainId();
-      if (chain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Switching network...' });
-        await switchChain.switchChainAsync({ chainId: chain.id });
-      }
+      await prepareWallet(chain.id);
 
       setLoading({ isLoading: true, status: 'Uploading metadata...' });
 

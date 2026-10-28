@@ -3,12 +3,8 @@ import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
 import { trpc, trpcClient } from '@/trpc/client';
-import {
-  useAccount,
-  useSignMessage,
-  useSwitchChain,
-  useWriteContract,
-} from 'wagmi';
+import { useAccount, useSignMessage, useWriteContract } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import { useMutation } from '@tanstack/react-query';
 import { formatEther } from 'viem';
 import abi from '@/constant/abi/abi';
@@ -92,7 +88,7 @@ export default function BountyInfo({
   const chain = useChainInfo();
   const account = useAccount();
   const writeContract = useWriteContract({});
-  const switctChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const { signMessageAsync } = useSignMessage();
   const setLoading = useSetAtom(setLoadingAtom);
 
@@ -173,13 +169,7 @@ export default function BountyInfo({
         throw new Error('Wallet not connected');
       }
 
-      const walletChainId = account.chainId;
-
-      if (walletChainId !== 8453) {
-        await switctChain.switchChainAsync({
-          chainId: 8453,
-        });
-      }
+      await prepareWallet(8453, { showLoading: false });
 
       const nonce = await getNonce();
 
@@ -231,18 +221,7 @@ export default function BountyInfo({
         throw new Error('Wallet not connected');
       }
 
-      const walletChainId = account.chainId;
-
-      if (chain.id !== walletChainId) {
-        setLoading({
-          isLoading: true,
-          status: 'Switching network...',
-        });
-
-        await switctChain.switchChainAsync({
-          chainId: chain.id,
-        });
-      }
+      await prepareWallet(chain.id);
 
       if (!bounty.data) {
         throw new Error('Bounty data not found');
@@ -453,9 +432,8 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
         )
       : chain.id === 1 && bounty.data.id === 42
       ? `${bounty.data.description.trimEnd()}\n\n[https://www.glazecorp.io/docs](https://www.glazecorp.io/docs)`
-      
       : chain.id === 8453 && bounty.data.id === 1507
-            ? `### The challenge
+      ? `### The challenge
       
       Create a remix of the “Lock ’Em Up” video with Balajiss replacing the original older man as the grandpa.
       
@@ -484,17 +462,20 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
       The original brief includes a reference video and another remix for inspiration:
       
       - **Original video:** [Watch on YouTube](https://youtube.com/shorts/ROLt24iizbM?is=PKhJ5-a66DigmBsA)
-      - **Example remix (video 2):** [Watch on YouTube](https://youtube.com/shorts/j9eIEGiPqCE?is=ve0ePRgmQrMMyamq)`.replace(/^ {6}/gm, '')
+      - **Example remix (video 2):** [Watch on YouTube](https://youtube.com/shorts/j9eIEGiPqCE?is=ve0ePRgmQrMMyamq)`.replace(
+          /^ {6}/gm,
+          ''
+        )
       : bounty.data.description;
 
-    const createdAt = new Date(bounty.data.createdAt * 1000);
+  const createdAt = new Date(bounty.data.createdAt * 1000);
 
-    const createdDate = createdAt.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      timeZone: 'UTC',
-    });
+  const createdDate = createdAt.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
   return (
     <>
       <div className='flex pt-6 flex-col justify-between lg:flex-row'>

@@ -8,7 +8,8 @@ import { getChainById } from '@/utils/config';
 import { ChainId } from '@/utils/types';
 import { CloseIcon } from '@/components/global/Icons';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import { useMutation } from '@tanstack/react-query';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
@@ -28,7 +29,7 @@ export default function PendingRefunds({ address }: { address: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const account = useAccount();
   const writeContract = useWriteContract({});
-  const switchChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const pollingChainId = useAtomValue(pollingChainIdAtom);
@@ -43,11 +44,7 @@ export default function PendingRefunds({ address }: { address: string }) {
     mutationFn: async (refund: PendingRefund) => {
       const chain = getChainById({ chainId: refund.chainId as ChainId });
 
-      const chainId = await account.connector?.getChainId();
-      if (chain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Switching network' });
-        await switchChain.switchChainAsync({ chainId: chain.id });
-      }
+      await prepareWallet(chain.id);
 
       setPollingChainId(chain.id);
       setLoading({ isLoading: true, status: 'Waiting for approval' });

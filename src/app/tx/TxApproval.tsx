@@ -6,7 +6,8 @@ import { useSetAtom } from 'jotai';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { toast } from 'react-toastify';
-import { useAccount, useSendTransaction, useSwitchChain } from 'wagmi';
+import { useAccount, useSendTransaction } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import {
   ActionDeps,
   ActionName,
@@ -208,7 +209,7 @@ export default function TxApproval({ query }: { query: string }) {
   );
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
-  const { switchChainAsync } = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const { sendTransactionAsync } = useSendTransaction();
   const setLoading = useSetAtom(setLoadingAtom);
 
@@ -259,10 +260,7 @@ export default function TxApproval({ query }: { query: string }) {
       if (!tx || !request) throw new Error('nothing to approve');
       const chain = chains[request.chain];
       try {
-        if (account.chainId !== tx.chainId) {
-          setLoading({ isLoading: true, status: 'Switching network' });
-          await switchChainAsync({ chainId: tx.chainId });
-        }
+        await prepareWallet(tx.chainId);
         setLoading({ isLoading: true, status: 'Waiting for approval' });
         const hash = await sendTransactionAsync({
           to: tx.to,
