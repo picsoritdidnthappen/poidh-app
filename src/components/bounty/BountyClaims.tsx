@@ -1,14 +1,15 @@
+
 import { useState } from 'react';
 
 import { trpc } from '@/trpc/client';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import InfiniteScroll from 'react-infinite-scroller';
 import ClaimList, { ClaimListSkeleton } from '../claims/ClaimList';
+import { ClaimViewerProvider } from '../claims/ClaimViewerContext';
 import { CommentsIcon } from '@/components/global/Icons';
 import { ChainId } from '@/utils/types';
 
 const PAGE_SIZE = 9;
-
 const SKELETON_COUNT = 3;
 
 export default function BountyClaims({ bountyId }: { bountyId: number }) {
@@ -37,12 +38,10 @@ export default function BountyClaims({ bountyId }: { bountyId: number }) {
     }
   );
 
-  const { data: votingClaim } = trpc.claims.fetchVotingClaimByBountyId.useQuery(
-    {
-      bountyId,
-      chainId: chain.id,
-    }
-  );
+  const { data: votingClaim } = trpc.claims.fetchVotingClaimByBountyId.useQuery({
+    bountyId,
+    chainId: chain.id,
+  });
 
   // Voting mounts only once the claims have loaded, so start its query now
   trpc.bounties.fetchVoting.useQuery(
@@ -61,6 +60,24 @@ export default function BountyClaims({ bountyId }: { bountyId: number }) {
     }, 1000);
   };
 
+  const loadedClaims =
+    claims.data?.pages.flatMap((page) =>
+      (page.items || []).map((item) => ({
+        ...item,
+        chainId: item.chainId as ChainId,
+      }))
+    ) ?? [];
+
+  // Match the ClaimList display order:
+  // voting claim first, followed by all other claims.
+  // Avoid including the voting claim twice.
+  const claimIds = [
+    ...(votingClaim ? [votingClaim.id] : []),
+    ...loadedClaims
+      .filter((claim) => claim.id !== votingClaim?.id)
+      .map((claim) => claim.id),
+  ];
+
   return (
     <div>
       <div className='flex flex-row justify-between gap-x-2 py-4 pb-2 border-b border-dashed'>
@@ -78,6 +95,7 @@ export default function BountyClaims({ bountyId }: { bountyId: number }) {
           <CommentsIcon size={24} />
         </div>
       </div>
+
       {claims.isLoading ? (
         <ClaimListSkeleton
           count={
@@ -86,46 +104,53 @@ export default function BountyClaims({ bountyId }: { bountyId: number }) {
               : Math.min(Number(bountyClaimsCount.data), PAGE_SIZE)
           }
         />
-      ) : !claims.data ||
-        claims.data?.pages.reduce(
-          (acc, p) => acc + (p.items?.length || 0),
-          0
-        ) === 0 ? (
+      ) : !claims.data || loadedClaims.length === 0 ? (
         <div className='flex items-center justify-center min-h-[15vh] mt-10 text-center text-sm text-[#D1ECFF]'>
           no claims yet. submit yours first!
         </div>
       ) : (
-        <InfiniteScroll
-          loadMore={async () =>
-            infiniteEnabled && (await claims.fetchNextPage())
-          }
-          hasMore={
-            infiniteEnabled && claims.hasNextPage && !claims.isFetchingNextPage
-          }
-          loader={
-            <div key='loader' className='animate-pulse text-center'>
-              Loading more...
-            </div>
-          }
-          threshold={300}
+        <ClaimViewerProvider
+          key={`${chain.id}-${bountyId}`}
+          claimIds={claimIds}
+          totalClaims={Math.max(
+            claimIds.length,
+            Number(bountyClaimsCount.data) || 0
+          )}
+          hasNextPage={!!claims.hasNextPage}
+          isFetchingNextPage={claims.isFetchingNextPage}
+          loadMore={async () => {
+            await claims.fetchNextPage();
+          }}
         >
-          <ClaimList
-            key={`bounty-claim-${claims.data?.pageParams}`}
-            votingClaim={
-              votingClaim
-                ? { ...votingClaim, chainId: votingClaim.chainId as ChainId }
-                : null
+          <InfiniteScroll
+            loadMore={async () =>
+              infiniteEnabled && (await claims.fetchNextPage())
             }
-            claims={
-              claims.data?.pages.flatMap((page) => {
-                return (page.items || []).map((item) => ({
-                  ...item,
-                  chainId: item.chainId as ChainId,
-                }));
-              }) ?? []
+            hasMore={
+              infiniteEnabled &&
+              claims.hasNextPage &&
+              !claims.isFetchingNextPage
             }
-          />
-        </InfiniteScroll>
+            loader={
+              <div key='loader' className='animate-pulse text-center'>
+                Loading more...
+              </div>
+            }
+            threshold={300}
+          >
+            <ClaimList
+              votingClaim={
+                votingClaim
+                  ? {
+                      ...votingClaim,
+                      chainId: votingClaim.chainId as ChainId,
+                    }
+                  : null
+              }
+              claims={loadedClaims}
+            />
+          </InfiniteScroll>
+        </ClaimViewerProvider>
       )}
     </div>
   );
