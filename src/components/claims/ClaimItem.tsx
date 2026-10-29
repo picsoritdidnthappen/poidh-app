@@ -3,7 +3,8 @@ import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc, trpcClient } from '@/trpc/client';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import abi from '@/constant/abi/abi';
 import { useMutation } from '@tanstack/react-query';
 import DisplayAddress from '../global/DisplayAddress';
@@ -32,7 +33,7 @@ export default function ClaimItem({
   const chain = useChainInfo();
 
   const writeContract = useWriteContract({});
-  const switctChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
 
   const utils = trpc.useUtils();
 
@@ -87,18 +88,7 @@ export default function ClaimItem({
         throw new Error('Wallet not connected');
       }
 
-      const walletChainId = account.chainId;
-
-      if (chain.id !== walletChainId) {
-        setLoading({
-          isLoading: true,
-          status: 'Switching network...',
-        });
-
-        await switctChain.switchChainAsync({
-          chainId: chain.id,
-        });
-      }
+      await prepareWallet(chain.id);
 
       setPollingChainId(chain.id);
 
@@ -172,13 +162,7 @@ export default function ClaimItem({
         throw new Error('Wallet not connected');
       }
 
-      const walletChainId = account.chainId;
-
-      if (chain.id !== walletChainId) {
-        await switctChain.switchChainAsync({
-          chainId: chain.id,
-        });
-      }
+      await prepareWallet(chain.id);
 
       setPollingChainId(chain.id);
 

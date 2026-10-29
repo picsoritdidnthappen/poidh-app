@@ -10,7 +10,8 @@ import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
-import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
+import { useAccount, useSignMessage } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import {
   BanIcon,
   CloseIcon,
@@ -43,7 +44,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const account = useAccount();
   const utils = trpc.useUtils();
   const chain = useChainInfo();
-  const switctChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const { signMessageAsync } = useSignMessage();
 
   const { mediaUrl, isVideo, mediaError, setMediaError } = useClaimMedia(
@@ -231,15 +232,9 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
   const signMutation = useMutation({
     mutationFn: async ({ claimId }: { claimId: number }) => {
-      const chainId = await account.connector?.getChainId();
-
-      if (chainId !== 8453) {
-        // arbitrum has a problem with message signing,
-        // so all confirmations are on base
-        await switctChain.switchChainAsync({
-          chainId: 8453,
-        });
-      }
+      // arbitrum has a problem with message signing,
+      // so all confirmations are on base
+      await prepareWallet(8453, { showLoading: false });
 
       const nonce = await getNonce();
 

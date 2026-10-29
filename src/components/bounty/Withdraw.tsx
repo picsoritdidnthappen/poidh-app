@@ -6,7 +6,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import { pollingChainIdAtom } from '@/store/loading';
 
 export default function Withdraw({
@@ -19,7 +20,7 @@ export default function Withdraw({
   const chain = useChainInfo();
   const account = useAccount();
   const writeContract = useWriteContract({});
-  const switctChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -27,11 +28,7 @@ export default function Withdraw({
 
   const withdrawFromOpenBountyMutation = useMutation({
     mutationFn: async () => {
-      const chainId = await account.connector?.getChainId();
-      if (chain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Switching network' });
-        await switctChain.switchChainAsync({ chainId: chain.id });
-      }
+      await prepareWallet(chain.id);
 
       setPollingChainId(chain.id);
       setLoading({ isLoading: true, status: 'Waiting for approval' });
