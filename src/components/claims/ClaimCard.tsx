@@ -647,23 +647,44 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
 
             {navigation && (
               <>
+                
                 <button
                   type='button'
                   aria-label='Previous claim'
                   onClick={navigation.onPrevious}
                   disabled={!navigation.onPrevious}
-                  className='hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-11 h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#102a46]/90 text-white text-3xl hover:bg-[#2a81d5] disabled:opacity-25 disabled:cursor-not-allowed'
+                  className='hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-12 h-12 w-12 items-center justify-center text-white hover:scale-110 transition-transform disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:scale-100'
                 >
-                  ‹
+                  <svg
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='3'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    className='h-11 w-11 drop-shadow-lg'
+                  >
+                    <path d='m15 18-6-6 6-6' />
+                  </svg>
                 </button>
                 <button
                   type='button'
                   aria-label='Next claim'
                   onClick={navigation.onNext}
                   disabled={!navigation.onNext}
-                  className='hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-11 h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#102a46]/90 text-white text-3xl hover:bg-[#2a81d5] disabled:opacity-25 disabled:cursor-not-allowed'
+                  className='hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-12 h-12 w-12 items-center justify-center text-white hover:scale-110 transition-transform disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:scale-100'
                 >
-                  ›
+                  <svg
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='3'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    className='h-11 w-11 drop-shadow-lg'
+                  >
+                    <path d='m9 18 6-6-6-6' />
+                  </svg>
                 </button>
                 <div className='flex lg:hidden items-center justify-between mt-3 text-xs text-white'>
                   <button type='button' disabled={!navigation.onPrevious} onClick={navigation.onPrevious} className='px-3 py-2 disabled:opacity-30'>← previous</button>
