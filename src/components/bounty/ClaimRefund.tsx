@@ -8,7 +8,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import { pollingChainIdAtom } from '@/store/loading';
 import type { Chain } from '@/utils/types';
 
@@ -25,7 +26,7 @@ export default function ClaimRefund({
   const chain = chainOverride ?? chainFromUrl;
   const account = useAccount();
   const writeContract = useWriteContract({});
-  const switctChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const utils = trpc.useUtils();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -33,11 +34,7 @@ export default function ClaimRefund({
 
   const claimRefundMutation = useMutation({
     mutationFn: async () => {
-      const chainId = await account.connector?.getChainId();
-      if (chain.id !== chainId) {
-        setLoading({ isLoading: true, status: 'Switching network' });
-        await switctChain.switchChainAsync({ chainId: chain.id });
-      }
+      await prepareWallet(chain.id);
 
       setPollingChainId(chain.id);
       setLoading({ isLoading: true, status: 'Waiting for approval' });

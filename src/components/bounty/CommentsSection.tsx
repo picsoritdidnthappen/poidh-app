@@ -4,7 +4,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { FormEvent, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
-import { useAccount, useSignMessage, useSwitchChain } from 'wagmi';
+import { useAccount, useSignMessage } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import { ChainId } from '@/utils/types';
 import CollapsibleText from '@/components/global/CollapsibleText';
 import { trpc } from '@/trpc/client';
@@ -100,7 +101,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
   >(null);
   const account = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const switchChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
   const { openConnectModal } = useConnectModal();
   const { withSession } = useSession();
   const isAdmin = trpc.admin.isAdmin.useQuery({ address: account.address });
@@ -216,28 +217,13 @@ export default function CommentsSection(props: CommentsSectionProps) {
       return;
     }
 
-    const walletChainId = account.chainId;
+    const [_, error] = await tryCatchAsync(() =>
+      prepareWallet(8453, { showLoading: false })
+    );
 
-    if (walletChainId !== 8453) {
-      if (switchChain?.switchChainAsync) {
-        const [_, error] = await tryCatchAsync(
-          async () =>
-            await switchChain.switchChainAsync({
-              chainId: 8453,
-            })
-        );
-
-        if (error) {
-          toastError('Failed to switch network', error);
-          return null;
-        }
-      } else {
-        toast.error(
-          'Something went wrong! Switch to Base network or connect/reconnect your wallet to continue'
-        );
-
-        return null;
-      }
+    if (error) {
+      toastError('Failed to switch network', error);
+      return null;
     }
 
     return account.address;

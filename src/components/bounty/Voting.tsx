@@ -3,7 +3,8 @@ import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { formatEther } from 'viem';
 import { useChainInfo } from '@/hooks/useChainInfo';
-import { useAccount, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import abi from '@/constant/abi/abi';
 import { useMutation } from '@tanstack/react-query';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -40,7 +41,7 @@ export default function Voting({
   const account = useAccount();
   const chain = useChainInfo();
   const writeContract = useWriteContract();
-  const switchChain = useSwitchChain();
+  const { prepareWallet } = usePoidhWallet();
 
   const setLoading = useSetAtom(setLoadingAtom);
 
@@ -120,21 +121,6 @@ export default function Voting({
       bounty.refetch(),
       ...(account.address ? [userCanVote.refetch()] : []),
     ]);
-  };
-
-  const ensureCorrectChain = async () => {
-    const currentChainId = account.chainId;
-
-    if (currentChainId !== chain.id) {
-      setLoading({
-        isLoading: true,
-        status: 'Switching network',
-      });
-
-      await switchChain.switchChainAsync({
-        chainId: chain.id,
-      });
-    }
   };
 
   /*
@@ -219,7 +205,7 @@ export default function Voting({
         throw new Error('You cannot vote on this bounty');
       }
 
-      await ensureCorrectChain();
+      await prepareWallet(chain.id);
 
       setPollingChainId(chain.id);
 
@@ -302,7 +288,7 @@ export default function Voting({
         throw new Error('This vote is not ready to resolve');
       }
 
-      await ensureCorrectChain();
+      await prepareWallet(chain.id);
 
       setPollingChainId(chain.id);
 

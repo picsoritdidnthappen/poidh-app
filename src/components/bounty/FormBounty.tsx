@@ -11,12 +11,8 @@ import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
-import {
-  useAccount,
-  useBalance,
-  useSwitchChain,
-  useWriteContract,
-} from 'wagmi';
+import { usePoidhWallet } from '@/hooks/usePoidhWallet';
+import { useAccount, useBalance, useWriteContract } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import { decodeEventLog, formatEther, parseEther } from 'viem';
@@ -139,7 +135,7 @@ export default function FormBounty({
     address: account.address,
     chainId: currentChain.id,
   });
-  const switchChain = useSwitchChain();
+  const { prepareWallet, validatePoidhTx } = usePoidhWallet();
   const router = useRouter();
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
@@ -152,122 +148,8 @@ export default function FormBounty({
       amount: string;
       album: string;
     }) => {
-      if (!account.connector || !account.address) {
-        throw new Error('Wallet connector unavailable');
-      }
-
-      const walletChainId = account.chainId;
-
-      if (currentChain.id !== walletChainId) {
-        setLoading({
-          isLoading: true,
-          status: 'Switching network',
-        });
-
-        await switchChain.switchChainAsync({
-          chainId: currentChain.id,
-        });
-      }
-
-      const walletProvider = (await account.connector.getProvider()) as
-        | {
-            request: (args: {
-              method: string;
-              params?: readonly unknown[];
-            }) => Promise<unknown>;
-          }
-        | undefined;
-
-      if (!walletProvider) {
-        throw new Error('Unable to access wallet provider');
-      }
-
-      const walletConnectProvider = walletProvider as typeof walletProvider & {
-        session?: {
-          peer?: {
-            metadata?: {
-              name?: string;
-              url?: string;
-            };
-          };
-        };
-      };
-
-      const peerMetadata = walletConnectProvider.session?.peer?.metadata;
-
-      const isWalletConnect =
-        account.connector.id.toLowerCase().includes('walletconnect') ||
-        account.connector.name.toLowerCase().includes('walletconnect');
-
-      const isAmbire =
-        peerMetadata?.name?.toLowerCase().includes('ambire') ||
-        peerMetadata?.url?.toLowerCase().includes('ambire');
-
-      if (isWalletConnect && isAmbire) {
-        throw new Error(
-          'Ambire via WalletConnect is temporarily unsupported due to a network verification issue. Please use another wallet or connection method.'
-        );
-      }
-
-      // WalletConnect wallets can occasionally report a successful network switch
-      // before the wallet is actually using that chain. Verify the chain directly
-      // with the connected wallet before allowing a payable transaction.
-      let actualChainId: number | null = null;
-
-      for (let attempt = 0; attempt < 8; attempt++) {
-        const rawChainId = await walletProvider.request({
-          method: 'eth_chainId',
-        });
-
-        if (
-          typeof rawChainId !== 'string' &&
-          typeof rawChainId !== 'number' &&
-          typeof rawChainId !== 'bigint'
-        ) {
-          throw new Error('Unable to verify wallet network');
-        }
-
-        actualChainId = Number(rawChainId);
-
-        if (!Number.isSafeInteger(actualChainId) || actualChainId <= 0) {
-          throw new Error('Unable to verify wallet network');
-        }
-
-        if (actualChainId === currentChain.id) {
-          break;
-        }
-
-        if (attempt < 7) {
-          await new Promise((resolve) => setTimeout(resolve, 250));
-        }
-      }
-
-      if (actualChainId !== currentChain.id) {
-        throw new Error(
-          `Wrong network selected in wallet. Please switch to ${currentChain.slug} and try again.`
-        );
-      }
-
-      // Final safety check: make sure the poidh contract actually exists on the
-      // network the connected wallet reports. This prevents ETH from being sent
-      // to the same address on a chain where no poidh contract is deployed.
-      const contractAddress = currentChain.contracts
-        .mainContract as `0x${string}`;
-
-      const contractCode = await walletProvider.request({
-        method: 'eth_getCode',
-        params: [contractAddress, 'latest'],
-      });
-
-      if (
-        typeof contractCode !== 'string' ||
-        contractCode === '0x' ||
-        /^0x0*$/.test(contractCode)
-      ) {
-        throw new Error(
-          `poidh contract not found on ${currentChain.slug}. Transaction cancelled.`
-        );
-      }
+      await prepareWallet(currentChain.id);
+      const { contractAddress } = await validatePoidhTx(currentChain);
 
       setLoading({
         isLoading: true,
@@ -893,7 +775,7 @@ export default function FormBounty({
                 <span className={isMobile ? 'text-base mb-2' : 'font-semibold'}>
                   album
                 </span>
-              
+
                 <div className='relative mt-2'>
                   <input
                     type='text'
@@ -902,9 +784,9 @@ export default function FormBounty({
                       if (!showAlbumDropdown) {
                         setShowAlbumDropdown(true);
                       }
-              
+
                       const next = e.target.value.toLowerCase();
-              
+
                       if (next === '' || ALBUM_TYPING_PATTERN.test(next)) {
                         setAlbum(next);
                       }
@@ -917,7 +799,7 @@ export default function FormBounty({
                     placeholder='optional'
                     maxLength={30}
                   />
-              
+
                   {showAlbumDropdown &&
                     album &&
                     albums &&
@@ -927,7 +809,9 @@ export default function FormBounty({
                       <ul className='absolute left-0 top-full mt-1 w-full z-20 bg-poidhBlue/95 dark:bg-[#132b47] border border-[#D1ECFF] rounded-md max-h-20 overflow-y-auto'>
                         {albums
                           .filter(
-                            (c) => c.album.length <= 30 && ALBUM_PATTERN.test(c.album)
+                            (c) =>
+                              c.album.length <= 30 &&
+                              ALBUM_PATTERN.test(c.album)
                           )
                           .map((c) => (
                             <li
@@ -948,7 +832,7 @@ export default function FormBounty({
                       </ul>
                     )}
                 </div>
-              
+
                 <div
                   className={`flex w-full items-center gap-2 text-xs text-white mt-2 ${
                     isMobile ? 'mb-5' : 'mb-6'
@@ -958,7 +842,8 @@ export default function FormBounty({
                     <InfoIcon size={18} />
                   </span>
                   <span className='min-w-0 flex-1'>
-                    albums are categories - choose an existing album or create a new one
+                    albums are categories - choose an existing album or create a
+                    new one
                   </span>
                 </div>
               </div>
