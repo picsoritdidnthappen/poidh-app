@@ -507,13 +507,16 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                     />
                   ) : (
                     <>
+                      
                       <div
-                        className='absolute inset-0 rounded-lg opacity-30'
+                        className='absolute inset-0 rounded-lg opacity-30 pointer-events-none'
                         style={{
                           backgroundImage: `url(${mediaUrl})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
+                          filter: 'blur(32px)',
+                          transform: 'scale(1.1)',
                         }}
                       />
 
