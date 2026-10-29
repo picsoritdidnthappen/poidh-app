@@ -1,6 +1,7 @@
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 import { GenerativePlaceholder } from '@/components/claims/ClaimMediaParts';
+import { useClaimViewer } from '@/components/claims/ClaimViewerContext';
 import { trpc } from '@/trpc/client';
 import { Bounty, Claim } from '@/utils/types';
 import { getBanMessage } from '@/utils/utils';
@@ -46,6 +47,17 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
   const chain = useChainInfo();
   const { prepareWallet } = usePoidhWallet();
   const { signMessageAsync } = useSignMessage();
+  const viewer = useClaimViewer();
+  const position = viewer ? viewer.claimIds.indexOf(claim.id) + 1 : 0;
+  const navigation =
+    viewer && viewer.activeClaimId === claim.id && position > 0
+      ? {
+          position,
+          total: viewer.totalClaims,
+          onPrevious: viewer.canPrevious ? () => viewer.navigate(-1) : undefined,
+          onNext: viewer.canNext ? () => viewer.navigate(1) : undefined,
+        }
+      : null;
 
   const { mediaUrl, isVideo, mediaError, setMediaError } = useClaimMedia(
     claim.url
@@ -378,15 +390,101 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
     }
   };
 
+  // Left/right arrows work while reading the claim, not while zooming its image.
+  useEffect(() => {
+    if (!open || isImageFullscreen || !navigation) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const target = event.target;
+      if (target instanceof HTMLElement) {
+        if (target.isContentEditable || target.closest('input, textarea, select, [contenteditable="true"]')) return;
+      }
+      if (event.key === 'ArrowLeft' && navigation.onPrevious) {
+        event.preventDefault();
+        navigation.onPrevious();
+      } else if (event.key === 'ArrowRight' && navigation.onNext) {
+        event.preventDefault();
+        navigation.onNext();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, isImageFullscreen, navigation]);
+
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const suppressMediaClickRef = useRef(false);
+
+  const handleViewerTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!navigation || event.touches.length !== 1) {
+      swipeStartRef.current = null;
+      return;
+    }
+    const target = event.target;
+    if (
+      target instanceof Element &&
+      target.closest('button, a, input, textarea, select, video, [role="button"]')
+    ) {
+      swipeStartRef.current = null;
+      return;
+    }
+    swipeStartRef.current = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY,
+    };
+  };
+
+  const handleViewerTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start || !navigation || event.changedTouches.length !== 1) return;
+    const dx = event.changedTouches[0].clientX - start.x;
+    const dy = event.changedTouches[0].clientY - start.y;
+    // Ignore ordinary vertical scrolling and short accidental movements.
+    if (Math.abs(dx) < 65 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+
+    const navigate = dx < 0 ? navigation.onNext : navigation.onPrevious;
+    if (!navigate) return;
+    if (event.cancelable) event.preventDefault();
+    suppressMediaClickRef.current = true;
+    window.setTimeout(() => { suppressMediaClickRef.current = false; }, 400);
+    navigate();
+  };
+
   return (
     <>
       <Dialog open={open} onClose={onClose} className='relative z-50'>
-        <div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4'>
-          <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-3 bg-gradient-to-b from-[#2a81d5] to-[#70aae2] dark:from-[#0d1b2e] dark:to-[#1a3a5c]'>
-            <div className='bg-blur rounded-lg p-2 sm:p-4 space-y-3 sm:space-y-4 border border-white/20'>
+        <div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4'>
+          <DialogPanel
+            className='relative w-[calc(100vw-1.5rem)] sm:w-[450px] max-w-[450px] lg:w-[min(1200px,calc(100vw-7rem))] lg:max-w-[1200px] max-h-[calc(100dvh-1.5rem)] lg:h-[min(740px,calc(100dvh-3rem))] touch-pan-y overflow-y-auto lg:overflow-visible rounded-xl p-3 bg-gradient-to-b from-[#2a81d5] to-[#70aae2] dark:from-[#0d1b2e] dark:to-[#1a3a5c]'
+            onTouchStart={handleViewerTouchStart}
+            onTouchEnd={handleViewerTouchEnd}
+            onTouchCancel={() => { swipeStartRef.current = null; }}
+          >   
+            <div className='sticky top-0 z-40 mb-2 flex h-10 items-center justify-end lg:absolute lg:right-3 lg:top-3 lg:mb-0 lg:h-auto'>
+              <button
+                type='button'
+                aria-label='Close claim'
+                onClick={onClose}
+                className='flex h-9 w-9 items-center justify-center rounded-md text-white transition-colors hover:bg-white/15'
+              >
+                <span className='lg:hidden'>
+                  <CloseIcon size={14} />
+                </span>
+                <span className='hidden lg:block'>
+                  <CloseIcon size={12} />
+                </span>
+              </button>
+            </div>
+            <div className='bg-blur rounded-lg p-2 sm:p-4 border border-white/20 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-5 lg:h-full lg:min-h-0'>
               <div
-                className='bg-blur-white rounded-lg h-48 sm:h-64 flex items-center justify-center relative overflow-hidden'
+                className='bg-blur-white rounded-lg h-48 sm:h-64 lg:h-full lg:min-h-0 flex items-center justify-center relative overflow-hidden'
                 onClick={() => {
+                  if (suppressMediaClickRef.current) {
+                    suppressMediaClickRef.current = false;
+                    return;
+                  }
                   if (mediaUrl && !isVideo && !mediaError) {
                     setIsImageFullscreen(true);
                   }
@@ -405,17 +503,20 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                       onError={() => {
                         setMediaError(true);
                       }}
-                      className='relative z-20 max-h-full max-w-full object-contain'
+                      className='relative z-20 h-full w-full max-h-full max-w-full object-contain'
                     />
                   ) : (
                     <>
+                      
                       <div
-                        className='absolute inset-0 rounded-lg opacity-30'
+                        className='absolute inset-0 rounded-lg opacity-30 pointer-events-none'
                         style={{
                           backgroundImage: `url(${mediaUrl})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
+                          filter: 'blur(32px)',
+                          transform: 'scale(1.1)',
                         }}
                       />
 
@@ -428,7 +529,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                         onError={() => {
                           setMediaError(true);
                         }}
-                        className='max-h-full max-w-full object-contain transition-transform relative z-20'
+                        className='h-full w-full max-h-full max-w-full object-contain transition-transform relative z-20'
                       />
                     </>
                   )
@@ -437,21 +538,22 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                 )}
               </div>
 
-              <DialogTitle className='text-lg sm:text-xl font-bold text-center border-b-2 border-white/20 pb-2 text-white break-words overflow-hidden'>
-                <div className='px-2 truncate'>{claim.title}</div>
+              <div className='min-w-0 lg:min-h-0 flex flex-col gap-3 lg:gap-4'>
+              <DialogTitle className='text-lg sm:text-xl font-bold text-center lg:text-left lg:pr-10 border-b-2 border-white/20 pb-2 text-white break-words overflow-hidden'>
+                <div className='px-2 lg:px-0 whitespace-normal break-words'>{claim.title}</div>
               </DialogTitle>
 
               <div
-                className='h-[150px] sm:h-[200px] overflow-y-auto overflow-x-hidden'
+                className='h-[150px] sm:h-[200px] lg:h-auto lg:flex-1 lg:min-h-0 overflow-y-auto overflow-x-hidden'
                 style={{
                   scrollbarWidth: 'thin',
                   scrollbarColor: '#38598b transparent',
                 }}
               >
                 <div className='pr-3'>
-                  <p className='text-xs sm:text-sm text-white/90 break-words whitespace-pre-line'>
+                  <div className='text-xs sm:text-sm lg:text-base text-white/90 break-words whitespace-pre-line'>
                     <MarkdownContent>{claim.description}</MarkdownContent>
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -476,8 +578,6 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                   </div>
                 </div>
               </div>
-            </div>
-
             <div
               className={`flex gap-3 mt-3${
                 isAdmin.data || isIssuer.data ? '' : ' justify-center'
@@ -560,6 +660,60 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
                 </button>
               )}
             </div>
+              </div>
+            </div>
+
+            {navigation && (
+              <>
+                
+                <button
+                  type='button'
+                  aria-label='Previous claim'
+                  onClick={navigation.onPrevious}
+                  disabled={!navigation.onPrevious}
+                  className='hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-12 h-12 w-12 items-center justify-center text-white hover:scale-110 transition-transform disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:scale-100'
+                >
+                  <svg
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='3'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    className='h-11 w-11 drop-shadow-lg'
+                  >
+                    <path d='m15 18-6-6 6-6' />
+                  </svg>
+                </button>
+                <button
+                  type='button'
+                  aria-label='Next claim'
+                  onClick={navigation.onNext}
+                  disabled={!navigation.onNext}
+                  className='hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-12 h-12 w-12 items-center justify-center text-white hover:scale-110 transition-transform disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:scale-100'
+                >
+                  <svg
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='3'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    className='h-11 w-11 drop-shadow-lg'
+                  >
+                    <path d='m9 18 6-6-6-6' />
+                  </svg>
+                </button>
+                <div className='flex lg:hidden items-center justify-between mt-3 text-xs text-white'>
+                  <button type='button' disabled={!navigation.onPrevious} onClick={navigation.onPrevious} className='px-3 py-2 disabled:opacity-30'>← previous</button>
+                  <span>{navigation.position} of {navigation.total}</span>
+                  <button type='button' disabled={!navigation.onNext} onClick={navigation.onNext} className='px-3 py-2 disabled:opacity-30'>next →</button>
+                </div>
+                <div className='hidden lg:block absolute bottom-[-28px] inset-x-0 text-center text-xs text-white/85'>
+                  {navigation.position} of {navigation.total} · use ← → to browse
+                </div>
+              </>
+            )}
           </DialogPanel>
         </div>
       </Dialog>
