@@ -461,7 +461,22 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
             onTouchStart={handleViewerTouchStart}
             onTouchEnd={handleViewerTouchEnd}
             onTouchCancel={() => { swipeStartRef.current = null; }}
-          >
+          >   
+            <div className='sticky top-0 z-40 mb-2 flex h-10 items-center justify-end lg:absolute lg:right-3 lg:top-3 lg:mb-0 lg:h-auto'>
+              <button
+                type='button'
+                aria-label='Close claim'
+                onClick={onClose}
+                className='flex h-9 w-9 items-center justify-center rounded-md text-white transition-colors hover:bg-white/15'
+              >
+                <span className='lg:hidden'>
+                  <CloseIcon size={14} />
+                </span>
+                <span className='hidden lg:block'>
+                  <CloseIcon size={12} />
+                </span>
+              </button>
+            </div>
             <div className='bg-blur rounded-lg p-2 sm:p-4 border border-white/20 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-5 lg:h-full lg:min-h-0'>
               <div
                 className='bg-blur-white rounded-lg h-48 sm:h-64 lg:h-full lg:min-h-0 flex items-center justify-center relative overflow-hidden'
@@ -521,7 +536,7 @@ export default function ClaimCard({ claim, open, onClose }: ClaimCardProps) {
               </div>
 
               <div className='min-w-0 lg:min-h-0 flex flex-col gap-3 lg:gap-4'>
-              <DialogTitle className='text-lg sm:text-xl font-bold text-center lg:text-left border-b-2 border-white/20 pb-2 text-white break-words overflow-hidden'>
+              <DialogTitle className='text-lg sm:text-xl font-bold text-center lg:text-left lg:pr-10 border-b-2 border-white/20 pb-2 text-white break-words overflow-hidden'>
                 <div className='px-2 lg:px-0 whitespace-normal break-words'>{claim.title}</div>
               </DialogTitle>
 
