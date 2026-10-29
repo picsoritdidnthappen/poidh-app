@@ -800,6 +800,13 @@ html.cyber [class~='bg-[#f15e5f]'] * {
   color: #03180f !important;
 }
 
+/* Keep feed claim loading overlays readable in cyber mode.
+   The dark overlay needs light text even inside a green card. */
+html.cyber .bg-poidhRed [class~='bg-black/35'],
+html.cyber .bg-poidhRed [class~='bg-black/35'] * {
+  color: #dbebdc !important;
+}
+
 /* Icons on bright cyber-green surfaces should also use the dark foreground. */
 html.cyber .bg-poidhRed .fill-white,
 html.cyber .bg-poidhRed svg [fill='white'],
