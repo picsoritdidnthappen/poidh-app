@@ -10,6 +10,7 @@ import { useMutation } from '@tanstack/react-query';
 import DisplayAddress from '../global/DisplayAddress';
 import CopyAddressButton from '../global/CopyAddressButton';
 import ClaimCard from './ClaimCard';
+import { useClaimViewer } from './ClaimViewerContext';
 import AcceptClaimConfirm from '../bounty/AcceptClaimConfirm';
 import SubmitVotingConfirm from '../bounty/SubmitVotingConfirm';
 import ConfirmBountySuccessModal from '../bounty/ConfirmBountySuccessModal';
@@ -42,7 +43,31 @@ export default function ClaimItem({
 
   const placeholderSeed = `${claim.chainId}-${claim.id}-${claim.issuer}`;
 
+  // Shared claim viewer navigation state.
+  // Keep local state as a fallback when used outside the provider.
+  const viewer = useClaimViewer();
   const [openCard, setOpenCard] = useState(false);
+
+  const isCardOpen = viewer
+    ? viewer.activeClaimId === claim.id
+    : openCard;
+
+  const handleOpenCard = () => {
+    if (viewer) {
+      viewer.openClaim(claim.id);
+    } else {
+      setOpenCard(true);
+    }
+  };
+
+  const handleCloseCard = () => {
+    if (viewer) {
+      viewer.closeClaim();
+    } else {
+      setOpenCard(false);
+    }
+  };
+
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
@@ -216,8 +241,8 @@ export default function ClaimItem({
               }
             : undefined,
         }}
-        onClose={() => setOpenCard(false)}
-        open={openCard}
+        onClose={handleCloseCard}
+        open={isCardOpen}
       />
 
       {bounty.data && (
@@ -282,7 +307,7 @@ export default function ClaimItem({
 
         <div
           className='relative w-full aspect-square bg-[#12AAFF] dark:bg-[#132b47] rounded-[8px] overflow-hidden cursor-pointer'
-          onClick={() => setOpenCard(true)}
+          onClick={handleOpenCard}
         >
           <ClaimMedia
             media={media}
