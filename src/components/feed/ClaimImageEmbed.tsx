@@ -170,7 +170,9 @@ export default function ClaimImageEmbed({
             <div className='flex items-center gap-2 rounded-md bg-black/35 px-4 py-2 text-white shadow-lg'>
               <div className='h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white' />
 
-              <span className='font-mono text-sm font-medium'>opening...</span>
+              <span className='font-mono text-sm font-medium !text-white'>
+                opening...
+              </span>
             </div>
           </div>
         )}
