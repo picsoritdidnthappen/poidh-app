@@ -28,7 +28,6 @@ async function getPublicOrigin() {
     : 'https://poidh.xyz';
 }
 
-
 const draftSchema = z.object({
   type: z.literal('poidh-bounty-draft'),
   version: z.literal(1),
@@ -122,17 +121,56 @@ const getDraft = unstable_cache(
   { revalidate: 86400 }
 );
 
+// A gateway outage should not strip the social image entirely. This generic
+// card is intentionally not tied to a draft's contents or author: those
+// details cannot be trusted until its immutable JSON has loaded.
+function fallbackMetadata(origin: string, cid: string): Metadata {
+  const draftUrl = `${origin}/d/${cid}`;
+  const imageUrl = `${origin}/api/og/draft?title=bounty+draft`;
+  const title = 'bounty draft | poidh';
+  const description = 'Reusable bounty draft on poidh.';
+
+  return {
+    metadataBase: new URL(origin),
+    title,
+    description,
+    alternates: { canonical: draftUrl },
+    openGraph: {
+      type: 'website',
+      url: draftUrl,
+      siteName: 'poidh',
+      title,
+      description,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'poidh bounty draft',
+          type: 'image/png',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
+}
+
 export async function generateMetadata({
   params,
 }: DraftPageProps): Promise<Metadata> {
   const { cid } = await params;
   if (!CID_PATTERN.test(cid)) return { title: 'bounty draft | poidh' };
 
+  const origin = await getPublicOrigin();
   try {
     const draft = await getDraft(cid);
     if (!draft) return { title: 'bounty draft | poidh' };
 
-    const origin = await getPublicOrigin();
     const draftUrl = `${origin}/d/${cid}`;
     const title = `${draft.title} (draft) | poidh`;
     const plainDescription = draft.description.replace(/\s+/g, ' ').trim();
@@ -207,9 +245,9 @@ export async function generateMetadata({
       },
     };
   } catch {
-    // If the gateway fails temporarily, don't generate social metadata
-    // pointing to non-existent images of an unknown draft.
-    return { title: 'bounty draft | poidh' };
+    // Temporary Pinata/network errors still produce a valid generic preview.
+    // Do not claim to know the draft title or creator while data is unavailable.
+    return fallbackMetadata(origin, cid);
   }
 }
 
@@ -282,17 +320,22 @@ export default async function DraftPage({ params }: DraftPageProps) {
           <div className='mt-8 border-t border-white/20 pt-5 text-sm'>
             <p className='text-white/70'>draft author</p>
             <DraftAuthor address={draft.creator} />
-            <DraftActions
-              draft={{
-                title: draft.title,
-                description: draft.description,
-                amount: draft.amount,
-                chain: draft.chain,
-                isOpenBounty: draft.isOpenBounty,
-                album: draft.album,
-              }}
-            />
-            <p className='mt-4 text-xs text-white/70'>
+
+            {/* Adjust spacing without changing DraftActions functionality. */}
+            <div className='[&>div:first-child]:!mt-3 [&>p]:!mt-6'>
+              <DraftActions
+                draft={{
+                  title: draft.title,
+                  description: draft.description,
+                  amount: draft.amount,
+                  chain: draft.chain,
+                  isOpenBounty: draft.isOpenBounty,
+                  album: draft.album,
+                }}
+              />
+            </div>
+
+            <p className='mt-3 text-xs text-white/70'>
               this is a reusable bounty draft. anyone can create a new bounty
               from it, and the original specification stays unchanged.
             </p>
