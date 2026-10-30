@@ -466,6 +466,11 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
           /^ {6}/gm,
           ''
         )
+      : chain.id === 8453 && bounty.data.id === 1520
+      ? bounty.data.description.replace(
+          /^fully offline AI models as far as I could,/,
+          'I spent October pushing small, fully offline AI models as far as I could,'
+        )
       : bounty.data.description;
 
   const createdAt = new Date(bounty.data.createdAt * 1000);
