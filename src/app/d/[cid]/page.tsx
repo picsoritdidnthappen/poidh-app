@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
+import axios from 'axios';
 import MarkdownContent from '@/components/global/MarkdownContent';
 
 export const runtime = 'nodejs';
@@ -57,78 +58,54 @@ const getDraft = unstable_cache(
     const url = new URL(base.origin);
     url.pathname = `${gatewayPath}/ipfs/${cid}`;
 
-    let response: Response;
+    // Use Axios's Node HTTP adapter here instead of Next.js-patched fetch.
+    // This avoids conflicting fetch cache policies inside unstable_cache,
+    // while unstable_cache still caches validated JSON for 24 hours.
+    let json: unknown;
     try {
-      response = await fetch(url.toString(), {
+      const response = await axios.get<string>(url.toString(), {
+        adapter: 'http',
+        responseType: 'text',
+        timeout: 12000,
+        maxContentLength: 30000,
+        maxRedirects: 0,
         headers: {
           Accept: 'application/json',
           'x-pinata-gateway-token': gatewayToken,
         },
-        cache: 'no-store',
-        signal: AbortSignal.timeout(12000),
       });
-    
-      } catch (error) {
-        const err = error as Error & {
-          cause?: {
-            code?: string;
-            message?: string;
-          };
-        };
-      
-        console.error('[bounty draft] gateway request failed:', {
-          message: err.message,
-          causeCode: err.cause?.code,
-          causeMessage: err.cause?.message,
-          gatewayHost: url.hostname,
-        });
-      
-        throw new Error('Draft gateway request failed');
-      }
 
-    if (!response.ok) {
-      console.error('[bounty draft] gateway HTTP status:', response.status);
-      // Temporary failures should NOT become cached missing-draft responses.
-      throw new Error(`Draft gateway returned HTTP ${response.status}`);
-    }
-
-    const declaredLength = Number(response.headers.get('content-length') ?? 0);
-    if (declaredLength > 30000) return null;
-
-    // Reject unexpectedly large bodies even when content-length is absent.
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error('Gateway response had no body');
-
-    const chunks: Uint8Array[] = [];
-    let receivedBytes = 0;
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      receivedBytes += value.byteLength;
-      if (receivedBytes > 30000) {
-        await reader.cancel();
+      const raw = response.data;
+      if (typeof raw !== 'string' || Buffer.byteLength(raw, 'utf8') > 30000) {
         return null;
       }
-      chunks.push(value);
+
+      try {
+        json = JSON.parse(raw);
+      } catch {
+        console.warn('[bounty draft] gateway returned invalid JSON');
+        return null;
+      }
+    } catch (error) {
+      // Do not log the request/config: it includes the private gateway token.
+      console.error('[bounty draft] gateway request failed:', {
+        status: axios.isAxiosError(error) ? error.response?.status : undefined,
+        code: axios.isAxiosError(error) ? error.code : undefined,
+        message: error instanceof Error ? error.message : 'unknown error',
+      });
+      // Network, gateway and HTTP failures must not be cached as missing drafts.
+      throw new Error('Draft gateway request failed');
     }
 
-    const bytes = new Uint8Array(receivedBytes);
-    let offset = 0;
-    for (const chunk of chunks) {
-      bytes.set(chunk, offset);
-      offset += chunk.byteLength;
-    }
-
-    try {
-      const parsed = draftSchema.safeParse(
-        JSON.parse(new TextDecoder().decode(bytes))
-      );
-      return parsed.success ? parsed.data : null;
-    } catch {
+    const parsed = draftSchema.safeParse(json);
+    if (!parsed.success) {
+      console.warn('[bounty draft] invalid draft schema');
       return null;
     }
+
+    return parsed.data;
   },
-  ['poidh-bounty-draft-dedicated-gateway-v1'],
+  ['poidh-bounty-draft-dedicated-gateway-v2'],
   { revalidate: 86400 }
 );
 
