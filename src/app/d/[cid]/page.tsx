@@ -282,11 +282,6 @@ export default async function DraftPage({ params }: DraftPageProps) {
           <div className='mt-8 border-t border-white/20 pt-5 text-sm'>
             <p className='text-white/70'>draft author</p>
             <DraftAuthor address={draft.creator} />
-            <p className='mt-5 text-xs text-white/70'>
-              this is a reusable bounty draft. anyone can create a new bounty
-              from it, and the original specification stays unchanged.
-            </p>
-
             <DraftActions
               draft={{
                 title: draft.title,
@@ -297,6 +292,10 @@ export default async function DraftPage({ params }: DraftPageProps) {
                 album: draft.album,
               }}
             />
+            <p className='mt-4 text-xs text-white/70'>
+              this is a reusable bounty draft. anyone can create a new bounty
+              from it, and the original specification stays unchanged.
+            </p>
           </div>
         </section>
       </div>
