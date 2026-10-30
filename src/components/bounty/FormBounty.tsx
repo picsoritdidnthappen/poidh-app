@@ -314,7 +314,7 @@ export default function FormBounty({
       return;
     }
 
-    const reward = amount.trim();
+    const reward = amount.trim().replace(/^\./, '0.');
     if (
       !/^\d+(?:\.\d{1,18})?$/.test(reward) ||
       reward.length > 50 ||
@@ -356,7 +356,7 @@ export default function FormBounty({
     const payload = JSON.stringify({
       title: name.trim(),
       description: description.trim(),
-      amount: amount.trim(),
+      amount: amount.trim().replace(/^\./, '0.'),
       chain: currentChain.slug,
       isOpenBounty,
       album: album.trim(),
