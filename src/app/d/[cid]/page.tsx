@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import axios from 'axios';
 import MarkdownContent from '@/components/global/MarkdownContent';
+import DisplayAddress from '@/components/global/DisplayAddress';
+import DraftActions from '@/components/drafts/DraftActions';
 
 export const runtime = 'nodejs';
 
@@ -120,7 +122,7 @@ export async function generateMetadata({
     if (!draft) return { title: 'bounty draft | poidh' };
 
     const title = `${draft.title} (draft) | poidh`;
-    const description = `Unfunded poidh bounty draft: ${draft.description}`.slice(
+    const description = `Reusable poidh bounty draft: ${draft.description}`.slice(
       0,
       160
     );
@@ -163,7 +165,7 @@ export default async function DraftPage({ params }: DraftPageProps) {
       <div className='mx-auto max-w-5xl'>
         <div className='mb-5 flex flex-wrap items-center justify-between gap-3'>
           <span className='rounded-full border border-white/40 bg-white/10 px-3 py-1 text-xs font-semibold'>
-            draft · not funded
+            draft
           </span>
           <Link href='/' className='text-sm underline hover:text-white/80'>
             back to poidh
@@ -203,16 +205,30 @@ export default async function DraftPage({ params }: DraftPageProps) {
 
           <div className='mt-8 border-t border-white/20 pt-5 text-sm'>
             <p className='text-white/70'>draft author</p>
-            <Link
-              href={`/account/${draft.creator}`}
-              className='mt-1 block break-all underline hover:text-white/80'
-            >
-              {draft.creator}
-            </Link>
+            <div className='mt-2 inline-flex max-w-full items-center'>
+              <DisplayAddress
+                address={draft.creator}
+                pfpSize={24}
+                showPfpIfExists
+                showFallbackPfp
+                showLoadingSkeleton
+              />
+            </div>
             <p className='mt-5 text-xs text-white/70'>
-              This is a publicly shareable specification, not an active bounty.
-              No funds have been deposited onchain.
+              this is a reusable bounty draft. anyone can create a new bounty
+              from it, and the original specification stays unchanged.
             </p>
+
+            <DraftActions
+              draft={{
+                title: draft.title,
+                description: draft.description,
+                amount: draft.amount,
+                chain: draft.chain,
+                isOpenBounty: draft.isOpenBounty,
+                album: draft.album,
+              }}
+            />
           </div>
         </section>
       </div>
