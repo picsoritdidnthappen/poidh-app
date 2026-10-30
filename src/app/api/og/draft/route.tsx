@@ -120,8 +120,8 @@ export async function GET(request: Request) {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontSize: 25, opacity: 0.87 }}>proposed reward</div>
-          <div style={{ fontSize: 52, fontWeight: 700 }}>{rawAmount} ETH</div>
+          <div style={{ display: 'flex', fontSize: 25, opacity: 0.87 }}>proposed reward</div>
+          <div style={{ display: 'flex', fontSize: 52, fontWeight: 700 }}>{rawAmount} ETH</div>
         </div>
         <div
           style={{
