@@ -152,9 +152,7 @@ export async function generateMetadata({
 
     const imageParams = new URLSearchParams({
       title: imageTitle,
-      amount: draft.amount,
-      chain: draft.chain,
-      kind: draft.isOpenBounty ? 'open' : 'solo',
+      address: draft.creator.toLowerCase(),
     });
     const ogImage = `${origin}/api/og/draft?${imageParams.toString()}`;
     imageParams.set('format', 'farcaster');
