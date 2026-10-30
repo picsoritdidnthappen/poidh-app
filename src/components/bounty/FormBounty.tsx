@@ -7,7 +7,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
@@ -68,22 +68,36 @@ Submissions close on [date/time].
 
 Add anything else claimants should know.`;
 
-export default function FormBounty({
-  open,
-  onClose,
-}: {
+export type BountyDraftFields = {
+  title: string;
+  description: string;
+  amount: string;
+  chain: 'mainnet' | 'base' | 'arbitrum';
+  isOpenBounty: boolean;
+  album: string;
+};
+
+export type FormBountyHandle = {
+  createBounty: () => void;
+};
+
+type FormBountyProps = {
   open: boolean;
   onClose: () => void;
-}) {
+  initialDraft?: BountyDraftFields;
+};
+
+const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
+  function FormBounty({ open, onClose, initialDraft }, ref) {
   const pathname = usePathname();
   const prefilledAlbum = pathname?.match(/^\/a\/([^/]+)/)?.[1] ?? '';
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [album, setAlbum] = useState(prefilledAlbum);
+  const [name, setName] = useState(initialDraft?.title ?? '');
+  const [description, setDescription] = useState(initialDraft?.description ?? '');
+  const [amount, setAmount] = useState(initialDraft?.amount ?? '');
+  const [album, setAlbum] = useState(initialDraft?.album ?? prefilledAlbum);
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
-  const [isOpenBounty, setIsOpenBounty] = useState(true);
+  const [isOpenBounty, setIsOpenBounty] = useState(initialDraft?.isOpenBounty ?? true);
   const [descriptionPreview, setDescriptionPreview] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [draftDialogOpen, setDraftDialogOpen] = useState(false);
@@ -98,7 +112,7 @@ export default function FormBounty({
   const menuOpen = Boolean(anchorEl);
   const chain = useChainInfo();
   const [currentChain, setCurrentChain] = useState<Chain>(
-    chain.slug === 'degen' ? chains.base : chain
+    initialDraft ? chains[initialDraft.chain] : chain.slug === 'degen' ? chains.base : chain
   );
   const price =
     trpc.web3.fetchPrice.useQuery({ currency: currentChain.currency }).data ??
@@ -121,10 +135,10 @@ export default function FormBounty({
   );
 
   useEffect(() => {
-    if (prefilledAlbum) {
+    if (prefilledAlbum && !initialDraft) {
       setAlbum(prefilledAlbum);
     }
-  }, [prefilledAlbum]);
+  }, [prefilledAlbum, initialDraft]);
 
   useEffect(() => {
     if (amount) {
@@ -151,6 +165,7 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const saveBountyAlbum = trpc.bounties.addToAlbum.useMutation();
+  const createSubmissionRef = useRef(false);
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
@@ -269,6 +284,7 @@ export default function FormBounty({
     },
 
     onSettled: () => {
+      createSubmissionRef.current = false;
       setLoading({
         isLoading: false,
         status: '',
@@ -412,6 +428,51 @@ export default function FormBounty({
       setIsSavingDraft(false);
     }
   };
+
+  const handleCreateBounty = () => {
+    if (createSubmissionRef.current || createBountyMutations.isPending) return;
+
+    if (!account.address) {
+      toast.error('Connect your wallet to create a bounty');
+      return;
+    }
+
+    if (!name || !description || !amount) {
+      toast.error('Please fill in all required fields and check wallet connection.');
+      return;
+    }
+
+    const minValue = ETH_MIN_AMOUNT;
+    if (!Number.isFinite(Number(amount)) || Number(amount) < minValue) {
+      toast.error(`Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`);
+      return;
+    }
+
+    let rewardWei: bigint;
+    try {
+      rewardWei = parseEther(amount);
+    } catch {
+      toast.error('Enter a valid ETH reward');
+      return;
+    }
+
+    if (balance && rewardWei > balance.value) {
+      toast.error('You do not have enough funds for this bounty');
+      return;
+    }
+
+    if (album && (album.length > 30 || !ALBUM_PATTERN.test(album))) {
+      toast.error('Album names must contain only letters and single hyphens between words.');
+      return;
+    }
+
+    createSubmissionRef.current = true;
+    createBountyMutations.mutate({ name, description, amount, album });
+  };
+
+  // The draft page's primary Create action uses this exact form transaction,
+  // without maintaining a second copy of the create-bounty logic.
+  useImperativeHandle(ref, () => ({ createBounty: handleCreateBounty }));
 
   const handleDescriptionResizeStart = (
     e: React.PointerEvent<HTMLDivElement>
@@ -1080,50 +1141,7 @@ export default function FormBounty({
                     'flex flex-row items-center justify-center',
                     account.isDisconnected && 'opacity-50 cursor-not-allowed'
                   )}
-                  onClick={() => {
-                    if (name && description && amount) {
-                      const minValue = ETH_MIN_AMOUNT;
-
-                      if (Number(amount) < minValue) {
-                        toast.error(
-                          `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
-                        );
-
-                        return;
-                      }
-
-                      if (balance && parseEther(amount) > balance.value) {
-                        toast.error(
-                          'You do not have enough funds for this bounty'
-                        );
-
-                        return;
-                      }
-
-                      const formData = {
-                        name,
-                        description,
-                        amount,
-                        album,
-                      };
-
-                      if (
-                        album &&
-                        (album.length > 30 || !ALBUM_PATTERN.test(album))
-                      ) {
-                        toast.error(
-                          'Album names must contain only letters and single hyphens between words.'
-                        );
-                        return;
-                      }
-
-                      createBountyMutations.mutate(formData);
-                    } else {
-                      toast.error(
-                        'Please fill in all required fields and check wallet connection.'
-                      );
-                    }
-                  }}
+                  onClick={handleCreateBounty}
                   disabled={account.isDisconnected}
                 >
                   <div className='button'>
@@ -1379,4 +1397,7 @@ export default function FormBounty({
       </Dialog>
     </>
   );
-}
+  }
+);
+
+export default FormBounty;
