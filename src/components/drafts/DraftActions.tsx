@@ -8,6 +8,21 @@ import FormBounty, {
   type BountyDraftFields,
   type FormBountyHandle,
 } from '@/components/bounty/FormBounty';
+import DisplayAddress from '@/components/global/DisplayAddress';
+
+export function DraftAuthor({ address }: { address: string }) {
+  return (
+    <div className='mt-2 inline-flex max-w-full items-center'>
+      <DisplayAddress
+        address={address}
+        pfpSize={24}
+        showPfpIfExists
+        showFallbackPfp
+        showLoadingSkeleton
+      />
+    </div>
+  );
+}
 
 export default function DraftActions({ draft }: { draft: BountyDraftFields }) {
   const account = useAccount();
