@@ -439,12 +439,12 @@ export async function GET(
         ...bountyData,
 
         description:
-        bountyData.chainId === 8453 && bountyData.id === 1520
-          ? bountyData.description.replace(
-              /^fully offline AI models as far as I could,/,
-              'I spent October pushing small, fully offline AI models as far as I could,'
-            )
-          : bountyData.description,
+          bountyData.chainId === 8453 && bountyData.id === 1520
+            ? bountyData.description.replace(
+                /^fully offline AI models as far as I could,/,
+                'I spent October pushing small, fully offline AI models as far as I could,'
+              )
+            : bountyData.description,
 
         extra: extraData,
 
