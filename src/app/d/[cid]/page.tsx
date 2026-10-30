@@ -67,13 +67,24 @@ const getDraft = unstable_cache(
         cache: 'no-store',
         signal: AbortSignal.timeout(12000),
       });
-    } catch (error) {
-      console.error(
-        '[bounty draft] gateway request failed:',
-        error instanceof Error ? error.name : 'unknown error'
-      );
-      throw new Error('Draft gateway request failed');
-    }
+    
+      } catch (error) {
+        const err = error as Error & {
+          cause?: {
+            code?: string;
+            message?: string;
+          };
+        };
+      
+        console.error('[bounty draft] gateway request failed:', {
+          message: err.message,
+          causeCode: err.cause?.code,
+          causeMessage: err.cause?.message,
+          gatewayHost: url.hostname,
+        });
+      
+        throw new Error('Draft gateway request failed');
+      }
 
     if (!response.ok) {
       console.error('[bounty draft] gateway HTTP status:', response.status);
