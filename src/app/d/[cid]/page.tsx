@@ -5,8 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import axios from 'axios';
 import MarkdownContent from '@/components/global/MarkdownContent';
-import DisplayAddress from '@/components/global/DisplayAddress';
-import DraftActions from '@/components/drafts/DraftActions';
+import DraftActions, { DraftAuthor } from '@/components/drafts/DraftActions';
 
 export const runtime = 'nodejs';
 
@@ -203,15 +202,7 @@ export default async function DraftPage({ params }: DraftPageProps) {
 
           <div className='mt-8 border-t border-white/20 pt-5 text-sm'>
             <p className='text-white/70'>draft author</p>
-            <div className='mt-2 inline-flex max-w-full items-center'>
-              <DisplayAddress
-                address={draft.creator}
-                pfpSize={24}
-                showPfpIfExists
-                showFallbackPfp
-                showLoadingSkeleton
-              />
-            </div>
+            <DraftAuthor address={draft.creator} />
             <p className='mt-5 text-xs text-white/70'>
               this is a reusable bounty draft. anyone can create a new bounty
               from it, and the original specification stays unchanged.
