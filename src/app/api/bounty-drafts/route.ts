@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { Redis } from '@upstash/redis';
 import { createHash } from 'crypto';
 import { createContext } from '@/trpc/context';
 import { ETH_MIN_AMOUNT } from '@/utils/constants';
@@ -38,81 +37,155 @@ const draftSchema = z
   })
   .strict();
 
-// Rates apply across all Vercel instances, not just a single function process.
-// Wallet and client-IP budgets are independent; either one can block an upload.
+// Reuse Pinata's existing draft metadata index as the rate-limit ledger.
+// This follows the same pattern as poidh comments: count recently stored
+// records for the signed-in wallet before accepting another creation.
+// No Redis, additional database table, migration or new environment variables.
 const DRAFTS_PER_WALLET_PER_HOUR = 10;
 const DRAFTS_PER_IP_PER_HOUR = 40;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const RATE_LIMIT_TTL_SECONDS = 2 * 60 * 60;
+const DRAFT_WINDOW_MS = 60 * 60 * 1000;
+const DRAFT_COOLDOWN_MS = 60 * 1000;
+
+type DraftPinRow = {
+  date_pinned?: string;
+  metadata?: { keyvalues?: Record<string, string> };
+};
+
+async function getRecentDraftPins(
+  jwt: string,
+  field: 'creator' | 'ipHash',
+  value: string,
+  since: number,
+  limit: number
+): Promise<DraftPinRow[]> {
+  const url = new URL('https://api.pinata.cloud/data/pinList');
+  url.searchParams.set('status', 'pinned');
+  url.searchParams.set('pageLimit', String(limit));
+  url.searchParams.set('pinStart', new Date(since).toISOString());
+  url.searchParams.set(
+    'metadata',
+    JSON.stringify({
+      name: 'poidh-bounty-draft',
+      keyvalues: {
+        type: { value: 'bounty-draft', op: 'eq' },
+        [field]: { value, op: 'eq' },
+      },
+    })
+  );
+
+  const response = await fetch(url.toString(), {
+    headers: { Authorization: `Bearer ${jwt}` },
+    cache: 'no-store',
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!response.ok) {
+    throw new Error(`Pinata draft rate-limit lookup failed: ${response.status}`);
+  }
+
+  const result = (await response.json()) as { rows?: DraftPinRow[] };
+  if (!Array.isArray(result.rows)) {
+    throw new Error('Pinata draft rate-limit lookup returned invalid data');
+  }
+
+  // Verify returned metadata rather than trusting the search filter alone.
+  return result.rows.filter((row) => {
+    const timestamp = Date.parse(row.date_pinned ?? '');
+    return (
+      Number.isFinite(timestamp) &&
+      timestamp >= since &&
+      row.metadata?.keyvalues?.type === 'bounty-draft' &&
+      row.metadata?.keyvalues?.[field] === value
+    );
+  });
+}
 
 async function checkDraftRateLimit(
   request: Request,
-  wallet: string
-): Promise<NextResponse | null> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-
-  // Never upload unlimited drafts just because rate limiting is unavailable.
-  if (!url || !token) {
-    console.error('Draft rate limiting is not configured');
-    return NextResponse.json(
-      { error: 'Draft saving temporarily unavailable' },
-      { status: 503 }
-    );
+  wallet: string,
+  uploadJwt: string
+): Promise<{ blocked: NextResponse | null; ipHash: string | null }> {
+  const readJwt = process.env.PINATA_DRAFTS_READ_JWT?.trim();
+  if (!readJwt) {
+    console.error('Draft lookup JWT is not configured');
+    return {
+      blocked: NextResponse.json(
+        { error: 'Draft saving temporarily unavailable' },
+        { status: 503 }
+      ),
+      ipHash: null,
+    };
   }
 
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  // HMAC prevents raw IP addresses or reversible plain hashes from being
+  // stored alongside draft metadata in the Pinata account.
+  const ipHash = ip
+    ? createHash('sha256').update(`${uploadJwt}:${ip}`).digest('hex')
+    : null;
+  const now = Date.now();
+  const since = now - DRAFT_WINDOW_MS;
+
   try {
-    const redis = new Redis({ url, token });
-    const now = Date.now();
-    const hour = Math.floor(now / RATE_LIMIT_WINDOW_MS);
-    const environment =
-      process.env.VERCEL_ENV === 'production' ? 'production' : 'preview';
-    const prefix = `poidh:${environment}:draft-save`;
+    const [walletPins, ipPins] = await Promise.all([
+      getRecentDraftPins(
+        readJwt,
+        'creator',
+        wallet,
+        since,
+        DRAFTS_PER_WALLET_PER_HOUR
+      ),
+      ipHash
+        ? getRecentDraftPins(
+            readJwt,
+            'ipHash',
+            ipHash,
+            since,
+            DRAFTS_PER_IP_PER_HOUR
+          )
+        : Promise.resolve([]),
+    ]);
 
-    // INCR is atomic in Redis, including under concurrent requests.
-    const walletKey = `${prefix}:wallet:${wallet}:${hour}`;
-    const walletCount = await redis.incr(walletKey);
-    await redis.expire(walletKey, RATE_LIMIT_TTL_SECONDS);
-
-    // Vercel supplies the client IP in X-Forwarded-For. Store only a hash.
-    // Wallet rate limiting remains active when an IP header is unavailable.
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-    let ipCount = 0;
-
-    if (ip) {
-      const ipHash = createHash('sha256').update(ip).digest('hex');
-      const ipKey = `${prefix}:ip:${ipHash}:${hour}`;
-      ipCount = await redis.incr(ipKey);
-      await redis.expire(ipKey, RATE_LIMIT_TTL_SECONDS);
-    }
+    const newestWalletPin = Math.max(
+      0,
+      ...walletPins.map((row) => Date.parse(row.date_pinned ?? '') || 0)
+    );
+    const cooldownRemaining =
+      newestWalletPin > 0
+        ? Math.max(0, DRAFT_COOLDOWN_MS - (now - newestWalletPin))
+        : 0;
 
     if (
-      walletCount > DRAFTS_PER_WALLET_PER_HOUR ||
-      ipCount > DRAFTS_PER_IP_PER_HOUR
+      walletPins.length >= DRAFTS_PER_WALLET_PER_HOUR ||
+      ipPins.length >= DRAFTS_PER_IP_PER_HOUR ||
+      cooldownRemaining > 0
     ) {
-      const secondsUntilReset = Math.ceil(
-        ((hour + 1) * RATE_LIMIT_WINDOW_MS - now) / 1000
-      );
-
-      return NextResponse.json(
-        { error: 'Too many drafts saved. Please try again later.' },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': String(secondsUntilReset),
-            'Cache-Control': 'no-store',
-          },
-        }
-      );
+      return {
+        blocked: NextResponse.json(
+          { error: 'Too many drafts saved. Please try again later.' },
+          {
+            status: 429,
+            headers: {
+              'Retry-After': String(
+                Math.max(1, Math.ceil(cooldownRemaining / 1000))
+              ),
+              'Cache-Control': 'no-store',
+            },
+          }
+        ),
+        ipHash,
+      };
     }
 
-    return null;
+    return { blocked: null, ipHash };
   } catch (error) {
-    console.error('Draft rate limit check failed:', error);
-    return NextResponse.json(
-      { error: 'Draft saving temporarily unavailable' },
-      { status: 503 }
-    );
+    console.error('Draft rate-limit lookup failed:', error);
+    return {
+      blocked: NextResponse.json(
+        { error: 'Draft saving temporarily unavailable' },
+        { status: 503 }
+      ),
+      ipHash,
+    };
   }
 }
 
@@ -215,8 +288,8 @@ export async function POST(request: Request) {
 
     const wallet = creator.data.toLowerCase();
 
-    const rateLimitResponse = await checkDraftRateLimit(request, wallet);
-    if (rateLimitResponse) return rateLimitResponse;
+    const { blocked, ipHash } = await checkDraftRateLimit(request, wallet, jwt);
+    if (blocked) return blocked;
 
     // Portable, content-addressed bounty specification.
     const draft = {
@@ -248,6 +321,7 @@ export async function POST(request: Request) {
               title: parsed.data.title,
               chain: parsed.data.chain,
               amount: parsed.data.amount,
+              ...(ipHash ? { ipHash } : {}),
             },
           },
         }),
