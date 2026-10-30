@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import { notFound } from 'next/navigation';
@@ -14,6 +15,19 @@ type DraftPageProps = {
 };
 
 const CID_PATTERN = /^b[a-z2-7]{30,120}$/;
+
+// Use the exact public origin in sharing metadata. Avoid sending staging
+// social crawlers to production, and never trust arbitrary Host headers.
+async function getPublicOrigin() {
+  const requestHeaders = await headers();
+  const host = (
+    requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host') ?? ''
+  ).split(',')[0].trim().toLowerCase();
+  return host === 'staging.poidh.xyz'
+    ? 'https://staging.poidh.xyz'
+    : 'https://poidh.xyz';
+}
+
 
 const draftSchema = z.object({
   type: z.literal('poidh-bounty-draft'),
@@ -118,18 +132,85 @@ export async function generateMetadata({
     const draft = await getDraft(cid);
     if (!draft) return { title: 'bounty draft | poidh' };
 
+    const origin = await getPublicOrigin();
+    const draftUrl = `${origin}/d/${cid}`;
     const title = `${draft.title} (draft) | poidh`;
-    const description = `Reusable poidh bounty draft: ${draft.description}`.slice(
-      0,
-      160
-    );
+    const plainDescription = draft.description.replace(/\s+/g, ' ').trim();
+    const description =
+      `Reusable poidh bounty draft: ${plainDescription}`.slice(0, 200);
+
+    // Images are generated independently of the IPFS gateway. The OG endpoint
+    // receives only public fields from the already-validated, immutable JSON.
+    // Farcaster limits embed image URLs to 1024 characters. Keep the encoded
+    // dynamic image title comfortably below that even when it contains emoji.
+    let imageTitle = '';
+    for (const character of Array.from(draft.title)) {
+      if (encodeURIComponent(imageTitle + character).length > 500) break;
+      imageTitle += character;
+    }
+    if (imageTitle.length < draft.title.length) imageTitle += '…';
+
+    const imageParams = new URLSearchParams({
+      title: imageTitle,
+      amount: draft.amount,
+      chain: draft.chain,
+      kind: draft.isOpenBounty ? 'open' : 'solo',
+    });
+    const ogImage = `${origin}/api/og/draft?${imageParams.toString()}`;
+    imageParams.set('format', 'farcaster');
+    const farcasterImage = `${origin}/api/og/draft?${imageParams.toString()}`;
+
+    // Matches the working /analytics Farcaster Mini App integration.
+    const miniAppEmbed = {
+      version: '1',
+      imageUrl: farcasterImage,
+      button: {
+        title: 'create bounty',
+        action: {
+          type: 'launch_frame',
+          name: 'poidh',
+          url: draftUrl,
+          splashImageUrl: `${origin}/mini-splash-v2.png`,
+          splashBackgroundColor: '#6faae1',
+        },
+      },
+    };
 
     return {
+      metadataBase: new URL(origin),
       title,
       description,
-      openGraph: { title, description, type: 'website' },
+      alternates: { canonical: draftUrl },
+      openGraph: {
+        type: 'website',
+        url: draftUrl,
+        siteName: 'poidh',
+        title,
+        description,
+        images: [
+          {
+            url: ogImage,
+            width: 1200,
+            height: 630,
+            alt: `${draft.title} — reusable poidh bounty draft`,
+            type: 'image/png',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImage],
+      },
+      other: {
+        'fc:miniapp': JSON.stringify(miniAppEmbed),
+        'fc:frame': JSON.stringify(miniAppEmbed),
+      },
     };
   } catch {
+    // If the gateway fails temporarily, don't generate social metadata
+    // pointing to non-existent images of an unknown draft.
     return { title: 'bounty draft | poidh' };
   }
 }
