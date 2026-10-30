@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { Redis } from '@upstash/redis';
+import { createHash } from 'crypto';
 import { createContext } from '@/trpc/context';
+import { ETH_MIN_AMOUNT } from '@/utils/constants';
 
 export const runtime = 'nodejs';
 
@@ -19,7 +22,11 @@ const draftSchema = z
       .string()
       .max(50)
       .regex(/^\d+(?:\.\d{1,18})?$/)
-      .refine((value) => Number(value) > 0 && Number.isFinite(Number(value))),
+      .refine(
+        (value) =>
+          Number.isFinite(Number(value)) &&
+          Number(value) >= ETH_MIN_AMOUNT
+      ),
     chain: z.enum(['mainnet', 'base', 'arbitrum']),
     isOpenBounty: z.boolean(),
     album: z
@@ -30,6 +37,84 @@ const draftSchema = z
       ),
   })
   .strict();
+
+// Rates apply across all Vercel instances, not just a single function process.
+// Wallet and client-IP budgets are independent; either one can block an upload.
+const DRAFTS_PER_WALLET_PER_HOUR = 10;
+const DRAFTS_PER_IP_PER_HOUR = 40;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const RATE_LIMIT_TTL_SECONDS = 2 * 60 * 60;
+
+async function checkDraftRateLimit(
+  request: Request,
+  wallet: string
+): Promise<NextResponse | null> {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  // Never upload unlimited drafts just because rate limiting is unavailable.
+  if (!url || !token) {
+    console.error('Draft rate limiting is not configured');
+    return NextResponse.json(
+      { error: 'Draft saving temporarily unavailable' },
+      { status: 503 }
+    );
+  }
+
+  try {
+    const redis = new Redis({ url, token });
+    const now = Date.now();
+    const hour = Math.floor(now / RATE_LIMIT_WINDOW_MS);
+    const environment =
+      process.env.VERCEL_ENV === 'production' ? 'production' : 'preview';
+    const prefix = `poidh:${environment}:draft-save`;
+
+    // INCR is atomic in Redis, including under concurrent requests.
+    const walletKey = `${prefix}:wallet:${wallet}:${hour}`;
+    const walletCount = await redis.incr(walletKey);
+    await redis.expire(walletKey, RATE_LIMIT_TTL_SECONDS);
+
+    // Vercel supplies the client IP in X-Forwarded-For. Store only a hash.
+    // Wallet rate limiting remains active when an IP header is unavailable.
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+    let ipCount = 0;
+
+    if (ip) {
+      const ipHash = createHash('sha256').update(ip).digest('hex');
+      const ipKey = `${prefix}:ip:${ipHash}:${hour}`;
+      ipCount = await redis.incr(ipKey);
+      await redis.expire(ipKey, RATE_LIMIT_TTL_SECONDS);
+    }
+
+    if (
+      walletCount > DRAFTS_PER_WALLET_PER_HOUR ||
+      ipCount > DRAFTS_PER_IP_PER_HOUR
+    ) {
+      const secondsUntilReset = Math.ceil(
+        ((hour + 1) * RATE_LIMIT_WINDOW_MS - now) / 1000
+      );
+
+      return NextResponse.json(
+        { error: 'Too many drafts saved. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(secondsUntilReset),
+            'Cache-Control': 'no-store',
+          },
+        }
+      );
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Draft rate limit check failed:', error);
+    return NextResponse.json(
+      { error: 'Draft saving temporarily unavailable' },
+      { status: 503 }
+    );
+  }
+}
 
 // Save a new draft.
 export async function POST(request: Request) {
@@ -129,6 +214,9 @@ export async function POST(request: Request) {
     }
 
     const wallet = creator.data.toLowerCase();
+
+    const rateLimitResponse = await checkDraftRateLimit(request, wallet);
+    if (rateLimitResponse) return rateLimitResponse;
 
     // Portable, content-addressed bounty specification.
     const draft = {
