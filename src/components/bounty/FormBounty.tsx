@@ -7,7 +7,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
@@ -30,6 +30,8 @@ import DynamicChainIcon from '@/components/global/DynamicChainIcon';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { ETH_MIN_AMOUNT } from '@/utils/constants';
 import MarkdownContent from '@/components/global/MarkdownContent';
+import { useSession } from '@/components/auth/SessionProvider';
+import { SignInCancelledError } from '@/utils/sessionClient';
 
 const ALBUM_PATTERN = /^[a-z]+(?:-[a-z]+)*$/;
 const ALBUM_TYPING_PATTERN = /^[a-z]+(?:-[a-z]+)*-?$/;
@@ -66,24 +68,42 @@ Submissions close on [date/time].
 
 Add anything else claimants should know.`;
 
-export default function FormBounty({
-  open,
-  onClose,
-}: {
+export type BountyDraftFields = {
+  title: string;
+  description: string;
+  amount: string;
+  chain: 'mainnet' | 'base' | 'arbitrum';
+  isOpenBounty: boolean;
+  album: string;
+};
+
+export type FormBountyHandle = {
+  createBounty: () => void;
+};
+
+type FormBountyProps = {
   open: boolean;
   onClose: () => void;
-}) {
+  initialDraft?: BountyDraftFields;
+};
+
+const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
+  function FormBounty({ open, onClose, initialDraft }, ref) {
   const pathname = usePathname();
   const prefilledAlbum = pathname?.match(/^\/a\/([^/]+)/)?.[1] ?? '';
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [album, setAlbum] = useState(prefilledAlbum);
+  const [name, setName] = useState(initialDraft?.title ?? '');
+  const [description, setDescription] = useState(initialDraft?.description ?? '');
+  const [amount, setAmount] = useState(initialDraft?.amount ?? '');
+  const [album, setAlbum] = useState(initialDraft?.album ?? prefilledAlbum);
   const [usdPerToken, setUsdPerToken] = useState<number | null>(null);
-  const [isOpenBounty, setIsOpenBounty] = useState(true);
+  const [isOpenBounty, setIsOpenBounty] = useState(initialDraft?.isOpenBounty ?? true);
   const [descriptionPreview, setDescriptionPreview] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [draftDialogOpen, setDraftDialogOpen] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [savedDraftUrl, setSavedDraftUrl] = useState('');
+  const { withSession, requestSignIn } = useSession();
   const [descriptionHeight, setDescriptionHeight] = useState<number | null>(
     null
   );
@@ -92,7 +112,7 @@ export default function FormBounty({
   const menuOpen = Boolean(anchorEl);
   const chain = useChainInfo();
   const [currentChain, setCurrentChain] = useState<Chain>(
-    chain.slug === 'degen' ? chains.base : chain
+    initialDraft ? chains[initialDraft.chain] : chain.slug === 'degen' ? chains.base : chain
   );
   const price =
     trpc.web3.fetchPrice.useQuery({ currency: currentChain.currency }).data ??
@@ -115,10 +135,10 @@ export default function FormBounty({
   );
 
   useEffect(() => {
-    if (prefilledAlbum) {
+    if (prefilledAlbum && !initialDraft) {
       setAlbum(prefilledAlbum);
     }
-  }, [prefilledAlbum]);
+  }, [prefilledAlbum, initialDraft]);
 
   useEffect(() => {
     if (amount) {
@@ -128,6 +148,11 @@ export default function FormBounty({
       }
     }
   }, [price, amount]);
+
+  // A saved CID represents one immutable snapshot of these fields.
+  useEffect(() => {
+    setSavedDraftUrl('');
+  }, [name, description, amount, album, currentChain, isOpenBounty]);
 
   const writeContract = useWriteContract({});
   const account = useAccount();
@@ -140,6 +165,7 @@ export default function FormBounty({
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
   const saveBountyAlbum = trpc.bounties.addToAlbum.useMutation();
+  const createSubmissionRef = useRef(false);
 
   const createBountyMutations = useMutation({
     mutationFn: async (formData: {
@@ -258,6 +284,7 @@ export default function FormBounty({
     },
 
     onSettled: () => {
+      createSubmissionRef.current = false;
       setLoading({
         isLoading: false,
         status: '',
@@ -283,6 +310,169 @@ export default function FormBounty({
     setDescriptionPreview(false);
     setGuideOpen(false);
   };
+
+  const handleOpenDraftDialog = () => {
+    if (isSavingDraft) return;
+
+    // If this exact version was already saved, show its link again.
+    if (savedDraftUrl) {
+      setDraftDialogOpen(true);
+      return;
+    }
+
+    if (!account.address) {
+      toast.error('Connect your wallet to save a draft');
+      return;
+    }
+
+    if (!name.trim() || !description.trim() || !amount.trim()) {
+      toast.error('Fill in the title, description, and reward first');
+      return;
+    }
+
+    const reward = amount.trim().replace(/^\./, '0.');
+    if (
+      !/^\d+(?:\.\d{1,18})?$/.test(reward) ||
+      reward.length > 50 ||
+      !Number.isFinite(Number(reward)) ||
+      Number(reward) < ETH_MIN_AMOUNT
+    ) {
+      toast.error(`Enter a valid reward of at least ${ETH_MIN_AMOUNT} ETH`);
+      return;
+    }
+
+    if (name.trim().length > 200 || description.trim().length > 20000) {
+      toast.error('Draft title or description is too long');
+      return;
+    }
+
+    if (
+      album.trim() &&
+      (album.trim().length > 30 || !ALBUM_PATTERN.test(album.trim()))
+    ) {
+      toast.error('Enter a valid album name');
+      return;
+    }
+
+    if (!['mainnet', 'base', 'arbitrum'].includes(currentChain.slug)) {
+      toast.error('Select a supported chain');
+      return;
+    }
+
+    setDraftDialogOpen(true);
+  };
+
+  const handleConfirmSaveDraft = async () => {
+    if (isSavingDraft) return;
+
+    // Close this dialog before triggering any wallet sign-in UI.
+    setDraftDialogOpen(false);
+    setIsSavingDraft(true);
+
+    const payload = JSON.stringify({
+      title: name.trim(),
+      description: description.trim(),
+      amount: amount.trim().replace(/^\./, '0.'),
+      chain: currentChain.slug,
+      isOpenBounty,
+      album: album.trim(),
+    });
+
+    const uploadDraft = async (): Promise<string | null> => {
+      const response = await fetch('/api/bounty-drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      });
+
+      // Native fetch errors are not tRPC errors, so withSession cannot
+      // automatically recognize and retry an expired session.
+      if (response.status === 401) return null;
+
+      const result = (await response.json()) as {
+        url?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !result.url) {
+        throw new Error(result.error || 'Unable to save draft');
+      }
+
+      return result.url;
+    };
+
+    try {
+      const path = await withSession(async () => {
+        let result = await uploadDraft();
+
+        if (result === null) {
+          await requestSignIn();
+          result = await uploadDraft();
+        }
+
+        if (result === null) {
+          throw new Error('Wallet sign-in failed. Please try again.');
+        }
+
+        return result;
+      });
+
+      setSavedDraftUrl(new URL(path, window.location.origin).toString());
+      setDraftDialogOpen(true);
+      toast.success('Bounty draft saved to IPFS!');
+    } catch (error) {
+      if (!(error instanceof SignInCancelledError)) {
+        toastError('Failed to save bounty draft', error);
+      }
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
+  const handleCreateBounty = () => {
+    if (createSubmissionRef.current || createBountyMutations.isPending) return;
+
+    if (!account.address) {
+      toast.error('Connect your wallet to create a bounty');
+      return;
+    }
+
+    if (!name || !description || !amount) {
+      toast.error('Please fill in all required fields and check wallet connection.');
+      return;
+    }
+
+    const minValue = ETH_MIN_AMOUNT;
+    if (!Number.isFinite(Number(amount)) || Number(amount) < minValue) {
+      toast.error(`Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`);
+      return;
+    }
+
+    let rewardWei: bigint;
+    try {
+      rewardWei = parseEther(amount);
+    } catch {
+      toast.error('Enter a valid ETH reward');
+      return;
+    }
+
+    if (balance && rewardWei > balance.value) {
+      toast.error('You do not have enough funds for this bounty');
+      return;
+    }
+
+    if (album && (album.length > 30 || !ALBUM_PATTERN.test(album))) {
+      toast.error('Album names must contain only letters and single hyphens between words.');
+      return;
+    }
+
+    createSubmissionRef.current = true;
+    createBountyMutations.mutate({ name, description, amount, album });
+  };
+
+  // The draft page's primary Create action uses this exact form transaction,
+  // without maintaining a second copy of the create-bounty logic.
+  useImperativeHandle(ref, () => ({ createBounty: handleCreateBounty }));
 
   const handleDescriptionResizeStart = (
     e: React.PointerEvent<HTMLDivElement>
@@ -365,16 +555,19 @@ export default function FormBounty({
                 }),
           },
         }}
-        sx={
-          isMobile
+        sx={{
+          ...(isMobile
             ? {
                 '& .MuiDialog-paper': {
                   transform: open ? 'translateY(0)' : 'translateY(100%)',
                   transition: 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
                 },
               }
-            : {}
-        }
+            : {}),
+          // Let the existing sign-in prompt (z-50) appear above this MUI dialog
+          // when saving needs a fresh wallet signature.
+          ...(isSavingDraft ? { zIndex: 40 } : {}),
+        }}
       >
         <DialogContent
           sx={{
@@ -948,50 +1141,7 @@ export default function FormBounty({
                     'flex flex-row items-center justify-center',
                     account.isDisconnected && 'opacity-50 cursor-not-allowed'
                   )}
-                  onClick={() => {
-                    if (name && description && amount) {
-                      const minValue = ETH_MIN_AMOUNT;
-
-                      if (Number(amount) < minValue) {
-                        toast.error(
-                          `Minimum amount is ${minValue} ${currentChain.currency.toUpperCase()}`
-                        );
-
-                        return;
-                      }
-
-                      if (balance && parseEther(amount) > balance.value) {
-                        toast.error(
-                          'You do not have enough funds for this bounty'
-                        );
-
-                        return;
-                      }
-
-                      const formData = {
-                        name,
-                        description,
-                        amount,
-                        album,
-                      };
-
-                      if (
-                        album &&
-                        (album.length > 30 || !ALBUM_PATTERN.test(album))
-                      ) {
-                        toast.error(
-                          'Album names must contain only letters and single hyphens between words.'
-                        );
-                        return;
-                      }
-
-                      createBountyMutations.mutate(formData);
-                    } else {
-                      toast.error(
-                        'Please fill in all required fields and check wallet connection.'
-                      );
-                    }
-                  }}
+                  onClick={handleCreateBounty}
                   disabled={account.isDisconnected}
                 >
                   <div className='button'>
@@ -1000,9 +1150,120 @@ export default function FormBounty({
                     <p className='text-center mt-1'>create bounty</p>
                   </div>
                 </button>
+
+                <button
+                  type='button'
+                  onClick={handleOpenDraftDialog}
+                  disabled={isSavingDraft}
+                  className='mt-3 text-sm text-white/75 underline underline-offset-4 transition-colors hover:text-white disabled:opacity-50'
+                >
+                  {isSavingDraft ? 'saving draft...' : 'or save as draft'}
+                </button>
               </div>
             </div>
           </Box>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={draftDialogOpen}
+        onClose={() => {
+          if (!isSavingDraft) setDraftDialogOpen(false);
+        }}
+        maxWidth='sm'
+        fullWidth
+        PaperProps={{
+          className: 'bg-poidhBlue/95 dark:!bg-[#132b47]',
+          sx: {
+            borderRadius: isMobile ? '16px' : '20px',
+            color: 'white',
+            border: '1px solid #D1ECFF',
+            m: 2,
+            maxHeight: isMobile ? 'calc(100dvh - 32px)' : undefined,
+          },
+        }}
+      >
+        <DialogContent sx={{ position: 'relative', p: isMobile ? 2.5 : 3 }}>
+          <button
+            type='button'
+            aria-label='Close draft dialog'
+            onClick={() => setDraftDialogOpen(false)}
+            className='absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-md text-white transition-colors hover:bg-white/15'
+          >
+            <CloseIcon size={12} />
+          </button>
+
+          {savedDraftUrl ? (
+            <>
+              <h2 className='font-semibold text-lg pr-8'>draft saved!</h2>
+              <p className='text-sm text-white/80 mt-3'>
+                your draft is public and ready to share.
+              </p>
+
+              <a
+                href={savedDraftUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='block mt-4 rounded-md border border-white/25 bg-white/10 p-3 text-sm text-white underline break-all'
+              >
+                {savedDraftUrl}
+              </a>
+
+              <div className='mt-5 flex justify-end gap-3'>
+                <button
+                  type='button'
+                  onClick={() => setDraftDialogOpen(false)}
+                  className='rounded-md border border-white/30 px-4 py-2 text-sm text-white transition-colors hover:bg-white/10'
+                >
+                  done
+                </button>
+                <button
+                  type='button'
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(savedDraftUrl);
+                      toast.success('Draft link copied!');
+                    } catch {
+                      toast.error('Could not copy link');
+                    }
+                  }}
+                  className='rounded-md bg-poidhRed px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90'
+                >
+                  copy link
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className='font-semibold text-lg pr-8'>save bounty draft?</h2>
+              <p className='mt-4 text-sm text-white/85 leading-relaxed'>
+                saving this draft will create a publicly visible and shareable
+                URL. only confirm if you are comfortable with your draft being
+                public.
+              </p>
+              <p className='mt-3 text-xs text-white/65'>
+                your connected wallet address will also be publicly associated
+                with this draft. no funds will be transferred.
+              </p>
+              <div className='mt-6 flex justify-end gap-3'>
+                <button
+                  type='button'
+                  onClick={() => setDraftDialogOpen(false)}
+                  className='rounded-md border border-white/30 px-4 py-2 text-sm text-white transition-colors hover:bg-white/10'
+                >
+                  cancel
+                </button>
+                <button
+                  type='button'
+                  onClick={handleConfirmSaveDraft}
+                  disabled={isSavingDraft}
+                  className='rounded-md bg-poidhRed px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50'
+                >
+                  confirm
+                </button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -1136,4 +1397,7 @@ export default function FormBounty({
       </Dialog>
     </>
   );
-}
+  }
+);
+
+export default FormBounty;
