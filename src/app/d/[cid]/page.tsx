@@ -32,31 +32,92 @@ const chainLabels = {
   arbitrum: 'Arbitrum',
 };
 
-// CIDs identify immutable documents. Cache each successfully fetched draft for
-// one day, so repeat visitors don't repeatedly request it from a gateway.
+// Resolve immutable draft JSON on the server, through poidh's dedicated Pinata
+// gateway. Neither the gateway address nor its access token is sent to browsers.
+// Cache each successful result for 24 hours to reduce metered gateway traffic.
 const getDraft = unstable_cache(
   async (cid: string) => {
-    const response = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(12000),
-    });
+    const gateway = process.env.PINATA_DRAFT_GATEWAY_URL?.trim();
+    const gatewayToken = process.env.PINATA_DRAFT_GATEWAY_TOKEN?.trim();
 
-    if (!response.ok) {
-      // Don't cache temporary gateway errors as missing documents.
-      throw new Error(`IPFS gateway returned ${response.status}`);
+    if (!gateway || !gatewayToken) {
+      console.error('[bounty draft] gateway environment variables are missing');
+      throw new Error('Draft gateway not configured');
     }
 
-    const text = await response.text();
-    if (text.length > 30000) return null;
+    // The gateway is configured by poidh, never supplied by the visitor.
+    // The CID is validated before this function is called.
+    const base = new URL(gateway);
+    if (base.protocol !== 'https:') {
+      throw new Error('Draft gateway must use HTTPS');
+    }
+
+    // Accept either https://gateway.mypinata.cloud or .../ipfs in the env var.
+    const gatewayPath = base.pathname.replace(/\/+(?:ipfs)?\/?$/, '');
+    const url = new URL(base.origin);
+    url.pathname = `${gatewayPath}/ipfs/${cid}`;
+
+    let response: Response;
+    try {
+      response = await fetch(url.toString(), {
+        headers: {
+          Accept: 'application/json',
+          'x-pinata-gateway-token': gatewayToken,
+        },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(12000),
+      });
+    } catch (error) {
+      console.error(
+        '[bounty draft] gateway request failed:',
+        error instanceof Error ? error.name : 'unknown error'
+      );
+      throw new Error('Draft gateway request failed');
+    }
+
+    if (!response.ok) {
+      console.error('[bounty draft] gateway HTTP status:', response.status);
+      // Temporary failures should NOT become cached missing-draft responses.
+      throw new Error(`Draft gateway returned HTTP ${response.status}`);
+    }
+
+    const declaredLength = Number(response.headers.get('content-length') ?? 0);
+    if (declaredLength > 30000) return null;
+
+    // Reject unexpectedly large bodies even when content-length is absent.
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('Gateway response had no body');
+
+    const chunks: Uint8Array[] = [];
+    let receivedBytes = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      receivedBytes += value.byteLength;
+      if (receivedBytes > 30000) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
+    }
+
+    const bytes = new Uint8Array(receivedBytes);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
 
     try {
-      const parsed = draftSchema.safeParse(JSON.parse(text));
+      const parsed = draftSchema.safeParse(
+        JSON.parse(new TextDecoder().decode(bytes))
+      );
       return parsed.success ? parsed.data : null;
     } catch {
       return null;
     }
   },
-  ['poidh-bounty-draft-v1'],
+  ['poidh-bounty-draft-dedicated-gateway-v1'],
   { revalidate: 86400 }
 );
 
@@ -99,7 +160,7 @@ export default async function DraftPage({ params }: DraftPageProps) {
         <div className='mx-auto max-w-3xl rounded-2xl border border-white/30 bg-blur p-6'>
           <h1 className='text-xl font-bold'>draft temporarily unavailable</h1>
           <p className='mt-3 text-white/80'>
-            The public IPFS gateway could not load this draft. Please try again
+            The draft could not be loaded right now. Please try again
             shortly.
           </p>
         </div>
