@@ -35,16 +35,15 @@ const chainLabels = {
   arbitrum: 'Arbitrum',
 };
 
-// Resolve immutable draft JSON on the server, through poidh's dedicated Pinata
-// gateway. Neither the gateway address nor its access token is sent to browsers.
+// Resolve immutable draft JSON on the server through poidh's dedicated Pinata
+// gateway. The browser only receives the rendered page, not the gateway URL.
 // Cache each successful result for 24 hours to reduce metered gateway traffic.
 const getDraft = unstable_cache(
   async (cid: string) => {
     const gateway = process.env.PINATA_DRAFT_GATEWAY_URL?.trim();
-    const gatewayToken = process.env.PINATA_DRAFT_GATEWAY_TOKEN?.trim();
 
-    if (!gateway || !gatewayToken) {
-      console.error('[bounty draft] gateway environment variables are missing');
+    if (!gateway) {
+      console.error('[bounty draft] gateway URL environment variable is missing');
       throw new Error('Draft gateway not configured');
     }
 
@@ -73,7 +72,6 @@ const getDraft = unstable_cache(
         maxRedirects: 0,
         headers: {
           Accept: 'application/json',
-          'x-pinata-gateway-token': gatewayToken,
         },
       });
 
@@ -107,7 +105,7 @@ const getDraft = unstable_cache(
 
     return parsed.data;
   },
-  ['poidh-bounty-draft-dedicated-gateway-v2'],
+  ['poidh-bounty-draft-dedicated-gateway-v3'],
   { revalidate: 86400 }
 );
 
