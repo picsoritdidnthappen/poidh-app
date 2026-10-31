@@ -12,6 +12,11 @@ export type VotingActivityContributor = {
   weightWei?: string;
 };
 
+export type VotingActivityUnverifiedVote = {
+  address: string;
+  transactionHash: string;
+};
+
 export type VotingActivityVote = {
   address: string;
   choice: 'yes' | 'no';
@@ -27,11 +32,13 @@ type Props = {
   nominationTxHash?: string | null;
   contributors: VotingActivityContributor[];
   votes: VotingActivityVote[];
+  unverified?: VotingActivityUnverifiedVote[];
+  onRetry?: () => void;
 };
 
 type Voter = VotingActivityContributor & {
   isIssuer: boolean;
-  choice: 'yes' | 'no' | 'pending';
+  choice: 'yes' | 'no' | 'pending' | 'unverified';
   transactionHash?: string;
 };
 
@@ -116,6 +123,8 @@ export default function VotingActivity({
   nominationTxHash,
   contributors,
   votes,
+  unverified = [],
+  onRetry,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
@@ -124,7 +133,7 @@ export default function VotingActivity({
     return () => clearInterval(interval);
   }, []);
 
-  const { yes, no, pending } = useMemo(() => {
+  const { yes, no, pending, unknown } = useMemo(() => {
     const issuerKey = issuer.toLowerCase();
     const byAddress = new Map<string, VotingActivityContributor>();
     for (const participant of contributors) {
@@ -135,6 +144,15 @@ export default function VotingActivity({
     }
     if (/^0x[a-f0-9]{40}$/.test(issuerKey) && !byAddress.has(issuerKey)) {
       byAddress.set(issuerKey, { address: issuer });
+    }
+
+    const unverifiedByAddress = new Map(unverified.map((record) => [record.address.toLowerCase(), record]));
+    // Include historical voters who are missing from today's contributor list.
+    for (const entry of [...votes, ...unverified]) {
+      const key = entry.address.toLowerCase();
+      if (/^0x[a-f0-9]{40}$/.test(key) && !byAddress.has(key)) {
+        byAddress.set(key, { address: entry.address });
+      }
     }
 
     const voteByAddress = new Map<string, VotingActivityVote>();
@@ -148,20 +166,21 @@ export default function VotingActivity({
       if (byAddress.has(address)) voteByAddress.set(address, vote);
     }
 
-    const result: Record<'yes' | 'no' | 'pending', Voter[]> = { yes: [], no: [], pending: [] };
+    const result: Record<'yes' | 'no' | 'pending' | 'unknown', Voter[]> = { yes: [], no: [], pending: [], unknown: [] };
     for (const [address, person] of byAddress.entries()) {
       const explicitVote = voteByAddress.get(address);
-      const choice = explicitVote?.choice ?? (address === issuerKey ? 'yes' : 'pending');
-      result[choice].push({
+      const unknownVote = unverifiedByAddress.get(address);
+      const choice = explicitVote?.choice ?? (address === issuerKey ? 'yes' : unknownVote ? 'unverified' : 'pending');
+      result[choice === 'unverified' ? 'unknown' : choice].push({
         ...person,
         isIssuer: address === issuerKey,
         choice,
-        transactionHash: explicitVote?.transactionHash ??
+        transactionHash: explicitVote?.transactionHash ?? unknownVote?.transactionHash ??
           (address === issuerKey && choice === 'yes' ? nominationTxHash ?? undefined : undefined),
       });
     }
     return result;
-  }, [contributors, votes, issuer, nominationTxHash]);
+  }, [contributors, votes, unverified, issuer, nominationTxHash]);
 
   const explorer = EXPLORERS[chainId];
   const hasEnded = deadline > 0 && now >= deadline;
@@ -187,6 +206,19 @@ export default function VotingActivity({
           <Section title='voted yes' rows={yes} explorer={explorer} />
           <Section title='voted no' rows={no} explorer={explorer} />
           <Section title={hasEnded ? 'abstained' : 'has not voted'} rows={pending} explorer={explorer} />
+          {unknown.length > 0 && (
+            <section>
+              <div className='flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-white/5 text-sm'>
+                <span>vote recorded — direction unavailable ({unknown.length})</span>
+                {onRetry && (
+                  <button type='button' className='underline hover:no-underline' onClick={onRetry}>retry verification</button>
+                )}
+              </div>
+              <div className='divide-y divide-white/10'>
+                {unknown.map((row) => <VoterRow key={row.address.toLowerCase()} voter={row} explorer={explorer} />)}
+              </div>
+            </section>
+          )}
         </div>
       )}
     </div>
