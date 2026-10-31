@@ -13,7 +13,6 @@ import { pollingChainIdAtom, setLoadingAtom } from '@/store/loading';
 import { Claim } from '@/utils/types';
 import { useMemo, useState } from 'react';
 import ConfirmBountySuccessModal from './ConfirmBountySuccessModal';
-import VotingActivityConnected from './VotingActivityConnected';
 
 function formatDeadline(date: Date) {
   return date.toLocaleString('en-US', {
@@ -554,8 +553,6 @@ export default function Voting({
           )}
         </div>
       </div>
-
-      <VotingActivityConnected bountyId={bountyId} />
 
       {bounty.data && votingClaim && (
         <ConfirmBountySuccessModal
