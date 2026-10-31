@@ -1,6 +1,6 @@
 ---
 name: poidh-bounty
-description: "Post bounties, discover and inspect bounties, submit claims, evaluate submissions, and accept or nominate winning claims on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, or Base. Use this skill when the user wants to create a bounty on poidh.xyz, find available bounties, post a task with an ETH reward on-chain, submit proof to an existing bounty, evaluate submissions using vision or other content tools, accept a winning claim on a solo bounty, initiate/resolve voting on an open bounty, query poidh data, or withdraw bounty winnings."
+description: "Post bounties, discover and inspect bounties, submit claims, evaluate submissions, and accept or nominate winning claims on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, or Base. Use this skill when the user wants to create a bounty on poidh.xyz, find available bounties, post a task with an ETH reward on-chain, submit proof to an existing bounty, evaluate submissions using vision or other content tools, accept a winning claim on a solo bounty, initiate/resolve voting on an open bounty, cast a contributor YES/NO vote on a nominated open-bounty claim, query poidh data, or withdraw bounty winnings."
 metadata:
   clawdbot:
     env:
@@ -24,7 +24,7 @@ It can:
 4. **Submit claims**
 5. **Evaluate claim submissions**
 6. **Accept winning claims** on solo bounties
-7. **Initiate and resolve contributor voting** on open bounties
+7. **Nominate claims, cast contributor YES/NO votes, and resolve voting** on open bounties
 8. **Withdraw bounty winnings**
 
 **poidh** ("pics or it didn't happen") is an onchain bounty protocol.
@@ -2160,6 +2160,19 @@ Contributors then have **2 days** to vote YES or NO.
 
 ## Read Vote Status
 
+Read the claim currently nominated for voting:
+
+```bash
+cast call $POIDH_CONTRACT_ADDRESS \
+  "bountyCurrentVotingClaim(uint256)(uint256)" \
+  <BOUNTY_ID> \
+  --rpc-url $RPC_URL
+```
+
+A `0` means no claim is currently nominated. Otherwise the result is the **claim ID**, not the bounty ID. Read `claims(claimId)` and the bounty's `/data` endpoint to identify the actual submission being voted on.
+
+Read the vote totals and deadline:
+
 ```bash
 cast call $POIDH_CONTRACT_ADDRESS \
   "bountyVotingTracker(uint256)(uint256,uint256,uint256)" \
@@ -2174,6 +2187,81 @@ yes_weight
 no_weight
 deadline_timestamp
 ```
+
+`deadline_timestamp` is a Unix timestamp. An unresolved vote can still appear active in frontend data **after** its deadline; contributors cannot cast new votes once the onchain deadline has passed. At that point, the vote needs resolution instead.
+
+---
+
+## Cast a Contributor Vote (YES or NO)
+
+An agent acting for someone who contributed ETH to an open bounty can cast that contributor's YES or NO vote using the **contributor's own signing wallet**. This is different from the issuer nominating a claim or anyone resolving a finished round.
+
+For example, a user may say: *"Read `https://poidh.xyz/skill.md` and cast my YES vote on `https://poidh.xyz/mainnet/bounty/31` using my wallet."* The agent must verify the live nomination and obtain explicit approval for the specific vote before signing.
+
+### Before preparing the vote
+
+1. Identify the chain and frontend bounty ID from the URL. Use `/data` to obtain `onChainId`; never send a frontend ID to a v3 contract without checking the offset. Reject v2 bounties and retired Degen Chain activity.
+2. Verify the supported **v3 contract address**, RPC chain, and active bounty onchain.
+3. Read `bountyCurrentVotingClaim(bountyId)`. It must be nonzero. Read `claims(claimId)` and show the user the nominated claim's title and supporting evidence, so YES/NO refers to the **correct current nomination**. Do not pass the claim ID to `voteClaim`.
+4. Read `bountyVotingTracker(bountyId)` and confirm the current onchain time is **strictly before** `deadline_timestamp`. The nominal voting window is two days from nomination, but the onchain deadline controls.
+5. Verify the signing address is the contributor's intended wallet. Voting power was **snapshotted when this round started**. A wallet must have nonzero voting weight in that snapshot; simply owning ETH, holding a claim NFT, or having contributed in a different round is insufficient.
+6. Check that the wallet has not voted already in this round. The issuer's weight was automatically cast YES at nomination and the issuer **cannot vote a second time**. The contract enforces one vote per address per round.
+7. Explain that `true` means **YES, approve the nominated claim**, and `false` means **NO, reject the nomination**. Obtain explicit user confirmation of the chain, bounty, nominated claim, signing wallet, and direction. Never infer the direction from a vague request such as "cast my vote".
+
+### Method A: MCP or in-browser agent (preferred when available)
+
+- With the remote MCP server at `https://poidh.xyz/api/mcp`, use `get_bounty` to inspect the current nomination and then **`prepare_vote`** with the bounty's **frontend ID** and the requested YES/NO direction. Follow the tool's advertised input schema; do not guess parameter names. Provide `from` when supported to obtain a transaction simulation. Review the returned `transaction` (`chainId`, `to`, `data`, `value`) and check that it targets the correct v3 contract, bounty, and vote choice.
+- `prepare_vote` only prepares an **unsigned** transaction. Use a connected wallet capable of signing/sending on the correct network, or give the human the returned `signUrl` to review and approve it through poidh.xyz. The MCP server itself never signs or stores private keys.
+- For a browser agent on poidh.xyz, use the WebMCP **`vote`** action if available. It opens the `/tx` approval interface where the contributor approves using their own wallet. Do not claim a vote was recorded just because the approval page was opened.
+
+### Method B: Direct contract interaction with Foundry `cast`
+
+Use this method only when the agent is authorized to sign with the contributor's wallet and the user's explicit transaction approval has been obtained. The contract call is:
+
+```solidity
+voteClaim(uint256 bountyId, bool vote)
+```
+
+Resolve the signer and inspect the round's recorded voting weight:
+
+```bash
+SIGNING_ADDRESS=$(cast wallet address --private-key "$PRIVATE_KEY")
+
+cast call $POIDH_CONTRACT_ADDRESS \
+  "voteWeightSnapshot(uint256,address)(uint256)" \
+  <BOUNTY_ID> "$SIGNING_ADDRESS" \
+  --rpc-url $RPC_URL
+```
+
+A zero weight means this address cannot vote. A nonzero value alone is **not** conclusive: old snapshots may remain in storage, while eligibility is checked against the current private, round-scoped snapshot record. **Simulate the exact transaction from the signing address** before sending; this also detects a previously cast vote.
+
+For a YES vote (replace `true` with `false` for NO), preflight with a read-only call:
+
+```bash
+cast call $POIDH_CONTRACT_ADDRESS \
+  "voteClaim(uint256,bool)" \
+  <BOUNTY_ID> true \
+  --from "$SIGNING_ADDRESS" \
+  --rpc-url $RPC_URL
+```
+
+The call above is an `eth_call` simulation; it does **not** submit a vote. If it reverts, investigate the reason (`AlreadyVoted`, `NotActiveParticipant`, `VotingEnded`, or another contract error) rather than blindly sending.
+
+Only after the checks and explicit approval, submit **one** transaction:
+
+```bash
+cast send $POIDH_CONTRACT_ADDRESS \
+  "voteClaim(uint256,bool)" \
+  <BOUNTY_ID> true \
+  --private-key "$PRIVATE_KEY" \
+  --rpc-url $RPC_URL
+```
+
+Change `true` to `false` for a NO vote. There is **no ETH contribution or `--value`** on this transaction, although the signer pays network gas. Never expose the private key in responses, URLs, debug logs, or pasted command output.
+
+### Confirm the vote was recorded
+
+After either signing route, obtain the transaction hash and verify the successful onchain receipt. Check the `VoteCast` event from the correct poidh v3 contract (voter, bounty ID, nominated claim ID, YES/NO, and voting weight), and optionally re-read `bountyVotingTracker(bountyId)` to confirm the updated totals. Return the transaction hash and the vote's direction to the user. Do not report success merely because a wallet submitted a request or the MCP server produced an unsigned transaction.
 
 ---
 
@@ -2493,6 +2581,19 @@ The winner receives the bounty payout minus the protocol fee through the withdra
 
 ---
 
+## Casting a Contributor Vote
+
+1. Identify the user's desired YES/NO vote and the bounty URL; ask for the direction if it was not specified.
+2. Resolve the v3 chain, contract address, and **onchain** bounty ID.
+3. Read the current nominated claim and show the user which claim their vote will approve or reject.
+4. Check the onchain voting deadline, contributor signing address, and snapshotted weight.
+5. Check for a duplicate vote and simulate the call using the signing address.
+6. Explain the transaction and obtain explicit approval.
+7. Prefer MCP `prepare_vote` plus a connected wallet, or browser WebMCP `vote`; use `voteClaim(uint256,bool)` with `cast` when authorized for direct signing.
+8. Verify the receipt and `VoteCast` event; report the hash and YES/NO choice.
+
+---
+
 # Transaction Safety Rules
 
 Before **every** write transaction:
@@ -2538,7 +2639,9 @@ Evaluation and transaction execution are separate actions.
 | `BountyNotFound()`                | Wrong contract bounty ID      | Verify ID                                |
 | `ClaimNotFound()`                 | Invalid claim ID              | Verify claim                             |
 | `IssuerCannotClaim()`             | Issuer attempted own bounty   | Use different claimant wallet            |
-| `NotActiveParticipant()`          | Caller not active contributor | Verify contribution state                |
+| `NotActiveParticipant()`          | Caller has no voting weight in the current snapshot, or is not an active participant | Verify signer and current vote-round eligibility |
+| `AlreadyVoted()`                  | Wallet already voted this round | Do not send again; verify the earlier `VoteCast` event |
+| `NoVotingPeriodSet()`            | No claim is currently under vote | Check `bountyCurrentVotingClaim`; wait for nomination |
 | `MaxParticipantsReached()`        | Contributor cap reached       | Cannot join until slot becomes available |
 | `NothingToWithdraw()`             | No pending payout             | Check pending balance                    |
 | `VoteWouldPass()`                 | Attempted invalid vote reset  | Cannot override passing vote that way    |
@@ -2565,7 +2668,7 @@ Evaluation and transaction execution are separate actions.
 16. **Prefer `onChainId` from the individual JSON endpoint when available.**
 17. **Respect rules such as "first valid submission wins."**
 18. **Never silently ignore an inaccessible claim.**
-19. **Confirm with the user before every state-changing transaction.**
+19. **Confirm with the user before every state-changing transaction, including a contributor YES/NO vote.**
 20. **Never reveal or log the user's private key.**
 21. **Treat the claim URI as the value poidh.xyz uses to resolve claim display media, not as a generic evidence-link field.**
 22. **The native poidh.xyz claim uploader accepts `.jpg`, `.jpeg`, `.png`, `.gif`, and `.webp`, uploads the image to IPFS, then submits IPFS-hosted metadata containing the image URI.**
