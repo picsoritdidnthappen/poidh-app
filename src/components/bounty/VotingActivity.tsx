@@ -1,16 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { formatEther } from 'viem';
+import { ExpandMoreIcon } from '@/components/global/Icons';
+import { cn } from '@/utils/utils';
+import CopyAddressButton from '@/components/global/CopyAddressButton';
+import DisplayAddress from '@/components/global/DisplayAddress';
 
-/**
- * Display-only component. The parent must supply the eligible voter snapshot
- * and the vote transactions for the CURRENT voting round, not all history.
- * Never infer an individual's vote from the aggregate yes/no weights.
- */
 export type VotingActivityContributor = {
   address: string;
-  displayName?: string | null;
-  pfpUrl?: string | null;
   weightWei?: string;
 };
 
@@ -18,123 +16,95 @@ export type VotingActivityVote = {
   address: string;
   choice: 'yes' | 'no';
   transactionHash: string;
-  /** Block/log order needed if the contract allows more than one vote per wallet. */
   blockNumber?: number;
-  logIndex?: number;
+  transactionIndex?: number;
 };
 
-type VotingActivityProps = {
+type Props = {
   chainId: 1 | 42161 | 8453;
-  /** Unix seconds, NOT milliseconds. */
-  deadline: number;
+  deadline: number; // Unix seconds
   issuer: string;
-  /** The nomination transaction automatically casts the issuer's YES vote. */
   nominationTxHash?: string | null;
-  /** Eligible voters for this round, including any issuer contribution. */
   contributors: VotingActivityContributor[];
-  /** Transactions for this vote round only. */
   votes: VotingActivityVote[];
-  className?: string;
 };
 
-type ClassifiedVoter = VotingActivityContributor & {
+type Voter = VotingActivityContributor & {
+  isIssuer: boolean;
   choice: 'yes' | 'no' | 'pending';
   transactionHash?: string;
-  isIssuer: boolean;
 };
 
-const EXPLORERS: Record<VotingActivityProps['chainId'], string> = {
+const EXPLORERS: Record<Props['chainId'], string> = {
   1: 'https://etherscan.io',
   42161: 'https://arbiscan.io',
   8453: 'https://basescan.org',
 };
 
-function shortened(address: string) {
-  return `${address.slice(0, 6)}…${address.slice(-4)}`;
-}
-
 function isHash(value: unknown): value is string {
-  return typeof value === 'string' && /^0x[\da-fA-F]{64}$/.test(value);
+  return typeof value === 'string' && /^0x[a-fA-F0-9]{64}$/.test(value);
 }
 
-function renderRow(voter: ClassifiedVoter, explorer: string) {
+function VoterRow({ voter, explorer }: { voter: Voter; explorer: string }) {
   const txUrl = isHash(voter.transactionHash)
     ? `${explorer}/tx/${voter.transactionHash}`
     : null;
   const href = txUrl ?? `${explorer}/address/${voter.address}`;
-  const label = txUrl ? 'View vote transaction' : 'View wallet in explorer';
 
   return (
-    <a
-      key={voter.address.toLowerCase()}
-      href={href}
-      target='_blank'
-      rel='noopener noreferrer'
-      aria-label={`${label}: ${voter.address}`}
-      className='group flex min-w-0 items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white'
-    >
-      {voter.pfpUrl ? (
-        // External PFP hostnames differ by user; next/image domain allowlists do not apply here.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={voter.pfpUrl}
-          alt=''
-          loading='lazy'
-          className='h-9 w-9 shrink-0 rounded-full border border-white/20 object-cover'
-        />
-      ) : (
-        <span
-          aria-hidden='true'
-          className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg'
-        >
-          👤
-        </span>
-      )}
-      <span className='flex min-w-0 flex-1 items-center gap-2 text-left'>
-        <span className='truncate text-base font-semibold text-white sm:text-lg'>
-          {voter.displayName || shortened(voter.address)}
-        </span>
-        {voter.isIssuer && (
-          <span className='shrink-0 text-xs font-normal text-white/60'>(issuer)</span>
+    <div className='group relative flex items-center p-4 hover:bg-[#D1ECFF]/10 transition-all'>
+      {/* A full-row explorer link, with a separate accessible copy control. */}
+      <a
+        href={href}
+        target='_blank'
+        rel='noopener noreferrer'
+        className='absolute inset-0 z-0'
+        aria-label={`${txUrl ? 'View vote transaction' : 'View wallet address'} for ${voter.address}`}
+      />
+      <div className='pointer-events-none relative z-10 flex min-w-0 w-full flex-col gap-2 sm:flex-row sm:items-center sm:gap-4'>
+        <div className='flex min-w-0 items-center gap-1 sm:min-w-[200px]'>
+          <span className='pointer-events-auto relative z-20 mr-1 shrink-0'>
+            <CopyAddressButton address={voter.address} size={12} />
+          </span>
+          <div className='min-w-0'>
+            <DisplayAddress address={voter.address} />
+          </div>
+          {voter.isIssuer && (
+            <span className='ml-1 shrink-0 text-xs text-white/60'>(issuer)</span>
+          )}
+        </div>
+        {voter.weightWei !== undefined && (
+          <div className='text-sm text-white/60'>
+            {formatEther(BigInt(voter.weightWei))} eth
+          </div>
         )}
-      </span>
-      {voter.weightWei != null && (
-        <span className='shrink-0 text-xs text-white/65'>
-          {(Number(voter.weightWei) / 1e18).toLocaleString(undefined, {
-            maximumFractionDigits: 6,
-          })}{' '}
-          ETH
-        </span>
-      )}
-      <span aria-hidden='true' className='shrink-0 text-sm text-white/60 group-hover:text-white'>
-        ↗
-      </span>
-    </a>
+      </div>
+    </div>
   );
 }
 
-function VoterSection({
-  label,
-  voters,
+function Section({
+  title,
+  rows,
   explorer,
 }: {
-  label: string;
-  voters: ClassifiedVoter[];
+  title: string;
+  rows: Voter[];
   explorer: string;
 }) {
   return (
-    <section className='min-w-0'>
-      <h3 className='mb-2 flex items-center justify-between border-b border-white/15 pb-2 text-sm font-bold text-white'>
-        <span>{label}</span>
-        <span className='text-white/70'>{voters.length}</span>
-      </h3>
-      {voters.length ? (
-        <div className='flex flex-col gap-0.5'>
-          {voters.map((voter) => renderRow(voter, explorer))}
-        </div>
-      ) : (
-        <p className='px-3 py-2 text-xs text-white/60'>none</p>
-      )}
+    <section>
+      <div className='flex items-center justify-between px-4 py-3 bg-white/5 text-sm font-semibold'>
+        <span>{title}</span>
+        <span className='text-white/60'>{rows.length}</span>
+      </div>
+      <div className='divide-y divide-white/10'>
+        {rows.length === 0 ? (
+          <div className='p-4 text-sm text-white/60'>none</div>
+        ) : (
+          rows.map((row) => <VoterRow key={row.address.toLowerCase()} voter={row} explorer={explorer} />)
+        )}
+      </div>
     </section>
   );
 }
@@ -146,95 +116,79 @@ export default function VotingActivity({
   nominationTxHash,
   contributors,
   votes,
-  className = '',
-}: VotingActivityProps) {
+}: Props) {
+  const [expanded, setExpanded] = useState(false);
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
-
   useEffect(() => {
-    // Change "has not voted" to "abstained" even when the page stays open.
-    const interval = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 15000);
+    const interval = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 15_000);
     return () => clearInterval(interval);
   }, []);
 
-  const explorer = EXPLORERS[chainId];
   const { yes, no, pending } = useMemo(() => {
     const issuerKey = issuer.toLowerCase();
     const byAddress = new Map<string, VotingActivityContributor>();
-    for (const contributor of contributors) {
-      const key = contributor.address.toLowerCase();
-      if (/^0x[\da-f]{40}$/.test(key) && !byAddress.has(key)) {
-        byAddress.set(key, contributor);
+    for (const participant of contributors) {
+      const address = participant.address.toLowerCase();
+      if (/^0x[a-f0-9]{40}$/.test(address) && !byAddress.has(address)) {
+        byAddress.set(address, participant);
       }
     }
-    // The issuer casts an automatic YES on nomination, even if the caller's
-    // contributor list excludes the issuer's initial bounty funding.
-    if (/^0x[\da-f]{40}$/.test(issuerKey) && !byAddress.has(issuerKey)) {
+    if (/^0x[a-f0-9]{40}$/.test(issuerKey) && !byAddress.has(issuerKey)) {
       byAddress.set(issuerKey, { address: issuer });
     }
 
     const voteByAddress = new Map<string, VotingActivityVote>();
-    const orderedVotes = [...votes].sort(
-      (a, b) => (a.blockNumber ?? 0) - (b.blockNumber ?? 0) ||
-        (a.logIndex ?? 0) - (b.logIndex ?? 0)
+    const ordered = [...votes].sort(
+      (a, b) =>
+        (a.blockNumber ?? 0) - (b.blockNumber ?? 0) ||
+        (a.transactionIndex ?? 0) - (b.transactionIndex ?? 0)
     );
-    for (const vote of orderedVotes) {
-      const key = vote.address.toLowerCase();
-      if (byAddress.has(key)) voteByAddress.set(key, vote);
+    for (const vote of ordered) {
+      const address = vote.address.toLowerCase();
+      if (byAddress.has(address)) voteByAddress.set(address, vote);
     }
 
-    const output: Record<'yes' | 'no' | 'pending', ClassifiedVoter[]> = {
-      yes: [], no: [], pending: [],
-    };
-    for (const [key, contributor] of byAddress.entries()) {
-      const record = voteByAddress.get(key);
-      // Issuer's nomination is an automatic YES vote. If the contract ever
-      // permits an explicit issuer vote later, take that recorded vote instead.
-      const choice = record?.choice ?? (key === issuerKey ? 'yes' : 'pending');
-      const transactionHash = record?.transactionHash ??
-        (key === issuerKey && choice === 'yes' ? nominationTxHash ?? undefined : undefined);
-      output[choice].push({
-        ...contributor,
+    const result: Record<'yes' | 'no' | 'pending', Voter[]> = { yes: [], no: [], pending: [] };
+    for (const [address, person] of byAddress.entries()) {
+      const explicitVote = voteByAddress.get(address);
+      const choice = explicitVote?.choice ?? (address === issuerKey ? 'yes' : 'pending');
+      result[choice].push({
+        ...person,
+        isIssuer: address === issuerKey,
         choice,
-        transactionHash,
-        isIssuer: key === issuerKey,
+        transactionHash: explicitVote?.transactionHash ??
+          (address === issuerKey && choice === 'yes' ? nominationTxHash ?? undefined : undefined),
       });
     }
-    return output;
+    return result;
   }, [contributors, votes, issuer, nominationTxHash]);
 
-  const elapsed = Number.isFinite(deadline) && now >= deadline;
+  const explorer = EXPLORERS[chainId];
+  const hasEnded = deadline > 0 && now >= deadline;
 
   return (
-    <details className={`group overflow-hidden rounded-2xl border border-white/20 bg-white/10 text-white ${className}`}>
-      <summary className='flex min-h-16 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-lg font-semibold marker:hidden sm:px-7 sm:text-xl [&::-webkit-details-marker]:hidden'>
-        <span className='flex items-center gap-3'>
+    <div className='w-full border border-white/20 rounded-lg backdrop-blur-sm bg-[#D1ECFF]/10 mt-5 overflow-hidden'>
+      <button
+        type='button'
+        onClick={() => setExpanded((previous) => !previous)}
+        aria-expanded={expanded}
+        className='w-full px-5 py-3 flex justify-between items-center hover:bg-[#D1ECFF]/10 transition-all'
+      >
+        <span className='flex items-center gap-2'>
           <span aria-hidden='true'>🗳️</span>
-          <span>voting activity</span>
+          voting activity
         </span>
-        <svg
-          aria-hidden='true'
-          width='22'
-          height='22'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'
-          strokeLinecap='round'
-          strokeLinejoin='round'
-          className='shrink-0 transition-transform group-open:rotate-180'
-        >
-          <path d='m6 9 6 6 6-6' />
-        </svg>
-      </summary>
-      <div className='grid gap-6 border-t border-white/15 px-3 py-5 sm:px-6'>
-        <VoterSection label='voted yes' voters={yes} explorer={explorer} />
-        <VoterSection label='voted no' voters={no} explorer={explorer} />
-        <VoterSection
-          label={elapsed ? 'abstained' : 'has not voted'}
-          voters={pending}
-          explorer={explorer}
-        />
-      </div>
-    </details>
+        <span className={cn('transition-transform duration-200', expanded ? 'rotate-180' : '')}>
+          <ExpandMoreIcon size={16} />
+        </span>
+      </button>
+      {expanded && (
+        <div className='divide-y divide-white/10'>
+          <Section title='voted yes' rows={yes} explorer={explorer} />
+          <Section title='voted no' rows={no} explorer={explorer} />
+          <Section title={hasEnded ? 'abstained' : 'has not voted'} rows={pending} explorer={explorer} />
+        </div>
+      )}
+    </div>
   );
 }
