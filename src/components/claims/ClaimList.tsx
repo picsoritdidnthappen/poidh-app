@@ -1,4 +1,5 @@
 import Voting from '@/components/bounty/Voting';
+import VotingActivityConnected from '@/components/bounty/VotingActivityConnected';
 import { Claim } from '@/utils/types';
 import ClaimItem from './ClaimItem';
 
@@ -17,7 +18,7 @@ export default function ClaimList({
       <div
         className={`${
           votingClaim ? 'votingStarted' : ''
-        } container mx-auto px-4 py-4 flex flex-col gap-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:px-0 lg:items-center`}
+        } container mx-auto px-4 py-4 flex flex-col gap-0 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:gap-y-0 lg:px-0 lg:items-center`}
       >
         {votingClaim && (
           <>
@@ -35,6 +36,9 @@ export default function ClaimList({
                 isAcceptedBounty={claims.some((claim) => claim.isAccepted)}
                 votingClaim={votingClaim}
               />
+            </div>
+            <div className='w-full lg:col-start-3 lg:col-span-8'>
+              <VotingActivityConnected bountyId={votingClaim.bountyId} />
             </div>
           </>
         )}
