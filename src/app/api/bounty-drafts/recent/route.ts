@@ -38,11 +38,11 @@ export async function GET(request: Request) {
   pinataUrl.searchParams.set('status', 'pinned');
   pinataUrl.searchParams.set('pageLimit', String(PAGE_SIZE));
   pinataUrl.searchParams.set('pageOffset', String(offset));
+  pinataUrl.searchParams.set('metadata[name]', 'poidh-bounty-draft');
   pinataUrl.searchParams.set(
-    'metadata',
+    'metadata[keyvalues]',
     JSON.stringify({
-      name: 'poidh-bounty-draft',
-      keyvalues: { type: { value: 'bounty-draft', op: 'eq' } },
+      type: { value: 'bounty-draft', op: 'eq' },
     })
   );
 
