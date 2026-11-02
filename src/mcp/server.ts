@@ -4,6 +4,7 @@ import { z } from 'zod/v4';
 import { createCallerFactory } from '@/trpc/init';
 import { appRouter } from '@/trpc/trpc';
 import { chains } from '@/utils/config';
+import { registerDraftTools } from './draftTools';
 import { Netname } from '@/utils/types';
 import {
   ActionDeps,
@@ -151,9 +152,10 @@ const fromAddress = address
  * Builds the poidh MCP server. Detailed bounty/account reads consume poidh's
  * canonical public /data representations, while discovery and action
  * preparation use the existing tRPC layer.
- * Nothing here signs, holds keys, or writes to the database.
+ * The server never signs transactions or holds private keys.
+ * Draft publication requires wallet authorization and writes public data to IPFS.
  */
-export function createPoidhMcpServer(): McpServer {
+export function createPoidhMcpServer(request?: Request): McpServer {
   const caller = createCallerFactory(appRouter)({
     host: null,
     sessionToken: null,
@@ -473,5 +475,7 @@ export function createPoidhMcpServer(): McpServer {
       prepare({ action: 'withdraw', ...input }, from)
   );
 
+  registerDraftTools(server, request);
+  
   return server;
 }
