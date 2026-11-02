@@ -7,8 +7,8 @@ import { NONCE_TTL_MS } from '@/utils/authConfig';
  * so the signed message can only be used once. Also clears out nonces old
  * enough to have expired.
  */
-export async function createNonce() {
-  const nonce = generateSiweNonce();
+export async function createNonce(prefix = '') {
+  const nonce = prefix + generateSiweNonce();
   const cutoff = new Date(Date.now() - NONCE_TTL_MS);
 
   await prisma.$transaction([
