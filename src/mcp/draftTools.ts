@@ -2,6 +2,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod/v4';
 import { createNonce } from '@/trpc/nonce';
 import { getDraftPublishMessage } from './draftSigning';
+import { createHmac } from 'crypto';
+import prisma from 'prisma/prisma';
 
 const wallet = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 const fields = {
@@ -35,7 +37,40 @@ export function registerDraftTools(server: McpServer, mcpRequest?: Request) {
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
     },
     async ({ creator, ...draft }) => {
-      const nonce = await createNonce();
+      const ip =
+        mcpRequest?.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
+        mcpRequest?.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+        'unknown';
+    
+      const secret = process.env.PINATA_JWT;
+      if (!secret) {
+        throw new Error('Draft publishing temporarily unavailable');
+      }
+    
+      // Stable per-IP prefix without storing the raw IP.
+      const prefix =
+        'draft' +
+        createHmac('sha256', secret)
+          .update(ip)
+          .digest('hex')
+          .slice(0, 20);
+    
+      // Maximum 5 draft authorizations per IP per minute.
+      const recent = await prisma.authNonces.count({
+        where: {
+          nonce: { startsWith: prefix },
+          createdAt: { gt: new Date(Date.now() - 60_000) },
+        },
+      });
+    
+      if (recent >= 5) {
+        throw new Error(
+          'Too many draft authorization requests. Try again in one minute.'
+        );
+      }
+    
+      const nonce = await createNonce(prefix);
+    
       return json({
         creator,
         nonce,
