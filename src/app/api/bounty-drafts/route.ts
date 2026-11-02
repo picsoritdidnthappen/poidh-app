@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { createHash } from 'crypto';
 import { createContext } from '@/trpc/context';
 import { ETH_MIN_AMOUNT } from '@/utils/constants';
+import { claimNonce } from '@/trpc/nonce';
+import { chains } from '@/utils/config';
+import { getDraftPublishMessage } from '@/mcp/draftSigning';
 
 export const runtime = 'nodejs';
 
@@ -192,11 +195,14 @@ export async function POST(request: Request) {
   try {
     const origin = request.headers.get('origin');
     const fetchSite = request.headers.get('sec-fetch-site');
+    const isAgentPublish = request.headers.get('x-poidh-agent-publish') === '1';
 
     if (
+      !isAgentPublish && (
       !origin ||
       !allowedOrigins.includes(origin) ||
       (fetchSite && fetchSite !== 'same-origin')
+      )
     ) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -212,26 +218,6 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Expected JSON' },
         { status: 415 }
-      );
-    }
-
-    // Verify the actual wallet owner using poidh's session.
-    const ctx = await createContext();
-    const session = await ctx.getSession();
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Sign in with your wallet to save a draft' },
-        { status: 401 }
-      );
-    }
-
-    const creator = addressSchema.safeParse(session.address);
-
-    if (!creator.success) {
-      return NextResponse.json(
-        { error: 'Invalid wallet address' },
-        { status: 400 }
       );
     }
 
@@ -275,6 +261,63 @@ export async function POST(request: Request) {
       );
     }
 
+    // Browser saves use the existing session. MCP saves use a wallet-signed
+    // one-time authorization covering the exact draft contents.
+    let wallet: string;
+    if (isAgentPublish) {
+      const site = new URL(request.url).origin;
+      if (!allowedOrigins.includes(site)) {
+        return NextResponse.json({ error: 'Forbidden site' }, { status: 403 });
+      }
+
+      const address = request.headers.get('x-poidh-agent-creator') ?? '';
+      const nonce = request.headers.get('x-poidh-agent-nonce') ?? '';
+      const signature = request.headers.get('x-poidh-agent-signature') ?? '';
+      const creator = addressSchema.safeParse(address);
+      if (
+        !creator.success ||
+        !/^[A-Za-z0-9]{8,128}$/.test(nonce) ||
+        signature.length > 8194 ||
+        !/^0x(?:[0-9a-fA-F]{2})+$/.test(signature)
+      ) {
+        return NextResponse.json({ error: 'Invalid agent authorization' }, { status: 401 });
+      }
+
+      wallet = creator.data.toLowerCase();
+      const message = getDraftPublishMessage({
+        site,
+        creator: wallet,
+        nonce,
+        draft: parsed.data,
+      });
+      const valid = await chains[parsed.data.chain].provider.verifyMessage({
+        address: wallet as `0x${string}`,
+        message,
+        signature: signature as `0x${string}`,
+      }).catch(() => false);
+
+      if (!valid || !(await claimNonce(nonce))) {
+        return NextResponse.json(
+          { error: 'Signature invalid, expired or already used' },
+          { status: 401 }
+        );
+      }
+    } else {
+      const ctx = await createContext();
+      const session = await ctx.getSession();
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Sign in with your wallet to save a draft' },
+          { status: 401 }
+        );
+      }
+      const creator = addressSchema.safeParse(session.address);
+      if (!creator.success) {
+        return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
+      }
+      wallet = creator.data.toLowerCase();
+    }
+
     const jwt = process.env.PINATA_JWT?.trim();
 
     if (!jwt) {
@@ -283,8 +326,6 @@ export async function POST(request: Request) {
         { status: 503 }
       );
     }
-
-    const wallet = creator.data.toLowerCase();
 
     const { blocked, ipHash } = await checkDraftRateLimit(request, wallet, jwt);
     if (blocked) return blocked;
