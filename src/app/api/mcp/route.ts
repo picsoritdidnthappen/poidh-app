@@ -106,7 +106,7 @@ async function handle(req: Request): Promise<Response> {
     }
   }
   const started = Date.now();
-  const server = createPoidhMcpServer();
+  const server = createPoidhMcpServer(req);
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
