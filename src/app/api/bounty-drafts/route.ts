@@ -62,14 +62,12 @@ async function getRecentDraftPins(
   url.searchParams.set('status', 'pinned');
   url.searchParams.set('pageLimit', String(limit));
   url.searchParams.set('pinStart', new Date(since).toISOString());
+  url.searchParams.set('metadata[name]', 'poidh-bounty-draft');
   url.searchParams.set(
-    'metadata',
+    'metadata[keyvalues]',
     JSON.stringify({
-      name: 'poidh-bounty-draft',
-      keyvalues: {
-        type: { value: 'bounty-draft', op: 'eq' },
-        [field]: { value, op: 'eq' },
-      },
+      type: { value: 'bounty-draft', op: 'eq' },
+      [field]: { value, op: 'eq' },
     })
   );
 
@@ -410,20 +408,12 @@ export async function GET(request: Request) {
     pinataUrl.searchParams.set('status', 'pinned');
     pinataUrl.searchParams.set('pageLimit', String(pageLimit));
     pinataUrl.searchParams.set('pageOffset', String(offset));
+    pinataUrl.searchParams.set('metadata[name]', 'poidh-bounty-draft');
     pinataUrl.searchParams.set(
-      'metadata',
+      'metadata[keyvalues]',
       JSON.stringify({
-        name: 'poidh-bounty-draft',
-        keyvalues: {
-          type: {
-            value: 'bounty-draft',
-            op: 'eq',
-          },
-          creator: {
-            value: creator,
-            op: 'eq',
-          },
-        },
+        type: { value: 'bounty-draft', op: 'eq' },
+        creator: { value: creator, op: 'eq' },
       })
     );
 
