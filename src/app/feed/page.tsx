@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/utils/utils';
 import { EarthIcon, YouIcon } from '@/components/global/Icons';
-import Activity from '@/components/feed/Activity';
+import FeedTimeline from '@/components/feed/FeedTimeline';
 import { trpc } from '@/trpc/client';
 import { useAccount } from 'wagmi';
-import InfiniteScroll from 'react-infinite-scroller';
 import Navbar from '@/components/global/Navbar';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
@@ -222,45 +221,20 @@ export default function Feed() {
               <div className='text-white/60 py-8'>
                 Error loading activities.
               </div>
-            ) : !activities.data?.pages?.length ||
-              activities.data.pages[0]?.items?.length === 0 ? (
+            ) : !activities.data?.pages?.length ? (
               <div className='text-white/60 py-8'>No recent activity</div>
             ) : (
               <div className='w-full'>
-                <InfiniteScroll
-                  loadMore={handleLoadMore}
-                  hasMore={
-                    !!activities.hasNextPage && !activities.isFetchingNextPage
-                  }
-                  loader={
-                    <div
-                      key='loader'
-                      className='animate-pulse text-center py-4 text-white/60'
-                    >
-                      Loading more...
-                    </div>
-                  }
-                  threshold={500}
-                >
-                  <div className='w-full flex flex-col items-center gap-4'>
-                    {activities.data.pages
-                      .flatMap((page) => page.items)
-                      .map((tx) => (
-                        <Activity
-                          key={tx.tx + String(tx.index ?? '')}
-                          activity={tx as any}
-                        />
-                      ))}
-                  </div>
-                </InfiniteScroll>
+                <FeedTimeline
+                  activities={activities.data.pages.flatMap((page) => page.items)}
+                  isYouFeed={isYouFeed}
+                  hasNextActivity={!!activities.hasNextPage}
+                  isFetchingNextActivity={activities.isFetchingNextPage}
+                  onLoadMoreActivity={handleLoadMore}
+                />
               </div>
             )}
 
-            {activities.isFetchingNextPage && (
-              <div className='animate-pulse text-center py-4 text-white/60'>
-                Loading more...
-              </div>
-            )}
           </div>
         </div>
       </div>
