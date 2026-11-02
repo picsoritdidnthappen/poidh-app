@@ -88,7 +88,12 @@ export default function FeedTimeline({
     : Infinity;
   const activityBoundary = hasNextActivity ? oldestActivity : -Infinity;
   const draftBoundary = hasNextDraft ? oldestDraft : -Infinity;
-  const completeThrough = isYouFeed ? -Infinity : Math.max(activityBoundary, draftBoundary);
+  const completeThrough =
+    isYouFeed ||
+    publicDrafts.isError ||
+    (ipfsItems.length === 0 && !hasNextDraft)
+      ? -Infinity
+      : Math.max(activityBoundary, draftBoundary);
 
   const visible = [...onchainItems, ...ipfsItems]
     .filter((item) => Number.isFinite(item.timestampMs) && item.timestampMs > completeThrough)
