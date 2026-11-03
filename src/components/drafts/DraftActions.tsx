@@ -85,9 +85,9 @@ export default function DraftActions({ draft }: { draft: BountyDraftFields }) {
         <button
           type='button'
           onClick={handleShareDraft}
-          className='flex items-center gap-1 underline hover:no-underline w-fit text-base'
+          className='flex items-center gap-1 underline hover:no-underline w-fit text-sm text-white/70'
         >
-          share draft <ArrowIcon size={16} />
+          share draft <ArrowIcon size={14} />
         </button>
       </div>
       <p className='mt-3 text-xs text-white/70'>
