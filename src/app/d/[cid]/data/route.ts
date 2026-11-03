@@ -18,8 +18,22 @@ export async function GET(
   }
 
   try {
-    const response = await axios.get(
-      `https://gateway.pinata.cloud/ipfs/${cid}`,
+  const gateway =
+  process.env.PINATA_DRAFT_GATEWAY_URL?.trim() ||
+  'https://gateway.pinata.cloud';
+
+  const base = new URL(gateway);
+
+  if (base.protocol !== 'https:') {
+    throw new Error('Draft gateway must use HTTPS');
+  }
+
+  const gatewayPath = base.pathname.replace(/\/+(?:ipfs)?\/?$/, '');
+  const url = new URL(base.origin);
+  url.pathname = `${gatewayPath}/ipfs/${cid}`;
+
+  const response = await axios.get(
+    url.toString(),
       {
         timeout: 8000,
         maxContentLength: 30000,
@@ -46,7 +60,7 @@ export async function GET(
     return NextResponse.json(
       {
         ...draft,
-        url: `https://poidh.xyz/d/${cid}`,
+        url: `${new URL(_request.url).origin}/d/${cid}`,
       },
       {
         headers: {
