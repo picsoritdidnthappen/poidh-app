@@ -32,6 +32,19 @@ jest.mock('@/trpc/trpc', () => ({ appRouter: {} }));
 jest.mock('@/trpc/init', () => ({
   createCallerFactory: () => () => mockCaller,
 }));
+jest.mock('prisma/prisma', () => ({
+  __esModule: true,
+  default: {
+    authNonces: {
+      count: jest.fn().mockResolvedValue(0),
+    },
+  },
+}));
+  
+jest.mock('@/trpc/nonce', () => ({
+  createNonce: jest.fn().mockResolvedValue('testnonce123'),
+  claimNonce: jest.fn().mockResolvedValue(true),
+}));
 jest.mock('@/utils/config', () => {
   const chain = (id: number, slug: string, mainContract: string) => ({
     id,
@@ -130,18 +143,25 @@ describe('tool list', () => {
       'prepare_create_bounty',
       'prepare_join_bounty',
       'prepare_resolve_vote',
+      'prepare_save_draft',
       'prepare_submit_claim',
       'prepare_vote',
       'prepare_withdraw',
-    ]);
+      'save_draft',
+    ]);    
     for (const tool of tools) {
       expect(tool.description?.length).toBeLessThanOrEqual(500);
       expect(tool.name.length).toBeLessThanOrEqual(30);
+      
+      const isDraftTool =
+        tool.name === 'prepare_save_draft' ||
+        tool.name === 'save_draft';
+      
       expect(tool.annotations).toMatchObject({
-        readOnlyHint: true,
+        readOnlyHint: !isDraftTool,
         destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: false,
+        idempotentHint: !isDraftTool,
+        openWorldHint: tool.name === 'save_draft',
       });
     }
   });
