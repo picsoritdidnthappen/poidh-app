@@ -234,7 +234,7 @@ export async function POST(request: Request) {
 
     const raw = await request.text();
 
-    if (raw.length > 30000) {
+    if (Buffer.byteLength(raw, 'utf8') > 30000) {
       return NextResponse.json(
         { error: 'Draft is too large' },
         { status: 413 }
@@ -264,6 +264,7 @@ export async function POST(request: Request) {
     // Browser saves use the existing session. MCP saves use a wallet-signed
     // one-time authorization covering the exact draft contents.
     let wallet: string;
+    let agentNonce: string | null = null;
     if (isAgentPublish) {
       const site = new URL(request.url).origin;
       if (!allowedOrigins.includes(site)) {
@@ -296,12 +297,13 @@ export async function POST(request: Request) {
         signature: signature as `0x${string}`,
       }).catch(() => false);
 
-      if (!valid || !(await claimNonce(nonce))) {
+      if (!valid) {
         return NextResponse.json(
           { error: 'Signature invalid, expired or already used' },
           { status: 401 }
         );
       }
+      agentNonce = nonce;
     } else {
       const ctx = await createContext();
       const session = await ctx.getSession();
@@ -317,6 +319,23 @@ export async function POST(request: Request) {
       }
       wallet = creator.data.toLowerCase();
     }
+    
+    // Portable, content-addressed bounty specification.
+    const draft = {
+      type: 'poidh-bounty-draft',
+      version: 1,
+      creator: wallet,
+      ...parsed.data,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Check the final IPFS JSON size before using the signature.
+    if (Buffer.byteLength(JSON.stringify(draft), 'utf8') > 29000) {
+      return NextResponse.json(
+        { error: 'Draft is too large' },
+        { status: 413 }
+      );
+    }
 
     const jwt = process.env.PINATA_JWT?.trim();
 
@@ -330,14 +349,13 @@ export async function POST(request: Request) {
     const { blocked, ipHash } = await checkDraftRateLimit(request, wallet, jwt);
     if (blocked) return blocked;
 
-    // Portable, content-addressed bounty specification.
-    const draft = {
-      type: 'poidh-bounty-draft',
-      version: 1,
-      creator: wallet,
-      ...parsed.data,
-      createdAt: new Date().toISOString(),
-    };
+    // Only consume the one-time signature after all preflight checks pass.
+    if (agentNonce && !(await claimNonce(agentNonce))) {
+      return NextResponse.json(
+        { error: 'Authorization expired or already used' },
+        { status: 401 }
+      );
+    }
 
     const response = await fetch(
       'https://api.pinata.cloud/pinning/pinJSONToIPFS',
