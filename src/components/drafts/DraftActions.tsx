@@ -9,6 +9,7 @@ import FormBounty, {
   type FormBountyHandle,
 } from '@/components/bounty/FormBounty';
 import DisplayAddress from '@/components/global/DisplayAddress';
+import { ArrowIcon } from '@/components/global/Icons';
 
 export function DraftAuthor({ address }: { address: string }) {
   return (
@@ -30,6 +31,15 @@ export default function DraftActions({ draft }: { draft: BountyDraftFields }) {
   const formRef = useRef<FormBountyHandle>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
+  const handleShareDraft = async () => {
+    try {
+      const url = `${window.location.origin}${window.location.pathname}`;
+      await navigator.clipboard.writeText(url);
+      toast.success('Draft link copied!');
+    } catch {
+      toast.error('Could not copy draft link');
+    }
+  };
 
   const closeForm = () => {
     setFormOpen(false);
@@ -69,6 +79,15 @@ export default function DraftActions({ draft }: { draft: BountyDraftFields }) {
           className='rounded-lg border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20'
         >
           edit bounty
+        </button>
+      </div>
+      <div className='mt-5'>
+        <button
+          type='button'
+          onClick={handleShareDraft}
+          className='flex items-center gap-1 underline hover:no-underline w-fit text-sm text-white/70'
+        >
+          share draft <ArrowIcon size={14} />
         </button>
       </div>
       <p className='mt-3 text-xs text-white/70'>
