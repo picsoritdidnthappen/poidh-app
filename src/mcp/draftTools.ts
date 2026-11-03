@@ -4,15 +4,29 @@ import { createNonce } from '@/trpc/nonce';
 import { getDraftPublishMessage } from './draftSigning';
 import { createHmac } from 'crypto';
 import prisma from 'prisma/prisma';
+import { ETH_MIN_AMOUNT } from '@/utils/constants';
 
 const wallet = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 const fields = {
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(20000),
-  amount: z.string().max(50).regex(/^\d+(?:\.\d{1,18})?$/),
+  amount: z
+  .string()
+  .max(50)
+  .regex(/^\d+(?:\.\d{1,18})?$/)
+  .refine(
+    (value) =>
+      Number.isFinite(Number(value)) &&
+      Number(value) >= ETH_MIN_AMOUNT
+  ),
   chain: z.enum(['mainnet', 'base', 'arbitrum']),
   isOpenBounty: z.boolean(),
-  album: z.string().max(30),
+  album: z
+  .string()
+  .max(30)
+  .refine(
+    (value) => !value || /^[a-z]+(?:-[a-z]+)*$/.test(value)
+  ),
 };
 
 function json(value: Record<string, unknown>) {
