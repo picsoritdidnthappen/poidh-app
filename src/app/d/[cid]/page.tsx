@@ -287,7 +287,7 @@ export default async function DraftPage({ params }: DraftPageProps) {
         </div>
 
         <section className='rounded-3xl border border-white/30 bg-blur p-5 sm:p-8'>
-          <h1 className='break-words text-2xl font-bold sm:text-3xl'>
+          <h1 className='break-words text-2xl font-bold sm:text-3xl normal-case'>
             {draft.title}
           </h1>
 
@@ -313,7 +313,7 @@ export default async function DraftPage({ params }: DraftPageProps) {
           <h2 className='mb-3 border-b border-white/20 pb-2 text-lg font-semibold'>
             description
           </h2>
-          <div className='min-w-0 break-words text-sm sm:text-base'>
+          <div className='min-w-0 break-words text-sm sm:text-base normal-case [&_*]:normal-case'>
             <MarkdownContent>{draft.description}</MarkdownContent>
           </div>
 
