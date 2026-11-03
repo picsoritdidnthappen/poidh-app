@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { createHash } from 'crypto';
 import { createContext } from '@/trpc/context';
 import { ETH_MIN_AMOUNT } from '@/utils/constants';
+import { claimNonce } from '@/trpc/nonce';
+import { chains } from '@/utils/config';
+import { getDraftPublishMessage } from '@/mcp/draftSigning';
 
 export const runtime = 'nodejs';
 
@@ -192,11 +195,14 @@ export async function POST(request: Request) {
   try {
     const origin = request.headers.get('origin');
     const fetchSite = request.headers.get('sec-fetch-site');
+    const isAgentPublish = request.headers.get('x-poidh-agent-publish') === '1';
 
     if (
+      !isAgentPublish && (
       !origin ||
       !allowedOrigins.includes(origin) ||
       (fetchSite && fetchSite !== 'same-origin')
+      )
     ) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -215,26 +221,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify the actual wallet owner using poidh's session.
-    const ctx = await createContext();
-    const session = await ctx.getSession();
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Sign in with your wallet to save a draft' },
-        { status: 401 }
-      );
-    }
-
-    const creator = addressSchema.safeParse(session.address);
-
-    if (!creator.success) {
-      return NextResponse.json(
-        { error: 'Invalid wallet address' },
-        { status: 400 }
-      );
-    }
-
     const contentLength = Number(
       request.headers.get('content-length') ?? 0
     );
@@ -248,7 +234,7 @@ export async function POST(request: Request) {
 
     const raw = await request.text();
 
-    if (raw.length > 30000) {
+    if (Buffer.byteLength(raw, 'utf8') > 30000) {
       return NextResponse.json(
         { error: 'Draft is too large' },
         { status: 413 }
@@ -275,6 +261,82 @@ export async function POST(request: Request) {
       );
     }
 
+    // Browser saves use the existing session. MCP saves use a wallet-signed
+    // one-time authorization covering the exact draft contents.
+    let wallet: string;
+    let agentNonce: string | null = null;
+    if (isAgentPublish) {
+      const site = new URL(request.url).origin;
+      if (!allowedOrigins.includes(site)) {
+        return NextResponse.json({ error: 'Forbidden site' }, { status: 403 });
+      }
+
+      const address = request.headers.get('x-poidh-agent-creator') ?? '';
+      const nonce = request.headers.get('x-poidh-agent-nonce') ?? '';
+      const signature = request.headers.get('x-poidh-agent-signature') ?? '';
+      const creator = addressSchema.safeParse(address);
+      if (
+        !creator.success ||
+        !/^[A-Za-z0-9]{8,128}$/.test(nonce) ||
+        signature.length > 8194 ||
+        !/^0x(?:[0-9a-fA-F]{2})+$/.test(signature)
+      ) {
+        return NextResponse.json({ error: 'Invalid agent authorization' }, { status: 401 });
+      }
+
+      wallet = creator.data.toLowerCase();
+      const message = getDraftPublishMessage({
+        site,
+        creator: wallet,
+        nonce,
+        draft: parsed.data,
+      });
+      const valid = await chains[parsed.data.chain].provider.verifyMessage({
+        address: wallet as `0x${string}`,
+        message,
+        signature: signature as `0x${string}`,
+      }).catch(() => false);
+
+      if (!valid) {
+        return NextResponse.json(
+          { error: 'Signature invalid, expired or already used' },
+          { status: 401 }
+        );
+      }
+      agentNonce = nonce;
+    } else {
+      const ctx = await createContext();
+      const session = await ctx.getSession();
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Sign in with your wallet to save a draft' },
+          { status: 401 }
+        );
+      }
+      const creator = addressSchema.safeParse(session.address);
+      if (!creator.success) {
+        return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
+      }
+      wallet = creator.data.toLowerCase();
+    }
+    
+    // Portable, content-addressed bounty specification.
+    const draft = {
+      type: 'poidh-bounty-draft',
+      version: 1,
+      creator: wallet,
+      ...parsed.data,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Check the final IPFS JSON size before using the signature.
+    if (Buffer.byteLength(JSON.stringify(draft), 'utf8') > 29000) {
+      return NextResponse.json(
+        { error: 'Draft is too large' },
+        { status: 413 }
+      );
+    }
+
     const jwt = process.env.PINATA_JWT?.trim();
 
     if (!jwt) {
@@ -284,19 +346,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const wallet = creator.data.toLowerCase();
-
     const { blocked, ipHash } = await checkDraftRateLimit(request, wallet, jwt);
     if (blocked) return blocked;
 
-    // Portable, content-addressed bounty specification.
-    const draft = {
-      type: 'poidh-bounty-draft',
-      version: 1,
-      creator: wallet,
-      ...parsed.data,
-      createdAt: new Date().toISOString(),
-    };
+    // Only consume the one-time signature after all preflight checks pass.
+    if (agentNonce && !(await claimNonce(agentNonce))) {
+      return NextResponse.json(
+        { error: 'Authorization expired or already used' },
+        { status: 401 }
+      );
+    }
 
     const response = await fetch(
       'https://api.pinata.cloud/pinning/pinJSONToIPFS',

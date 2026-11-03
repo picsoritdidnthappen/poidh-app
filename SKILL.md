@@ -1,6 +1,6 @@
 ---
 name: poidh-bounty
-description: "Post bounties, discover and inspect bounties, submit claims, evaluate submissions, and accept or nominate winning claims on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, or Base. Use this skill when the user wants to create a bounty on poidh.xyz, find available bounties, post a task with an ETH reward on-chain, submit proof to an existing bounty, evaluate submissions using vision or other content tools, accept a winning claim on a solo bounty, initiate/resolve voting on an open bounty, cast a contributor YES/NO vote on a nominated open-bounty claim, query poidh data, or withdraw bounty winnings."
+description: "Post bounties, discover and inspect bounties, save bounty drafts, submit claims, evaluate submissions, and accept or nominate winning claims on poidh (pics or it didn't happen) on Ethereum Mainnet, Arbitrum, or Base. Use this skill when the user wants to create a bounty on poidh.xyz, publish a bounty draft, find available bounties, post a task with an ETH reward on-chain, submit proof to an existing bounty, evaluate submissions using vision or other content tools, accept a winning claim on a solo bounty, initiate/resolve voting on an open bounty, cast a contributor YES/NO vote on a nominated open-bounty claim, query poidh data, or withdraw bounty winnings."
 metadata:
   clawdbot:
     env:
@@ -26,6 +26,7 @@ It can:
 6. **Accept winning claims** on solo bounties
 7. **Nominate claims, cast contributor YES/NO votes, and resolve voting** on open bounties
 8. **Withdraw bounty winnings**
+9. **Save public bounty drafts**
 
 **poidh** ("pics or it didn't happen") is an onchain bounty protocol.
 
@@ -51,7 +52,7 @@ poidh.xyz also runs a remote MCP server for agents that support the Model Contex
 https://poidh.xyz/api/mcp
 ```
 
-Transport: Streamable HTTP, stateless, no authentication.
+Transport: Streamable HTTP, stateless. Public reads and transaction preparation require no authentication. Publishing a bounty draft requires a valid, single-use wallet signature.
 
 | Tool                    | Does                                                                                             |
 | ----------------------- | ------------------------------------------------------------------------------------------------ |
@@ -59,6 +60,8 @@ Transport: Streamable HTTP, stateless, no authentication.
 | `get_bounty`            | Complete bounty data: status, all claims, comments, winner, voting state and identities          |
 | `get_account`           | Complete public profile/activity data: bounties, claims, NFTs, comments, score and related users |
 | `get_leaderboard`       | Leaderboard by points                                                                            |
+| `prepare_save_draft`    | Prepare a one-time EIP-191 signing message to authorize public draft publication                 |
+| `save_draft`            | Verify the wallet signature and publish the draft to IPFS and the public feed                    |
 | `prepare_create_bounty` | Unsigned tx: post a solo or open bounty                                                          |
 | `prepare_join_bounty`   | Unsigned tx: add funds to an open bounty                                                         |
 | `prepare_submit_claim`  | Unsigned tx: submit a claim (see the URI rules below)                                            |
@@ -67,7 +70,7 @@ Transport: Streamable HTTP, stateless, no authentication.
 | `prepare_resolve_vote`  | Unsigned tx: resolve a finished vote                                                             |
 | `prepare_withdraw`      | Unsigned tx: withdraw winnings                                                                   |
 
-The MCP server never signs or holds keys. `prepare_*` tools return:
+The MCP server never signs or holds keys. For onchain operations, the `prepare_*` tools return:
 
 - `transaction`: `{ chainId, to, data, value }` for `eth_sendTransaction`
 - `walletSendCalls`: the same call as an EIP-5792 `wallet_sendCalls` request
@@ -76,9 +79,222 @@ The MCP server never signs or holds keys. `prepare_*` tools return:
 
 The tools take the bounty ID shown in the poidh.xyz URL and convert it to the contract ID for you. They refuse to act on poidh v2 bounties (see Frontend IDs vs Contract IDs) and return an error instead of a transaction. The rules in this guide still apply: confirm with the user before signing, and only regular wallets (EOAs) can create bounties.
 
+
+### Saving Public Bounty Drafts via MCP
+
+Agents can publish public, unfunded bounty drafts using two MCP tools:
+
+- `prepare_save_draft`
+- `save_draft`
+
+A saved draft is stored on IPFS and is accessible at:
+
+`https://poidh.xyz/d/<CID>`
+
+Every saved draft also appears automatically in the public activity feed:
+
+`https://poidh.xyz/feed`
+
+Draft publication is an **offchain action**. It does not create a funded bounty, escrow ETH, require gas, or interact with the poidh smart contracts.
+
+**IMPORTANT: Saving a draft is public publication. The agent must obtain the user's approval of the draft contents and its publication before requesting a signature or publishing.**
+
+#### Step 1: Prepare the draft
+
+Collect the following fields:
+
+| Field | Description |
+| --- | --- |
+| `creator` | Wallet address that will authorize publication |
+| `title` | Bounty title, 1–200 characters |
+| `description` | Bounty specification, 1–20,000 characters |
+| `amount` | Proposed reward in ETH, as a decimal string |
+| `chain` | `mainnet`, `base`, or `arbitrum` |
+| `isOpenBounty` | `true` for open, `false` for solo |
+| `album` | Album slug, or an empty string when unused |
+
+The proposed amount must satisfy poidh's minimum bounty reward. Use a decimal string such as `"0.001"` rather than `".001"`.
+
+Album slugs contain lowercase letters and internal dashes, with a maximum length of 30 characters.
+
+The `album` field must be supplied, even when empty.
+
+Example input to `prepare_save_draft`:
+
+```json
+{
+  "creator": "0x1234567890123456789012345678901234567890",
+  "title": "Build a useful open-source app",
+  "description": "Build a working application and publish the source code. Include installation instructions and a demonstration.",
+  "amount": "0.001",
+  "chain": "base",
+  "isOpenBounty": true,
+  "album": ""
+}
+```
+
+The example wallet address is illustrative, not a wallet to use for real publication.
+
+#### Step 2: Prepare the authorization
+
+Call `prepare_save_draft` with the approved fields.
+
+The tool returns:
+
+- `creator`
+- `nonce`
+- `draft`
+- `message`
+- `signMethod`
+- `expiresInSeconds`
+
+The returned message explicitly authorizes publishing the exact draft on IPFS and listing it in the public poidh activity feed.
+
+The signing authorization expires after 600 seconds (10 minutes).
+
+This tool does **not** publish anything.
+
+#### Step 3: Sign the exact message
+
+Have the creator wallet sign the returned `message` using EIP-191 (`personal_sign`).
+
+The agent may use a wallet-signing capability already available to it or request the user's signature.
+
+Never request that a user disclose their private key or seed phrase to the MCP server.
+
+Do not alter, reconstruct, or paraphrase the returned signing message.
+
+The signature authorizes the specific draft contents, creator, nonce, and site. Changing those values invalidates the authorization.
+
+A signing message prepared for staging must not be reused against production, or vice versa.
+
+#### Step 4: Publish the draft
+
+Call `save_draft` with:
+
+- The same `creator`
+- The same `title`
+- The same `description`
+- The same `amount`
+- The same `chain`
+- The same `isOpenBounty`
+- The same `album`
+- The `nonce` from `prepare_save_draft`
+- The wallet's `signature`
+
+Example:
+
+```json
+{
+  "creator": "0x1234567890123456789012345678901234567890",
+  "nonce": "<NONCE_FROM_PREPARE>",
+  "signature": "<WALLET_SIGNATURE>",
+  "title": "Build a useful open-source app",
+  "description": "Build a working application and publish the source code. Include installation instructions and a demonstration.",
+  "amount": "0.001",
+  "chain": "base",
+  "isOpenBounty": true,
+  "album": ""
+}
+```
+
+`save_draft` verifies wallet ownership and the single-use authorization before saving the draft through poidh's existing IPFS infrastructure.
+
+A successful response contains:
+
+- `cid` — IPFS content identifier
+- `url` — absolute public draft URL
+- `publicFeed` — public activity feed URL
+- `note` — confirmation that no onchain bounty was created or funded
+
+Return the published draft URL to the user.
+
+Do not claim a draft was saved unless `save_draft` actually succeeds.
+
+#### Security, validation, and rate limits
+
+- Signatures are single-use.
+- Expired or previously used nonces are rejected.
+- Changed draft contents invalidate the signature.
+- Drafts must pass the same validation used by the website.
+- Existing draft publication rate limits apply.
+- Published drafts are publicly visible and should not contain private or sensitive information.
+
+If publication fails because the nonce expired, call `prepare_save_draft` again and obtain a fresh signature.
+
+Do not repeatedly retry a failed publication without inspecting the error.
+
+#### Reading saved drafts
+
+Individual draft:
+
+`https://poidh.xyz/d/<CID>`
+
+Structured draft data:
+
+`https://poidh.xyz/d/<CID>/data`
+
+Recent public drafts:
+
+`https://poidh.xyz/api/bounty-drafts/recent`
+
+Public activity feed:
+
+`https://poidh.xyz/feed`
+
+Drafts are specifications, not funded onchain bounties. They cannot receive claims or pay winners until someone creates an actual bounty.
+
+#### Choosing the correct tool
+
+Use `prepare_save_draft` and `save_draft` when the user wants to **save, publish, share, or prepare a bounty without funding it**.
+
+Use `prepare_create_bounty` when the user wants to **create and fund an actual onchain bounty**.
+
+Do not substitute one workflow for the other without the user's approval.
+
+
 ### WebMCP (in-browser agents)
 
-When an agent runs inside a browser on poidh.xyz (Chrome's WebMCP, ChatGPT desktop site tools), the page registers the same tools through `document.modelContext`. `find_bounties` and `get_bounty` return data. The action tools (`create_bounty`, `join_bounty`, `submit_claim`, `accept_claim`, `vote`, `resolve_vote`, `withdraw`) open the `/tx` approval page, where the person approves in their own wallet.
+When an agent runs inside a browser on poidh.xyz (Chrome's WebMCP, ChatGPT desktop site tools), the page registers a browser-focused set of tools through `document.modelContext`.
+
+This is separate from the remote MCP server's `prepare_save_draft` and `save_draft` tools.
+
+`find_bounties` and `get_bounty` return data. The action tools (`create_bounty`, `join_bounty`, `submit_claim`, `accept_claim`, `vote`, `resolve_vote`, `withdraw`) open the `/tx` approval page, where the person approves in their own wallet.
+
+The browser WebMCP interface does not currently expose a dedicated draft-saving tool. However, agents with browser navigation and interaction capabilities can save drafts directly through the normal poidh.xyz website.
+
+### Saving Bounty Drafts Through the Website (Browser Agents)
+
+Agents that can browse and interact with websites can help users create and publish bounty drafts through poidh.xyz without requiring MCP access or direct API calls.
+
+**Browser workflow:**
+
+1. Navigate to `https://poidh.xyz` and open the bounty creation form.
+2. If necessary, help the user connect their wallet and complete wallet sign-in. Wallet connection and signature approval may require direct user interaction.
+3. Fill out the bounty title, description, proposed ETH reward, selected chain, solo/open bounty type, and optional album.
+4. Review the completed bounty specification with the user.
+5. Select **"or save as draft"** instead of submitting an onchain bounty transaction.
+6. Review the confirmation modal explaining that the draft will be publicly accessible. Obtain the user's approval before confirming publication.
+7. Confirm saving the draft and retrieve the resulting `/d/<CID>` URL.
+8. Open the resulting draft page to verify it was saved successfully.
+9. Return the public draft URL to the user.
+
+**Important distinctions:**
+
+- Saving a draft does not require an onchain transaction, gas, or ETH funding.
+- Every saved draft is publicly accessible and automatically appears in `https://poidh.xyz/feed`.
+- The wallet is used for author identification and authentication, not for transferring funds.
+- Do not click the funded bounty creation button when the user only requested a draft.
+- Never claim publication succeeded without a confirmed draft URL.
+- If wallet authentication or browser interaction is unavailable, prepare the bounty specification for the user and explain that publication has not occurred.
+
+**Choosing a workflow:**
+
+- **Browser access available:** Use the normal poidh.xyz draft form.
+- **Remote MCP tools and wallet-signing capability available:** Use `prepare_save_draft` followed by `save_draft`.
+- **Neither available:** Prepare the specification for the user to publish manually.
+
+In all cases, ensure the user understands that saving a draft makes its contents publicly accessible.
 
 ## Open-Source Repository
 
