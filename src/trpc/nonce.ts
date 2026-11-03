@@ -2,6 +2,15 @@ import { generateSiweNonce } from 'viem/siwe';
 import prisma from 'prisma/prisma';
 import { NONCE_TTL_MS } from '@/utils/authConfig';
 
+export const DRAFT_NONCE_PREFIX = 'draft';
+
+export async function isNonceUsable(nonce: string) {
+  return !!(await prisma.authNonces.findFirst({
+    where: { nonce, usedAt: null, createdAt: { gt: new Date(Date.now() - NONCE_TTL_MS) } },
+    select: { nonce: true },
+  }));
+}
+
 /**
  * Makes a one-time random value for the client to put in a message it signs,
  * so the signed message can only be used once. Also clears out nonces old
