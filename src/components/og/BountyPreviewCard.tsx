@@ -19,6 +19,12 @@ export type FarcasterUser = {
   pfp_url: string;
 };
 
+type PreviewParticipant = {
+  address: string;
+  label: string;
+  pfpUrl?: string;
+};
+
 export default async function BountyPreviewCard({
   bountyData,
   farcasterParticipants,
@@ -33,9 +39,45 @@ export default async function BountyPreviewCard({
   const addressesWithoutFarcaster = bountyData.participants.filter(
     (p) => !farcasterParticipants[p]?.[0]?.username
   );
+
   const resolvedNames = await resolveHumanReadableNames(
     addressesWithoutFarcaster
   );
+
+  const displayParticipants: PreviewParticipant[] = bountyData.participants.map(
+    (address) => ({
+      address,
+      pfpUrl: farcasterParticipants[address]?.[0]?.pfp_url,
+      label:
+        farcasterParticipants[address]?.[0]?.username ??
+        resolvedNames[address] ??
+        address.slice(0, 6),
+    })
+  );
+
+  const contributorRowCount = estimateContributorRowCount({
+    imageFormat,
+    participants: displayParticipants,
+  });
+
+  const amountFontSize =
+    imageFormat === 'preview'
+      ? contributorRowCount <= 2
+        ? '38px'
+        : contributorRowCount === 3
+          ? '34px'
+          : '30px'
+      : contributorRowCount <= 2
+        ? '60px'
+        : contributorRowCount === 3
+          ? '50px'
+          : '44px';
+
+  const contributorFontSize = imageFormat === 'preview' ? '22px' : '36px';
+  const contributorRowGap = imageFormat === 'preview' ? '4px' : '8px';
+  const contributorColumnGap = imageFormat === 'preview' ? '16px' : '24px';
+  const contributorMaxHeight = imageFormat === 'preview' ? '120px' : '204px';
+  const participantBottomMargin = imageFormat === 'preview' ? '4px' : '8px';
 
   return (
     <div
@@ -71,48 +113,49 @@ export default async function BountyPreviewCard({
       >
         {bountyData.title}
       </h3>
+
       <div
         style={{
           marginTop: imageFormat === 'preview' ? '0px' : '12px',
           display: 'flex',
           flexWrap: 'wrap',
-          rowGap: imageFormat === 'preview' ? '4px' : '12px',
+          rowGap: contributorRowGap,
           fontSize: '20px',
           overflow: 'hidden',
         }}
       >
-        {bountyData?.participants.length > 0 && (
+        {displayParticipants.length > 0 && (
           <div
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              rowGap: imageFormat === 'preview' ? '6px' : '12px',
-              fontSize: imageFormat === 'preview' ? '22px' : '36px',
-              maxHeight: imageFormat === 'preview' ? '128px' : '222px',
-              columnGap: imageFormat === 'preview' ? '20px' : '30px',
+              rowGap: contributorRowGap,
+              fontSize: contributorFontSize,
+              maxHeight: contributorMaxHeight,
+              columnGap: contributorColumnGap,
               overflow: 'hidden',
             }}
           >
             <span style={{ display: 'flex' }}>contributors:</span>
-            {bountyData.participants.map((p: string) => {
-              const pfpUrl = farcasterParticipants[p]?.[0]?.pfp_url;
+
+            {displayParticipants.map((participant) => {
               const size = imageFormat === 'preview' ? 32 : 52;
               const marginRight = imageFormat === 'preview' ? '6px' : '12px';
 
               return (
                 <span
-                  key={p}
+                  key={participant.address}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    marginBottom: imageFormat === 'preview' ? '6px' : '12px',
-                    lineHeight: 1.4,
+                    marginBottom: participantBottomMargin,
+                    lineHeight: 1.25,
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  {pfpUrl ? (
+                  {participant.pfpUrl ? (
                     <img
-                      src={pfpUrl}
+                      src={participant.pfpUrl}
                       width={size}
                       height={size}
                       alt='participant avatar'
@@ -125,17 +168,13 @@ export default async function BountyPreviewCard({
                     />
                   ) : (
                     <PatternAvatar
-                      seed={p}
+                      seed={participant.address}
                       size={size}
                       marginRight={marginRight}
                     />
                   )}
-                  <span>
-                    {(farcasterParticipants[p] &&
-                      farcasterParticipants[p][0]?.username) ??
-                      resolvedNames[p] ??
-                      p.slice(0, 6)}
-                  </span>
+
+                  <span>{participant.label}</span>
                 </span>
               );
             })}
@@ -145,12 +184,13 @@ export default async function BountyPreviewCard({
 
       <div
         style={{
-          fontSize: imageFormat === 'preview' ? '30px' : '44px',
+          fontSize: amountFontSize,
           fontWeight: 600,
           marginTop: 'auto',
           display: 'flex',
           alignItems: 'center',
           borderRadius: '8px',
+          lineHeight: 1.1,
         }}
       >
         {formatAmount({
@@ -160,6 +200,7 @@ export default async function BountyPreviewCard({
           precision: 4,
         })}
       </div>
+
       <div
         style={{
           width: '100%',
@@ -187,6 +228,7 @@ export default async function BountyPreviewCard({
             }}
           />
         </div>
+
         <DynamicChainIcon
           chain={chain.slug}
           size={imageFormat === 'preview' ? 32 : 48}
@@ -194,4 +236,42 @@ export default async function BountyPreviewCard({
       </div>
     </div>
   );
+}
+
+function estimateContributorRowCount({
+  imageFormat,
+  participants,
+}: {
+  imageFormat: 'og' | 'preview';
+  participants: PreviewParticipant[];
+}) {
+  if (participants.length === 0) {
+    return 0;
+  }
+
+  const availableWidth = imageFormat === 'preview' ? 568 : 1116;
+  const fontSize = imageFormat === 'preview' ? 22 : 36;
+  const avatarSize = imageFormat === 'preview' ? 32 : 52;
+  const avatarGap = imageFormat === 'preview' ? 6 : 12;
+  const itemGap = imageFormat === 'preview' ? 16 : 24;
+  const charWidth = fontSize * 0.56;
+
+  const labelWidth = 'contributors:'.length * charWidth;
+
+  let rows = 1;
+  let currentRowWidth = labelWidth + itemGap;
+
+  for (const participant of participants) {
+    const nameWidth = participant.label.length * charWidth;
+    const itemWidth = avatarSize + avatarGap + nameWidth + itemGap;
+
+    if (currentRowWidth + itemWidth > availableWidth) {
+      rows += 1;
+      currentRowWidth = itemWidth;
+    } else {
+      currentRowWidth += itemWidth;
+    }
+  }
+
+  return rows;
 }
