@@ -42,7 +42,7 @@ export default function SubmitVotingConfirm({
                   submitted this claim. you can learn more about open bounty
                   mechanics{' '}
                   <a
-                    href='https://paragraph.com/@poidh/poidh-open-multiplayer-bounties-explained'
+                    href='https://docs.poidh.xyz/using-poidh/voting-on-claims.html'
                     target='_blank'
                     className='underline'
                   >
