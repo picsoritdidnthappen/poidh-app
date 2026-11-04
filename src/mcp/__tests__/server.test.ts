@@ -43,6 +43,8 @@ jest.mock('prisma/prisma', () => ({
   
 jest.mock('@/trpc/nonce', () => ({
   createNonce: jest.fn().mockResolvedValue('testnonce123'),
+  isNonceUsable: jest.fn(),
+  DRAFT_NONCE_PREFIX: 'draft',
   claimNonce: jest.fn().mockResolvedValue(true),
 }));
 jest.mock('@/utils/config', () => {
