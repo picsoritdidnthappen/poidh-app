@@ -1,20 +1,16 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
-import { unstable_cache } from 'next/cache';
 import { notFound } from 'next/navigation';
-import { z } from 'zod';
-import axios from 'axios';
 import MarkdownContent from '@/components/global/MarkdownContent';
 import DraftActions, { DraftAuthor } from '@/components/drafts/DraftActions';
+import { CID_PATTERN, getVerifiedDraft } from '@/utils/draftAuthenticity';
 
 export const runtime = 'nodejs';
 
 type DraftPageProps = {
   params: Promise<{ cid: string }>;
 };
-
-const CID_PATTERN = /^b[a-z2-7]{30,120}$/;
 
 // Use the exact public origin in sharing metadata. Avoid sending staging
 // social crawlers to production, and never trust arbitrary Host headers.
@@ -28,98 +24,28 @@ async function getPublicOrigin() {
     : 'https://poidh.xyz';
 }
 
-const draftSchema = z.object({
-  type: z.literal('poidh-bounty-draft'),
-  version: z.literal(1),
-  creator: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1).max(20000),
-  amount: z.string().regex(/^\d+(?:\.\d{1,18})?$/),
-  chain: z.enum(['mainnet', 'base', 'arbitrum']),
-  isOpenBounty: z.boolean(),
-  album: z.string().max(30),
-  createdAt: z.string().datetime(),
-});
+// Unknown hosts cannot identify the deployment; accept either configured signing origin.
+async function getExpectedSite() {
+  const requestHeaders = await headers();
+  const host = (requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host') ?? '').split(',')[0].trim().toLowerCase();
+  if (host === 'poidh.xyz' || host === 'staging.poidh.xyz') return `https://${host}`;
+  const configured = process.env.NEXT_PUBLIC_URL ?? process.env.NEXT_PUBLIC_APP_URL;
+  if (configured) {
+    try {
+      const origin = new URL(configured).origin;
+      if (origin === 'https://poidh.xyz' || origin === 'https://staging.poidh.xyz') return origin;
+    } catch {
+      // Invalid configuration does not identify a signing origin.
+    }
+  }
+  return null;
+}
 
 const chainLabels = {
   mainnet: 'Ethereum Mainnet',
   base: 'Base',
   arbitrum: 'Arbitrum',
 };
-
-// Resolve immutable draft JSON on the server through poidh's dedicated Pinata
-// gateway. The browser only receives the rendered page, not the gateway URL.
-// Cache each successful result for 24 hours to reduce metered gateway traffic.
-const getDraft = unstable_cache(
-  async (cid: string) => {
-    const gateway = process.env.PINATA_DRAFT_GATEWAY_URL?.trim();
-
-    if (!gateway) {
-      console.error('[bounty draft] gateway URL environment variable is missing');
-      throw new Error('Draft gateway not configured');
-    }
-
-    // The gateway is configured by poidh, never supplied by the visitor.
-    // The CID is validated before this function is called.
-    const base = new URL(gateway);
-    if (base.protocol !== 'https:') {
-      throw new Error('Draft gateway must use HTTPS');
-    }
-
-    // Accept either https://gateway.mypinata.cloud or .../ipfs in the env var.
-    const gatewayPath = base.pathname.replace(/\/+(?:ipfs)?\/?$/, '');
-    const url = new URL(base.origin);
-    url.pathname = `${gatewayPath}/ipfs/${cid}`;
-
-    // Use Axios's Node HTTP adapter here instead of Next.js-patched fetch.
-    // This avoids conflicting fetch cache policies inside unstable_cache,
-    // while unstable_cache still caches validated JSON for 24 hours.
-    let json: unknown;
-    try {
-      const response = await axios.get<string>(url.toString(), {
-        adapter: 'http',
-        responseType: 'text',
-        timeout: 12000,
-        maxContentLength: 30000,
-        maxRedirects: 0,
-        headers: {
-          Accept: 'application/json',
-        },
-      });
-
-      const raw = response.data;
-      if (typeof raw !== 'string' || Buffer.byteLength(raw, 'utf8') > 30000) {
-        return null;
-      }
-
-      try {
-        json = JSON.parse(raw);
-      } catch {
-        console.warn('[bounty draft] gateway returned invalid JSON');
-        return null;
-      }
-    } catch (error) {
-      // Do not log the request/config: it includes the private gateway token.
-      console.error('[bounty draft] gateway request failed:', {
-        status: axios.isAxiosError(error) ? error.response?.status : undefined,
-        code: axios.isAxiosError(error) ? error.code : undefined,
-        message: error instanceof Error ? error.message : 'unknown error',
-      });
-      // Network, gateway and HTTP failures must not be cached as missing drafts.
-      throw new Error('Draft gateway request failed');
-    }
-
-    const parsed = draftSchema.safeParse(json);
-    if (!parsed.success) {
-      console.warn('[bounty draft] invalid draft schema');
-      return null;
-    }
-
-    return parsed.data;
-  },
-  ['poidh-bounty-draft-dedicated-gateway-v3'],
-  { revalidate: 86400 }
-);
 
 // A gateway outage should not strip the social image entirely. This generic
 // card is intentionally not tied to a draft's contents or author: those
@@ -168,7 +94,7 @@ export async function generateMetadata({
 
   const origin = await getPublicOrigin();
   try {
-    const draft = await getDraft(cid);
+    const draft = await getVerifiedDraft(cid, await getExpectedSite());
     if (!draft) return { title: 'bounty draft | poidh' };
 
     const draftUrl = `${origin}/d/${cid}`;
@@ -255,9 +181,9 @@ export default async function DraftPage({ params }: DraftPageProps) {
   const { cid } = await params;
   if (!CID_PATTERN.test(cid)) notFound();
 
-  let draft: z.infer<typeof draftSchema> | null;
+  let draft: Awaited<ReturnType<typeof getVerifiedDraft>>;
   try {
-    draft = await getDraft(cid);
+    draft = await getVerifiedDraft(cid, await getExpectedSite());
   } catch {
     return (
       <main className='layout py-16 text-white'>

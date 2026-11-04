@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createHash } from 'crypto';
 import { createContext } from '@/trpc/context';
-import { ETH_MIN_AMOUNT } from '@/utils/constants';
+import { draftSchema } from '@/utils/draftSchema';
 import { claimNonce, DRAFT_NONCE_PREFIX, isNonceUsable } from '@/trpc/nonce';
 import { getClientIp } from '@/utils/clientIp';
 import { verifyMessage } from 'viem';
@@ -17,30 +17,6 @@ const allowedOrigins = [
 ];
 
 const addressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
-
-const draftSchema = z
-  .object({
-    title: z.string().trim().min(1).max(200),
-    description: z.string().trim().min(1).max(20000),
-    amount: z
-      .string()
-      .max(50)
-      .regex(/^\d+(?:\.\d{1,18})?$/)
-      .refine(
-        (value) =>
-          Number.isFinite(Number(value)) &&
-          Number(value) >= ETH_MIN_AMOUNT
-      ),
-    chain: z.enum(['mainnet', 'base', 'arbitrum']),
-    isOpenBounty: z.boolean(),
-    album: z
-      .string()
-      .max(30)
-      .refine(
-        (value) => !value || /^[a-z]+(?:-[a-z]+)*$/.test(value)
-      ),
-  })
-  .strict();
 
 // Reuse Pinata's existing draft metadata index as the rate-limit ledger.
 // This follows the same pattern as poidh comments: count recently stored
@@ -314,6 +290,14 @@ export async function POST(request: Request) {
       creator: wallet,
       ...parsed.data,
       createdAt: new Date().toISOString(),
+      ...(isAgentPublish ? {
+        authorization: {
+          method: 'eip191',
+          site: new URL(request.url).origin,
+          nonce: agentNonce,
+          signature: request.headers.get('x-poidh-agent-signature'),
+        },
+      } : {}),
     };
 
     // Check the final IPFS JSON size before using the signature.
