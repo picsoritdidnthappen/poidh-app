@@ -8,6 +8,7 @@ import { trpc } from '@/trpc/client';
 import { useAccount } from 'wagmi';
 import Navbar from '@/components/global/Navbar';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import FeedLoader from '@/components/feed/FeedLoader';
 
 function getYouFeedStorageKey(address: string) {
   return `poidh:lastSeenYouFeed:${address.toLowerCase()}`;
@@ -216,7 +217,7 @@ export default function Feed() {
                 Please connect your wallet to see your activities
               </div>
             ) : activities.isLoading ? (
-              <div className='text-white/60 py-8'>Loading...</div>
+              <FeedLoader />
             ) : activities.isError ? (
               <div className='text-white/60 py-8'>
                 Error loading activities.
