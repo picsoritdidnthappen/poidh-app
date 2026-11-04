@@ -24,23 +24,6 @@ async function getPublicOrigin() {
     : 'https://poidh.xyz';
 }
 
-// Unknown hosts cannot identify the deployment; accept either configured signing origin.
-async function getExpectedSite() {
-  const requestHeaders = await headers();
-  const host = (requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host') ?? '').split(',')[0].trim().toLowerCase();
-  if (host === 'poidh.xyz' || host === 'staging.poidh.xyz') return `https://${host}`;
-  const configured = process.env.NEXT_PUBLIC_URL ?? process.env.NEXT_PUBLIC_APP_URL;
-  if (configured) {
-    try {
-      const origin = new URL(configured).origin;
-      if (origin === 'https://poidh.xyz' || origin === 'https://staging.poidh.xyz') return origin;
-    } catch {
-      // Invalid configuration does not identify a signing origin.
-    }
-  }
-  return null;
-}
-
 const chainLabels = {
   mainnet: 'Ethereum Mainnet',
   base: 'Base',
@@ -94,7 +77,7 @@ export async function generateMetadata({
 
   const origin = await getPublicOrigin();
   try {
-    const draft = await getVerifiedDraft(cid, await getExpectedSite());
+    const draft = await getVerifiedDraft(cid, null);
     if (!draft) return { title: 'bounty draft | poidh' };
 
     const draftUrl = `${origin}/d/${cid}`;
@@ -183,7 +166,7 @@ export default async function DraftPage({ params }: DraftPageProps) {
 
   let draft: Awaited<ReturnType<typeof getVerifiedDraft>>;
   try {
-    draft = await getVerifiedDraft(cid, await getExpectedSite());
+    draft = await getVerifiedDraft(cid, null);
   } catch {
     return (
       <main className='layout py-16 text-white'>
