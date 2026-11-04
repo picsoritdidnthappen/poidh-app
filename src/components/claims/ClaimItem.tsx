@@ -359,6 +359,15 @@ export default function ClaimItem({
 
       <div className='p-[2px] text-white relative bg-poidhRed border-poidhRed border-2 rounded-xl'>
         <div className='left-5 top-5 absolute z-10 flex flex-col text-white'>
+          {nominationHash && !claim.isVotingOrAcceptedBounty && (
+            <button
+              type='button'
+              onClick={() => setShowNominationStatus(true)}
+              className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
+            >
+              view nomination status
+            </button>
+          )}
           {canPickWinner && mustUseVoteFlow.data !== undefined && (
             <button
               className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5 disabled:opacity-60 disabled:cursor-not-allowed'
