@@ -51,9 +51,17 @@ export default function SubmitVotingSuccessModal({
       })
       .then((receipt) => {
         if (cancelled) return;
+      
+        const originalTransactionConfirmed =
+          receipt.transactionHash.toLowerCase() === hash.toLowerCase();
+      
         setResult({
           hash,
-          status: receipt.status === 'success' ? 'confirmed' : 'failed',
+          status: !originalTransactionConfirmed
+            ? 'unknown'
+            : receipt.status === 'success'
+              ? 'confirmed'
+              : 'failed',
         });
       })
       .catch(() => {
