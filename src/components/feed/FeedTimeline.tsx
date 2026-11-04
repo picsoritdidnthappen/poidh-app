@@ -4,6 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import InfiniteScroll from 'react-infinite-scroller';
 import Activity from '@/components/feed/Activity';
 import DraftActivity, { type PublicBountyDraft } from '@/components/feed/DraftActivity';
+import FeedLoader from '@/components/feed/FeedLoader';
 
 type OnchainActivity = {
   tx: string;
@@ -116,7 +117,7 @@ export default function FeedTimeline({
   };
 
   if (!isYouFeed && publicDrafts.isLoading) {
-    return <div className='text-white/60 py-8 text-center'>Loading activity...</div>;
+    return <FeedLoader />;
   }
 
   return (

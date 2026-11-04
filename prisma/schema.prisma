@@ -239,3 +239,42 @@ enum Reaction {
   upvote
   downvote
 }
+
+model IdeaVotes {
+  cid       String   @db.VarChar(128)
+  address   String   @db.VarChar(42)
+  value     Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@id([cid, address])
+  @@index([cid])
+  @@map("IdeaVotes")
+}
+
+model IdeaComments {
+  id          Int       @id @default(autoincrement())
+  cid         String    @db.VarChar(128)
+  userAddress String    @map("user_address") @db.VarChar(42)
+  parentId    Int?      @map("parent_id")
+  body        String
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@index([cid, createdAt])
+  @@index([userAddress, createdAt])
+  @@index([parentId])
+  @@map("IdeaComments")
+}
+
+model IdeaCommentVotes {
+  commentId Int      @map("comment_id")
+  address   String   @db.VarChar(42)
+  value     Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@id([commentId, address])
+  @@index([commentId])
+  @@map("IdeaCommentVotes")
+}

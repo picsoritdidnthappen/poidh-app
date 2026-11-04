@@ -135,27 +135,43 @@ async function getAuthenticity(cid: string, draft: unknown, expectedSite: string
   url.searchParams.set('status', 'pinned');
   url.searchParams.set('hashContains', cid);
   url.searchParams.set('metadata[name]', 'poidh-bounty-draft');
-  let response: Response;
-  try {
-    response = await fetch(url.toString(), {
-      headers: { Authorization: `Bearer ${jwt}` },
-      cache: 'no-store',
-      signal: AbortSignal.timeout(8000),
-    });
-  } catch (error) {
-    console.error('Pinata draft lookup failed', { code: (error as { code?: string }).code });
-    throw new Error('Pinata draft lookup failed');
-  }
-  if (!response.ok) {
-    console.error('Pinata draft lookup failed', { status: response.status });
-    throw new Error('Pinata draft lookup failed');
-  }
-  const result = (await response.json()) as {
+  let result: {
     rows?: {
       ipfs_pin_hash?: string;
       metadata?: { keyvalues?: Record<string, string> };
     }[];
   };
+
+  try {
+    const response = await axios.get<typeof result>(
+      url.toString(),
+      {
+        adapter: 'http',
+        timeout: 8000,
+        maxContentLength: 30000,
+        maxRedirects: 0,
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+          Accept: 'application/json',
+        },
+      }
+    );
+
+    result = response.data;
+  } catch (error) {
+    const info = axios.isAxiosError(error)
+      ? {
+          status: error.response?.status,
+          code: error.code,
+          message: error.message,
+        }
+      : {
+          message: String(error),
+        };
+
+    console.error('Pinata draft lookup failed', info);
+    throw new Error('Pinata draft lookup failed');
+  }
   if (!Array.isArray(result.rows))
     throw new Error('Invalid Pinata draft lookup response');
   const pinned = result.rows.some(
