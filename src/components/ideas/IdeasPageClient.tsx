@@ -9,6 +9,7 @@ import { trpc } from '@/trpc/client';
 import FormBounty from '@/components/bounty/FormBounty';
 import IdeaVote from './IdeaVote';
 import type { PublicBountyDraft } from '@/components/feed/DraftActivity';
+import DisplayAddress from '@/components/global/DisplayAddress';
 
 type DraftPage = {
   drafts: PublicBountyDraft[];
@@ -170,10 +171,16 @@ export default function IdeasPageClient() {
                     {idea.title}
                   </Link>
 
-                  <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/65'>
-                    <span>
-                      {`${idea.creator.slice(0, 6)}…${idea.creator.slice(-4)}`}
-                    </span>
+                  <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/65'>                 
+                    <div className='min-w-0'>
+                      <DisplayAddress
+                        address={idea.creator}
+                        pfpSize={24}
+                        showPfpIfExists
+                        showFallbackPfp
+                        showLoadingSkeleton
+                      />
+                    </div>
 
                     <span>
                       {new Date(
