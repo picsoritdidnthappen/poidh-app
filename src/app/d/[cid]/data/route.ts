@@ -14,7 +14,7 @@ export async function GET(
 
   try {
     const origin = new URL(request.url).origin;
-    const draft = getVerifiedDraft(cid, null);
+    const draft = await getVerifiedDraft(cid, null);
     if (!draft) {
       return NextResponse.json({ error: 'Draft not found' }, {
         status: 404,
