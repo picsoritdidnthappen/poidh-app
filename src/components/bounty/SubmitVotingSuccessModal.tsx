@@ -33,7 +33,7 @@ export default function SubmitVotingSuccessModal({
     result?.hash === hash ? result.status : 'confirming';
 
   useEffect(() => {
-    if (!open || !hash) return;
+    if (!hash) return;
 
     let cancelled = false;
     setResult({ hash, status: 'confirming' });
@@ -63,7 +63,7 @@ export default function SubmitVotingSuccessModal({
     return () => {
       cancelled = true;
     };
-  }, [open, hash, publicClient, checkAttempt]);
+  }, [hash, publicClient, checkAttempt]);
 
   const explorer =
     chainId === 42161
