@@ -1,100 +1,83 @@
-import { ImageResponse } from 'next/server';
+import { ImageResponse } from '@vercel/og';
 
 export const runtime = 'edge';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const isFarcaster = searchParams.get('format') === 'farcaster';
+const OG_BACKGROUND =
+  'linear-gradient(to bottom, #2a81d5, #70aae2, #6fa9e1, #2a81d5)';
 
-  const width = 1200;
-  const height = isFarcaster ? 800 : 630;
+export async function GET(request: Request) {
+  const params = new URL(request.url).searchParams;
+  const farcaster = params.get('format') === 'farcaster';
+
+  const height = farcaster ? 800 : 630;
+
+  // Use the same official logo and Geist Mono font
+  // as poidh's existing bounty draft OG cards.
+  const [logoResponse, fontResponse] = await Promise.all([
+    fetch('https://poidh.xyz/Logo_poidh.svg', {
+      cache: 'force-cache',
+    }),
+    fetch(
+      new URL(
+        '../../../../../public/fonts/GeistMono-Regular.ttf',
+        import.meta.url
+      )
+    ),
+  ]);
+
+  if (!logoResponse.ok || !fontResponse.ok) {
+    return new Response('Preview assets unavailable', {
+      status: 503,
+    });
+  }
+
+  const logoSvg = await logoResponse.text();
+  const logo = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+    logoSvg
+  )}`;
+  const fontData = await fontResponse.arrayBuffer();
 
   return new ImageResponse(
     <div
       style={{
-        display: 'flex',
-        position: 'relative',
-        flexDirection: 'column',
         width: '100%',
         height: '100%',
-        overflow: 'hidden',
-        background:
-          'linear-gradient(120deg, #102947 0%, #155a9c 55%, #237fc5 100%)',
+        background: OG_BACKGROUND,
         color: '#ffffff',
-        padding: '64px 72px',
-        fontFamily: 'sans-serif',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '52px 62px',
+        fontFamily: 'GeistMono',
       }}
     >
-      {/* Background decoration */}
+      {/* Header: identical treatment to bounty draft OG */}
       <div
         style={{
           display: 'flex',
-          position: 'absolute',
-          width: 650,
-          height: 650,
-          right: -180,
-          top: -160,
-          border: '2px solid rgba(255,255,255,0.15)',
-          borderRadius: '50%',
-        }}
-      />
-
-      <div
-        style={{
-          display: 'flex',
-          position: 'absolute',
-          width: 440,
-          height: 440,
-          right: -75,
-          top: -55,
-          border: '2px solid rgba(255,255,255,0.13)',
-          borderRadius: '50%',
-        }}
-      />
-
-      <div
-        style={{
-          display: 'flex',
-          position: 'absolute',
-          width: 230,
-          height: 230,
-          right: 42,
-          top: 48,
-          border: '2px solid rgba(255,255,255,0.12)',
-          borderRadius: '50%',
-        }}
-      />
-
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          width: '100%',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          position: 'relative',
+          justifyContent: 'space-between',
+          height: 112,
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            fontSize: 49,
-            fontWeight: 800,
-            letterSpacing: -2,
-          }}
-        >
-          poidh
-        </div>
+        <img
+          src={logo}
+          alt='poidh'
+          width={300}
+          height={100}
+          style={{ objectFit: 'contain' }}
+        />
 
         <div
           style={{
             display: 'flex',
-            fontSize: 19,
-            letterSpacing: 4,
-            color: '#d6ecff',
+            borderRadius: 16,
+            background: 'rgba(255,255,255,0.16)',
+            border: '2px solid rgba(255,255,255,0.36)',
+            padding: '14px 26px',
+            fontSize: 31,
           }}
         >
-          PICS OR IT DIDN'T HAPPEN
+          ideas
         </div>
       </div>
 
@@ -102,126 +85,81 @@ export async function GET(request: Request) {
       <div
         style={{
           display: 'flex',
-          flex: 1,
           flexDirection: 'column',
+          flex: 1,
           justifyContent: 'center',
-          alignItems: 'flex-start',
-          position: 'relative',
+          minHeight: 0,
+          paddingTop: farcaster ? 36 : 18,
+          paddingBottom: 22,
         }}
       >
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            marginBottom: 13,
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              width: 12,
-              height: 12,
-              borderRadius: '50%',
-              background: '#f15e5f',
-            }}
-          />
-
-          <span
-            style={{
-              fontSize: 21,
-              color: '#d5eaff',
-              letterSpacing: 3,
-              fontWeight: 600,
-            }}
-          >
-            THE COMMUNITY IDEA BOARD
-          </span>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            fontSize: isFarcaster ? 172 : 145,
-            fontWeight: 800,
-            letterSpacing: -9,
-            lineHeight: 1.05,
+            fontWeight: 700,
+            fontSize: farcaster ? 108 : 100,
+            lineHeight: 1.15,
+            letterSpacing: -1.5,
           }}
         >
           ideas
-          <span style={{ color: '#f15e5f' }}>.</span>
         </div>
 
         <div
           style={{
             display: 'flex',
-            marginTop: 21,
-            fontSize: isFarcaster ? 47 : 43,
-            fontWeight: 500,
-            lineHeight: 1.2,
-            color: '#eef8ff',
-            maxWidth: 880,
+            fontSize: farcaster ? 47 : 43,
+            lineHeight: 1.3,
+            marginTop: 15,
+            maxWidth: 1000,
           }}
         >
           things people want to see happen
         </div>
-
-        <div
-          style={{
-            display: 'flex',
-            marginTop: 32,
-            fontSize: 24,
-            color: '#c8e3f8',
-          }}
-        >
-          post an idea. vote on it. make it real.
-        </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer: same separator and typography as draft OG */}
       <div
         style={{
           display: 'flex',
-          position: 'relative',
-          width: '100%',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingTop: 23,
-          borderTop: '1px solid rgba(255,255,255,0.25)',
+          flexDirection: 'column',
+          borderTop: '2px solid rgba(255,255,255,0.35)',
+          paddingTop: 29,
+          gap: 13,
         }}
       >
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            gap: 15,
-            fontSize: 22,
-            fontWeight: 600,
+            fontSize: 25,
+            opacity: 0.87,
           }}
         >
-          <span style={{ color: '#f15e5f' }}>↑</span>
-          <span>vote</span>
-          <span style={{ opacity: 0.4 }}>•</span>
-          <span>discuss</span>
-          <span style={{ opacity: 0.4 }}>•</span>
-          <span>fund</span>
+          the community idea board
         </div>
 
         <div
           style={{
             display: 'flex',
-            fontSize: 22,
+            fontSize: farcaster ? 35 : 32,
             fontWeight: 700,
-            color: '#ffffff',
           }}
         >
-          poidh.xyz/ideas
+          post an idea. vote. discuss. fund.
         </div>
       </div>
     </div>,
     {
-      width,
+      width: 1200,
       height,
+      emoji: 'twemoji',
+      fonts: [
+        {
+          name: 'GeistMono',
+          data: fontData,
+          style: 'normal',
+        },
+      ],
       headers: {
         'Cache-Control':
           'public, s-maxage=86400, stale-while-revalidate=604800',
