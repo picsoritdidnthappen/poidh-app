@@ -8,6 +8,7 @@ import { MessageSquare } from 'lucide-react';
 import { trpc } from '@/trpc/client';
 import { useSession } from '@/components/auth/SessionProvider';
 import { SignInCancelledError } from '@/utils/sessionClient';
+import DisplayAddress from '@/components/global/DisplayAddress';
 
 export default function DraftDiscussion({ cid }: { cid: string }) {
   const account = useAccount();
@@ -167,15 +168,21 @@ export default function DraftDiscussion({ cid }: { cid: string }) {
             ? 'ml-4 border-l border-white/20 pl-4 sm:ml-8'
             : 'border-b border-white/15 py-4'
         } min-w-0`}
-      >
-        <div className='flex flex-wrap items-center gap-3 text-xs text-white/60'>
-          <span className='font-mono'>
-            {comment.userAddress.slice(0, 6)}…
-            {comment.userAddress.slice(-4)}
-          </span>
-
+      >    
+        <div className='flex flex-wrap items-center gap-3'>
+          <div className='min-w-0 text-sm font-semibold'>
+            <DisplayAddress
+              address={comment.userAddress}
+              pfpSize={36}
+              showPfpIfExists
+              showFallbackPfp
+              showLoadingSkeleton
+            />
+          </div>
+        
           <time
             dateTime={new Date(comment.createdAt).toISOString()}
+            className='text-xs text-white/60'
           >
             {new Date(comment.createdAt).toLocaleString()}
           </time>
