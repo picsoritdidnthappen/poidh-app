@@ -11,6 +11,7 @@ import { leaderboardRouter } from './routers/leaderboard';
 import { neynarRouter } from './routers/neynar';
 import { web3Router } from './routers/web3';
 import { zkpassportRouter } from './routers/zkpassport';
+import { ideasRouter } from './routers/ideas';
 
 export const appRouter = createTRPCRouter({
   bounties: bountiesRouter,
@@ -25,6 +26,7 @@ export const appRouter = createTRPCRouter({
   web3: web3Router,
   users: usersRouter,
   zkpassport: zkpassportRouter,
+  ideas: ideasRouter,
 });
 
 export type AppRouter = typeof appRouter;
