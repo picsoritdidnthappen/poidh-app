@@ -66,6 +66,7 @@ export default function IdeasPageClient() {
     {
       enabled: ideas.length > 0,
       staleTime: 15_000,
+      refetchOnWindowFocus: true,
     }
   );
 
@@ -74,6 +75,34 @@ export default function IdeasPageClient() {
       (item) => [item.cid, item] as const
     )
   );
+
+  // Rank loaded ideas by upvotes, then downvotes,
+  // then creation date.
+  const rankedIdeas = [...ideas].sort((a, b) => {
+    const aStats = stats.get(a.cid);
+    const bStats = stats.get(b.cid);
+
+    const aUpvotes = aStats?.upvotes ?? 0;
+    const bUpvotes = bStats?.upvotes ?? 0;
+
+    if (aUpvotes !== bUpvotes) {
+      return bUpvotes - aUpvotes;
+    }
+
+    const aDownvotes = aStats?.downvotes ?? 0;
+    const bDownvotes = bStats?.downvotes ?? 0;
+
+    if (aDownvotes !== bDownvotes) {
+      return aDownvotes - bDownvotes;
+    }
+
+    return (
+      new Date(b.createdAt).getTime() -
+      new Date(a.createdAt).getTime()
+    );
+  });
+
+  const isRanking = ideas.length > 0 && summaries.isLoading;
 
   return (
     <div className='min-h-screen pb-24 text-white normal-case'>
@@ -109,58 +138,63 @@ export default function IdeasPageClient() {
           </p>
         )}
 
+        {isRanking && (
+          <p className='py-6 text-center text-white/70'>
+            ranking ideas...
+          </p>
+        )}
+
         {list.isError && (
-          <p
-            role='alert'
-            className='py-10 text-white/70'
-          >
+          <p role='alert' className='py-10 text-white/70'>
             could not load ideas. try refreshing.
           </p>
         )}
 
-        <div className='overflow-hidden rounded-xl border border-white/20 bg-black/10'>
-          {ideas.map((idea) => (
-            <article
-              key={idea.cid}
-              className='flex gap-3 border-b border-white/15 p-4 last:border-b-0 sm:gap-5 sm:p-5'
-            >
-              <IdeaVote
-                cid={idea.cid}
-                summary={stats.get(idea.cid)}
-              />
+        {!isRanking && (
+          <div className='overflow-hidden rounded-xl border border-white/20 bg-black/10'>
+            {rankedIdeas.map((idea) => (
+              <article
+                key={idea.cid}
+                className='flex gap-3 border-b border-white/15 p-4 last:border-b-0 sm:gap-5 sm:p-5'
+              >
+                <IdeaVote
+                  cid={idea.cid}
+                  summary={stats.get(idea.cid)}
+                />
 
-              <div className='min-w-0 flex-1 pt-1'>
-                <Link
-                  href={`/d/${idea.cid}`}
-                  className='font-mono text-base font-semibold break-words hover:underline sm:text-lg'
-                >
-                  {idea.title}
-                </Link>
-
-                <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/65'>
-                  <span>
-                    {`${idea.creator.slice(0, 6)}…${idea.creator.slice(-4)}`}
-                  </span>
-
-                  <span>
-                    {new Date(
-                      idea.createdAt
-                    ).toLocaleDateString()}
-                  </span>
-
+                <div className='min-w-0 flex-1 pt-1'>
                   <Link
-                    href={`/d/${idea.cid}#ideas-comments`}
-                    className='inline-flex items-center gap-1 hover:underline'
+                    href={`/d/${idea.cid}`}
+                    className='font-mono text-base font-semibold break-words hover:underline sm:text-lg'
                   >
-                    <MessageSquare size={14} />
-                    {stats.get(idea.cid)?.commentCount ?? 0}{' '}
-                    comments
+                    {idea.title}
                   </Link>
+
+                  <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/65'>
+                    <span>
+                      {`${idea.creator.slice(0, 6)}…${idea.creator.slice(-4)}`}
+                    </span>
+
+                    <span>
+                      {new Date(
+                        idea.createdAt
+                      ).toLocaleDateString()}
+                    </span>
+
+                    <Link
+                      href={`/d/${idea.cid}#ideas-comments`}
+                      className='inline-flex items-center gap-1 hover:underline'
+                    >
+                      <MessageSquare size={14} />
+                      {stats.get(idea.cid)?.commentCount ?? 0}{' '}
+                      comments
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
+        )}
 
         {list.hasNextPage && (
           <div className='mt-6 text-center'>
