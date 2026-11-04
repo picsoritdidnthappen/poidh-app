@@ -67,18 +67,6 @@ export async function GET(request: Request) {
           style={{ objectFit: 'contain' }}
         />
 
-        <div
-          style={{
-            display: 'flex',
-            borderRadius: 16,
-            background: 'rgba(255,255,255,0.16)',
-            border: '2px solid rgba(255,255,255,0.36)',
-            padding: '14px 26px',
-            fontSize: 31,
-          }}
-        >
-          ideas
-        </div>
       </div>
 
       {/* Main content */}
