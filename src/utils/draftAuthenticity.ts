@@ -143,7 +143,7 @@ async function getAuthenticity(cid: string, draft: unknown, expectedSite: string
       signal: AbortSignal.timeout(8000),
     });
   } catch (error) {
-    console.error('Pinata draft lookup failed', { code: (error as { code?: string }).code });
+    console.error('Pinata draft lookup failed', error);
     throw new Error('Pinata draft lookup failed');
   }
   if (!response.ok) {
