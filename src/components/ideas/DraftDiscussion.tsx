@@ -9,6 +9,7 @@ import { trpc } from '@/trpc/client';
 import { useSession } from '@/components/auth/SessionProvider';
 import { SignInCancelledError } from '@/utils/sessionClient';
 import DisplayAddress from '@/components/global/DisplayAddress';
+import CollapsibleText from '@/components/global/CollapsibleText';
 
 export default function DraftDiscussion({ cid }: { cid: string }) {
   const account = useAccount();
@@ -187,10 +188,11 @@ export default function DraftDiscussion({ cid }: { cid: string }) {
             {new Date(comment.createdAt).toLocaleString()}
           </time>
         </div>
-
-        <p className='mt-2 whitespace-pre-wrap break-words text-sm'>
-          {comment.deletedAt ? '[deleted]' : comment.body}
-        </p>
+        
+        <CollapsibleText
+          text={comment.deletedAt ? '[deleted]' : comment.body}
+          className='mt-2 text-sm sm:text-base'
+        />
 
         <div className='mt-3 flex flex-wrap items-center gap-4 text-xs sm:text-sm'>
           {!comment.deletedAt && (
