@@ -266,3 +266,15 @@ model IdeaComments {
   @@index([parentId])
   @@map("IdeaComments")
 }
+
+model IdeaCommentVotes {
+  commentId Int      @map("comment_id")
+  address   String   @db.VarChar(42)
+  value     Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@id([commentId, address])
+  @@index([commentId])
+  @@map("IdeaCommentVotes")
+}
