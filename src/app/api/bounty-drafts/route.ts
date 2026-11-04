@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { createHash } from 'crypto';
 import { createContext } from '@/trpc/context';
 import { ETH_MIN_AMOUNT } from '@/utils/constants';
-import { claimNonce } from '@/trpc/nonce';
+import { claimNonce, DRAFT_NONCE_PREFIX, isNonceUsable } from '@/trpc/nonce';
+import { getClientIp } from '@/utils/clientIp';
+import { verifyMessage } from 'viem';
 import { chains } from '@/utils/config';
 import { getDraftPublishMessage } from '@/mcp/draftSigning';
 
@@ -117,12 +119,9 @@ async function checkDraftRateLimit(
     };
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  // HMAC prevents raw IP addresses or reversible plain hashes from being
-  // stored alongside draft metadata in the Pinata account.
-  const ipHash = ip
-    ? createHash('sha256').update(`${uploadJwt}:${ip}`).digest('hex')
-    : null;
+  const ip = getClientIp(request.headers);
+  // Key SHA-256 with the upload JWT to avoid storing raw IP addresses.
+  const ipHash = createHash('sha256').update(`${uploadJwt}:${ip}`).digest('hex');
   const now = Date.now();
   const since = now - DRAFT_WINDOW_MS;
 
@@ -135,15 +134,13 @@ async function checkDraftRateLimit(
         since,
         DRAFTS_PER_WALLET_PER_HOUR
       ),
-      ipHash
-        ? getRecentDraftPins(
-            readJwt,
-            'ipHash',
-            ipHash,
-            since,
-            DRAFTS_PER_IP_PER_HOUR
-          )
-        : Promise.resolve([]),
+      getRecentDraftPins(
+        readJwt,
+        'ipHash',
+        ipHash,
+        since,
+        DRAFTS_PER_IP_PER_HOUR
+      ),
     ]);
 
     const newestWalletPin = Math.max(
@@ -265,6 +262,8 @@ export async function POST(request: Request) {
     // one-time authorization covering the exact draft contents.
     let wallet: string;
     let agentNonce: string | null = null;
+    let agentSignature: `0x${string}` | null = null;
+    let agentSite = '';
     if (isAgentPublish) {
       const site = new URL(request.url).origin;
       if (!allowedOrigins.includes(site)) {
@@ -278,6 +277,7 @@ export async function POST(request: Request) {
       if (
         !creator.success ||
         !/^[A-Za-z0-9]{8,128}$/.test(nonce) ||
+        !nonce.startsWith(DRAFT_NONCE_PREFIX) ||
         signature.length > 8194 ||
         !/^0x(?:[0-9a-fA-F]{2})+$/.test(signature)
       ) {
@@ -285,25 +285,12 @@ export async function POST(request: Request) {
       }
 
       wallet = creator.data.toLowerCase();
-      const message = getDraftPublishMessage({
-        site,
-        creator: wallet,
-        nonce,
-        draft: parsed.data,
-      });
-      const valid = await chains[parsed.data.chain].provider.verifyMessage({
-        address: wallet as `0x${string}`,
-        message,
-        signature: signature as `0x${string}`,
-      }).catch(() => false);
-
-      if (!valid) {
-        return NextResponse.json(
-          { error: 'Signature invalid, expired or already used' },
-          { status: 401 }
-        );
+      if (!(await isNonceUsable(nonce))) {
+        return NextResponse.json({ error: 'Authorization expired or already used' }, { status: 401 });
       }
       agentNonce = nonce;
+      agentSignature = signature as `0x${string}`;
+      agentSite = site;
     } else {
       const ctx = await createContext();
       const session = await ctx.getSession();
@@ -346,14 +333,43 @@ export async function POST(request: Request) {
       );
     }
 
-    const { blocked, ipHash } = await checkDraftRateLimit(request, wallet, jwt);
-    if (blocked) return blocked;
+    let nonceClaimed = false;
+    if (agentNonce && agentSignature) {
+      const address = wallet as `0x${string}`;
+      const message = getDraftPublishMessage({ site: agentSite, creator: wallet, nonce: agentNonce, draft: parsed.data });
+      let valid = await verifyMessage({ address, message, signature: agentSignature }).catch(() => false);
+      if (!valid) {
+        if (!(await claimNonce(agentNonce))) {
+          return NextResponse.json({ error: 'Authorization expired or already used' }, { status: 401 });
+        }
+        nonceClaimed = true;
+        try {
+          const provider = chains[parsed.data.chain].provider;
+          const wrapped = agentSignature.toLowerCase().endsWith('6492649264926492649264926492649264926492649264926492649264926492');
+          const code = wrapped ? '0x' : await provider.getCode({ address });
+          if (wrapped || (code && code !== '0x')) {
+            valid = await provider.verifyMessage({ address, message, signature: agentSignature });
+          }
+        } catch (error) {
+          console.error('Draft signature verification failed:', error);
+          return NextResponse.json({ error: 'Signature verification temporarily unavailable. Call prepare_save_draft again and re-sign.' }, { status: 503 });
+        }
+      }
+      if (!valid) {
+        return NextResponse.json({ error: 'Signature invalid, expired or already used' }, { status: 401 });
+      }
+      if (!nonceClaimed && !(await claimNonce(agentNonce))) {
+        return NextResponse.json({ error: 'Authorization expired or already used' }, { status: 401 });
+      }
+    }
 
-    // Only consume the one-time signature after all preflight checks pass.
-    if (agentNonce && !(await claimNonce(agentNonce))) {
+    const { blocked, ipHash } = await checkDraftRateLimit(request, wallet, jwt);
+    if (blocked) {
+      if (!agentNonce) return blocked;
+      const { error } = await blocked.json() as { error: string };
       return NextResponse.json(
-        { error: 'Authorization expired or already used' },
-        { status: 401 }
+        { error: `${error} Call prepare_save_draft again and re-sign.` },
+        { status: blocked.status, headers: blocked.headers }
       );
     }
 
@@ -378,7 +394,7 @@ export async function POST(request: Request) {
               title: parsed.data.title,
               chain: parsed.data.chain,
               amount: parsed.data.amount,
-              ...(ipHash ? { ipHash } : {}),
+              ipHash,
             },
           },
         }),
