@@ -1,6 +1,8 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod/v4';
-import { createNonce } from '@/trpc/nonce';
+import { createNonce, DRAFT_NONCE_PREFIX } from '@/trpc/nonce';
+import { getClientIp } from '@/utils/clientIp';
+import { NONCE_TTL_MS } from '@/utils/authConfig';
 import { getDraftPublishMessage } from './draftSigning';
 import { createHmac } from 'crypto';
 import prisma from 'prisma/prisma';
@@ -51,10 +53,7 @@ export function registerDraftTools(server: McpServer, mcpRequest?: Request) {
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
     },
     async ({ creator, ...draft }) => {
-      const ip =
-        mcpRequest?.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
-        mcpRequest?.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-        'unknown';
+      const ip = getClientIp(mcpRequest?.headers);
     
       const secret = process.env.PINATA_JWT;
       if (!secret) {
@@ -63,7 +62,7 @@ export function registerDraftTools(server: McpServer, mcpRequest?: Request) {
     
       // Stable per-IP prefix without storing the raw IP.
       const prefix =
-        'draft' +
+        DRAFT_NONCE_PREFIX +
         createHmac('sha256', secret)
           .update(ip)
           .digest('hex')
@@ -91,7 +90,7 @@ export function registerDraftTools(server: McpServer, mcpRequest?: Request) {
         draft,
         message: getDraftPublishMessage({ site, creator, nonce, draft }),
         signMethod: 'personal_sign / EIP-191',
-        expiresInSeconds: 600,
+        expiresInSeconds: NONCE_TTL_MS / 1000,
         note: 'Have the named wallet sign this exact message; then call save_draft with these same draft fields, creator, nonce and signature. No ETH or gas is needed.',
       });
     }
@@ -122,6 +121,8 @@ export function registerDraftTools(server: McpServer, mcpRequest?: Request) {
         'x-poidh-agent-signature': signature,
       };
       // Forward the real request IP to the existing draft rate limiter.
+      const vercelForwardedFor = mcpRequest?.headers.get('x-vercel-forwarded-for');
+      if (vercelForwardedFor) headers['x-vercel-forwarded-for'] = vercelForwardedFor;
       const forwardedFor = mcpRequest?.headers.get('x-forwarded-for');
       if (forwardedFor) headers['x-forwarded-for'] = forwardedFor;
 
