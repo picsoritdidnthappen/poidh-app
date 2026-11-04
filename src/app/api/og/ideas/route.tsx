@@ -105,17 +105,6 @@ export async function GET(request: Request) {
           ideas
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            fontSize: farcaster ? 47 : 43,
-            lineHeight: 1.3,
-            marginTop: 15,
-            maxWidth: 1000,
-          }}
-        >
-          things people want to see happen
-        </div>
       </div>
 
       {/* Footer: same separator and typography as draft OG */}
