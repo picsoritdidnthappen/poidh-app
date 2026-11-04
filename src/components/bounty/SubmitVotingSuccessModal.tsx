@@ -111,19 +111,19 @@ export default function SubmitVotingSuccessModal({
 
         <p className='mt-4 text-sm sm:text-base leading-relaxed normal-case'>
           {status === 'confirmed'
-            ? 'Your transaction is confirmed onchain. You successfully nominated this claim for the contributor vote.'
+            ? 'your transaction is confirmed onchain and your nomination is now up for contributor vote.'
             : status === 'confirming'
-              ? 'Your wallet submitted the transaction. We are waiting for onchain confirmation. Do not submit it again.'
+              ? 'your wallet submitted the transaction and we are waiting for onchain confirmation.'
               : status === 'failed'
-                ? 'Your transaction reverted onchain. The nomination did not start.'
-                : 'We could not verify the final transaction status yet. Check the transaction on the block explorer before trying to nominate again.'}
+                ? 'your transaction reverted onchain and the nomination did not start.'
+                : 'we could not verify the final transaction status yet, please check the transaction on the block explorer before trying to nominate again.'}
         </p>
 
         {status === 'confirmed' && (
           <>
             <h3 className='mt-6 font-bold normal-case'>what happens next?</h3>
             <p className='mt-2 text-sm sm:text-base leading-relaxed normal-case'>
-              Your nomination also casts your voting shares as YES. Other
+              your nomination also casts your voting shares as YES. other
               contributors have 48 hours to vote YES or NO.
             </p>
             <div className='mt-5 rounded-lg border border-white/30 bg-white/10 p-4'>
@@ -131,9 +131,9 @@ export default function SubmitVotingSuccessModal({
                 voting may take a little time to appear
               </p>
               <p className='mt-2 text-sm leading-relaxed normal-case'>
-                poidh may need a moment to index your transaction. If you do not
+                poidh may need a moment to index your transaction. if you do not
                 see the voting section on the bounty page, refresh the page.
-                Your nomination is already confirmed — you do not need to
+                your nomination is already confirmed — you do not need to
                 submit it again.
               </p>
             </div>
