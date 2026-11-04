@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { useEffect, useRef, useState } from 'react';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { trpc, trpcClient } from '@/trpc/client';
@@ -14,7 +13,7 @@ import { useClaimViewer } from './ClaimViewerContext';
 import AcceptClaimConfirm from '../bounty/AcceptClaimConfirm';
 import SubmitVotingConfirm from '../bounty/SubmitVotingConfirm';
 import ConfirmBountySuccessModal from '../bounty/ConfirmBountySuccessModal';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { setLoadingAtom } from '@/store/loading';
 import { pollingChainIdAtom } from '@/store/loading';
 import SocialMediaLinks from '@/components/global/SocialMediaLinks';
@@ -22,6 +21,7 @@ import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
 import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
+import SubmitVotingSuccessModal from '../bounty/SubmitVotingSuccessModal';
 
 export default function ClaimItem({
   claim,
@@ -71,10 +71,11 @@ export default function ClaimItem({
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showVotingConfirm, setShowVotingConfirm] = useState(false);
   const [showConfirmSuccess, setShowConfirmSuccess] = useState(false);
+  const [nominationHash, setNominationHash] = useState<`0x${string}` | null>(null);
+  const [showNominationStatus, setShowNominationStatus] = useState(false);
 
   const setLoading = useSetAtom(setLoadingAtom);
   const setPollingChainId = useSetAtom(pollingChainIdAtom);
-  const pollingChainId = useAtomValue(pollingChainIdAtom);
 
   const accountStats = trpc.accounts.stats.useQuery({
     address: claim.issuer,
@@ -85,13 +86,58 @@ export default function ClaimItem({
     chainId: claim.chainId,
   });
 
+  const nominationStorageKey = account.address
+    ? `poidh:nomination:${chain.id}:${claim.bountyId}:${claim.id}:${account.address.toLowerCase()}`
+    : null;
+
+  const previousNominationKey = useRef<string | null>(null);
+
+  // Keep the transaction hash through a refresh while the vote is indexing.
+  useEffect(() => {
+    const walletOrClaimChanged =
+      previousNominationKey.current !== nominationStorageKey;
+    previousNominationKey.current = nominationStorageKey;
+
+    if (walletOrClaimChanged) {
+      setNominationHash(null);
+      setShowNominationStatus(false);
+    }
+    if (!nominationStorageKey) return;
+    try {
+      if (claim.isVotingOrAcceptedBounty) {
+        sessionStorage.removeItem(nominationStorageKey);
+        return;
+      }
+      if (!walletOrClaimChanged) return;
+      const saved = JSON.parse(
+        sessionStorage.getItem(nominationStorageKey) || 'null'
+      ) as { hash?: string; savedAt?: number } | null;
+      if (
+        saved &&
+        typeof saved.hash === 'string' &&
+        /^0x[0-9a-fA-F]{64}$/.test(saved.hash) &&
+        typeof saved.savedAt === 'number' &&
+        Date.now() - saved.savedAt >= 0 &&
+        Date.now() - saved.savedAt < 60 * 60 * 1000
+      ) {
+        setNominationHash(saved.hash as `0x${string}`);
+        setShowNominationStatus(true);
+      } else {
+        sessionStorage.removeItem(nominationStorageKey);
+      }
+    } catch {
+      // Session storage is optional.
+    }
+  }, [nominationStorageKey, claim.isVotingOrAcceptedBounty]);
+
   const canPickWinner =
     !!bounty.data &&
     bounty.data.inProgress &&
     !bounty.data.isCanceled &&
     account.address?.toLocaleLowerCase() ===
       bounty.data.issuer.toLocaleLowerCase() &&
-    !claim.isVotingOrAcceptedBounty;
+    !claim.isVotingOrAcceptedBounty &&
+    !nominationHash;
 
   const mustUseVoteFlow = trpc.bounties.mustUseVoteFlow.useQuery(
     {
@@ -196,19 +242,28 @@ export default function ClaimItem({
         status: 'Waiting for approval',
       });
 
-      await writeContract.writeContractAsync({
+      return writeContract.writeContractAsync({
         abi,
         address: chain.contracts.mainContract as `0x${string}`,
         functionName: 'submitClaimForVote',
         args: [BigInt(bounty.data.onChainId), BigInt(claim.onChainId)],
-        chainId: pollingChainId ?? chain.id,
+        chainId: chain.id,
       });
     },
 
-    onSuccess: () => {
-      toast.success('Claim submitted for vote successfully');
-
-      window.location.reload();
+    onSuccess: (hash) => {
+      setNominationHash(hash);
+      setShowNominationStatus(true);
+      if (nominationStorageKey) {
+        try {
+          sessionStorage.setItem(
+            nominationStorageKey,
+            JSON.stringify({ hash, savedAt: Date.now() })
+          );
+        } catch {
+          // The modal still works if storage is unavailable.
+        }
+      }
     },
 
     onError: (error) => {
@@ -258,12 +313,33 @@ export default function ClaimItem({
         />
       )}
 
+      <SubmitVotingSuccessModal
+        open={showNominationStatus && !!nominationHash}
+        hash={nominationHash}
+        chainId={chain.id}
+        onClose={(failed) => {
+          setShowNominationStatus(false);
+          if (failed) {
+            setNominationHash(null);
+            if (nominationStorageKey) {
+              try {
+                sessionStorage.removeItem(nominationStorageKey);
+              } catch {
+                // No persistent state to clear.
+              }
+            }
+          }
+        }}
+      />
+
       <SubmitVotingConfirm
         isOpen={showVotingConfirm}
         onClose={() => setShowVotingConfirm(false)}
         imageUrl={resolvedClaimImage}
         onConfirm={() => {
-          submitForVoteMutation.mutate();
+          if (!submitForVoteMutation.isPending && !nominationHash) {
+            submitForVoteMutation.mutate();
+          }
           setShowVotingConfirm(false);
         }}
       />
@@ -285,7 +361,8 @@ export default function ClaimItem({
         <div className='left-5 top-5 absolute z-10 flex flex-col text-white'>
           {canPickWinner && mustUseVoteFlow.data !== undefined && (
             <button
-              className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5'
+              className='cursor-pointer mt-5 text-white hover:bg-poidhRed bg-poidhRed bg-opacity-30 border border-poidhRed rounded-[8px] py-2 px-5 disabled:opacity-60 disabled:cursor-not-allowed'
+              disabled={submitForVoteMutation.isPending}
               onClick={() => {
                 if (mustUseVoteFlow.data) {
                   setShowVotingConfirm(true);
