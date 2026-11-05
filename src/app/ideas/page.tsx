@@ -2,6 +2,12 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import IdeasPageClient from '@/components/ideas/IdeasPageClient';
 
+type IdeasPageProps = {
+  searchParams?: {
+    open?: string | string[];
+  };
+};
+
 // Keep staging and production social previews separate.
 async function getPublicOrigin() {
   const requestHeaders = await headers();
@@ -20,21 +26,44 @@ async function getPublicOrigin() {
     : 'https://poidh.xyz';
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: IdeasPageProps): Promise<Metadata> {
   const origin = await getPublicOrigin();
 
   const ideasUrl = `${origin}/ideas`;
-  const ogImage = `${origin}/api/og/ideas`;
+
+  // Allow a shared URL's ?open= parameter to produce
+  // a unique OG image URL for social cache busting.
+  const rawOpen = searchParams?.open;
+
+  const refreshToken =
+    typeof rawOpen === 'string' &&
+    /^[a-zA-Z0-9_-]{1,64}$/.test(rawOpen)
+      ? rawOpen
+      : null;
+
+  // Version bump for the regular /ideas URL too.
+  // This avoids reusing the original cached image URL.
+  const imageVersion = refreshToken ?? 'ideas-no-pill-20261104';
+
+  const ogImage =
+    `${origin}/api/og/ideas?v=${encodeURIComponent(imageVersion)}`;
+
   const farcasterImage =
-    `${origin}/api/og/ideas?format=farcaster`;
+    `${origin}/api/og/ideas?format=farcaster&v=${encodeURIComponent(imageVersion)}`;
+
+  // Preserve the exact shared URL in Open Graph metadata,
+  // while keeping /ideas as the canonical SEO URL.
+  const sharedUrl = refreshToken
+    ? `${ideasUrl}?open=${encodeURIComponent(refreshToken)}`
+    : ideasUrl;
 
   const title = 'ideas | poidh';
 
   const description =
     'things people want to see happen. post ideas, vote, discuss, and fund future bounties on poidh.';
 
-  // Same Farcaster Mini App format used by
-  // poidh's existing bounty draft pages.
   const miniAppEmbed = {
     version: '1',
     imageUrl: farcasterImage,
@@ -62,7 +91,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     openGraph: {
       type: 'website',
-      url: ideasUrl,
+      url: sharedUrl,
       siteName: 'poidh',
       title,
       description,
@@ -71,7 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: 'poidh ideas — things people want to see happen',
+          alt: 'poidh ideas',
           type: 'image/png',
         },
       ],
