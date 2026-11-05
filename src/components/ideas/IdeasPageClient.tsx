@@ -230,6 +230,7 @@ export default function IdeasPageClient() {
       <FormBounty
         open={formOpen}
         onClose={() => setFormOpen(false)}
+        draftOnly
       />
     </div>
   );
