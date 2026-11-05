@@ -85,10 +85,16 @@ type FormBountyProps = {
   open: boolean;
   onClose: () => void;
   initialDraft?: BountyDraftFields;
+  draftOnly?: boolean;
 };
 
 const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
-  function FormBounty({ open, onClose, initialDraft }, ref) {
+  function FormBounty({
+    open,
+    onClose,
+    initialDraft,
+    draftOnly = false,
+  }, ref) {
   const pathname = usePathname();
   const prefilledAlbum = pathname?.match(/^\/a\/([^/]+)/)?.[1] ?? '';
 
@@ -174,6 +180,9 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
       amount: string;
       album: string;
     }) => {
+      if (draftOnly) {
+        throw new Error('Bounty creation is disabled in draft-only mode');
+      }
       await prepareWallet(currentChain.id);
       const { contractAddress } = await validatePoidhTx(currentChain);
 
@@ -430,6 +439,7 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
   };
 
   const handleCreateBounty = () => {
+    if (draftOnly) return;
     if (createSubmissionRef.current || createBountyMutations.isPending) return;
 
     if (!account.address) {
@@ -600,10 +610,14 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
           ) : (
             <>
               <div className='mb-5 pr-8'>
-                <h2 className='font-mono text-2xl'>create bounty</h2>
-
+                <h2 className='font-mono text-2xl'>
+                  {draftOnly ? 'post an idea' : 'create bounty'}
+                </h2>
+                
                 <p className='text-sm text-white/60 mt-1'>
-                  define your outcome
+                  {draftOnly
+                    ? 'share a bounty idea without funding it'
+                    : 'define your outcome'}
                 </p>
               </div>
 
@@ -959,7 +973,9 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
                     <InfoIcon size={18} />
                   </span>
                   <span className='min-w-0 flex-1'>
-                    a 2.5% fee is deducted from completed bounties
+                    {draftOnly
+                      ? 'no ETH is required to save this idea'
+                      : 'a 2.5% fee is deducted from completed bounties'}
                   </span>
                 </div>
               </div>
@@ -1127,8 +1143,7 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
                     </a>
                   </p>
                 </>
-              )}
-
+              )}        
               <div
                 className={
                   isMobile
@@ -1136,29 +1151,58 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
                     : 'mt-auto mb-4 flex flex-col items-center w-full'
                 }
               >
-                <button
-                  className={cn(
-                    'flex flex-row items-center justify-center',
-                    account.isDisconnected && 'opacity-50 cursor-not-allowed'
-                  )}
-                  onClick={handleCreateBounty}
-                  disabled={account.isDisconnected}
-                >
-                  <div className='button'>
-                    <GameButton />
-
-                    <p className='text-center mt-1'>create bounty</p>
-                  </div>
-                </button>
-
-                <button
-                  type='button'
-                  onClick={handleOpenDraftDialog}
-                  disabled={isSavingDraft}
-                  className='mt-3 text-sm text-white/75 underline underline-offset-4 transition-colors hover:text-white disabled:opacity-50'
-                >
-                  {isSavingDraft ? 'saving draft...' : 'or save as draft'}
-                </button>
+                {draftOnly ? (
+                  <>
+                    <button
+                      type='button'
+                      className={cn(
+                        'flex flex-row items-center justify-center',
+                        (account.isDisconnected || isSavingDraft) &&
+                          'opacity-50 cursor-not-allowed'
+                      )}
+                      onClick={handleOpenDraftDialog}
+                      disabled={isSavingDraft}
+                    >
+                      <div className='button'>
+                        <GameButton />
+                        <p className='text-center mt-1'>
+                          {isSavingDraft ? 'saving draft...' : 'save draft'}
+                        </p>
+                      </div>
+                    </button>
+              
+                    <p className='mt-3 max-w-xs text-center text-xs text-white/65'>
+                      free to publish. no funds required.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type='button'
+                      className={cn(
+                        'flex flex-row items-center justify-center',
+                        account.isDisconnected &&
+                          'opacity-50 cursor-not-allowed'
+                      )}
+                      onClick={handleCreateBounty}
+                      disabled={account.isDisconnected}
+                    >
+                      <div className='button'>
+                        <GameButton />
+                        <p className='text-center mt-1'>create bounty</p>
+                      </div>
+                    </button>
+              
+                    <button
+                      type='button'
+                      onClick={handleOpenDraftDialog}
+                      disabled={isSavingDraft}
+                      className='mt-3 text-sm text-white/75 underline underline-offset-4 transition-colors hover:text-white disabled:opacity-50'
+                    >
+                      {isSavingDraft ? 'saving draft...' : 'or save as draft'}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </Box>
