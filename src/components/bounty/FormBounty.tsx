@@ -1157,8 +1157,7 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
                       type='button'
                       className={cn(
                         'flex flex-row items-center justify-center',
-                        (account.isDisconnected || isSavingDraft) &&
-                          'opacity-50 cursor-not-allowed'
+                        isSavingDraft && 'opacity-50 cursor-not-allowed'
                       )}
                       onClick={handleOpenDraftDialog}
                       disabled={isSavingDraft}
