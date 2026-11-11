@@ -20,7 +20,10 @@ import SocialMediaLinks from '@/components/global/SocialMediaLinks';
 import TextWithLinks from '@/components/global/TextWithLinks';
 import { ChainId, Claim } from '@/utils/types';
 import { useClaimMedia } from '@/hooks/useClaimMedia';
-import { ClaimMedia } from '@/components/claims/ClaimMediaParts';
+import {
+  ClaimMedia,
+  getGenerativePlaceholderImageUrl,
+} from '@/components/claims/ClaimMediaParts';
 import SubmitVotingSuccessModal from '../bounty/SubmitVotingSuccessModal';
 
 export default function ClaimItem({
@@ -277,8 +280,11 @@ export default function ClaimItem({
       });
     },
   });
-
-  const resolvedClaimImage = !mediaError ? mediaUrl ?? claim.url ?? '' : '';
+  
+  const resolvedClaimImage =
+    mediaError || !mediaUrl
+      ? getGenerativePlaceholderImageUrl(placeholderSeed)
+      : mediaUrl;
 
   return (
     <>
