@@ -19,7 +19,7 @@ export default function CollapsibleText({
   const isLong = text.length > maxLength || text.split('\n').length > 12;
 
   return (
-    <div className={className}>
+    <div className={className} data-poidh-ugc>
       <div
         className={`whitespace-pre-wrap break-words ${
           isLong && !isExpanded ? 'overflow-hidden' : ''
