@@ -310,7 +310,7 @@ export default function DraftDiscussion({ cid }: { cid: string }) {
   return (
     <section
       id='ideas-comments'
-      className='mx-auto mt-8 max-w-5xl rounded-3xl border border-white/25 bg-white/5 p-5 normal-case sm:p-8'
+      className='mx-auto mt-8 max-w-5xl rounded-3xl border border-white/25 bg-white/5 p-5 normal-case poidh-comment-section sm:p-8'
     >
       <div className='border-b border-white/20 pb-5'>
         <h2 className='text-xl font-bold'>discussion</h2>
