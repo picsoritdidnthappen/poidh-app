@@ -896,3 +896,11 @@ html.cyber .feed-comment-body {
     margin: 0 !important;
   }
 }
+
+/* Preserve user-written capitalization in bounty and draft discussions. */
+.poidh-comment-section,
+.poidh-comment-section textarea,
+.poidh-comment-section input,
+.poidh-comment-section .whitespace-pre-wrap {
+  text-transform: none;
+}

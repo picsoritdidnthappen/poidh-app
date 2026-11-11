@@ -347,7 +347,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     <>
       <div className='w-full h-4 border-t border-dashed border-white ' />
 
-      <div id='comments-section' className='xl:w-1/2 w:full pt-8'>
+      <div id='comments-section' className='xl:w-1/2 w:full pt-8 poidh-comment-section'>
         <span className='text-xl font-bold text-left my-2 sm:my-4 lowercase'>
           Comments
         </span>
