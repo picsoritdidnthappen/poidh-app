@@ -14,6 +14,8 @@ import KonamiCamera from '@/components/global/KonamiCamera';
 import { Analytics } from '@vercel/analytics/next';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { WALLET_COOKIE_NAME } from '@/utils/walletCookieName';
+import ExternalLinkGate from '@/components/global/ExternalLinkGate';
+
 
 const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://poidh.xyz';
 const APP_NAME = 'poidh';
@@ -128,6 +130,7 @@ export default function RootLayout({
           </TRPCProvider>
         </ThemeProvider>
         <Analytics />
+        <ExternalLinkGate />
         <KonamiCamera />
       </body>
     </html>
