@@ -1,25 +1,29 @@
 import { getLinkRel } from '@/utils/linkSafety';
 
-export default function TextWithLinks({ children }: { children: string }) {
+export default function TextWithLinks({
+  children,
+}: {
+  children: string;
+}) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = children.split(urlRegex);
 
   return parts.map((part, index) => {
-    if (part.match(urlRegex)) {
+    if (part.match(/^https?:\/\//)) {
       return (
         <a
           key={index}
           href={part}
           target='_blank'
-          rel='noopener noreferrer'
-          className='underline hover:text-gray-200'
-          rel={getLinkRel(href, true)}
+          rel={getLinkRel(part, true)}
           data-poidh-ugc-link
+          className='underline hover:text-gray-200'
         >
           {part}
         </a>
       );
     }
+
     return part;
   });
 }
