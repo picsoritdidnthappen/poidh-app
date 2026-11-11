@@ -1,3 +1,5 @@
+import { getLinkRel } from '@/utils/linkSafety';
+
 export default function TextWithLinks({ children }: { children: string }) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = children.split(urlRegex);
@@ -11,6 +13,8 @@ export default function TextWithLinks({ children }: { children: string }) {
           target='_blank'
           rel='noopener noreferrer'
           className='underline hover:text-gray-200'
+          rel={getLinkRel(href, true)}
+          data-poidh-ugc-link
         >
           {part}
         </a>
