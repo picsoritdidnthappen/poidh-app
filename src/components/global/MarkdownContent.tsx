@@ -3,6 +3,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
+import { getLinkRel, inspectLink } from '@/utils/linkSafety';
 
 const sanitizeSchema = {
   ...defaultSchema,
@@ -15,16 +16,23 @@ const sanitizeSchema = {
 };
 const VIDEO_EXTENSIONS = /\.(mp4|webm|ogg|mov)(\?.*)?$/i;
 const components: Components = {
-  a: ({ href, children }) => (
-    <a
-      href={href}
-      target='_blank'
-      rel='noopener noreferrer'
-      className='underline hover:text-gray-200'
-    >
-      {children}
-    </a>
-  ),
+  a: ({ href, children }) => {
+    if (!inspectLink(href)) {
+      return <span>{children}</span>;
+    }
+  
+    return (
+      <a
+        href={href}
+        target='_blank'
+        rel={getLinkRel(href, true)}
+        data-poidh-ugc-link
+        className='underline hover:text-gray-200'
+      >
+        {children}
+      </a>
+    );
+  },
   p: ({ children }) => <p className='mb-3 last:mb-0'>{children}</p>,
   h1: ({ children }) => <h1 className='text-2xl font-bold mb-3'>{children}</h1>,
   h2: ({ children }) => <h2 className='text-xl font-bold mb-2'>{children}</h2>,
