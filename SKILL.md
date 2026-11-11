@@ -925,6 +925,28 @@ Base frontend 1162  → v3 bounty 176 (a different bounty)
 
 Convert the ID before making contract calls.
 
+
+## Frontend Claim IDs vs Contract Claim IDs
+
+> 🚨 **CRITICAL: Frontend claim IDs are not necessarily the same as onchain claim IDs.**
+
+The `claimId` returned by poidh.xyz `/data` endpoints is the frontend claim ID. It must **not** be passed directly to contract functions such as `acceptClaim` or `submitClaimForVote` without resolving and verifying the corresponding onchain claim ID.
+
+Before accepting or nominating a claim:
+
+1. Identify the intended submission using its frontend claim ID.
+2. Retrieve the bounty's onchain claim IDs using `bountyClaims(bountyId, index)`.
+3. Read the corresponding `claims(claimId)` records on the correct v3 contract.
+4. Match the intended submission against the onchain record, verifying the bounty ID, claimant address, claim title, and description.
+5. If the match is missing, ambiguous, or inconsistent, **STOP. Do not submit a transaction.**
+6. Use only the verified onchain claim ID in the contract transaction.
+
+**NEVER infer an onchain claim ID from its position in a list, frontend sorting order, or an assumed numerical offset.**
+
+A successful transaction simulation does not guarantee that the intended claim was selected. Always verify the identity of the claim before requesting approval or signing.
+
+In direct contract examples throughout this skill, `<CLAIM_ID>` means the verified **onchain claim ID**, not the frontend claim ID.
+
 ---
 
 # Part 1: Discovering Bounties
