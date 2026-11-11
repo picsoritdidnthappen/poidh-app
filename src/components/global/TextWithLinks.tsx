@@ -1,4 +1,4 @@
-import { getLinkRel } from '@/utils/linkSafety';
+import { getLinkRel, inspectLink } from '@/utils/linkSafety';
 
 export default function TextWithLinks({
   children,
@@ -9,13 +9,19 @@ export default function TextWithLinks({
   const parts = children.split(urlRegex);
 
   return parts.map((part, index) => {
-    if (part.match(/^https?:\/\//)) {
+    if (/^https?:\/\//i.test(part)) {
+      const info = inspectLink(part);
+
+      if (!info) {
+        return <span key={index}>{part}</span>;
+      }
+
       return (
         <a
           key={index}
-          href={part}
+          href={info.destination}
           target='_blank'
-          rel={getLinkRel(part, true)}
+          rel={getLinkRel(info.destination, true)}
           data-poidh-ugc-link
           className='underline hover:text-gray-200'
         >
