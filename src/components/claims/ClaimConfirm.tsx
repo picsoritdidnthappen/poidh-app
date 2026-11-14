@@ -3,18 +3,18 @@ import Image from 'next/image';
 
 export default function ClaimConfirm({
   isOpen,
-  onClose,
+  onBack,
   imageUrl,
   onConfirm,
 }: {
   isOpen: boolean;
-  onClose: () => void;
+  onBack: () => void;
   imageUrl: string;
   onConfirm: () => void;
 }) {
   return (
     <>
-      <Dialog open={isOpen} onClose={onClose} className='relative z-50'>
+      <Dialog open={isOpen} onClose={onBack} className='relative z-50'>
         <div className='fixed inset-0 bg-black/30 flex items-center justify-center p-4'>
           <DialogPanel className='w-[calc(100vw-2rem)] sm:w-[450px] max-w-[450px] rounded-xl p-6 bg-poidhBlue dark:bg-[#132b47] border border-[#D1ECFF]'>
             <DialogTitle className='font-mono text-2xl font-bold text-white mb-4 text-center'>
@@ -39,10 +39,11 @@ export default function ClaimConfirm({
 
               <div className='flex gap-3 w-full mt-2'>
                 <button
-                  onClick={onClose}
+                  type='button'
+                  onClick={onBack}
                   className='flex-1 px-4 py-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors'
                 >
-                  Cancel
+                  go back
                 </button>
                 <button
                   onClick={onConfirm}

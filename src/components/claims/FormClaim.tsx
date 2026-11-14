@@ -131,8 +131,6 @@ export default function FormClaim({
 
   const createClaimMutations = useMutation({
     mutationFn: async () => {
-      setShowConfirm(false);
-
       await prepareWallet(chain.id);
       const { contractAddress } = await validatePoidhTx(chain);
 
@@ -220,14 +218,23 @@ export default function FormClaim({
     },
   });
 
+  if (open && showConfirm) {
+    return (
+      <ClaimConfirm
+        isOpen
+        onBack={() => setShowConfirm(false)}
+        imageUrl={preview}
+        onConfirm={() => {
+          onClose();
+          setShowConfirm(false);
+          createClaimMutations.mutate();
+        }}
+      />
+    );
+  }
+
   return (
     <>
-      <ClaimConfirm
-        isOpen={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        imageUrl={preview}
-        onConfirm={() => createClaimMutations.mutate()}
-      />
       <ClaimSuccessModal
         open={showSuccess}
         onClose={() => {
@@ -501,7 +508,6 @@ export default function FormClaim({
                     );
                     return;
                   }
-                  onClose();
                   setShowConfirm(true);
                 }}
               >
