@@ -1,4 +1,6 @@
 import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import BountyMultiplayer from '@/components/bounty/BountyMultiplayer';
@@ -30,6 +32,8 @@ import FormBounty, { type BountyDraftFields } from './FormBounty';
 
 const bountyStatusClass =
   'inline-flex items-center justify-center whitespace-nowrap rounded-md border px-5 py-2';
+
+type RelaunchTarget = { id: number; chain: BountyDraftFields['chain'] };
 
 function BountyInfoHeaderSkeleton() {
   return (
@@ -91,6 +95,10 @@ export default function BountyInfo({
 }) {
   const chain = useChainInfo();
   const account = useAccount();
+  const { connectModalOpen, openConnectModal } = useConnectModal();
+  const [pendingRelaunch, setPendingRelaunch] = useState<RelaunchTarget | null>(
+    null
+  );
   const writeContract = useWriteContract({});
   const { prepareWallet } = usePoidhWallet();
   const { signMessageAsync } = useSignMessage();
@@ -163,10 +171,52 @@ export default function BountyInfo({
   );
 
   const relaunch = useMutation({
-    mutationFn: (input: { id: number; chain: BountyDraftFields['chain'] }) =>
+    mutationFn: (input: RelaunchTarget) =>
       utils.bounties.relaunchDraft.fetch(input),
     onError: (error) => toastError('Could not load the original bounty', error),
   });
+  const { mutate: loadRelaunchDraft } = relaunch;
+  const relaunchChain =
+    bounty.data &&
+    !bounty.data.inProgress &&
+    !bounty.data.isCanceled &&
+    !bounty.data.ban.length &&
+    chain.slug !== 'degen'
+      ? chain.slug
+      : null;
+
+  useEffect(() => {
+    if (!pendingRelaunch) return;
+
+    if (
+      pendingRelaunch.id !== bountyId ||
+      pendingRelaunch.chain !== relaunchChain
+    ) {
+      setPendingRelaunch(null);
+    } else if (account.isConnected && !connectModalOpen) {
+      setPendingRelaunch(null);
+      loadRelaunchDraft(pendingRelaunch);
+    } else if (!connectModalOpen && !account.isConnecting) {
+      setPendingRelaunch(null);
+    }
+  }, [
+    account.isConnected,
+    account.isConnecting,
+    bountyId,
+    connectModalOpen,
+    loadRelaunchDraft,
+    pendingRelaunch,
+    relaunchChain,
+  ]);
+
+  const handleRelaunch = (target: RelaunchTarget) => {
+    if (account.isConnected) {
+      loadRelaunchDraft(target);
+    } else if (openConnectModal) {
+      setPendingRelaunch(target);
+      openConnectModal();
+    }
+  };
 
   const signMutation = useMutation({
     mutationFn: async () => {
@@ -492,8 +542,8 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
     year: 'numeric',
     timeZone: 'UTC',
   });
-  const relaunchChain = chain.slug === 'degen' ? null : chain.slug;
   const relaunchDraft =
+    account.isConnected &&
     relaunch.variables?.id === bountyId &&
     relaunch.variables.chain === relaunchChain
       ? relaunch.data
@@ -637,25 +687,23 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
               >
                 {bounty.data.isCanceled ? 'canceled' : 'accepted'}
               </span>
-              {!bounty.data.isCanceled &&
-                !bounty.data.ban.length &&
-                relaunchChain && (
-                  <button
-                    type='button'
-                    onClick={() =>
-                      relaunch.mutate({ id: bountyId, chain: relaunchChain })
-                    }
-                    disabled={relaunch.isPending}
-                    aria-busy={relaunch.isPending}
-                    className={cn(
-                      bountyStatusClass,
-                      'poidh-funding-gradient gap-1.5 disabled:cursor-wait disabled:opacity-60'
-                    )}
-                  >
-                    <span aria-hidden='true'>🚀</span>
-                    relaunch
-                  </button>
-                )}
+              {relaunchChain && (
+                <button
+                  type='button'
+                  onClick={() =>
+                    handleRelaunch({ id: bountyId, chain: relaunchChain })
+                  }
+                  disabled={relaunch.isPending}
+                  aria-busy={relaunch.isPending}
+                  className={cn(
+                    bountyStatusClass,
+                    'poidh-funding-gradient gap-1.5 disabled:cursor-wait disabled:opacity-60'
+                  )}
+                >
+                  <span aria-hidden='true'>🚀</span>
+                  relaunch
+                </button>
+              )}
             </div>
           )}
         </div>
