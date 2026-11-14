@@ -1,10 +1,26 @@
 import { z } from 'zod';
 import { baseProcedure } from '../init';
 import prisma from 'prisma/prisma';
-import { addressSchema } from '../serverTypes';
+import { addressSchema, bytes32Schema } from '../serverTypes';
 import { checkIsAdmin, checkIsIssuer } from './admin';
 import { getEverHadExternalContributor } from './web3';
 import { TRPCError } from '@trpc/server';
+import { formatEther, parseAbiItem, parseEventLogs } from 'viem';
+import abi from '@/constant/abi/abi';
+import { chains } from '@/utils/config';
+
+const bountyCreatedEvent = abi.find(
+  (item) => item.type === 'event' && item.name === 'BountyCreated'
+);
+
+const legacyBountyCreatedEvent = parseAbiItem(
+  'event BountyCreated(uint256 id, address issuer, string name, string description, uint256 amount, uint256 createdAt)'
+);
+
+const legacyPoidhContracts = {
+  base: '0xb502c5856f7244dccdd0264a541cc25675353d39',
+  arbitrum: '0x0aa50ce0d724cc28f8f7af4630c32377b4d5c27d',
+};
 
 /** How long after a bounty is created its album can still be set. */
 const ALBUM_WINDOW_MS = 5 * 60 * 1000;
@@ -104,6 +120,88 @@ export const bountiesRouter = {
         },
         orderBy: { timestamp: 'desc' },
       });
+    }),
+
+  relaunchDraft: baseProcedure
+    .input(
+      z.object({
+        id: z.number().int().nonnegative(),
+        chain: z.enum(['mainnet', 'base', 'arbitrum']),
+      })
+    )
+    .query(async ({ input }) => {
+      const chain = chains[input.chain];
+      const bounty = await prisma.bounties.findFirst({
+        where: {
+          id: input.id,
+          chainId: chain.id,
+          inProgress: false,
+          isCanceled: false,
+          ban: { none: {} },
+        },
+        select: {
+          onChainId: true,
+          issuer: true,
+          isMultiplayer: true,
+          extra: { select: { album: true } },
+          transactions: {
+            where: { action: 'bounty created' },
+            select: { tx: true },
+            take: 1,
+          },
+        },
+      });
+
+      const hash = bytes32Schema.safeParse(bounty?.transactions[0]?.tx);
+      if (!bounty || !hash.success) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Original bounty creation transaction unavailable.',
+        });
+      }
+
+      const receipt = await chain.provider.getTransactionReceipt({
+        hash: hash.data,
+      });
+      const created = parseEventLogs({
+        abi: bountyCreatedEvent
+          ? [bountyCreatedEvent, legacyBountyCreatedEvent]
+          : [legacyBountyCreatedEvent],
+        eventName: 'BountyCreated',
+        logs: receipt.logs,
+      }).find(({ address, args }) => {
+        const contract =
+          'title' in args
+            ? chain.contracts.mainContract.toLowerCase()
+            : input.chain === 'mainnet'
+            ? undefined
+            : legacyPoidhContracts[input.chain];
+
+        return (
+          address.toLowerCase() === contract &&
+          args.id === BigInt(bounty.onChainId) &&
+          args.issuer.toLowerCase() === bounty.issuer.toLowerCase()
+        );
+      });
+
+      if (!created) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Original bounty creation details unavailable.',
+        });
+      }
+
+      const { args } = created;
+      return {
+        title: 'title' in args ? args.title : args.name,
+        description: args.description,
+        amount: formatEther(args.amount),
+        chain: input.chain,
+        // The legacy event did not record the bounty mode.
+        isOpenBounty:
+          'isOpenBounty' in args ? args.isOpenBounty : bounty.isMultiplayer,
+        album: bounty.extra?.album ?? '',
+      };
     }),
 
   /**
