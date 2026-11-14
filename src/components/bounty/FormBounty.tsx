@@ -36,7 +36,7 @@ import { SignInCancelledError } from '@/utils/sessionClient';
 import { getSenderKind } from '@/mcp/transactions';
 
 const SMART_WALLET_ERROR =
-  'Smart wallets cannot be used to create bounties. Please use a standard EOA wallet.';
+  'smart wallets cannot be used to create bounties - please use a standard EOA wallet';
 const ALBUM_PATTERN = /^[a-z]+(?:-[a-z]+)*$/;
 const ALBUM_TYPING_PATTERN = /^[a-z]+(?:-[a-z]+)*-?$/;
 const BOUNTY_GUIDE_TEMPLATE = `## Why
