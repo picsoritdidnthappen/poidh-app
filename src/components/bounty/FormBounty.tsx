@@ -33,7 +33,10 @@ import { ETH_MIN_AMOUNT } from '@/utils/constants';
 import MarkdownContent from '@/components/global/MarkdownContent';
 import { useSession } from '@/components/auth/SessionProvider';
 import { SignInCancelledError } from '@/utils/sessionClient';
+import { getSenderKind } from '@/mcp/transactions';
 
+const SMART_WALLET_ERROR =
+  'smart wallets cannot be used to create bounties - please use a standard EOA wallet';
 const ALBUM_PATTERN = /^[a-z]+(?:-[a-z]+)*$/;
 const ALBUM_TYPING_PATTERN = /^[a-z]+(?:-[a-z]+)*-?$/;
 const BOUNTY_GUIDE_TEMPLATE = `## Why
@@ -165,8 +168,11 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
 
   const writeContract = useWriteContract({});
   const account = useAccount();
+  const isPoidhSmartWallet = account.connector?.id === 'zerodev-wallet';
   const { connectModalOpen, openConnectModal } = useConnectModal();
   const canConnect = allowWalletConnection && !!openConnectModal;
+  const createButtonDisabled =
+    isPoidhSmartWallet || (account.isDisconnected && !canConnect);
   const { data: balance } = useBalance({
     address: account.address,
     chainId: currentChain.id,
@@ -189,7 +195,13 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
         throw new Error('Bounty creation is disabled in draft-only mode');
       }
       await prepareWallet(currentChain.id);
-      const { contractAddress } = await validatePoidhTx(currentChain);
+      const { address, contractAddress } = await validatePoidhTx(currentChain);
+      if (
+        currentChain.slug !== 'degen' &&
+        (await getSenderKind(currentChain.slug, address)) === 'contract'
+      ) {
+        throw new Error(SMART_WALLET_ERROR);
+      }
 
       setLoading({
         isLoading: true,
@@ -197,6 +209,7 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
       });
 
       const tx = await writeContract.writeContractAsync({
+        account: address,
         abi,
         address: contractAddress,
         functionName: isOpenBounty ? 'createOpenBounty' : 'createSoloBounty',
@@ -449,6 +462,11 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
 
     if (!account.address) {
       toast.error('Connect your wallet to create a bounty');
+      return;
+    }
+
+    if (isPoidhSmartWallet) {
+      toast.error(SMART_WALLET_ERROR);
       return;
     }
 
@@ -1183,12 +1201,19 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
                   </>
                 ) : (
                   <>
+                    {isPoidhSmartWallet && (
+                      <p
+                        role='alert'
+                        className='mb-3 text-center text-sm normal-case'
+                      >
+                        {SMART_WALLET_ERROR}
+                      </p>
+                    )}
                     <button
                       type='button'
                       className={cn(
                         'flex flex-row items-center justify-center',
-                        account.isDisconnected &&
-                          !canConnect &&
+                        createButtonDisabled &&
                           'opacity-50 cursor-not-allowed'
                       )}
                       onClick={
@@ -1196,7 +1221,7 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
                           ? openConnectModal
                           : handleCreateBounty
                       }
-                      disabled={account.isDisconnected && !canConnect}
+                      disabled={createButtonDisabled}
                     >
                       <div className='button'>
                         <GameButton />
