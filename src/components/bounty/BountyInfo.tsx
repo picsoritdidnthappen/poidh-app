@@ -26,6 +26,10 @@ import { ArrowIcon, QuestionIcon } from '@/components/global/Icons';
 import Link from 'next/link';
 import HowItWorksModal from '@/components/bounty/HowItWorksModal';
 import DynamicChainIcon from '@/components/global/DynamicChainIcon';
+import FormBounty, { type BountyDraftFields } from './FormBounty';
+
+const bountyStatusClass =
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md border px-5 py-2';
 
 function BountyInfoHeaderSkeleton() {
   return (
@@ -91,6 +95,7 @@ export default function BountyInfo({
   const { prepareWallet } = usePoidhWallet();
   const { signMessageAsync } = useSignMessage();
   const setLoading = useSetAtom(setLoadingAtom);
+  const utils = trpc.useUtils();
 
   const validBountyId = !isNaN(bountyId);
 
@@ -156,6 +161,12 @@ export default function BountyInfo({
       refetchOnWindowFocus: false,
     }
   );
+
+  const relaunch = useMutation({
+    mutationFn: (input: { id: number; chain: BountyDraftFields['chain'] }) =>
+      utils.bounties.relaunchDraft.fetch(input),
+    onError: (error) => toastError('Could not load the original bounty', error),
+  });
 
   const signMutation = useMutation({
     mutationFn: async () => {
@@ -481,8 +492,23 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
     year: 'numeric',
     timeZone: 'UTC',
   });
+  const relaunchChain = chain.slug === 'degen' ? null : chain.slug;
+  const relaunchDraft =
+    relaunch.variables?.id === bountyId &&
+    relaunch.variables.chain === relaunchChain
+      ? relaunch.data
+      : undefined;
+
   return (
     <>
+      {relaunchDraft && (
+        <FormBounty
+          open
+          initialDraft={relaunchDraft}
+          allowWalletConnection
+          onClose={relaunch.reset}
+        />
+      )}
       <div className='flex pt-6 flex-col justify-between lg:flex-row'>
         <div className='flex flex-col lg:w-[50%]'>
           <p className='max-w-[30ch] overflow-hidden text-ellipsis text-2xl lg:text-4xl text-bold normal-case break-words'>
@@ -602,9 +628,35 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
               </button>
             )
           ) : (
-            <span className='border border-poidhRed w-fit rounded-md py-2 px-5 mt-5 bg-poidhRed text-white'>
-              {bounty.data.isCanceled ? 'canceled' : 'accepted'}
-            </span>
+            <div className='mt-5 grid w-fit grid-flow-col auto-cols-fr gap-2 lg:grid-flow-row'>
+              <span
+                className={cn(
+                  bountyStatusClass,
+                  'border-poidhRed bg-poidhRed text-white'
+                )}
+              >
+                {bounty.data.isCanceled ? 'canceled' : 'accepted'}
+              </span>
+              {!bounty.data.isCanceled &&
+                !bounty.data.ban.length &&
+                relaunchChain && (
+                  <button
+                    type='button'
+                    onClick={() =>
+                      relaunch.mutate({ id: bountyId, chain: relaunchChain })
+                    }
+                    disabled={relaunch.isPending}
+                    aria-busy={relaunch.isPending}
+                    className={cn(
+                      bountyStatusClass,
+                      'poidh-funding-gradient gap-1.5 disabled:cursor-wait disabled:opacity-60'
+                    )}
+                  >
+                    <span aria-hidden='true'>🚀</span>
+                    relaunch
+                  </button>
+                )}
+            </div>
           )}
         </div>
       </div>
