@@ -30,7 +30,7 @@ export default function JoinBounty({ bountyId }: { bountyId: number }) {
         onClose={() => setShowForm(false)}
       />
       <div
-        className='flex items-center whitespace-nowrap gap-x-2 rounded-2xl px-5 py-2 text-sm font-semibold cursor-pointer bg-gradient-to-r from-poidhRed/35 to-[#158ad6]/50 text-white border border-white/20 hover:from-poidhRed/45 hover:to-[#158ad6]/60 transition-all duration-200 w-fit'
+        className='poidh-funding-gradient flex w-fit cursor-pointer items-center gap-x-2 whitespace-nowrap rounded-2xl border px-5 py-2 text-sm font-semibold'
         onClick={() => {
           if (
             account.address?.toLowerCase() === bounty.data?.issuer.toLowerCase()

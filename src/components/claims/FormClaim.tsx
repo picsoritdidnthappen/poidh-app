@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { toastError } from '@/utils/errors';
@@ -49,6 +49,8 @@ export default function FormClaim({
   );
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const titleId = useId();
+  const descriptionId = useId();
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const utils = trpc.useUtils();
@@ -240,7 +242,8 @@ export default function FormClaim({
       <Dialog
         open={open}
         onClose={onClose}
-        maxWidth={isMobile ? false : 'xs'}
+        aria-label='create claim'
+        maxWidth={false}
         fullWidth
         fullScreen={isMobile}
         PaperProps={{
@@ -261,7 +264,11 @@ export default function FormClaim({
                   },
                 }
               : {
-                  maxHeight: '90vh',
+                  width: '92vw',
+                  maxWidth: '1400px',
+                  height: '90vh',
+                  maxHeight: '900px',
+                  m: 2,
                 }),
           },
         }}
@@ -280,6 +287,8 @@ export default function FormClaim({
           <div className='flex items-center justify-between w-full sticky'>
             <div style={{ width: '40px' }} />
             <button
+              type='button'
+              aria-label='close claim form'
               onClick={onClose}
               style={{
                 color: 'white',
@@ -300,171 +309,209 @@ export default function FormClaim({
             position: 'relative',
             p: isMobile ? 2 : 3,
             pt: isMobile ? 1 : 3,
-            mt: isMobile ? 0 : 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+            overflowY: 'auto',
             ...(isMobile && {
               height: '100%',
               maxHeight: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              overflowY: 'auto',
             }),
           }}
         >
-          {/* Desktop close button — inside DialogContent so position:absolute offsets correctly */}
           {!isMobile && (
-            <button
-              onClick={onClose}
-              style={{
-                position: 'absolute',
-                right: 4,
-                top: 0,
-                color: 'white',
-                cursor: 'pointer',
-                padding: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '6px',
-                transition: 'background-color 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'rgba(255, 255, 255, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'transparent';
-              }}
-            >
-              <CloseIcon size={12} />
-            </button>
+            <div className='mb-5 flex shrink-0 items-center justify-between gap-4'>
+              <h2 className='font-mono text-2xl'>create claim</h2>
+              <button
+                type='button'
+                aria-label='close claim form'
+                onClick={onClose}
+                className='flex items-center justify-center rounded-md p-2 transition-colors hover:bg-white/15'
+              >
+                <CloseIcon size={12} />
+              </button>
+            </div>
           )}
 
-          <div
-            {...getRootProps()}
-            className={cn(
-              'flex items-center flex-col text-center text-white rounded-3xl border-2 border-dashed p-8 w-full justify-center cursor-pointer transition-all duration-200',
-              isDragActive
-                ? 'border-white bg-white/10 scale-105'
-                : 'border-[#D1ECFF] hover:border-white hover:bg-white/5'
-            )}
+          <Box
+            sx={
+              isMobile
+                ? undefined
+                : {
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(0, 3fr) minmax(260px, 2fr)',
+                    flex: 1,
+                    minHeight: 360,
+                    gap: 4,
+                  }
+            }
           >
-            <input {...getInputProps()} />
-            {isDragActive ? (
-              <div className='flex flex-col items-center gap-2'>
-                <ImageIcon />
-                <p className='text-sm font-medium'>Drop the image here...</p>
-              </div>
-            ) : (
-              <div className='flex flex-col items-center gap-3'>
-                {!imageURI && (
-                  <svg
-                    className='w-8 h-8 opacity-75'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={1.5}
-                      d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-                    />
-                  </svg>
-                )}
-                <div>
-                  <p className='text-sm font-medium'>
-                    {imageURI
-                      ? '✓ Image uploaded'
-                      : isMobile
-                      ? 'Tap to add photo'
-                      : 'Drag & drop or click to upload'}
-                  </p>
-                  {!imageURI && (
-                    <p className='text-xs opacity-70 mt-1'>
-                      PNG, JPG, GIF, WebP, HEIC
-                    </p>
-                  )}
+            <div
+              {...getRootProps({
+                role: 'button',
+                'aria-label': 'upload claim image',
+              })}
+              className={cn(
+                'flex w-full cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed text-center text-white transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
+                isMobile ? 'p-8' : 'min-h-0 gap-4 bg-black/10 p-4',
+                isMobile && isDragActive && 'scale-105',
+                isDragActive
+                  ? 'border-white bg-white/10'
+                  : 'border-[#D1ECFF] hover:border-white hover:bg-white/5'
+              )}
+            >
+              <input {...getInputProps()} />
+              {!isMobile && preview && (
+                <div className='relative min-h-0 w-full flex-1 overflow-hidden rounded-2xl bg-black/20'>
+                  <Image
+                    src={preview}
+                    alt='Claim image preview'
+                    fill
+                    unoptimized
+                    className='object-contain'
+                  />
                 </div>
-              </div>
-            )}
-            {preview && (
-              <Image
-                src={preview}
-                alt='Preview'
-                width={280}
-                height={280}
-                className='w-full max-w-xs h-auto rounded-2xl object-contain mt-4 border border-white/20'
-              />
-            )}
-          </div>
-          <Box mt={2}>
-            <span className={isMobile ? 'mb-2 text-base' : ''}>title</span>
-            <input
-              ref={titleRef}
-              type='text'
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onFocus={() => {
-                if (isMobile && titleRef.current) {
-                  titleRef.current.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center',
-                  });
-                }
-              }}
-              className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
-                isMobile ? 'text-base py-3' : ''
-              }`}
-            />
-            <span className={isMobile ? 'text-base mb-2' : ''}>
-              description
-            </span>
-            <textarea
-              ref={descriptionRef}
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onFocus={() => {
-                if (isMobile && descriptionRef.current) {
-                  descriptionRef.current.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center',
-                  });
-                }
-              }}
-              className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
-                isMobile ? 'text-base py-3 min-h-[120px]' : ''
-              }`}
-            ></textarea>
-          </Box>
-          <button
-            className={cn(
-              'flex flex-col items-center justify-center w-full mt-2',
-              account.isDisconnected && 'opacity-50 cursor-not-allowed'
-            )}
-            onClick={() => {
-              if (!title || !description || !imageURI) {
-                toast.error(
-                  'Please fill in all fields and check wallet connection.'
-                );
-                return;
-              }
-              if (!isZeroDev && balance && balance.value === BigInt(0)) {
-                toast.error(
-                  'your wallet needs gas to submit a claim, please add funds on the correct network'
-                );
-                return;
-              }
-              onClose();
-              setShowConfirm(true);
-            }}
-          >
-            <div className='button'>
-              <GameButton />
-              <p className='text-center mt-1'>create claim</p>
+              )}
+              {isDragActive ? (
+                <div className='flex flex-col items-center gap-2'>
+                  <ImageIcon />
+                  <p className='text-sm font-medium'>Drop the image here...</p>
+                </div>
+              ) : (
+                <div className='flex flex-col items-center gap-3'>
+                  {!imageURI && (isMobile || !preview) && (
+                    <svg
+                      className={cn(
+                        'opacity-75',
+                        isMobile ? 'h-8 w-8' : 'h-12 w-12'
+                      )}
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={1.5}
+                        d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                      />
+                    </svg>
+                  )}
+                  <div>
+                    <p className='text-sm font-medium'>
+                      {imageURI
+                        ? '✓ Image uploaded'
+                        : !isMobile && preview
+                        ? 'Click or drop an image to replace'
+                        : isMobile
+                        ? 'Tap to add photo'
+                        : 'Drag & drop or click to upload'}
+                    </p>
+                    {!isMobile && preview && imageURI && (
+                      <p className='mt-1 text-xs opacity-70'>
+                        Click or drop an image to replace
+                      </p>
+                    )}
+                    {!imageURI && (isMobile || !preview) && (
+                      <p className='text-xs opacity-70 mt-1'>
+                        PNG, JPG, GIF, WebP, HEIC
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+              {isMobile && preview && (
+                <Image
+                  src={preview}
+                  alt='Preview'
+                  width={280}
+                  height={280}
+                  className='w-full max-w-xs h-auto rounded-2xl object-contain mt-4 border border-white/20'
+                />
+              )}
             </div>
-          </button>
+            <div className={isMobile ? 'mt-4' : 'flex min-w-0 flex-col gap-2'}>
+              <label
+                htmlFor={titleId}
+                className={isMobile ? 'mb-2 text-base' : ''}
+              >
+                title
+              </label>
+              <input
+                id={titleId}
+                ref={titleRef}
+                type='text'
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onFocus={() => {
+                  if (isMobile && titleRef.current) {
+                    titleRef.current.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'center',
+                    });
+                  }
+                }}
+                className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
+                  isMobile ? 'text-base py-3' : ''
+                }`}
+              />
+              <label
+                htmlFor={descriptionId}
+                className={isMobile ? 'text-base mb-2' : ''}
+              >
+                description
+              </label>
+              <textarea
+                id={descriptionId}
+                ref={descriptionRef}
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onFocus={() => {
+                  if (isMobile && descriptionRef.current) {
+                    descriptionRef.current.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'center',
+                    });
+                  }
+                }}
+                className={`border bg-transparent border-[#D1ECFF] py-2 px-2 rounded-md mb-4 w-full ${
+                  isMobile
+                    ? 'text-base py-3 min-h-[120px]'
+                    : 'min-h-[144px] flex-1 resize-none'
+                }`}
+              ></textarea>
+              <button
+                type='button'
+                className={cn(
+                  'flex w-full shrink-0 flex-col items-center justify-center',
+                  isMobile ? 'mt-2' : 'mt-auto',
+                  account.isDisconnected && 'opacity-50 cursor-not-allowed'
+                )}
+                onClick={() => {
+                  if (!title || !description || !imageURI) {
+                    toast.error(
+                      'Please fill in all fields and check wallet connection.'
+                    );
+                    return;
+                  }
+                  if (!isZeroDev && balance && balance.value === BigInt(0)) {
+                    toast.error(
+                      'your wallet needs gas to submit a claim, please add funds on the correct network'
+                    );
+                    return;
+                  }
+                  onClose();
+                  setShowConfirm(true);
+                }}
+              >
+                <div className='button'>
+                  <GameButton />
+                  <p className='text-center mt-1'>create claim</p>
+                </div>
+              </button>
+            </div>
+          </Box>
         </DialogContent>
       </Dialog>
     </>

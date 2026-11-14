@@ -136,6 +136,14 @@ button {
   text-transform: lowercase;
 }
 
+.poidh-funding-gradient {
+  @apply border-white/20 bg-gradient-to-r from-poidhRed/35 to-[#158ad6]/50 text-white transition-all duration-200 hover:from-poidhRed/45 hover:to-[#158ad6]/60;
+}
+
+html.cyber .poidh-funding-gradient {
+  @apply from-poidhRed/35 to-[#20964d]/50 hover:from-poidhRed/45 hover:to-[#20964d]/60;
+}
+
 .otherClaims .submitForVote {
   display: none;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function GameButton({
@@ -9,6 +10,8 @@ export default function GameButton({
 }) {
   const { theme } = useTheme();
   const isCyber = theme === 'cyber';
+  const normalId = useId();
+  const pressedId = useId();
 
   return (
     <div className='flex justify-center items-center'>
@@ -20,7 +23,7 @@ export default function GameButton({
         fill='none'
         xmlns='http://www.w3.org/2000/svg'
       >
-        <g filter={hideGradient ? undefined : 'url(#filter0_dd_615_3757)'}>
+        <g filter={hideGradient ? undefined : `url(#${normalId}-filter0_dd)`}>
           {!hideGradient && (
             <>
               <circle
@@ -28,7 +31,7 @@ export default function GameButton({
                 cy='79.5'
                 r='58'
                 fill='var(--cyber-accent-soft, #E2EFFB)'
-                filter='url(#bgShadow)'
+                filter={`url(#${normalId}-bgShadow)`}
               />
               <rect
                 x='16.5'
@@ -50,46 +53,46 @@ export default function GameButton({
               />
             </>
           )}
-          <g filter='url(#filter1_iii_615_3757)'>
+          <g filter={`url(#${normalId}-filter1_iii)`}>
             <circle
               cx='79'
               cy='79.5'
               r='54.5'
-              fill='url(#paint0_linear_615_3757)'
+              fill={`url(#${normalId}-paint0_linear)`}
             />
           </g>
           <circle
             cx='79'
             cy='79.5'
             r='54.6576'
-            stroke='url(#paint1_linear_615_3757)'
+            stroke={`url(#${normalId}-paint1_linear)`}
             strokeOpacity='0.6'
             strokeWidth='0.315131'
           />
-          <g filter='url(#filter2_ddii_615_3757)'>
+          <g filter={`url(#${normalId}-filter2_ddii)`}>
             <circle
               cx='79.0002'
               cy='79.5003'
               r='46.0808'
-              fill='url(#paint2_linear_615_3757)'
+              fill={`url(#${normalId}-paint2_linear)`}
             />
           </g>
-          <g filter='url(#filter3_i_615_3757)'>
+          <g filter={`url(#${normalId}-filter3_i)`}>
             <ellipse
               cx='78.9997'
               cy='79.5'
               rx='39.0515'
               ry='39.0515'
-              fill='url(#paint3_linear_615_3757)'
+              fill={`url(#${normalId}-paint3_linear)`}
             />
           </g>
         </g>
         <defs>
-          <filter id='bgShadow'>
+          <filter id={`${normalId}-bgShadow`}>
             <feGaussianBlur in='SourceGraphic' stdDeviation='5' />
           </filter>
           <filter
-            id='filter0_dd_615_3757'
+            id={`${normalId}-filter0_dd`}
             x='0.25'
             y='0.75'
             width='156.25'
@@ -146,7 +149,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter1_iii_615_3757'
+            id={`${normalId}-filter1_iii`}
             x='24.1851'
             y='24.6848'
             width='109.63'
@@ -238,7 +241,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter2_ddii_615_3757'
+            id={`${normalId}-filter2_ddii`}
             x='12.751'
             y='22.0748'
             width='132.498'
@@ -331,7 +334,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter3_i_615_3757'
+            id={`${normalId}-filter3_i`}
             x='39.9482'
             y='40.1334'
             width='78.103'
@@ -369,7 +372,7 @@ export default function GameButton({
             />
           </filter>
           <linearGradient
-            id='paint0_linear_615_3757'
+            id={`${normalId}-paint0_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -380,7 +383,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint1_linear_615_3757'
+            id={`${normalId}-paint1_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -391,7 +394,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
-            id='paint2_linear_615_3757'
+            id={`${normalId}-paint2_linear`}
             x1='79.0002'
             y1='33.4196'
             x2='79.0002'
@@ -402,7 +405,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint3_linear_615_3757'
+            id={`${normalId}-paint3_linear`}
             x1='78.9997'
             y1='40.4485'
             x2='78.9997'
@@ -424,13 +427,13 @@ export default function GameButton({
         fill='none'
         xmlns='http://www.w3.org/2000/svg'
       >
-        <g filter='url(#filter0_dd_513_1935)'>
+        <g filter={`url(#${pressedId}-filter0_dd)`}>
           <circle
             cx='79'
             cy='79.5'
             r='58'
             fill='var(--cyber-accent-soft, #E2EFFB)'
-            filter='url(#bgShadow)'
+            filter={`url(#${pressedId}-bgShadow)`}
           />
           <rect
             x='16.5'
@@ -450,99 +453,99 @@ export default function GameButton({
             stroke='var(--cyber-accent, #D1ECFF)'
             strokeWidth='0.9375'
           />
-          <g filter='url(#filter1_iii_513_1935)'>
+          <g filter={`url(#${pressedId}-filter1_iii)`}>
             <circle
               cx='79'
               cy='79.5'
               r='54.5'
-              fill='url(#paint0_linear_513_1935)'
+              fill={`url(#${pressedId}-paint0_linear)`}
             />
           </g>
           <circle
             cx='79'
             cy='79.5'
             r='54.6576'
-            stroke='url(#paint1_linear_513_1935)'
+            stroke={`url(#${pressedId}-paint1_linear)`}
             strokeOpacity='0.6'
             strokeWidth='0.315131'
           />
-          <g filter='url(#filter2_ddii_513_1935)'>
+          <g filter={`url(#${pressedId}-filter2_ddii)`}>
             <circle
               cx='79'
               cy='79.5003'
               r='46.0808'
-              fill='url(#paint2_linear_513_1935)'
+              fill={`url(#${pressedId}-paint2_linear)`}
             />
           </g>
-          <g filter='url(#filter3_i_513_1935)'>
+          <g filter={`url(#${pressedId}-filter3_i)`}>
             <circle
               cx='79'
               cy='79.5'
               r='39.0515'
-              fill='url(#paint3_linear_513_1935)'
+              fill={`url(#${pressedId}-paint3_linear)`}
             />
           </g>
-          <g filter='url(#filter4_i_513_1935)'>
+          <g filter={`url(#${pressedId}-filter4_i)`}>
             <path
               d='M53.4777 70.3474C55.1511 70.3474 56.2288 71.2644 56.2288 72.6731C56.2288 74.0722 55.1511 74.9798 53.4777 74.9798H52.5229V77.0597H50.5564V70.3474H53.4777ZM52.5229 73.4199H53.3264C53.8559 73.4199 54.2246 73.1647 54.2246 72.6731C54.2246 72.172 53.8653 71.9073 53.3264 71.9073H52.5229V73.4199ZM60.2508 77.211C58.1615 77.211 56.8474 75.859 56.8474 73.713C56.8474 71.548 58.1615 70.1961 60.2508 70.1961C62.3401 70.1961 63.6542 71.548 63.6542 73.713C63.6542 75.859 62.3401 77.211 60.2508 77.211ZM58.8516 73.713C58.8516 74.9515 59.3527 75.6511 60.2508 75.6511C61.1489 75.6511 61.65 74.9515 61.65 73.713C61.65 72.4651 61.1489 71.756 60.2508 71.756C59.3527 71.756 58.8516 72.4651 58.8516 73.713ZM64.3773 70.3474H66.3437V77.0597H64.3773V70.3474ZM69.9756 70.3474C72.2351 70.3474 73.502 71.5575 73.502 73.713C73.502 75.859 72.254 77.0597 70.0324 77.0597H67.4609V70.3474H69.9756ZM69.4273 75.4998H69.9756C71.0439 75.4998 71.5261 74.942 71.5261 73.7035C71.5261 72.4651 71.0439 71.9073 69.9756 71.9073H69.4273V75.4998ZM74.2282 77.0597V70.3474H76.1946V72.9094H78.0382V70.3474H80.0046V77.0597H78.0382V74.4599H76.1946V77.0597H74.2282Z'
-              fill='url(#paint4_linear_513_1935)'
+              fill={`url(#${pressedId}-paint4_linear)`}
             />
           </g>
-          <g filter='url(#filter5_iii_513_1935)'>
+          <g filter={`url(#${pressedId}-filter5_iii)`}>
             <circle
               cx='79'
               cy='79.5'
               r='54.5'
-              fill='url(#paint5_linear_513_1935)'
+              fill={`url(#${pressedId}-paint5_linear)`}
             />
           </g>
           <circle
             cx='79'
             cy='79.5'
             r='54.6576'
-            stroke='url(#paint6_linear_513_1935)'
+            stroke={`url(#${pressedId}-paint6_linear)`}
             strokeOpacity='0.6'
             strokeWidth='0.315131'
           />
-          <g filter='url(#filter6_i_513_1935)'>
+          <g filter={`url(#${pressedId}-filter6_i)`}>
             <circle
               cx='79'
               cy='79.5'
               r='39.0515'
-              fill='url(#paint7_linear_513_1935)'
+              fill={`url(#${pressedId}-paint7_linear)`}
             />
           </g>
           <circle
             cx='79'
             cy='79.5001'
             r='46.0808'
-            fill='url(#paint8_linear_513_1935)'
+            fill={`url(#${pressedId}-paint8_linear)`}
           />
-          <g filter='url(#filter7_i_513_1935)'>
+          <g filter={`url(#${pressedId}-filter7_i)`}>
             <ellipse
               cx='79.0001'
               cy='79.4999'
               rx='46.0808'
               ry='46.0808'
               transform='rotate(-180 79.0001 79.4999)'
-              fill='url(#paint9_linear_513_1935)'
+              fill={`url(#${pressedId}-paint9_linear)`}
             />
           </g>
-          <g filter='url(#filter8_i_513_1935)'>
+          <g filter={`url(#${pressedId}-filter8_i)`}>
             <circle
               cx='79'
               cy='79.5001'
               r='39.0515'
-              fill='url(#paint10_linear_513_1935)'
+              fill={`url(#${pressedId}-paint10_linear)`}
             />
           </g>
         </g>
         <defs>
-          <filter id='bgShadow'>
+          <filter id={`${pressedId}-bgShadow`}>
             <feGaussianBlur in='SourceGraphic' stdDeviation='5' />
           </filter>
           <filter
-            id='filter0_dd_513_1935'
+            id={`${pressedId}-filter0_dd`}
             x='0.25'
             y='0.75'
             width='156.25'
@@ -599,7 +602,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter1_iii_513_1935'
+            id={`${pressedId}-filter1_iii`}
             x='24.1848'
             y='24.6848'
             width='109.63'
@@ -691,7 +694,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter2_ddii_513_1935'
+            id={`${pressedId}-filter2_ddii`}
             x='12.7508'
             y='22.0748'
             width='132.498'
@@ -784,7 +787,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter3_i_513_1935'
+            id={`${pressedId}-filter3_i`}
             x='39.9485'
             y='40.1334'
             width='78.103'
@@ -822,7 +825,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter4_i_513_1935'
+            id={`${pressedId}-filter4_i`}
             x='50.5564'
             y='69.881'
             width='29.4482'
@@ -860,7 +863,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter5_iii_513_1935'
+            id={`${pressedId}-filter5_iii`}
             x='24.1848'
             y='24.6848'
             width='109.63'
@@ -952,7 +955,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter6_i_513_1935'
+            id={`${pressedId}-filter6_i`}
             x='39.9485'
             y='40.1334'
             width='78.103'
@@ -990,7 +993,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter7_i_513_1935'
+            id={`${pressedId}-filter7_i`}
             x='32.9192'
             y='33.4192'
             width='92.1616'
@@ -1030,7 +1033,7 @@ export default function GameButton({
             />
           </filter>
           <filter
-            id='filter8_i_513_1935'
+            id={`${pressedId}-filter8_i`}
             x='39.9485'
             y='40.1335'
             width='78.103'
@@ -1068,7 +1071,7 @@ export default function GameButton({
             />
           </filter>
           <linearGradient
-            id='paint0_linear_513_1935'
+            id={`${pressedId}-paint0_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -1079,7 +1082,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint1_linear_513_1935'
+            id={`${pressedId}-paint1_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -1090,7 +1093,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
-            id='paint2_linear_513_1935'
+            id={`${pressedId}-paint2_linear`}
             x1='79'
             y1='33.4196'
             x2='79'
@@ -1101,7 +1104,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint3_linear_513_1935'
+            id={`${pressedId}-paint3_linear`}
             x1='79'
             y1='40.4485'
             x2='79'
@@ -1113,7 +1116,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
           <linearGradient
-            id='paint4_linear_513_1935'
+            id={`${pressedId}-paint4_linear`}
             x1='78.2318'
             y1='67.0597'
             x2='78.2318'
@@ -1124,7 +1127,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-soft, #FF9495)' />
           </linearGradient>
           <linearGradient
-            id='paint5_linear_513_1935'
+            id={`${pressedId}-paint5_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -1135,7 +1138,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint6_linear_513_1935'
+            id={`${pressedId}-paint6_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -1146,7 +1149,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
-            id='paint7_linear_513_1935'
+            id={`${pressedId}-paint7_linear`}
             x1='79'
             y1='40.4485'
             x2='79'
@@ -1158,7 +1161,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
           <linearGradient
-            id='paint8_linear_513_1935'
+            id={`${pressedId}-paint8_linear`}
             x1='79'
             y1='33.4193'
             x2='79'
@@ -1169,7 +1172,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint9_linear_513_1935'
+            id={`${pressedId}-paint9_linear`}
             x1='79.0001'
             y1='33.4191'
             x2='79.0001'
@@ -1181,7 +1184,7 @@ export default function GameButton({
             <stop offset='1' stopColor='var(--cyber-accent-soft, #F89798)' />
           </linearGradient>
           <linearGradient
-            id='paint10_linear_513_1935'
+            id={`${pressedId}-paint10_linear`}
             x1='79'
             y1='40.4486'
             x2='79'
@@ -1205,6 +1208,7 @@ export function PlainGameButton({
 }) {
   const { theme } = useTheme();
   const isCyber = theme === 'cyber';
+  const normalId = useId();
 
   return (
     <div className='flex justify-center items-center'>
@@ -1216,7 +1220,7 @@ export function PlainGameButton({
         fill='none'
         xmlns='http://www.w3.org/2000/svg'
       >
-        <g filter={hideGradient ? undefined : 'url(#filter0_dd_615_3757)'}>
+        <g filter={hideGradient ? undefined : `url(#${normalId}-filter0_dd)`}>
           {!hideGradient && (
             <>
               <circle
@@ -1224,7 +1228,7 @@ export function PlainGameButton({
                 cy='79.5'
                 r='58'
                 fill='var(--cyber-accent-soft, #E2EFFB)'
-                filter='url(#bgShadow)'
+                filter={`url(#${normalId}-bgShadow)`}
               />
               <rect
                 x='16.5'
@@ -1246,46 +1250,46 @@ export function PlainGameButton({
               />
             </>
           )}
-          <g filter='url(#filter1_iii_615_3757)'>
+          <g filter={`url(#${normalId}-filter1_iii)`}>
             <circle
               cx='79'
               cy='79.5'
               r='54.5'
-              fill='url(#paint0_linear_615_3757)'
+              fill={`url(#${normalId}-paint0_linear)`}
             />
           </g>
           <circle
             cx='79'
             cy='79.5'
             r='54.6576'
-            stroke='url(#paint1_linear_615_3757)'
+            stroke={`url(#${normalId}-paint1_linear)`}
             strokeOpacity='0.6'
             strokeWidth='0.315131'
           />
-          <g filter='url(#filter2_ddii_615_3757)'>
+          <g filter={`url(#${normalId}-filter2_ddii)`}>
             <circle
               cx='79.0002'
               cy='79.5003'
               r='46.0808'
-              fill='url(#paint2_linear_615_3757)'
+              fill={`url(#${normalId}-paint2_linear)`}
             />
           </g>
-          <g filter='url(#filter3_i_615_3757)'>
+          <g filter={`url(#${normalId}-filter3_i)`}>
             <ellipse
               cx='78.9997'
               cy='79.5'
               rx='39.0515'
               ry='39.0515'
-              fill='url(#paint3_linear_615_3757)'
+              fill={`url(#${normalId}-paint3_linear)`}
             />
           </g>
         </g>
         <defs>
-          <filter id='bgShadow'>
+          <filter id={`${normalId}-bgShadow`}>
             <feGaussianBlur in='SourceGraphic' stdDeviation='5' />
           </filter>
           <filter
-            id='filter0_dd_615_3757'
+            id={`${normalId}-filter0_dd`}
             x='0.25'
             y='0.75'
             width='156.25'
@@ -1342,7 +1346,7 @@ export function PlainGameButton({
             />
           </filter>
           <filter
-            id='filter1_iii_615_3757'
+            id={`${normalId}-filter1_iii`}
             x='24.1851'
             y='24.6848'
             width='109.63'
@@ -1434,7 +1438,7 @@ export function PlainGameButton({
             />
           </filter>
           <filter
-            id='filter2_ddii_615_3757'
+            id={`${normalId}-filter2_ddii`}
             x='12.751'
             y='22.0748'
             width='132.498'
@@ -1527,7 +1531,7 @@ export function PlainGameButton({
             />
           </filter>
           <filter
-            id='filter3_i_615_3757'
+            id={`${normalId}-filter3_i`}
             x='39.9482'
             y='40.1334'
             width='78.103'
@@ -1565,7 +1569,7 @@ export function PlainGameButton({
             />
           </filter>
           <linearGradient
-            id='paint0_linear_615_3757'
+            id={`${normalId}-paint0_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -1576,7 +1580,7 @@ export function PlainGameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint1_linear_615_3757'
+            id={`${normalId}-paint1_linear`}
             x1='79'
             y1='25'
             x2='79'
@@ -1587,7 +1591,7 @@ export function PlainGameButton({
             <stop offset='1' stopColor='var(--cyber-accent, #F15E5F)' />
           </linearGradient>
           <linearGradient
-            id='paint2_linear_615_3757'
+            id={`${normalId}-paint2_linear`}
             x1='79.0002'
             y1='33.4196'
             x2='79.0002'
@@ -1598,7 +1602,7 @@ export function PlainGameButton({
             <stop offset='1' stopColor='var(--cyber-accent-deep, #D8393A)' />
           </linearGradient>
           <linearGradient
-            id='paint3_linear_615_3757'
+            id={`${normalId}-paint3_linear`}
             x1='78.9997'
             y1='40.4485'
             x2='78.9997'

@@ -60,6 +60,13 @@ export default function Navbar({
     }
   );
 
+  const createType =
+    type === 'claim' &&
+    bounty.data &&
+    (!bounty.data.inProgress || bounty.data.isCanceled)
+      ? 'bounty'
+      : type;
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -69,10 +76,12 @@ export default function Navbar({
   }, [pathname, searchParams]);
 
   const handleClick = () => {
-    if (type === 'claim' && !bounty.data?.inProgress) {
-      toast.error(
-        'this bounty is now finalized, claims can no longer be submitted'
-      );
+    if (type === 'claim' && !bounty.data) {
+      if (bounty.isError) {
+        toast.error('Could not load bounty details');
+      } else {
+        toast.info('Bounty details are still loading');
+      }
       return;
     }
 
@@ -145,6 +154,20 @@ export default function Navbar({
     return null;
   }
 
+  const createForm =
+    createType === 'bounty' ? (
+      <FormBounty open={showForm} onClose={() => setShowForm(false)} />
+    ) : (
+      bounty.data && (
+        <FormClaim
+          bountyId={bounty.data.id}
+          onChainBountyId={bounty.data.onChainId}
+          open={showForm}
+          onClose={() => setShowForm(false)}
+        />
+      )
+    );
+
   if (isMobile) {
     const profilePending = pendingHref === profileHref;
 
@@ -214,7 +237,7 @@ export default function Navbar({
               <div className='w-6 h-6' />
 
               <span className='text-[10px] whitespace-nowrap'>
-                create {type}
+                create {createType}
               </span>
             </div>
 
@@ -275,18 +298,7 @@ export default function Navbar({
           </div>
         </nav>
 
-        {type === 'bounty' ? (
-          <FormBounty open={showForm} onClose={() => setShowForm(false)} />
-        ) : (
-          bounty.data && (
-            <FormClaim
-              bountyId={bounty.data.id}
-              onChainBountyId={bounty.data.onChainId}
-              open={showForm}
-              onClose={() => setShowForm(false)}
-            />
-          )
-        )}
+        {createForm}
       </>
     );
   }
@@ -301,22 +313,11 @@ export default function Navbar({
         >
           <GameButton />
 
-          <ButtonCTA>create {type}</ButtonCTA>
+          <ButtonCTA>create {createType}</ButtonCTA>
         </div>
       )}
 
-      {type === 'bounty' ? (
-        <FormBounty open={showForm} onClose={() => setShowForm(false)} />
-      ) : (
-        bounty.data && (
-          <FormClaim
-            bountyId={bounty.data.id}
-            onChainBountyId={bounty.data.onChainId}
-            open={showForm}
-            onClose={() => setShowForm(false)}
-          />
-        )
-      )}
+      {createForm}
     </div>
   );
 }
