@@ -13,6 +13,7 @@ import { toastError } from '@/utils/errors';
 import { useChainInfo } from '@/hooks/useChainInfo';
 import { usePoidhWallet } from '@/hooks/usePoidhWallet';
 import { useAccount, useBalance, useWriteContract } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import { decodeEventLog, formatEther, parseEther } from 'viem';
@@ -86,6 +87,7 @@ type FormBountyProps = {
   onClose: () => void;
   initialDraft?: BountyDraftFields;
   draftOnly?: boolean;
+  allowWalletConnection?: boolean;
 };
 
 const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
@@ -94,6 +96,7 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
     onClose,
     initialDraft,
     draftOnly = false,
+    allowWalletConnection = false,
   }, ref) {
   const pathname = usePathname();
   const prefilledAlbum = pathname?.match(/^\/a\/([^/]+)/)?.[1] ?? '';
@@ -162,6 +165,8 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
 
   const writeContract = useWriteContract({});
   const account = useAccount();
+  const { connectModalOpen, openConnectModal } = useConnectModal();
+  const canConnect = allowWalletConnection && !!openConnectModal;
   const { data: balance } = useBalance({
     address: account.address,
     chainId: currentChain.id,
@@ -532,6 +537,8 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
     <>
       <Dialog
         open={open}
+        disableEscapeKeyDown={canConnect && connectModalOpen}
+        disableEnforceFocus={canConnect && connectModalOpen}
         onClose={() => {
           onClose();
         }}
@@ -1181,14 +1188,23 @@ const FormBounty = forwardRef<FormBountyHandle, FormBountyProps>(
                       className={cn(
                         'flex flex-row items-center justify-center',
                         account.isDisconnected &&
+                          !canConnect &&
                           'opacity-50 cursor-not-allowed'
                       )}
-                      onClick={handleCreateBounty}
-                      disabled={account.isDisconnected}
+                      onClick={
+                        account.isDisconnected && canConnect
+                          ? openConnectModal
+                          : handleCreateBounty
+                      }
+                      disabled={account.isDisconnected && !canConnect}
                     >
                       <div className='button'>
                         <GameButton />
-                        <p className='text-center mt-1'>create bounty</p>
+                        <p className='text-center mt-1'>
+                          {account.isDisconnected && canConnect
+                            ? 'connect wallet'
+                            : 'create bounty'}
+                        </p>
                       </div>
                     </button>
               
