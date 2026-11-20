@@ -533,11 +533,17 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
           'I spent October pushing small, fully offline AI models as far as I could,'
         )
       : chain.id === 8453 && bounty.data.id === 1561
-      ? [
-          'Use AI to recreate [this golf scene from *Goldfinger*](https://x.com/JBondPersuader/status/2123463563456995761) as a video with **Donald Trump as Goldfinger** and **Steven Cheung as Oddjob**. Keep the rest of the scene the same.',
-          'Post your video publicly and tag **@BoboBowe_697** and **@kennyistyping**. Upload a screenshot from the video to this bounty and include the link to your post in your claim.',
-          'The first recreation that **@BoboBowe_697** approves wins.',
-        ].join('\n\n')
+      ? bounty.data.description
+          .replace(
+            ', focusing on Goldfinger’s legendary swing (as shown in the original clip below).',
+            '.'
+          )
+          .replace(/^- “Goldfinger’s swing is fucking unreal” post:.*\n/m, '')
+          .replace(
+            '- Capture the energy and vibe of Goldfinger’s swing from the original film\n',
+            ''
+          )
+          .replace(' (bowler hat / imposing presence is a plus)', '')
       : bounty.data.description;
 
   const createdAt = new Date(bounty.data.createdAt * 1000);
