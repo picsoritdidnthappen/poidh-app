@@ -532,6 +532,18 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
           /^fully offline AI models as far as I could,/,
           'I spent October pushing small, fully offline AI models as far as I could,'
         )
+      : chain.id === 8453 && bounty.data.id === 1561
+      ? bounty.data.description
+          .replace(
+            ', focusing on Goldfinger’s legendary swing (as shown in the original clip below).',
+            ', starring **Donald Trump as Goldfinger** and **Steven Cheung as Oddjob**.'
+          )
+          .replace(/^- “Goldfinger’s swing is fucking unreal” post:.*\n/m, '')
+          .replace(/^\nCasting:\n(?:- [^\n]+\n)+/m, '')
+          .replace(
+            '- Capture the energy and vibe of Goldfinger’s swing from the original film\n',
+            ''
+          )
       : bounty.data.description;
 
   const createdAt = new Date(bounty.data.createdAt * 1000);
