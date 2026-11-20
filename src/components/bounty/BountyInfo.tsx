@@ -543,7 +543,8 @@ First legit video, posted on the Farcaster /politics channel, wins 🏆`
             '- Capture the energy and vibe of Goldfinger’s swing from the original film\n',
             ''
           )
-          .replace(' (bowler hat / imposing presence is a plus)', '')
+          .replace(/^- Oddjob should be visible in the scene[^\n]*\n/m, '')
+          .replace('on X (or another major platform)', 'on X')
       : bounty.data.description;
 
   const createdAt = new Date(bounty.data.createdAt * 1000);
